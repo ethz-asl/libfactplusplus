@@ -1,0 +1,976 @@
+/* This file is part of the FaCT++ DL reasoner
+Copyright (C) 2003-2007 by Dmitry Tsarkov
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+*/
+
+#ifndef _DLTBOX_H
+#define _DLTBOX_H
+
+#include <string>
+#include <vector>
+
+#include "tConcept.h"
+#include "RoleMaster.h"
+#include "LogicFeature.h"
+#include "dlDag.h"
+#include "ifOptions.h"
+#include "tRelated.h"
+#include "tNECollection.h"
+#include "tAxiomSet.h"
+#include "DataTypeCenter.h"
+#include "tProgressMonitor.h"
+#include "tKBFlags.h"
+
+class ifQuery;
+class DlSatTester;
+class DLConceptTaxonomy;
+class dumpInterface;
+class modelCacheSingleton;
+
+class TBox
+{
+	friend class DlSatTester;
+	friend class ReasoningKernel;
+
+public:	// interface
+		/// type for DISJOINT-like statements
+	typedef std::vector<DLTree*> ConceptSet;
+		/// set of concepts together with creation methods
+	typedef TNECollection<TConcept> ConceptCollection;
+		/// vector of CONCEPT-like elements
+	typedef std::vector<TConcept*> ConceptVector;
+		/// vector of SINGLETON-like elements
+	typedef std::vector<TConcept*> SingletonVector;
+		/// type for the array of Related elements
+	typedef std::vector<TRelated*> RelatedCollection;
+		/// type for a collection of DIFFERENT individuals
+	typedef std::vector<SingletonVector> DifferentIndividuals;
+		/// type for a cache for n-ary commands
+	typedef std::vector<ConceptSet*> NAryQueue;
+
+protected:	// types
+		/// collection of individuals
+	class IndividualCollection: public TNECollection<TConcept>
+	{
+	protected:	// methods
+			/// virtual method for additional tuning of newly created element
+		virtual void registerNew ( TConcept* p ) { p->setSingleton(); }
+
+	public:		// interface
+			/// c'tor: clear 0-th element
+		IndividualCollection ( void ) : TNECollection<TConcept>() {}
+			/// empty d'tor: all elements will be deleted in other place
+		virtual ~IndividualCollection ( void ) {}
+	}; // IndividualCollection
+
+protected:	// typedefs
+		/// RW concept iterator
+	typedef ConceptCollection::iterator c_iterator;
+		/// RO concept iterator
+	typedef ConceptCollection::const_iterator c_const_iterator;
+		/// RW individual iterator
+	typedef IndividualCollection::iterator i_iterator;
+		/// RO individual iterator
+	typedef IndividualCollection::const_iterator i_const_iterator;
+
+protected:	// members
+		/// aux arrays for processing n-ary statements
+	NAryQueue auxConceptList;
+
+	TLabeller relevance;
+
+	DLDag DLHeap;
+
+		/// reasoner for TBox-related queries w/o nominals
+	DlSatTester* stdReasoner;
+		/// reasoner for TBox-related queries with nominals
+	DlSatTester* nomReasoner;
+		/// progress monitor
+	TProgressMonitor* pMonitor;
+
+	/// taxonomy structure of a TBox
+	DLConceptTaxonomy* pTax;
+		/// DataType center
+	DataTypeCenter DTCenter;
+	/// set of reasoning options
+	const ifOptionSet* pOptions;
+
+		/// global KB features
+	LogicFeatures KBFeatures;
+		/// GCI features
+	LogicFeatures GCIFeatures;
+		/// nominal cloud features
+	LogicFeatures NCFeatures;
+		/// aux features
+	LogicFeatures auxFeatures;
+		/// pointer to current feature (in case of local ones)
+	LogicFeatures* curFeature;
+
+	// auxiliary concepts for Taxonomy
+	TConcept* pTop;
+	TConcept* pBottom;
+
+	/// temporary concept
+	TConcept* defConcept;
+
+	/** all named concepts */
+	ConceptCollection Concepts;
+		/// all named individuals/nominals
+	IndividualCollection Individuals;
+	RoleMaster RM;
+	TAxiomSet Axioms;
+		/// given individual relations
+	RelatedCollection Related;
+		/// known disjoint sets of individuals
+	DifferentIndividuals Different;
+
+		/// internalisation of a general axioms
+	BipolarPointer T_G;
+		/// KB flags about GCIs
+	TKBFlags GCIs;
+
+	/////////////////////////////////////////////////////
+	// Flags section
+	/////////////////////////////////////////////////////
+		/// flag for names skipping
+	bool useAllNames;
+		/// flag for full/short KB
+	bool useRelevantOnly;
+		/// flag for using native range and domain support
+	bool useRangeDomain;
+		/// flag for creating taxonomy
+	bool useCompletelyDefined;
+		/// flag for dumping TBox relevant to query
+	bool dumpQuery;
+		/// whether or not DAG cache is used
+	bool useDagCache;
+		/// whether or not we need classification. Set up in checkQueryNames()
+	bool needClassification;
+		/// shall we prefer C=D axioms to C[=E in definition of concepts
+	bool alwaysPreferEquals;
+		/// shall verbose output be used
+	bool verboseOutput;
+		/// whether we use sorted reasoning; depends on some simplifications
+	bool useSortedReasoning;
+		/// flag whether TBox is GALEN-like
+	bool isLikeGALEN;
+
+
+	/// queried concepts (if any)
+	TConcept* queryPointer [2];
+		/// time spend for preprocessing
+	float preprocTime;
+
+	// other statistic
+
+		/// number of synonyms encountered/changed
+	unsigned int nSynonyms;
+		/// pre-current index of Dj statement
+	int djLevel;
+
+protected:	// methods
+		/// init all flags using given set of options
+	void readConfig ( const ifOptionSet* Options );
+		/// initialise Top and Bottom internal concepts
+	void initTopBottom ( void );
+
+
+//-----------------------------------------------------------------------------
+//--		internal iterators
+//-----------------------------------------------------------------------------
+
+		/// RW begin() for concepts
+	c_iterator c_begin ( void ) { return Concepts.begin(); }
+		/// RW end() for concepts
+	c_iterator c_end ( void ) { return Concepts.end(); }
+		/// RO begin() for concepts
+	c_const_iterator c_begin ( void ) const { return Concepts.begin(); }
+		/// RO end() for concepts
+	c_const_iterator c_end ( void ) const { return Concepts.end(); }
+
+		/// RW begin() for individuals
+	i_iterator i_begin ( void ) { return Individuals.begin(); }
+		/// RW end() for individuals
+	i_iterator i_end ( void ) { return Individuals.end(); }
+		/// RO begin() for individuals
+	i_const_iterator i_begin ( void ) const { return Individuals.begin(); }
+		/// RO end() for individuals
+	i_const_iterator i_end ( void ) const { return Individuals.end(); }
+
+//-----------------------------------------------------------------------------
+//--		internal ensure*-like interface
+//-----------------------------------------------------------------------------
+
+		/// @return true if given name is registered as a concept-like structure in given TBox
+	bool isRegisteredConcept ( const TNamedEntry* name ) const { return Concepts.isRegistered(name); }
+
+		/// returns concept corresponds given ID (or NULL in case ID is not a concept)
+	TConcept* getConcept ( TNamedEntry* id );
+		/// get TOP/BOTTOM/CN by the DLTree entry
+	TConcept* getConcept ( const DLTree* name );
+
+//-----------------------------------------------------------------------------
+//--		internal BP-to-concept interface
+//-----------------------------------------------------------------------------
+
+		/// set P as a concept corresponding BP
+	void setBPforConcept ( BipolarPointer bp, TConcept* p )
+	{
+		DLHeap[bp].setConcept(p);
+		p->pName = bp;
+	}
+		/// clear cache entry for BP
+	void clearBPforConcept ( BipolarPointer bp ) { DLHeap[bp].setConcept(NULL); }
+
+		/// get concept by it's BP (non-const version)
+	TConcept* getConceptByBP ( BipolarPointer bp )
+	{
+		TConcept* p = static_cast<TConcept*>(DLHeap[bp].getConcept());
+		assert ( p != NULL );
+		return p;
+	}
+		/// get concept by it's BP (const version)
+	const TConcept* getConceptByBP ( BipolarPointer bp ) const
+	{
+		const TConcept* p = static_cast<const TConcept*>(DLHeap[bp].getConcept());
+		assert ( p != NULL );
+		return p;
+	}
+
+		/// get concept by it's BP (non-const version)
+	TDataEntry* getDataEntryByBP ( BipolarPointer bp )
+	{
+		TDataEntry* p = static_cast<TDataEntry*>(DLHeap[bp].getConcept());
+		assert ( p != NULL );
+		return p;
+	}
+		/// get concept by it's BP (const version)
+	const TDataEntry* getDataEntryByBP ( BipolarPointer bp ) const
+	{
+		const TDataEntry* p = static_cast<const TDataEntry*>(DLHeap[bp].getConcept());
+		assert ( p != NULL );
+		return p;
+	}
+
+
+//-----------------------------------------------------------------------------
+//--		internal concept building interface
+//-----------------------------------------------------------------------------
+
+		/// add description to a concept; @return true in case of error
+	bool initNonPrimitive ( TConcept* p, DLTree* desc )
+	{
+		if ( !p->canMakeNonPrim(desc) )
+			return true;
+		// delete return value in case of duplicated desc
+		deleteTree(makeNonPrimitive(p,desc));
+		return false;
+	}
+		/// make concept non-primitive; @return it's old description
+	DLTree* makeNonPrimitive ( TConcept* p, DLTree* desc )
+	{
+		DLTree* ret = p->makeNonPrimitive(desc);
+		checkEarlySynonym(p);
+		return ret;
+	}
+	/// checks if C is defined as C=D and set Synonyms accordingly
+	void checkEarlySynonym ( TConcept* p )
+	{
+		if ( p->isSynonym() )
+			return;	// nothing to do
+		if ( p->isPrimitive() )
+			return;	// couldn't be a synonym
+		if ( !isCN (p->Description) )
+			return;	// complex expression -- not a synonym(imm.)
+
+		p->setSynonym(getConcept(p->Description));
+		initToldSubsumers(p);
+		++nSynonyms;
+	}
+
+	/// remove concept from TBox by given EXTERNAL id. @return true in case of failure. WARNING!! tested only for TempConcept!!!
+	bool removeConcept ( TConcept* p );
+
+//-----------------------------------------------------------------------------
+//--		support for n-ary predicates
+//-----------------------------------------------------------------------------
+
+		/// increase size of internal AUX array
+	void growAuxConceptList ( void )
+	{
+		unsigned int n = auxConceptList.size();
+		auxConceptList.resize(2*n);
+		for ( NAryQueue::iterator
+			  p = auxConceptList.begin()+n, p_end = auxConceptList.end(); p < p_end; ++p )
+			*p = new ConceptSet;
+	}
+		/// get access to the last used n-ary array; adjust pointer to the last one
+	const ConceptSet& getLastNAry ( void ) { return *auxConceptList[djLevel--]; }
+
+	// external-set methods for set-of-concept-names
+	bool processEquivalent ( const ConceptSet& v );
+	bool processDisjoint ( const ConceptSet& v );
+	bool processEquivalentR ( const ConceptSet& v );
+	bool processDisjointR ( const ConceptSet& v );
+	bool processSame ( const ConceptSet& v );
+	bool processDifferent ( const ConceptSet& v );
+	DLTree* processAnd ( const ConceptSet& v );
+	DLTree* processOr ( const ConceptSet& v );
+	DLTree* processOneOf ( const ConceptSet& v );
+	DLTree* processRComposition ( const ConceptSet& v );
+
+		/// build a construction in the form AND (\neg q_i)
+	template<class Iterator>
+	DLTree* buildDisjAux ( Iterator beg, Iterator end )
+	{
+		DLTree* t = new DLTree(TOP);
+		for ( Iterator i = beg; i < end; ++i )
+			t = createSNFAnd ( t, createSNFNot(clone(*i)) );
+		return t;
+	}
+		/// process a disjoint set [beg,end) in a usual manner
+	template<class Iterator>
+	bool processDisjoint ( Iterator beg, Iterator end )
+	{
+		for ( Iterator i = beg; i < end; ++i )
+			if ( addSubsumeAxiom ( *i, buildDisjAux ( i+1, end ) ) )
+				return true;
+		return false;
+	}
+//-----------------------------------------------------------------------------
+//--		internal DAG building methods
+//-----------------------------------------------------------------------------
+
+		/// build a DAG-structure for concepts and axioms
+	void buildDAG ( void );
+
+		/// translate concept P (together with definition) to DAG representation
+	void addConceptToHeap ( TConcept* p );
+		/// register name of the concept in DAG
+	void addConceptNameToHeap ( TConcept* p, bool );
+		/// register data-related expression in the DAG; @return it's DAG index
+	BipolarPointer addDataExprToHeap ( TDataEntry* p );
+		/// builds DAG entry by general concept expression
+	BipolarPointer tree2dag ( const DLTree* );
+		/// build role (from RM) by given tree representation
+	const TRole* role2dag ( const DLTree* );
+		/// create forall node (together with transitive sub-roles entries)
+	BipolarPointer forall2dag ( const TRole* R, BipolarPointer C );
+		/// create atmost node (together with NN-rule entries)
+	BipolarPointer atmost2dag ( unsigned int n, const TRole* R, BipolarPointer C );
+		/// add elements of T to and-like vertex V; @return true if clash occures
+	bool fillANDVertex ( DLVertex* v, const DLTree* t );
+		/// create forall node for data role
+	BipolarPointer dataForall2dag ( const TRole* R, BipolarPointer C );
+		/// create atmost node for data role
+	BipolarPointer dataAtMost2dag ( unsigned int n, const TRole* R, BipolarPointer C );
+		/// @return a pointer to concept representation
+	BipolarPointer concept2dag ( TConcept* p )
+	{
+		if ( p == NULL )
+			return bpINVALID;
+		if ( !isValid(p->pName) )
+			addConceptToHeap(p);
+		return p->resolveId();
+	}
+
+//-----------------------------------------------------------------------------
+//--		internal parser (input) interface
+//-----------------------------------------------------------------------------
+
+		/// tries to add LEFT = RIGHT for the concept LEFT; @return true if OK
+	bool addNonprimitiveDefinition ( DLTree* left, DLTree* right );
+		/// tries to add LEFT = RIGHT for the concept LEFT [= X; @return true if OK
+	bool switchToNonprimitive ( DLTree* left, DLTree* right );
+
+	// for complex Concept operations
+		/// try to absorb GCI C[=D; if not possible, just record this GCI
+	bool processGCI ( DLTree* C, DLTree* D )
+	{
+		Axioms.addAxiom ( C, D );
+		return false;
+	}
+
+	// recognize Range/Domain restriction in an axiom and transform it into role R&D.
+	// return true if transformation was performed
+	bool axiomToRangeDomain ( DLTree* l, DLTree* r );
+
+	bool isNamedConcept ( BipolarPointer p ) const;
+
+	// statistic
+	bool checkQueryNames ( const ifQuery& Query );
+	void CalculateStatistic ( void );
+
+		/// check if TBox contains too many GCIs to switch strategy
+	bool isGalenLikeTBox ( void ) const { return isLikeGALEN; }
+
+//-----------------------------------------------------------------------------
+//--		internal preprocessing methods
+//-----------------------------------------------------------------------------
+
+		/// pre-process RELATED axioms: resolve synonyms, mark indivs like related
+	void preprocessRelated ( void );
+		/// determine all sorts in KB (make job only for SORTED_REASONING)
+	void determineSorts ( void );
+
+		/// Remove DLTree* from TConcept after DAG is constructed
+	void RemoveExtraDescriptions ( void );
+
+		/// init Range and Domain for all roles; sets hasGCI if R&D was found
+	void initRangeDomain ( void );
+		/// init functional roles with functional entries
+	void initFunctionalRoles ( void );
+
+		/// init told subsumers for given concept p.
+	void initToldSubsumers ( TConcept* p ) { p->initToldSubsumers(const_cast<TConcept*>(pTop)); }
+		/// calculate TS depth for all concepts
+	void calculateTSDepth ( void )
+	{
+		for ( c_iterator pc = c_begin(); pc != c_end(); ++pc )
+			(*pc)->calculateTSDepth();
+		for ( i_iterator pi = i_begin(); pi != i_end(); ++pi )
+			(*pi)->calculateTSDepth();
+	}
+
+		/// find referential cycles (like A [= (and B C), B [= A) and transform them to synonyms (B=A, A[=C)
+	void transformToldCycles ( void );
+		/// check if P appears in referential cycle;
+		/// @return concept which creates cycle, NULL if no such concept exists.
+	TConcept* checkToldCycle ( TConcept* p );
+
+		/// replace all synonyms in concept descriptions with their definitions
+	void replaceAllSynonyms ( void );
+		/// replace synonyms in concept expression with their definitions; @return true if DESC has been changed
+	bool replaceSynonymsFromTree ( DLTree* desc );
+
+		/// mark all concepts wrt their classification tag
+	void fillsClassificationTag ( void )
+	{
+		for ( c_const_iterator pc = c_begin(); pc != c_end(); ++pc )
+			(*pc)->getClassTag();
+		for ( i_const_iterator pi = i_begin(); pi != i_end(); ++pi )
+			(*pi)->getClassTag();
+	}
+
+//-----------------------------------------------------------------------------
+//--		internal reasoner-related interface
+//-----------------------------------------------------------------------------
+
+		/// get RW reasoner wrt nominal case
+	DlSatTester* getReasoner ( void )
+	{
+		assert ( curFeature != NULL );
+		if ( curFeature->hasSingletons() )
+			return nomReasoner;
+		else
+			return stdReasoner;
+	}
+		/// prepare the reasoner to the new session
+	void clearReasoner ( void );			// implemented in Reasoner.h
+		/// set ToDo priorities for SAT/SUB
+	void setToDoPriorities ( bool sat );	// implemented in Reasoner.h
+
+//-----------------------------------------------------------------------------
+//--		internal reasoning interface
+//-----------------------------------------------------------------------------
+
+		/// init cache for all named concepts
+	void buildNamedConceptCache ( void );
+	/// init reasoning service (either create or clear reasoner)
+	void initReasoner ( void );
+	/// creating taxonomy for given TBox
+	void createTaxonomy ( void );
+		/// classify all concepts from given COLLECTION with given CD value
+	void classifyConcepts ( const ConceptVector& collection, bool curCompletelyDefined, const char* type );
+		/// classify all singletons from given COLLECTION with given CD value
+	void classifyAllSingletons ( const SingletonVector& collection, bool curCompletelyDefined );
+		/// classify all nominals in TBox. TODO: implement later on
+	void classifyAllNominals ( void );
+		/// classify all non-nominal individuals in TBox. TODO: implement later on
+	void classifyAllIndividuals ( void );
+
+//-----------------------------------------------------------------------------
+//--		internal cache-related methods
+//-----------------------------------------------------------------------------
+
+		/// init [singleton] cache for given concept implementation
+	void initSingletonCache ( BipolarPointer p );	// implemented in Reasoner.h
+		/// create cache for ~C where C is a primitive concept (as it is simple)
+	void buildSimpleCache ( void )
+	{
+		/// set cache for TOP and BOTTOM entries
+		initSingletonCache(bpBOTTOM);
+		initSingletonCache(bpTOP);
+
+		// inapplicable if KB contains CGIs in any form
+		if ( GCIs.isGCI() || GCIs.isReflexive() )
+			return;
+
+		for ( c_const_iterator c = c_begin(), cend = c_end(); c < cend; ++c )
+			if ( (*c)->isPrimitive() )
+				initSingletonCache(inverse((*c)->pName));
+
+		for ( i_const_iterator i = i_begin(), iend = i_end(); i < iend; ++i )
+			if ( (*i)->isPrimitive() )
+				initSingletonCache(inverse((*i)->pName));
+	}
+
+//-----------------------------------------------------------------------------
+//--		internal output helper methods
+//-----------------------------------------------------------------------------
+
+	void PrintDagEntry ( std::ostream& o, BipolarPointer p ) const;
+	void PrintDagEntrySR ( std::ostream& o, const TRole* p ) const;
+	void PrintRoles ( std::ostream& o ) const;
+		/// print one concept-like entry
+	void PrintConcept ( std::ostream& o, const TConcept* p ) const;
+		/// print all registered concepts
+	void PrintConcepts ( std::ostream& o ) const
+	{
+		o << "Concepts (" << Concepts.size()-1 << "): \n";
+		for ( c_const_iterator pc = c_begin(); pc != c_end(); ++pc )
+			PrintConcept(o,*pc);
+	}
+		/// print all registered individuals
+	void PrintIndividuals ( std::ostream& o ) const
+	{
+		o << "Individuals (" << Individuals.size()-1 << "): \n";
+		for ( i_const_iterator pi = i_begin(); pi != i_end(); ++pi )
+			PrintConcept(o,*pi);
+	}
+	void PrintAxioms ( std::ostream& o ) const;
+
+//-----------------------------------------------------------------------------
+//--		internal relevance helper methods
+//-----------------------------------------------------------------------------
+		/// is given concept relevant wrt current TBox
+	bool isRelevant ( const TConcept* p ) const { return p->isRelevant(relevance); }
+		/// set given concept relevant wrt current TBox
+	void setRelevant1 ( TConcept* p );
+		/// set given concept relevant wrt current TBox if not checked yet
+	void setRelevant ( TConcept* p ) { if ( !isRelevant(p) ) setRelevant1(p); }
+
+		/// is given role relevant wrt current TBox
+	bool isRelevant ( const TRole* p ) const { return p->isRelevant(relevance); }
+		/// set given role relevant wrt current TBox
+	void setRelevant1 ( TRole* p );
+		/// set given role relevant wrt current TBox if not checked yet
+	void setRelevant ( TRole* p ) { if ( !isRelevant(p) ) setRelevant1(p); }
+
+		/// set given DAG entry relevant wrt current TBox
+	void setRelevant ( BipolarPointer p );
+
+		/// gather information about logical features of relevant concept
+	void collectLogicFeature ( const TConcept* p ) const
+	{
+		if ( curFeature )
+			curFeature->fillConceptData(p);
+	}
+		/// gather information about logical features of relevant role
+	void collectLogicFeature ( const TRole* p ) const
+	{
+		if ( curFeature )	// update features w.r.t. current concept
+			curFeature->fillRoleData ( p, isRelevant(p->inverse()) );
+	}
+		/// gather information about logical features of relevant DAG entry
+	void collectLogicFeature ( const DLVertex& v, bool pos ) const
+	{
+		if ( curFeature )
+			curFeature->fillDAGData ( v, pos );
+	}
+		/// mark all active GCIs relevant
+	void markGCIsRelevant ( void ) { setRelevant(T_G); }
+
+//-----------------------------------------------------------------------------
+//--		internal relevance interface
+//-----------------------------------------------------------------------------
+		/// set all TBox content (namely, concepts and GCIs) relevant
+	void markAllRelevant ( void )
+	{
+		for ( c_iterator pc = c_begin(); pc != c_end(); ++pc )
+			setRelevant(*pc);
+		for ( i_iterator pi = i_begin(); pi != i_end(); ++pi )
+			setRelevant(*pi);
+
+		markGCIsRelevant();
+	}
+		/// mark chosen part of TBox (P, Q and GCIs) relevant
+	void calculateRelevant ( TConcept* p, TConcept* q )
+	{
+		setRelevant(p);
+		if ( q != NULL )
+			setRelevant(q);
+		markGCIsRelevant();
+	}
+		/// clear all relevance info
+	void clearRelevanceInfo ( void ) { relevance.newLab(); }
+		/// gather relevance statistic for the whole KB
+	void gatherRelevanceInfo ( void );
+		/// put relevance information to a concept's data
+	void setConceptRelevant ( TConcept* p )
+	{
+		curFeature = &p->posFeatures;
+		setRelevant(p->pBody);
+		KBFeatures |= p->posFeatures;
+		collectLogicFeature(p);
+		clearRelevanceInfo();
+
+		// nothing to do for neg-prim concepts
+		if ( p->isPrimitive() )
+			return;
+
+		curFeature = &p->negFeatures;
+		setRelevant(inverse(p->pBody));
+		KBFeatures |= p->negFeatures;
+		clearRelevanceInfo();
+	}
+		/// update AUX features with the given one; update roles if necessary
+	void updateAuxFeatures ( const LogicFeatures& lf )
+	{
+		if ( !lf.empty() )
+		{
+			auxFeatures |= lf;
+			auxFeatures.mergeRoles();
+		}
+	}
+		/// prepare features for SAT(P), or SUB(P,Q) test
+	void prepareFeatures ( const TConcept* pConcept, const TConcept* qConcept )
+	{
+		auxFeatures = GCIFeatures;
+		if ( pConcept != NULL )
+			updateAuxFeatures(pConcept->posFeatures);
+		if ( qConcept != NULL )
+			updateAuxFeatures(qConcept->negFeatures);
+		if ( auxFeatures.hasSingletons() )
+			updateAuxFeatures(NCFeatures);
+		curFeature = &auxFeatures;
+
+		// set blocking method for the current reasoning session
+		DlCompletionTree::setBlockingMethod(isIRinQuery());
+	}
+		/// clear current features
+	void clearFeatures ( void ) { curFeature = NULL; }
+
+//-----------------------------------------------------------------------------
+//--		internal dump output interface
+//-----------------------------------------------------------------------------
+		/// dump concept-like essence using given dump method
+	void dumpConcept ( dumpInterface* dump, const TConcept* p ) const;
+		/// dump role-like essence using given dump method
+	void dumpRole ( dumpInterface* dump, const TRole* p ) const;
+		/// dump general concept expression using given dump method
+	void dumpExpression ( dumpInterface* dump, BipolarPointer p ) const;
+		/// dump all (relevant) roles
+	void dumpAllRoles ( dumpInterface* dump ) const;
+
+public:
+	/// C'tor
+	TBox ( const ifOptionSet* Options );
+	/// D'tor
+	~TBox ( void );
+
+		/// get RW access to used Role Master
+	RoleMaster* getRM ( void ) { return &RM; }
+		/// get RO access to used Role Master
+	const RoleMaster* getRM ( void ) const { return &RM; }
+
+//-----------------------------------------------------------------------------
+//--		public datatype interface
+//-----------------------------------------------------------------------------
+
+//-----------------------------------------------------------------------------
+//--		public parser ensure* interface
+//-----------------------------------------------------------------------------
+
+		/// return registered concept by given NAME; @return NULL if can't register
+	TConcept* getConcept ( const std::string& name ) { return Concepts.get(name); }
+		/// return registered individual by given NAME; @return NULL if can't register
+	TConcept* getIndividual ( const std::string& name ) { return Individuals.get(name); }
+
+	/** Ensure that given name is nominal. Register name if it is undefined.
+		@return true if name could not be defined as a nominal; @return false if OK */
+	bool ensureNominal ( TNamedEntry* name );
+		/// ensure that given concept expression is a nominal; @return false if OK
+	bool ensureNominal ( const DLTree* entry )
+	{
+		if ( entry->Element().getToken() != INAME )
+			return true;
+		return ensureNominal(entry->Element().getName());
+	}
+
+		/// get unique aux concept
+	TConcept* getAuxConcept ( void );
+
+//-----------------------------------------------------------------------------
+//--		public parser (input) interface
+//-----------------------------------------------------------------------------
+
+		/// set the flag that forbid usage of undefined names for concepts/roles; @return old value
+	bool setForbidUndefinedNames ( bool val )
+	{
+		RM.setUndefinedNames(!val);
+		DTCenter.setLocked(val);
+		Individuals.setLocked(val);
+		return Concepts.setLocked(val);
+	}
+
+	bool RegisterInstance ( TNamedEntry* name, DLTree* Desc )
+		{ return ensureNominal(name) || addSubsumeAxiom ( name, Desc ); }
+	bool RegisterIndividualRelation ( TNamedEntry* a, TNamedEntry* R, TNamedEntry* b )
+	{
+		if ( ensureNominal(a) || ensureNominal(b) )
+			return true;
+		Related.push_back ( new
+			TRelated ( static_cast<TConcept*>(a),
+					   static_cast<TConcept*>(b),
+					   static_cast<TRole*>(R) ) );
+		return false;
+	}
+
+	bool addSubsumeAxiom ( DLTree* left, DLTree* right );
+	bool addSubsumeAxiom ( TNamedEntry* C, DLTree* right );	// special form: CN [= D
+	bool addEqualityAxiom ( DLTree* left, DLTree* right );
+
+	// different ConceptList methods
+	bool openConceptList ( void )
+	{
+		if ( (unsigned)++djLevel >= auxConceptList.size() )
+			growAuxConceptList();
+		auxConceptList[djLevel]->resize(0);
+		return false;
+	}
+
+	bool contConceptList ( DLTree* name )
+	{
+		if ( name == NULL )
+			return true;
+		auxConceptList[djLevel]->push_back(name);
+		return false;
+	}
+
+	// internal-set versions of the same methods
+	bool processEquivalent ( void ) { return processEquivalent(getLastNAry()); }
+	bool processDisjoint ( void ) { return processDisjoint(getLastNAry()); }
+	bool processEquivalentR ( void ) { return processEquivalentR(getLastNAry()); }
+	bool processDisjointR ( void ) { return processDisjointR(getLastNAry()); }
+	bool processSame ( void ) { return processSame(getLastNAry()); }
+	bool processDifferent ( void ) { return processDifferent(getLastNAry()); }
+	DLTree* processAnd ( void ) { return processAnd(getLastNAry()); }
+	DLTree* processOr ( void ) { return processOr(getLastNAry()); }
+	DLTree* processOneOf ( void ) { return processOneOf(getLastNAry()); }
+	DLTree* processRComposition ( void ) { return processRComposition(getLastNAry()); }
+
+//-----------------------------------------------------------------------------
+//--		public reasoning interface
+//-----------------------------------------------------------------------------
+
+		/// init Query-related structures in TBox; @return true if failed
+	bool setQuery ( const ifQuery& Query );
+		/// build a roles taxonomy and a DAG
+	void Preprocess ( void );
+		/// absorb all axioms and set hasGCI
+	void ConvertAxioms ( void ) { GCIs.setGCI(Axioms.absorb()); }
+
+
+//-----------------------------------------------------------------------------
+//--		public access interface
+//-----------------------------------------------------------------------------
+
+	/// GCI Axioms access
+	BipolarPointer getTG ( void ) const { return T_G; }
+
+		/// check if the relevant part of KB contains inverse roles.
+	bool isIRinQuery ( void ) const
+	{
+		if ( curFeature != NULL )
+			return curFeature->hasInverseRole();
+		else
+			return KBFeatures.hasInverseRole();
+	}
+		/// check if the relevant part of KB contains singletons
+	bool testHasNominals ( void ) const
+	{
+		if ( curFeature != NULL )
+			return curFeature->hasSingletons();
+		else
+			return KBFeatures.hasSingletons();
+	}
+		/// check if Sorted Reasoning is applicable
+	bool canUseSortedReasoning ( void ) const
+		{ return useSortedReasoning && !GCIs.isGCI() && !GCIs.isReflexive(); }
+
+//-----------------------------------------------------------------------------
+//--		public reasoning interface
+//-----------------------------------------------------------------------------
+		/// prepare to reasoning according to given query
+	void prepareReasoning ( void );
+		/// perform reasoning according to given query
+	bool performReasoning ( void );
+		/// was SAT tests performed during preparation
+	bool isCacheBuild ( void ) const { return needClassification; }
+
+	/// get (READ-WRITE) access to internal Taxonomy of concepts
+	DLConceptTaxonomy* getTaxonomy ( void ) { return pTax; }
+	/// get (READ-ONLY) access to internal Taxonomy of concepts
+	const DLConceptTaxonomy* getTaxonomy ( void ) const { return pTax; }
+
+		/// get (RW) access to the DataType center
+	DataTypeCenter& getDataTypeCenter ( void ) { return DTCenter; }
+		/// get (RO) access to the DataType center
+	const DataTypeCenter& getDataTypeCenter ( void ) const { return DTCenter; }
+
+		/// set given structure as a progress monitor
+	void setProgressMonitor ( TProgressMonitor* pMon ) { delete pMonitor; pMonitor = pMon; }
+		/// check that reasoning progress was cancelled by external application
+	bool isCancelled ( void ) const { return pMonitor != NULL && pMonitor->isCancelled(); }
+		/// set verbose output (ie, default progress monitor, concept and role taxonomies
+	void useVerboseOutput ( void ) { verboseOutput = true; }
+
+	/// create (and DAG-ify) temporary concept via its definition
+	TConcept* createTempConcept ( const DLTree* desc );
+	/// classify temporary concept
+	bool classifyTempConcept ( void );
+
+//-----------------------------------------------------------------------------
+//--		public reasoning interface
+//-----------------------------------------------------------------------------
+
+		/// check if the ontology is consistent
+	bool isConsistent ( void );
+		/// check if a subsumption C [= D holds
+	bool isSubHolds ( const TConcept* C, const TConcept* D );
+		/// check if a concept C is satisfiable
+	bool isSatisfiable ( const TConcept* C );
+
+		/// fills cache entry for given concept; set up SAT flag to a concept
+	const modelCacheInterface* initCache ( TConcept* pConcept );
+
+		/// test if 2 concept non-subsumption can be determined by cache merging
+	enum modelCacheState testCachedNonSubsumption ( const TConcept* p, const TConcept* q );
+		/// test if 2 concept non-subsumption can be determined by sorts checking
+	bool testSortedNonSubsumption ( const TConcept* p, const TConcept* q )
+	{
+		// sorted reasoning doesn't work in presence of GCIs
+		if ( !canUseSortedReasoning() )
+			return false;
+		// doesn't work for the SAT tests
+		if ( q == NULL )
+			return false;
+		return !DLHeap.haveSameSort ( p->pName, q->pName );
+	}
+
+
+//-----------------------------------------------------------------------------
+//--		public output interface
+//-----------------------------------------------------------------------------
+
+		/// write query given to TBox
+	void writeQuery ( std::ostream& o ) const;
+		/// dump query processing TIME, reasoning statistics and a (preprocessed) TBox
+	void writeReasoningResult ( std::ostream& o, float time, bool isConsistent ) const;
+	std::ostream& Print ( std::ostream& o ) const;
+	std::ostream& PrintStat ( std::ostream& o ) const;
+
+		/// create dump of relevant part of query using given method
+	void dump ( dumpInterface* dump ) const;
+
+		/// implement absorbedPrimitiveConceptDefinitions DIG extension
+	void absorbedPrimitiveConceptDefinitions ( std::ostream& o ) const;
+		/// implement unabsorbed DIG extension
+	void unabsorbed ( std::ostream& o ) const;
+}; // TBox
+
+/**
+  * Implementation of TBox class
+  */
+
+inline TBox :: TBox ( const ifOptionSet* Options )
+	: DLHeap(Options)
+	, stdReasoner(NULL)
+	, nomReasoner(NULL)
+	, pMonitor(NULL)
+	, pTax (NULL)
+	, pOptions (Options)
+	, curFeature(NULL)
+	, defConcept (NULL)
+	, Axioms(*this)
+	, T_G(bpTOP)	// initialise GCA's concept with Top
+	, useSortedReasoning(true)
+	, isLikeGALEN(false)	// just in case Relevance part would be omited
+	, preprocTime(0)
+	, nSynonyms(0)
+	, djLevel(-1)
+{
+	readConfig ( Options );
+	initTopBottom ();
+
+	setForbidUndefinedNames(false);
+	auxConceptList.push_back(new ConceptSet);	// init n-ary queue
+}
+
+//---------------------------------------------------------------
+//--		Implementation of ensure*-like stuff
+//---------------------------------------------------------------
+
+inline TConcept* TBox :: getConcept ( TNamedEntry* p )
+{
+	return static_cast<TConcept*>(p);
+}
+
+inline bool TBox :: ensureNominal ( TNamedEntry* name )
+{
+	return !Individuals.isRegistered(name);
+}
+
+inline TConcept* TBox :: getConcept ( const DLTree* name )
+{
+	if ( name->Element() == TOP )
+		return pTop;
+	if ( name->Element() == BOTTOM )
+		return pBottom;
+
+	if ( !isName(name) )
+		return NULL;
+
+	return getConcept(name->Element().getName());
+}
+
+//---------------------------------------------------------------
+//--		access to concept by BiPointer
+//---------------------------------------------------------------
+
+inline bool TBox :: isNamedConcept ( BipolarPointer bp ) const
+{
+	DagTag tag = DLHeap[bp].Type();
+	return isCNameTag(tag) || tag == dtDataType || tag == dtDataValue;
+}
+
+//---------------------------------------------------------------
+//--		misc inline implementation
+//---------------------------------------------------------------
+
+inline std::ostream& TBox :: Print ( std::ostream& o ) const
+{
+	DLHeap.PrintStat (o);
+	RM.Print (o);
+	PrintConcepts (o);
+	PrintIndividuals(o);
+	PrintAxioms (o);
+	DLHeap.Print(o);
+	return o;
+}
+
+#endif

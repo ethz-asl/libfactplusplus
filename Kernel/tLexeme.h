@@ -1,0 +1,74 @@
+/* This file is part of the FaCT++ DL reasoner
+Copyright (C) 2003-2004 by Dmitry Tsarkov
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+*/
+
+#ifndef _TLEXEME_H
+#define _TLEXEME_H
+
+#include "grammar.h"
+#include "tNamedEntry.h"
+
+/// Lexeme (smallest lexical element) in a syntax tree
+class TLexeme
+{
+private:	// members
+		/// Lexeme's Token
+	Token token;
+		/// pointer to information (for names)
+	union
+	{
+		TNamedEntry* pName;
+		unsigned int data;
+	} value;
+
+public:		// interface
+		/// default c'tor for pointers
+	TLexeme ( Token tok = BAD_LEX, TNamedEntry* p = NULL ) : token(tok) { value.pName = p; }
+		/// default c'tor for numbers
+	TLexeme ( Token tok, unsigned int val ) : token(tok) { value.data = val; }
+		/// Copy c'tor
+	TLexeme ( const TLexeme& lex ) : token(lex.token), value(lex.value) {}
+		/// Assignment
+	TLexeme& operator = ( const TLexeme& lex )
+	{
+		token = lex.token;
+		value = lex.value;
+		return *this;
+	}
+
+	// access
+
+		/// get Token of given Lexeme
+	Token getToken ( void ) const { return token; }
+		/// get name pointer of given lexeme
+	TNamedEntry* getName ( void ) const { return value.pName; }
+		/// get data value of given lexeme
+	unsigned int getData ( void ) const { return value.data; }
+
+	// comparison
+
+		/// full lexeme comparison (equality)
+	bool operator == ( const TLexeme& lex ) const { return ( token == lex.token && value.data == lex.value.data ); }
+		/// full lexeme comparison (inequality)
+	bool operator != ( const TLexeme& lex ) const { return !( *this == lex ); }
+		/// just token comparison (equality)
+	bool operator == ( Token tok ) const { return ( token == tok ); }
+		/// just token comparison (inequality)
+	bool operator != ( Token tok ) const { return ( token != tok ); }
+}; // TLexeme
+
+#endif
