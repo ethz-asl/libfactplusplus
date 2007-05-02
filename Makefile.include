@@ -1,5 +1,5 @@
 
-GCC_DEF_3x = -O3 -fomit-frame-pointer -finline-limit=1200 -ffast-math -fno-math-errno
+GCC_DEF_3x = -finline-limit=1200 -ffast-math -fno-math-errno -W -Wall -Wextra -O3 -fomit-frame-pointer
 GCC_DEF_4x = $(GCC_DEF_3x) -fmerge-all-constants -fvariable-expansion-in-unroller \
           -fmodulo-sched -fgcse-sm -fgcse-las -fgcse-after-reload -ftree-loop-linear \
 		  -ftree-loop-im -fivopts -ftree-loop-ivcanon -ftree-vectorize -ftracer \
@@ -11,7 +11,8 @@ PENTIUM_OPT = $(IX86_OPTS) -march=pentium4
 
 #GCC_SUFFIX = -4.1
 
-GENERAL_DEFINES = $(ALL_DEF)
+# ALL_DEF is an external defines
+GENERAL_DEFINES = $(IX86_OPTS) $(GCC_DEF_4x) $(ALL_DEF) 
 
 #---------------------------------------------------------
 # please do not change following lines
