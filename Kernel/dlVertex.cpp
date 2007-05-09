@@ -259,9 +259,7 @@ const char* DLVertex :: getTagName ( void ) const
 	case dtLE:		return "at-most";
 	case dtUAll:	return "all U";
 	case dtIrr:		return "irreflexive";
-	default:
-					assert (0);
-					return NULL;
+	default:		return "UNKNOWN";
 	};
 }
 

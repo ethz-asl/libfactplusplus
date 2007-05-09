@@ -70,9 +70,6 @@ inline bool isCNameTag ( DagTag tag ) { return isPNameTag(tag) || isNNameTag(tag
 #define dtNonPrimName dtNConcept: case dtNSingleton
 #define dtName dtConcept: case dtSingleton
 
-namespace
-{
-
 /// interface for the cache of DLVertex
 class DLVertexCache
 {
@@ -201,7 +198,9 @@ class DLVertexTagDFS
 {
 protected:	// members
 		/// main operation in concept expression
-	DagTag Op : 4;	// 15 types
+		// WARNING: the Visual Studio C++ compiler treat this as a signed integer,
+		// so I've added extra bit to stay in the unsigned field
+	DagTag Op : 5;	// 15 types
 		/// aux field for DFS in presence of cycles
 	bool VisitedPos : 1;
 		/// aux field for DFS in presence of cycles
@@ -215,7 +214,7 @@ protected:	// members
 		/// true iff node is involved in cycle
 	bool inCycleNeg : 1;
 		/// padding
-	unsigned unused : 6;
+	unsigned unused : 5;
 
 public:		// interface
 		/// default c'tor
@@ -310,9 +309,6 @@ public:		// interface
 		/// merge local label to label LABEL
 	void merge ( mergableLabel& label ) { Sort.merge(label); }
 }; // DLVertexSort
-
-
-} // namespace
 
 /// Class for normalised Concept Expressions
 class DLVertex
