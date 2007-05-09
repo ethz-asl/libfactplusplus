@@ -421,7 +421,9 @@ public:		// interface
 
  		/// set TConcept value to entry
 	void setConcept ( TNamedEntry* p ) { Concept = p; }
-		/// adds a child to 'AND' (or any) vertex; returns TRUE if contradiction found
+		/// set a concept (child) to Name-like vertex
+	void setChild ( BipolarPointer p ) { Child.push_back(p); }
+		/// adds a child to 'AND' vertex; returns TRUE if contradiction found
 	bool addChild ( BipolarPointer p );
 
 	// methods for choosing ordering in the OR fields

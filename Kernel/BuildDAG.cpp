@@ -71,7 +71,7 @@ void TBox :: addConceptNameToHeap ( TConcept* pConcept, bool isCycled )
 	if ( isPositive ( pConcept->pName ) )
 	{	// it was a cycled one; now it is not a cycle
 		assert ( !isCycled );
-		DLHeap[pConcept->pName]. addChild ( pConcept->pBody );
+		DLHeap[pConcept->pName].setChild(pConcept->pBody);
 		// FIXME!! the following line should take into account terminal nodes
 		// but the mis-optimisation is to big. need investigation
 //		DLHeap[pConcept->pName].initStat(DLHeap);

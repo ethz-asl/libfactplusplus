@@ -42,11 +42,6 @@ bool DLVertex :: addChild ( BipolarPointer p )
 
 	if ( i == Child. size() )	// finish
 	{
-		// FIXME!! temporary test
-		// inform about second write to the ID node
-		if ( isCNameTag(Op) && i > 0 )
-			std::cerr << "\n" << getTagName() << " have extra definition: " << p;
-
 		Child. push_back(p);
 		return false;
 	}
@@ -60,11 +55,6 @@ bool DLVertex :: addChild ( BipolarPointer p )
 		Op = dtBad;
 		return true;
 	}
-
-	// FIXME!! temporary test
-	// inform about second write to the ID node
-	if ( isCNameTag(Op) && Child.size() > 0 )
-		std::cerr << "\n" << getTagName() << " have extra definition: " << p;
 
 	// we need to insert p into set
 	Child.push_back ( Child.back () );
