@@ -25,18 +25,15 @@ void TBox :: buildDAG ( void )
 {
 	if ( useRelevantOnly )
 	{
-		if ( queryPointer[1] )
-			addConceptToHeap ( queryPointer[1] );
-
-		if ( queryPointer[0] )
-			addConceptToHeap ( queryPointer[0] );
+		concept2dag(queryPointer[1]);
+		concept2dag(queryPointer[0]);
 	}
 	else
 	{
 		for ( c_const_iterator pc = c_begin(); pc != c_end(); ++pc )
-			addConceptToHeap (*pc);
+			concept2dag(*pc);
 		for ( i_const_iterator pi = i_begin(); pi != i_end(); ++pi )
-			addConceptToHeap (*pi);
+			concept2dag(*pi);
 	}
 
 	// build all GCIs
