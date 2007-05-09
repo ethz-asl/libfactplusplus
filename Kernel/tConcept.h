@@ -258,14 +258,6 @@ public:		// methods
 		/// register a Primitive flag
 	FPP_ADD_FLAG(Primitive,0x40);
 
-	// mark if concept has incomplete definition (in case of cycles).
-	// Used only during tree2dag, so use SAT-flag is safe
-
-		/// is given concept incomplete
-	bool isIncomplete ( void ) const { return !isSatisfiable(); }
-		/// mark the concept terminal
-	void setIncomplete ( bool inc ) { setSatisfiable(!inc); }
-
 	// concept non-primitivity methods
 
 		/// check if concept is non-primitive concept

@@ -75,8 +75,6 @@ void TBox :: addConceptNameToHeap ( TConcept* pConcept, bool isCycled )
 		// FIXME!! the following line should take into account terminal nodes
 		// but the mis-optimisation is to big. need investigation
 //		DLHeap[pConcept->pName].initStat(DLHeap);
-		// mark concept as a complete
-		pConcept->setIncomplete(false);
 		return;
 	}
 
@@ -105,8 +103,6 @@ void TBox :: addConceptToHeap ( TConcept* pConcept )
 		// inform about cyclic dependence
 		if ( verboseOutput )
 			std::cerr << "\ncyclic dependences via concept \"" << pConcept->getName() << '\"';
-		// mark concept as incomplete
-		pConcept->setIncomplete(true);
 		return;
 	}
 
