@@ -117,8 +117,6 @@ protected:	// methods
 	bool isRealTopFunc ( void ) const;
 		/// set up TopFunc member properly (internal-use only)
 	void initTopFunc ( void );
-		/// merge to Domain all domains from super-roles
-	void collectDomainFromSupers ( void );
 		/// init map of all ancestors (N is a size of a bitmap)
 	void initAncMap ( unsigned int n );
 		/// init map of all disjoint roles
@@ -274,6 +272,9 @@ public:		// interface
 	DLTree* getTDomain ( void ) const { return pDomain; }
 		/// get range-as-a-tree of the role
 	DLTree* getTRange ( void ) const { return inverse()->pDomain; }
+
+		/// merge to Domain all domains from super-roles
+	void collectDomainFromSupers ( void );
 
 		/// set domain-as-a-bipointer to a role
 	void setBPDomain ( BipolarPointer p ) { bpDomain = p; }

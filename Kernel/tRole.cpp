@@ -282,9 +282,6 @@ void TRole :: initADbyTaxonomy ( unsigned int nRoles )
 
 	// set Simple attribute
 	setSimple();
-	// add R&D from super-roles
-	if ( RKG_UPDATE_RND_FROM_SUPERROLES )
-		collectDomainFromSupers();
 	// init map for fast Anc/Desc access
 	initAncMap(nRoles);
 	// resize map for disjoint roles
