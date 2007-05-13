@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2005 by Dmitry Tsarkov
+Copyright (C) 2003-2007 by Dmitry Tsarkov
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -25,6 +25,7 @@ Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #define __SCANNER_H
 
 #include <cstdlib>
+#include <cstring>
 #include <iostream>
 
 #include "grammar.h"
