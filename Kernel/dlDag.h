@@ -21,6 +21,7 @@ Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 
 #include <cassert>
 #include <vector>
+#include <cstring>	// strlen
 
 #include "globaldef.h"	// for statistic printed
 #include "dlVertex.h"
