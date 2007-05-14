@@ -49,6 +49,19 @@ public class FaCTPlusPlus {
     public native void clearKernel() throws Exception;
 
     /**
+     * Causes the whole taxonomy to be computed.
+     * @throws Exception
+     */
+    public native void classify() throws Exception;
+
+    /**
+     * Causes all individual types to be computed
+     * @throws Exception
+     */
+    public native void realise() throws Exception;
+
+
+    /**
      * Gets the class corresponding to TOP
      * @throws Exception
      */
