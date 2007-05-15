@@ -56,30 +56,46 @@ ReasoningKernel :: processKB ( KernelStatus status )
 	// here we have to do something: let's decide what to do
 	switch ( Status )
 	{
-	case ksLoading:		break;		// need to do the whole cycle -- just after the switch
-	case ksCChecked:
-		if ( status != ksRealised )
-			goto Classify;			// just do classification
-	// fallthrough
+	case ksLoading:		break;	// need to do the whole cycle -- just after the switch
+	case ksCChecked:	goto Classify;	// do classification
 	case ksClassified:	goto Realise;	// do realisation
 	default:	// nothing should be here
 		assert(0);
 	}
 
-	// FIXME!! don't distinguish between stages for now
-Classify:
-Realise:
+	// forbid further changes
+	isChanged = false;
 
+	// do the preprocessing
 	pTBox->prepareReasoning();
 
 	// check whether we have incoherent KB
 	isConsistent = pTBox->isConsistent();
+	Status = ksCChecked;
+
+	if ( status == ksCChecked )
+		return;
+
+Classify:	// do classification
+
+	// don't do classification twice
+	if ( status == ksRealised )
+		goto Realise;
+
 	if ( !isConsistent )
 		return;
 
-	pTBox->performReasoning();
+	pTBox->performClassification();
+	Status = ksClassified;
+	return;
+
+Realise:	// do realisation
+
+	if ( !isConsistent )
+		return;
+
+	pTBox->performRealisation();
 	Status = ksRealised;
-	isChanged = false;
 }
 
 //******************************************
@@ -89,10 +105,6 @@ bool ReasoningKernel :: setUpCache ( DLTree* query, cacheStatus level )
 {
 	if ( pTBox == NULL )
 		return true;
-
-	// check if it is necessary to classify KB
-	if ( isKBClassified() )	// FIXME!! later on
-		classifyKB();
 
 	// no query answers for inconsistent KBs
 	if ( !isKBConsistent() )
@@ -129,18 +141,28 @@ needSetup:
 	// check if concept-to-cache is defined in ontology
 	if ( isCN (query) )
 	{	// undefined/non-classified concept -- need to reclassify
-		if ( (cachedConcept=pTBox->getConcept (query)) == NULL || !cachedConcept->isClassified() )
+		if ( (cachedConcept=pTBox->getConcept (query)) == NULL )
 		{
 			// invalidate cache
 			cacheLevel = csEmpty;
 			return true;	// FIXME!! later -- reclassification
 		}
 
+		if ( level == csSat )
+		{
+			cacheLevel = csSat;
+			return false;
+		}
+
+		classifyKB();
+
 		// usual case -- just re-set pointers
 		cachedVertex = cachedConcept->getTaxVertex();
 		cacheLevel = csClassified;
 		return false;
 	}
+
+	// we are preprocessed here
 
 	// case of complex query
 	cachedConcept = pTBox->createTempConcept (query);
@@ -154,6 +176,7 @@ needSetup:
 
 needClassify:	// classification only needed for complex expression
 
+	classifyKB();
 	pTBox->classifyTempConcept();
 	// cached concept now have to be classified
 	assert ( cachedConcept->isClassified() );

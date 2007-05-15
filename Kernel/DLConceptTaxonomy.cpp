@@ -222,48 +222,66 @@ DLConceptTaxonomy :: clearCommon ( void )
 |* 			Implementation of class Reasoner			*|
 \********************************************************/
 
-void TBox :: createTaxonomy ( void )
+// vectors for Completely defined, Non-CD and Non-primitive concepts
+TBox::ConceptVector arrayCD, arrayNoCD, arrayNP;
+
+template<class Iterator>
+unsigned int fillArrays ( Iterator begin, Iterator end )
 {
-	// init taxonomy
-	pTax = new DLConceptTaxonomy ( pTop, pBottom, *this, GCIs );
+	for ( Iterator p = begin; p < end; ++p )
+		switch ( (*p)->getClassTag() )
+		{
+		case cttTrueCompletelyDefined:
+			arrayCD.push_back(*p);
+			break;
+		default:
+			arrayNoCD.push_back(*p);
+			break;
+		case cttNonPrimitive:
+		case cttHasNonPrimitiveTS:
+			arrayNP.push_back(*p);
+			break;
+		}
+
+	return end - begin;
+}
+
+void TBox :: createTaxonomy ( bool needIndividual )
+{
+	bool needConcept = !needIndividual;
 
 	// here we sure that ontology is consistent
 
-	// calculate number of concepts to be checked
-	unsigned int n = (c_end() - c_begin()) + (i_end() - i_begin());
+	if ( pTax == NULL )	// first run
+	{
+		prepareSubReasoning();
+		pTax = new DLConceptTaxonomy ( pTop, pBottom, *this, GCIs );
+		needConcept |= needIndividual;	// together with concepts
+	}
+	else
+	{
+		assert ( needIndividual );
+		pTax->deFinalise();
+	}
 
-	// make collection
-	ConceptVector arrayCD, arrayNoCD, arrayNP;
+	if ( verboseOutput )
+		std::cerr << "Processing query...";
 
-	for ( c_const_iterator pc = c_begin(), pc_end = c_end(); pc < pc_end; ++pc )
-		switch ( (*pc)->getClassTag() )
-		{
-		case cttTrueCompletelyDefined:
-			arrayCD.push_back(*pc);
-			break;
-		default:
-			arrayNoCD.push_back(*pc);
-			break;
-		case cttNonPrimitive:
-		case cttHasNonPrimitiveTS:
-			arrayNP.push_back(*pc);
-			break;
-		}
+	TsProcTimer locTimer;
+	locTimer.Start();
 
-	for ( i_const_iterator pi = i_begin(), pi_end = i_end(); pi < pi_end; ++pi )
-		switch ( (*pi)->getClassTag() )
-		{
-		case cttTrueCompletelyDefined:
-			arrayCD.push_back(*pi);
-			break;
-		default:
-			arrayNoCD.push_back(*pi);
-			break;
-		case cttNonPrimitive:
-		case cttHasNonPrimitiveTS:
-			arrayNP.push_back(*pi);
-			break;
-		}
+	// calculate number of items to be classified
+	unsigned int nItems = 0;
+
+	// fills collections
+	arrayCD.clear();
+	arrayNoCD.clear();
+	arrayNP.clear();
+
+	if ( needConcept )
+		nItems += fillArrays ( c_begin(), c_end() );
+	if ( needIndividual )
+		nItems += fillArrays ( i_begin(), i_end() );
 
 	// taxonomy progress
 	if ( !pMonitor && verboseOutput )
@@ -271,7 +289,7 @@ void TBox :: createTaxonomy ( void )
 
 	if ( pMonitor )
 	{
-		pMonitor->setClassificationStarted(n);
+		pMonitor->setClassificationStarted(nItems);
 		pTax->setProgressIndicator(pMonitor);
 	}
 
@@ -286,7 +304,11 @@ void TBox :: createTaxonomy ( void )
 		pMonitor->setFinished();
 	pTax->finalise();
 
+	locTimer.Stop();
 	if ( verboseOutput )
+		std::cerr << " done in " << locTimer << " seconds\n";
+
+	if ( verboseOutput && needIndividual )
 	{
 		std::ofstream of ( "Taxonomy.log" );
 		pTax->print (of);

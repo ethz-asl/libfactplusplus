@@ -111,26 +111,6 @@ void TBox :: prepareReasoning ( void )
 	setToDoPriorities(/*sat=*/true);
 }
 
-void TBox :: performReasoning ( void )
-{
-	if ( verboseOutput )
-		std::cerr << "Processing query...";
-
-	prepareSubReasoning();
-
-	// do the reasoning
-	TsProcTimer locTimer;
-	locTimer.Start();
-	createTaxonomy();
-	locTimer.Stop();
-
-	// clean reasoner (because of statistics)
-	clearReasoner();
-
-	if ( verboseOutput )
-		std::cerr << " done in " << locTimer << " seconds\n";
-}
-
 bool
 TBox :: isSatisfiable ( const TConcept* pConcept )
 {

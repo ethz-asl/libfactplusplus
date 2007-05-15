@@ -498,8 +498,8 @@ protected:	// methods
 		setToDoPriorities(/*sat=*/false);
 		clearReasoner();
 	}
-	/// creating taxonomy for given TBox
-	void createTaxonomy ( void );
+		/// creating taxonomy for given TBox; include individuals if necessary
+	void createTaxonomy ( bool needIndividuals );
 		/// classify all concepts from given COLLECTION with given CD value
 	void classifyConcepts ( const ConceptVector& collection, bool curCompletelyDefined, const char* type );
 
@@ -802,8 +802,10 @@ public:
 //-----------------------------------------------------------------------------
 		/// prepare to reasoning
 	void prepareReasoning ( void );
-		/// perform reasoning
-	void performReasoning ( void );
+		/// perform classification (assuming KB is consistent)
+	void performClassification ( void ) { createTaxonomy ( /*needIndividuals=*/false ); }
+		/// perform realisation (assuming KB is consistent)
+	void performRealisation ( void ) { createTaxonomy ( /*needIndividuals=*/true ); }
 
 	/// get (READ-WRITE) access to internal Taxonomy of concepts
 	DLConceptTaxonomy* getTaxonomy ( void ) { return pTax; }
