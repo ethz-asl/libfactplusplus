@@ -415,6 +415,14 @@ public:
 			processKB(ksCChecked);
 		return isConsistent;
 	}
+		/// ensure that KB is preprocessed/consistence checked
+	void preprocessKB ( void )
+	{
+		if ( !isKBPreprocessed() )
+			processKB(ksCChecked);
+		if ( !isConsistent )
+			throw InconsistentKB();
+	}
 		/// ensure that KB is classified
 	void classifyKB ( void )
 	{
@@ -438,6 +446,7 @@ public:
 	template<class Actor>
 	bool getAllConcepts ( Actor& actor )
 	{
+		classifyKB();	// ensure KB is ready to answer the query
 		if ( getCTaxonomy() == NULL )
 			return true;
 		TaxonomyVertex* p = getCTaxonomy()->getTop();	// need for successful compilation
@@ -449,6 +458,7 @@ public:
 	template<class Actor>
 	bool getAllRoles ( Actor& actor )
 	{
+		preprocessKB();	// ensure KB is ready to answer the query
 		if ( getRTaxonomy() == NULL )
 			return true;
 		TaxonomyVertex* p = getRTaxonomy()->getBottom();	// need for successful compilation
@@ -460,6 +470,7 @@ public:
 	template<class Actor>
 	bool getAllIndividuals ( Actor& actor )
 	{
+		realiseKB();	// ensure KB is ready to answer the query
 		if ( getCTaxonomy() == NULL )
 			return true;
 		TaxonomyVertex* p = getCTaxonomy()->getTop();	// need for successful compilation
@@ -484,6 +495,7 @@ public:
 	template<class Actor>
 	bool getParents ( const ComplexConcept C, Actor& actor )
 	{
+		classifyKB();	// ensure KB is ready to answer the query
 		if ( setUpCache ( C, csClassified ) )	// cache result
 			return true;	// FIXME!! later
 		cachedVertex->getRelativesInfo</*needCurrent=*/false, /*onlyDirect=*/true,
@@ -494,6 +506,7 @@ public:
 	template<class Actor>
 	bool getChildren ( const ComplexConcept C, Actor& actor )
 	{
+		classifyKB();	// ensure KB is ready to answer the query
 		if ( setUpCache ( C, csClassified ) )	// cache result
 			return true;	// FIXME!! later
 		cachedVertex->getRelativesInfo</*needCurrent=*/false, /*onlyDirect=*/true,
@@ -504,6 +517,7 @@ public:
 	template<class Actor>
 	bool getAncestors ( const ComplexConcept C, Actor& actor )
 	{
+		classifyKB();	// ensure KB is ready to answer the query
 		if ( setUpCache ( C, csClassified ) )	// cache result
 			return true;	// FIXME!! later
 		cachedVertex->getRelativesInfo</*needCurrent=*/false, /*onlyDirect=*/false,
@@ -514,6 +528,7 @@ public:
 	template<class Actor>
 	bool getDescendants ( const ComplexConcept C, Actor& actor )
 	{
+		classifyKB();	// ensure KB is ready to answer the query
 		if ( setUpCache ( C, csClassified ) )	// cache result
 			return true;	// FIXME!! later
 		cachedVertex->getRelativesInfo</*needCurrent=*/false, /*onlyDirect=*/false,
@@ -524,6 +539,7 @@ public:
 	template<class Actor>
 	bool getEquivalents ( const ComplexConcept C, Actor& actor )
 	{
+		classifyKB();	// ensure KB is ready to answer the query
 		if ( setUpCache ( C, csClassified ) )	// cache result
 			return true;	// FIXME!! later
 		return !actor.apply(*cachedVertex);
@@ -535,6 +551,7 @@ public:
 	template<class Actor>
 	bool getRParents ( const ComplexRole r, Actor& actor )
 	{
+		preprocessKB();	// ensure KB is ready to answer the query
 		TRole* R = resolveRole(r);
 		if ( R == NULL )
 			return true;
@@ -549,6 +566,7 @@ public:
 	template<class Actor>
 	bool getRChildren ( const ComplexRole r, Actor& actor )
 	{
+		preprocessKB();	// ensure KB is ready to answer the query
 		TRole* R = resolveRole(r);
 		if ( R == NULL )
 			return true;
@@ -563,6 +581,7 @@ public:
 	template<class Actor>
 	bool getRAncestors ( const ComplexRole r, Actor& actor )
 	{
+		preprocessKB();	// ensure KB is ready to answer the query
 		TRole* R = resolveRole(r);
 		if ( R == NULL )
 			return true;
@@ -577,6 +596,7 @@ public:
 	template<class Actor>
 	bool getRDescendants ( const ComplexRole r, Actor& actor )
 	{
+		preprocessKB();	// ensure KB is ready to answer the query
 		TRole* R = resolveRole(r);
 		if ( R == NULL )
 			return true;
@@ -591,6 +611,7 @@ public:
 	template<class Actor>
 	bool getREquivalents ( const ComplexRole r, Actor& actor )
 	{
+		preprocessKB();	// ensure KB is ready to answer the query
 		TRole* R = resolveRole(r);
 		if ( R == NULL )
 			return true;
@@ -607,12 +628,31 @@ public:
 	template<class Actor>
 	bool getInstances ( const ComplexConcept C, Actor& actor )
 	{	// FIXME!! check for Racer's/IS approach
+		realiseKB();	// ensure KB is ready to answer the query
 		return getDescendants ( C, actor );
 	}
 
-
-	// get types (CN such that I\in CN) of given I
-	bool getTypes ( const IndividualName I, ConceptSet& Result );
+		/// apply actor::apply() to all direct concept parents of an individual I
+	template<class Actor>
+	bool getDirectTypes ( const ComplexConcept I, Actor& actor )
+	{
+		realiseKB();	// ensure KB is ready to answer the query
+		return getParents ( I, actor );
+	}
+		/// apply actor::apply() to all concept ancestors of an individual I
+	template<class Actor>
+	bool getTypes ( const ComplexConcept I, Actor& actor )
+	{
+		realiseKB();	// ensure KB is ready to answer the query
+		return getAncestors ( I, actor );
+	}
+		/// apply actor::apply() to all synonyms of an individual I
+	template<class Actor>
+	bool getSameAs ( const ComplexConcept I, Actor& actor )
+	{
+		realiseKB();	// ensure KB is ready to answer the query
+		return getEquivalents ( I, actor );
+	}
 
 	// if I is instance of given [complex] C
 	bool isInstance ( const ComplexConcept I, const ComplexConcept C, bool& Result );
@@ -1027,6 +1067,7 @@ inline bool ReasoningKernel :: processDifferent ( void )
 inline bool
 ReasoningKernel :: isSatisfiable ( const ComplexConcept C, bool& Result )
 {
+	preprocessKB();	// ensure KB is ready to answer the query
 	if ( isName(C) )
 	{
 		Result = getTBox()->isSatisfiable(static_cast<TConcept*>(C->Element().getName()));
@@ -1048,6 +1089,7 @@ ReasoningKernel :: isSatisfiable ( const ComplexConcept C, bool& Result )
 inline bool
 ReasoningKernel :: isSubsumes ( const ComplexConcept C, const ComplexConcept D, bool& Result )
 {
+	preprocessKB();	// ensure KB is ready to answer the query
 	if ( isName(C) && isName(D) )
 	{
 		Result = getTBox()->isSubHolds ( static_cast<TConcept*>(D->Element().getName()),
@@ -1064,6 +1106,7 @@ ReasoningKernel :: isSubsumes ( const ComplexConcept C, const ComplexConcept D, 
 inline bool
 ReasoningKernel :: isDisjoint ( const ComplexConcept C, const ComplexConcept D, bool& Result )
 {
+	preprocessKB();	// ensure KB is ready to answer the query
 	bool sub = false, fail;
 
 	// check if one of subsumption holds
@@ -1085,6 +1128,7 @@ ReasoningKernel :: isDisjoint ( const ComplexConcept C, const ComplexConcept D, 
 	// isInstance test: simulation via concept subsumption
 inline bool ReasoningKernel :: isInstance ( const ComplexConcept I, const ComplexConcept C, bool& Result )
 {
+	realiseKB();	// ensure KB is ready to answer the query
 	return isSubsumes ( C, I, Result );
 }
 

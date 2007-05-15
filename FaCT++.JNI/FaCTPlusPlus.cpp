@@ -1124,9 +1124,13 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellDi
 // minimal query language (ASK languages)
 //-------------------------------------------------------------
 
-#define ENSURE_CLASSIFIED() 							\
-	if ( !getK(env,obj)->isKBConsistent() )	\
-		Throw ( env, "FaCT++ Kernel: inconsistent ontology" )
+#define PROCESS_ASK_QUERY(Action,Reason)			\
+	bool fail = false;							\
+	try { fail = Action; }						\
+	catch ( InconsistentKB )					\
+	{ Throw ( env, "FaCT++.Kernel: inconsistent ontology" ); } \
+	catch ( std::exception ) { fail = true; }	\
+	if ( fail ) Throw ( env, Reason )
 
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
@@ -1184,9 +1188,8 @@ JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_is
   (JNIEnv * env, jobject obj, jobject arg)
 {
 	TRACE_JNI("isClassSatisfiable");
-	ENSURE_CLASSIFIED();
 	bool ret = false;
-	PROCESS_QUERY (
+	PROCESS_ASK_QUERY (
 		getK(env,obj)->isSatisfiable ( getTree(env,arg), ret ),
 		"FaCT++ Kernel: error during isClassSatisfiable processing" );
 	return ret;
@@ -1201,9 +1204,8 @@ JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_is
   (JNIEnv * env, jobject obj, jobject arg1, jobject arg2)
 {
 	TRACE_JNI("isClassSubsumedBy");
-	ENSURE_CLASSIFIED();
 	bool ret = false;
-	PROCESS_QUERY (
+	PROCESS_ASK_QUERY (
 		getK(env,obj)->isSubsumes ( getTree(env,arg2), getTree(env,arg1), ret ),
 		"FaCT++ Kernel: error during isClassSubsumedBy processing" );
 	return ret;
@@ -1218,14 +1220,21 @@ JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_is
   (JNIEnv * env, jobject obj, jobject arg1, jobject arg2)
 {
 	TRACE_JNI("isClassEquivalentTo");
-	ENSURE_CLASSIFIED();
 	bool ret = false;
+	try
+	{
 	if ( getK(env,obj)->isSubsumes ( getTree(env,arg1), getTree(env,arg2), ret ) )
 		Throw ( env, "FaCT++ Kernel: error during isClassEquivalentTo processing" );
 	if ( !ret )
 		return false;
 	if ( getK(env,obj)->isSubsumes ( getTree(env,arg2), getTree(env,arg1), ret ) )
 		Throw ( env, "FaCT++ Kernel: error during isClassEquivalentTo processing" );
+	}
+	catch ( InconsistentKB )
+	{
+		Throw ( env, "FaCT++.Kernel: inconsistent ontology" );
+	}
+
 	return ret;
 }
 
@@ -1238,9 +1247,8 @@ JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_is
   (JNIEnv * env, jobject obj, jobject arg1, jobject arg2)
 {
 	TRACE_JNI("isClassDisjointWith");
-	ENSURE_CLASSIFIED();
 	bool ret = false;
-	PROCESS_QUERY (
+	PROCESS_ASK_QUERY (
 		getK(env,obj)->isDisjoint ( getTree(env,arg1), getTree(env,arg2), ret ),
 		"FaCT++ Kernel: error during isClassDisjointWith processing" );
 	return ret;
@@ -1255,10 +1263,9 @@ JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlu
   (JNIEnv * env, jobject obj, jobject arg, jboolean direct)
 {
 	TRACE_JNI("askSubClasses");
-	ENSURE_CLASSIFIED();
 	JTaxonomyActor<ClassPolicy> actor(env);
 	DLTree* p = getTree(env,arg);
-	PROCESS_QUERY (
+	PROCESS_ASK_QUERY (
 		direct ? getK(env,obj)->getChildren(p,actor) : getK(env,obj)->getDescendants(p,actor),
 		"FaCT++ Kernel: error during askSubClasses processing" );
 	return actor.getElements();
@@ -1273,10 +1280,9 @@ JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlu
   (JNIEnv * env, jobject obj, jobject arg, jboolean direct)
 {
 	TRACE_JNI("askSuperClasses");
-	ENSURE_CLASSIFIED();
 	JTaxonomyActor<ClassPolicy> actor(env);
 	DLTree* p = getTree(env,arg);
-	PROCESS_QUERY (
+	PROCESS_ASK_QUERY (
 		direct ? getK(env,obj)->getParents(p,actor) : getK(env,obj)->getAncestors(p,actor),
 		"FaCT++ Kernel: error during askSuperClasses processing" );
 	return actor.getElements();
@@ -1291,9 +1297,8 @@ JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlu
   (JNIEnv * env, jobject obj, jobject arg)
 {
 	TRACE_JNI("askEquivalentClasses");
-	ENSURE_CLASSIFIED();
 	JTaxonomyActor<ClassPolicy> actor(env);
-	PROCESS_QUERY (
+	PROCESS_ASK_QUERY (
 		getK(env,obj)->getEquivalents ( getTree(env,arg), actor ),
 		"FaCT++ Kernel: error during askEquivalentClasses processing" );
 	return actor.getSynonyms();
@@ -1308,10 +1313,9 @@ JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlu
   (JNIEnv * env, jobject obj, jobject arg, jboolean direct)
 {
 	TRACE_JNI("askSuperObjectProperties");
-	ENSURE_CLASSIFIED();
 	JTaxonomyActor<ObjectPropertyPolicy> actor(env);
 	DLTree* p = getTree(env,arg);
-	PROCESS_QUERY (
+	PROCESS_ASK_QUERY (
 		direct ? getK(env,obj)->getRParents(p,actor) : getK(env,obj)->getRAncestors(p,actor),
 		"FaCT++ Kernel: error during askSuperObjectProperties processing" );
 	return actor.getElements();
@@ -1326,10 +1330,9 @@ JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlu
   (JNIEnv * env, jobject obj, jobject arg, jboolean direct)
 {
 	TRACE_JNI("askSubObjectProperties");
-	ENSURE_CLASSIFIED();
 	JTaxonomyActor<ObjectPropertyPolicy> actor(env);
 	DLTree* p = getTree(env,arg);
-	PROCESS_QUERY (
+	PROCESS_ASK_QUERY (
 		direct ? getK(env,obj)->getRChildren(p,actor) : getK(env,obj)->getRDescendants(p,actor),
 		"FaCT++ Kernel: error during askSubObjectProperties processing" );
 	return actor.getElements();
@@ -1344,9 +1347,8 @@ JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlu
   (JNIEnv * env, jobject obj, jobject arg)
 {
 	TRACE_JNI("askEquivalentObjectProperties");
-	ENSURE_CLASSIFIED();
 	JTaxonomyActor<ObjectPropertyPolicy> actor(env);
-	PROCESS_QUERY (
+	PROCESS_ASK_QUERY (
 		getK(env,obj)->getREquivalents ( getTree(env,arg), actor ),
 		"FaCT++ Kernel: error during askEquivalentObjectProperties processing" );
 	return actor.getSynonyms();
@@ -1361,7 +1363,6 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_ask
   (JNIEnv * env, jobject obj, jobject arg)
 {
 	TRACE_JNI("askObjectPropertDomain");
-	ENSURE_CLASSIFIED();
 	Throw ( env, "FaCT++ Kernel: unsupported operation" );
 	return NULL;
 }
@@ -1375,7 +1376,6 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_ask
   (JNIEnv * env, jobject obj, jobject arg)
 {
 	TRACE_JNI("askObjectPropertyRange");
-	ENSURE_CLASSIFIED();
 	Throw ( env, "FaCT++ Kernel: unsupported operation" );
 	return NULL;
 }
@@ -1389,7 +1389,6 @@ JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_is
   (JNIEnv * env, jobject obj, jobject arg)
 {
 	TRACE_JNI("isObjectPropertyFunctional");
-	ENSURE_CLASSIFIED();
 	Throw ( env, "FaCT++ Kernel: unsupported operation" );
 	return false;
 }
@@ -1403,7 +1402,6 @@ JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_is
   (JNIEnv * env, jobject obj, jobject arg)
 {
 	TRACE_JNI("isObjectPropertyInverseFunctional");
-	ENSURE_CLASSIFIED();
 	Throw ( env, "FaCT++ Kernel: unsupported operation" );
 	return false;
 }
@@ -1417,7 +1415,6 @@ JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_is
   (JNIEnv * env, jobject obj, jobject arg)
 {
 	TRACE_JNI("isObjectPropertySymmetric");
-	ENSURE_CLASSIFIED();
 	Throw ( env, "FaCT++ Kernel: unsupported operation" );
 	return false;
 }
@@ -1431,7 +1428,6 @@ JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_is
   (JNIEnv * env, jobject obj, jobject arg)
 {
 	TRACE_JNI("isObjectPropertyAntiSymmetric");
-	ENSURE_CLASSIFIED();
 	Throw ( env, "FaCT++ Kernel: unsupported operation" );
 	return false;
 }
@@ -1445,7 +1441,6 @@ JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_is
   (JNIEnv * env, jobject obj, jobject arg)
 {
 	TRACE_JNI("isObjectPropertyTransitive");
-	ENSURE_CLASSIFIED();
 	Throw ( env, "FaCT++ Kernel: unsupported operation" );
 	return false;
 }
@@ -1459,7 +1454,6 @@ JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_is
   (JNIEnv * env, jobject obj, jobject arg)
 {
 	TRACE_JNI("isObjectPropertyReflexive");
-	ENSURE_CLASSIFIED();
 	Throw ( env, "FaCT++ Kernel: unsupported operation" );
 	return false;
 }
@@ -1473,7 +1467,6 @@ JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_is
   (JNIEnv * env, jobject obj, jobject arg)
 {
 	TRACE_JNI("isObjectPropertyIrreflexive");
-	ENSURE_CLASSIFIED();
 	Throw ( env, "FaCT++ Kernel: unsupported operation" );
 	return false;
 }
@@ -1487,10 +1480,9 @@ JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlu
   (JNIEnv * env, jobject obj, jobject arg, jboolean direct)
 {
 	TRACE_JNI("askSuperDataProperties");
-	ENSURE_CLASSIFIED();
 	JTaxonomyActor<DataPropertyPolicy> actor(env);
 	DLTree* p = getTree(env,arg);
-	PROCESS_QUERY (
+	PROCESS_ASK_QUERY (
 		direct ? getK(env,obj)->getRParents(p,actor) : getK(env,obj)->getRAncestors(p,actor),
 		"FaCT++ Kernel: error during askSuperDataProperties processing" );
 	return actor.getElements();
@@ -1505,10 +1497,9 @@ JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlu
   (JNIEnv * env, jobject obj, jobject arg, jboolean direct)
 {
 	TRACE_JNI("askSubDataProperties");
-	ENSURE_CLASSIFIED();
 	JTaxonomyActor<DataPropertyPolicy> actor(env);
 	DLTree* p = getTree(env,arg);
-	PROCESS_QUERY (
+	PROCESS_ASK_QUERY (
 		direct ? getK(env,obj)->getRChildren(p,actor) : getK(env,obj)->getRDescendants(p,actor),
 		"FaCT++ Kernel: error during askSubDataProperties processing" );
 	return actor.getElements();
@@ -1523,9 +1514,8 @@ JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlu
   (JNIEnv * env, jobject obj, jobject arg)
 {
 	TRACE_JNI("askEquivalentDataProperties");
-	ENSURE_CLASSIFIED();
 	JTaxonomyActor<DataPropertyPolicy> actor(env);
-	PROCESS_QUERY (
+	PROCESS_ASK_QUERY (
 		getK(env,obj)->getREquivalents ( getTree(env,arg), actor ),
 		"FaCT++ Kernel: error during askEquivalentDataProperties processing" );
 	return actor.getSynonyms();
@@ -1540,7 +1530,6 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_ask
   (JNIEnv * env, jobject obj, jobject arg)
 {
 	TRACE_JNI("askDataPropertyDomain");
-	ENSURE_CLASSIFIED();
 	Throw ( env, "FaCT++ Kernel: unsupported operation" );
 	return NULL;
 }
@@ -1554,7 +1543,6 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_ask
   (JNIEnv * env, jobject obj, jobject arg)
 {
 	TRACE_JNI("askDataPropertyRange");
-	ENSURE_CLASSIFIED();
 	Throw ( env, "FaCT++ Kernel: unsupported operation" );
 	return NULL;
 }
@@ -1568,7 +1556,6 @@ JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_is
   (JNIEnv * env, jobject obj, jobject arg)
 {
 	TRACE_JNI("isDataPropertyFunctional");
-	ENSURE_CLASSIFIED();
 	Throw ( env, "FaCT++ Kernel: unsupported operation" );
 	return false;
 }
@@ -1582,11 +1569,10 @@ JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlu
   (JNIEnv * env, jobject obj, jobject arg, jboolean direct)
 {
 	TRACE_JNI("askIndividualTypes");
-	ENSURE_CLASSIFIED();
 	JTaxonomyActor<ClassPolicy> actor(env);
 	DLTree* p = getTree(env,arg);
-	PROCESS_QUERY (
-		direct ? getK(env,obj)->getParents(p,actor) : getK(env,obj)->getAncestors(p,actor),
+	PROCESS_ASK_QUERY (
+		direct ? getK(env,obj)->getDirectTypes(p,actor) : getK(env,obj)->getTypes(p,actor),
 		"FaCT++ Kernel: error during askIndividualTypes processing" );
 	return actor.getElements();
 }
@@ -1600,9 +1586,8 @@ JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_is
   (JNIEnv * env, jobject obj, jobject arg1, jobject arg2)
 {
 	TRACE_JNI("isInstanceOf");
-	ENSURE_CLASSIFIED();
 	bool ret = false;
-  	PROCESS_QUERY (
+	PROCESS_ASK_QUERY (
 		getK(env,obj)->isInstance ( getTree(env,arg1), getTree(env,arg2), ret ),
 		"FaCT++ Kernel: error during isInstanceOf processing" );
 	return ret;
@@ -1617,9 +1602,8 @@ JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlu
   (JNIEnv * env, jobject obj, jobject arg)
 {
 	TRACE_JNI("askInstances");
-	ENSURE_CLASSIFIED();
 	JTaxonomyActor<IndividualPolicy> actor(env);
-	PROCESS_QUERY (
+	PROCESS_ASK_QUERY (
 		getK(env,obj)->getInstances(getTree(env,arg),actor),
 		"FaCT++ Kernel: error during askInstances processing" );
 	return actor.getElements();
@@ -1634,10 +1618,9 @@ JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlu
   (JNIEnv * env, jobject obj, jobject arg)
 {
 	TRACE_JNI("askSameAs");
-	ENSURE_CLASSIFIED();
 	JTaxonomyActor<IndividualPolicy> actor(env);
-	PROCESS_QUERY (
-		getK(env,obj)->getEquivalents ( getTree(env,arg), actor ),
+	PROCESS_ASK_QUERY (
+		getK(env,obj)->getSameAs ( getTree(env,arg), actor ),
 		"FaCT++ Kernel: error during askSameAs processing" );
 	return actor.getSynonyms();
 }
@@ -1651,7 +1634,6 @@ JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_is
   (JNIEnv * env, jobject obj, jobject arg1, jobject arg2)
 {
 	TRACE_JNI("isSameAs");
-	ENSURE_CLASSIFIED();
 	Throw ( env, "FaCT++ Kernel: unsupported operation" );
 	return false;
 }
