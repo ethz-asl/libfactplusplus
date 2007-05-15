@@ -1152,6 +1152,31 @@ JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_is
 
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
+ * Method:    classify
+ * Signature: ()V
+ */
+JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_classify
+  (JNIEnv * env, jobject obj)
+{
+	TRACE_JNI("classify");
+	getK(env,obj)->classifyKB();
+}
+
+/*
+ * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
+ * Method:    realise
+ * Signature: ()V
+ */
+JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_realise
+  (JNIEnv * env, jobject obj)
+{
+	TRACE_JNI("realise");
+	getK(env,obj)->realiseKB();
+}
+
+
+/*
+ * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
  * Method:    isClassSatisfiable
  * Signature: (Luk/ac/manchester/cs/factplusplus/ClassPointer;)Z
  */

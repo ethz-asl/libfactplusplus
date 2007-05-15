@@ -33,6 +33,22 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_clearK
 
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
+ * Method:    classify
+ * Signature: ()V
+ */
+JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_classify
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
+ * Method:    realise
+ * Signature: ()V
+ */
+JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_realise
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
  * Method:    getThing
  * Signature: ()Luk/ac/manchester/cs/factplusplus/ClassPointer;
  */
