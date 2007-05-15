@@ -71,7 +71,6 @@ Classify:
 Realise:
 
 	pTBox->setQuery(ifQuery());
-	pTBox->Preprocess();
 	pTBox->prepareReasoning();
 
 	// check whether we have incoherent KB
@@ -88,7 +87,6 @@ Realise:
 bool ReasoningKernel :: processQuery ( const ifQuery& Query )
 {
 	pTBox->setQuery(Query);
-	pTBox->Preprocess();
 	pTBox->prepareReasoning();
 
 	// check whether we have incoherent KB

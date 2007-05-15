@@ -86,6 +86,9 @@ void TBox :: initTopBottom ( void )
 
 void TBox :: prepareReasoning ( void )
 {
+	// do the preprocessing
+	Preprocess();
+
 	// init reasoner (if not exist)
 	initReasoner();
 
@@ -119,11 +122,7 @@ void TBox :: prepareReasoning ( void )
 bool TBox :: performReasoning ( void )
 {
 	if ( verboseOutput )
-	{
-		std::cerr << "Checking ";
-		writeQuery(std::cerr);
-		std::cerr << "...";
-	}
+		std::cerr << "Processing query...";
 
 	// init values for SUB tests
 	DLHeap.setSubOrder();
@@ -389,16 +388,6 @@ bool TBox :: classifyTempConcept ( void )
 	return false;
 }
 
-void TBox :: writeQuery ( std::ostream& o ) const
-{
-	if ( queryPointer[1] != NULL )
-		o << "subsumption '" << queryPointer[0]->getName() << "' [= '" << queryPointer[1]->getName() << "'";
-	else if ( queryPointer[0] != NULL )
-		o << "satisfiability of '" << queryPointer[0]->getName() << "'";
-	else
-		o << "classification";
-}
-
 /// dump QUERY processing time, reasoning statistics and a (preprocessed) TBox
 void
 TBox :: writeReasoningResult ( std::ostream& o, float time, bool isConsistent ) const
@@ -413,7 +402,7 @@ TBox :: writeReasoningResult ( std::ostream& o, float time, bool isConsistent ) 
 	stdReasoner->writeTotalStatistic(o);
 	o << "\n";
 	if ( isConsistent )
-		writeQuery(o);
+		o << "Required";
 	else
 		o << "KB is inconsistent. Query is NOT processed. Consistency";
 

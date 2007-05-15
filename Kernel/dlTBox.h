@@ -877,8 +877,6 @@ public:
 //--		public output interface
 //-----------------------------------------------------------------------------
 
-		/// write query given to TBox
-	void writeQuery ( std::ostream& o ) const;
 		/// dump query processing TIME, reasoning statistics and a (preprocessed) TBox
 	void writeReasoningResult ( std::ostream& o, float time, bool isConsistent ) const;
 	std::ostream& Print ( std::ostream& o ) const;
