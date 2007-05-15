@@ -130,12 +130,15 @@ void DIGParseHandlers :: startCommand ( DIGTag tag, AttributeList& attributes )
 			if ( pKernel == NULL )
 				throw DIGParserException ( 203, "Unknown KB URI", "No such KB" );
 			if ( tag == digAsks )	// late classification: after all tells
-			{
-				classifyCurrentKB();
-				if ( !pKernel->isKBConsistent() )
+				try
+				{
+					classifyCurrentKB();
+				}
+				catch ( InconsistentKB )
+				{
 					throw DIGParserException ( 900, "Incoherent KB",
 						"KB with URI=\"", KB, "\" is incoherent" );
-			}
+				}
 		}
 		else // for Identifier
 			outputSupportedLanguage();

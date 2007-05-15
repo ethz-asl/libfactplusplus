@@ -40,6 +40,50 @@ ReasoningKernel :: ReasoningKernel ( void )
 		error ( "Cannot init options" );
 }
 
+void
+ReasoningKernel :: processKB ( KernelStatus status )
+{
+	assert ( status >= ksCChecked );
+
+	// check if something have to be done
+	if ( Status >= status )
+	{	// nothing to do; but make sure that we are consistent
+		if ( !isConsistent )
+			throw InconsistentKB();
+		return;
+	}
+
+	// here we have to do something: let's decide what to do
+	switch ( Status )
+	{
+	case ksLoading:		break;		// need to do the whole cycle -- just after the switch
+	case ksCChecked:
+		if ( status != ksRealised )
+			goto Classify;			// just do classification
+	// fallthrough
+	case ksClassified:	goto Realise;	// do realisation
+	default:	// nothing should be here
+		assert(0);
+	}
+
+	// FIXME!! don't distinguish between stages for now
+Classify:
+Realise:
+
+	pTBox->setQuery(ifQuery());
+	pTBox->Preprocess();
+	pTBox->prepareReasoning();
+
+	// check whether we have incoherent KB
+	isConsistent = pTBox->isConsistent();
+	if ( !isConsistent )
+		return;
+
+	pTBox->performReasoning();
+	Status = ksRealised;
+	isChanged = false;
+}
+
 // process given query; @return true if KB is inconsistent
 bool ReasoningKernel :: processQuery ( const ifQuery& Query )
 {
@@ -55,6 +99,7 @@ bool ReasoningKernel :: processQuery ( const ifQuery& Query )
 	}
 
 	pTBox->performReasoning();
+	Status = ksRealised;
 	return false;
 }
 
@@ -67,7 +112,7 @@ bool ReasoningKernel :: setUpCache ( DLTree* query, cacheStatus level )
 		return true;
 
 	// check if it is necessary to classify KB
-	if ( !isClassified )
+	if ( isKBClassified() )	// FIXME!! later on
 		classifyKB();
 
 	// no query answers for inconsistent KBs

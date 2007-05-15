@@ -78,13 +78,13 @@ void DIGParseHandlers :: classifyCurrentKB ( void )
 	// save time of classification
 	TsProcTimer t;
 	pKernel->useVerboseOutput();
-	bool alreadyClassified = pKernel->isKBClassified();
+	bool alreadyClassified = pKernel->isKBRealised();
 	if ( !alreadyClassified )
 		t.Start();
 #endif
 
 	// classify the KB if necessary
-	pKernel->classifyKB();
+	pKernel->realiseKB();
 
 #ifdef RKG_PRINT_DIG_MESSAGES
 	if ( !alreadyClassified )

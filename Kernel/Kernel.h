@@ -38,6 +38,14 @@ public:
 	const char* what ( void ) const throw() { return "FaCT++ Kernel: KB Not Initialised"; }
 }; // UnInitException
 
+class InconsistentKB : public exception
+{
+public:
+	InconsistentKB ( void ) throw() {}
+	~InconsistentKB ( void ) throw() {}
+	const char* what ( void ) const throw() { return "FaCT++ Kernel: Inconsistent KB"; }
+}; // InconsistentKB
+
 class ReasoningKernel
 {
 public:	// types interface
@@ -81,6 +89,8 @@ private:
 protected:	// types
 		/// enumeration for the cache
 	enum cacheStatus { csEmpty, csSat, csClassified };
+		/// enumeration for the reasoner status
+	enum KernelStatus { ksLoading, ksCChecked, ksClassified, ksRealised };
 
 protected:	// members
 		/// local TBox (to be created)
@@ -99,8 +109,8 @@ protected:	// members
 
 	// internal flags
 
-		/// is TBox classified or not
-	bool isClassified;
+		/// KB status
+	enum KernelStatus Status;
 		/// is KB consistent or not
 	bool isConsistent;
 		/// is TBox changed since the last classification
@@ -110,6 +120,9 @@ protected:	// methods
 
 	// register all necessary options in local option set
 	bool initOptions ( void );
+
+		/// process KB wrt STATUS
+	void processKB ( KernelStatus status );
 
 		/// checks if current query is cached
 	bool isCached ( DLTree* query ) const
@@ -123,7 +136,7 @@ protected:	// methods
 		cachedQuery = NULL;
 		cachedConcept = NULL;
 		cachedVertex = NULL;
-		isClassified = false;
+		Status = ksLoading;
 		isConsistent = true;
 		isChanged = true;
 	}
@@ -151,10 +164,9 @@ protected:	// methods
 	const RoleMaster* getRM ( void ) const { return getTBox()->getRM(); }
 
 		/// get access to the concept hierarchy
-	const Taxonomy* getCTaxonomy ( void ) const { return isClassified ? pTBox->getTaxonomy() : NULL; }
+	const Taxonomy* getCTaxonomy ( void ) const { return isKBClassified() ? pTBox->getTaxonomy() : NULL; }
 		/// get access to the role hierarchy
-		//FIXME!! we need Preprocessed not a classified ontology
-	const Taxonomy* getRTaxonomy ( void ) const { return isClassified ? getRM()->getTaxonomy() : NULL; }
+	const Taxonomy* getRTaxonomy ( void ) const { return isKBPreprocessed() ? getRM()->getTaxonomy() : NULL; }
 
 public:	// general staff
 	ReasoningKernel ( void );
@@ -165,8 +177,12 @@ public:	// general staff
 
 	static const char* getVersion ( void ) { return Version; }
 
-		/// return status of KB (classified/not)
-	bool isKBClassified ( void ) const { return isClassified; }
+		/// return classification status of KB
+	bool isKBPreprocessed ( void ) const { return Status >= ksCChecked; }
+		/// return classification status of KB
+	bool isKBClassified ( void ) const { return Status >= ksClassified; }
+		/// return realistion status of KB
+	bool isKBRealised ( void ) const { return Status >= ksRealised; }
 
 		/// set Progress monitor to control the classification process
 	void setProgressMonitor ( TProgressMonitor* pMon ) { getTBox()->setProgressMonitor(pMon); }
@@ -222,17 +238,12 @@ public:
 	//* KB Management
 	//******************************************
 
-	// create new KB
+		/// create new KB
 	bool newKB ( void );
-
-	// delete existed KB
+		/// delete existed KB
 	bool releaseKB ( void );
-
-	/// reset current KB
+		/// reset current KB
 	bool clearKB ( void );
-
-	/// classify KB (explicit action)
-	void classifyKB ( void );
 
 	//******************************************
 	//* Concept/Role expressions. DL syntax, not DIG/OWL
@@ -401,7 +412,28 @@ public:
 	//******************************************
 
 		/// return consistency status of KB
-	bool isKBConsistent ( void );
+	bool isKBConsistent ( void )
+	{
+		if ( Status == ksLoading )
+			processKB(ksCChecked);
+		return isConsistent;
+	}
+		/// ensure that KB is classified
+	void classifyKB ( void )
+	{
+		if ( !isKBClassified() )
+			processKB(ksClassified);
+		if ( !isConsistent )
+			throw InconsistentKB();
+	}
+		/// ensure that KB is realised
+	void realiseKB ( void )
+	{
+		if ( !isKBRealised() )
+			processKB(ksRealised);
+		if ( !isConsistent )
+			throw InconsistentKB();
+	}
 
 	// TBox info retriveal
 
@@ -640,19 +672,6 @@ inline bool ReasoningKernel :: clearKB ( void )
 	if ( pTBox == NULL )
 		return true;
 	return releaseKB () || newKB ();
-}
-
-inline void ReasoningKernel :: classifyKB ( void )
-{
-	if ( isClassified || !isConsistent )
-		return;
-
-	if ( processQuery(ifQuery()) )
-		return;
-
-	// set proper flags
-	isClassified = true;
-	isChanged = false;
 }
 
 //----------------------------------------------------
@@ -1006,13 +1025,6 @@ inline bool ReasoningKernel :: processDifferent ( void )
 //----------------------------------------------------
 //	ASKS implementation
 //----------------------------------------------------
-
-inline bool ReasoningKernel :: isKBConsistent ( void )
-{
-	if ( !isClassified )
-		classifyKB();
-	return isConsistent;
-}
 
 	// is C satisfiable
 inline bool
