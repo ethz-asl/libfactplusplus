@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2006 by Dmitry Tsarkov
+Copyright (C) 2003-2007 by Dmitry Tsarkov
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -183,6 +183,8 @@ public:
 	bool removeLink ( bool upDirection, TaxonomyVertex* p );
 		/// remove latest link (usually to the BOTTOM node)
 	void removeLastLink ( bool upDirection ) { neigh(upDirection).resize(neigh(upDirection).size()-1); }
+		/// clear all links in a given direction
+	void clearLinks ( bool upDirection ) { neigh(upDirection).clear(); }
 
 		/** apply Actor to subgraph starting from current node and defined by flags;
 			clear the labels afterwards

@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2006 by Dmitry Tsarkov
+Copyright (C) 2003-2007 by Dmitry Tsarkov
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -220,6 +220,18 @@ public:		// interface
 				(*p)->addNeighbour ( upDirection, getBottom() );
 				getBottom()->addNeighbour ( !upDirection, *p );
 			}
+	}
+		/// unlink the bottom from the taxonomy
+	void deFinalise ( void )
+	{
+		const bool upDirection = true;
+		TaxonomyVertex* bot = getBottom();
+		for ( TaxonomyVertex::iterator
+				p = bot->begin(upDirection),
+				p_end = bot->end(upDirection);
+			  p < p_end; ++p )
+			(*p)->removeLink ( !upDirection, bot );
+		bot->clearLinks(upDirection);
 	}
 
 	// taxonomy info access
