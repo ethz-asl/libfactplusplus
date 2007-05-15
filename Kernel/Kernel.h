@@ -1027,6 +1027,12 @@ inline bool ReasoningKernel :: processDifferent ( void )
 inline bool
 ReasoningKernel :: isSatisfiable ( const ComplexConcept C, bool& Result )
 {
+	if ( isName(C) )
+	{
+		Result = getTBox()->isSatisfiable(static_cast<TConcept*>(C->Element().getName()));
+		return false;
+	}
+
 	if ( setUpCache ( C, csSat ) )	// cache result
 		return true;
 
@@ -1042,6 +1048,13 @@ ReasoningKernel :: isSatisfiable ( const ComplexConcept C, bool& Result )
 inline bool
 ReasoningKernel :: isSubsumes ( const ComplexConcept C, const ComplexConcept D, bool& Result )
 {
+	if ( isName(C) && isName(D) )
+	{
+		Result = getTBox()->isSubHolds ( static_cast<TConcept*>(D->Element().getName()),
+										 static_cast<TConcept*>(C->Element().getName()) );
+		return false;
+	}
+
 	bool ret = isSatisfiable ( createSNFAnd ( createSNFNot(C), D ), Result );
 	Result = !Result;
 	return ret;
