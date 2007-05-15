@@ -24,7 +24,6 @@ Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #include "cppi.h"
 
 #include "globaldef.h"
-#include "ifQuery.h"
 #include "Reasoner.h"
 #include "DLConceptTaxonomy.h"
 #include "procTimer.h"
@@ -99,10 +98,7 @@ void TBox :: prepareReasoning ( void )
 	if ( dumpQuery )
 	{
 		// set up relevance info
-		if ( needClassification )	// dump all TBox
-			markAllRelevant();
-		else							// dump only queried concept(s)
-			calculateRelevant ( queryPointer[0], queryPointer[1] );
+		markAllRelevant();
 		std::ofstream of ( "tbox" );
 		assert ( of.good() );
 		dumpLisp lDump(of);
@@ -113,44 +109,26 @@ void TBox :: prepareReasoning ( void )
 	// init values for SAT tests -- either cache, or consistency check
 	DLHeap.setSatOrder();
 	setToDoPriorities(/*sat=*/true);
-
-	// build cache for all named concepts (if necessary)
-/*	if ( needClassification && useDAGCache )
-		buildNamedConceptCache();*/
 }
 
-bool TBox :: performReasoning ( void )
+void TBox :: performReasoning ( void )
 {
 	if ( verboseOutput )
 		std::cerr << "Processing query...";
 
-	// init values for SUB tests
-	DLHeap.setSubOrder();
-	setToDoPriorities(/*sat=*/false);
-	clearReasoner();
+	prepareSubReasoning();
 
+	// do the reasoning
 	TsProcTimer locTimer;
-	locTimer.Start ();
-
-	bool ret = false;
-
-	if ( needClassification )		// => classification
-		createTaxonomy ();
-	else
-		if ( queryPointer[1] == NULL )	// => single sat testing
-			ret = isSatisfiable(queryPointer[0]);		// FIXME! should do smth like a search A=B;B=!A cycles
-		else							// => single sub test
-			ret = isSubHolds ( queryPointer[0], queryPointer[1] );
+	locTimer.Start();
+	createTaxonomy();
+	locTimer.Stop();
 
 	// clean reasoner (because of statistics)
 	clearReasoner();
 
-	locTimer.Stop ();
-
 	if ( verboseOutput )
 		std::cerr << " done in " << locTimer << " seconds\n";
-
-	return ret;
 }
 
 bool
@@ -269,47 +247,6 @@ void TBox :: readConfig ( const ifOptionSet* Options )
 
 	verboseOutput = false;
 #undef addBoolOption
-}
-
-bool TBox :: checkQueryNames ( const ifQuery& Query )
-{
-	if ( !Query.isCorrect () )
-		return true;
-
-	// init query pointers
-	queryPointer[0] = NULL;
-	queryPointer[1] = NULL;
-
-	for ( register int i = 1; i >= 0; --i )
-		if ( Query.getTarget(i) != NULL )
-		{
-			queryPointer[i] = getConcept(Query.getTarget(i));
-
-			if ( queryPointer[i] == NULL )
-			{
-				std::cerr << "\nError:TBox: queried concept not found";
-				return true;
-			}
-		}
-
-	// we need classification if it was classification task (ie, 1st target == NULL)
-	needClassification = (queryPointer[0] == NULL);
-	return false;
-}
-
-bool TBox :: setQuery ( const ifQuery& Query )
-{
-	// correct useRelevantOnly w.r.t. query
-	if ( Query.isClassification() && useRelevantOnly )
-	{
-		useRelevantOnly = false;
-
-		if ( LLM.isWritable(llAlways) )
-			LL << "Correct useRelevantOnly = " << useRelevantOnly << "\n";
-	}
-
-	// try to init query names;
-	return checkQueryNames(Query);
 }
 
 /// create (and DAG-ify) temporary concept via its definition

@@ -70,7 +70,6 @@ ReasoningKernel :: processKB ( KernelStatus status )
 Classify:
 Realise:
 
-	pTBox->setQuery(ifQuery());
 	pTBox->prepareReasoning();
 
 	// check whether we have incoherent KB
@@ -81,24 +80,6 @@ Realise:
 	pTBox->performReasoning();
 	Status = ksRealised;
 	isChanged = false;
-}
-
-// process given query; @return true if KB is inconsistent
-bool ReasoningKernel :: processQuery ( const ifQuery& Query )
-{
-	pTBox->setQuery(Query);
-	pTBox->prepareReasoning();
-
-	// check whether we have incoherent KB
-	if ( !pTBox->isConsistent() )
-	{
-		isConsistent = false;
-		return true;
-	}
-
-	pTBox->performReasoning();
-	Status = ksRealised;
-	return false;
 }
 
 //******************************************

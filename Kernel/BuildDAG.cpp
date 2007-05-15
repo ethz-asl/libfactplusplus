@@ -23,18 +23,10 @@ Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 
 void TBox :: buildDAG ( void )
 {
-	if ( useRelevantOnly )
-	{
-		concept2dag(queryPointer[1]);
-		concept2dag(queryPointer[0]);
-	}
-	else
-	{
-		for ( c_const_iterator pc = c_begin(); pc != c_end(); ++pc )
-			concept2dag(*pc);
-		for ( i_const_iterator pi = i_begin(); pi != i_end(); ++pi )
-			concept2dag(*pi);
-	}
+	for ( c_const_iterator pc = c_begin(); pc != c_end(); ++pc )
+		concept2dag(*pc);
+	for ( i_const_iterator pi = i_begin(); pi != i_end(); ++pi )
+		concept2dag(*pi);
 
 	// build all GCIs
 	T_G = tree2dag(Axioms.getGCI());

@@ -24,7 +24,6 @@ Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 
 #include "dlTBox.h"
 #include "Reasoner.h"
-#include "ifQuery.h"
 #include "ifOptions.h"
 #include "DLConceptTaxonomy.h"	// for getRelatives()
 
@@ -189,8 +188,6 @@ public:	// general staff
 		/// set verbose output (ie, default progress monitor, concept and role taxonomies
 	void useVerboseOutput ( void ) { getTBox()->useVerboseOutput(); }
 
-		/// preprocess KB and check QUERY; @return true if KB is inconsistent
-	bool processQuery ( const ifQuery& Query );
 		/// dump query processing TIME, reasoning statistics and a (preprocessed) TBox
 	void writeReasoningResult ( std::ostream& o, float time ) const
 		{ getTBox()->writeReasoningResult ( o, time, isConsistent ); }

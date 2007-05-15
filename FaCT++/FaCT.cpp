@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2006 by Dmitry Tsarkov
+Copyright (C) 2003-2007 by Dmitry Tsarkov
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -24,7 +24,6 @@ Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #include "parser.h"
 #include "comerror.h"
 #include "configure.h"
-#include "ifQuery.h"
 #include "logging.h"
 
 #include "Kernel.h"
@@ -43,8 +42,10 @@ inline void OutTime ( std::ostream& o )
 	o << "Working time = " << totalTimer  << " seconds\n";
 }
 
+DLTree* Query[2] = { NULL, NULL };
+
 /// fill query target names by configure
-void fillSatSubQuery ( ifQuery& Query, ReasoningKernel& Kernel )
+void fillSatSubQuery ( ReasoningKernel& Kernel )
 {
 	std::string tName[2];
 
@@ -63,19 +64,19 @@ void fillSatSubQuery ( ifQuery& Query, ReasoningKernel& Kernel )
 	for ( register int i = 1; i >= 0; --i )
 		if ( tName[i] != "" )
 		{
-			DLTree* p = NULL;
 			if ( tName[i] == "*TOP*" )
-				p = new DLTree (TOP);
+				Query[i] = new DLTree (TOP);
 			else if ( tName[i] == "*BOTTOM*" )
-				p = new DLTree (BOTTOM);
+				Query[i] = new DLTree (BOTTOM);
 			else
 			{
-				try { p = Kernel.ensureConceptName(tName[i].c_str()); }
+				try { Query[i] = Kernel.ensureConceptName(tName[i].c_str()); }
 				catch ( CantRegName ex ) { error ( "Query: queried name is undefined" ); }
 			}
-
-			Query.setTarget(i,p);
 		}
+
+	if ( Query[1] != NULL && Query[0] == NULL )
+		error ( "Query: Incorrect options" );
 }
 
 //**********************  Main function  ************************************
@@ -149,16 +150,40 @@ int main ( int argc, char *argv[] )
 
 	Out << "loading time " << wTimer << " seconds\n";
 
-	// creating query object
-	ifQuery Query;
-	// parsing query targets
-	fillSatSubQuery ( Query, Kernel );
-
-	// run reasoner for given query
 	TsProcTimer pt;
 	pt.Start();
-	if ( Kernel.processQuery(Query) )
-		std::cerr << "WARNING: KB is incoherent. Query is NOT processed\n";
+
+	// do preprocessing
+	if ( !Kernel.isKBConsistent() )
+		std::cerr << "WARNING: KB is inconsistent. Query is NOT processed\n";
+	else	// perform reasoning
+	{
+		// parsing query targets
+		fillSatSubQuery ( Kernel );
+		bool result = false;
+
+		if ( Query[0] == NULL )
+			Kernel.realiseKB();
+		else if ( Query[1] == NULL )
+		{
+			Kernel.isSatisfiable ( Query[0], result );
+
+			std::cout << "The '" << Query[0] << "' concept is ";
+			if ( !result )
+				std::cout << "un";
+			std::cout << "satisfiable w.r.t. TBox\n";
+		}
+		else
+		{
+			Kernel.isSubsumes ( Query[1], Query[0], result );
+
+			std::cout << "The '" << Query[0] << " [= " << Query[1] << "' subsumption does";
+			if ( !result )
+				std::cout << " NOT";
+			std::cout << " holds w.r.t. TBox\n";
+		}
+	}
+
 	pt.Stop();
 
 	// save final TBox

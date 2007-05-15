@@ -34,7 +34,6 @@ Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #include "tProgressMonitor.h"
 #include "tKBFlags.h"
 
-class ifQuery;
 class DlSatTester;
 class DLConceptTaxonomy;
 class dumpInterface;
@@ -169,8 +168,6 @@ protected:	// members
 	bool isLikeGALEN;
 
 
-	/// queried concepts (if any)
-	TConcept* queryPointer [2];
 		/// time spend for preprocessing
 	float preprocTime;
 
@@ -410,10 +407,6 @@ protected:	// methods
 
 	bool isNamedConcept ( BipolarPointer p ) const;
 
-	// statistic
-	bool checkQueryNames ( const ifQuery& Query );
-	void CalculateStatistic ( void );
-
 		/// check if TBox contains too many GCIs to switch strategy
 	bool isGalenLikeTBox ( void ) const { return isLikeGALEN; }
 
@@ -421,11 +414,18 @@ protected:	// methods
 //--		internal preprocessing methods
 //-----------------------------------------------------------------------------
 
+		/// build a roles taxonomy and a DAG
+	void Preprocess ( void );
+		/// absorb all axioms and set hasGCI
+	void ConvertAxioms ( void ) { GCIs.setGCI(Axioms.absorb()); }
+
 		/// pre-process RELATED axioms: resolve synonyms, mark indivs like related
 	void preprocessRelated ( void );
 		/// determine all sorts in KB (make job only for SORTED_REASONING)
 	void determineSorts ( void );
 
+		/// calculate statistic for DAG and Roles
+	void CalculateStatistic ( void );
 		/// Remove DLTree* from TConcept after DAG is constructed
 	void RemoveExtraDescriptions ( void );
 
@@ -489,18 +489,19 @@ protected:	// methods
 
 		/// init cache for all named concepts
 	void buildNamedConceptCache ( void );
-	/// init reasoning service (either create or clear reasoner)
-	void initReasoner ( void );
+		/// init reasoning service: create reasoner(s)
+	void initReasoner ( void );				// implemented in Reasoner.h
+		/// init priorities in order to do subsumption tests
+	void prepareSubReasoning ( void )
+	{
+		DLHeap.setSubOrder();
+		setToDoPriorities(/*sat=*/false);
+		clearReasoner();
+	}
 	/// creating taxonomy for given TBox
 	void createTaxonomy ( void );
 		/// classify all concepts from given COLLECTION with given CD value
 	void classifyConcepts ( const ConceptVector& collection, bool curCompletelyDefined, const char* type );
-		/// classify all singletons from given COLLECTION with given CD value
-	void classifyAllSingletons ( const SingletonVector& collection, bool curCompletelyDefined );
-		/// classify all nominals in TBox. TODO: implement later on
-	void classifyAllNominals ( void );
-		/// classify all non-nominal individuals in TBox. TODO: implement later on
-	void classifyAllIndividuals ( void );
 
 //-----------------------------------------------------------------------------
 //--		internal cache-related methods
@@ -688,10 +689,6 @@ public:
 	const RoleMaster* getRM ( void ) const { return &RM; }
 
 //-----------------------------------------------------------------------------
-//--		public datatype interface
-//-----------------------------------------------------------------------------
-
-//-----------------------------------------------------------------------------
 //--		public parser ensure* interface
 //-----------------------------------------------------------------------------
 
@@ -774,18 +771,6 @@ public:
 	DLTree* processRComposition ( void ) { return processRComposition(getLastNAry()); }
 
 //-----------------------------------------------------------------------------
-//--		public reasoning interface
-//-----------------------------------------------------------------------------
-
-		/// init Query-related structures in TBox; @return true if failed
-	bool setQuery ( const ifQuery& Query );
-		/// build a roles taxonomy and a DAG
-	void Preprocess ( void );
-		/// absorb all axioms and set hasGCI
-	void ConvertAxioms ( void ) { GCIs.setGCI(Axioms.absorb()); }
-
-
-//-----------------------------------------------------------------------------
 //--		public access interface
 //-----------------------------------------------------------------------------
 
@@ -815,12 +800,10 @@ public:
 //-----------------------------------------------------------------------------
 //--		public reasoning interface
 //-----------------------------------------------------------------------------
-		/// prepare to reasoning according to given query
+		/// prepare to reasoning
 	void prepareReasoning ( void );
-		/// perform reasoning according to given query
-	bool performReasoning ( void );
-		/// was SAT tests performed during preparation
-	bool isCacheBuild ( void ) const { return needClassification; }
+		/// perform reasoning
+	void performReasoning ( void );
 
 	/// get (READ-WRITE) access to internal Taxonomy of concepts
 	DLConceptTaxonomy* getTaxonomy ( void ) { return pTax; }

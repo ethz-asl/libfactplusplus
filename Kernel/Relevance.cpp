@@ -129,24 +129,10 @@ void TBox :: gatherRelevanceInfo ( void )
 	if ( NCFeatures.hasSomeAll() && !Related.empty() )
 		NCFeatures.setInverseRoles();
 
-	if ( queryPointer[0] != NULL )	// only queried concept(s) are relevant
-	{
-		// set up current feature as a global one
-		curFeature = &KBFeatures;
-		setConceptRelevant(queryPointer[0]);
-
-		if ( queryPointer[1] != NULL )
-			setConceptRelevant(queryPointer[1]);
-
-		clearRelevanceInfo();
-	}
-	else							// every concept is relevant
-	{
-		for ( c_iterator pc = c_begin(); pc != c_end(); ++pc )
-			setConceptRelevant(*pc);
-		cSize = ( c_end() - c_begin() ) + ( i_end() - i_begin() );
-		bSize = DLHeap.size()-2;
-	}
+	for ( c_iterator pc = c_begin(); pc != c_end(); ++pc )
+		setConceptRelevant(*pc);
+	cSize = ( c_end() - c_begin() ) + ( i_end() - i_begin() );
+	bSize = DLHeap.size()-2;
 
 	curFeature = NULL;
 	KBFeatures.writeState();
