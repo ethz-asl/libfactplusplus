@@ -1221,20 +1221,9 @@ JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_is
 {
 	TRACE_JNI("isClassEquivalentTo");
 	bool ret = false;
-	try
-	{
-	if ( getK(env,obj)->isSubsumedBy ( getTree(env,arg1), getTree(env,arg2), ret ) )
-		Throw ( env, "FaCT++ Kernel: error during isClassEquivalentTo processing" );
-	if ( !ret )
-		return false;
-	if ( getK(env,obj)->isSubsumedBy ( getTree(env,arg2), getTree(env,arg1), ret ) )
-		Throw ( env, "FaCT++ Kernel: error during isClassEquivalentTo processing" );
-	}
-	catch ( InconsistentKB )
-	{
-		Throw ( env, "FaCT++.Kernel: inconsistent ontology" );
-	}
-
+	PROCESS_ASK_QUERY (
+		getK(env,obj)->isEquivalent ( getTree(env,arg1), getTree(env,arg2), ret ),
+		"FaCT++ Kernel: error during isClassEquivalentTo processing" );
 	return ret;
 }
 

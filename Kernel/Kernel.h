@@ -480,14 +480,14 @@ public:
 
 	// single satisfiability
 
-	// is C satisfiable
+		/// is C satisfiable
 	bool isSatisfiable ( const ComplexConcept C, bool& Result );
-
-	// is C [= D holds
+		/// does C [= D holds
 	bool isSubsumedBy ( const ComplexConcept C, const ComplexConcept D, bool& Result );
-
-	// is C&D disjoint
+		/// is C disjoint with D
 	bool isDisjoint ( const ComplexConcept C, const ComplexConcept D, bool& Result );
+		/// is C equivalent to D
+	bool isEquivalent ( const ComplexConcept C, const ComplexConcept D, bool& Result );
 
 	// concept hierarchy
 
@@ -1096,7 +1096,9 @@ ReasoningKernel :: isSubsumedBy ( const ComplexConcept C, const ComplexConcept D
 		return false;
 	}
 
-	bool ret = isSatisfiable ( createSNFAnd ( C, createSNFNot(D) ), Result );
+	ComplexConcept Probe = And ( C, Not(D) );
+	bool ret = isSatisfiable ( Probe, Result );
+	deleteTree(Probe);
 	Result = !Result;
 	return ret;
 }
@@ -1120,6 +1122,29 @@ ReasoningKernel :: isDisjoint ( const ComplexConcept C, const ComplexConcept D, 
 
 	if ( !fail )
 		Result = !sub;
+
+	return fail;
+}
+
+// are C and D equivalent
+inline bool
+ReasoningKernel :: isEquivalent ( const ComplexConcept C, const ComplexConcept D, bool& Result )
+{
+	preprocessKB();	// ensure KB is ready to answer the query
+	bool sub = false, fail;
+
+	// check if one of subsumption holds
+	fail = isSubsumedBy ( C, D, sub );
+
+	if ( fail )
+		return true;
+
+	// check second one if 1st subsumption not holds
+	if ( sub )
+		fail = isSubsumedBy ( D, C, sub );
+
+	if ( !fail )
+		Result = sub;
 
 	return fail;
 }
