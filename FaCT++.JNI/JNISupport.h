@@ -61,7 +61,7 @@ public:		// interface
 	~RefRecorder ( void ) { clear(); }
 
 		/// add reference to a repository
-	add ( DLTree* p ) { refs.push_back(p); }
+	void add ( DLTree* p ) { refs.push_back(p); }
 		/// clear repository, free all memory
 	void clear ( void )
 	{
@@ -172,6 +172,13 @@ jlong getId ( DLTree* p )
 	}
 }
 
+// add DLTree* references to a recorder
+template<class T>
+void registerPointer ( T* p ATTR_UNUSED ) {}
+
+template<>
+void registerPointer ( DLTree* p ) { RORefRecorder.add(p); }
+
 template<class T>
 jobject retObject ( JNIEnv * env, T* t, const char* className )
 {
@@ -180,6 +187,10 @@ jobject retObject ( JNIEnv * env, T* t, const char* className )
 		Throw ( env, "Incorrect operand by FaCT++ Kernel" );
 		return (jobject)0;
 	}
+
+	// all references that are passed to objects become read-only:
+	// they either being cloned, or used as a const*
+	registerPointer(t);
 
 	jclass classPointer = env->FindClass(className);
 
@@ -222,10 +233,6 @@ jobject retObject ( JNIEnv * env, T* t, const char* className )
 
 	if ( id )	// t is a DLTree*
 	{
-		// all references that are passed to objects become read-only:
-		// they either being cloned, or used as a const*
-		RORefRecorder.add(t);
-
 		fid = env->GetFieldID ( classPointer, "id", "J" );
 
 		if ( fid == 0 )
