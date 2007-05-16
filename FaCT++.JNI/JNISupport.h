@@ -41,6 +41,37 @@ public:
 	const char* operator() ( void ) const { return buf; }
 }; // JString
 
+/// record Tree pointers and delete them when became useless (to reduce memory leaks)
+class RefRecorder
+{
+protected:	// types
+		/// main repository type
+	typedef std::vector<DLTree*> RefVector;
+		/// iterator
+	typedef RefVector::iterator iterator;
+
+protected:	// members
+		/// repository of references
+	RefVector refs;
+
+public:		// interface
+		/// empty c'tor
+	RefRecorder ( void ) {}
+		/// d'tor
+	~RefRecorder ( void ) { clear(); }
+
+		/// add reference to a repository; @return added reference
+	DLTree* add ( DLTree* p ) { refs.push_back(p); return p; }
+		/// clear repository, free all memory
+	void clear ( void )
+	{
+		for ( iterator p = refs.begin(), p_end = refs.end(); p < p_end; ++p )
+			delete *p;
+	}
+}; // RefRecorder
+
+extern RefRecorder RORefRecorder;
+
 inline
 void Throw ( JNIEnv * env, const char* reason )
 {
@@ -114,7 +145,7 @@ DLTree* getTree ( JNIEnv * env, jobject obj )
 inline
 DLTree* getROTree ( JNIEnv * env, jobject obj )
 {
-	return (DLTree*)getPointer(env,obj);
+	return RORefRecorder.add((DLTree*)getPointer(env,obj));
 }
 
 inline

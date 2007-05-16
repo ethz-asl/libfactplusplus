@@ -22,6 +22,9 @@ Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #include "JNIActor.h"
 #include "JNIMonitor.h"
 
+/// remember (and clear) references for the RO trees
+RefRecorder RORefRecorder;
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -83,6 +86,7 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_clearK
 {
 	TRACE_JNI("clearKernel");
 	getK(env,obj)->clearKB();
+	RORefRecorder.clear();
 }
 
 
