@@ -177,7 +177,7 @@ void DLLispParser :: parseCommand ( void )
 	switch (t)
 	{
 	case PCONCEPT:
-		Name = getConcept(); 
+		Name = getConcept();
 		if ( Current != RBRACK )
 			Kernel->impliesConcepts ( Name, processConceptTree() );
 		else
@@ -185,7 +185,7 @@ void DLLispParser :: parseCommand ( void )
 		break;
 
 	case CONCEPT:
-		Name = getConcept(); 
+		Name = getConcept();
 		Kernel->equalConcepts ( Name, processConceptTree() );
 		break;
 
@@ -196,6 +196,7 @@ void DLLispParser :: parseCommand ( void )
 	case INSTANCE:
 		Name = getSingleton();
 		Kernel->instanceOf ( Name, processConceptTree() );
+		delete Name;
 		break;
 
 	case RELATED:			// command is (Related id1 R id2);
@@ -270,8 +271,10 @@ void DLLispParser :: parseRoleArguments ( DLTree* R )
 
 			while ( Current != RBRACK )
 			{
-				if ( Kernel->impliesRoles ( R, getRoleExpression(/*allowChain=*/false) ) )
+				DLTree* S = getRoleExpression(/*allowChain=*/false);
+				if ( Kernel->impliesRoles ( R, S ) )
 					parseError ( "Role name not registered in :parents definition" );
+				deleteTree(S);
 			}
 			NextLex ();	// skip last RBRACK
 		}

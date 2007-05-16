@@ -251,7 +251,6 @@ void DIGParseHandlers :: endAsk ( DIGTag tag )
 	case digDisjointQuery:
 	{
 		bool ret = false, fail = true;
-		bool delQ = true, delP = true;
 
 		if ( workStack.empty() )
 			throwArgumentAbsence ( "concept", tag );
@@ -269,12 +268,6 @@ void DIGParseHandlers :: endAsk ( DIGTag tag )
 			DLTree* p = workStack.top();
 			workStack.pop();
 
-			// P and Q might be combined here, so constants would be deleted inside
-			if ( isConst(q) )
-				delQ = false;
-			if ( isConst(p) )
-				delP = false;
-
 			if ( tag == digSubsumes )
 				fail = pKernel->isSubsumedBy ( q, p, ret );
 			else if ( tag == digInstance )
@@ -282,15 +275,12 @@ void DIGParseHandlers :: endAsk ( DIGTag tag )
 			else	// ( name == "disjoint" )
 				fail = pKernel->isDisjoint ( p, q, ret );
 
-			if ( delP )
-				delete p;
+			delete p;
 		}
 
 		simpleXMLEntry ( fail?"error":(ret?"true":"false"), *o, curId.c_str() );
 
-		if ( delP )
-			delete q;
-
+		delete q;
 		return;
 	}
 	case digCParents:			// concept hierarchy
