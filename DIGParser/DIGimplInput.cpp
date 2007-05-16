@@ -334,13 +334,13 @@ void DIGParseHandlers :: startAxiom ( DIGTag tag, AttributeList& attributes )
 	case digDefConcept:
 		if ( parm == NULL )
 			throwAttributeAbsence ( "name", tag );
-		tryConceptName(StrX(parm).localForm());
+		delete tryConceptName(StrX(parm).localForm());
 		return;
 
 	case digDefRole:
 		if ( parm == NULL )
 			throwAttributeAbsence ( "name", tag );
-		tryRoleName(StrX(parm).localForm());
+		delete tryRoleName(StrX(parm).localForm());
 		return;
 
 	case digDefFeature:
@@ -348,18 +348,19 @@ void DIGParseHandlers :: startAxiom ( DIGTag tag, AttributeList& attributes )
 			throwAttributeAbsence ( "name", tag );
 		x = tryRoleName(StrX(parm).localForm());
 		ERROR_IF ( pKernel->setTransitive(x) )
+		delete x;
 		return;
 
 	case digDefAttribute:
 		if ( parm == NULL )
 			throwAttributeAbsence ( "name", tag );
-		tryDataRoleName(StrX(parm).localForm());
+		delete tryDataRoleName(StrX(parm).localForm());
 		return;
 
 	case digDefIndividual:
 		if ( parm == NULL )
 			throwAttributeAbsence ( "name", tag );
-		tryIndividualName(StrX(parm).localForm());
+		delete tryIndividualName(StrX(parm).localForm());
 		return;
 
 	case digDisjointAxiom:	// push begining of disjoint

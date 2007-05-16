@@ -29,6 +29,7 @@ const char* ReasoningKernel :: ReleaseDate = "(11 May 2007)";
 ReasoningKernel :: ReasoningKernel ( void )
 	: pKernelOptions (NULL)
 	, pTBox (NULL)
+	, cachedQuery(NULL)
 {
 	// Intro
 	std::cerr << ProductName << Copyright << "Version " << Version << " " << ReleaseDate << std::endl;

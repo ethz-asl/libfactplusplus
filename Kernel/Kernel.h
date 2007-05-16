@@ -132,6 +132,7 @@ protected:	// methods
 	void initCacheAndFlags ( void )
 	{
 		cacheLevel = csEmpty;
+		deleteTree(cachedQuery);
 		cachedQuery = NULL;
 		cachedConcept = NULL;
 		cachedVertex = NULL;
@@ -680,6 +681,7 @@ public:
 inline ReasoningKernel :: ~ReasoningKernel ( void )
 {
 	releaseKB ();
+	deleteTree(cachedQuery);
 	delete pKernelOptions;
 }
 

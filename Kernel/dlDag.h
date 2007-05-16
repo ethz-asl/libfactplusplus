@@ -216,6 +216,8 @@ public:		// interface
 	void resize ( size_t n )
 	{
 		assert ( n < size() );
+		for ( HeapType::iterator p = Heap.begin()+n, p_end = Heap.end(); p < p_end; ++p )
+			delete *p;
 		Heap.resize (n);
 	}
 
