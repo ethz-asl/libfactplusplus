@@ -21,6 +21,13 @@ Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #include "logging.h"
 #include "dlTBox.h"
 
+/// d'tor
+TAxiomSet :: ~TAxiomSet ( void )
+{
+	for ( AxiomCollection::iterator p = Accum.begin(), p_end = Accum.end(); p < p_end; ++p )
+		delete *p;
+}
+
 unsigned int TAxiomSet :: absorb ( void )
 {
 	// GCIs to process
@@ -61,20 +68,20 @@ bool TAxiomSet :: absorbGCI ( TAxiom* p )
 		// R-or-C part a): necessary
 		if ( begC )	// C is first
 			if ( absorbIntoConcept(p) )	// (C)
-				return true;
+				break;
 
 		if ( begR )	// R is first
 			if ( absorbIntoDomain(p) )	// (R)
-				return true;
+				break;
 
 		// R-or-C part b): optional
 		if ( begR && !lateC )	// C is second
 			if ( absorbIntoConcept(p) )	// (C)
-				return true;
+				break;
 
 		if ( begC && !lateR )	// R is second
 			if ( absorbIntoDomain(p) )	// (R)
-				return true;
+				break;
 
 		// steps 2-3. Simplify and unfold
 		if ( !absorbSimplifyFirst )
@@ -84,11 +91,11 @@ bool TAxiomSet :: absorbGCI ( TAxiom* p )
 		// R-or-C part c): late
 		if ( lateC )	// C is late
 			if ( absorbIntoConcept(p) )	// (C)
-				return true;
+				break;
 
 		if ( lateR )	// R is late
 			if ( absorbIntoDomain(p) )	// (R)
-				return true;
+				break;
 
 		// step 5: recursive step -- split OR verteces
 		if ( split(p) )
@@ -96,6 +103,10 @@ bool TAxiomSet :: absorbGCI ( TAxiom* p )
 
 		return false;
 	}
+
+	// here axiom is absorbed
+	delete p;
+	return true;
 }
 
 bool TAxiomSet :: initAbsorptionFlags ( const std::string& flags )

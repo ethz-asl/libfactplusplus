@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2006 by Dmitry Tsarkov
+Copyright (C) 2003-2007 by Dmitry Tsarkov
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -49,7 +49,7 @@ protected:	// classes
 			bdd_error_hook(NULL);
 		}
 			/// d'tor
-		~BddManager ( void ) {}
+		~BddManager ( void ) { bdd_done(); }
 
 			/// check if requested level is higher then number of vars
 		void checkLevel ( unsigned int level )

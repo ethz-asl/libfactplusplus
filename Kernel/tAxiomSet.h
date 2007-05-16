@@ -82,8 +82,6 @@ protected:	// methods
 	{
 		if ( !earlyAbsorption || !absorbGCI(p) )
 			insertGCI(p);
-		else
-			delete p;
 	}
 		/// split given axiom
 	bool split ( TAxiom* p )
@@ -154,6 +152,8 @@ public:		// interface
 		, nRoleDomainAbsorbed(0)
 		, nRoleDomainAbsorbAlternatives(0)
 		{}
+		/// d'tor
+	~TAxiomSet ( void );
 
 		/// init all absorption-related flags using given set of option
 	bool initAbsorptionFlags ( const std::string& flags );

@@ -29,7 +29,9 @@ void TBox :: buildDAG ( void )
 		concept2dag(*pi);
 
 	// build all GCIs
-	T_G = tree2dag(Axioms.getGCI());
+	DLTree* GCI = Axioms.getGCI();
+	T_G = tree2dag(GCI);
+	deleteTree(GCI);
 }
 
 /// register data expression in the DAG
