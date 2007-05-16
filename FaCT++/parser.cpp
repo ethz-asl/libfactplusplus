@@ -87,8 +87,8 @@ void DLLispParser :: parseCommand ( void )
 			parseError ( "Undefined role name in role axiom" );
 
 		// clean role stuff
-		delete left;
-		delete right;
+		deleteTree(left);
+		deleteTree(right);
 
 		MustBeM ( RBRACK );
 		return;
@@ -171,81 +171,71 @@ void DLLispParser :: parseCommand ( void )
 	}
 
 	// not GCI -- first argument is a name determined by an axiom
-	DLTree* Var = NULL;
+	DLTree* Name = NULL;
 
 	// set up creation mode
 	switch (t)
 	{
 	case PCONCEPT:
-	case CONCEPT:
-		Var = getConcept();
-		break;
-
-	case DEFINDIVIDUAL:
-	case INSTANCE:
-	case RELATED:
-		Var = getSingleton();
-		break;
-
-	case PROLE:
-	case PATTR:
-		Var = getRole();
-		break;
-	case DATAROLE:
-		Var = getDataRole();
-		break;
-	default:
-		parseError ( "Unrecognised command" );
-	}
-
-	switch ( t )
-	{
-	case PCONCEPT:
+		Name = getConcept(); 
 		if ( Current != RBRACK )
-			Kernel->impliesConcepts ( Var, processConceptTree () );
+			Kernel->impliesConcepts ( Name, processConceptTree() );
+		else
+			delete Name;
 		break;
 
 	case CONCEPT:
-		Kernel->equalConcepts ( Var, processConceptTree () );
+		Name = getConcept(); 
+		Kernel->equalConcepts ( Name, processConceptTree() );
 		break;
 
-	case PROLE:
-	case PATTR:
-		if ( t == PATTR && Kernel->setFunctional(Var) )
-			parseError ( "Role name already registered" );
-
-		if ( Current != RBRACK )
-			parseRoleArguments ( Var );
-
-		break;
-
-	case DATAROLE:
-		break;
-
-	case DEFINDIVIDUAL:
+	case DEFINDIVIDUAL:		// just register singleton
+		delete getSingleton();
 		break;
 
 	case INSTANCE:
-		Kernel->instanceOf ( Var, processConceptTree () );
+		Name = getSingleton();
+		Kernel->instanceOf ( Name, processConceptTree() );
 		break;
 
-	case RELATED:
+	case RELATED:			// command is (Related id1 R id2);
 	{
-		// command is (Related id1 RN id2); Var = id1
+		DLTree* id1 = getSingleton();
 		DLTree* R = getRoleExpression(/*allowChain=*/false);
 		MustBe (ID);	// second indiv.
 		DLTree* id2 = getSingleton();
-		if ( Kernel->relatedTo ( Var, R, id2 ) )
+		if ( Kernel->relatedTo ( id1, R, id2 ) )
 			parseError ( "Unsupported feature -- relatedTo" );
-		delete R;	// clear role tree
+		deleteTree(R);	// clear role tree
 		break;
 	}
 
-	case LEXEOF:	// security check
+	case PROLE:
+		Name = getRole();
+		if ( Current != RBRACK )
+			parseRoleArguments(Name);
+		else
+			delete Name;
 		break;
 
-	default:		// safety addition
-		parseError ( "Unknown command" );
+	case PATTR:
+		Name = getRole();
+
+		if ( Kernel->setFunctional(Name) )
+			parseError ( "Role name already registered" );
+
+		if ( Current != RBRACK )
+			parseRoleArguments(Name);
+		else
+			delete Name;
+		break;
+
+	case DATAROLE:		// register data role
+		delete getDataRole();
+		break;
+
+	default:
+		parseError ( "Unrecognised command" );
 	}
 
 	MustBeM ( RBRACK );	// skip bracket

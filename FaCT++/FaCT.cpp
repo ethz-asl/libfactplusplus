@@ -182,6 +182,10 @@ int main ( int argc, char *argv[] )
 				std::cout << " NOT";
 			std::cout << " holds w.r.t. TBox\n";
 		}
+
+		// free memory
+		delete Query[0];
+		delete Query[1];
 	}
 
 	pt.Stop();
