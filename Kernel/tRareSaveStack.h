@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2005 by Dmitry Tsarkov
+Copyright (C) 2003-2007 by Dmitry Tsarkov
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -38,32 +38,19 @@ protected:	// classes
 		unsigned int level;
 			/// pointer to restoring information
 		TRestorer* p;
+
 	public:		// interface
-			/// empty c'tor
-		RestoreElement ( void ) : level(0), p(NULL) {}
 			/// create c'tor
 		RestoreElement ( unsigned int l, TRestorer* q ) : level(l), p(q) {}
-			/// copy c'tor
-		RestoreElement ( const RestoreElement& e ) : level(e.level), p(e.p) {}
-			/// assignment
-		RestoreElement& operator = ( const RestoreElement& e )
-		{
-			if ( p != e.p )
-			{
-				delete p;
-				level = e.level;
-				p = e.p;
-			}
-			return *this;
-		}
 			/// d'tor
-			// WARNING!! memory leaks!
-		~RestoreElement ( void ) { /*delete p;*/ }
+		~RestoreElement ( void ) { delete p; }
 	}; // RestoreElement
 
 protected:	// typedefs
 		/// type of the heap
-	typedef std::vector<RestoreElement> baseType;
+	typedef std::vector<RestoreElement*> baseType;
+		/// iterator on the heap
+	typedef baseType::iterator iterator;
 
 protected:	// members
 		/// heap of saved objects
@@ -73,26 +60,37 @@ public:		// interface
 		/// empty c'tor: stack will most likely be empty
 	TRareSaveStack ( void ) {}
 		/// d'tor
-	~TRareSaveStack ( void ) {}
+	~TRareSaveStack ( void ) { clear(); }
 
 	// stack operations
 
 		/// check that stack is empty
 	bool empty ( void ) const { return Base.empty(); }
 		/// add a new object to the stack
-	void push ( unsigned int level, TRestorer* p ) { Base.push_back(RestoreElement(level,p)); }
+	void push ( unsigned int level, TRestorer* p )
+		{ Base.push_back ( new RestoreElement ( level, p ) ); }
 		/// get all object from the top of the stack with levels >= LEVEL
 	void restore ( unsigned int level )
 	{
-		while ( !Base.empty() && Base.back().level > level )
+		while ( !Base.empty() )
 		{
+			RestoreElement* cur = Base.back();
+			if ( cur->level <= level )
+				break;
+
 			// need to restore: restore last element, remove it from stack
-			Base.back().p->restore();
+			cur->p->restore();
+			delete cur;
 			Base.resize(Base.size()-1);
 		}
 	}
 		/// clear stack
-	void clear ( void ) { Base.clear(); }
+	void clear ( void )
+	{
+		for ( iterator p = Base.begin(), p_end = Base.end(); p < p_end; ++p )
+			delete *p;
+		Base.clear();
+	}
 }; // TRareSaveStack
 
 #endif

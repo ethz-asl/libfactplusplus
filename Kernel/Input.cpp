@@ -150,7 +150,7 @@ bool TBox :: axiomToRangeDomain ( DLTree* l, DLTree* r )
 		// free unused memory
 		delete l;
 		r->SetRight(NULL);
-		delete r;
+		deleteTree(r);
 		return true;
 	}
 	else
