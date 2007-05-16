@@ -110,6 +110,13 @@ DLTree* getTree ( JNIEnv * env, jobject obj )
 	return clone((DLTree*)getPointer(env,obj));
 }
 
+// use this method is TREE is read-only
+inline
+DLTree* getROTree ( JNIEnv * env, jobject obj )
+{
+	return (DLTree*)getPointer(env,obj);
+}
+
 inline
 TDataInterval* getFacet ( JNIEnv * env, jobject obj )
 {
