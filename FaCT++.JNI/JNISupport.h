@@ -60,13 +60,14 @@ public:		// interface
 		/// d'tor
 	~RefRecorder ( void ) { clear(); }
 
-		/// add reference to a repository; @return added reference
-	DLTree* add ( DLTree* p ) { refs.push_back(p); return p; }
+		/// add reference to a repository
+	add ( DLTree* p ) { refs.push_back(p); }
 		/// clear repository, free all memory
 	void clear ( void )
 	{
 		for ( iterator p = refs.begin(), p_end = refs.end(); p < p_end; ++p )
 			delete *p;
+		refs.clear();
 	}
 }; // RefRecorder
 
@@ -145,7 +146,7 @@ DLTree* getTree ( JNIEnv * env, jobject obj )
 inline
 DLTree* getROTree ( JNIEnv * env, jobject obj )
 {
-	return RORefRecorder.add((DLTree*)getPointer(env,obj));
+	return (DLTree*)getPointer(env,obj);
 }
 
 inline
@@ -219,8 +220,12 @@ jobject retObject ( JNIEnv * env, T* t, const char* className )
 	// set unique name (if necessary)
 	jlong id = getId(t);
 
-	if ( id )
+	if ( id )	// t is a DLTree*
 	{
+		// all references that are passed to objects become read-only:
+		// they either being cloned, or used as a const*
+		RORefRecorder.add(t);
+
 		fid = env->GetFieldID ( classPointer, "id", "J" );
 
 		if ( fid == 0 )
