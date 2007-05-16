@@ -134,7 +134,7 @@ bool ReasoningKernel :: setUpCache ( DLTree* query, cacheStatus level )
 	}
 
 	// change current query
-	delete cachedQuery;
+	deleteTree(cachedQuery);
 	cachedQuery = clone (query);
 
 needSetup:

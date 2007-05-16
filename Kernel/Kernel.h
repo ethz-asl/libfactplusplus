@@ -1096,7 +1096,7 @@ ReasoningKernel :: isSubsumedBy ( const ComplexConcept C, const ComplexConcept D
 		return false;
 	}
 
-	ComplexConcept Probe = And ( C, Not(D) );
+	ComplexConcept Probe = And ( clone(C), Not(clone(D)) );
 	bool ret = isSatisfiable ( Probe, Result );
 	deleteTree(Probe);
 	Result = !Result;
