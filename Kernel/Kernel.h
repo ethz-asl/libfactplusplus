@@ -483,8 +483,8 @@ public:
 	// is C satisfiable
 	bool isSatisfiable ( const ComplexConcept C, bool& Result );
 
-	// is C =] D holds
-	bool isSubsumes ( const ComplexConcept C, const ComplexConcept D, bool& Result );
+	// is C [= D holds
+	bool isSubsumedBy ( const ComplexConcept C, const ComplexConcept D, bool& Result );
 
 	// is C&D disjoint
 	bool isDisjoint ( const ComplexConcept C, const ComplexConcept D, bool& Result );
@@ -1068,9 +1068,9 @@ inline bool
 ReasoningKernel :: isSatisfiable ( const ComplexConcept C, bool& Result )
 {
 	preprocessKB();	// ensure KB is ready to answer the query
-	if ( isName(C) )
+	if ( isCN(C) )
 	{
-		Result = getTBox()->isSatisfiable(static_cast<TConcept*>(C->Element().getName()));
+		Result = getTBox()->isSatisfiable(getTBox()->getConcept(C));
 		return false;
 	}
 
@@ -1085,19 +1085,18 @@ ReasoningKernel :: isSatisfiable ( const ComplexConcept C, bool& Result )
 	return false;
 }
 
-	// is C =] D holds
+	// is C [= D holds
 inline bool
-ReasoningKernel :: isSubsumes ( const ComplexConcept C, const ComplexConcept D, bool& Result )
+ReasoningKernel :: isSubsumedBy ( const ComplexConcept C, const ComplexConcept D, bool& Result )
 {
 	preprocessKB();	// ensure KB is ready to answer the query
-	if ( isName(C) && isName(D) )
+	if ( isCN(C) && isCN(D) )
 	{
-		Result = getTBox()->isSubHolds ( static_cast<TConcept*>(D->Element().getName()),
-										 static_cast<TConcept*>(C->Element().getName()) );
+		Result = getTBox()->isSubHolds ( getTBox()->getConcept(C), getTBox()->getConcept(D) );
 		return false;
 	}
 
-	bool ret = isSatisfiable ( createSNFAnd ( createSNFNot(C), D ), Result );
+	bool ret = isSatisfiable ( createSNFAnd ( C, createSNFNot(D) ), Result );
 	Result = !Result;
 	return ret;
 }
@@ -1110,14 +1109,14 @@ ReasoningKernel :: isDisjoint ( const ComplexConcept C, const ComplexConcept D, 
 	bool sub = false, fail;
 
 	// check if one of subsumption holds
-	fail = isSubsumes ( C, D, sub );
+	fail = isSubsumedBy ( C, D, sub );
 
 	if ( fail )
 		return true;
 
 	// check second one if 1st subsumption not holds
 	if ( !sub )
-		fail = isSubsumes ( D, C, sub );
+		fail = isSubsumedBy ( D, C, sub );
 
 	if ( !fail )
 		Result = !sub;
@@ -1129,7 +1128,7 @@ ReasoningKernel :: isDisjoint ( const ComplexConcept C, const ComplexConcept D, 
 inline bool ReasoningKernel :: isInstance ( const ComplexConcept I, const ComplexConcept C, bool& Result )
 {
 	realiseKB();	// ensure KB is ready to answer the query
-	return isSubsumes ( C, I, Result );
+	return isSubsumedBy ( I, C, Result );
 }
 
 //----------------------------------------------------

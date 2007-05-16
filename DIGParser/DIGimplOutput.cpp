@@ -276,7 +276,7 @@ void DIGParseHandlers :: endAsk ( DIGTag tag )
 				delP = false;
 
 			if ( tag == digSubsumes )
-				fail = pKernel->isSubsumes ( p, q, ret );
+				fail = pKernel->isSubsumedBy ( q, p, ret );
 			else if ( tag == digInstance )
 				fail = pKernel->isInstance ( p, q, ret );
 			else	// ( name == "disjoint" )

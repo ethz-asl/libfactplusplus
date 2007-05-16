@@ -175,7 +175,7 @@ int main ( int argc, char *argv[] )
 		}
 		else
 		{
-			Kernel.isSubsumes ( Query[1], Query[0], result );
+			Kernel.isSubsumedBy ( Query[0], Query[1], result );
 
 			std::cout << "The '" << Query[0] << " [= " << Query[1] << "' subsumption does";
 			if ( !result )
