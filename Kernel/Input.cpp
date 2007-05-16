@@ -343,12 +343,17 @@ bool TBox :: processDisjoint ( const ConceptSet& v )
 	}
 
 	// no primitive concepts between DJ elements
-	if ( prim.empty() )
-		return processDisjoint ( rest.begin(), rest.end() );
+	bool ret = false;
+
+	if ( !rest.empty() )
+		ret |= processDisjoint ( rest.begin(), rest.end() );
 
 	// all non-PC are done; prim is non-empty
 	// FIXME!! do it in more optimal way later
-	return processDisjoint ( prim.begin(), prim.end() );
+	if ( !prim.empty() )
+		ret |= processDisjoint ( prim.begin(), prim.end() );
+
+	return ret;
 }
 
 bool TBox :: processEquivalent ( const ConceptSet& v )
