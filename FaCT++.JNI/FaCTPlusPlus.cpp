@@ -1382,8 +1382,11 @@ JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_is
   (JNIEnv * env, jobject obj, jobject arg)
 {
 	TRACE_JNI("isObjectPropertyFunctional");
-	Throw ( env, "FaCT++ Kernel: unsupported operation" );
-	return false;
+	bool ret = false;
+	PROCESS_ASK_QUERY (
+		getK(env,obj)->isFunctional ( getROTree(env,arg), ret ),
+		"FaCT++ Kernel: error during isObjectPropertyFunctional processing" );
+	return ret;
 }
 
 /*
@@ -1395,8 +1398,11 @@ JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_is
   (JNIEnv * env, jobject obj, jobject arg)
 {
 	TRACE_JNI("isObjectPropertyInverseFunctional");
-	Throw ( env, "FaCT++ Kernel: unsupported operation" );
-	return false;
+	bool ret = false;
+	PROCESS_ASK_QUERY (
+		getK(env,obj)->isInverseFunctional ( getROTree(env,arg), ret ),
+		"FaCT++ Kernel: error during isObjectPropertyInverseFunctional processing" );
+	return ret;
 }
 
 /*
@@ -1549,8 +1555,11 @@ JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_is
   (JNIEnv * env, jobject obj, jobject arg)
 {
 	TRACE_JNI("isDataPropertyFunctional");
-	Throw ( env, "FaCT++ Kernel: unsupported operation" );
-	return false;
+	bool ret = false;
+	PROCESS_ASK_QUERY (
+		getK(env,obj)->isFunctional ( getROTree(env,arg), ret ),
+		"FaCT++ Kernel: error during isDataPropertyFunctional processing" );
+	return ret;
 }
 
 /*

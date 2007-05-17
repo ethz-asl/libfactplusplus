@@ -441,6 +441,13 @@ public:
 			throw InconsistentKB();
 	}
 
+	// role info retrieval
+
+		/// RESULT is true iff role is functional
+	bool isFunctional ( const ComplexRole R, bool& Result );
+		/// RESULT is true iff role is inverse-functional
+	bool isInverseFunctional ( const ComplexRole R, bool& Result );
+
 	// TBox info retriveal
 
 	// apply actor.apply() to all concept names
@@ -1064,6 +1071,37 @@ inline bool ReasoningKernel :: processDifferent ( void )
 //----------------------------------------------------
 //	ASKS implementation
 //----------------------------------------------------
+
+/// is R functional
+inline bool
+ReasoningKernel :: isFunctional ( const ComplexRole R, bool& Result )
+{
+	preprocessKB();	// ensure KB is ready to answer the query
+
+	// universal role is not functional
+	if ( isUniversalRole(R) )
+	{
+		Result = false;
+		return false;
+	}
+
+	TRole* r = resolveRole(R);
+	if ( r == NULL )
+		return true;
+
+	Result = r->isFunctional();
+	return false;
+}
+
+/// is R inverse-functional
+inline bool
+ReasoningKernel :: isInverseFunctional ( const ComplexRole R, bool& Result )
+{
+	ComplexRole iR = Inverse(clone(R));
+	bool ret = isFunctional ( iR, Result );
+	deleteTree(iR);
+	return ret;
+}
 
 	// is C satisfiable
 inline bool
