@@ -222,6 +222,8 @@ void DIGParseHandlers :: endAsk ( DIGTag tag )
 		outError ( 401, Reason.c_str(), "" );				\
 	} while(0)
 
+	bool fail;
+
 	switch (tag)
 	{
 	case digAllConceptNames:	// all
@@ -250,7 +252,7 @@ void DIGParseHandlers :: endAsk ( DIGTag tag )
 	case digInstance:		// the same as subsumes
 	case digDisjointQuery:
 	{
-		bool ret = false, fail = true;
+		bool ret = false;
 
 		if ( workStack.empty() )
 			throwArgumentAbsence ( "concept", tag );
@@ -294,28 +296,28 @@ void DIGParseHandlers :: endAsk ( DIGTag tag )
 
 		DLTree* p = workStack.top();
 		workStack.pop();
-		bool ret = true;
 		ConceptActor actor ( *o, curId.c_str() );
 
 		// if were any errors during concept expression construction
 		if ( wasError )
-			ret = true;
+			fail = true;
 		else if ( tag == digCParents )
-			ret = pKernel->getParents ( p, actor );
+			fail = pKernel->getParents ( p, actor );
 		else if ( tag == digCChildren )
-			ret = pKernel->getChildren ( p, actor );
+			fail = pKernel->getChildren ( p, actor );
 		else if ( tag == digCAncestors )
-			ret = pKernel->getAncestors ( p, actor );
+			fail = pKernel->getAncestors ( p, actor );
 		else if ( tag == digCDescendants )
-			ret = pKernel->getDescendants ( p, actor );
+			fail = pKernel->getDescendants ( p, actor );
 		else if ( tag == digTypes )		// FIXME!! correct later
-			ret = pKernel->getParents ( p, actor );
+			fail = pKernel->getParents ( p, actor );
 //			ret = pKernel->getTypes ( workStack.top()->Element().GetID(), Set );
 
-		if ( ret )	// error
+		delete p;
+
+		if ( fail )	// error
 			ERROR_400;
 
-		delete p;
 		return;
 	}
 	case digEquivalents:
@@ -326,10 +328,12 @@ void DIGParseHandlers :: endAsk ( DIGTag tag )
 		workStack.pop();
 		ConceptActor actor ( *o, curId.c_str() );
 
-		if ( wasError || pKernel->getEquivalents ( p, actor ) )	// error
+		fail = wasError || pKernel->getEquivalents ( p, actor );
+		delete p;
+
+		if ( fail )	// error
 			ERROR_400;
 
-		delete p;
 		return;
 	}
 	case digRParents:			// role hierarchy
@@ -342,25 +346,25 @@ void DIGParseHandlers :: endAsk ( DIGTag tag )
 
 		DLTree* p = workStack.top();
 		workStack.pop();
-		bool ret = true;
 		RoleActor actor ( *o, curId.c_str() );
 
 		// if were any errors during concept expression construction
 		if ( wasError )
-			ret = true;
+			fail = true;
 		else if ( tag == digRParents )
-			ret = pKernel->getRParents ( p, actor );
+			fail = pKernel->getRParents ( p, actor );
 		else if ( tag == digRChildren )
-			ret = pKernel->getRChildren ( p, actor );
+			fail = pKernel->getRChildren ( p, actor );
 		else if ( tag == digRAncestors )
-			ret = pKernel->getRAncestors ( p, actor );
+			fail = pKernel->getRAncestors ( p, actor );
 		else if ( tag == digRDescendants )
-			ret = pKernel->getRDescendants ( p, actor );
-
-		if ( ret )	// error
-			ERROR_400;
+			fail = pKernel->getRDescendants ( p, actor );
 
 		delete p;
+
+		if ( fail )	// error
+			ERROR_400;
+
 		return;
 	}
 
@@ -373,10 +377,12 @@ void DIGParseHandlers :: endAsk ( DIGTag tag )
 		IndividualActor actor ( *o, curId.c_str() );
 
 		// to find instances just locate all descendants and remove non-nominals
-		if ( wasError || pKernel->getInstances ( p, actor ) )
+		fail = wasError || pKernel->getInstances ( p, actor );
+		delete p;
+
+		if ( fail )
 			ERROR_400;
 
-		delete p;
 		return;
 	}
 	case digRoleFillers:
