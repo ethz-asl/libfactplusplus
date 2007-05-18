@@ -74,7 +74,6 @@ protected:	// methods
 
 		Current = new TaxonomyVertex (p);
 		curEntry = p;
-		deleteCurrent = false;
 	}
 
 	//-----------------------------------------------------------------
