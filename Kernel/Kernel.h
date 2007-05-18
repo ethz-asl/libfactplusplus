@@ -291,7 +291,10 @@ public:
 	ComplexConcept MinCardinality ( unsigned int n, ComplexRole R, ComplexConcept C ) const;
 		/// @return = n R.C
 	ComplexConcept Cardinality ( unsigned int n, ComplexRole R, ComplexConcept C ) const
-		{ return And ( MinCardinality ( n, R, C ), MaxCardinality ( n, R, C ) ); }
+	{
+		ComplexConcept temp = MinCardinality ( n, clone(R), clone(C) );
+		return And ( temp, MaxCardinality ( n, R, C ) );
+	}
 		/// complex concept expression
 	ComplexConcept ComplexExpression ( Token t, unsigned int n, ComplexRole R, ComplexConcept C ) const
 	{
