@@ -277,12 +277,12 @@ void DIGParseHandlers :: endAsk ( DIGTag tag )
 			else	// ( name == "disjoint" )
 				fail = pKernel->isDisjoint ( p, q, ret );
 
-			delete p;
+			deleteTree(p);
 		}
 
 		simpleXMLEntry ( fail?"error":(ret?"true":"false"), *o, curId.c_str() );
 
-		delete q;
+		deleteTree(q);
 		return;
 	}
 	case digCParents:			// concept hierarchy
@@ -313,7 +313,7 @@ void DIGParseHandlers :: endAsk ( DIGTag tag )
 			fail = pKernel->getParents ( p, actor );
 //			ret = pKernel->getTypes ( workStack.top()->Element().GetID(), Set );
 
-		delete p;
+		deleteTree(p);
 
 		if ( fail )	// error
 			ERROR_400;
@@ -329,7 +329,7 @@ void DIGParseHandlers :: endAsk ( DIGTag tag )
 		ConceptActor actor ( *o, curId.c_str() );
 
 		fail = wasError || pKernel->getEquivalents ( p, actor );
-		delete p;
+		deleteTree(p);
 
 		if ( fail )	// error
 			ERROR_400;
@@ -360,7 +360,7 @@ void DIGParseHandlers :: endAsk ( DIGTag tag )
 		else if ( tag == digRDescendants )
 			fail = pKernel->getRDescendants ( p, actor );
 
-		delete p;
+		deleteTree(p);
 
 		if ( fail )	// error
 			ERROR_400;
@@ -378,7 +378,7 @@ void DIGParseHandlers :: endAsk ( DIGTag tag )
 
 		// to find instances just locate all descendants and remove non-nominals
 		fail = wasError || pKernel->getInstances ( p, actor );
-		delete p;
+		deleteTree(p);
 
 		if ( fail )
 			ERROR_400;

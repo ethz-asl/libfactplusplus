@@ -252,7 +252,7 @@ TConcept* TBox :: createTempConcept ( const DLTree* desc )
 	defConcept->setSystem ();
 
 	// create description
-	makeNonPrimitive ( defConcept, clone(desc) );
+	deleteTree ( makeNonPrimitive ( defConcept, clone(desc) ) );
 
 	// build DAG entries for the default concept
 	DLHeap.setExpressionCache(false);
