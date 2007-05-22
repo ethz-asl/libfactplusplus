@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2004 by Dmitry Tsarkov
+Copyright (C) 2003-2007 by Dmitry Tsarkov
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -43,9 +43,7 @@ public:
 inline void ProgressIndicatorInterface::setLimit ( unsigned long limit )
 {
 	uLimit = limit;
-
-	if ( checkMax () )
-		expose ();
+	reset();
 }
 
 inline bool ProgressIndicatorInterface::checkMax ( void )

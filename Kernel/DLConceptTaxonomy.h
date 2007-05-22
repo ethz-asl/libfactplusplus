@@ -146,7 +146,7 @@ public:		// interface
 	~DLConceptTaxonomy ( void ) {}
 
 		/// set progress indicator
-	void setProgressIndicator ( TProgressMonitor* pMon );
+	void setProgressIndicator ( TProgressMonitor* pMon ) { pTaxProgress = pMon; }
 		/// output taxonomy to a stream
 	virtual void print ( std::ostream& o ) const;
 }; // DLConceptTaxonomy
@@ -230,12 +230,6 @@ inline bool DLConceptTaxonomy :: needBottomUp ( void ) const
 	// or no reflexive roles w/RnD precent (Refl(R), Range(R)=D)
 	return GCIs.isGCI() || (GCIs.isReflexive() && GCIs.isRnD()) ||
 		   !useCompletelyDefined || curConcept()->isNonPrimitive();
-}
-
-inline void DLConceptTaxonomy :: setProgressIndicator ( TProgressMonitor* pMon )
-{
-	delete pTaxProgress;
-	pTaxProgress = pMon;
 }
 
 #endif // _DLCONCEPTTAXONOMY_H
