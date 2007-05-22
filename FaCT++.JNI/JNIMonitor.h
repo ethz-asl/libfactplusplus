@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2006 by Dmitry Tsarkov
+Copyright (C) 2006-2007 by Dmitry Tsarkov
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -32,8 +32,8 @@ public:
 	JNIProgressMonitor ( JNIEnv* Env, jobject obj )
 		: TProgressMonitor()
 		, env(Env)
-		, javaMonitor(obj)
 	{
+		javaMonitor = env->NewGlobalRef(obj);
 		jclass cls = env->GetObjectClass(obj);
 		if ( cls == 0 )
 			Throw ( env, "Can't get class of ProgressMonitor object" );
@@ -50,7 +50,7 @@ public:
 		if ( iC == 0 )
 			Throw ( env, "Can't get method isCancelled" );
 	}
-	~JNIProgressMonitor ( void ) {}
+	~JNIProgressMonitor ( void ) { env->DeleteGlobalRef(javaMonitor); }
 
 		/// informs about beginning of classification with number of concepts to be classified
 	virtual void setClassificationStarted ( unsigned int nConcepts )
