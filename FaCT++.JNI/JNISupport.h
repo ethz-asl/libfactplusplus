@@ -66,7 +66,7 @@ public:		// interface
 	void clear ( void )
 	{
 		for ( iterator p = refs.begin(), p_end = refs.end(); p < p_end; ++p )
-			delete *p;
+			deleteTree(*p);
 		refs.clear();
 	}
 }; // RefRecorder
