@@ -222,7 +222,7 @@ void DIGParseHandlers :: endAsk ( DIGTag tag )
 		outError ( 401, Reason.c_str(), "" );				\
 	} while(0)
 
-	bool fail;
+	bool fail = false;
 
 	switch (tag)
 	{

@@ -194,7 +194,7 @@ $(EXECUTABLE): $(BUILD_DIR) $(BUILD_DIR)/$(EXECUTABLE)
 	rm -f $(EXECUTABLE) && ln -s $(BUILD_DIR)/$(EXECUTABLE) $(EXECUTABLE)
 
 $(BUILD_DIR)/$(EXECUTABLE): $(OBJECTS) $(LIB_DEPS)
-	$(CXX) $(OBJECTS) $(LDFLAGS) -o $@
+	$(CXX) $(OBJECTS) $(LDFLAGS) -pg -o $@
 #	strip $@
 
 endif # EXECUTABLE
@@ -209,7 +209,7 @@ $(LIBRARY_NAME): $(BUILD_DIR) $(BUILD_DIR)/$(LIBRARY_NAME)
 
 ifeq ($(LTYPE),shared)
 $(BUILD_DIR)/$(LIBRARY_NAME): $(OBJECTS) $(LIB_DEPS)
-	$(CXX) -shared -Wl,-h,$(LIBRARY_NAME) -o $@ $(OBJECTS) $(LDFLAGS)
+	$(CXX) -shared -Wl,-h,$(LIBRARY_NAME) -o $@ $(OBJECTS) $(LDFLAGS) -pg
 	strip -v $@
 endif
 
