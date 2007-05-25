@@ -1,6 +1,6 @@
 package uk.ac.manchester.cs.factplusplus.owlapi;
 
-import org.semanticweb.owl.inference.OWLReasonerAdapter;
+import org.semanticweb.owl.inference.MonitorableOWLReasonerAdapter;
 import org.semanticweb.owl.inference.OWLReasonerException;
 import org.semanticweb.owl.inference.UnsupportedReasonerOperationException;
 import org.semanticweb.owl.model.*;
@@ -20,14 +20,14 @@ import java.util.logging.Logger;
  * <p/>
  * An OWLAPI wrapper around the FaCTPlusPlus reasoner.
  */
-public class Reasoner extends OWLReasonerAdapter implements FaCTPlusPlusProgressMonitor {
+public class Reasoner extends MonitorableOWLReasonerAdapter implements FaCTPlusPlusProgressMonitor {
 
     private static final Logger logger = Logger.getLogger(Reasoner.class.getName());
 
     /**
      * The FaCT++ reasoner that does all the hard work *
      */
-    private final FaCTPlusPlus faCTPlusPlus;
+    private FaCTPlusPlus faCTPlusPlus;
 
     /**
      * The translator that translates back and forth between OWLAPI
@@ -69,10 +69,29 @@ public class Reasoner extends OWLReasonerAdapter implements FaCTPlusPlusProgress
      */
     public void disposeReasoner() {
         try {
+            if (faCTPlusPlus == null) {
+                return;
+            }
             faCTPlusPlus.dispose();
+            faCTPlusPlus = null;
         }
         catch (Exception e) {
             logger.severe(e.getMessage());
+        }
+    }
+
+
+    public boolean isRealised() throws OWLReasonerException {
+        return synchronised;
+    }
+
+
+    public void realise() throws OWLReasonerException {
+        try {
+            faCTPlusPlus.realise();
+        }
+        catch (Exception e) {
+            throw new FaCTPlusPlusReasonerException(e);
         }
     }
 
@@ -94,6 +113,27 @@ public class Reasoner extends OWLReasonerAdapter implements FaCTPlusPlusProgress
 
     public boolean isDefined(OWLIndividual ind) throws OWLReasonerException {
         return containsReference(ind);
+    }
+
+
+    /**
+     * Determines if FaCT++ will be reloaded and the ontologies reclassified
+     * on the first ask after any changes have been made, or if FaCT++ must
+     * explicitly be told to reload and reclassify using the <code>classify</code>
+     * method.
+     * @return <code>true</code> if the <code>classify</code> method must
+     *         be called to reload and classify the set of ontologies after changes
+     *         have been made to the ontology, or <code>false</code> if the set of
+     *         ontologies will automatically be reloaded and reclassified on the first
+     *         ask operation after changes have been made to any loaded ontology.
+     */
+    public boolean isSychroniseOnlyOnClassify() {
+        return sychroniseOnlyOnClassify;
+    }
+
+
+    public void setSychroniseOnlyOnClassify(boolean sychroniseOnlyOnClassify) {
+        this.sychroniseOnlyOnClassify = sychroniseOnlyOnClassify;
     }
 
 
@@ -144,6 +184,7 @@ public class Reasoner extends OWLReasonerAdapter implements FaCTPlusPlusProgress
             // Reset the translator, because the pointer mappings that it holds
             // are no longer valid
             translator.reset();
+
             // Now reload the ontologies
             OntologyLoader loader = new OntologyLoader(getOWLOntologyManager(), translator);
             loader.loadOntologies(getLoadedOntologies(), faCTPlusPlus);
@@ -162,8 +203,14 @@ public class Reasoner extends OWLReasonerAdapter implements FaCTPlusPlusProgress
 
 
     public void classify() throws OWLReasonerException {
-        synchronised = false;
-        ensureSynchronised();
+        try {
+            synchronised = false;
+            ensureSynchronised();
+            getReasoner().classify();
+        }
+        catch (Exception e) {
+            throw new FaCTPlusPlusReasonerException(e);
+        }
     }
 
 
@@ -786,19 +833,38 @@ public class Reasoner extends OWLReasonerAdapter implements FaCTPlusPlusProgress
     }
 
 
+    private int count;
+
+
+    public OWLEntity getCurrentEntity() {
+        return null;
+    }
+
+
     public void setClassificationStarted(int classCount) {
+        count = 0;
+        getProgressMonitor().setSize(classCount);
+        getProgressMonitor().setStarted();
     }
 
 
     public void setCurrentClass(String className) {
+        count++;
+        getProgressMonitor().setProgress(count);
     }
 
 
     public void setFinished() {
+        getProgressMonitor().setFinished();
     }
 
 
     public boolean isCancelled() {
-        return false;
+        return getProgressMonitor().isCancelled();
+    }
+
+
+    public String toString() {
+        return "FaCT++";
     }
 }
