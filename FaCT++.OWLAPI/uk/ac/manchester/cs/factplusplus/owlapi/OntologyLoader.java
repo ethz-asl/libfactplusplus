@@ -5,7 +5,6 @@ import uk.ac.manchester.cs.factplusplus.FaCTPlusPlus;
 
 import java.util.Set;
 import java.util.logging.Logger;
-import java.util.logging.Level;
 
 /**
  * Author: Matthew Horridge<br>
@@ -29,7 +28,6 @@ public class OntologyLoader {
     public OntologyLoader(OWLOntologyManager owlOntologyManager, Translator translator) {
         this.owlOntologyManager = owlOntologyManager;
         this.translator = translator;
-        logger.setLevel(Level.INFO);
     }
 
 
