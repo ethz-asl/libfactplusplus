@@ -21,9 +21,7 @@ Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 
 bool TAxiom :: simplify ( void )
 {
-	bool ret = false;
-	register unsigned int i = 0;
-	while ( i < Disjuncts.size() )
+	for ( unsigned int i = 0; i < Disjuncts.size(); ++i )
 	{
 		DLTree* p = Disjuncts[i];
 
@@ -34,16 +32,13 @@ bool TAxiom :: simplify ( void )
 		else if ( isOr(p) )
 			simplifyOr(i);
 		else
-		{
-			++i;
 			continue;
-		}
 
 		// something was simplified
-		ret = true;
+		return true;
 	}
 
-	return ret;
+	return false;
 }
 
 DLTree* TAxiom :: createAnAxiom ( void )
@@ -67,7 +62,7 @@ DLTree* TAxiom :: createAnAxiom ( void )
 #ifdef RKG_DEBUG_ABSORPTION
 void TAxiom :: dump ( std::ostream& o ) const
 {
-	o << "(neg-and ";
+	o << "(neg-and";
 	for ( const_iterator p = begin(), p_end = end(); p != p_end; ++p )
 		o << *p;
 	o << ")" << std::endl;
