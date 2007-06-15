@@ -111,7 +111,9 @@ public:		// interface
 		/// return registered data value by given NAME of a Type, given by SAMPLE
 	DLTree* getDataValue ( const std::string& name, const DLTree* sample ) const throw(CantRegName)
 	{
-		TDataType* type = getTypeBySample(unwrap(sample));
+		TDataType* type = isConst(sample) ?
+			getStringDataType() :	// data top
+			getTypeBySample(unwrap(sample));
 		TDataEntry* ret = NULL;
 		try
 		{
