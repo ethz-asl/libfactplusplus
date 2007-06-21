@@ -129,9 +129,6 @@ public:
 	virtual modelCacheState getState ( void ) const
 		{ return curState != csInvalid ? curState : correctInvalid(Deterministic); }
 
-	/// Copy of the current entry.
-	virtual modelCacheInterface* copy ( void ) const { return new modelCacheIan(*this); }
-
 		/// init empty valid cache
 	void initEmptyCache ( void );
 		/// init existRoles from arcs; can be used to create pseudo-cache with deps of CT edges

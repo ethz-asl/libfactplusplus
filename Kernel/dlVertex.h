@@ -79,11 +79,6 @@ protected:	// members
 		/// cache for the negative entry
 	modelCacheInterface* nCache;
 
-private:	// methods
-		/// get copy of a cache entry
-	static modelCacheInterface* clone ( modelCacheInterface* p )
-		{ return p ? p->copy() : NULL; }
-
 public:		// interface
 		/// empty c'tor
 	DLVertexCache ( void ) : pCache(NULL), nCache(NULL) {}

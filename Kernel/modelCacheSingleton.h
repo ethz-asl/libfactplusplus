@@ -85,8 +85,6 @@ public:
 
 		/// Check if the model contains clash
 	virtual modelCacheState getState ( void ) const { return getState(getValue()); }
-		/// Copy of the current entry
-	virtual modelCacheInterface* copy ( void ) const { return new modelCacheSingleton(*this); }
 		/// access to internal value
 	BipolarPointer getValue ( void ) const { return Singleton; }
 

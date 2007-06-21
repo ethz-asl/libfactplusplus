@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2006 by Dmitry Tsarkov
+Copyright (C) 2003-2007 by Dmitry Tsarkov
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -66,8 +66,6 @@ public:		// interface
 	modelCacheInterface ( bool flagNominals ) : hasNominalNode(flagNominals) {}
 		/// empty d'tor
 	virtual ~modelCacheInterface ( void ) {}
-		/// Copy of the current entry.
-	virtual modelCacheInterface* copy ( void ) const = 0;
 
 		/// check whether both models have nominals; in this case, merge is impossible
 	bool hasNominalClash ( const modelCacheInterface* p ) const
