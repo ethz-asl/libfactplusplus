@@ -101,17 +101,6 @@ public:
 		else
 			return p->canMerge(this);
 	}
-		/// merge general-type cache to singleton one
-	virtual modelCacheState merge ( const modelCacheInterface* p )
-	{
-		BipolarPointer ms = bpINVALID;
-		if ( p->getCacheType() == mctSingleton && !hasNominalClash(p) )
-			ms = static_cast<const modelCacheSingleton*>(p)->getValue();
-
-		Singleton = mergeSingletons ( Singleton, ms );
-		updateNominalStatus(p);
-		return getState();
-	}
 	/// Get the tag identifying the cache type
 	virtual modelCacheType getCacheType ( void ) const { return mctSingleton; }
 	/// log this cache entry (with given level)

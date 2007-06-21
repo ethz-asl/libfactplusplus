@@ -79,8 +79,6 @@ public:		// interface
 	virtual modelCacheState getState ( void ) const = 0;
 		/// check whether two caches can be merged; @return state of "merged" model
 	virtual modelCacheState canMerge ( const modelCacheInterface* p ) const = 0;
-		/// Merge given model to current one; return state of the merged model
-	virtual modelCacheState merge ( const modelCacheInterface* p ) = 0;
 
 		/// Get the tag identifying the cache type
 	virtual modelCacheType getCacheType ( void ) const { return mctBadType; }
