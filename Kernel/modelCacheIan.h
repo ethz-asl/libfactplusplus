@@ -41,19 +41,23 @@ protected:	// types
 	typedef DlCompletionTree::const_edge_iterator e_iterator;
 
 protected:	// members
-	/// was original model deterministic or not
-	bool Deterministic;
-	/// current state of cache model. recalculates on every change automatically.
-	modelCacheState curState;
+	// sets for the cache
 
-	/// sets for the cache
-	conceptSet
-		posConcepts,	// positive concepts
-		negConcepts;	// negative concepts
-	roleSet
-		existsRoles,	// roles S from ER.x (arcs) where R [= S
-		forallRoles,	// roles S from AR.x where S [= R
-		funcRoles;		// func.roles F from Func.R where R = F (corret later)
+		/// named concepts that appears positively in a root node of a cache
+	conceptSet posConcepts;
+		/// named concepts that appears negatively in a root node of a cache
+	conceptSet negConcepts;
+		/// role names that are labels of the outgoing edges from the root node
+	roleSet existsRoles;
+		/// role names that appears in the \A restrictions in the root node
+	roleSet forallRoles;
+		/// role names that appears in the atmost restrictions in the root node
+	roleSet funcRoles;
+
+		/// current state of cache model; recalculates on every change
+	modelCacheState curState;
+		/// whether original model is deterministic or not
+	bool Deterministic;
 
 protected:	// methods
 		/// update Deterministic if dep-set is not empty
@@ -111,8 +115,8 @@ public:
 		/// empty c'tor
 	modelCacheIan ( bool flagNominals )
 		: modelCacheInterface(flagNominals)
-		, Deterministic(true)
 		, curState(csValid)
+		, Deterministic(true)
 		{}
 		/// copy c'tor
 	modelCacheIan ( const modelCacheIan& m );
@@ -157,13 +161,13 @@ public:
 inline
 modelCacheIan :: modelCacheIan ( const modelCacheIan& m )
 	: modelCacheInterface(m.hasNominalNode)
-	, Deterministic(m.Deterministic)
-	, curState(m.getState())
 	, posConcepts(m.posConcepts)
 	, negConcepts(m.negConcepts)
 	, existsRoles(m.existsRoles)
 	, forallRoles(m.forallRoles)
 	, funcRoles(m.funcRoles)
+	, curState(m.getState())
+	, Deterministic(m.Deterministic)
 	{}
 
 #endif
