@@ -53,7 +53,8 @@ public:		// types
 	enum modelCacheType
 	{
 		mctBadType,		// not implemented
-		mctSingleton,	// contains just 1 concept
+		mctConst,		// TOP/BOTTOM
+		mctSingleton,	// contains just one named concept
 		mctIan,			// root-level concepts, ER and AR concepts are cached
 	};
 

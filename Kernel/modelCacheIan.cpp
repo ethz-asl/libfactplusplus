@@ -115,17 +115,19 @@ void modelCacheIan :: addExistsRole ( const TRole* R )
 
 modelCacheState modelCacheIan :: canMerge ( const modelCacheInterface* p ) const
 {
+	if ( hasNominalClash(p) )	// fail to merge due to nominal precense
+		return csFailed;
+
 	// check if something goes wrong
 	if ( p->getState () != csValid || getState () != csValid )
 		return mergeStatus ( p->getState (), getState () );
 
 	// here both models are valid;
 
-	if ( hasNominalClash(p) )	// fail to merge due to nominal precense
-		return csFailed;
-
 	switch ( p->getCacheType() )
 	{
+	case mctConst:		// check for TOP (as the model is valid)
+		return csValid;
 	case mctSingleton:	// check for the Singleton
 		return isMergableSingleton ( static_cast<const modelCacheSingleton*>(p) );
 	case mctIan:
@@ -172,11 +174,8 @@ modelCacheState modelCacheIan :: isMergableSingleton ( const modelCacheSingleton
 
 	// check for the clash
 	if ( isNegative (Singleton) && set_contains ( posConcepts, inverse(Singleton) ) ||
-		 isPositive (Singleton) && set_contains ( negConcepts, Singleton ) ||
-		 Singleton == bpBOTTOM )
+		 isPositive (Singleton) && set_contains ( negConcepts, Singleton ) )
 		return correctInvalid(Deterministic);
-	else if ( Singleton == bpINVALID )
-		return csFailed;
 	else
 		return csValid;
 }
@@ -199,32 +198,32 @@ modelCacheState modelCacheIan :: merge ( const modelCacheInterface* p )
 
 	switch ( p->getCacheType() )
 	{
+	case mctConst:		// adds TOP/BOTTOM
+		curState = mergeStatus ( getState(), p->getState() );
+		break;
 	case mctSingleton:	// adds Singleton
 	{
 		BipolarPointer Singleton = static_cast<const modelCacheSingleton*>(p)->getValue();
 		modelCacheState newState = csValid;
 
 		// check for the clash
-		if ( Singleton == bpINVALID )	// wrong cache
-			newState = csFailed;
-		else if ( Singleton == bpTOP )
-			;	// nothing to do
-		else if ( Singleton == bpBOTTOM )
-			newState = csInvalid;
-		else if ( isNegative (Singleton) )
+		if ( isNegative(Singleton) )
 		{
 			if ( set_contains ( posConcepts, inverse(Singleton) ) )
 				newState = csInvalid;
 			else
 				negConcepts.insert(inverse(Singleton));
 		}
-		else // isPositive (Singleton)
+		else if ( isPositive(Singleton) )
 		{
 			if ( set_contains ( negConcepts, Singleton ) )
 				newState = csInvalid;
 			else
 				posConcepts.insert(Singleton);
 		}
+		else	// wrong cache
+			newState = csFailed;
+
 		curState = mergeStatus ( getState(), newState );
 		break;
 	}

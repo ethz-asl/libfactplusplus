@@ -403,9 +403,6 @@ protected:	// methods
 		/// return cache of given completion tree (implementation)
 	modelCacheInterface* createModelCache ( const DlCompletionTree* p ) const
 		{ return new modelCacheIan ( DLHeap, p, encounterSingleton ); }
-		/// return [singleton] cache for given concept implementation
-	modelCacheInterface* createModelCache ( BipolarPointer p ) const
-		{ return new modelCacheSingleton(p); }
 		/// create cache entry for given singleton
 	void registerNominalCache ( TConcept* p )
 	{
@@ -792,6 +789,14 @@ public:
 			error ( "Wrong priority option given. Execution stopped." );
 	}
 
+		/// return [singleton] cache for given concept implementation
+	modelCacheInterface* createModelCache ( BipolarPointer p ) const
+	{
+		if ( p == bpTOP || p == bpBOTTOM )
+			return new modelCacheConst(p==bpTOP);
+		else
+			return new modelCacheSingleton(p);
+	}
 		/// fills cache entry for given DAG node; @return cache
 	const modelCacheInterface* fillsCache ( BipolarPointer p );
 		/// build cache suitable for classification
@@ -990,7 +995,7 @@ TBox :: initReasoner ( void )
 inline void
 TBox :: initSingletonCache ( BipolarPointer p )
 {
-	DLHeap.setCache ( p, new modelCacheSingleton(p) );
+	DLHeap.setCache ( p, stdReasoner->createModelCache(p) );
 }
 
 /// check if the ontology is consistent

@@ -21,6 +21,7 @@ Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 
 #include "logging.h"
 #include "modelCacheInterface.h"
+#include "modelCacheConst.h"
 #include "BiPointer.h"
 
 /** Model caching implementation for singleton models.
@@ -32,42 +33,6 @@ class modelCacheSingleton: public modelCacheInterface
 protected:	// members
 		/// the singleton itself
 	BipolarPointer Singleton;
-
-protected:	// methods
-		/// return result of merge of two given BPs
-	static BipolarPointer mergeSingletons ( BipolarPointer bp1, BipolarPointer bp2 )
-	{
-		// if some of BPs are BOTTOM => result is contradiction
-		if ( bp1 == bpBOTTOM || bp2 == bpBOTTOM )
-			return bpBOTTOM;
-		// if some of BPs are INVALID => result is undefined
-		if ( bp1 == bpINVALID || bp2 == bpINVALID )
-			return bpINVALID;
-		// check for direct contradiction
-		if ( bp1 == inverse(bp2) )
-			return bpBOTTOM;
-		// check for top in a singleton => just copy the other
-		if ( bp1 == bpTOP )
-			return bp2;
-		// check for top in a singleton => just copy the other
-		if ( bp2 == bpTOP )
-			return bp1;
-		// check for 2 same singletons
-		if ( bp1 == bp2 )
-			return bp1;
-		// we couldn't produce valid Singleton for this case
-		return bpINVALID;
-	}
-		/// get model state for given bp
-	static modelCacheState getState ( BipolarPointer bp )
-	{
-		switch ( bp )
-		{
-		case bpBOTTOM:	return csInvalid;
-		case bpINVALID:	return csFailed;
-		default:		return csValid;
-		}
-	}
 
 public:
 		/// c'tor: no nominals can be here
@@ -84,7 +49,7 @@ public:
 	virtual ~modelCacheSingleton ( void ) {}
 
 		/// Check if the model contains clash
-	virtual modelCacheState getState ( void ) const { return getState(getValue()); }
+	virtual modelCacheState getState ( void ) const { return csValid; }
 		/// access to internal value
 	BipolarPointer getValue ( void ) const { return Singleton; }
 
@@ -93,13 +58,19 @@ public:
 		/// check whether two caches can be merged; @return state of "merged" model
 	modelCacheState canMerge ( const modelCacheInterface* p ) const
 	{
-		if ( hasNominalClash(p) )	// fail to merge due to nominal precense
-			return csFailed;
-		if ( p->getCacheType() == mctSingleton )
-			return getState ( mergeSingletons ( Singleton,
-				static_cast<const modelCacheSingleton*>(p)->getValue() ) );
-		else
+		switch ( p->getCacheType() )
+		{
+		case mctConst:		// TOP/BOTTOM: the current node can't add anything to the result
+			return p->getState();
+		case mctSingleton:	// it can be a clash
+			return static_cast<const modelCacheSingleton*>(p)->getValue()
+				   == inverse(getValue()) ? csInvalid : csValid;
+		case mctIan:		// ask more intellegent object
 			return p->canMerge(this);
+		case mctBadType:	// error
+		default:
+			return csUnknown;
+		}
 	}
 	/// Get the tag identifying the cache type
 	virtual modelCacheType getCacheType ( void ) const { return mctSingleton; }
