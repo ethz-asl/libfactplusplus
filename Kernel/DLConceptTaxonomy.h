@@ -31,8 +31,6 @@ protected:	// members
 	TBox& tBox;
 		/// common descendants of all parents of currently classified concept
 	TaxonomyLink Common;
-		/// GCI-related KB flags
-	TKBFlags GCIs;
 
 	// statistic counters
 	unsigned long nConcepts;
@@ -47,6 +45,11 @@ protected:	// members
 
 		/// indicator of taxonomy creation progress
 	TProgressMonitor* pTaxProgress;
+
+	// flags
+
+		/// flag to use Bottom-Up search
+	bool flagNeedBottomUp;
 
 protected:	// methods
 	//-----------------------------------------------------------------
@@ -132,14 +135,14 @@ protected:	// methods
 public:		// interface
 		/// the only c'tor
 	DLConceptTaxonomy ( const TConcept* pTop, const TConcept* pBottom, TBox& kb,
-						const TKBFlags& gcis )
+						const TKBFlags& GCIs )
 		: Taxonomy ( pTop, pBottom )
 		, tBox(kb)
-		, GCIs(gcis)
 		, nConcepts (0), nTries (0), nPositives (0), nNegatives (0)
 		, nCachedPositive(0)
 		, nCachedNegative(0)
 		, pTaxProgress (NULL)
+		, flagNeedBottomUp(GCIs.isGCI() || (GCIs.isReflexive() && GCIs.isRnD()))
 	{
 	}
 		/// d'tor
@@ -228,8 +231,7 @@ inline bool DLConceptTaxonomy :: needBottomUp ( void ) const
 	// we DON'T need bottom-up phase for primitive concepts during CD-like reasoning
 	// if no GCIs are in the TBox (C [= T, T [= X or Y, X [= D, Y [= D)
 	// or no reflexive roles w/RnD precent (Refl(R), Range(R)=D)
-	return GCIs.isGCI() || (GCIs.isReflexive() && GCIs.isRnD()) ||
-		   !useCompletelyDefined || curConcept()->isNonPrimitive();
+	return flagNeedBottomUp || !useCompletelyDefined || curConcept()->isNonPrimitive();
 }
 
 #endif // _DLCONCEPTTAXONOMY_H
