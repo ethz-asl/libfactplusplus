@@ -47,6 +47,9 @@ protected:	// types
 		// global description
 		lfGeneralAxioms		= (1 << 11),
 		lfBothRoles			= (1 << 12),
+
+		// new constructions
+		lfSelfRef			= (1 << 13),
 	};
 
 protected:	// members
@@ -82,6 +85,7 @@ public:		// interface
 	bool hasNumberRestriction ( void ) const { return getX(lfNConstructor); }
 	bool hasQNumberRestriction ( void ) const { return getX(lfQConstructor); }
 	bool hasSingletons ( void ) const { return getX(lfSingleton); }
+	bool hasSelfRef ( void ) const { return getX(lfSelfRef); }
 
 	// overall state
 

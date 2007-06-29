@@ -75,6 +75,10 @@ void LogicFeatures :: fillDAGData ( const DLVertex& v, bool pos ATTR_UNUSED )
 		setX(lfSingleton);
 		break;
 
+	case dtIrr:
+		setX(lfSelfRef);
+		break;
+
 	default:	// any other vertex -- nothing to do
 		break;
 	}
