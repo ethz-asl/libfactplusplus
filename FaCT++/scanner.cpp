@@ -40,14 +40,16 @@ void TsScanner :: FillBuffer ( register char c )
 
 	for ( i = 1; i < MaxIDLength &&
 		  isLegalIdChar ( c = NextChar () );
-		  LexBuff [i++] = c );
+		  LexBuff [i++] = c )
+		(void)NULL;
 
 	LexBuff [i] = 0;
 
 	if ( i == MaxIDLength )
 	{
 		std::cerr << "Identifier was restricted to " << LexBuff << std::endl;
-		for ( ; isLegalIdChar ( c = NextChar () ); ) (void)NULL;
+		for ( ; isLegalIdChar ( c = NextChar () ); )
+			(void)NULL;
 	}
 	// OK or read the end of ID
 
@@ -59,15 +61,16 @@ void TsScanner :: FillNameBuffer ( register char c )
 	register unsigned int i = 0;
 	assert ( c == '|' );
 
-	for ( ; i < MaxIDLength && ( ( c = NextChar () ) != '|' );
-		  LexBuff [i++] = c );
+	for ( ; i < MaxIDLength && ( ( c = NextChar () ) != '|' ); LexBuff [i++] = c )
+		(void)NULL;
 
 	LexBuff [i] = 0;
 
 	if ( i == MaxIDLength )
 	{
 		std::cerr << "Identifier was restricted to " << LexBuff << std::endl;
-		for ( ; ( c = NextChar () ) != '|'; ) (void)NULL;
+		for ( ; ( c = NextChar () ) != '|'; )
+			(void)NULL;
 	}
 }
 
@@ -88,7 +91,8 @@ Token TsScanner :: GetLex ( void )
 
 		if ( c == ';' )
 		{	// Skip comments
-			while ( ( c = NextChar () ) != EOF && c != '\n' );
+			while ( ( c = NextChar () ) != EOF && c != '\n' )
+				(void)NULL;
 			CurLine++;
 			continue;
 		}

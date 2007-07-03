@@ -152,6 +152,7 @@ TRole* TRole :: eliminateToldCycles ( void )
 	for ( ClassifiableEntry::linkSet::const_iterator r = v.begin(); r != v.end(); ++r )
 		// if cycle was detected
 		if ( (ret = static_cast<TRole*>(*r)->eliminateToldCycles()) != NULL )
+		{
 			if ( ret == this )
 			{
 				std::sort ( synonyms.begin(), synonyms.end(), TRoleCompare() );
@@ -176,6 +177,7 @@ TRole* TRole :: eliminateToldCycles ( void )
 				synonyms.push_back(this);
 				break;
 			}
+		}
 
 	// remove processed concept from set
 	sStack.erase(this);
@@ -407,7 +409,9 @@ TRole :: preprocessComposition ( roleSet& RS )
 	for ( roleSet::iterator p = RS.begin(), p_end = RS.end(); p < p_end; ++p )
 	{
 		TRole* R = (*p)->resolveSynonym();
+
 		if ( R == this )	// found R in composition
+		{
 			if ( same )	// second one
 			{
 				RS.clear();
@@ -421,8 +425,9 @@ TRole :: preprocessComposition ( roleSet& RS )
 			}
 			else		// first one
 				same = true;
+		}
 
-		*p = R;
+		*p = R;	// replace possible synonyms
 	}
 
 	return false;

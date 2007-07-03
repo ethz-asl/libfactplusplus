@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2006 by Dmitry Tsarkov
+Copyright (C) 2003-2007 by Dmitry Tsarkov
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -206,6 +206,7 @@ bool DlCompletionTree :: B2 ( const RoleAutomaton& A, BipolarPointer C ) const
 
 	for ( const_edge_iterator p = beginp(), p_end = endp(); p < p_end; ++p )
 		if ( !(*p)->isIBlocked() && (*p)->getArcEnd() == parent && trans->applicable((*p)->getRole()) )
+		{
 			if ( !parLab.contains(C) )
 			{
 				++nB2Fails;
@@ -213,6 +214,7 @@ bool DlCompletionTree :: B2 ( const RoleAutomaton& A, BipolarPointer C ) const
 			}
 			else
 				return true;
+		}
 
 	return true;
 }

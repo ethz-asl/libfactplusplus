@@ -173,8 +173,8 @@ modelCacheState modelCacheIan :: isMergableSingleton ( const modelCacheSingleton
 	BipolarPointer Singleton = p->getValue();
 
 	// check for the clash
-	if ( isNegative (Singleton) && set_contains ( posConcepts, inverse(Singleton) ) ||
-		 isPositive (Singleton) && set_contains ( negConcepts, Singleton ) )
+	if ( ( isPositive (Singleton) && set_contains ( negConcepts, Singleton ) ) ||
+		 ( isNegative (Singleton) && set_contains ( posConcepts, inverse(Singleton) ) ) )
 		return correctInvalid(Deterministic);
 	else
 		return csValid;
