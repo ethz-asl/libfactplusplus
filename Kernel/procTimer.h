@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2006 by Dmitry Tsarkov
+Copyright (C) 2003-2007 by Dmitry Tsarkov
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -45,7 +45,7 @@ private:	// methods
 
 public:		// interface
 		/// the only c'tor
-	TsProcTimer ( void ) { Reset(); }
+	TsProcTimer ( void ) : startTime(0) { Reset(); }
 		/// empty d'tor
 	~TsProcTimer ( void ) {}
 
