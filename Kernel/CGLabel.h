@@ -62,6 +62,11 @@ protected:	// methods
 		/// @return true iff TAG represents complex concept
 	bool isComplexConcept ( DagTag tag ) const
 		{ return tag == dtForall || tag == dtLE || tag == dtIrr || tag == dtUAll; }
+		/// get (RW) label associated with the concepts defined by TAG
+	CWDArray& getLabel ( DagTag tag ) { return isComplexConcept(tag) ? ccLabel : scLabel; }
+		/// get (RO) label associated with the concepts defined by TAG
+	const CWDArray& getLabel ( DagTag tag ) const
+		{ return isComplexConcept(tag) ? ccLabel : scLabel; }
 
 public:		// interface
 		/// init newly created node
@@ -97,13 +102,7 @@ public:		// interface
 		/// try to add a concept to a label given by TAG; P can't appear in the label
 	addConceptResult checkAddedConceptN ( DagTag tag, BipolarPointer p, const DepSet& dep ) const;
 		/// adds concept P to a label, defined by TAG
-	void add ( const ConceptWDep& p, DagTag tag )
-	{
-		if ( isComplexConcept(tag) )
-			ccLabel.add(p);	// add complex concept
-		else
-			scLabel.add(p);	// add simple concept
-	}
+	void add ( const ConceptWDep& p, DagTag tag ) { getLabel(tag).add(p); }
 
 	// TODO table interface
 
@@ -199,10 +198,7 @@ CGLabel :: checkAddedConcept ( DagTag tag, BipolarPointer p, const DepSet& dep )
 	assert ( p != bpBOTTOM );
 #endif
 
-	if ( isComplexConcept(tag) )
-		return ccLabel.checkAddedConcept ( p, dep );
-	else
-		return scLabel.checkAddedConcept ( p, dep );
+	return getLabel(tag).checkAddedConcept ( p, dep );
 }
 
 inline addConceptResult
@@ -215,10 +211,7 @@ CGLabel :: checkAddedConceptP ( DagTag tag, BipolarPointer p ) const
 	assert ( p != bpBOTTOM );
 #endif
 
-	if ( isComplexConcept(tag) )
-		return ccLabel.checkAddedConceptP(p);
-	else
-		return scLabel.checkAddedConceptP(p);
+	return getLabel(tag).checkAddedConceptP(p);
 }
 
 inline addConceptResult
@@ -231,10 +224,7 @@ CGLabel :: checkAddedConceptN ( DagTag tag, BipolarPointer p, const DepSet& dep 
 	assert ( p != bpBOTTOM );
 #endif
 
-	if ( isComplexConcept(tag) )
-		return ccLabel.checkAddedConceptN ( p, dep );
-	else
-		return scLabel.checkAddedConceptN ( p, dep );
+	return getLabel(tag).checkAddedConceptN ( p, dep );
 }
 
 inline bool
