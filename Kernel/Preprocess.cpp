@@ -302,13 +302,13 @@ void TBox :: initRangeDomain ( void )
 void TBox :: determineSorts ( void )
 {
 #ifdef RKG_USE_SORTED_REASONING
-	// create sorts for concept and/or roles
-	DLHeap.determineSorts(RM);
-
-	// here we do NOT expand RELATED to concept description;
+	// Related individuals does not appears in DLHeap,
 	// so their sorts shall be determined explicitely
 	for ( RelatedCollection::const_iterator p = Related.begin(); p != Related.end(); ++p )
 		DLHeap.updateSorts ( (*p)->a->pName, (*p)->R, (*p)->b->pName );
+
+	// create sorts for concept and/or roles
+	DLHeap.determineSorts(RM);
 #endif // RKG_USE_SORTED_REASONING
 }
 

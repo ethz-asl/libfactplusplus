@@ -43,23 +43,6 @@ void TRole :: mergeSupersDomain ( void )
 		}
 }
 
-/// check if two BPs are of the same sort
-bool DLDag :: haveSameSort ( unsigned int i, unsigned int j )
-{
-	assert ( i > 0 && j > 0 );	// sanity check
-
-	// everything has the same label as TOP
-	if ( i == 1 || j == 1 )
-		return true;
-
-	// if some concepts were added to DAG => nothing to say
-	if ( i >= sortArraySize || j >= sortArraySize )
-		return true;
-
-	// check whether two sorts are identical
-	return (*this)[i].getSort() == (*this)[j].getSort();
-}
-
 /// merge sorts for a given role
 void DLDag :: mergeSorts ( TRole* R )
 {
@@ -122,16 +105,25 @@ void DLDag :: determineSorts ( RoleMaster& RM )
 	for ( i = Heap.begin()+2; i < i_end; ++i )
 		mergeSorts(**i);
 
-	CHECK_LL_RETURN(llAlways);
 	unsigned int sum = 0;
 	for ( i = Heap.begin()+2; i < i_end; ++i )
-		if ( (*i)->getSort().isSample() )
+	{
+		mergableLabel& lab = (*i)->getSort();
+		lab.resolve();
+		if ( lab.isSample() )
 			++sum;
+	}
 
 	for ( p = RM.begin(); p < p_end; ++p )
-		if ( !(*p)->isSynonym() && const_cast<TRole*>(*p)->getRangeLabel().isSample() )
-			++sum;
+		if ( !(*p)->isSynonym() )
+		{
+			mergableLabel& lab = const_cast<TRole*>(*p)->getDomainLabel();
+			lab.resolve();
+			if ( lab.isSample() )
+				++sum;
+		}
 
+	CHECK_LL_RETURN(llAlways);
 	LL << "\nThere are ";
 	if ( sum > 1 )
 		LL << sum;

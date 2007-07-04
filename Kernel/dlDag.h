@@ -256,7 +256,21 @@ public:		// interface
 		merge ( R->getRangeLabel(), b );
 	}
 		/// check if two BPs are of the same sort
-	bool haveSameSort ( unsigned int p, unsigned int q );
+	bool haveSameSort ( unsigned int p, unsigned int q )
+	{
+		assert ( p > 0 && q > 0 );	// sanity check
+
+		// everything has the same label as TOP
+		if ( p == 1 || q == 1 )
+			return true;
+
+		// if some concepts were added to DAG => nothing to say
+		if ( p >= sortArraySize || q >= sortArraySize )
+			return true;
+
+		// check whether two sorts are identical
+		return (*this)[p].getSort() == (*this)[q].getSort();
+	}
 #else
 	bool haveSameSort ( unsigned int p, unsigned int q ) { return true; }
 #endif
