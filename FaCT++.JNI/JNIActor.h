@@ -36,8 +36,10 @@ protected:	// types
 protected:	// members
 		/// JNI environment
 	JNIEnv* env;
-		/// array to return
+		/// 2D array to return
 	SetOfNodes acc;
+		/// 1D array to return
+	SynVector plain;
 		/// temporary vector to keep synonyms
 	SynVector syn;
 
@@ -73,6 +75,8 @@ public:		// interface
 		/// get 2D array of all required elements of the taxonomy
 	jobjectArray getElements ( void ) const
 	{
+		if ( AccessPolicy::needPlain() )
+			return getArray(plain);
 		std::string objArrayName("[");
 		objArrayName += AccessPolicy::getClassName();
 		jclass objClass = env->FindClass(objArrayName.c_str());
@@ -94,7 +98,10 @@ public:		// interface
 		if ( syn.empty() && AccessPolicy::regular(v.getPrimer()) )
 			return false;	// special-case equivalents of temp-concept
 
-		acc.push_back(syn);
+		if ( AccessPolicy::needPlain() )
+			plain.insert ( plain.end(), syn.begin(), syn.end() );
+		else
+			acc.push_back(syn);
 		return true;
 	}
 }; // JTaxonomyActor
@@ -110,6 +117,7 @@ public:
 		{ return !p->isSystem() && !static_cast<const TConcept*>(p)->isSingleton(); }
 	static bool regular ( const ClassifiableEntry* p )
 		{ return !p->isSystem() || strcmp ( p->getName(), "FaCT++.default" ) != 0; }
+	static bool needPlain ( void ) { return false; }
 	static DLTree* buildTree ( const ClassifiableEntry* p )
 	{
 		if ( p->getId () >= 0 )
@@ -135,6 +143,7 @@ public:
 	static bool applicable ( const ClassifiableEntry* p )
 		{ return !p->isSystem() && static_cast<const TConcept*>(p)->isSingleton(); }
 	static bool regular ( const ClassifiableEntry* p ATTR_UNUSED ) { return true; }
+	static bool needPlain ( void ) { return true; }
 	static DLTree* buildTree ( const ClassifiableEntry* p )
 		{ return new DLTree(TLexeme(INAME,const_cast<ClassifiableEntry*>(p))); }
 }; // IndividualPolicy
@@ -147,6 +156,7 @@ public:
 	static bool applicable ( const ClassifiableEntry* p )
 		{ return !p->isSystem() && p->getId() > 0; }
 	static bool regular ( const ClassifiableEntry* p ATTR_UNUSED ) { return true; }
+	static bool needPlain ( void ) { return false; }
 	static DLTree* buildTree ( const ClassifiableEntry* p )
 		{ return new DLTree(TLexeme(RNAME,const_cast<ClassifiableEntry*>(p))); }
 }; // ObjectPropertyPolicy
@@ -159,6 +169,7 @@ public:
 	static bool applicable ( const ClassifiableEntry* p )
 		{ return !p->isSystem() && p->getId() > 0; }
 	static bool regular ( const ClassifiableEntry* p ATTR_UNUSED ) { return true; }
+	static bool needPlain ( void ) { return false; }
 	static DLTree* buildTree ( const ClassifiableEntry* p )
 		{ return new DLTree(TLexeme(RNAME,const_cast<ClassifiableEntry*>(p))); }
 }; // DataPropertyPolicy
