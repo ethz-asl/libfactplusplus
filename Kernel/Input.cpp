@@ -363,7 +363,7 @@ bool TBox :: processEquivalent ( const ConceptSet& v )
 	if ( v.size() < 2 )	// nothing to do
 	{
 		for ( ; p < p_end; ++p )
-			delete *p;
+			deleteTree(*p);
 
 		return false;
 	}
@@ -373,7 +373,7 @@ bool TBox :: processEquivalent ( const ConceptSet& v )
 		if ( addEqualityAxiom ( *p, clone(*q) ) )
 			return true;
 
-	delete *p;	// delete the last entry
+	deleteTree(*p);	// delete the last entry
 	return false;
 }
 
