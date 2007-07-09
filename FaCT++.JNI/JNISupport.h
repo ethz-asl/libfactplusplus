@@ -71,7 +71,30 @@ public:		// interface
 	}
 }; // RefRecorder
 
-extern RefRecorder RORefRecorder;
+// current reference recorder
+extern RefRecorder* curRORefRecorder;
+
+/// kernel with a memory management component
+class MMKernel
+{
+public:		// members
+	ReasoningKernel* pKernel;
+	RefRecorder* pRefRecorder;
+public:		// interface
+		/// c'tor
+	MMKernel ( void )
+	{
+		pKernel = new ReasoningKernel();
+		pKernel->newKB();
+		pRefRecorder = new RefRecorder();
+	}
+		/// d'tor
+	~MMKernel ( void )
+	{
+		delete pKernel;
+		delete pRefRecorder;
+	}
+}; // MMKernel
 
 inline
 void Throw ( JNIEnv * env, const char* reason )
@@ -81,6 +104,7 @@ void Throw ( JNIEnv * env, const char* reason )
 }
 
 /// get Kernel local to given object
+// as a side effect sets up curRORefRecorder
 inline
 ReasoningKernel* getK ( JNIEnv * env, jobject obj )
 {
@@ -109,7 +133,9 @@ ReasoningKernel* getK ( JNIEnv * env, jobject obj )
 		return NULL;
 	}
 
-	return (ReasoningKernel*)id;
+	MMKernel* k = (MMKernel*)id;
+	curRORefRecorder = k->pRefRecorder;
+	return k->pKernel;
 }
 
 // helper for getTree which extracts a JLONG from a given object
@@ -177,7 +203,11 @@ template<class T>
 void registerPointer ( T* p ATTR_UNUSED ) {}
 
 template<>
-void registerPointer ( DLTree* p ) { RORefRecorder.add(p); }
+void registerPointer ( DLTree* p )
+{
+	assert(curRORefRecorder != NULL );
+	curRORefRecorder->add(p);
+}
 
 template<class T>
 jobject retObject ( JNIEnv * env, T* t, const char* className )
