@@ -669,10 +669,10 @@ public:
 	bool isInstance ( const ComplexConcept I, const ComplexConcept C, bool& Result );
 
 	// set of J such that (I R J)
-	// bool getRoleFillers ( const IndividualName I, const RoleName R, ConceptList& Result );	// FIXME!! unsupported
+	bool getRoleFillers ( const ComplexConcept I, const ComplexRole R, IndividualSet& Result );
 
 	// set of (I,J) such that (I R J)
-	// bool getRelatedIndividuals ( const RoleName R, IndividualPairSet& Result );	// FIXME!! unsupported
+	bool getRelatedIndividuals ( const ComplexRole R, IndividualSet& Is, IndividualSet& Js );
 
 	// ???
 	// bool getToldValues ( const IndividualName I, const RoleName A, ??? Result );	// FIXME!! unsupported
@@ -1198,6 +1198,30 @@ inline bool ReasoningKernel :: isInstance ( const ComplexConcept I, const Comple
 	realiseKB();	// ensure KB is ready to answer the query
 	return isSubsumedBy ( I, C, Result );
 }
+
+	// set of J such that (I R J)
+inline bool
+ReasoningKernel :: getRoleFillers ( const ComplexConcept I, const ComplexRole R, IndividualSet& Result )
+{
+	preprocessKB();	// only told information here
+	if ( I->Element().getToken() != INAME || resolveRole(R) == NULL )
+		return true;
+	getTBox()->getRoleFillers (
+		static_cast<TConcept*>(I->Element().getName()), resolveRole(R), Result );
+	return false;
+}
+
+	// set of (I,J) such that (I R J)
+inline bool
+ReasoningKernel :: getRelatedIndividuals ( const ComplexRole R, IndividualSet& Is, IndividualSet& Js )
+{
+	preprocessKB();	// only told information here
+	if ( resolveRole(R) == NULL )
+		return true;
+	getTBox()->getRelatedIndividuals ( resolveRole(R), Is, Js );
+	return false;
+}
+
 
 //----------------------------------------------------
 //	extra ASKS implementation

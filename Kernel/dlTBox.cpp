@@ -460,12 +460,61 @@ void TBox :: PrintAxioms ( std::ostream& o ) const
 //--		DIG interface extension
 //-----------------------------------------------------------------------------
 
+	/// implement DIG-like roleFillers query; @return in Js all J st (I,J):R
+void
+TBox :: getRoleFillers ( TConcept* i, TRole* r, NamesVector& Js ) const
+{
+	Js.clear();
+	TConcept* I = i->resolveSynonym();
+	TRole* R = r->resolveSynonym();
+
+	// for all related triples in which I participates,
+	// check if triple is labelled by a sub-role of R
+	TConcept::RelatedIndex::const_iterator p, p_end;
+	for ( p = I->IndexFrom.begin(), p_end = I->IndexFrom.end(); p < p_end; ++p )
+	{
+		const TRelated& rel = **p;
+		if ( *R >= *rel.getRole(/*from=*/true) )
+			Js.push_back(rel.b);
+	}
+	for ( p = I->IndexTo.begin(), p_end = I->IndexTo.end(); p < p_end; ++p )
+	{
+		const TRelated& rel = **p;
+		if ( *R >= *rel.getRole(/*from=*/false) )
+			Js.push_back(rel.a);
+	}
+}
+	/// implement DIG-like RelatedIndividuals query; @return Is and Js st (I,J):R
+void
+TBox :: getRelatedIndividuals ( TRole* r, NamesVector& Is, NamesVector& Js ) const
+{
+	Is.clear();
+	Js.clear();
+	TRole* R = r->resolveSynonym();
+
+	// for all related triples
+	// check if triple is labelled by a sub-role of R
+	for ( RelatedCollection::const_iterator p = Related.begin(), p_end = Related.end(); p < p_end; ++p )
+	{
+		const TRelated& rel = **p;
+		if ( *R >= *rel.getRole(/*from=*/true) )
+		{
+			Is.push_back(rel.a);
+			Js.push_back(rel.b);
+		}
+		if ( *R >= *rel.getRole(/*from=*/false) )
+		{
+			Is.push_back(rel.b);
+			Js.push_back(rel.a);
+		}
+	}
+}
+
 void TBox :: absorbedPrimitiveConceptDefinitions ( std::ostream& o ) const
 {
 	dumpDIG DIG(o);
 
 	for ( c_const_iterator pc = c_begin(); pc != c_end(); ++pc )
-		//FIXME!! we don't emit info about individuals. Check this later for real nominals
 		if ( (*pc)->isPrimitive() )
 		{
 			o << "\n<absorbedPrimitiveConceptDefinition>";

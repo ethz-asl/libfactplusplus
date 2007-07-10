@@ -29,6 +29,19 @@ using namespace xercesc;
 // Implementation of a parser in details
 // ---------------------------------------------------------------------------
 
+inline void writeConcept ( ostream& o, const char* name )
+{
+	o << "<catom name=\"" << name << "\"/>";
+}
+inline void writeRole ( ostream& o, const char* name )
+{
+	o << "<ratom name=\"" << name << "\"/>";
+}
+inline void writeIndividual ( ostream& o, const char* name )
+{
+	o << "<individual name=\"" << name << "\"/>";
+}
+
 // Actor for Concept hierarchy
 class ConceptActor
 {
@@ -53,14 +66,8 @@ protected:
 		const std::string name(p->getName());
 
 		if ( p->getId () >= 0 )
-		{
-			string Name = string("name=\"") + name + '"';
-			simpleXMLEntry atom ( "catom", o, Name.c_str() );
-			return true;
-		}
-		// top or bottom
-
-		if ( name == std::string("TOP") )
+			writeConcept ( o, name.c_str() );
+		else if ( name == std::string("TOP") )
 			simpleXMLEntry top ( "top", o );
 		else if ( name == std::string("BOTTOM") )
 			simpleXMLEntry bottom ( "bottom", o );
@@ -212,6 +219,7 @@ void DIGParseHandlers :: endAsk ( DIGTag tag )
 		Reason += curId;												\
 		*Reason.rbegin() = '\0';										\
 		outError ( 400, Reason.c_str(), "undefined names in query" );	\
+		return;															\
 	} while(0)
 
 #define ERROR_401											\
@@ -386,7 +394,69 @@ void DIGParseHandlers :: endAsk ( DIGTag tag )
 		return;
 	}
 	case digRoleFillers:
+	{
+		if ( workStack.empty() )
+			throwArgumentAbsence ( "role", tag );
+		DLTree* R = workStack.top();
+		workStack.pop();
+		if ( workStack.empty() )
+			throwArgumentAbsence ( "individual", tag );
+		DLTree* I = workStack.top();
+		workStack.pop();
+		ReasoningKernel::IndividualSet Js;
+
+		// if were any errors during concept expression construction
+		if ( wasError )
+			fail = true;
+		else
+			fail = pKernel->getRoleFillers ( I, R, Js );
+
+		deleteTree(I);
+		deleteTree(R);
+
+		if ( fail )
+			ERROR_400;
+
+		// output individual set
+		closedXMLEntry x ( "individualSet", *o, curId.c_str() );
+		for ( ReasoningKernel::IndividualSet::const_iterator
+			  p = Js.begin(), p_end = Js.end(); p < p_end; ++p )
+			writeIndividual ( *o, (*p)->getName() );
+
+		return;
+	}
 	case digRelatedIndividuals:
+	{
+		if ( workStack.empty() )
+			throwArgumentAbsence ( "role", tag );
+		DLTree* R = workStack.top();
+		workStack.pop();
+		ReasoningKernel::IndividualSet Is, Js;
+
+		// if were any errors during concept expression construction
+		if ( wasError )
+			fail = true;
+		else
+			fail = pKernel->getRelatedIndividuals ( R, Is, Js );
+
+		deleteTree(R);
+
+		if ( fail )
+			ERROR_400;
+
+		// output individual set
+		closedXMLEntry x ( "individualPairSet", *o, curId.c_str() );
+		for ( ReasoningKernel::IndividualSet::const_iterator
+			  p = Is.begin(), p_end = Is.end(), q = Js.begin(); p < p_end; ++p, ++q )
+		{
+			*o << "\n  <individualPair>";
+			writeIndividual ( *o, (*p)->getName() );
+			writeIndividual ( *o, (*q)->getName() );
+			*o << "</individualPair>";
+		}
+
+		return;
+	}
 	case digToldValue:
 		 ERROR_401;		// unsupported
 		 return;
@@ -512,8 +582,8 @@ void DIGParseHandlers :: outputSupportedLanguage ( void )
 		simpleXMLEntry ( "instances", *o );
 		simpleXMLEntry ( "types", *o );
 		simpleXMLEntry ( "instance", *o );
-//		simpleXMLEntry ( "roleFillers", *o );
-//		simpleXMLEntry ( "relatedIndividuals", *o );
+		simpleXMLEntry ( "roleFillers", *o );
+		simpleXMLEntry ( "relatedIndividuals", *o );
 //		simpleXMLEntry ( "toldValues", *o );
 	}
 	*o << "\n";

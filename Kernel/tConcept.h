@@ -73,7 +73,7 @@ private:	// members
 		/// label to use in relevant-only checks
 	TLabeller::LabType rel;
 
-protected:	// types
+public:		// types
 		/// pointers to RELATED constructors (individuals only)
 	typedef std::vector<TRelated*> RelatedIndex;
 

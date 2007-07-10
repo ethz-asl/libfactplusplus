@@ -57,6 +57,8 @@ public:	// interface
 	typedef std::vector<TRelated*> RelatedCollection;
 		/// type for a collection of DIFFERENT individuals
 	typedef std::vector<SingletonVector> DifferentIndividuals;
+		/// return type for a set of names
+	typedef std::vector<TNamedEntry*> NamesVector;
 
 protected:	// types
 		/// collection of individuals
@@ -903,6 +905,10 @@ public:
 		/// create dump of relevant part of query using given method
 	void dump ( dumpInterface* dump ) const;
 
+		/// implement DIG-like roleFillers query; @return in Js all J st (I,J):R
+	void getRoleFillers ( TConcept* I, TRole* R, NamesVector& Js ) const;
+		/// implement DIG-like RelatedIndividuals query; @return Is and Js st (I,J):R
+	void getRelatedIndividuals ( TRole* R, NamesVector& Is, NamesVector& Js ) const;
 		/// implement absorbedPrimitiveConceptDefinitions DIG extension
 	void absorbedPrimitiveConceptDefinitions ( std::ostream& o ) const;
 		/// implement unabsorbed DIG extension
