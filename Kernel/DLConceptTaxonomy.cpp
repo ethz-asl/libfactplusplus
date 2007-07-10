@@ -258,12 +258,12 @@ void TBox :: createTaxonomy ( bool needIndividual )
 		pTax = new DLConceptTaxonomy ( pTop, pBottom, *this, GCIs );
 		needConcept |= needIndividual;	// together with concepts
 	}
-	else
+/*	else
 	{
 		assert ( needIndividual );
 		pTax->deFinalise();
 	}
-
+*/
 	if ( verboseOutput )
 		std::cerr << "Processing query...";
 
@@ -278,9 +278,9 @@ void TBox :: createTaxonomy ( bool needIndividual )
 	arrayNoCD.clear();
 	arrayNP.clear();
 
-	if ( needConcept )
+//	if ( needConcept )
 		nItems += fillArrays ( c_begin(), c_end() );
-	if ( needIndividual )
+//	if ( needIndividual )
 		nItems += fillArrays ( i_begin(), i_end() );
 
 	// taxonomy progress
@@ -308,7 +308,7 @@ void TBox :: createTaxonomy ( bool needIndividual )
 	if ( verboseOutput )
 		std::cerr << " done in " << locTimer << " seconds\n";
 
-	if ( verboseOutput && needIndividual )
+	if ( verboseOutput/* && needIndividual*/ )
 	{
 		std::ofstream of ( "Taxonomy.log" );
 		pTax->print (of);
