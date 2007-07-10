@@ -37,10 +37,6 @@ TBox :: ~TBox ( void )
 	for ( RelatedCollection::iterator p = Related.begin(), p_end = Related.end(); p < p_end; ++p )
 		delete *p;
 
-	// delete all n-ary queues
-	for ( NAryQueue::iterator q = auxConceptList.begin(), q_end = auxConceptList.end(); q < q_end; ++q )
-		delete *q;
-
 	// remove all concepts
 	delete pTop;
 	delete pBottom;

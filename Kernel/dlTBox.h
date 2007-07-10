@@ -57,8 +57,6 @@ public:	// interface
 	typedef std::vector<TRelated*> RelatedCollection;
 		/// type for a collection of DIFFERENT individuals
 	typedef std::vector<SingletonVector> DifferentIndividuals;
-		/// type for a cache for n-ary commands
-	typedef std::vector<ConceptSet*> NAryQueue;
 
 protected:	// types
 		/// collection of individuals
@@ -74,6 +72,54 @@ protected:	// types
 			/// empty d'tor: all elements will be deleted in other place
 		virtual ~IndividualCollection ( void ) {}
 	}; // IndividualCollection
+
+		/// queue for n-ary operations
+	class NAryQueue
+	{
+	protected:	// types
+			/// interface with host
+		typedef TBox::ConceptSet ConceptSet;
+			/// type of a base storage
+		typedef std::vector<ConceptSet*> BaseType;
+
+	protected:	// members
+			/// all lists of arguments for n-ary predicates/commands
+		BaseType Base;
+			/// pre-current index of n-ary statement
+		int djLevel;
+
+	protected:	// methods
+			/// increase size of internal AUX array
+		void grow ( void )
+		{
+			unsigned int n = Base.size();
+			Base.resize(2*n);
+			for ( BaseType::iterator p = Base.begin()+n, p_end = Base.end(); p < p_end; ++p )
+				*p = new ConceptSet;
+		}
+
+	public:		// interface
+			/// empty c'tor
+		NAryQueue ( void ) : djLevel(-1) { Base.push_back(new ConceptSet); }
+			/// d'tor
+		~NAryQueue ( void )
+		{
+			for ( BaseType::iterator q = Base.begin(), q_end = Base.end(); q < q_end; ++q )
+				delete *q;
+		}
+
+			/// init new n-ary queue
+		void push ( void )
+		{
+			if ( (unsigned)++djLevel >= Base.size() )
+				grow();
+			Base[djLevel]->resize(0);
+		}
+			/// get access to the last n-ary queue
+		ConceptSet* top ( void ) const { return Base[djLevel]; }
+			/// get access to the last n-ary queue; remove the last queue
+		const ConceptSet* pop ( void ) { return Base[djLevel--]; }
+	}; // NAryQueue
 
 protected:	// typedefs
 		/// RW concept iterator
@@ -175,8 +221,6 @@ protected:	// members
 
 		/// number of synonyms encountered/changed
 	unsigned int nSynonyms;
-		/// pre-current index of Dj statement
-	int djLevel;
 
 protected:	// methods
 		/// init all flags using given set of options
@@ -305,17 +349,8 @@ protected:	// methods
 //--		support for n-ary predicates
 //-----------------------------------------------------------------------------
 
-		/// increase size of internal AUX array
-	void growAuxConceptList ( void )
-	{
-		unsigned int n = auxConceptList.size();
-		auxConceptList.resize(2*n);
-		for ( NAryQueue::iterator
-			  p = auxConceptList.begin()+n, p_end = auxConceptList.end(); p < p_end; ++p )
-			*p = new ConceptSet;
-	}
-		/// get access to the last used n-ary array; adjust pointer to the last one
-	const ConceptSet& getLastNAry ( void ) { return *auxConceptList[djLevel--]; }
+		/// get access to the last used n-ary array
+	const ConceptSet& getLastNAry ( void ) { return *auxConceptList.pop(); }
 
 	// external-set methods for set-of-concept-names
 	bool processEquivalent ( const ConceptSet& v );
@@ -744,9 +779,7 @@ public:
 	// different ConceptList methods
 	bool openConceptList ( void )
 	{
-		if ( (unsigned)++djLevel >= auxConceptList.size() )
-			growAuxConceptList();
-		auxConceptList[djLevel]->resize(0);
+		auxConceptList.push();
 		return false;
 	}
 
@@ -754,7 +787,7 @@ public:
 	{
 		if ( name == NULL )
 			return true;
-		auxConceptList[djLevel]->push_back(name);
+		auxConceptList.top()->push_back(name);
 		return false;
 	}
 
@@ -895,13 +928,11 @@ inline TBox :: TBox ( const ifOptionSet* Options )
 	, isLikeGALEN(false)	// just in case Relevance part would be omited
 	, preprocTime(0)
 	, nSynonyms(0)
-	, djLevel(-1)
 {
 	readConfig ( Options );
 	initTopBottom ();
 
 	setForbidUndefinedNames(false);
-	auxConceptList.push_back(new ConceptSet);	// init n-ary queue
 }
 
 //---------------------------------------------------------------
