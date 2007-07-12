@@ -29,7 +29,7 @@ Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 // main methods
 bool TsScanner :: isLegalIdChar ( char c ) const	//id=[_a..z0-9[].]
 {
-	return !isspace(c) && c != '(' && c != ')' && c != ';' && c != '|';
+	return !isspace(c) && c != '(' && c != ')' && c != ';' && c != '|' && c != EOF;
 }
 
 // Word must be in a CAPITAL LETTERS

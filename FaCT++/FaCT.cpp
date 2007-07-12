@@ -19,6 +19,7 @@ Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #include <iostream>
 #include <iomanip>
 #include <fstream>
+#include <sstream>
 
 #include "procTimer.h"
 #include "parser.h"
@@ -42,41 +43,81 @@ inline void OutTime ( std::ostream& o )
 	o << "Working time = " << totalTimer  << " seconds\n";
 }
 
-DLTree* Query[2] = { NULL, NULL };
+std::string Query[2];
 
 /// fill query target names by configure
-void fillSatSubQuery ( ReasoningKernel& Kernel )
+void fillSatSubQuery ( void )
 {
-	std::string tName[2];
-
 	// founds a target for checking
-	if ( Config.checkValue ( "Query", "Target" ) )
-		tName[0] = "";
-	else
-		tName[0] = Config.getString();
+	if ( !Config.checkValue ( "Query", "Target" ) )
+		Query[0] = Config.getString();
 
-	if ( Config.checkValue ( "Query", "Target2" ) )
-		tName[1] = "";
-	else
-		tName[1] = Config.getString();
+	if ( !Config.checkValue ( "Query", "Target2" ) )
+		Query[1] = Config.getString();
+}
 
-	// setup names
-	for ( register int i = 1; i >= 0; --i )
-		if ( tName[i] != "" )
+DLTree* getNextName ( TsScanner& sc, ReasoningKernel& Kernel )
+{
+	for(;;)
+	{
+		if ( sc.GetLex() == LEXEOF )
+			return NULL;
+		Token t = sc.getNameKeyword();
+
+		if ( t != ID )
+			return new DLTree(t);
+		try
 		{
-			if ( tName[i] == "*TOP*" )
-				Query[i] = new DLTree (TOP);
-			else if ( tName[i] == "*BOTTOM*" )
-				Query[i] = new DLTree (BOTTOM);
-			else
-			{
-				try { Query[i] = Kernel.ensureConceptName(tName[i].c_str()); }
-				catch ( CantRegName ex ) { error ( "Query: queried name is undefined" ); }
-			}
+			return Kernel.ensureConceptName(sc.GetName());
 		}
+		catch ( CantRegName ex )
+		{
+			std::cout << "Query name " << sc.GetName() << " is undefined in TBox\n";
+		}
+	}
+}
 
-	if ( Query[1] != NULL && Query[0] == NULL )
-		error ( "Query: Incorrect options" );
+void testSat ( const std::string& names, ReasoningKernel& Kernel )
+{
+	std::stringstream s(names);
+	TsScanner sc(&s);
+	DLTree* sat;
+
+	while ( (sat = getNextName(sc,Kernel)) != NULL )
+	{
+		bool result = false;
+		Kernel.isSatisfiable ( sat, result );
+
+		std::cout << "The '" << sat << "' concept is ";
+		if ( !result )
+			std::cout << "un";
+		std::cout << "satisfiable w.r.t. TBox\n";
+		delete sat;
+	}
+}
+
+void testSub ( const std::string& names1, const std::string& names2, ReasoningKernel& Kernel )
+{
+	std::stringstream s1(names1), s2(names2);
+	TsScanner sc1(&s1), sc2(&s2);
+	DLTree* sub, *sup;
+
+	while ( (sub = getNextName(sc1,Kernel)) != NULL )
+	{
+		sc2.ReSet();
+		while ( (sup = getNextName(sc2,Kernel)) != NULL )
+		{
+			bool result = false;
+			Kernel.isSubsumedBy ( sub, sup, result );
+
+			std::cout << "The '" << sub << " [= " << sup << "' subsumption does";
+			if ( !result )
+				std::cout << " NOT";
+			std::cout << " holds w.r.t. TBox\n";
+			delete sup;
+		}
+		delete sub;
+	}
 }
 
 //**********************  Main function  ************************************
@@ -159,33 +200,22 @@ int main ( int argc, char *argv[] )
 	else	// perform reasoning
 	{
 		// parsing query targets
-		fillSatSubQuery ( Kernel );
-		bool result = false;
+		fillSatSubQuery();
 
-		if ( Query[0] == NULL )
-			Kernel.realiseKB();
-		else if ( Query[1] == NULL )
+		if ( Query[0].empty() )
 		{
-			Kernel.isSatisfiable ( Query[0], result );
-
-			std::cout << "The '" << Query[0] << "' concept is ";
-			if ( !result )
-				std::cout << "un";
-			std::cout << "satisfiable w.r.t. TBox\n";
+			if ( Query[1].empty() )
+				Kernel.realiseKB();
+			else
+				error ( "Query: Incorrect options" );
 		}
 		else
 		{
-			Kernel.isSubsumedBy ( Query[0], Query[1], result );
-
-			std::cout << "The '" << Query[0] << " [= " << Query[1] << "' subsumption does";
-			if ( !result )
-				std::cout << " NOT";
-			std::cout << " holds w.r.t. TBox\n";
+			if ( Query[1].empty() )		// sat
+				testSat ( Query[0], Kernel );
+			else
+				testSub ( Query[0], Query[1], Kernel );
 		}
-
-		// free memory
-		delete Query[0];
-		delete Query[1];
 	}
 
 	pt.Stop();
