@@ -258,7 +258,9 @@ void TBox :: createTaxonomy ( bool needIndividual )
 		pTax = new DLConceptTaxonomy ( pTop, pBottom, *this, GCIs );
 		needConcept |= needIndividual;	// together with concepts
 	}
-/*	else
+	else	// not a first run
+		return;	// FIXME!! now we don't perform staged reasoning, so everything is done
+/*
 	{
 		assert ( needIndividual );
 		pTax->deFinalise();
