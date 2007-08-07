@@ -298,7 +298,7 @@ void TBox :: createTaxonomy ( bool needIndividual )
 //	sort ( arrayCD.begin(), arrayCD.end(), TSDepthCompare() );
 	classifyConcepts ( arrayCD, true, "completely defined" );
 //	sort ( arrayNoCD.begin(), arrayNoCD.end(), TSDepthCompare() );
-	classifyConcepts ( arrayNoCD, true, "regular" );
+	classifyConcepts ( arrayNoCD, false, "regular" );
 //	sort ( arrayNP.begin(), arrayNP.end(), TSDepthCompare() );
 	classifyConcepts ( arrayNP, false, "non-primitive" );
 
