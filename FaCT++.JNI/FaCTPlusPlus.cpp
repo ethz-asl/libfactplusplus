@@ -23,7 +23,7 @@ Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #include "JNIMonitor.h"
 
 /// remember (and clear) references for the RO trees
-RefRecorder* curRORefRecorder = NULL;
+MMKernel* curKernel = NULL;
 
 #ifdef __cplusplus
 extern "C" {
@@ -59,7 +59,7 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_initKe
 		Throw ( env, "Can't get 'KernelId' field" );
 
 	// create new kernel and save it in an FaCTPlusPlus object
-	env->SetLongField ( obj, fid, (jlong)new MMKernel() );
+	env->SetLongField ( obj, fid, (jlong)(curKernel=new MMKernel()) );
 }
 
 /*
@@ -71,7 +71,8 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_delete
   (JNIEnv * env, jobject obj)
 {
 	TRACE_JNI("deleteKernel");
-	delete getK(env,obj);
+	getK(env,obj);
+	delete curKernel;
 }
 
 /*
@@ -84,7 +85,7 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_clearK
 {
 	TRACE_JNI("clearKernel");
 	getK(env,obj)->clearKB();
-	curRORefRecorder->clear();
+	curKernel->pRefRecorder->clear();
 }
 
 
