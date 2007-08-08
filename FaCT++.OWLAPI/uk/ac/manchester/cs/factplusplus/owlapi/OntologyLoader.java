@@ -4,6 +4,7 @@ import org.semanticweb.owl.model.*;
 import uk.ac.manchester.cs.factplusplus.FaCTPlusPlus;
 
 import java.util.Set;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -28,6 +29,7 @@ public class OntologyLoader {
     public OntologyLoader(OWLOntologyManager owlOntologyManager, Translator translator) {
         this.owlOntologyManager = owlOntologyManager;
         this.translator = translator;
+        logger.setLevel(Level.INFO);
     }
 
 

@@ -189,7 +189,7 @@ public class Reasoner extends MonitorableOWLReasonerAdapter implements FaCTPlusP
             OntologyLoader loader = new OntologyLoader(getOWLOntologyManager(), translator);
             loader.loadOntologies(getLoadedOntologies(), faCTPlusPlus);
 //            progressMonitor = new FaCTPPProgMon();
-//            faCTPlusPlus.setProgressMonitor(this);
+            faCTPlusPlus.setProgressMonitor(this);
         }
         catch (Exception e) {
             throw new OWLRuntimeException(e);
@@ -327,7 +327,7 @@ public class Reasoner extends MonitorableOWLReasonerAdapter implements FaCTPlusP
             ensureSynchronised();
             checkDescription(owlDescription);
 
-            ClassPointer [][] result = getFaCTPlusPlus().askSuperClasses(translator.translate(owlDescription), true);
+            ClassPointer[][] result = getFaCTPlusPlus().askSuperClasses(translator.translate(owlDescription), true);
             return getOWLAPISets(result);
         }
         catch (Exception e) {
@@ -341,7 +341,7 @@ public class Reasoner extends MonitorableOWLReasonerAdapter implements FaCTPlusP
             ensureSynchronised();
             checkDescription(owlDescription);
 
-            ClassPointer [][] result = getFaCTPlusPlus().askSuperClasses(translator.translate(owlDescription), false);
+            ClassPointer[][] result = getFaCTPlusPlus().askSuperClasses(translator.translate(owlDescription), false);
             return getOWLAPISets(result);
         }
         catch (Exception e) {
@@ -355,7 +355,7 @@ public class Reasoner extends MonitorableOWLReasonerAdapter implements FaCTPlusP
             ensureSynchronised();
             checkDescription(owlDescription);
 
-            ClassPointer [][] result = getFaCTPlusPlus().askSubClasses(translator.translate(owlDescription), true);
+            ClassPointer[][] result = getFaCTPlusPlus().askSubClasses(translator.translate(owlDescription), true);
             return getOWLAPISets(result);
         }
         catch (Exception e) {
@@ -369,7 +369,7 @@ public class Reasoner extends MonitorableOWLReasonerAdapter implements FaCTPlusP
             ensureSynchronised();
             checkDescription(owlDescription);
 
-            ClassPointer [][] result = getFaCTPlusPlus().askSubClasses(translator.translate(owlDescription), false);
+            ClassPointer[][] result = getFaCTPlusPlus().askSubClasses(translator.translate(owlDescription), false);
             return getOWLAPISets(result);
         }
         catch (Exception e) {
@@ -384,7 +384,7 @@ public class Reasoner extends MonitorableOWLReasonerAdapter implements FaCTPlusP
             checkDescription(owlDescription);
 
             Set<OWLClass> apiresult = new HashSet<OWLClass>();
-            ClassPointer [] result = getFaCTPlusPlus().askEquivalentClasses(translator.translate(owlDescription));
+            ClassPointer[] result = getFaCTPlusPlus().askEquivalentClasses(translator.translate(owlDescription));
             for (ClassPointer cp : result) {
                 OWLClass cls = translator.getOWLClass(cp);
                 if (cls != null) {
@@ -427,7 +427,7 @@ public class Reasoner extends MonitorableOWLReasonerAdapter implements FaCTPlusP
         try {
             ensureSynchronised();
             checkDescription(owlDescription);
-            IndividualPointer [] individualPointers = getFaCTPlusPlus().askInstances(translator.translate(owlDescription));
+            IndividualPointer[] individualPointers = getFaCTPlusPlus().askInstances(translator.translate(owlDescription));
             Set<OWLIndividual> individuals = new HashSet<OWLIndividual>();
             for (IndividualPointer individualPointer : individualPointers) {
                 OWLIndividual translation = translator.getOWLIndividual(individualPointer);
@@ -461,8 +461,8 @@ public class Reasoner extends MonitorableOWLReasonerAdapter implements FaCTPlusP
     }
 
 
-    public Map<OWLDataProperty, Set<OWLTypedConstant>> getDataPropertyRelationships(OWLIndividual invidual) throws
-                                                                                                            OWLReasonerException {
+    public Map<OWLDataProperty, Set<OWLConstant>> getDataPropertyRelationships(OWLIndividual invidual) throws
+                                                                                                       OWLReasonerException {
         throw new UnsupportedReasonerOperationException();
     }
 
@@ -568,7 +568,7 @@ public class Reasoner extends MonitorableOWLReasonerAdapter implements FaCTPlusP
     public Set<OWLObjectProperty> getEquivalentProperties(OWLObjectProperty property) throws OWLReasonerException {
         try {
             ensureSynchronised();
-            ObjectPropertyPointer [] equivalentProperties = faCTPlusPlus.askEquivalentObjectProperties(translator.translate(
+            ObjectPropertyPointer[] equivalentProperties = faCTPlusPlus.askEquivalentObjectProperties(translator.translate(
                     property));
             Set<OWLObjectProperty> props = new HashSet<OWLObjectProperty>();
             for (ObjectPropertyPointer ptr : equivalentProperties) {
@@ -716,7 +716,7 @@ public class Reasoner extends MonitorableOWLReasonerAdapter implements FaCTPlusP
     public Set<OWLDataProperty> getEquivalentProperties(OWLDataProperty property) throws OWLReasonerException {
         try {
             ensureSynchronised();
-            DataPropertyPointer [] equivalentProperties = faCTPlusPlus.askEquivalentDataProperties(translator.translate(
+            DataPropertyPointer[] equivalentProperties = faCTPlusPlus.askEquivalentDataProperties(translator.translate(
                     property));
             Set<OWLDataProperty> props = new HashSet<OWLDataProperty>();
             for (DataPropertyPointer ptr : equivalentProperties) {
@@ -756,9 +756,9 @@ public class Reasoner extends MonitorableOWLReasonerAdapter implements FaCTPlusP
      * them into a set of sets of OWLAPI <code>OWLClass</code> objects.
      * @param clsPointers The array of arrays of class pointers to be translated.
      */
-    private Set<Set<OWLClass>> getOWLAPISets(ClassPointer [][] clsPointers) throws OWLReasonerException {
+    private Set<Set<OWLClass>> getOWLAPISets(ClassPointer[][] clsPointers) throws OWLReasonerException {
         Set<Set<OWLClass>> clsSets = new HashSet<Set<OWLClass>>();
-        for (ClassPointer [] clsPointArray : clsPointers) {
+        for (ClassPointer[] clsPointArray : clsPointers) {
             Set<OWLClass> clses = new HashSet<OWLClass>();
             for (ClassPointer clsPointer : clsPointArray) {
                 OWLClass cls = translator.getOWLClass(clsPointer);
@@ -775,11 +775,13 @@ public class Reasoner extends MonitorableOWLReasonerAdapter implements FaCTPlusP
                             clses.add(getOWLDataFactory().getOWLNothing());
                             logger.fine("Missing translation for Nothing");
                         }
+                        else {
+                            logger.severe("Translation failed for class pointer: " + clsPointer);
+                        }
                     }
                     catch (Exception e) {
                         throw new FaCTPlusPlusReasonerException(e);
                     }
-                    logger.severe("Translation failed for class pointer: " + clsPointer);
                 }
             }
             clsSets.add(clses);
@@ -788,10 +790,10 @@ public class Reasoner extends MonitorableOWLReasonerAdapter implements FaCTPlusP
     }
 
 
-    private Set<Set<OWLObjectProperty>> getOWLAPISets(ObjectPropertyPointer [][] propertyPointers) throws
-                                                                                                   OWLReasonerException {
+    private Set<Set<OWLObjectProperty>> getOWLAPISets(ObjectPropertyPointer[][] propertyPointers) throws
+                                                                                                  OWLReasonerException {
         Set<Set<OWLObjectProperty>> propSets = new HashSet<Set<OWLObjectProperty>>();
-        for (ObjectPropertyPointer [] propertyPointerArray : propertyPointers) {
+        for (ObjectPropertyPointer[] propertyPointerArray : propertyPointers) {
             Set<OWLObjectProperty> props = new HashSet<OWLObjectProperty>();
             for (ObjectPropertyPointer propPointer : propertyPointerArray) {
                 OWLObjectProperty prop = translator.getOWLObjectProperty(propPointer);
@@ -808,10 +810,10 @@ public class Reasoner extends MonitorableOWLReasonerAdapter implements FaCTPlusP
     }
 
 
-    private Set<Set<OWLDataProperty>> getOWLAPISets(DataPropertyPointer [][] propertyPointers) throws
-                                                                                               OWLReasonerException {
+    private Set<Set<OWLDataProperty>> getOWLAPISets(DataPropertyPointer[][] propertyPointers) throws
+                                                                                              OWLReasonerException {
         Set<Set<OWLDataProperty>> propSets = new HashSet<Set<OWLDataProperty>>();
-        for (DataPropertyPointer [] propertyPointerArray : propertyPointers) {
+        for (DataPropertyPointer[] propertyPointerArray : propertyPointers) {
             Set<OWLDataProperty> props = new HashSet<OWLDataProperty>();
             for (DataPropertyPointer propPointer : propertyPointerArray) {
                 OWLDataProperty prop = translator.getOWLDataProperty(propPointer);
