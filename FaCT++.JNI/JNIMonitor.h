@@ -29,6 +29,7 @@ protected:
 	jobject javaMonitor;
 	jmethodID sCS, sCC, sF, iC;
 public:
+		/// c'tor: remember object and fill in methods to call
 	JNIProgressMonitor ( JNIEnv* Env, jobject obj )
 		: TProgressMonitor()
 		, env(Env)
@@ -50,7 +51,8 @@ public:
 		if ( iC == 0 )
 			Throw ( env, "Can't get method isCancelled" );
 	}
-	~JNIProgressMonitor ( void ) { env->DeleteGlobalRef(javaMonitor); }
+		/// d'tor: allow JRE to delete object. Protege4 uses reasoner as a monitor, which leads to problems.
+	virtual ~JNIProgressMonitor ( void ) { /*env->DeleteGlobalRef(javaMonitor);*/ }
 
 		/// informs about beginning of classification with number of concepts to be classified
 	virtual void setClassificationStarted ( unsigned int nConcepts )
@@ -60,7 +62,7 @@ public:
 		{ env->CallVoidMethod ( javaMonitor, sCC, env->NewStringUTF(name) ); }
 		/// informs that the reasoning is done
 	virtual void setFinished ( void ) { env->CallVoidMethod ( javaMonitor, sF ); }
-		// @return true iff reasoner have to be stopped
+		/// @return true iff reasoner have to be stopped
 	virtual bool isCancelled ( void ) { return env->CallBooleanMethod ( javaMonitor, iC ); }
 }; // JNIProgressMonitor
 
