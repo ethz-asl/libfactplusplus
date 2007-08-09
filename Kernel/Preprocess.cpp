@@ -159,7 +159,7 @@ bool TBox :: replaceSynonymsFromTree ( DLTree* desc )
 
 void TBox :: preprocessRelated ( void )
 {
-	for ( RelatedCollection::iterator q = Related.begin(), q_end = Related.end(); q != q_end; ++q )
+	for ( RelatedCollection::iterator q = RelatedI.begin(), q_end = RelatedI.end(); q != q_end; ++q )
 		(*q)->simplify();
 }
 
@@ -304,7 +304,7 @@ void TBox :: determineSorts ( void )
 #ifdef RKG_USE_SORTED_REASONING
 	// Related individuals does not appears in DLHeap,
 	// so their sorts shall be determined explicitely
-	for ( RelatedCollection::const_iterator p = Related.begin(); p != Related.end(); ++p )
+	for ( RelatedCollection::const_iterator p = RelatedI.begin(), p_end = RelatedI.end(); p < p_end; ++p, ++p )
 		DLHeap.updateSorts ( (*p)->a->pName, (*p)->R, (*p)->b->pName );
 
 	// create sorts for concept and/or roles

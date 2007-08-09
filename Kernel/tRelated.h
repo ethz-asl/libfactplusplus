@@ -48,23 +48,16 @@ public:		// interface
 		/// empty d'tor
 	~TRelated ( void ) {}
 
-		/// init individual from the pair with given RELATED element
-	void init ( bool first )
-	{
-		TConcept* t = first ? a : b;
-		t->addRelated ( first, this );
-	}
 		/// simplify structure wrt synonyms
 	void simplify ( void )
 	{
 		R = R->resolveSynonym();
 		a = a->resolveSynonym();
 		b = b->resolveSynonym();
-		init(true);
-		init(false);
+		a->addRelated(this);
 	}
 		/// get access to role wrt the FROM direction
-	TRole* getRole ( bool from ) const { return from ? R : R->inverse(); }
+	TRole* getRole ( void ) const { return R; }
 }; // TRelated
 
 #endif

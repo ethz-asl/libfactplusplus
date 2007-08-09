@@ -75,7 +75,7 @@ private:	// members
 
 public:		// types
 		/// pointers to RELATED constructors (individuals only)
-	typedef std::vector<TRelated*> RelatedIndex;
+	typedef std::vector<TRelated*> RelatedSet;
 
 public:		// members
 		/// description of a concept
@@ -99,9 +99,7 @@ public:		// members
 	LogicFeatures negFeatures;
 
 		/// index for axioms <this,C>:R
-	RelatedIndex IndexFrom;
-		/// index for axioms <C,this>:R
-	RelatedIndex IndexTo;
+	RelatedSet RelatedIndex;
 
 protected:	// methods
 	// classification TAGs manipulation
@@ -143,23 +141,18 @@ public:		// methods
 	// related things
 
 		/// update told subsumers from the RELATED axioms in a given range
-	template<class Iterator> void updateTold ( Iterator begin, Iterator end, bool from )
+	template<class Iterator>
+	void updateTold ( Iterator begin, Iterator end )
 	{
 		for ( Iterator p = begin; p < end; ++p )
-			SearchTSbyRoleAndSupers((*p)->getRole(from));
+			SearchTSbyRoleAndSupers((*p)->getRole());
 	}
 		/// update told subsumers from all relevant RELATED axioms
 	void updateToldFromRelated ( void );
 		/// check if individual connected to something with RELATED statement
-	bool isRelated ( void ) const { return !IndexFrom.empty() || !IndexTo.empty(); }
+	bool isRelated ( void ) const { return !RelatedIndex.empty(); }
 		/// set individual related
-	void addRelated ( bool first, TRelated* p )
-	{
-		if ( first )
-			IndexFrom.push_back(p);
-		else
-			IndexTo.push_back(p);
-	}
+	void addRelated ( TRelated* p ) { RelatedIndex.push_back(p); }
 
 	// classification TAGs manipulation
 

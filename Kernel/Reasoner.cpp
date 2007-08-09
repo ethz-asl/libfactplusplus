@@ -330,7 +330,7 @@ bool DlSatTester :: initNominalCloud ( const DepSet& dep )
 	}
 
 	// create edges between related nodes
-	for ( TBox::RelatedCollection::const_iterator q = tBox.Related.begin(); q != tBox.Related.end(); ++q )
+	for ( TBox::RelatedCollection::const_iterator q = tBox.RelatedI.begin(); q != tBox.RelatedI.end(); ++q, ++q )
 		if ( initRelatedNominals(*q) )
 			return true;	// ABox is inconsistent
 

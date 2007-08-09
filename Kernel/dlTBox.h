@@ -179,8 +179,8 @@ protected:	// members
 	IndividualCollection Individuals;
 	RoleMaster RM;
 	TAxiomSet Axioms;
-		/// given individual relations
-	RelatedCollection Related;
+		/// given individual-individual relations
+	RelatedCollection RelatedI;
 		/// known disjoint sets of individuals
 	DifferentIndividuals Different;
 
@@ -767,10 +767,14 @@ public:
 	{
 		if ( ensureNominal(a) || ensureNominal(b) )
 			return true;
-		Related.push_back ( new
+		RelatedI.push_back ( new
 			TRelated ( static_cast<TConcept*>(a),
 					   static_cast<TConcept*>(b),
 					   static_cast<TRole*>(R) ) );
+		RelatedI.push_back ( new
+			TRelated ( static_cast<TConcept*>(b),
+					   static_cast<TConcept*>(a),
+					   static_cast<TRole*>(R)->inverse() ) );
 		return false;
 	}
 

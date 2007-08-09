@@ -40,8 +40,7 @@ void TConcept :: clear ( void )
 // can't be inlined because RELATED implementation should be known
 void TConcept :: updateToldFromRelated ( void )
 {
-	updateTold ( IndexFrom.begin(), IndexFrom.end(), /*from=*/true );
-	updateTold ( IndexTo.begin(), IndexTo.end(), /*from=*/false );
+	updateTold ( RelatedIndex.begin(), RelatedIndex.end() );
 }
 
 void TConcept :: addDesc ( DLTree* Desc )

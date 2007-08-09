@@ -34,7 +34,7 @@ Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 TBox :: ~TBox ( void )
 {
 	// remove all RELATED structures
-	for ( RelatedCollection::iterator p = Related.begin(), p_end = Related.end(); p < p_end; ++p )
+	for ( RelatedCollection::iterator p = RelatedI.begin(), p_end = RelatedI.end(); p < p_end; ++p )
 		delete *p;
 
 	// remove all concepts
@@ -470,18 +470,12 @@ TBox :: getRoleFillers ( TConcept* i, TRole* r, NamesVector& Js ) const
 
 	// for all related triples in which I participates,
 	// check if triple is labelled by a sub-role of R
-	TConcept::RelatedIndex::const_iterator p, p_end;
-	for ( p = I->IndexFrom.begin(), p_end = I->IndexFrom.end(); p < p_end; ++p )
+	TConcept::RelatedSet::const_iterator p, p_end;
+	for ( p = I->RelatedIndex.begin(), p_end = I->RelatedIndex.end(); p < p_end; ++p )
 	{
 		const TRelated& rel = **p;
-		if ( *R >= *rel.getRole(/*from=*/true) )
+		if ( *R >= *rel.getRole() )
 			Js.push_back(rel.b);
-	}
-	for ( p = I->IndexTo.begin(), p_end = I->IndexTo.end(); p < p_end; ++p )
-	{
-		const TRelated& rel = **p;
-		if ( *R >= *rel.getRole(/*from=*/false) )
-			Js.push_back(rel.a);
 	}
 }
 	/// implement DIG-like RelatedIndividuals query; @return Is and Js st (I,J):R
@@ -494,18 +488,13 @@ TBox :: getRelatedIndividuals ( TRole* r, NamesVector& Is, NamesVector& Js ) con
 
 	// for all related triples
 	// check if triple is labelled by a sub-role of R
-	for ( RelatedCollection::const_iterator p = Related.begin(), p_end = Related.end(); p < p_end; ++p )
+	for ( RelatedCollection::const_iterator p = RelatedI.begin(), p_end = RelatedI.end(); p < p_end; ++p )
 	{
 		const TRelated& rel = **p;
-		if ( *R >= *rel.getRole(/*from=*/true) )
+		if ( *R >= *rel.getRole() )
 		{
 			Is.push_back(rel.a);
 			Js.push_back(rel.b);
-		}
-		if ( *R >= *rel.getRole(/*from=*/false) )
-		{
-			Is.push_back(rel.b);
-			Js.push_back(rel.a);
 		}
 	}
 }

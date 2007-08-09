@@ -126,7 +126,7 @@ void TBox :: gatherRelevanceInfo ( void )
 	}
 
 	// correct NC inverse role information
-	if ( NCFeatures.hasSomeAll() && !Related.empty() )
+	if ( NCFeatures.hasSomeAll() && !RelatedI.empty() )
 		NCFeatures.setInverseRoles();
 
 	for ( c_iterator pc = c_begin(); pc != c_end(); ++pc )
