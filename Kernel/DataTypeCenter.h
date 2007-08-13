@@ -64,6 +64,8 @@ protected:	// methods
 	TDataType* getNumberDataType ( void ) const { return *begin(); }
 		/// get type corresponding to Strings
 	TDataType* getStringDataType ( void ) const { return *(begin()+1); }
+		/// get type corresponding to Real
+	TDataType* getRealDataType ( void ) const { return *(begin()+2); }
 		/// get type by name
 	TDataType* getTypeByName ( const std::string& name ) const;
 
@@ -97,6 +99,7 @@ public:		// interface
 		// register primitive DataTypes
 		RegisterDataType ( "Number" );
 		RegisterDataType ( "String" );
+		RegisterDataType ( "Real" );
 	}
 		/// d'tor: delete all datatypes
 	~DataTypeCenter ( void );
@@ -107,6 +110,8 @@ public:		// interface
 	DLTree* getNumberType ( void ) { return wrap(getNumberDataType()->getType()); }
 		/// get STRING DT that can be used in TBox
 	DLTree* getStringType ( void ) { return wrap(getStringDataType()->getType()); }
+		/// get REAL DT that can be used in TBox
+	DLTree* getRealType ( void ) { return wrap(getRealDataType()->getType()); }
 
 		/// return registered data value by given NAME of a Type, given by SAMPLE
 	DLTree* getDataValue ( const std::string& name, const DLTree* sample ) const throw(CantRegName)

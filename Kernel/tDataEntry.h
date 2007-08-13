@@ -109,7 +109,9 @@ protected:	// methods
 		if ( typeName == "String" )
 			comp = ComparableDT(getName());
 		else if ( typeName == "Number" )
-			comp = ComparableDT(atoi(getName()));
+			comp = ComparableDT((long)atoi(getName()));
+		else if ( typeName == "Real" )
+			comp = ComparableDT((float)atof(getName()));
 	}
 
 public:		// interface

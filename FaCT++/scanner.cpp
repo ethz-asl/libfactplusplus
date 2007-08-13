@@ -190,6 +190,9 @@ Token TsScanner :: getExpressionKeyword ( void ) const
 	if ( isKeyword ("number") )
 		return NUMBER;
 
+	if ( isKeyword ("real") )
+		return REAL;
+
 	if ( isKeyword("gt") )
 		return DTGT;
 

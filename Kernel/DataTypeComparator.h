@@ -32,32 +32,45 @@ private:
 	std::string strValue;
 		/// value as a number
 	long longIntValue;
+		/// value as a float
+	float floatValue;
 		/// tag of a value
-	enum { UNUSED = 0, INT, STR } vType;
+	enum { UNUSED = 0, INT, STR, FLOAT } vType;
 
 public:
 		/// create empty dt
 	ComparableDT ( void )
 		: strValue("")
 		, longIntValue(0)
+		, floatValue(0.0)
 		, vType(UNUSED)
 		{}
 		/// create NUMBER's dt
 	explicit ComparableDT ( long int value )
 		: strValue("")
 		, longIntValue(value)
+		, floatValue(0.0)
 		, vType(INT)
 		{}
 		/// create STRING's dt
 	explicit ComparableDT ( const char* value )
 		: strValue(value)
 		, longIntValue(0)
+		, floatValue(0.0)
 		, vType(STR)
+		{}
+		/// create FLOAT's dt
+	explicit ComparableDT ( float value )
+		: strValue("")
+		, longIntValue(0)
+		, floatValue(value)
+		, vType(FLOAT)
 		{}
 		/// copy c'tor
 	ComparableDT ( const ComparableDT& copy )
 		: strValue(copy.strValue)
 		, longIntValue(copy.longIntValue)
+		, floatValue(copy.floatValue)
 		, vType(copy.vType)
 		{}
 		/// assignment
@@ -66,6 +79,7 @@ public:
 		vType = copy.vType;
 		strValue = copy.strValue;
 		longIntValue = copy.longIntValue;
+		floatValue = copy.floatValue;
 		return *this;
 	}
 		/// empty d'tor
@@ -75,6 +89,8 @@ public:
 	long int getLongIntValue ( void ) const { return longIntValue; }
 		/// get STRING
 	const std::string& getStringValue ( void ) const { return strValue; }
+		/// get FLOAT
+	float getFloatValue ( void ) const { return floatValue; }
 		/// check if the datatype is discrete
 	bool hasDiscreteType ( void ) const { return vType == INT; }
 
@@ -88,6 +104,7 @@ public:
 		{
 		case INT:	return getLongIntValue() == other.getLongIntValue();
 		case STR:	return getStringValue() == other.getStringValue();
+		case FLOAT:	return getFloatValue() == other.getFloatValue();
 		default:	assert(0); return false;
 		}
 	}
@@ -102,6 +119,7 @@ public:
 		{
 		case INT:	return getLongIntValue() < other.getLongIntValue();
 		case STR:	return getStringValue() < other.getStringValue();
+		case FLOAT:	return getFloatValue() < other.getFloatValue();
 		default:	assert(0); return false;
 		}
 	}

@@ -444,9 +444,11 @@ DLTree* DLLispParser :: processComplexConceptTree ( void )
 
 	case STRING:	// expression (string <value>)
 	case NUMBER:	// expression (number <value>)
-		left = (T == STRING) ?
-			Kernel->getDataTypeCenter().getStringType():
-			Kernel->getDataTypeCenter().getNumberType();
+	case REAL:		// expression (real <value>)
+		left =	(T == STRING) ? Kernel->getDataTypeCenter().getStringType():
+				(T == NUMBER) ? Kernel->getDataTypeCenter().getNumberType():
+				(T == REAL ) ? Kernel->getDataTypeCenter().getRealType():
+				NULL;	// error, but this can not happens
 
 		if ( Current == RBRACK )	// just datatype
 		{

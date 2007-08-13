@@ -230,6 +230,11 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
 	if ( DTName == "http://www.w3.org/2001/XMLSchema#nonNegativeInteger" )
 		return DataType ( env, getK(env,obj)->getDataTypeCenter().getNumberType());
 
+	if ( DTName == "http://www.w3.org/2001/XMLSchema#float" )
+		return DataType ( env, getK(env,obj)->getDataTypeCenter().getRealType());
+	if ( DTName == "http://www.w3.org/2001/XMLSchema#double" )
+		return DataType ( env, getK(env,obj)->getDataTypeCenter().getRealType());
+
 	Throw ( env, "Unsupported datatype in getBuiltInDataType" );
 	return (jobject)0;
 }

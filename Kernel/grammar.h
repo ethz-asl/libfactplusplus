@@ -72,6 +72,7 @@ enum Token {
 	// FaCT++ commands for internal DataTypes
 	NUMBER,
 	STRING,
+	REAL,
 
 	// datatype operations command names -- used only as an external commands
 	DTGT,
