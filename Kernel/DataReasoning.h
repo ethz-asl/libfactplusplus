@@ -82,7 +82,10 @@ protected:	// classes
 		{
 			if ( !Constraints.update ( min, excl, value ) )
 				return false;
-			maxDep = dep;
+			if ( min )
+				minDep = dep;
+			else
+				maxDep = dep;
 			return true;
 		}
 			/// correct MIN and MAX operands of a type
