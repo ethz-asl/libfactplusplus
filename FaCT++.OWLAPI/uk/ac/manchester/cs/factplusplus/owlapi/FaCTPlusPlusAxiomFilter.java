@@ -1,13 +1,13 @@
 package uk.ac.manchester.cs.factplusplus.owlapi;
 
 import org.semanticweb.owl.model.*;
-import org.semanticweb.owl.vocab.XSDVocabulary;
-import org.semanticweb.owl.vocab.OWLRDFVocabulary;
 import org.semanticweb.owl.util.OWLAxiomFilter;
+import org.semanticweb.owl.vocab.OWLRDFVocabulary;
+import org.semanticweb.owl.vocab.XSDVocabulary;
 
 import java.net.URI;
-import java.util.Set;
 import java.util.HashSet;
+import java.util.Set;
 /*
  * Copyright (C) 2006, University of Manchester
  *
@@ -48,17 +48,23 @@ public class FaCTPlusPlusAxiomFilter implements OWLAxiomFilter, OWLAxiomVisitor,
 
     private String reason;
 
+
     public FaCTPlusPlusAxiomFilter() {
         supportedDataTypes = new HashSet<URI>();
         supportedDataTypes.add(XSDVocabulary.INT.getURI());
         supportedDataTypes.add(XSDVocabulary.NON_NEGATIVE_INTEGER.getURI());
+        supportedDataTypes.add(XSDVocabulary.DOUBLE.getURI());
+        supportedDataTypes.add(XSDVocabulary.FLOAT.getURI());
+        supportedDataTypes.add(XSDVocabulary.INTEGER.getURI());
         supportedDataTypes.add(XSDVocabulary.STRING.getURI());
         supportedDataTypes.add(OWLRDFVocabulary.RDFS_LITERAL.getURI());
     }
 
+
     public boolean isSupportedDatatype(URI datatypeURI) {
         return supportedDataTypes.contains(datatypeURI);
     }
+
 
     public boolean passes(OWLAxiom axiom) {
         reason = "";
@@ -92,7 +98,7 @@ public class FaCTPlusPlusAxiomFilter implements OWLAxiomFilter, OWLAxiomVisitor,
 
 
     public void visit(OWLDisjointClassesAxiom axiom) {
-        for(OWLDescription desc : axiom.getDescriptions()) {
+        for (OWLDescription desc : axiom.getDescriptions()) {
             desc.accept(this);
         }
     }
@@ -157,7 +163,7 @@ public class FaCTPlusPlusAxiomFilter implements OWLAxiomFilter, OWLAxiomVisitor,
 
 
     public void visit(OWLDisjointUnionAxiom axiom) {
-        for(OWLDescription desc : axiom.getDescriptions()) {
+        for (OWLDescription desc : axiom.getDescriptions()) {
             desc.accept(this);
         }
     }
@@ -194,7 +200,7 @@ public class FaCTPlusPlusAxiomFilter implements OWLAxiomFilter, OWLAxiomVisitor,
 
 
     public void visit(OWLEquivalentClassesAxiom axiom) {
-        for(OWLDescription desc : axiom.getDescriptions()) {
+        for (OWLDescription desc : axiom.getDescriptions()) {
             desc.accept(this);
         }
     }
@@ -232,7 +238,6 @@ public class FaCTPlusPlusAxiomFilter implements OWLAxiomFilter, OWLAxiomVisitor,
     public void visit(OWLInverseObjectPropertiesAxiom axiom) {
     }
 
-
     /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -241,14 +246,14 @@ public class FaCTPlusPlusAxiomFilter implements OWLAxiomFilter, OWLAxiomVisitor,
 
 
     public void visit(OWLObjectIntersectionOf desc) {
-        for(OWLDescription op : desc.getOperands()) {
+        for (OWLDescription op : desc.getOperands()) {
             op.accept(this);
         }
     }
 
 
     public void visit(OWLObjectUnionOf desc) {
-        for(OWLDescription op : desc.getOperands()) {
+        for (OWLDescription op : desc.getOperands()) {
             op.accept(this);
         }
     }
@@ -336,13 +341,14 @@ public class FaCTPlusPlusAxiomFilter implements OWLAxiomFilter, OWLAxiomVisitor,
 
     }
 
+
     public void visit(OWLIndividual individual) {
     }
 
 
     public void visit(OWLDataType dataType) {
         passes = isSupportedDatatype(dataType.getURI());
-        if(!passes) {
+        if (!passes) {
             reason = dataType.getURI() + " is not supported";
         }
     }
@@ -357,13 +363,14 @@ public class FaCTPlusPlusAxiomFilter implements OWLAxiomFilter, OWLAxiomVisitor,
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+
     public void visit(OWLDataComplementOf node) {
         node.getDataRange().accept(this);
     }
 
 
     public void visit(OWLDataOneOf node) {
-        for(OWLConstant con : node.getValues()) {
+        for (OWLConstant con : node.getValues()) {
             con.accept(this);
         }
     }
