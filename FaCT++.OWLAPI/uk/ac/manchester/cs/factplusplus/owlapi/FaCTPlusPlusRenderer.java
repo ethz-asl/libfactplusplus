@@ -1,16 +1,16 @@
 package uk.ac.manchester.cs.factplusplus.owlapi;
 
-import static org.semanticweb.owl.vocab.OWLRestrictedDataRangeFacetVocabulary.*;
-import org.semanticweb.owl.model.*;
 import org.semanticweb.owl.apibinding.OWLManager;
+import org.semanticweb.owl.model.*;
 import org.semanticweb.owl.vocab.OWLRDFVocabulary;
 import org.semanticweb.owl.vocab.OWLRestrictedDataRangeFacetVocabulary;
+import static org.semanticweb.owl.vocab.OWLRestrictedDataRangeFacetVocabulary.*;
 import org.semanticweb.owl.vocab.XSDVocabulary;
 
 import java.io.*;
 import java.net.URI;
-import java.util.Map;
 import java.util.HashMap;
+import java.util.Map;
 /*
  * Copyright (C) 2006, University of Manchester
  *
@@ -67,10 +67,12 @@ public class FaCTPlusPlusRenderer implements OWLObjectVisitor {
         }
     }
 
+
     private void write(OWLObject obj) {
         write(" ");
         obj.accept(this);
     }
+
 
     public void visit(OWLSubClassAxiom axiom) {
         write("implies_c");
@@ -86,6 +88,7 @@ public class FaCTPlusPlusRenderer implements OWLObjectVisitor {
         write(axiom.getObject());
     }
 
+
     public void visit(OWLAntiSymmetricObjectPropertyAxiom axiom) {
         write("antisymmetric");
         write(axiom.getProperty());
@@ -100,7 +103,7 @@ public class FaCTPlusPlusRenderer implements OWLObjectVisitor {
 
     public void visit(OWLDisjointClassesAxiom axiom) {
         write("disjoint");
-        for(OWLDescription desc : axiom.getDescriptions()) {
+        for (OWLDescription desc : axiom.getDescriptions()) {
             write(desc);
         }
     }
@@ -134,23 +137,26 @@ public class FaCTPlusPlusRenderer implements OWLObjectVisitor {
 
     public void visit(OWLEquivalentObjectPropertiesAxiom axiom) {
         write("equal_r");
-        for(OWLObjectPropertyExpression prop : axiom.getProperties()) {
+        for (OWLObjectPropertyExpression prop : axiom.getProperties()) {
             write(prop);
         }
     }
 
 
     public void visit(OWLNegativeDataPropertyAssertionAxiom axiom) {
-        write("not-related");
+        write("instance");
         write(axiom.getSubject());
+        write("(all ");
         write(axiom.getProperty());
+        write("(not ");
         write(axiom.getObject());
+        write("))");
     }
 
 
     public void visit(OWLDifferentIndividualsAxiom axiom) {
         write("different ");
-        for(OWLIndividual ind : axiom.getIndividuals()) {
+        for (OWLIndividual ind : axiom.getIndividuals()) {
             write(ind);
         }
     }
@@ -158,7 +164,7 @@ public class FaCTPlusPlusRenderer implements OWLObjectVisitor {
 
     public void visit(OWLDisjointDataPropertiesAxiom axiom) {
         write("disjoint_r");
-        for(OWLDataPropertyExpression prop : axiom.getProperties()) {
+        for (OWLDataPropertyExpression prop : axiom.getProperties()) {
             write(prop);
         }
     }
@@ -166,7 +172,7 @@ public class FaCTPlusPlusRenderer implements OWLObjectVisitor {
 
     public void visit(OWLDisjointObjectPropertiesAxiom axiom) {
         write("disjoint_r");
-        for(OWLObjectPropertyExpression prop : axiom.getProperties()) {
+        for (OWLObjectPropertyExpression prop : axiom.getProperties()) {
             write(prop);
         }
     }
@@ -204,7 +210,7 @@ public class FaCTPlusPlusRenderer implements OWLObjectVisitor {
         write("equal_c ");
         axiom.getOWLClass().accept(this);
         write("(disjoint-or ");
-        for(OWLDescription desc : axiom.getDescriptions()) {
+        for (OWLDescription desc : axiom.getDescriptions()) {
             desc.accept(this);
             write(" ");
         }
@@ -240,7 +246,7 @@ public class FaCTPlusPlusRenderer implements OWLObjectVisitor {
 
     public void visit(OWLEquivalentDataPropertiesAxiom axiom) {
         write("equal_r");
-        for(OWLDataPropertyExpression prop : axiom.getProperties()) {
+        for (OWLDataPropertyExpression prop : axiom.getProperties()) {
             write(prop);
         }
     }
@@ -255,17 +261,19 @@ public class FaCTPlusPlusRenderer implements OWLObjectVisitor {
 
     public void visit(OWLEquivalentClassesAxiom axiom) {
         write("equal_c");
-        for(OWLDescription desc : axiom.getDescriptions()) {
+        for (OWLDescription desc : axiom.getDescriptions()) {
             write(desc);
         }
     }
 
 
     public void visit(OWLDataPropertyAssertionAxiom axiom) {
-        write("related");
+        write("instance");
         write(axiom.getSubject());
+        write("(some ");
         write(axiom.getProperty());
         write(axiom.getObject());
+        write(")");
     }
 
 
@@ -297,7 +305,7 @@ public class FaCTPlusPlusRenderer implements OWLObjectVisitor {
 
     public void visit(OWLSameIndividualsAxiom axiom) {
         write("same");
-        for(OWLIndividual ind : axiom.getIndividuals()) {
+        for (OWLIndividual ind : axiom.getIndividuals()) {
             write(ind);
         }
     }
@@ -305,7 +313,7 @@ public class FaCTPlusPlusRenderer implements OWLObjectVisitor {
 
     public void visit(OWLObjectPropertyChainSubPropertyAxiom axiom) {
         write("implies_r (");
-        for(OWLObjectPropertyExpression prop : axiom.getPropertyChain()) {
+        for (OWLObjectPropertyExpression prop : axiom.getPropertyChain()) {
             write(prop);
         }
         write(")");
@@ -323,10 +331,10 @@ public class FaCTPlusPlusRenderer implements OWLObjectVisitor {
 
 
     public void visit(OWLClass desc) {
-        if(desc.getURI().equals(OWLRDFVocabulary.OWL_THING.getURI())) {
+        if (desc.getURI().equals(OWLRDFVocabulary.OWL_THING.getURI())) {
             write("*TOP*");
         }
-        else if(desc.getURI().equals(OWLRDFVocabulary.OWL_NOTHING.getURI())) {
+        else if (desc.getURI().equals(OWLRDFVocabulary.OWL_NOTHING.getURI())) {
             write("*BOTTOM*");
         }
         else {
@@ -337,7 +345,7 @@ public class FaCTPlusPlusRenderer implements OWLObjectVisitor {
 
     public void visit(OWLObjectIntersectionOf desc) {
         write("(and");
-        for(OWLDescription op : desc.getOperands()) {
+        for (OWLDescription op : desc.getOperands()) {
             write(op);
         }
         write(")");
@@ -346,7 +354,7 @@ public class FaCTPlusPlusRenderer implements OWLObjectVisitor {
 
     public void visit(OWLObjectUnionOf desc) {
         write("(or");
-        for(OWLDescription op : desc.getOperands()) {
+        for (OWLDescription op : desc.getOperands()) {
             write(op);
         }
         write(")");
@@ -425,7 +433,7 @@ public class FaCTPlusPlusRenderer implements OWLObjectVisitor {
 
     public void visit(OWLObjectOneOf desc) {
         write("(one-of");
-        for(OWLIndividual ind : desc.getIndividuals()) {
+        for (OWLIndividual ind : desc.getIndividuals()) {
             write(ind);
         }
         write(")");
@@ -488,8 +496,14 @@ public class FaCTPlusPlusRenderer implements OWLObjectVisitor {
 
 
     public void visit(OWLDataType node) {
-        if(node.getURI().equals(XSDVocabulary.STRING.getURI())) {
+        if (node.getURI().equals(XSDVocabulary.STRING.getURI())) {
             write("string");
+        }
+        else if (node.getURI().equals(XSDVocabulary.DOUBLE.getURI())) {
+            write("real");
+        }
+        else if (node.getURI().equals(XSDVocabulary.FLOAT.getURI())) {
+            write("real");
         }
         else {
             write("number");
@@ -511,7 +525,7 @@ public class FaCTPlusPlusRenderer implements OWLObjectVisitor {
 
     public void visit(OWLDataRangeRestriction node) {
         write("(and");
-        for(OWLDataRangeFacetRestriction restriction : node.getFacetRestrictions()) {
+        for (OWLDataRangeFacetRestriction restriction : node.getFacetRestrictions()) {
             restriction.accept(this);
         }
         write(")");
@@ -520,14 +534,14 @@ public class FaCTPlusPlusRenderer implements OWLObjectVisitor {
 
     public void visit(OWLDataRangeFacetRestriction node) {
         write("(");
-            String facetRendering = facetRenderingMap.get(node.getFacet());
-            if(facetRendering == null) {
-                write("\n;unsupported facet " + node.getFacet());
-            }
-            else {
-                write(facetRendering);
-                node.getFacetValue().accept(this);
-            }
+        String facetRendering = facetRenderingMap.get(node.getFacet());
+        if (facetRendering == null) {
+            write("\n;unsupported facet " + node.getFacet());
+        }
+        else {
+            write(facetRendering);
+            node.getFacetValue().accept(this);
+        }
         write(")");
     }
 
@@ -536,15 +550,23 @@ public class FaCTPlusPlusRenderer implements OWLObjectVisitor {
         write("(");
         node.getDataType().accept(this);
         write(" ");
-        write(node.getLiteral());
+        if (node.getDataType().getURI().equals(XSDVocabulary.STRING.getURI())) {
+            write("\"");
+            write(node.getLiteral());
+            write("\"");
+        }
+        else {
+            write(node.getLiteral());
+        }
+
         write(")");
     }
 
 
     public void visit(OWLUntypedConstant node) {
-        write("(string ");
+        write("(string \"");
         write(node.getLiteral());
-        write(")");
+        write("\")");
     }
 
 
@@ -564,23 +586,24 @@ public class FaCTPlusPlusRenderer implements OWLObjectVisitor {
         write(property.getURI().toString());
     }
 
+
     public void visit(OWLIndividual individual) {
         write(individual.getURI().toString());
     }
 
 
     public void visit(OWLOntology ontology) {
-        for(OWLObjectProperty prop : ontology.getReferencedObjectProperties()) {
+        for (OWLObjectProperty prop : ontology.getReferencedObjectProperties()) {
             write("(defprimrole");
             write(prop);
             write(")\n");
         }
-        for(OWLDataProperty prop : ontology.getReferencedDataProperties()) {
+        for (OWLDataProperty prop : ontology.getReferencedDataProperties()) {
             write("(defdatarole");
             write(prop);
             write(")\n");
         }
-        for(OWLAxiom ax : ontology.getAxioms()) {
+        for (OWLAxiom ax : ontology.getAxioms()) {
             if (ax.isLogicalAxiom()) {
                 write("(");
                 write(ax);
@@ -656,9 +679,10 @@ public class FaCTPlusPlusRenderer implements OWLObjectVisitor {
             File mappingFile = new File(workingDir, "mapping.txt");
             final Map<URI, URI> uriMap = new HashMap<URI, URI>();
             if (mappingFile.exists()) {
-                BufferedReader mappingFileReader = new BufferedReader(new InputStreamReader(new FileInputStream(mappingFile)));
+                BufferedReader mappingFileReader = new BufferedReader(new InputStreamReader(new FileInputStream(
+                        mappingFile)));
                 String line;
-                while((line = mappingFileReader.readLine()) != null) {
+                while ((line = mappingFileReader.readLine()) != null) {
                     int sepIndex = line.indexOf(" ");
                     URI ontURI = new URI(line.substring(0, sepIndex).trim());
                     URI physicalURI = new URI(line.substring(sepIndex + 1, line.length()).trim());
@@ -669,7 +693,7 @@ public class FaCTPlusPlusRenderer implements OWLObjectVisitor {
             man.addURIMapper(new OWLOntologyURIMapper() {
                 public URI getPhysicalURI(URI ontologyURI) {
                     URI physURI = uriMap.get(ontologyURI);
-                    if(physURI != null) {
+                    if (physURI != null) {
                         return physURI;
                     }
                     return ontologyURI;
