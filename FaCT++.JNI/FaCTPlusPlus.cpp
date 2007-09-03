@@ -1171,7 +1171,14 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_classi
   (JNIEnv * env, jobject obj)
 {
 	TRACE_JNI("classify");
-	getK(env,obj)->classifyKB();
+	try
+	{
+		getK(env,obj)->classifyKB();
+	}
+	catch ( InconsistentKB )
+	{
+		Throw ( env, "FaCT++ Kernel: Inconsistent KB" );
+	}
 }
 
 /*
@@ -1183,7 +1190,14 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_realis
   (JNIEnv * env, jobject obj)
 {
 	TRACE_JNI("realise");
-	getK(env,obj)->realiseKB();
+	try
+	{
+		getK(env,obj)->realiseKB();
+	}
+	catch ( InconsistentKB )
+	{
+		Throw ( env, "FaCT++ Kernel: Inconsistent KB" );
+	}
 }
 
 
