@@ -219,6 +219,8 @@ protected:	// members
 	bool consistencyChecked;
 		/// whether KB is consistent; valid only if consistencyChecked is true
 	bool Consistent;
+		/// whether KB(ABox) is precompleted
+	bool Precompleted;
 
 		/// time spend for preprocessing
 	float preprocTime;
@@ -878,6 +880,10 @@ public:
 //--		public reasoning interface
 //-----------------------------------------------------------------------------
 
+		/// inform that KB is precompleted
+	void setPrecompleted ( void ) { Precompleted = true; }
+		/// if KB is precompleted
+	bool isPrecompleted ( void ) const { return Precompleted; }
 		/// set consistency flag
 	void setConsistency ( bool val )
 	{
@@ -954,6 +960,7 @@ inline TBox :: TBox ( const ifOptionSet* Options )
 	, useSortedReasoning(true)
 	, isLikeGALEN(false)	// just in case Relevance part would be omited
 	, consistencyChecked(false)
+	, Precompleted(false)
 	, preprocTime(0)
 	, nSynonyms(0)
 {

@@ -330,9 +330,10 @@ bool DlSatTester :: initNominalCloud ( const DepSet& dep )
 	}
 
 	// create edges between related nodes
-	for ( TBox::RelatedCollection::const_iterator q = tBox.RelatedI.begin(); q != tBox.RelatedI.end(); ++q, ++q )
-		if ( initRelatedNominals(*q) )
-			return true;	// ABox is inconsistent
+	if ( !tBox.isPrecompleted() )	// not needed for precompleted KB
+		for ( TBox::RelatedCollection::const_iterator q = tBox.RelatedI.begin(); q != tBox.RelatedI.end(); ++q, ++q )
+			if ( initRelatedNominals(*q) )
+				return true;	// ABox is inconsistent
 
 	// create disjoint markers on nominal nodes
 	if ( tBox.Different.empty() )
