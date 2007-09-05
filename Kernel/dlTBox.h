@@ -215,6 +215,10 @@ protected:	// members
 		/// flag whether TBox is GALEN-like
 	bool isLikeGALEN;
 
+		/// flag whether consistency was checked
+	bool consistencyChecked;
+		/// whether KB is consistent; valid only if consistencyChecked is true
+	bool Consistent;
 
 		/// time spend for preprocessing
 	float preprocTime;
@@ -519,6 +523,8 @@ protected:	// methods
 	void clearReasoner ( void );			// implemented in Reasoner.h
 		/// set ToDo priorities for SAT/SUB
 	void setToDoPriorities ( bool sat );	// implemented in Reasoner.h
+		/// check whether KB is consistent; @return true if it is
+	bool performConsistencyCheck ( void );	// implemented in Reasoner.h
 
 //-----------------------------------------------------------------------------
 //--		internal reasoning interface
@@ -872,8 +878,19 @@ public:
 //--		public reasoning interface
 //-----------------------------------------------------------------------------
 
+		/// set consistency flag
+	void setConsistency ( bool val )
+	{
+		consistencyChecked = true;
+		Consistent = val;
+	}
 		/// check if the ontology is consistent
-	bool isConsistent ( void );
+	bool isConsistent ( void )
+	{
+		if ( !consistencyChecked )
+			setConsistency(performConsistencyCheck());
+		return Consistent;
+	}
 		/// check if a subsumption C [= D holds
 	bool isSubHolds ( const TConcept* C, const TConcept* D );
 		/// check if a concept C is satisfiable
@@ -936,6 +953,7 @@ inline TBox :: TBox ( const ifOptionSet* Options )
 	, T_G(bpTOP)	// initialise GCA's concept with Top
 	, useSortedReasoning(true)
 	, isLikeGALEN(false)	// just in case Relevance part would be omited
+	, consistencyChecked(false)
 	, preprocTime(0)
 	, nSynonyms(0)
 {

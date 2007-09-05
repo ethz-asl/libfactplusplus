@@ -1000,7 +1000,7 @@ TBox :: initSingletonCache ( BipolarPointer p )
 
 /// check if the ontology is consistent
 inline bool
-TBox :: isConsistent ( void )
+TBox :: performConsistencyCheck ( void )
 {
 	buildSimpleCache();
 
