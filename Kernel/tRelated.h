@@ -51,9 +51,9 @@ public:		// interface
 		/// simplify structure wrt synonyms
 	void simplify ( void )
 	{
-		R = R->resolveSynonym();
-		a = a->resolveSynonym();
-		b = b->resolveSynonym();
+		R = resolveSynonym(R);
+		a = resolveSynonym(a);
+		b = resolveSynonym(b);
 		a->addRelated(this);
 	}
 		/// get access to role wrt the FROM direction

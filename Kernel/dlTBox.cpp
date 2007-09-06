@@ -465,8 +465,8 @@ void
 TBox :: getRoleFillers ( TConcept* i, TRole* r, NamesVector& Js ) const
 {
 	Js.clear();
-	TConcept* I = i->resolveSynonym();
-	TRole* R = r->resolveSynonym();
+	TConcept* I = resolveSynonym(i);
+	TRole* R = resolveSynonym(r);
 
 	// for all related triples in which I participates,
 	// check if triple is labelled by a sub-role of R
@@ -484,7 +484,7 @@ TBox :: getRelatedIndividuals ( TRole* r, NamesVector& Is, NamesVector& Js ) con
 {
 	Is.clear();
 	Js.clear();
-	TRole* R = r->resolveSynonym();
+	TRole* R = resolveSynonym(r);
 
 	// for all related triples
 	// check if triple is labelled by a sub-role of R

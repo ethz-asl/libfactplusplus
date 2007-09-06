@@ -233,7 +233,7 @@ TBox :: dataAtMost2dag ( unsigned int n, const TRole* R, BipolarPointer C )
 const TRole* TBox :: role2dag ( const DLTree* t )
 {
 	TRole* r = resolveRole(t);
-	return r ? r->resolveSynonym() : NULL;
+	return r ? resolveSynonym(r) : NULL;
 }
 
 bool TBox :: fillANDVertex ( DLVertex* v, const DLTree* t )

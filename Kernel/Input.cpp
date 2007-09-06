@@ -53,7 +53,7 @@ bool TBox :: addSubsumeAxiom ( DLTree* left, DLTree* right )
 		// FIXME!! this should be done earlier
 		if ( p->isSynonym() )
 		{
-			p = p->resolveSynonym();
+			p = resolveSynonym(p);
 
 			// check whether name is a synonym of a constant (mainly for owl:Thing)
 			if ( p == pBottom )
@@ -89,7 +89,7 @@ bool TBox :: addSubsumeAxiom ( DLTree* left, DLTree* right )
 		// resolve synonyms (if any)
 		if ( p->isSynonym() )
 		{
-			p = p->resolveSynonym();
+			p = resolveSynonym(p);
 
 			// check whether name is a synonym of a constant (mainly for owl:Thing)
 			if ( p == pBottom )
@@ -201,7 +201,7 @@ TBox :: addNonprimitiveDefinition ( DLTree* left, DLTree* right )
 	TConcept* D = getConcept(right);
 
 	// nothing to do for the case C := D for named concepts C,D with D = C already
-	if ( D && D->isSynonym() && D->resolveSynonym() == C )
+	if ( D && resolveSynonym(D) == C )
 	{
 		delete left;
 		delete right;

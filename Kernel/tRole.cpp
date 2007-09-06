@@ -66,7 +66,7 @@ void TRole :: addFeaturesToSynonym ( void )
 	if ( !isSynonym() )
 		return;
 
-	TRole* syn = resolveSynonym();
+	TRole* syn = resolveSynonym(this);
 
 	// don't copy parents: they are already copied during ToldSubsumers processing
 
@@ -408,7 +408,7 @@ TRole :: preprocessComposition ( roleSet& RS )
 
 	for ( roleSet::iterator p = RS.begin(), p_end = RS.end(); p < p_end; ++p )
 	{
-		TRole* R = (*p)->resolveSynonym();
+		TRole* R = resolveSynonym(*p);
 
 		if ( R == this )	// found R in composition
 		{
@@ -454,6 +454,6 @@ void TRole :: completeAutomaton ( void )
 	// complete automaton
 	A.complete();
 
-	for ( ClassifiableEntry::linkSet::iterator p = getTold().begin(); p != getTold().end(); ++p )
-		static_cast<TRole*>(*p)->resolveSynonym()->addSubRoleAutomaton(this);
+	for ( ClassifiableEntry::linkSet::iterator p = getTold().begin(); p < getTold().end(); ++p )
+		static_cast<TRole*>(resolveSynonym(*p))->addSubRoleAutomaton(this);
 }

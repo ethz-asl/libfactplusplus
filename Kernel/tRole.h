@@ -161,12 +161,12 @@ protected:	// methods
 	{
 		if ( RS.empty() )	// fallout from transitivity axiom
 			return;
-		if ( RS.front()->resolveSynonym() == this )
+		if ( resolveSynonym(RS.front()) == this )
 		{
 			createChain ( RS.begin()+1, RS.end() );
 			A.addRBegRA();
 		}
-		else if ( RS.back()->resolveSynonym() == this )
+		else if ( resolveSynonym(RS.back()) == this )
 		{
 			createChain ( RS.begin(), RS.end()-1 );
 			A.addREndRA();
@@ -189,20 +189,15 @@ public:		// interface
 
 	// synonym operations
 
-		/// returns associated synonym or role itself if none found (non-const version)
-	TRole* resolveSynonym ( void ) { return isSynonym() ? (TRole*)getSynonym(): this; }
-		/// returns associated synonym or role itself if none found (const version)
-	const TRole* resolveSynonym ( void ) const { return isSynonym() ? (const TRole*)getSynonym(): this; }
-
 		/// copy role information (like transitivity, functionality, R&D etc) to synonym
 	void addFeaturesToSynonym ( void );
 
 	// inverse of the role
 
 		/// get inverse of given role (non-const version)
-	TRole* inverse ( void ) { assert (Inverse != NULL); return Inverse->resolveSynonym(); }
+	TRole* inverse ( void ) { assert (Inverse != NULL); return resolveSynonym(Inverse); }
 		/// get inverse of given role (const version)
-	const TRole* inverse ( void ) const { assert (Inverse != NULL); return Inverse->resolveSynonym(); }
+	const TRole* inverse ( void ) const { assert (Inverse != NULL); return resolveSynonym(Inverse); }
 		/// set inverse to given role
 	void setInverse ( TRole* p ) { assert (Inverse == NULL); Inverse = p; }
 
@@ -317,7 +312,7 @@ public:		// interface
 	// role relations checking
 
 		/// two roles are the same iff thy are synonyms of the same role
-	bool operator == ( const TRole& r ) const { return resolveSynonym() == r.resolveSynonym(); }
+	bool operator == ( const TRole& r ) const { return resolveSynonym(this) == resolveSynonym(&r); }
 		/// check if role is a strict sub-role of R
 //	bool operator < ( const TRole& r ) const { return resolveSynonym()->isRelative ( r.resolveSynonym(), true ); }
 	bool operator < ( const TRole& r ) const { return AncMap[getRoleIndex(r.getId())]; }

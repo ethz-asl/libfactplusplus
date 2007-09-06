@@ -56,7 +56,7 @@ CTTag TConcept :: determineClassTag ( void )
 {
 	// for synonyms -- set tag as a primer's one
 	if ( isSynonym() )
-		return resolveSynonym()->getClassTag();
+		return resolveSynonym(this)->getClassTag();
 
 	// check if it is non-primitive
 	if ( isNonPrimitive() )

@@ -133,11 +133,6 @@ public:		// methods
 		/// clear all info of the concept. Use it in removeConcept()
 	void clear ( void );
 
-		/// returns associated synonym or concept itself if none found (non-const version)
-	TConcept* resolveSynonym ( void ) { return isSynonym() ? (TConcept*)getSynonym(): this; }
-		/// returns associated synonym or concept itself if none found (const version)
-	const TConcept* resolveSynonym ( void ) const { return isSynonym() ? (const TConcept*)getSynonym(): this; }
-
 	// related things
 
 		/// update told subsumers from the RELATED axioms in a given range
@@ -201,8 +196,7 @@ public:		// methods
 		/// adds concept as a told subsumer of current one; @return value for CDC analisys
 	bool addToldSubsumer ( TConcept* p )
 	{
-		if ( p->isSynonym() )
-			p = resolveSynonym();
+		p = resolveSynonym(p);
 
 		if ( p != this )
 		{
@@ -287,7 +281,7 @@ inline BipolarPointer TConcept :: resolveId ( void ) const
 		return pBody;
 
 	if ( isSynonym() )	// resolve synonyms
-		return resolveSynonym()->resolveId();
+		return resolveSynonym(this)->resolveId();
 
 	return pName;	// return concept's name
 }

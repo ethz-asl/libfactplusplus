@@ -110,4 +110,20 @@ public:		// interface
 	void removeSynonymsFromParents ( void );
 }; // ClassifiableEntry
 
+/// general RW resolving synonym operator
+template<class T>
+inline T*
+resolveSynonym ( T* p )
+{
+	return p->isSynonym() ? static_cast<T*>(p->getSynonym()) : p;
+}
+
+/// general RW resolving synonym operator
+template<class T>
+inline const T*
+resolveSynonym ( const T* p )
+{
+	return p->isSynonym() ? static_cast<const T*>(p->getSynonym()) : p;
+}
+
 #endif // _TAXNAMENTRY_H

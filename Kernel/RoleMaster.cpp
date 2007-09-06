@@ -97,8 +97,8 @@ void RoleMaster :: initAncDesc ( void )
 		for ( iterator q = DJRolesA.begin(), q_end = DJRolesA.end(), r = DJRolesB.begin();
 			  q != q_end; ++q, ++r )
 		{
-			TRole* R = (*q)->resolveSynonym();
-			TRole* S = (*r)->resolveSynonym();
+			TRole* R = resolveSynonym(*q);
+			TRole* S = resolveSynonym(*r);
 			R->addDisjointRole(S);
 			S->addDisjointRole(R);
 			R->inverse()->addDisjointRole(S->inverse());

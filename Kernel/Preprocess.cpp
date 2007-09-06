@@ -117,7 +117,7 @@ void TBox :: replaceAllSynonyms ( void )
 			if ( (*sv)->isSynonym() )
 			{
 				++nSynonyms;
-				*sv = (*sv)->resolveSynonym();
+				*sv = resolveSynonym(*sv);
 			}
 
 	if ( verboseOutput )
