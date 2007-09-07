@@ -388,7 +388,7 @@ bool TBox :: processDifferent ( const ConceptSet& v )
 		if ( ensureNominal(*q) )	// only nominals in DIFFERENT command
 			return true;
 		else
-			acc.push_back(static_cast<TConcept*>((*q)->Element().getName()));
+			acc.push_back(static_cast<TIndividual*>((*q)->Element().getName()));
 
 	// register vector of disjoint nominals in proper place
 	if ( acc.size() < 2 )

@@ -25,10 +25,6 @@ Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #include "dltree.h"
 #include "dlVertex.h"
 #include "LogicFeature.h"
-#include "DepSet.h"
-
-class TBox;
-class TRelated;
 
 /// type of concept wrt classifiability
 enum CTTag
@@ -64,18 +60,12 @@ inline char getCTTagName ( CTTag tag )
 	}
 }
 
-class DlCompletionTree;
-
 /// class for representing concept-like entries
 class TConcept: public ClassifiableEntry
 {
 private:	// members
 		/// label to use in relevant-only checks
 	TLabeller::LabType rel;
-
-public:		// types
-		/// pointers to RELATED constructors (individuals only)
-	typedef std::vector<TRelated*> RelatedSet;
 
 public:		// members
 		/// description of a concept
@@ -90,16 +80,10 @@ public:		// members
 		/// pointer to the entry in DAG with concept definition
 	BipolarPointer pBody;
 
-		/// pointer to nominal node (works for singletons only)
-	DlCompletionTree* node;
-
 		/// features for C
 	LogicFeatures posFeatures;
 		/// features for ~C
 	LogicFeatures negFeatures;
-
-		/// index for axioms <this,C>:R
-	RelatedSet RelatedIndex;
 
 protected:	// methods
 	// classification TAGs manipulation
@@ -120,7 +104,6 @@ public:		// methods
 		, tsDepth(0)
 		, pName (bpINVALID)
 		, pBody (bpINVALID)
-		, node(NULL)
 	{
 		setSatisfiable(true);
 		setPrimitive();
@@ -129,25 +112,15 @@ public:		// methods
 	}
 		/// d'tor
 	virtual ~TConcept ( void ) { deleteTree(Description); }
-
 		/// clear all info of the concept. Use it in removeConcept()
 	void clear ( void );
 
-	// related things
+	// Individual-related support
 
-		/// update told subsumers from the RELATED axioms in a given range
-	template<class Iterator>
-	void updateTold ( Iterator begin, Iterator end )
-	{
-		for ( Iterator p = begin; p < end; ++p )
-			SearchTSbyRoleAndSupers((*p)->getRole());
-	}
-		/// update told subsumers from all relevant RELATED axioms
-	void updateToldFromRelated ( void );
+		/// check whether a concept is indeed a singleton
+	virtual bool isSingleton ( void ) const { return false; }
 		/// check if individual connected to something with RELATED statement
-	bool isRelated ( void ) const { return !RelatedIndex.empty(); }
-		/// set individual related
-	void addRelated ( TRelated* p ) { RelatedIndex.push_back(p); }
+	virtual bool isRelated ( void ) const { return false; }
 
 	// classification TAGs manipulation
 
@@ -208,17 +181,15 @@ public:		// methods
 		return p->isPrimitive();
 	}
 		/// init told subsumers of the concept by given DESCription; @return TRUE iff concept is CD
-	bool initToldSubsumers ( const DLTree* desc );
+	virtual bool initToldSubsumers ( const DLTree* desc );
 		/// find told subsumers by given role's domain
 	void SearchTSbyRole ( const TRole* R );
 		/// find told subsumers by given role and its supers domains
 	void SearchTSbyRoleAndSupers ( const TRole* R );
 		/// init told subsumers of the concept by it's description
-	void initToldSubsumers ( TConcept* top )
+	virtual void initToldSubsumers ( TConcept* top )
 	{
 		getTold().clear();
-		if ( isRelated() )	// check if domain and range of RELATED axioms affects TS
-			updateToldFromRelated();
 		// normalise description if the only parent is TOP
 		if ( isPrimitive() && Description && Description->Element() == TOP )
 			removeDescription();
@@ -226,8 +197,7 @@ public:		// methods
 		if ( Description == NULL && getTold().empty() )
 		{
 			addParent(top);
-			if ( !isRelated() )	// related individuals are NOT completely defined
-				setCompletelyDefined(true);
+			setCompletelyDefined(true);
 		}
 		else	// init (additional) told subsumers from definition
 			setCompletelyDefined ( initToldSubsumers(Description) && isPrimitive() );
@@ -240,20 +210,13 @@ public:		// methods
 
 		/// register a Satisfiable flag
 	FPP_ADD_FLAG(Satisfiable,0x10);
-		/// register a Singleton flag
-	FPP_ADD_FLAG(Singleton,0x20);
 		/// register a Primitive flag
-	FPP_ADD_FLAG(Primitive,0x40);
+	FPP_ADD_FLAG(Primitive,0x20);
 
 	// concept non-primitivity methods
 
 		/// check if concept is non-primitive concept
 	bool isNonPrimitive ( void ) const { return !isPrimitive(); }
-
-	// node corresponding to nominal
-
-		/// get node in CGraph corresponding to given nominal; set DEP according to merge path
-	DlCompletionTree* getCorrespondingNode ( DepSet& dep ) const;
 
 	// relevance part
 

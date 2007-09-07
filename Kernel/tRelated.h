@@ -19,22 +19,22 @@ Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #ifndef _TRELATED_H
 #define _TRELATED_H
 
-#include "tConcept.h"
+#include "tIndividual.h"
 #include "tRole.h"
 
 /// class for represent individual relation <a,b>:R
 class TRelated
 {
 public:		// members
-	TConcept* a;
-	TConcept* b;
+	TIndividual* a;
+	TIndividual* b;
 	TRole* R;
 
 public:		// interface
 		/// empty c'tor
 	TRelated ( void ) : a(NULL), b(NULL), R(NULL) {}
 		/// init c'tor
-	TRelated ( TConcept* a_, TConcept* b_, TRole* R_ ) : a(a_), b(b_), R(R_) {}
+	TRelated ( TIndividual* a_, TIndividual* b_, TRole* R_ ) : a(a_), b(b_), R(R_) {}
 		/// copy c'tor
 	TRelated ( const TRelated& c ) : a(c.a), b(c.b), R(c.R) {}
 		/// assignment
@@ -59,5 +59,12 @@ public:		// interface
 		/// get access to role wrt the FROM direction
 	TRole* getRole ( void ) const { return R; }
 }; // TRelated
+
+// TIndividual RELATED-dependent method' implementation
+inline void
+TIndividual :: updateToldFromRelated ( void )
+{
+	updateTold ( RelatedIndex.begin(), RelatedIndex.end() );
+}
 
 #endif

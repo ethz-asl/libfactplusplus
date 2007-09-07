@@ -462,15 +462,15 @@ void TBox :: PrintAxioms ( std::ostream& o ) const
 
 	/// implement DIG-like roleFillers query; @return in Js all J st (I,J):R
 void
-TBox :: getRoleFillers ( TConcept* i, TRole* r, NamesVector& Js ) const
+TBox :: getRoleFillers ( TIndividual* i, TRole* r, NamesVector& Js ) const
 {
 	Js.clear();
-	TConcept* I = resolveSynonym(i);
+	TIndividual* I = resolveSynonym(i);
 	TRole* R = resolveSynonym(r);
 
 	// for all related triples in which I participates,
 	// check if triple is labelled by a sub-role of R
-	TConcept::RelatedSet::const_iterator p, p_end;
+	TIndividual::RelatedSet::const_iterator p, p_end;
 	for ( p = I->RelatedIndex.begin(), p_end = I->RelatedIndex.end(); p < p_end; ++p )
 	{
 		const TRelated& rel = **p;

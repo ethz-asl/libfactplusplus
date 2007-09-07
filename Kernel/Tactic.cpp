@@ -200,7 +200,7 @@ tacticUsage DlSatTester :: commonTacticBodySingleton ( const DLVertex& cur )
 
 	encounterSingleton = true;
 
-	const TConcept* C = static_cast<const TConcept*>(cur.getConcept());
+	const TIndividual* C = static_cast<const TIndividual*>(cur.getConcept());
 
 	// init nominal cloud which includes C if necessary
 	if ( ensureNominalCloud(C) )
@@ -208,7 +208,7 @@ tacticUsage DlSatTester :: commonTacticBodySingleton ( const DLVertex& cur )
 
 	// if node for C was purged due to merge -- find proper one
 	DepSet dep = curConcept.getDep();
-	DlCompletionTree* realNode = C->getCorrespondingNode(dep);
+	DlCompletionTree* realNode = C->node->resolvePBlocker(dep);
 
 	if ( realNode != curNode )	// check if o-rule is applicable
 		// apply o-rule: merge 2 nodes
@@ -479,7 +479,7 @@ tacticUsage DlSatTester :: commonTacticBodySome ( const DLVertex& cur )	// for E
 	{
 		const DLVertex& nom = DLHeap[cToAdd];
 		if ( nom.Type() == dtPSingleton || nom.Type() == dtNSingleton )
-			return commonTacticBodyValue ( rName, static_cast<const TConcept*>(nom.getConcept()) );
+			return commonTacticBodyValue ( rName, static_cast<const TIndividual*>(nom.getConcept()) );
 	}
 
 	nSomeCalls.inc();
@@ -603,7 +603,7 @@ tacticUsage DlSatTester :: commonTacticBodySome ( const DLVertex& cur )	// for E
 }
 
 /// expansion rule for existential quantifier in the form ER {o}
-tacticUsage DlSatTester :: commonTacticBodyValue ( const TRole* R, const TConcept* nom )
+tacticUsage DlSatTester :: commonTacticBodyValue ( const TRole* R, const TIndividual* nom )
 {
 	DepSet curDep = curConcept.getDep();
 
@@ -620,7 +620,7 @@ tacticUsage DlSatTester :: commonTacticBodyValue ( const TRole* R, const TConcep
 	assert ( nom->node != NULL );
 
 	// if node for NOM was purged due to merge -- find proper one
-	DlCompletionTree* realNode = nom->getCorrespondingNode(curDep);
+	DlCompletionTree* realNode = nom->node->resolvePBlocker(curDep);
 
 	// check if merging will lead to clash because of disjoint roles
 	if ( R->isDisjoint() && checkDisjointRoleClash ( curNode, realNode, R, curDep ) == utClash )

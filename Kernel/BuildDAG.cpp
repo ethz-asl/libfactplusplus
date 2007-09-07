@@ -129,13 +129,14 @@ BipolarPointer TBox :: tree2dag ( const DLTree* t )
 	{
 	case BOTTOM:	// it is just !top
 		return bpBOTTOM;
-	case TOP:	// the 1st node
+	case TOP:		// the 1st node
 		return bpTOP;
 	case DATAEXPR:	// data-related expression
 		return addDataExprToHeap ( static_cast<TDataEntry*>(cur.getName()) );
-	//FIXME!!! return here when it would be difference between CN/IN
-	case NAME:	// it is a concept ID
+	case CNAME:		// concept name
 		return concept2dag(getConcept(cur.getName()));
+	case INAME:		// individual name
+		return concept2dag(getIndividual(cur.getName()));
 
 	case NOT:
 		return inverse ( tree2dag ( t->Left() ) );

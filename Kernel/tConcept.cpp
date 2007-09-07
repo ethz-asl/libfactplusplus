@@ -19,8 +19,8 @@ Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #include <set>
 
 #include "tConcept.h"
-#include "dlCompletionTree.h"
-#include "tRelated.h"
+
+#include "tRole.h"
 
 void TConcept :: clear ( void )
 {
@@ -35,12 +35,6 @@ void TConcept :: clear ( void )
 	removeDescription();
 	setPrimitive();
 	pName = pBody = bpINVALID;
-}
-
-// can't be inlined because RELATED implementation should be known
-void TConcept :: updateToldFromRelated ( void )
-{
-	updateTold ( RelatedIndex.begin(), RelatedIndex.end() );
 }
 
 void TConcept :: addDesc ( DLTree* Desc )
@@ -235,9 +229,4 @@ unsigned int TConcept :: calculateTSDepth ( void )
 	}
 
 	return (tsDepth = max+1);
-}
-
-DlCompletionTree* TConcept :: getCorrespondingNode ( DepSet& dep ) const
-{
-	return node->resolvePBlocker(dep);
 }

@@ -404,7 +404,7 @@ protected:	// methods
 	modelCacheInterface* createModelCache ( const DlCompletionTree* p ) const
 		{ return new modelCacheIan ( DLHeap, p, encounterSingleton ); }
 		/// create cache entry for given singleton
-	void registerNominalCache ( TConcept* p )
+	void registerNominalCache ( TIndividual* p )
 	{
 		DLHeap.setCache ( p->pName, createModelCache(p->node->resolvePBlocker()) );
 		p->setSatisfiable(true);	// nominals are known to be SAT at this point
@@ -425,7 +425,7 @@ protected:
 		/// create nominal nodes for all individuals in TBox
 	bool initNominalCloud ( void ) { return initNominalCloud(curConcept.getDep()); }
 		/// ensure that part of nominal cloud containing given NOMinal exists
-	bool ensureNominalCloud ( const TConcept* nom )
+	bool ensureNominalCloud ( const TIndividual* nom )
 	{
 		if ( nom->node == NULL ) // 1st time touch a nominal -- init nominal cloud
 			return initNominalCloud();
@@ -466,7 +466,7 @@ protected:
 		/// expansion rule for general existential quantifier
 	tacticUsage commonTacticBodySome ( const DLVertex& cur );
 		/// expansion rule for existential quantifier in the form \ER{nom}
-	tacticUsage commonTacticBodyValue ( const TRole* R, const TConcept* nom );
+	tacticUsage commonTacticBodyValue ( const TRole* R, const TIndividual* nom );
 		/// expansion rule for universal restriction
 	tacticUsage commonTacticBodyAll ( const DLVertex& cur );
 		/// expansion rule for universal restriction with simple role using RA

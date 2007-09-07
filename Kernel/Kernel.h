@@ -1207,7 +1207,7 @@ ReasoningKernel :: getRoleFillers ( const ComplexConcept I, const ComplexRole R,
 	if ( I->Element().getToken() != INAME || resolveRole(R) == NULL )
 		return true;
 	getTBox()->getRoleFillers (
-		static_cast<TConcept*>(I->Element().getName()), resolveRole(R), Result );
+		static_cast<TIndividual*>(I->Element().getName()), resolveRole(R), Result );
 	return false;
 }
 

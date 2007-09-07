@@ -23,6 +23,7 @@ Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #include <vector>
 
 #include "tConcept.h"
+#include "tIndividual.h"
 #include "RoleMaster.h"
 #include "LogicFeature.h"
 #include "dlDag.h"
@@ -52,7 +53,7 @@ public:	// interface
 		/// vector of CONCEPT-like elements
 	typedef std::vector<TConcept*> ConceptVector;
 		/// vector of SINGLETON-like elements
-	typedef std::vector<TConcept*> SingletonVector;
+	typedef std::vector<TIndividual*> SingletonVector;
 		/// type for the array of Related elements
 	typedef std::vector<TRelated*> RelatedCollection;
 		/// type for a collection of DIFFERENT individuals
@@ -62,15 +63,15 @@ public:	// interface
 
 protected:	// types
 		/// collection of individuals
-	class IndividualCollection: public TNECollection<TConcept>
+	class IndividualCollection: public TNECollection<TIndividual>
 	{
 	protected:	// methods
 			/// virtual method for additional tuning of newly created element
-		virtual void registerNew ( TConcept* p ) { p->setSingleton(); }
+		virtual void registerNew ( TIndividual* p ATTR_UNUSED ) {}
 
 	public:		// interface
 			/// c'tor: clear 0-th element
-		IndividualCollection ( void ) : TNECollection<TConcept>() {}
+		IndividualCollection ( void ) : TNECollection<TIndividual>() {}
 			/// empty d'tor: all elements will be deleted in other place
 		virtual ~IndividualCollection ( void ) {}
 	}; // IndividualCollection
@@ -266,10 +267,12 @@ protected:	// methods
 		/// @return true if given name is registered as a concept-like structure in given TBox
 	bool isRegisteredConcept ( const TNamedEntry* name ) const { return Concepts.isRegistered(name); }
 
-		/// returns concept corresponds given ID (or NULL in case ID is not a concept)
-	TConcept* getConcept ( TNamedEntry* id );
+		/// @return concept by given Named Entry ID
+	TConcept* getConcept ( TNamedEntry* id ) { return static_cast<TConcept*>(id); }
 		/// get TOP/BOTTOM/CN by the DLTree entry
 	TConcept* getConcept ( const DLTree* name );
+		/// @return individual by given Named Entry ID
+	TIndividual* getIndividual ( TNamedEntry* id ) { return static_cast<TIndividual*>(id); }
 
 //-----------------------------------------------------------------------------
 //--		internal BP-to-concept interface
@@ -740,11 +743,11 @@ public:
 		/// return registered concept by given NAME; @return NULL if can't register
 	TConcept* getConcept ( const std::string& name ) { return Concepts.get(name); }
 		/// return registered individual by given NAME; @return NULL if can't register
-	TConcept* getIndividual ( const std::string& name ) { return Individuals.get(name); }
+	TIndividual* getIndividual ( const std::string& name ) { return Individuals.get(name); }
 
 	/** Ensure that given name is nominal. Register name if it is undefined.
 		@return true if name could not be defined as a nominal; @return false if OK */
-	bool ensureNominal ( TNamedEntry* name );
+	bool ensureNominal ( TNamedEntry* name ) { return !Individuals.isRegistered(name); }
 		/// ensure that given concept expression is a nominal; @return false if OK
 	bool ensureNominal ( const DLTree* entry )
 	{
@@ -776,12 +779,12 @@ public:
 		if ( ensureNominal(a) || ensureNominal(b) )
 			return true;
 		RelatedI.push_back ( new
-			TRelated ( static_cast<TConcept*>(a),
-					   static_cast<TConcept*>(b),
+			TRelated ( static_cast<TIndividual*>(a),
+					   static_cast<TIndividual*>(b),
 					   static_cast<TRole*>(R) ) );
 		RelatedI.push_back ( new
-			TRelated ( static_cast<TConcept*>(b),
-					   static_cast<TConcept*>(a),
+			TRelated ( static_cast<TIndividual*>(b),
+					   static_cast<TIndividual*>(a),
 					   static_cast<TRole*>(R)->inverse() ) );
 		return false;
 	}
@@ -933,7 +936,7 @@ public:
 	void dump ( dumpInterface* dump ) const;
 
 		/// implement DIG-like roleFillers query; @return in Js all J st (I,J):R
-	void getRoleFillers ( TConcept* I, TRole* R, NamesVector& Js ) const;
+	void getRoleFillers ( TIndividual* I, TRole* R, NamesVector& Js ) const;
 		/// implement DIG-like RelatedIndividuals query; @return Is and Js st (I,J):R
 	void getRelatedIndividuals ( TRole* R, NamesVector& Is, NamesVector& Js ) const;
 		/// implement absorbedPrimitiveConceptDefinitions DIG extension
@@ -973,16 +976,6 @@ inline TBox :: TBox ( const ifOptionSet* Options )
 //---------------------------------------------------------------
 //--		Implementation of ensure*-like stuff
 //---------------------------------------------------------------
-
-inline TConcept* TBox :: getConcept ( TNamedEntry* p )
-{
-	return static_cast<TConcept*>(p);
-}
-
-inline bool TBox :: ensureNominal ( TNamedEntry* name )
-{
-	return !Individuals.isRegistered(name);
-}
 
 inline TConcept* TBox :: getConcept ( const DLTree* name )
 {
