@@ -22,6 +22,7 @@ Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 
 #include "procTimer.h"
 #include "logging.h"
+#include "Precomplete.h"
 
 void TBox :: Preprocess ( void )
 {
@@ -50,6 +51,10 @@ void TBox :: Preprocess ( void )
 
 	// locate told (definitional) cycles and transform them into synonyms
 	transformToldCycles();
+
+	// perform precompletion (if possible)
+	if ( usePrecompletion )
+		performPrecompletion();
 
 	// fills classification tag (strictly after told cycles)
 	fillsClassificationTag();
@@ -269,6 +274,16 @@ redo:
 //	std::cout << "Done with " << p->getName() << std::endl;
 
 	return ret;
+}
+
+void
+TBox :: performPrecompletion ( void )
+{
+	Precompletor PC(*this);
+	if ( PC.performPrecompletion() )
+		std::cerr << "\nPrecompletion failed";	// do nothing for now
+	else
+		std::cerr << "\nPrecompletion succeed";	// do nothing for now
 }
 
 void TBox :: initFunctionalRoles ( void )

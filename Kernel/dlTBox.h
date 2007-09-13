@@ -42,6 +42,7 @@ class modelCacheSingleton;
 
 class TBox
 {
+	friend class Precompletor;
 	friend class DlSatTester;
 	friend class ReasoningKernel;
 
@@ -215,6 +216,8 @@ protected:	// members
 	bool useSortedReasoning;
 		/// flag whether TBox is GALEN-like
 	bool isLikeGALEN;
+		/// flag whether precompletion should be used
+	bool usePrecompletion;
 
 		/// flag whether consistency was checked
 	bool consistencyChecked;
@@ -465,8 +468,10 @@ protected:	// methods
 		/// absorb all axioms and set hasGCI
 	void ConvertAxioms ( void ) { GCIs.setGCI(Axioms.absorb()); }
 
-		/// pre-process RELATED axioms: resolve synonyms, mark indivs like related
+		/// pre-process RELATED axioms: resolve synonyms, mark individuals as related
 	void preprocessRelated ( void );
+		/// perform precompletion;
+	void performPrecompletion ( void );
 		/// determine all sorts in KB (make job only for SORTED_REASONING)
 	void determineSorts ( void );
 

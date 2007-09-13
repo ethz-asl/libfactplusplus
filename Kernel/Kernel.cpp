@@ -252,6 +252,15 @@ bool ReasoningKernel :: initOptions ( void )
 		) )
 		return true;
 
+	// register "usePrecompletion" option (13/09/2007)
+	if ( pKernelOptions->RegisterOption (
+		"usePrecompletion",
+		"Option 'usePrecompletion' switchs on and off precompletion process for ABox.",
+		ifOption::iotBool,
+		"false"
+		) )
+		return true;
+
 	// options for DLDag
 
 	// register "orSortSub" option (20/12/2004)

@@ -30,6 +30,8 @@ class TIndividual: public TConcept
 public:		// types
 		/// pointers to RELATED constructors
 	typedef std::vector<TRelated*> RelatedSet;
+		/// pointers to concept expressions
+	typedef std::vector<const DLTree*> ConceptSearchSet;
 
 public:		// members
 		/// pointer to nominal node (works for singletons only)
@@ -38,14 +40,22 @@ public:		// members
 		/// index for axioms <this,C>:R
 	RelatedSet RelatedIndex;
 
+	// precompletion support
+
+		/// vector that contains LINKS to the concept expressions that are labels of an individual
+	ConceptSearchSet CSSet;
+		/// new concept expression to be added to the label
+	DLTree* PCConcept;
+
 public:		// interface
 		/// the only c'tor
 	explicit TIndividual ( const std::string& name )
 		: TConcept(name)
 		, node(NULL)
+		, PCConcept(NULL)
 		{}
 		/// empty d'tor
-	virtual ~TIndividual ( void ) {}
+	virtual ~TIndividual ( void ) { delete PCConcept; }
 
 		/// check whether a concept is indeed a singleton
 	virtual bool isSingleton ( void ) const { return true; }
@@ -86,6 +96,38 @@ public:		// interface
 	bool isRelated ( void ) const { return !RelatedIndex.empty(); }
 		/// set individual related
 	void addRelated ( TRelated* p ) { RelatedIndex.push_back(p); }
+
+	// precompletion interface
+
+		/// check whether EXPR already exists in the precompletion set
+	bool containsPCExpr ( const DLTree* expr ) const
+	{
+		if ( expr == NULL )	// special case it
+			return true;
+		for ( ConceptSearchSet::const_iterator p = CSSet.begin(), p_end = CSSet.end(); p < p_end; ++p )
+			if ( equalTrees ( *p, expr ) )
+				return true;
+
+		return false;
+	}
+		/// unconditionally adds EXPR to the precompletion information
+	void addPCExprAlways ( const DLTree* expr )
+	{
+		CSSet.push_back(expr);
+		PCConcept = createSNFAnd ( PCConcept, clone(expr) );
+	}
+		/// add EXPR to th ePC information if it is a new expression; @return true if was added
+	bool addPCExpr ( const DLTree* expr )
+	{
+		if ( containsPCExpr(expr) )
+			return false;
+		addPCExprAlways(expr);
+		return true;
+	}
+		/// update individual's description from precompletion information
+	void usePCInfo ( void ) { delete Description; Description = PCConcept; PCConcept = NULL; }
+		/// remove all precompletion-related information
+	void clearPCInfo ( void ) { delete PCConcept; PCConcept = NULL; CSSet.clear(); }
 }; // TIndividual
 
 #endif

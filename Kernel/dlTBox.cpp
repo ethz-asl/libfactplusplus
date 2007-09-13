@@ -216,6 +216,7 @@ void TBox :: readConfig ( const ifOptionSet* Options )
 	addBoolOption(useDagCache);
 	addBoolOption(useRangeDomain);
 	addBoolOption(alwaysPreferEquals);
+	addBoolOption(usePrecompletion);
 
 	if ( Axioms.initAbsorptionFlags(Options->getText("absorptionFlags"))
 		 || !Axioms.isAbsorptionFlagsCorrect(useRangeDomain) )

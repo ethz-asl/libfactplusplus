@@ -46,5 +46,6 @@ SOURCES = \
 		  DataTypeCenter.cpp\
           Preprocess.cpp\
           Input.cpp\
+          Precomplete.cpp\
 
 include ../Makefile.include
