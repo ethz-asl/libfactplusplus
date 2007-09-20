@@ -87,8 +87,8 @@ void DlSatTester :: clearNominalCloud ( void )
 
 	// check if nominals were touched.
 	// FIXME!! check later on where not ALL nominals will be touched
-	if ( (*p)->node == NULL )
-		return;
+//	if ( (*p)->node == NULL )
+//		return;
 
 	// clear node link in all nominals
 	for ( ; p != Nominals.end(); ++p )
