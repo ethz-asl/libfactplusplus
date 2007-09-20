@@ -61,7 +61,7 @@ public:		// interface
 	virtual bool isSingleton ( void ) const { return true; }
 		/// FIXME!! need this to support the next method
 	virtual bool initToldSubsumers ( const DLTree* desc ) { return TConcept::initToldSubsumers(desc); }
-		/// init told subsumers of the concept by it's description
+		/// init told subsumers of the individual by it's description
 	virtual void initToldSubsumers ( TConcept* top )
 	{
 		getTold().clear();
@@ -80,6 +80,8 @@ public:		// interface
 		else	// init (additional) told subsumers from definition
 			setCompletelyDefined ( initToldSubsumers(Description) && isPrimitive() );
 	}
+		/// init TS as for concept (don't use RELATED info)
+	void initToldSubsumersC ( TConcept* top ) { TConcept::initToldSubsumers(top); }
 
 	// related things
 

@@ -321,13 +321,8 @@ bool DlSatTester :: initNominalCloud ( const DepSet& dep )
 
 	// create nominal nodes and fills them with initial values
 	for ( SingletonVector::iterator p = Nominals.begin(); p != Nominals.end(); ++p )
-	{
-		DlCompletionTree* node = CGraph.getNewNode();
-		node->setNominalLevel();
-		(*p)->node = node;	// init nominal with associated node
-		if ( initNewNode ( node, dep, (*p)->pName ) == utClash )
+		if ( initNominalNode ( *p, dep ) )
 			return true;	// ABox is inconsistent
-	}
 
 	// create edges between related nodes
 	if ( !tBox.isPrecompleted() )	// not needed for precompleted KB

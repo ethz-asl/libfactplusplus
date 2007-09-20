@@ -77,6 +77,8 @@ Precompletor :: runPrecompletion ( void ) throw(PCException)
 		case NOT:
 			switch ( cur.Expr->Left()->Element().getToken() )
 			{
+			case FORALL:	// \exists restriction: nothing to do
+				break;
 			default:
 				std::cerr << "Unsupported concept expression: " << cur.Expr->Left() << "\n";
 				throw PCException();

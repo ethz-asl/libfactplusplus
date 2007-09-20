@@ -128,7 +128,9 @@ protected:	// methods
 		{
 			(*p)->usePCInfo();
 			// we change description of a concept, so we need to rebuild the TS info
-			KB.initToldSubsumers(*p);
+			// note that precompletion succeed; so there is no need to take into account
+			// RELATED information
+			(*p)->initToldSubsumersC(KB.pTop);
 		}
 	}
 		/// remove all precompletion-related references from KB
