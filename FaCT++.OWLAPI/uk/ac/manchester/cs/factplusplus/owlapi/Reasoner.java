@@ -90,7 +90,7 @@ public class Reasoner extends MonitorableOWLReasonerAdapter implements FaCTPlusP
         try {
             faCTPlusPlus.realise();
         }
-        catch (Exception e) {
+        catch (FaCTPlusPlusException e) {
             throw new FaCTPlusPlusReasonerException(e);
         }
     }
@@ -207,6 +207,9 @@ public class Reasoner extends MonitorableOWLReasonerAdapter implements FaCTPlusP
             synchronised = false;
             ensureSynchronised();
             getReasoner().classify();
+        }
+        catch(InconsistentOntologyException e) {
+            throw new FaCTPlusPlusReasonerException(e);
         }
         catch (Exception e) {
             throw new FaCTPlusPlusReasonerException(e);
