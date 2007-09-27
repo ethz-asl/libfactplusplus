@@ -162,6 +162,13 @@ protected:	// methods
 			break;
 		}
 	}
+		/// process forall restriction
+	void processForall ( TIndividual* ind, const TRole* R, const DLTree* expr )
+	{
+		for ( r_iterator i = ind->RelatedIndex.begin(), i_end = ind->RelatedIndex.end(); i < i_end; ++i )
+			if ( *(*i)->getRole() <= *R )
+				processTree ( (*i)->b, expr );
+	}
 
 public:		// interface
 		/// empty c'tor

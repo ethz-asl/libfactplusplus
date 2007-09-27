@@ -74,6 +74,10 @@ Precompletor :: runPrecompletion ( void ) throw(PCException)
 		case AND:
 			processTree ( cur.Ind, cur.Expr );
 			break;
+		case FORALL:
+			processForall ( cur.Ind, static_cast<const TRole*>(cur.Expr->Left()->Element().getName()),
+									 cur.Expr->Right() );
+			break;
 		case NOT:
 			switch ( cur.Expr->Left()->Element().getToken() )
 			{
