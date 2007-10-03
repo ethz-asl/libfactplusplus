@@ -96,11 +96,47 @@ public:		// interface
 // current kernel + reference recorder
 extern MMKernel* curKernel;
 
+/// throw exception with a given signature
 inline
-void Throw ( JNIEnv * env, const char* reason )
+void ThrowExc ( JNIEnv * env, const char* reason, const char* className )
 {
-	jclass cls = env->FindClass("Ljava/lang/Exception;");
+	jclass cls = env->FindClass(className);
 	env->ThrowNew ( cls, reason );
+}
+
+/// throw general Java exception
+inline
+void ThrowGen ( JNIEnv* env, const char* reason )
+{
+	ThrowExc ( env, reason, "Ljava/lang/Exception;" );
+}
+
+/// throw general FaCT++ exception
+inline
+void Throw ( JNIEnv* env, const char* reason )
+{
+	ThrowExc ( env, reason, "Luk/ac/manchester/cs/factplusplus/FaCTPlusPlusException;" );
+}
+
+/// throw Inconsistent Ontology exception
+inline
+void ThrowICO ( JNIEnv* env	 )
+{
+	ThrowExc ( env, "FaCT++.Kernel: inconsistent ontology", "Luk/ac/manchester/cs/factplusplus/InconsistentOntologyException;" );
+}
+
+/// throw CR for non-simple role exception
+inline
+void ThrowNSR ( JNIEnv* env, const char* reason )
+{
+	ThrowExc ( env, reason, "Luk/ac/manchester/cs/factplusplus/NonSimpleRoleInNumberRestrictionException;" );
+}
+
+/// throw Role Inclusion Cycle exception
+inline
+void ThrowRIC ( JNIEnv* env, const char* reason )
+{
+	ThrowExc ( env, reason, "Luk/ac/manchester/cs/factplusplus/RoleInclusionCycleException;" );
 }
 
 /// get Kernel local to given object

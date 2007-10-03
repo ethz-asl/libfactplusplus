@@ -51,12 +51,12 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_initKe
 	jclass classThis = env->GetObjectClass(obj);
 
 	if ( classThis == 0 )
-		Throw ( env, "Can't get class of 'this'" );
+		ThrowGen ( env, "Can't get class of 'this'" );
 
 	jfieldID fid = env->GetFieldID ( classThis, "KernelId", "J" );
 
 	if ( fid == 0 )
-		Throw ( env, "Can't get 'KernelId' field" );
+		ThrowGen ( env, "Can't get 'KernelId' field" );
 
 	// create new kernel and save it in an FaCTPlusPlus object
 	env->SetLongField ( obj, fid, (jlong)(curKernel=new MMKernel()) );
@@ -1132,11 +1132,11 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellDi
 // minimal query language (ASK languages)
 //-------------------------------------------------------------
 
-#define PROCESS_ASK_QUERY(Action,Reason)			\
+#define PROCESS_ASK_QUERY(Action,Reason)		\
 	bool fail = false;							\
 	try { fail = Action; }						\
 	catch ( InconsistentKB )					\
-	{ Throw ( env, "FaCT++.Kernel: inconsistent ontology" ); } \
+	{ ThrowICO(env); }							\
 	catch ( std::exception ) { fail = true; }	\
 	if ( fail ) Throw ( env, Reason )
 
@@ -1177,7 +1177,7 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_classi
 	}
 	catch ( InconsistentKB )
 	{
-		Throw ( env, "FaCT++ Kernel: Inconsistent KB" );
+		ThrowICO(env);
 	}
 }
 
@@ -1196,7 +1196,7 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_realis
 	}
 	catch ( InconsistentKB )
 	{
-		Throw ( env, "FaCT++ Kernel: Inconsistent KB" );
+		ThrowICO(env);
 	}
 }
 
