@@ -38,7 +38,7 @@ public class FaCTPlusPlus {
         deleteKernel();
     }
 
-    private native void initKernel() throws FaCTPlusPlusException;
+    private native void initKernel() throws Exception;
 
     private native void deleteKernel() throws FaCTPlusPlusException;
 
