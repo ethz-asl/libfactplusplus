@@ -173,6 +173,13 @@ bool TConcept :: initToldSubsumers ( const DLTree* desc )
 
 		return false;
 	}
+	case REFLEXIVE:	// Domains and Range from participating role
+	{
+		const TRole* R = resolveRole(desc->Left());
+		SearchTSbyRoleAndSupers(R);
+		SearchTSbyRoleAndSupers(R->inverse());
+		return false;
+	}
 	default:	// not told one
 		return false;
 	}
