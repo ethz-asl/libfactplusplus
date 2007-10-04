@@ -77,10 +77,12 @@ bool readHeader ( int socket, std::string& Header, std::string& Content )
 		endOfHeaderIndex = temp.find("\r\n\r\n");
 	}
 
-	Header = temp.substr ( 0, endOfHeaderIndex+3 );
-	int readContentLength = read - (endOfHeaderIndex+3);
-	if(readContentLength > 0)
-		Content = temp.substr ( endOfHeaderIndex+3, readContentLength );
+	endOfHeaderIndex += 3;	// take into account EOL
+	Header = temp.substr ( 0, endOfHeaderIndex );
+	// part of the content is in the TEMP now; save it into CONTENT
+	int readContentLength = read - endOfHeaderIndex;
+	if ( readContentLength > 0 )
+		Content = temp.substr ( endOfHeaderIndex, readContentLength );
 
 	return true;
 }
@@ -95,7 +97,7 @@ bool readHeader ( int socket, std::string& Header, std::string& Content )
 *
 ********************************************************************************/
 
-inline bool isPost ( const std::string& Header)
+inline bool isPost ( const std::string& Header )
 {
 	int endOfFirstLine = Header.find("\r\n");
 	int indexOfPost = Header.find("POST");
