@@ -249,7 +249,7 @@ runSingleSession ( int sockfd, std::string& header, std::string& content )
 
 	header.clear();
 	content.clear();
-	singleTransition ( new_fd, header, content );
+	singleTransaction ( new_fd, header, content );
 
 	// Response is sent, so close the connection
 	// (different depending on whether the platform is Windows or not)
