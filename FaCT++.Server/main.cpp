@@ -200,6 +200,52 @@ void Usage ( void )
 	exit(1);
 }
 
+void
+runSingleSession ( int sockfd, std::string& header, std::string& content )
+{
+#ifdef __WIN32
+	typedef int socklen_t;	// simplify ACCEPT call
+#endif
+	sockaddr their_addr;
+	socklen_t sin_size = sizeof(their_addr);
+	int new_fd = accept ( sockfd, &their_addr, &sin_size );
+
+	header.clear();
+	content.clear();
+	// Read the header so that we can check for POST and also content length
+	if ( readHeader (new_fd, header, content) )
+	{
+		// Make sure that we are dealing with a POST request
+		if ( isPost(header) )
+		{
+			readContent ( new_fd, content, getIntHeaderValue("Content-Length", header) );
+			// We don't want to send any leading white space, so
+			// find the first non whitespace
+			const char* p = content.c_str();
+			const char* p_end = p+content.length();
+			for ( ; p < p_end; ++p )
+				if ( *p != ' ' && *p != '\t' && *p != '\n' && *p != '\r' )
+					break;
+
+			std::string reasonerResponse;
+			digInterface.processQuery ( p, reasonerResponse );
+			sendResponse ( new_fd, reasonerResponse );
+		}
+		else
+			// The request isn't a POST request - send back some HTML
+			// saying FaCT++ is running as a DIG server.
+			sendResponse ( new_fd, GET_RESPONSE );
+	}
+
+	// Sent the response, so close the connection (different depending on
+	// whether the platform is Windows or not.
+#ifdef __WIN32
+	closesocket(new_fd);
+#else
+	close(new_fd);
+#endif
+}
+
 int main ( int argc, char * const argv[] )
 {
 	// check for the given value of the port
@@ -258,49 +304,11 @@ int main ( int argc, char * const argv[] )
 		std::cout << "FaCT++ running on " << hostName << " port " << portNumber << std::endl;
 	}
 
+	// allocate header and content lines once
+	std::string header, content;
+
 	for(;;)
-	{
-#ifdef __WIN32
-		typedef int socklen_t;	// simplify ACCEPT call
-#endif
-		sockaddr their_addr;
-		socklen_t sin_size = sizeof(their_addr);
-		int new_fd = accept ( sockfd, &their_addr, &sin_size );
-		std::string content;
-		std::string header;
-
-		// Read the header so that we can check for POST and also content length
-		if ( readHeader (new_fd, header, content) )
-		{
-			// Make sure that we are dealing with a POST request
-			if ( isPost(header) )
-			{
-				readContent ( new_fd, content, getIntHeaderValue("Content-Length", header) );
-				// We don't want to send any leading white space, so
-				// find the first non whitespace
-				const char* p = content.c_str();
-				const char* p_end = p+content.length();
-				for ( ; p < p_end; ++p )
-					if ( *p != ' ' && *p != '\t' && *p != '\n' && *p != '\r' )
-						break;
-
-				std::string reasonerResponse;
-				digInterface.processQuery ( p, reasonerResponse );
-				sendResponse ( new_fd, reasonerResponse );
-				// Sent the response, so close the connection (different depending on
-				// whether the platform is Windows or not.
-#ifdef __WIN32
-				closesocket(new_fd);
-#else
-				close(new_fd);
-#endif
-			}
-			else
-				// The request isn't a POST request - send back some HTML
-				// saying FaCT++ is running as a DIG server.
-				sendResponse ( new_fd, GET_RESPONSE );
-		}
-	}
+		runSingleSession ( sockfd, header, content );
 
 	return 0;
 }
