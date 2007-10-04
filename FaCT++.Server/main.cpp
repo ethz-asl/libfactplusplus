@@ -224,7 +224,6 @@ int main ( int argc, char * const argv[] )
 
 	int sockfd;
 	struct sockaddr_in my_addr;
-	struct sockaddr_in their_addr;
 	sockfd = socket(AF_INET, SOCK_STREAM, 0);
 
 	my_addr.sin_family = AF_INET;
@@ -240,8 +239,8 @@ int main ( int argc, char * const argv[] )
 		exit(1);
 	}
 
-	int reuseSocket = 1;
 #ifndef __WIN32
+	int reuseSocket = 1;
 	if ( setsockopt ( sockfd, SOL_SOCKET, SO_REUSEADDR, &reuseSocket, sizeof(int) ) == -1 )
 	{
 		perror("setsockopt");
@@ -259,14 +258,12 @@ int main ( int argc, char * const argv[] )
 
 	for(;;)
 	{
-		int sin_size = sizeof(their_addr);
-		int new_fd = accept ( sockfd, (struct sockaddr*)&their_addr,
 #ifdef __WIN32
-				(int*)
-#else
-				(socklen_t*)
+		typedef int socklen_t;	// simplify ACCEPT call
 #endif
-			&sin_size);
+		sockaddr their_addr;
+		socklen_t sin_size = sizeof(their_addr);
+		int new_fd = accept ( sockfd, &their_addr, &sin_size );
 		std::string content;
 		std::string header;
 

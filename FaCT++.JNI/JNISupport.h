@@ -120,7 +120,7 @@ void Throw ( JNIEnv* env, const char* reason )
 
 /// throw Inconsistent Ontology exception
 inline
-void ThrowICO ( JNIEnv* env	 )
+void ThrowICO ( JNIEnv* env )
 {
 	ThrowExc ( env, "FaCT++.Kernel: inconsistent ontology", "Luk/ac/manchester/cs/factplusplus/InconsistentOntologyException;" );
 }
