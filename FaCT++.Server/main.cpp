@@ -51,7 +51,7 @@ std::string GET_RESPONSE = "<html><head></head><body><p>FaCT++ DIG Server runnin
 * Header - a std::string in which the HTTP header will be placed
 * Content - a std::string in which any read content will be placed
 *
-* returns - true if the header was read, or false if the header was not read.
+* returns - false if the header was read, true if error occured.
 *
 ********************************************************************************/
 
@@ -67,10 +67,10 @@ bool readHeader ( int socket, std::string& Header, std::string& Content )
 	{
 		memset(buffer, 0, BUFFER_SIZE);
 		int rec = (int) recv ( socket, buffer, BUFFER_SIZE-1, 0 );
-		if ( rec == 0 )
+		if ( rec <= 0 )
 		{
 			std::cout << "ReadHeader: Connection closed by client." << std::endl;
-			return false;
+			return true;
 		}
 		read += rec;
 		temp += buffer;
@@ -84,7 +84,7 @@ bool readHeader ( int socket, std::string& Header, std::string& Content )
 	if ( readContentLength > 0 )
 		Content = temp.substr ( endOfHeaderIndex, readContentLength );
 
-	return true;
+	return false;
 }
 
 /********************************************************************************
@@ -131,10 +131,11 @@ int getIntHeaderValue ( const std::string& name, const std::string& Header )
 /********************************************************************************
 *
 * Reads the content of the specified content length from the specified client.
+* @return true if error occured
 * This method should be called after readHeader.
 *
 ********************************************************************************/
-void readContent ( int socket, std::string& Content, int length )
+bool readContent ( int socket, std::string& Content, int length )
 {
 	const int BUFFER_SIZE = 2048;
 	char buffer[BUFFER_SIZE];
@@ -144,14 +145,15 @@ void readContent ( int socket, std::string& Content, int length )
 	{
 		memset ( buffer, 0, BUFFER_SIZE );
 		int rec = (int) recv (socket, buffer, BUFFER_SIZE-1, 0);
-		if ( rec == 0 )
+		if ( rec <= 0 )
 		{
 			std::cout << "ReadContent: Connection closed by client." << std::endl;
-			break;
+			return true;
 		}
 		read += rec;
 		Content += buffer;
 	}
+	return false;
 }
 
 /// send CONTENT of length TOSEND to a SOCKET. @return true if error occures
@@ -197,6 +199,44 @@ void Usage ( void )
 	exit(1);
 }
 
+/// read request from SOCKET to HEADER:CONTENT, answer if necessary
+void
+singleTransaction ( int socket, std::string& header, std::string& content )
+{
+	// try to read header of a request
+	if ( readHeader ( socket, header, content ) )
+		return;
+
+	// if not a post -- nothing to do
+	if ( !isPost(header) )
+	{
+		// The request isn't a POST request - send back some HTML
+		// saying FaCT++ is running as a DIG server.
+		sendResponse ( socket, GET_RESPONSE );
+		return;
+	}
+
+	// post request: read content
+	int contentLenght = getIntHeaderValue ( "Content-Length", header );
+	if ( contentLenght < 0 )
+		return;
+	if ( readContent ( socket, content, contentLenght ) )
+		return;
+
+	// We don't want to send any leading white space, so
+	// find the first non whitespace
+	const char* p = content.c_str();
+	const char* p_end = p+content.length();
+	for ( ; p < p_end; ++p )
+		if ( *p != ' ' && *p != '\t' && *p != '\n' && *p != '\r' )
+			break;
+
+	std::string reasonerResponse;
+	digInterface.processQuery ( p, reasonerResponse );
+	sendResponse ( socket, reasonerResponse );
+}
+
+/// create a connection, then make a recieve-send transaction
 void
 runSingleSession ( int sockfd, std::string& header, std::string& content )
 {
@@ -209,33 +249,10 @@ runSingleSession ( int sockfd, std::string& header, std::string& content )
 
 	header.clear();
 	content.clear();
-	// Read the header so that we can check for POST and also content length
-	if ( readHeader (new_fd, header, content) )
-	{
-		// Make sure that we are dealing with a POST request
-		if ( isPost(header) )
-		{
-			readContent ( new_fd, content, getIntHeaderValue("Content-Length", header) );
-			// We don't want to send any leading white space, so
-			// find the first non whitespace
-			const char* p = content.c_str();
-			const char* p_end = p+content.length();
-			for ( ; p < p_end; ++p )
-				if ( *p != ' ' && *p != '\t' && *p != '\n' && *p != '\r' )
-					break;
+	singleTransition ( new_fd, header, content );
 
-			std::string reasonerResponse;
-			digInterface.processQuery ( p, reasonerResponse );
-			sendResponse ( new_fd, reasonerResponse );
-		}
-		else
-			// The request isn't a POST request - send back some HTML
-			// saying FaCT++ is running as a DIG server.
-			sendResponse ( new_fd, GET_RESPONSE );
-	}
-
-	// Sent the response, so close the connection (different depending on
-	// whether the platform is Windows or not.
+	// Response is sent, so close the connection
+	// (different depending on whether the platform is Windows or not)
 #ifdef __WIN32
 	closesocket(new_fd);
 #else
