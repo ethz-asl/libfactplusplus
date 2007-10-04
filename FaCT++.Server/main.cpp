@@ -154,44 +154,41 @@ void readContent ( int socket, std::string& Content, int length )
 	}
 }
 
+/// send CONTENT of length TOSEND to a SOCKET. @return true if error occures
+bool sendLine ( int socket, const char* content, unsigned int toSend )
+{
+	while ( toSend > 0 )
+	{
+		int sent = (int) send ( socket, content, toSend, 0);
+		if ( sent <= 0 )
+		{
+			std::cout << "SendLine: Connection closed by client." << std::endl;
+			return true;
+		}
+		content += sent;
+		toSend -= sent;
+	}
+	return false;
+}
 
 /********************************************************************************
  *
- * Sends the response held at pContent to the client, writing out the necessary
+ * Sends the response held at Content to the client, writing out the necessary
  * HTTP headers such as Content-Length.
  *
  ********************************************************************************/
-void sendResponse ( int socket, const std::string Content )
+bool sendResponse ( int socket, const std::string& Content )
 {
 	std::stringstream buf;
 	buf << "HTTP/1.1 200 OK\r\nContent-Type: application/xml\r\n"
 		<< "Content-Length: " << Content.length() << "\r\n\r\n";
+	const std::string& header = buf.str();
 
-	const std::string& buffer = buf.str();
-
-	unsigned int sent = 0;
-	while ( sent < buffer.length() )
-	{
-		int bytesSent = (int) send(socket, buffer.c_str(), buffer.length(), 0);
-		if ( bytesSent == 0 )
-		{
-			std::cout << "SendResponse: Header: Connection closed by client." << std::endl;
-			break;
-		}
-		sent += bytesSent;
-	}
-	// Send content
-	sent = 0;
-	while ( sent < Content.length() )
-	{
-		int bytesSent = (int) send(socket, Content.c_str(), Content.length(), 0);
-		if ( bytesSent == 0 )
-		{
-			std::cout << "SendResponse: Content: Connection closed by client." << std::endl;
-			break;
-		}
-		sent += bytesSent;
-	}
+	if ( sendLine ( socket, header.c_str(), header.length() ) )
+		return true;
+	if ( sendLine ( socket, Content.c_str(), Content.length() ) )
+		return true;
+	return false;
 }
 
 void Usage ( void )
