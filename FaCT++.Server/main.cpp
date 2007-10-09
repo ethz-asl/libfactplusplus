@@ -200,12 +200,13 @@ void Usage ( void )
 }
 
 /// read request from SOCKET to HEADER:CONTENT, answer if necessary
-void
+/// @return true if connection was closed by a client
+bool
 singleTransaction ( int socket, std::string& header, std::string& content )
 {
 	// try to read header of a request
 	if ( readHeader ( socket, header, content ) )
-		return;
+		return true;
 
 	// if not a post -- nothing to do
 	if ( !isPost(header) )
@@ -213,15 +214,15 @@ singleTransaction ( int socket, std::string& header, std::string& content )
 		// The request isn't a POST request - send back some HTML
 		// saying FaCT++ is running as a DIG server.
 		sendResponse ( socket, GET_RESPONSE );
-		return;
+		return false;
 	}
 
 	// post request: read content
 	int contentLenght = getIntHeaderValue ( "Content-Length", header );
 	if ( contentLenght < 0 )
-		return;
+		return true;
 	if ( readContent ( socket, content, contentLenght ) )
-		return;
+		return true;
 
 	// We don't want to send any leading white space, so
 	// find the first non whitespace
@@ -234,6 +235,7 @@ singleTransaction ( int socket, std::string& header, std::string& content )
 	std::string reasonerResponse;
 	digInterface.processQuery ( p, reasonerResponse );
 	sendResponse ( socket, reasonerResponse );
+	return false;
 }
 
 /// create a connection, then make a recieve-send transaction
@@ -249,7 +251,11 @@ runSingleSession ( int sockfd, std::string& header, std::string& content )
 
 	header.clear();
 	content.clear();
-	singleTransaction ( new_fd, header, content );
+	bool fail;
+	do
+	{
+		fail = singleTransaction ( new_fd, header, content );
+	} while ( !fail );
 
 	// Response is sent, so close the connection
 	// (different depending on whether the platform is Windows or not)
