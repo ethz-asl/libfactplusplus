@@ -451,14 +451,15 @@ DlSatTester :: prepareCascadedCache ( BipolarPointer p )
 		if ( v.getRole()->isDataRole() )	// skip data-related stuff
 			break;
 		BipolarPointer x = pos ? v.getC() : inverse(v.getC());
-		if ( x == bpTOP )
-			break;
 
 		// build cache for C in \AR.C
-		inProcess.insert(x);
-//		std::cout << " caching " << x << ";";
-		fillsCache(x);
-		inProcess.erase(x);
+		if ( x != bpTOP )
+		{
+			inProcess.insert(x);
+//			std::cout << " caching " << x << ";";
+			fillsCache(x);
+			inProcess.erase(x);
+		}
 
 		// build cache for the Range(R) if necessary
 		x = v.getRole()->getBPRange();
