@@ -18,7 +18,6 @@ Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 
 // This file contains methods for creating DAG representation of KB
 
-#include <set>
 #include "dlTBox.h"
 
 void TBox :: buildDAG ( void )
@@ -56,66 +55,33 @@ BipolarPointer TBox :: addDataExprToHeap ( TDataEntry* p )
 	return p->getBP();
 }
 
-void TBox :: addConceptNameToHeap ( TConcept* pConcept, bool isCycled )
+void TBox :: addConceptToHeap ( TConcept* pConcept )
 {
-	assert ( pConcept != NULL );	// safety check
-//	assert ( isRegisteredConcept (pConcept) );	// FIXME!! return it with details about indiv
-
-	// check if the concept is already there
-	if ( isPositive ( pConcept->pName ) )
-	{	// it was a cycled one; now it is not a cycle
-		assert ( !isCycled );
-		DLHeap[pConcept->pName].setChild(pConcept->pBody);
-		// FIXME!! the following line should take into account terminal nodes
-		// but the mis-optimisation is to big. need investigation
-//		DLHeap[pConcept->pName].initStat(DLHeap);
-		return;
-	}
-
 	// choose proper tag by concept
 	DagTag tag = pConcept->isPrimitive() ?
 		(pConcept->isSingleton() ? dtPSingleton : dtPConcept):
 		(pConcept->isSingleton() ? dtNSingleton : dtNConcept);
+
 	// new concept's addition
-	DLVertex* ver = isCycled ? new DLVertex(tag) : new DLVertex ( tag, pConcept->pBody );
+	DLVertex* ver = new DLVertex(tag);
 	ver->setConcept(pConcept);
 	pConcept->pName = DLHeap.directAdd(ver);
-}
 
-void TBox :: addConceptToHeap ( TConcept* pConcept )
-{
-	assert ( pConcept != NULL );
+	BipolarPointer desc = bpTOP;
 
-	// set of named concepts that are processing now
-	static std::set<TConcept*> inProcess;
-
-	// if we found a cycle
-	if ( inProcess.find (pConcept) != inProcess.end () )
-	{
-		// create an fake entry of a concept
-		addConceptNameToHeap ( pConcept, true );
-		// inform about cyclic dependence
-		if ( verboseOutput )
-			std::cerr << "\ncyclic dependences via concept \"" << pConcept->getName() << '\"';
-		return;
-	}
-
-	// add concept in processing
-	inProcess.insert (pConcept);
-
+	// translate body of a concept
 	if ( pConcept->Description != NULL )	// complex concept
-		pConcept->pBody = tree2dag(pConcept->Description);
-	else	//-- nothing to do;
-	{	// only primivive versions here
-		assert ( !pConcept->isNonPrimitive() );
-		pConcept->pBody = bpTOP;
+	{
+//		std::cout << "Declare concept " << pConcept->getName() << std::endl;
+		desc = tree2dag(pConcept->Description);
+//		std::cout << "Define concept " << pConcept->getName() << std::endl;
 	}
+	else			// only primivive concepts here
+		assert ( pConcept->isPrimitive() );
 
-	// add concept name to heap if it was not a cycle
-	addConceptNameToHeap (pConcept, false);
-
-	// remove processed concept from set
-	inProcess.erase (pConcept);
+	// update concept's entry
+	pConcept->pBody = desc;
+	ver->setChild(desc);
 }
 
 BipolarPointer TBox :: tree2dag ( const DLTree* t )

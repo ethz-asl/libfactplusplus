@@ -405,8 +405,6 @@ protected:	// methods
 
 		/// translate concept P (together with definition) to DAG representation
 	void addConceptToHeap ( TConcept* p );
-		/// register name of the concept in DAG
-	void addConceptNameToHeap ( TConcept* p, bool );
 		/// register data-related expression in the DAG; @return it's DAG index
 	BipolarPointer addDataExprToHeap ( TDataEntry* p );
 		/// builds DAG entry by general concept expression
