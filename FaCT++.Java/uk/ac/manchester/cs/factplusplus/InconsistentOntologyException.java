@@ -31,4 +31,22 @@ package uk.ac.manchester.cs.factplusplus;
  */
 public class InconsistentOntologyException extends FaCTPlusPlusException {
 
+
+    public InconsistentOntologyException() {
+    }
+
+
+    public InconsistentOntologyException(Throwable cause) {
+        super(cause);
+    }
+
+
+    public InconsistentOntologyException(String message) {
+        super(message);
+    }
+
+
+    public InconsistentOntologyException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }
