@@ -225,6 +225,8 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
 	if ( DTName == "http://www.w3.org/2001/XMLSchema#string" )
 		return DataType ( env, getK(env,obj)->getDataTypeCenter().getStringType() );
 
+	if ( DTName == "http://www.w3.org/2001/XMLSchema#integer" )
+		return DataType ( env, getK(env,obj)->getDataTypeCenter().getNumberType());
 	if ( DTName == "http://www.w3.org/2001/XMLSchema#int" )
 		return DataType ( env, getK(env,obj)->getDataTypeCenter().getNumberType());
 	if ( DTName == "http://www.w3.org/2001/XMLSchema#nonNegativeInteger" )
