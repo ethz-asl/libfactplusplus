@@ -295,6 +295,7 @@ bool TBox :: classifyTempConcept ( void )
 	// setup taxonomy behaviour flags
 	pTax->setCompletelyDefined ( false );	// non-primitive concept
 	pTax->setInsertIntoTaxonomy ( false );	// just classify
+	pTax->setProgressIndicator(NULL);		// switch off the progress monitor
 
 	// classify the concept
 	pTax->classifyEntry (defConcept);
