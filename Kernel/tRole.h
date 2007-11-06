@@ -63,10 +63,6 @@ protected:	// members
 	bool reflexive;
 		/// pointer to role's functional definition DAG entry (or just TOP)
 	BipolarPointer Functional;
-		/// is role simple or not (not simple if role or any of its sub-roles is transitive)
-	bool simple;
-		/// if role is not simple, set number of transitive subroles here
-	unsigned int nTransSubroles;
 
 		/// role that are inverse of given one
 	TRole* Inverse;
@@ -112,7 +108,7 @@ protected:	// methods
 	// support for Anc/Desc filling and such
 
 		/// check if role or any of its sub-roles is transitive (ie non-simple)
-	void setSimple ( void );
+	void initSimple ( void );
 		/// check if the role is REALLY topmost-functional (internal-use only)
 	bool isRealTopFunc ( void ) const;
 		/// set up TopFunc member properly (internal-use only)
@@ -203,14 +199,12 @@ public:		// interface
 
 	// transitivity
 
+		/// register a Simple flag (not simple if role or any of its sub-roles is transitive)
+	FPP_ADD_FLAG(Simple,0x10);
 		/// check if the role is transitive
 	bool isTransitive ( void ) const { return transitive; }
 		/// set the transitivity of role
 	void setTransitive ( void ) { transitive = true; inverse()->transitive = true; }
-		/// get number of transitive suroles
-	unsigned int getNTransSubroles ( void ) const { return nTransSubroles; }
-		/// get the simple attribute
-	bool isSimple ( void ) const { return simple; }
 
 	// reflexivity
 

@@ -282,8 +282,8 @@ void TRole :: initADbyTaxonomy ( unsigned int nRoles )
 	getTaxVertex()->getRelativesInfo</*needCurrent=*/false, /*onlyDirect=*/false,
 									 /*upDirection=*/false>(desc);
 
-	// set Simple attribute
-	setSimple();
+	// determine Simple attribute
+	initSimple();
 	// init map for fast Anc/Desc access
 	initAncMap(nRoles);
 	// resize map for disjoint roles
@@ -301,23 +301,22 @@ void TRole :: postProcess ( void )
 
 // simplicity checking (necessary for A+ rule)
 // valid only after initAncDesc call
-void TRole :: setSimple ( void )
+void TRole :: initSimple ( void )
 {
 	assert ( !isSynonym() );
 
-	// init values
-	simple = true;
-	nTransSubroles = 0;
+	setSimple(false);
 
+	// try to ensure that role is non-simple
 	if ( isTransitive() || !subCompositions.empty() )
-		simple = false;
+		return;
 
 	for ( iterator p = begin_desc(); p != end_desc(); ++p )
 		if ( (*p)->isTransitive() || !(*p)->subCompositions.empty() )
-		{
-			++nTransSubroles;
-			simple = false;
-		}
+			return;
+
+	// role is simple -- set it
+	setSimple(true);
 }
 
 /// check if the role is topmost-functional (internal-use only)
