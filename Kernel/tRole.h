@@ -57,10 +57,6 @@ public:		// types
 	typedef std::set<TRole*> DisjointRoles;
 
 protected:	// members
-		/// is role transitive or not(default:not)
-	bool transitive;
-		/// is role reflexive or not(default:not)
-	bool reflexive;
 		/// pointer to role's functional definition DAG entry (or just TOP)
 	BipolarPointer Functional;
 
@@ -197,21 +193,18 @@ public:		// interface
 		/// set inverse to given role
 	void setInverse ( TRole* p ) { assert (Inverse == NULL); Inverse = p; }
 
-	// transitivity
+	// different flags
 
 		/// register a Simple flag (not simple if role or any of its sub-roles is transitive)
 	FPP_ADD_FLAG(Simple,0x10);
-		/// check if the role is transitive
-	bool isTransitive ( void ) const { return transitive; }
-		/// set the transitivity of role
-	void setTransitive ( void ) { transitive = true; inverse()->transitive = true; }
-
-	// reflexivity
-
-		/// check if the role is reflexive
-	bool isReflexive ( void ) const { return reflexive; }
-		/// set the reflexivity of role
-	void setReflexive ( void ) { reflexive = true; inverse()->reflexive = true; }
+		/// transitivity flag
+	FPP_ADD_FLAG(Transitive,0x20);
+		/// set the transitivity of both role and it's inverse
+	void setBothTransitive ( void ) { setTransitive(); inverse()->setTransitive(); }
+		/// reflexivity flag
+	FPP_ADD_FLAG(Reflexive,0x40);
+		/// set the reflexivity of both role and its inverse
+	void setBothReflexive ( void ) { setReflexive(); inverse()->setReflexive(); }
 
 	// functionality
 
@@ -375,8 +368,6 @@ extern TRole* resolveRole ( const DLTree* t );
 //--------------------------------------------------
 inline TRole :: TRole ( const std::string& name )
 	: ClassifiableEntry(name)
-	, transitive (false)
-	, reflexive(false)
 	, Functional (bpINVALID)
 	, Inverse(NULL)
 	, pDomain(NULL)

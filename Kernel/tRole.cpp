@@ -76,11 +76,11 @@ void TRole :: addFeaturesToSynonym ( void )
 
 	// copy transitivity
 	if ( isTransitive() )
-		syn->setTransitive ();
+		syn->setBothTransitive ();
 
 	// copy reflexivity
 	if ( isReflexive() )
-		syn->setReflexive ();
+		syn->setBothReflexive ();
 
 	// copy data type
 	if ( isDataRole() )

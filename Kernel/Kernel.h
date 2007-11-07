@@ -953,7 +953,7 @@ inline bool ReasoningKernel :: setTransitive ( const ComplexRole R )
 	TRole* r = resolveRole(R);
 	if ( r == NULL )
 		return true;
-	r->setTransitive();
+	r->setBothTransitive();
 	return false;
 }
 
@@ -964,7 +964,7 @@ inline bool ReasoningKernel :: setReflexive ( const ComplexRole R )
 	TRole* r = resolveRole(R);
 	if ( r == NULL )
 		return true;
-	r->setReflexive();
+	r->setBothReflexive();
 	return false;
 }
 
