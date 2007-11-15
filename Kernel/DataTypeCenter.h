@@ -41,11 +41,7 @@ protected:	// members
 
 protected:	// methods
 		/// register data type with a given name
-	void RegisterDataType ( const std::string& name )
-	{
-		Types.push_back(new TDataType());
-		Types.back()->setType(name);
-	}
+	void RegisterDataType ( const std::string& name ) { Types.push_back(new TDataType(name)); }
 
 	// iterators
 

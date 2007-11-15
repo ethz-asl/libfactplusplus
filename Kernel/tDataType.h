@@ -40,11 +40,11 @@ protected:	// methods
 	virtual void registerNew ( TDataEntry* p ) { p->setHostType(Type); }
 
 public:		// interface
-		/// empty c'tor
-	TDataType ( void )
-		: Type(NULL)
-		{}
-		/// d'tor: delete data type entry
+		/// c'tor: create the TYPE entry
+	TDataType ( const std::string& name )
+		: TNECollection<TDataEntry>()
+		{ Type = new TDataEntry(name); }
+		/// d'tor: delete data type entry and all the facets
 	virtual ~TDataType ( void )
 	{
 		for ( TFacets::iterator p = Facets.begin(), p_end = Facets.end(); p < p_end; ++p )
@@ -55,8 +55,6 @@ public:		// interface
 
 	// access to the type
 
-		/// create data type with given name
-	void setType ( const std::string& name ) { delete Type; Type = new TDataEntry(name); }
 		/// get RW access to the type entry (useful for relevance etc)
 	TDataEntry* getType ( void ) { return Type; }
 		/// get RO access to the type entry
