@@ -42,7 +42,7 @@ protected:	// methods
 public:		// interface
 		/// c'tor: create the TYPE entry
 	TDataType ( const std::string& name )
-		: TNECollection<TDataEntry>()
+		: TNECollection<TDataEntry>(name)
 		{ Type = new TDataEntry(name); }
 		/// d'tor: delete data type entry and all the facets
 	virtual ~TDataType ( void )

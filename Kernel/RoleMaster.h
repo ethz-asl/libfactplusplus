@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2006 by Dmitry Tsarkov
+Copyright (C) 2003-2007 by Dmitry Tsarkov
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -25,7 +25,7 @@ Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 
 #include "globaldef.h"
 #include "tNameSet.h"
-#include "tNECollection.h"	// CantRegName
+#include "eFPPCantRegName.h"
 #include "dltree.h"
 #include "dlCompletionTree.h"
 #include "tRole.h"
@@ -131,27 +131,19 @@ public:
 	}
 
 		/// create role entry with given name
-	TNamedEntry* ensureRoleName ( const std::string& name, bool isDataRole ) throw(CantRegName)
+	TNamedEntry* ensureRoleName ( const std::string& name, bool isDataRole ) throw(FPPCantRegNameException)
 	{
 		TRole* p = roleNS.insert(name);
 		// check what happens
 		if ( p == NULL )			// role registration attempt failed
-		{
-			CantRegName e(name);
-			e.setType ( isDataRole ? "data role" : "role" );
-			throw(e);
-			return NULL;
-		}
+			throw FPPCantRegNameException ( name, isDataRole ? "data role" : "role" );
+
 		if ( isRegisteredRole(p) )	// registered role
 			return p;
 		if ( p->getId() != 0 ||		// not registered but has non-null ID
 			 !useUndefinedNames )	// new names are disallowed
-		{
-			CantRegName e(name);
-			e.setType ( isDataRole ? "data role" : "role" );
-			throw(e);
-			return NULL;
-		}
+			throw FPPCantRegNameException ( name, isDataRole ? "data role" : "role" );
+
 		registerRole(p,isDataRole);
 		return p;
 	}

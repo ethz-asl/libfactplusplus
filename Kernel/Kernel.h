@@ -212,13 +212,17 @@ public:	// general staff
 	// ensure that given names are of the apropriate types
 
 		/// register NAME as a concept
-	ComplexConcept ensureConceptName ( const std::string& name ) throw(CantRegName);
+	ComplexConcept ensureConceptName ( const std::string& name ) throw(FPPCantRegNameException)
+		{ return new DLTree ( TLexeme ( CNAME, getTBox()->getConcept(name) ) ); }
 		/// register NAME as an individual
-	ComplexConcept ensureSingletonName ( const std::string& name ) throw(CantRegName);
+	ComplexConcept ensureSingletonName ( const std::string& name ) throw(FPPCantRegNameException)
+		{ return new DLTree ( TLexeme ( INAME, getTBox()->getIndividual(name) ) ); }
 		/// register NAME as a role (object property)
-	ComplexRole ensureRoleName ( const std::string& name ) throw(CantRegName);
+	ComplexRole ensureRoleName ( const std::string& name ) throw(FPPCantRegNameException)
+		{ return new DLTree ( TLexeme ( RNAME, getRM()->ensureRoleName(name,/*isDataRole=*/false) ) ); }
 		/// register NAME as a data role (data property)
-	ComplexRole ensureDataRoleName ( const std::string& name ) throw(CantRegName);
+	ComplexRole ensureDataRoleName ( const std::string& name ) throw(FPPCantRegNameException)
+		{ return new DLTree ( TLexeme ( RNAME, getRM()->ensureRoleName(name,/*isDataRole=*/true) ) ); }
 
 public:
 	//******************************************
@@ -721,55 +725,6 @@ inline bool ReasoningKernel :: clearKB ( void )
 	if ( pTBox == NULL )
 		return true;
 	return releaseKB () || newKB ();
-}
-
-//----------------------------------------------------
-// ensure* stuff
-//----------------------------------------------------
-inline ReasoningKernel::ComplexConcept
-ReasoningKernel :: ensureConceptName ( const std::string& name ) throw(CantRegName)
-{
-	ConceptName Id = NULL;
-	try
-	{
-		Id = getTBox()->getConcept(name);
-	}
-	catch ( CantRegName e )
-	{
-		e.setType("concept");
-		throw(e);
-	}
-	return new DLTree ( TLexeme ( CNAME, Id ) );
-}
-
-inline ReasoningKernel::ComplexConcept
-ReasoningKernel :: ensureSingletonName ( const std::string& name ) throw(CantRegName)
-{
-	IndividualName Id = NULL;
-	try
-	{
-		Id = getTBox()->getIndividual(name);
-	}
-	catch ( CantRegName e )
-	{
-		e.setType("individual");
-		throw(e);
-	}
-	return new DLTree ( TLexeme ( INAME, Id ) );
-}
-
-inline ReasoningKernel::ComplexRole
-ReasoningKernel :: ensureRoleName ( const std::string& name ) throw(CantRegName)
-{
-	// correct exception would be thrown by a RM
-	return new DLTree ( TLexeme ( RNAME, getRM()->ensureRoleName(name,/*isDataRole=*/false) ) );
-}
-
-inline ReasoningKernel::ComplexRole
-ReasoningKernel :: ensureDataRoleName ( const std::string& name ) throw(CantRegName)
-{
-	// correct exception would be thrown by a RM
-	return new DLTree ( TLexeme ( RNAME, getRM()->ensureRoleName(name,/*isDataRole=*/true) ) );
 }
 
 // some aux methods

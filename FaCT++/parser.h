@@ -32,14 +32,14 @@ protected:	// members
 
 protected:	// methods
 		/// error by given exception
-	void errorByException ( const CantRegName& ex ) const;
+	void errorByException ( const FPPCantRegNameException& ex ) const { parseError(ex.what()); }
 
 		/// @return concept-like Id of just scanned name
 	DLTree* getConcept ( void )
 	{
 		DLTree* ret = NULL;
 		try { ret = Kernel->ensureConceptName(scan.GetName()); }
-		catch ( CantRegName ex ) { errorByException(ex); }
+		catch ( FPPCantRegNameException ex ) { errorByException(ex); }
 		NextLex();
 		return ret;
 	}
@@ -48,7 +48,7 @@ protected:	// methods
 	{
 		DLTree* ret = NULL;
 		try { ret = Kernel->ensureSingletonName(scan.GetName()); }
-		catch ( CantRegName ex ) { errorByException(ex); }
+		catch ( FPPCantRegNameException ex ) { errorByException(ex); }
 		NextLex();
 		return ret;
 	}
@@ -57,7 +57,7 @@ protected:	// methods
 	{
 		DLTree* ret = NULL;
 		try { ret = Kernel->ensureRoleName(scan.GetName()); }
-		catch ( CantRegName ex ) { errorByException(ex); }
+		catch ( FPPCantRegNameException ex ) { errorByException(ex); }
 		NextLex();
 		return ret;
 	}
@@ -66,7 +66,7 @@ protected:	// methods
 	{
 		DLTree* ret = NULL;
 		try { ret = Kernel->ensureDataRoleName(scan.GetName()); }
-		catch ( CantRegName ex ) { errorByException(ex); }
+		catch ( FPPCantRegNameException ex ) { errorByException(ex); }
 		NextLex();
 		return ret;
 	}
@@ -75,7 +75,7 @@ protected:	// methods
 	{
 		DLTree* ret = NULL;
 		try { ret = Kernel->getDataTypeCenter().getDataValue(scan.GetName(),type); }
-		catch ( CantRegName ex ) { errorByException(ex); }
+		catch ( FPPCantRegNameException ex ) { errorByException(ex); }
 		NextLex();
 		return ret;
 	}

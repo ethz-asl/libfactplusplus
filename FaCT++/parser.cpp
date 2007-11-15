@@ -25,13 +25,6 @@ Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 
 /*********************  DLParser implementation  ***************************/
 
-void DLLispParser :: errorByException ( const CantRegName& ex ) const
-{
-	std::stringstream stream;
-	stream << "Can not register name '" << ex.name.c_str() << "' as a " << ex.type.c_str();
-	parseError(stream.str().c_str());
-}
-
 void DLLispParser :: Parse ( void )
 {
 	while ( Current != LEXEOF )

@@ -246,10 +246,9 @@ protected:	// methods
 	{
 		DLTree* x = NULL;
 		try { x = pKernel->ensureConceptName(name); }
-		catch ( CantRegName ex )
+		catch ( FPPCantRegNameException ex )
 		{
-			throw DIGParserException ( 99, "Undefined name",
-				"Unable to define concept name '", name, "'" );
+			throw DIGParserException ( 99, "Undefined name", ex.what() );
 		}
 		return x;
 	}
@@ -258,10 +257,9 @@ protected:	// methods
 	{
 		DLTree* x = NULL;
 		try { x = pKernel->ensureSingletonName(name); }
-		catch ( CantRegName ex )
+		catch ( FPPCantRegNameException ex )
 		{
-			throw DIGParserException ( 99, "Undefined name",
-				"Unable to define individual name '", name, "'" );
+			throw DIGParserException ( 99, "Undefined name", ex.what() );
 		}
 		return x;
 	}
@@ -270,10 +268,9 @@ protected:	// methods
 	{
 		DLTree* x = NULL;
 		try { x = pKernel->ensureRoleName(name); }
-		catch ( CantRegName ex )
+		catch ( FPPCantRegNameException ex )
 		{
-			throw DIGParserException ( 99, "Undefined name",
-				"Unable to define role name '", name, "'" );
+			throw DIGParserException ( 99, "Undefined name", ex.what() );
 		}
 		return x;
 	}
@@ -282,10 +279,9 @@ protected:	// methods
 	{
 		DLTree* x = NULL;
 		try { x = pKernel->ensureDataRoleName(name); }
-		catch ( CantRegName ex )
+		catch ( FPPCantRegNameException ex )
 		{
-			throw DIGParserException ( 99, "Undefined name",
-				"Unable to define data role name '", name, "'" );
+			throw DIGParserException ( 99, "Undefined name", ex.what() );
 		}
 		if ( pKernel->setFunctional(x) )	// in DIG 1.1 data roles are always functional
 		{
@@ -299,10 +295,9 @@ protected:	// methods
 	{
 		DLTree* x = NULL;
 		try { x = pKernel->getDataTypeCenter().getDataValue(name,type); }
-		catch ( CantRegName ex )
+		catch ( FPPCantRegNameException ex )
 		{
-			throw DIGParserException ( 99, "Undefined name",
-				"Unable to register data value '", name, "'" );
+			throw DIGParserException ( 99, "Undefined name", ex.what() );
 		}
 		return x;
 	}

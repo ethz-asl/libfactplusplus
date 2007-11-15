@@ -24,26 +24,7 @@ Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #include "globaldef.h"
 #include "tNamedEntry.h"
 #include "tNameSet.h"
-#include "eFaCTPlusPlus.h"
-
-/// exception thrown in case name can't be registered
-class CantRegName: public FaCTPlusPlusException
-{
-public:		// members
-		/// name to be registered
-	std::string name;
-		/// type of name
-	std::string type;
-
-public:		// interface
-		/// create exception
-	CantRegName ( const std::string& n ) : name(n) {}
-		/// empty d'tor
-	~CantRegName ( void ) throw() {}
-
-		/// set type of the name
-	void setType ( const std::string& t ) { type = t; }
-}; // CantRegName
+#include "eFPPCantRegName.h"
 
 /** class for collect TNamedEntry'es together. Template parameter should be
 	inherited from TNamedEntry. Implemented as vector of T*,
@@ -64,6 +45,8 @@ protected:	// members
 	BaseType Base;
 		/// nameset to hold the elements
 	TNameSet<T> NameSet;
+		/// name of the type
+	std::string TypeName;
 		/// flag to lock the nameset (ie, prohibit to add new names there)
 	bool locked;
 
@@ -81,7 +64,9 @@ protected:	// methods
 
 public:		// interface
 		/// c'tor: clear 0-th element
-	TNECollection ( void ) { Base.push_back(NULL); }
+	TNECollection ( const std::string& name )
+		: TypeName(name)
+		{ Base.push_back(NULL); }
 		/// empty d'tor: all elements will be deleted in other place
 	virtual ~TNECollection ( void ) {}
 
@@ -103,7 +88,7 @@ public:		// interface
 				Base[id] == name;				// ID is an index of given name
 	}
 		/// get entry by NAME from the collection; register it if necessary
-	T* get ( const std::string& name ) throw(CantRegName)
+	T* get ( const std::string& name ) throw(FPPCantRegNameException)
 	{
 		T* p = NameSet.get(name);
 
@@ -114,7 +99,7 @@ public:		// interface
 		// check if it is possible to insert name
 		if ( isLocked() )
 		{
-			throw CantRegName(name);
+			throw FPPCantRegNameException ( name, TypeName );
 			return NULL;
 		}
 

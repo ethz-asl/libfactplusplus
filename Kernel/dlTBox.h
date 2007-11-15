@@ -72,7 +72,7 @@ protected:	// types
 
 	public:		// interface
 			/// c'tor: clear 0-th element
-		IndividualCollection ( void ) : TNECollection<TIndividual>() {}
+		IndividualCollection ( void ) : TNECollection<TIndividual>("individual") {}
 			/// empty d'tor: all elements will be deleted in other place
 		virtual ~IndividualCollection ( void ) {}
 	}; // IndividualCollection
@@ -961,6 +961,7 @@ inline TBox :: TBox ( const ifOptionSet* Options )
 	, pOptions (Options)
 	, curFeature(NULL)
 	, defConcept (NULL)
+	, Concepts("concept")
 	, Axioms(*this)
 	, T_G(bpTOP)	// initialise GCA's concept with Top
 	, useSortedReasoning(true)
