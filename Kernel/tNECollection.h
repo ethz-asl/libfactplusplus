@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2005-2006 by Dmitry Tsarkov
+Copyright (C) 2005-2007 by Dmitry Tsarkov
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -24,9 +24,10 @@ Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #include "globaldef.h"
 #include "tNamedEntry.h"
 #include "tNameSet.h"
+#include "eFaCTPlusPlus.h"
 
 /// exception thrown in case name can't be registered
-class CantRegName: public std::exception
+class CantRegName: public FaCTPlusPlusException
 {
 public:		// members
 		/// name to be registered
