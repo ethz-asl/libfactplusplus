@@ -36,7 +36,7 @@ public:		// interface
 		str = "Unable to register '";
 		str += name;
 		str += "' as a ";
-		str += type; 
+		str += type;
 	}
 		/// empty d'tor
 	virtual ~FPPCantRegNameException ( void ) throw() {}

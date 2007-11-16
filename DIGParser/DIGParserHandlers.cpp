@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2006 by Dmitry Tsarkov
+Copyright (C) 2003-2007 by Dmitry Tsarkov
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -209,28 +209,22 @@ void DIGParseHandlers :: characters ( const XMLCh* const chars, const unsigned i
 // ---------------------------------------------------------------------------
 void DIGParseHandlers :: error ( const SAXParseException& e )
 {
-	cerr << "\nError at (file " << StrX(e.getSystemId())
-		 << ", line " << e.getLineNumber()
-		 << ", char " << e.getColumnNumber()
-		 << "): " << StrX(e.getMessage()) << endl;
+	std::stringstream pos;
+	pos << "Malformed Request (XML error at file " << StrX(e.getSystemId())
+		<< ", line " << e.getLineNumber() << ", char " << e.getColumnNumber() << ")";
 
-	simpleXMLEntry err ( "error", *o );
-	*o << " code=\"102\" message=\"Malformed Request (XML error at line "
-	   << e.getLineNumber() << ", char " << e.getColumnNumber()
-	   << ")\">" << StrX(e.getMessage());
+	cerr << "\nError: " << pos.str().c_str() << ": " << StrX(e.getMessage()) << endl;
+	throw DIGParserException ( 102, pos.str().c_str(), StrX(e.getMessage()).localForm() );
 }
 
 void DIGParseHandlers::fatalError ( const SAXParseException& e )
 {
-	cerr << "\nFatal Error at (file " << StrX(e.getSystemId())
-		 << ", line " << e.getLineNumber()
-		 << ", char " << e.getColumnNumber()
-		 << "): " << StrX(e.getMessage()) << endl;
+	std::stringstream pos;
+	pos << "Malformed Request (XML error at file " << StrX(e.getSystemId())
+		<< ", line " << e.getLineNumber() << ", char " << e.getColumnNumber() << ")";
 
-	simpleXMLEntry err ( "error", *o );
-	*o << " code=\"102\" message=\"Malformed Request (XML error at line "
-	   << e.getLineNumber() << ", char " << e.getColumnNumber()
-	   << ")\">" << StrX(e.getMessage());
+	cerr << "\nFatal error: " << pos.str().c_str() << ": " << StrX(e.getMessage()) << endl;
+	throw DIGParserException ( 102, pos.str().c_str(), StrX(e.getMessage()).localForm() );
 }
 
 void DIGParseHandlers::warning ( const SAXParseException& e )

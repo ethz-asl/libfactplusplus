@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2006 by Dmitry Tsarkov
+Copyright (C) 2003-2007 by Dmitry Tsarkov
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -132,6 +132,7 @@ void DIGInterface :: processQuery ( const char* inp, std::string& res )
 	try
 	{
 		timedParse(inp);
+		digHandler.getResult(res);
 	}
 	catch (const DIGParserException& e)
 	{
@@ -157,11 +158,7 @@ void DIGInterface :: processQuery ( const char* inp, std::string& res )
 		// close response
 		delete resp;
 		res = s.str ();
-		return;
 	}
-
-	// everything OK -- create responce
-	digHandler.getResult ( res );
 
 #ifdef __TO_SAVE_ALL_XML
 	outXMLstream << "\nOut: " << res.c_str() << endl;

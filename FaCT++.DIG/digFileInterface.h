@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2004 by Dmitry Tsarkov
+Copyright (C) 2003-2007 by Dmitry Tsarkov
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -20,13 +20,31 @@ Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #define _DIGFILEINTERFACE_H
 
 #include "DIGinterface.h"
+#include "strx.h"
 
 class DIGFileInterface : public DIGInterface
 {
-public:
+protected:	// methods
+		/// process a file given by name, transform all XML exceptions into DIG ones
+	void processFile ( const char* filename ) throw(DIGParserException)
+	{
+		try
+		{
+			xmlParser->parse(filename);
+		}
+		catch (const XMLException& e)
+		{
+			throw ( DIGParserException ( 102, "Malformed Request", StrX(e.getMessage()).localForm() ) );
+		}
+	}
+
+public:		// interface
+		/// empty c'tor
 	DIGFileInterface ( void ) : DIGInterface() {}
+		/// empty d'tor
 	virtual ~DIGFileInterface ( void ) {}
 
+		/// process a file given by a FILENAME, write a responce to RES
 	void processFile ( const char* filename, std::string& res );
 }; // DIGFileInterface
 

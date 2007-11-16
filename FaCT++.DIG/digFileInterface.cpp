@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2004 by Dmitry Tsarkov
+Copyright (C) 2003-2007 by Dmitry Tsarkov
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -18,36 +18,14 @@ Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 
 #include "digFileInterface.h"
 
-#include <sstream>
-
-// XML parsing part
-#include "xercesc/util/XMLException.hpp"
-#include "xercesc/util/PlatformUtils.hpp"
-#include "xercesc/parsers/SAXParser.hpp"
-#include "xercesc/framework/MemBufInputSource.hpp"
-
-#include "strx.h"
-
 using namespace xercesc;
 
 void DIGFileInterface :: processFile ( const char* filename, std::string& res )
 {
-	//
-	//  Get the starting time and kick off the parse of the indicated
-	//  file. Catch any exceptions that might propogate out of it.
-	//
-	int errorCount = 0;
 	try
 	{
-		try
-		{
-			xmlParser->parse(filename);
-			errorCount = xmlParser->getErrorCount();
-		}
-		catch (const XMLException& e)
-		{
-			throw ( DIGParserException ( 102, "Malformed Request", StrX(e.getMessage()).localForm() ) );
-		}
+		processFile(filename);
+		digHandler.getResult(res);
 	}
 	catch (const DIGParserException& e)
 	{
@@ -73,9 +51,5 @@ void DIGFileInterface :: processFile ( const char* filename, std::string& res )
 		// close response
 		delete resp;
 		res = s.str ();
-		return;
 	}
-
-	// everything OK -- create responce
-	digHandler.getResult ( res );
 }
