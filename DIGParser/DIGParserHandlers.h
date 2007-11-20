@@ -241,48 +241,40 @@ protected:	// methods
 		return ret;
 	}
 
+/// macro for the ensure* methods
+#define CatchNameEx(action)				\
+		do {							\
+			try { x = action; }			\
+			catch (EFPPCantRegName ex)	\
+			{ throw DIGParserException ( 99, "Undefined name", ex.what() ); }	\
+		} while(0)
+
 		/// return concept by given name; throw exception if unable
 	DLTree* tryConceptName ( const std::string& name )
 	{
 		DLTree* x = NULL;
-		try { x = pKernel->ensureConceptName(name); }
-		catch ( FPPCantRegNameException ex )
-		{
-			throw DIGParserException ( 99, "Undefined name", ex.what() );
-		}
+		CatchNameEx(pKernel->ensureConceptName(name));
 		return x;
 	}
 		/// return individual by given name; throw exception if unable
 	DLTree* tryIndividualName ( const std::string& name )
 	{
 		DLTree* x = NULL;
-		try { x = pKernel->ensureSingletonName(name); }
-		catch ( FPPCantRegNameException ex )
-		{
-			throw DIGParserException ( 99, "Undefined name", ex.what() );
-		}
+		CatchNameEx(pKernel->ensureSingletonName(name));
 		return x;
 	}
 		/// return role by given name; throw exception if unable
 	DLTree* tryRoleName ( const std::string& name )
 	{
 		DLTree* x = NULL;
-		try { x = pKernel->ensureRoleName(name); }
-		catch ( FPPCantRegNameException ex )
-		{
-			throw DIGParserException ( 99, "Undefined name", ex.what() );
-		}
+		CatchNameEx(pKernel->ensureRoleName(name));
 		return x;
 	}
 		/// return role by given name; throw exception if unable
 	DLTree* tryDataRoleName ( const std::string& name )
 	{
 		DLTree* x = NULL;
-		try { x = pKernel->ensureDataRoleName(name); }
-		catch ( FPPCantRegNameException ex )
-		{
-			throw DIGParserException ( 99, "Undefined name", ex.what() );
-		}
+		CatchNameEx(pKernel->ensureDataRoleName(name));
 		if ( pKernel->setFunctional(x) )	// in DIG 1.1 data roles are always functional
 		{
 			throw DIGParserException ( 99, "Internal Error",
@@ -294,13 +286,11 @@ protected:	// methods
 	DLTree* tryDataValue ( const std::string& name, DLTree* type )
 	{
 		DLTree* x = NULL;
-		try { x = pKernel->getDataTypeCenter().getDataValue(name,type); }
-		catch ( FPPCantRegNameException ex )
-		{
-			throw DIGParserException ( 99, "Undefined name", ex.what() );
-		}
+		CatchNameEx(pKernel->getDataTypeCenter().getDataValue(name,type));
 		return x;
 	}
+
+#undef CatchNameEx
 
 		/// output supported DIG fragment to local stream
 	void outputSupportedLanguage ( void );

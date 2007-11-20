@@ -70,7 +70,7 @@ DLTree* getNextName ( TsScanner& sc, ReasoningKernel& Kernel )
 		{
 			return Kernel.ensureConceptName(sc.GetName());
 		}
-		catch ( FPPCantRegNameException )
+		catch ( EFPPCantRegName )
 		{
 			std::cout << "Query name " << sc.GetName() << " is undefined in TBox\n";
 		}

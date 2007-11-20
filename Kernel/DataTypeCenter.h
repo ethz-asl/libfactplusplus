@@ -110,7 +110,7 @@ public:		// interface
 	DLTree* getRealType ( void ) { return wrap(getRealDataType()->getType()); }
 
 		/// return registered data value by given NAME of a Type, given by SAMPLE
-	DLTree* getDataValue ( const std::string& name, const DLTree* sample ) const throw(FPPCantRegNameException)
+	DLTree* getDataValue ( const std::string& name, const DLTree* sample ) const throw(EFPPCantRegName)
 	{
 		TDataType* type = isConst(sample) ?
 			getStringDataType() :	// data top

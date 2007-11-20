@@ -21,16 +21,17 @@ Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 
 #include <exception>
 
-class FaCTPlusPlusException: public std::exception
+/// general FaCT++ exception
+class EFaCTPlusPlus: public std::exception
 {
 public:
 		/// empty c'tor
-	FaCTPlusPlusException ( void ) throw() : exception() {}
+	EFaCTPlusPlus ( void ) throw() : exception() {}
 		/// empty d'tor
-	virtual ~FaCTPlusPlusException ( void ) throw() {}
+	virtual ~EFaCTPlusPlus ( void ) throw() {}
 
 		/// reason
 	virtual const char* what ( void ) const throw() { return "FaCT++.Kernel: General exception"; }
-}; // FaCTPlusPlusException
+}; // EFaCTPlusPlus
 
 #endif

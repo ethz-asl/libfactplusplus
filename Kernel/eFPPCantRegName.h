@@ -22,7 +22,7 @@ Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #include "eFaCTPlusPlus.h"
 
 /// exception thrown in case name can't be registered
-class FPPCantRegNameException: public FaCTPlusPlusException
+class EFPPCantRegName: public EFaCTPlusPlus
 {
 public:		// members
 		/// error string
@@ -30,8 +30,8 @@ public:		// members
 
 public:		// interface
 		/// c'tor: create an output string
-	FPPCantRegNameException ( const std::string& name, const std::string& type ) throw()
-		: FaCTPlusPlusException()
+	EFPPCantRegName ( const std::string& name, const std::string& type ) throw()
+		: EFaCTPlusPlus()
 	{
 		str = "Unable to register '";
 		str += name;
@@ -39,7 +39,7 @@ public:		// interface
 		str += type;
 	}
 		/// empty d'tor
-	virtual ~FPPCantRegNameException ( void ) throw() {}
+	virtual ~EFPPCantRegName ( void ) throw() {}
 
 		/// reason
 	virtual const char* what ( void ) const throw() { return str.c_str(); }

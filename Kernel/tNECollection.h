@@ -88,7 +88,7 @@ public:		// interface
 				Base[id] == name;				// ID is an index of given name
 	}
 		/// get entry by NAME from the collection; register it if necessary
-	T* get ( const std::string& name ) throw(FPPCantRegNameException)
+	T* get ( const std::string& name ) throw(EFPPCantRegName)
 	{
 		T* p = NameSet.get(name);
 
@@ -99,7 +99,7 @@ public:		// interface
 		// check if it is possible to insert name
 		if ( isLocked() )
 		{
-			throw FPPCantRegNameException ( name, TypeName );
+			throw EFPPCantRegName ( name, TypeName );
 			return NULL;
 		}
 

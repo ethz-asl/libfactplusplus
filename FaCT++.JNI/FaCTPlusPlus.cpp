@@ -133,7 +133,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
 	{
 		ret = Class ( env, getK(env,obj)->ensureConceptName(name()) );
 	}
-	catch (FPPCantRegNameException)
+	catch (EFPPCantRegName)
 	{
 		Throw ( env, "FaCT++ Kernel: Can not register new class name" );
 	}
@@ -155,7 +155,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
 	{
 		ret = ObjectProperty ( env, getK(env,obj)->ensureRoleName(name()) );
 	}
-	catch (FPPCantRegNameException)
+	catch (EFPPCantRegName)
 	{
 		Throw ( env, "FaCT++ Kernel: Can not register new object property name" );
 	}
@@ -177,7 +177,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
 	{
 		ret = DataProperty ( env, getK(env,obj)->ensureDataRoleName(name()) );
 	}
-	catch (FPPCantRegNameException)
+	catch (EFPPCantRegName)
 	{
 		Throw ( env, "FaCT++ Kernel: Can not register new data property name" );
 	}
@@ -199,7 +199,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
 	{
 		ret = Individual ( env, getK(env,obj)->ensureSingletonName(name()) );
 	}
-	catch (FPPCantRegNameException)
+	catch (EFPPCantRegName)
 	{
 		Throw ( env, "FaCT++ Kernel: Can not register new individual name" );
 	}
@@ -257,7 +257,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
 		ret = DataTypeExpression ( env, getK(env,obj)->getDataTypeCenter().
 								   getDataType ( name(), getTree(env,type) ) );
 	}
-	catch (FPPCantRegNameException)
+	catch (EFPPCantRegName)
 	{
 		Throw ( env, "FaCT++ Kernel: Can not register new data type" );
 	}
@@ -477,7 +477,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
 		ret = DataValue ( env, getK(env,obj)->getDataTypeCenter().
 							   getDataValue ( name(), getTree(env,type) ) );
 	}
-	catch (FPPCantRegNameException)
+	catch (EFPPCantRegName)
 	{
 		Throw ( env, "FaCT++ Kernel: Can not register new data value" );
 	}

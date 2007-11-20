@@ -32,53 +32,53 @@ protected:	// members
 
 protected:	// methods
 		/// error by given exception
-	void errorByException ( const FPPCantRegNameException& ex ) const { parseError(ex.what()); }
+	void errorByException ( const EFPPCantRegName& ex ) const { parseError(ex.what()); }
+
+/// macro for the get* methods
+#define CatchNameEx(action)						\
+		do {									\
+			try { ret = action; NextLex(); }	\
+			catch (EFPPCantRegName ex) { errorByException(ex); }	\
+		} while(0)
 
 		/// @return concept-like Id of just scanned name
 	DLTree* getConcept ( void )
 	{
 		DLTree* ret = NULL;
-		try { ret = Kernel->ensureConceptName(scan.GetName()); }
-		catch ( FPPCantRegNameException ex ) { errorByException(ex); }
-		NextLex();
+		CatchNameEx(Kernel->ensureConceptName(scan.GetName()));
 		return ret;
 	}
 		/// @return singleton Id of just scanned name
 	DLTree* getSingleton ( void )
 	{
 		DLTree* ret = NULL;
-		try { ret = Kernel->ensureSingletonName(scan.GetName()); }
-		catch ( FPPCantRegNameException ex ) { errorByException(ex); }
-		NextLex();
+		CatchNameEx(Kernel->ensureSingletonName(scan.GetName()));
 		return ret;
 	}
 		/// @return role-like Id of just scanned name
 	DLTree* getRole ( void )
 	{
 		DLTree* ret = NULL;
-		try { ret = Kernel->ensureRoleName(scan.GetName()); }
-		catch ( FPPCantRegNameException ex ) { errorByException(ex); }
-		NextLex();
+		CatchNameEx(Kernel->ensureRoleName(scan.GetName()));
 		return ret;
 	}
 		/// @return role-like Id of just scanned name
 	DLTree* getDataRole ( void )
 	{
 		DLTree* ret = NULL;
-		try { ret = Kernel->ensureDataRoleName(scan.GetName()); }
-		catch ( FPPCantRegNameException ex ) { errorByException(ex); }
-		NextLex();
+		CatchNameEx(Kernel->ensureDataRoleName(scan.GetName()));
 		return ret;
 	}
 		/// @return datavalue of a data type TYPE with an Id of a just scanned name
 	DLTree* getDTValue ( DLTree* type )
 	{
 		DLTree* ret = NULL;
-		try { ret = Kernel->getDataTypeCenter().getDataValue(scan.GetName(),type); }
-		catch ( FPPCantRegNameException ex ) { errorByException(ex); }
-		NextLex();
+		CatchNameEx(Kernel->getDataTypeCenter().getDataValue(scan.GetName(),type));
 		return ret;
 	}
+
+#undef CatchNameEx
+
 		/// get role expression, ie role, role's inverse or (if ALLOWCHAIN) role chain;
 	DLTree* getRoleExpression ( bool allowChain );
 		/// parse simple DL command

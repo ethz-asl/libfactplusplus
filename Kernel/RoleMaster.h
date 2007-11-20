@@ -131,18 +131,18 @@ public:
 	}
 
 		/// create role entry with given name
-	TNamedEntry* ensureRoleName ( const std::string& name, bool isDataRole ) throw(FPPCantRegNameException)
+	TNamedEntry* ensureRoleName ( const std::string& name, bool isDataRole ) throw(EFPPCantRegName)
 	{
 		TRole* p = roleNS.insert(name);
 		// check what happens
 		if ( p == NULL )			// role registration attempt failed
-			throw FPPCantRegNameException ( name, isDataRole ? "data role" : "role" );
+			throw EFPPCantRegName ( name, isDataRole ? "data role" : "role" );
 
 		if ( isRegisteredRole(p) )	// registered role
 			return p;
 		if ( p->getId() != 0 ||		// not registered but has non-null ID
 			 !useUndefinedNames )	// new names are disallowed
-			throw FPPCantRegNameException ( name, isDataRole ? "data role" : "role" );
+			throw EFPPCantRegName ( name, isDataRole ? "data role" : "role" );
 
 		registerRole(p,isDataRole);
 		return p;

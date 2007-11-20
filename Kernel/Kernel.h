@@ -212,16 +212,16 @@ public:	// general staff
 	// ensure that given names are of the apropriate types
 
 		/// register NAME as a concept
-	ComplexConcept ensureConceptName ( const std::string& name ) throw(FPPCantRegNameException)
+	ComplexConcept ensureConceptName ( const std::string& name ) throw(EFPPCantRegName)
 		{ return new DLTree ( TLexeme ( CNAME, getTBox()->getConcept(name) ) ); }
 		/// register NAME as an individual
-	ComplexConcept ensureSingletonName ( const std::string& name ) throw(FPPCantRegNameException)
+	ComplexConcept ensureSingletonName ( const std::string& name ) throw(EFPPCantRegName)
 		{ return new DLTree ( TLexeme ( INAME, getTBox()->getIndividual(name) ) ); }
 		/// register NAME as a role (object property)
-	ComplexRole ensureRoleName ( const std::string& name ) throw(FPPCantRegNameException)
+	ComplexRole ensureRoleName ( const std::string& name ) throw(EFPPCantRegName)
 		{ return new DLTree ( TLexeme ( RNAME, getRM()->ensureRoleName(name,/*isDataRole=*/false) ) ); }
 		/// register NAME as a data role (data property)
-	ComplexRole ensureDataRoleName ( const std::string& name ) throw(FPPCantRegNameException)
+	ComplexRole ensureDataRoleName ( const std::string& name ) throw(EFPPCantRegName)
 		{ return new DLTree ( TLexeme ( RNAME, getRM()->ensureRoleName(name,/*isDataRole=*/true) ) ); }
 
 public:
