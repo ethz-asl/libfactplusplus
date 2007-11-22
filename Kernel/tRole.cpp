@@ -84,8 +84,7 @@ void TRole :: addFeaturesToSynonym ( void )
 
 	// copy data type
 	if ( isDataRole() )
-		if ( syn->setDataRole() )
-			assert (0);	// FIXME!! check this later on
+		syn->setDataRole();
 
 	// copy R&D
 	if ( pDomain != NULL )

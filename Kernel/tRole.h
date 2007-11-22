@@ -69,8 +69,6 @@ protected:	// members
 		/// Domain of role as a pointer to DAG entry
 	BipolarPointer bpDomain;
 
-		/// flag of data role
-	bool DataRole;
 		/// is role relevant to current query
 	TLabeller::LabType rel;
 
@@ -206,6 +204,8 @@ public:		// interface
 	FPP_ADD_FLAG(Reflexive,0x40);
 		/// set the reflexivity of both role and its inverse
 	void setBothReflexive ( void ) { setReflexive(); inverse()->setReflexive(); }
+		/// distinguish data- and non-data role
+	FPP_ADD_FLAG(DataRole,0x80);
 
 	// functionality
 
@@ -265,13 +265,6 @@ public:		// interface
 	BipolarPointer getBPDomain ( void ) const { return bpDomain; }
 		/// get range-as-a-bipointer of the role
 	BipolarPointer getBPRange ( void ) const { return inverse()->bpDomain; }
-
-	// data flag
-
-		/// check if role is Data role
-	bool isDataRole ( void ) const { return DataRole; }
-		/// set the Data role flag
-	bool setDataRole ( void );
 
 	// disjoint roles
 
@@ -359,6 +352,8 @@ public:		// interface
 	{
 		if ( !isSimple() && isFunctional() )	// non-simple role can not be functional
 			throw EFPPNonSimpleRole(getName());
+		if ( !isSimple() && isDataRole() )		// data role can not be non-simple
+			throw EFPPNonSimpleRole(getName());
 	}
 
 	// output
@@ -379,7 +374,6 @@ inline TRole :: TRole ( const std::string& name )
 	, Inverse(NULL)
 	, pDomain(NULL)
 	, bpDomain(bpINVALID)
-	, DataRole (false)
 	, rel(0)
 {
 	setCompletelyDefined (true);	// role hierarchy is completely defined by it's parents
@@ -394,19 +388,6 @@ inline TRole :: ~TRole ( void )
 		Inverse->Inverse = NULL;
 		delete Inverse;
 	}
-}
-
-inline bool TRole :: setDataRole ( void )
-{
-	// data role cannot be transitive
-	if ( isTransitive() )
-		return true;
-
-	// all parents should be data roles
-	//FIXME!!DT check it later
-	// set data feature
-	DataRole = true;
-	return false;
 }
 
 #endif
