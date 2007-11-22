@@ -77,6 +77,16 @@ DLTree* getNextName ( TsScanner& sc, ReasoningKernel& Kernel )
 	}
 }
 
+/// try to do a reasoning; react if exception was thrown
+#define TryReasoning(action)			\
+	do {								\
+		try { action; }					\
+		catch ( EFPPNonSimpleRole nsr )	\
+		{ std::cerr << "WARNING: KB is incorrect: " 		\
+			<< nsr.what() << ". Query is NOT processed\n";	\
+		  exit(0); }					\
+	} while (0)
+
 void testSat ( const std::string& names, ReasoningKernel& Kernel )
 {
 	std::stringstream s(names);
@@ -86,7 +96,7 @@ void testSat ( const std::string& names, ReasoningKernel& Kernel )
 	while ( (sat = getNextName(sc,Kernel)) != NULL )
 	{
 		bool result = false;
-		Kernel.isSatisfiable ( sat, result );
+		TryReasoning ( Kernel.isSatisfiable ( sat, result ) );
 
 		std::cout << "The '" << sat << "' concept is ";
 		if ( !result )
@@ -108,7 +118,7 @@ void testSub ( const std::string& names1, const std::string& names2, ReasoningKe
 		while ( (sup = getNextName(sc2,Kernel)) != NULL )
 		{
 			bool result = false;
-			Kernel.isSubsumedBy ( sub, sup, result );
+			TryReasoning ( Kernel.isSubsumedBy ( sub, sup, result ) );
 
 			std::cout << "The '" << sub << " [= " << sup << "' subsumption does";
 			if ( !result )
@@ -194,6 +204,8 @@ int main ( int argc, char *argv[] )
 	TsProcTimer pt;
 	pt.Start();
 
+	TryReasoning(Kernel.preprocessKB());
+
 	// do preprocessing
 	if ( !Kernel.isKBConsistent() )
 		std::cerr << "WARNING: KB is inconsistent. Query is NOT processed\n";
@@ -205,7 +217,7 @@ int main ( int argc, char *argv[] )
 		if ( Query[0].empty() )
 		{
 			if ( Query[1].empty() )
-				Kernel.realiseKB();
+				TryReasoning(Kernel.realiseKB());
 			else
 				error ( "Query: Incorrect options" );
 		}

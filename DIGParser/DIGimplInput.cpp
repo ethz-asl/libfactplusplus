@@ -139,6 +139,10 @@ void DIGParseHandlers :: startCommand ( DIGTag tag, AttributeList& attributes )
 					throw DIGParserException ( 900, "Incoherent KB",
 						"KB with URI=\"", KB, "\" is incoherent" );
 				}
+				catch ( EFPPNonSimpleRole nsr )
+				{
+					throw DIGParserException ( 99, "Incorrect KB", nsr.what() );
+				}
 		}
 		else // for Identifier
 			outputSupportedLanguage();

@@ -28,6 +28,7 @@ Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #include "taxNamEntry.h"
 #include "tLabeller.h"
 #include "RAutomaton.h"
+#include "eFPPNonSimpleRole.h"
 
 #ifdef RKG_USE_SORTED_REASONING
 #	include "mergableLabel.h"
@@ -353,6 +354,12 @@ public:		// interface
 	void fillsComposition ( roleSet& Composition, DLTree* tree ) const;
 		/// complete role automaton
 	void completeAutomaton ( void );
+		/// check whether role description is consistent
+	void consistent ( void ) throw(EFPPNonSimpleRole)
+	{
+		if ( !isSimple() && isFunctional() )	// non-simple role can not be functional
+			throw EFPPNonSimpleRole(getName());
+	}
 
 	// output
 

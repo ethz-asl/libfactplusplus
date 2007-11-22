@@ -175,6 +175,10 @@ TBox :: dataForall2dag ( const TRole* R, BipolarPointer C )
 
 BipolarPointer TBox :: atmost2dag ( unsigned int n, const TRole* R, BipolarPointer C )
 {
+	// input check: only simple roles are allowed in the (non-trivial) NR
+	if ( !R->isSimple() )
+		throw EFPPNonSimpleRole(R->getName());
+
 	if ( R->isDataRole() )
 		return dataAtMost2dag(n,R,C);
 

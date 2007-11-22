@@ -1139,6 +1139,8 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellDi
 	try { fail = Action; }						\
 	catch ( InconsistentKB )					\
 	{ ThrowICO(env); }							\
+	catch ( EFPPNonSimpleRole nsr )				\
+	{ ThrowNSR ( env, nsr.getRoleName() ); }	\
 	catch ( std::exception ) { fail = true; }	\
 	if ( fail ) Throw ( env, Reason )
 

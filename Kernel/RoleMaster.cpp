@@ -114,6 +114,11 @@ void RoleMaster :: initAncDesc ( void )
 	for ( p = begin(); p != p_end; ++p )
 		if ( !(*p)->isSynonym() )
 			(*p)->postProcess();
+
+	// the last stage: check whether all roles are consistent
+	for ( p = begin(); p != p_end; ++p )
+		if ( !(*p)->isSynonym() )
+			(*p)->consistent();
 }
 
 void RoleMaster :: Print ( std::ostream& o ) const
