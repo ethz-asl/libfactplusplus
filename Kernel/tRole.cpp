@@ -119,7 +119,7 @@ public:
 	}
 }; // TRoleCompare
 
-// set for the told subsumers
+// keep set of currently processing roles
 TRole::SetOfRoles sStack;
 
 TRole* TRole :: eliminateToldCycles ( void )
@@ -140,7 +140,7 @@ TRole* TRole :: eliminateToldCycles ( void )
 
 	TRole* ret = NULL;
 
-	// add concept in processing
+	// start processing role
 	sStack.insert(this);
 
 	// ensure that parents does not contain synonyms
@@ -179,7 +179,7 @@ TRole* TRole :: eliminateToldCycles ( void )
 			}
 		}
 
-	// remove processed concept from set
+	// finish processing role
 	sStack.erase(this);
 	return ret;
 }
@@ -439,6 +439,13 @@ void TRole :: completeAutomaton ( void )
 	if ( A.isComplete() )
 		return;
 
+	// if we found a cycle...
+	if ( sStack.find(this) != sStack.end() )
+		throw EFPPCycleInRIA(getName());
+
+	// start processing role
+	sStack.insert(this);
+
 	// make sure that all sub-roles already have completed automata
 	for ( iterator p = begin_desc(); p != end_desc(); ++p )
 		(*p)->completeAutomaton();
@@ -456,4 +463,7 @@ void TRole :: completeAutomaton ( void )
 
 	for ( ClassifiableEntry::linkSet::iterator p = getTold().begin(); p < getTold().end(); ++p )
 		static_cast<TRole*>(resolveSynonym(*p))->addSubRoleAutomaton(this);
+
+	// finish processing role
+	sStack.erase(this);
 }

@@ -136,7 +136,7 @@ protected:	// methods
 	{
 		assert ( !R->isSynonym() );	// no synonyms here
 		assert ( R != this );		// no case ...*S*... [= S
-		R->completeAutomaton();	// FIXME!! check for the cycles later on
+		R->completeAutomaton();
 		return R->getAutomaton();
 	}
 		/// init non-empty chain of role automata
