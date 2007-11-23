@@ -19,10 +19,6 @@ Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #ifndef _ROLEMASTER_H
 #define _ROLEMASTER_H
 
-#include <vector>
-#include <string>
-#include <map>
-
 #include "globaldef.h"
 #include "tNameSet.h"
 #include "eFPPCantRegName.h"

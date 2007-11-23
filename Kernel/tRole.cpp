@@ -119,10 +119,11 @@ public:
 	}
 }; // TRoleCompare
 
+// set for the told subsumers
+TRole::SetOfRoles sStack;
+
 TRole* TRole :: eliminateToldCycles ( void )
 {
-	// searchable stack for the told subsumers
-	static std::set<TRole*> sStack;
 	// vector of synonyms
 	static std::vector<TRole*> synonyms;
 
@@ -228,7 +229,7 @@ void TRole :: Print ( std::ostream& o ) const
 
 	if ( !Disjoint.empty() )
 	{
-		DisjointRoles::const_iterator p = Disjoint.begin(), p_end = Disjoint.end();
+		SetOfRoles::const_iterator p = Disjoint.begin(), p_end = Disjoint.end();
 
 		o << " disjoint with {\"" << (*p)->getName();
 
@@ -392,7 +393,7 @@ void TRole :: checkHierarchicalDisjoint ( TRole* R )
 void TRole :: initDJMap ( void )
 {
 	// role R is disjoint with every role S' [= S such that R != S
-	for ( DisjointRoles::iterator q = Disjoint.begin(), q_end = Disjoint.end(); q != q_end; ++q )
+	for ( SetOfRoles::iterator q = Disjoint.begin(), q_end = Disjoint.end(); q != q_end; ++q )
 		DJRoles[getRoleIndex((*q)->getId())] = true;
 }
 

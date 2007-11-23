@@ -55,8 +55,7 @@ public:		// types
 	typedef std::vector<TRole*> roleSet;
 	typedef std::vector<const TRole*> constRoleSet;
 	typedef roleSet::const_iterator iterator;
-		/// roles that are disjoint with a given one
-	typedef std::set<TRole*> DisjointRoles;
+	typedef std::set<TRole*> SetOfRoles;
 
 protected:	// members
 		/// pointer to role's functional definition DAG entry (or just TOP)
@@ -83,8 +82,8 @@ protected:	// members
 	roleSet Ancestor, Descendant;
 		/// set of the most functional super-roles
 	roleSet TopFunc;
-		/// set of the roles that are disjoint with given
-	DisjointRoles Disjoint;
+		/// set of the roles that are disjoint with a given one
+	SetOfRoles Disjoint;
 		/// all compositions in the form R1*R2*\ldots*Rn [= R
 	std::vector<roleSet> subCompositions;
 
