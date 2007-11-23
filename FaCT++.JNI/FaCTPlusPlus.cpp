@@ -1141,6 +1141,8 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellDi
 	{ ThrowICO(env); }							\
 	catch ( EFPPNonSimpleRole nsr )				\
 	{ ThrowNSR ( env, nsr.getRoleName() ); }	\
+	catch ( EFPPCycleInRIA cir )				\
+	{ ThrowRIC ( env, cir.getRoleName() ); }	\
 	catch ( std::exception ) { fail = true; }	\
 	if ( fail ) Throw ( env, Reason )
 

@@ -143,6 +143,10 @@ void DIGParseHandlers :: startCommand ( DIGTag tag, AttributeList& attributes )
 				{
 					throw DIGParserException ( 99, "Incorrect KB", nsr.what() );
 				}
+				catch ( EFPPCycleInRIA cir )
+				{
+					throw DIGParserException ( 99, "Incorrect KB", cir.what() );
+				}
 		}
 		else // for Identifier
 			outputSupportedLanguage();

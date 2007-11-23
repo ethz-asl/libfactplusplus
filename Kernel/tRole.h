@@ -29,6 +29,7 @@ Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #include "tLabeller.h"
 #include "RAutomaton.h"
 #include "eFPPNonSimpleRole.h"
+#include "eFPPCycleInRIA.h"
 
 #ifdef RKG_USE_SORTED_REASONING
 #	include "mergableLabel.h"
@@ -115,8 +116,8 @@ protected:	// methods
 
 	// support for automaton construction
 
-		/// replace RoR [= R with Trans(R); @return true if So...oRo...oT [= R were found
-	bool preprocessComposition ( roleSet& RS );
+		/// replace RoR [= R with Trans(R), replace synonyms in RS
+	void preprocessComposition ( roleSet& RS ) throw(EFPPCycleInRIA);
 		/// add transition to automaton with the role
 	void addTrivialTransition ( const TRole* r )
 		{ A.addTransitionSafe ( A.initial(), A.final(), r ); }
@@ -330,14 +331,12 @@ public:		// interface
 
 		/// eliminate told role cycle
 	TRole* eliminateToldCycles ( void );
-		/// replace RoR [= R with Trans(R); @return true if So...oRo...oT [= R were found
-	bool preprocessCompositions ( void )
+		/// replace RoR [= R with Trans(R)
+	void preprocessAllCompositions ( void ) throw(EFPPCycleInRIA)
 	{
-		bool ret = false;
 		for ( std::vector<roleSet>::iterator q = subCompositions.begin(),
 			  q_end = subCompositions.end(); q < q_end; ++q )
-			ret |= preprocessComposition(*q);
-		return ret;
+			preprocessComposition(*q);
 	}
 		/// init ancestors and descendants using Taxonomy
 	void initADbyTaxonomy ( unsigned int ADMapSize );

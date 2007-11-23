@@ -69,7 +69,7 @@ void RoleMaster :: initAncDesc ( void )
 	// preprocess all role compositions
 	for ( p = begin(); p < p_end; ++p )
 		if ( !(*p)->isSynonym() )
-			(*p)->preprocessCompositions();	// FIXME!! check returning value and throw
+			(*p)->preprocessAllCompositions();
 
 	// stage 2: perform classification
 	pTax->setCompletelyDefined(true);

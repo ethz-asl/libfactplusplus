@@ -398,28 +398,31 @@ void TRole :: initDJMap ( void )
 
 // automaton-related implementation
 
-bool
-TRole :: preprocessComposition ( roleSet& RS )
+void
+TRole :: preprocessComposition ( roleSet& RS ) throw(EFPPCycleInRIA)
 {
 	bool same = false;
-	unsigned int n = RS.size();
+	unsigned int last = RS.size()-1;
+	unsigned int i = 0;	// current element of the composition
 
-	for ( roleSet::iterator p = RS.begin(), p_end = RS.end(); p < p_end; ++p )
+	for ( roleSet::iterator p = RS.begin(), p_end = RS.end(); p < p_end; ++p, ++i )
 	{
 		TRole* R = resolveSynonym(*p);
 
 		if ( R == this )	// found R in composition
 		{
+			if ( i != 0 && i != last )		// R in the middle of the composition
+				throw EFPPCycleInRIA(getName());
 			if ( same )	// second one
 			{
-				RS.clear();
-				if ( n == 2 )	// transitivity
+				if ( last == 1 )	// transitivity
 				{
+					RS.clear();
 					setTransitive();
-					return false;
+					return;
 				}
 				else					// wrong (undecidable) axiom
-					return true;
+					throw EFPPCycleInRIA(getName());
 			}
 			else		// first one
 				same = true;
@@ -427,8 +430,6 @@ TRole :: preprocessComposition ( roleSet& RS )
 
 		*p = R;	// replace possible synonyms
 	}
-
-	return false;
 }
 
 /// complete role automaton
