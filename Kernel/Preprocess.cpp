@@ -65,11 +65,11 @@ void TBox :: Preprocess ( void )
 	// create DAG (concept normalisation etc)
 	buildDAG();
 
-	// builds Roles functional labels
-	initFunctionalRoles();
-
 	// builds Roles range and domain
 	initRangeDomain();
+
+	// builds Roles functional labels
+	initFunctionalRoles();
 
 	// create sorts for KB
 	determineSorts();
