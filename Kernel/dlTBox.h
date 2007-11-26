@@ -410,17 +410,28 @@ protected:	// methods
 		/// builds DAG entry by general concept expression
 	BipolarPointer tree2dag ( const DLTree* );
 		/// build role (from RM) by given tree representation
-	const TRole* role2dag ( const DLTree* );
+	const TRole* role2dag ( const DLTree* t )
+		{ TRole* r = resolveRole(t); return r ? resolveSynonym(r) : NULL; }
 		/// create forall node (together with transitive sub-roles entries)
 	BipolarPointer forall2dag ( const TRole* R, BipolarPointer C );
 		/// create atmost node (together with NN-rule entries)
 	BipolarPointer atmost2dag ( unsigned int n, const TRole* R, BipolarPointer C );
+		/// create REFLEXIVE node
+	BipolarPointer reflexive2dag ( const TRole* R )
+	{
+		// input check: only simple roles are allowed in the reflexivity construction
+		if ( !R->isSimple() )
+			throw EFPPNonSimpleRole(R->getName());
+		return inverse ( DLHeap.add ( new DLVertex ( dtIrr, R ) ) );
+	}
 		/// add elements of T to and-like vertex V; @return true if clash occures
 	bool fillANDVertex ( DLVertex* v, const DLTree* t );
 		/// create forall node for data role
-	BipolarPointer dataForall2dag ( const TRole* R, BipolarPointer C );
+	BipolarPointer dataForall2dag ( const TRole* R, BipolarPointer C )
+		{ return DLHeap.add ( new DLVertex ( dtForall, 0, R, C ) ); }
 		/// create atmost node for data role
-	BipolarPointer dataAtMost2dag ( unsigned int n, const TRole* R, BipolarPointer C );
+	BipolarPointer dataAtMost2dag ( unsigned int n, const TRole* R, BipolarPointer C )
+		{ return DLHeap.add ( new DLVertex ( dtLE, n, R, C ) ); }
 		/// @return a pointer to concept representation
 	BipolarPointer concept2dag ( TConcept* p )
 	{

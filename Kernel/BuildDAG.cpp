@@ -133,7 +133,7 @@ BipolarPointer TBox :: tree2dag ( const DLTree* t )
 		return forall2dag ( role2dag(t->Left()), tree2dag(t->Right()) );
 
 	case REFLEXIVE:
-		return inverse ( DLHeap.add ( new DLVertex ( dtIrr, role2dag(t->Left()) ) ) );
+		return reflexive2dag(role2dag(t->Left()));
 
 	case LE:
 		return atmost2dag ( cur.getData(), role2dag(t->Left()), tree2dag(t->Right()) );
@@ -167,12 +167,6 @@ BipolarPointer TBox :: forall2dag ( const TRole* R, BipolarPointer C )
 	return ret;
 }
 
-BipolarPointer
-TBox :: dataForall2dag ( const TRole* R, BipolarPointer C )
-{
-	return DLHeap.add ( new DLVertex ( dtForall, 0, R, C ) );
-}
-
 BipolarPointer TBox :: atmost2dag ( unsigned int n, const TRole* R, BipolarPointer C )
 {
 	// input check: only simple roles are allowed in the (non-trivial) NR
@@ -193,18 +187,6 @@ BipolarPointer TBox :: atmost2dag ( unsigned int n, const TRole* R, BipolarPoint
 		DLHeap.directAddAndCache ( new DLVertex ( dtLE, m, R, C ) );
 
 	return ret;
-}
-
-BipolarPointer
-TBox :: dataAtMost2dag ( unsigned int n, const TRole* R, BipolarPointer C )
-{
-	return DLHeap.add ( new DLVertex ( dtLE, n, R, C ) );
-}
-
-const TRole* TBox :: role2dag ( const DLTree* t )
-{
-	TRole* r = resolveRole(t);
-	return r ? resolveSynonym(r) : NULL;
 }
 
 bool TBox :: fillANDVertex ( DLVertex* v, const DLTree* t )
