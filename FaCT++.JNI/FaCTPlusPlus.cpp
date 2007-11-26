@@ -1134,15 +1134,18 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellDi
 // minimal query language (ASK languages)
 //-------------------------------------------------------------
 
-#define PROCESS_ASK_QUERY(Action,Reason)		\
-	bool fail = false;							\
-	try { fail = Action; }						\
+#define CATCH_BLOCK								\
 	catch ( InconsistentKB )					\
 	{ ThrowICO(env); }							\
 	catch ( EFPPNonSimpleRole nsr )				\
 	{ ThrowNSR ( env, nsr.getRoleName() ); }	\
 	catch ( EFPPCycleInRIA cir )				\
-	{ ThrowRIC ( env, cir.getRoleName() ); }	\
+	{ ThrowRIC ( env, cir.getRoleName() ); }	
+
+#define PROCESS_ASK_QUERY(Action,Reason)		\
+	bool fail = false;							\
+	try { fail = Action; }						\
+	CATCH_BLOCK									\
 	catch ( std::exception ) { fail = true; }	\
 	if ( fail ) Throw ( env, Reason )
 
@@ -1160,6 +1163,7 @@ JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_is
 	{
 		ret = getK(env,obj)->isKBConsistent();
 	}
+	CATCH_BLOCK
 	catch ( std::exception )
 	{
 		Throw ( env, "FaCT++ Kernel: out of memory" );
@@ -1181,10 +1185,7 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_classi
 	{
 		getK(env,obj)->classifyKB();
 	}
-	catch ( InconsistentKB )
-	{
-		ThrowICO(env);
-	}
+	CATCH_BLOCK
 }
 
 /*
@@ -1200,10 +1201,7 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_realis
 	{
 		getK(env,obj)->realiseKB();
 	}
-	catch ( InconsistentKB )
-	{
-		ThrowICO(env);
-	}
+	CATCH_BLOCK
 }
 
 
