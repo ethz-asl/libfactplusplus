@@ -72,6 +72,12 @@ inline bool isCN ( const DLTree* t ) { return isConst(t) || isName(t); }
 
 	/// check whether T is U-Role
 inline bool isUniversalRole ( const DLTree* t ) { return t && t->Element().getToken() == UROLE; }
+	/// check whether T is an expression in the form (atmost 1 RNAME)
+inline bool isFunctionalExpr ( const DLTree* t, const std::string& RName )
+{
+	return t && t->Element().getToken() == LE && RName == t->Left()->Element().getName()->getName() &&
+		   t->Element().getData() == 1 && t->Right()->Element().getToken() == TOP;
+}
 
 // create SNF from given parts
 

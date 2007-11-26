@@ -245,6 +245,11 @@ public:		// interface
 	{
 		if ( equalTrees ( pDomain, p ) )
 			deleteTree(p);	// usual case when you have a name for inverse role
+		else if ( isFunctionalExpr ( p, getName() ) )
+		{
+			setFunctional();
+			deleteTree(p);	// functional restriction in the role domain means the role is functional
+		}
 		else
 			pDomain = createSNFAnd ( pDomain, p );
 	}
