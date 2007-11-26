@@ -33,6 +33,7 @@ public class InconsistentOntologyException extends FaCTPlusPlusException {
 
 
     public InconsistentOntologyException() {
+        super("Inconsistent ontology!");
     }
 
 
