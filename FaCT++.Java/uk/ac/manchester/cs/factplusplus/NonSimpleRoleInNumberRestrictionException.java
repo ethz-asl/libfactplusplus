@@ -31,28 +31,7 @@ package uk.ac.manchester.cs.factplusplus;
  */
 public class NonSimpleRoleInNumberRestrictionException extends FaCTPlusPlusException {
 
-    private ObjectPropertyPointer objectPropertyPointer;
-
-    private DataPropertyPointer dataPropertyPointer;
-
-
-    public NonSimpleRoleInNumberRestrictionException(ObjectPropertyPointer objectPropertyPointer) {
-        this.objectPropertyPointer = objectPropertyPointer;
-        dataPropertyPointer = null;
-    }
-
-
-    public NonSimpleRoleInNumberRestrictionException(DataPropertyPointer dataPropertyPointer) {
-        this.dataPropertyPointer = dataPropertyPointer;
-        objectPropertyPointer = null;
-    }
-
-    public ObjectPropertyPointer getObjectPropertyPointer() {
-        return objectPropertyPointer;
-    }
-
-
-    public DataPropertyPointer getDataPropertyPointer() {
-        return dataPropertyPointer;
+    public NonSimpleRoleInNumberRestrictionException(String message) {
+        super(message);
     }
 }

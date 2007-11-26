@@ -31,15 +31,8 @@ package uk.ac.manchester.cs.factplusplus;
  */
 public class RoleInclusionCycleException extends FaCTPlusPlusException {
 
-    private ObjectPropertyPointer property;
 
-
-    public RoleInclusionCycleException(ObjectPropertyPointer property) {
-        this.property = property;
-    }
-
-
-    public ObjectPropertyPointer getProperty() {
-        return property;
+    public RoleInclusionCycleException(String message) {
+        super(message);
     }
 }
