@@ -353,9 +353,13 @@ public:		// interface
 		/// check whether role description is consistent
 	void consistent ( void ) throw(EFPPNonSimpleRole)
 	{
-		if ( !isSimple() && isFunctional() )	// non-simple role can not be functional
+		if ( isSimple() )		// all simple roles are consistent
+			return;
+		if ( isFunctional() )	// non-simple role can not be functional
 			throw EFPPNonSimpleRole(getName());
-		if ( !isSimple() && isDataRole() )		// data role can not be non-simple
+		if ( isDataRole() )		// data role can not be non-simple
+			throw EFPPNonSimpleRole(getName());
+		if ( isDisjoint() )		// non-simple role can not be disjoint with any role
 			throw EFPPNonSimpleRole(getName());
 	}
 
