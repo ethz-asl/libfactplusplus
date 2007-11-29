@@ -365,7 +365,7 @@ bool DlSatTester :: initRelatedNominals ( const TRelated* rel )
 
 	// return OK iff setup new enge didn't lead to clash
 	// do NOT need to re-check anything: nothing was processed yet
-	return setupEdge ( pA, from, dep, 0 ) == utClash;
+	return setupEdge ( pA, dep, 0 ) == utClash;
 }
 
 bool DlSatTester :: applyReflexiveRoles ( DlCompletionTree* node, const DepSet& dep )
@@ -374,7 +374,7 @@ bool DlSatTester :: applyReflexiveRoles ( DlCompletionTree* node, const DepSet& 
 	{
 		// create R-loop through the NODE
 		DlCompletionTreeArc* pA = CGraph.addRoleLabel ( node, node, /*isUpLink=*/false, *p, dep );
-		if ( setupEdge ( pA, node, dep, 0 ) == utClash )
+		if ( setupEdge ( pA, dep, 0 ) == utClash )
 			return true;
 	}
 

@@ -531,23 +531,14 @@ protected:
 	tacticUsage initNewNode ( DlCompletionTree* node, const DepSet& dep, BipolarPointer C );
 		/// apply reflexive roles to the (newly created) NODE with apropriate DEP; @return true for clash
 	bool applyReflexiveRoles ( DlCompletionTree* node, const DepSet& dep );
-		/// add necessary concepts to the head of the new EDGE
-	tacticUsage initDomainOfNewEdge ( DlCompletionTree* node, const DepSet& dep, const TRole* R );
-		/// add necessary concepts to the tail of the new EDGE
-	tacticUsage initRangeOfNewEdge ( DlCompletionTree* node, const DepSet& dep, const TRole* R );
-		/// add R's range to a NODE with given DEP-set
-	tacticUsage addSingleRange ( DlCompletionTree* node, const DepSet& dep, const TRole* R );
-		/// add R's domain to a NODE with given DEP-set
-	tacticUsage addSingleDomain ( DlCompletionTree* node, const DepSet& dep, const TRole* R );
-		/// if R is functional, then add FR with given DEP-set to NODE
-	tacticUsage addFunctional ( DlCompletionTree* node, const DepSet& dep, const TRole* R );
+		/// add necessary concepts to the NODE of the new edge, labelled with R
+	tacticUsage initHeadOfNewEdge ( DlCompletionTree* node, const TRole* R, const DepSet& dep, const char* reason );
 
 		/// adds T_G to the given node. returns result of addition
 	tacticUsage addTG ( DlCompletionTree* Node, const DepSet& d );
 
-		/// aux method for setting up new edge PA going from FROM
-	tacticUsage setupEdge ( DlCompletionTreeArc* pA, DlCompletionTree* from,
-							const DepSet& curDep, unsigned int flags );
+		/// aux method for setting up new edge PA
+	tacticUsage setupEdge ( DlCompletionTreeArc* pA, const DepSet& curDep, unsigned int flags );
 		/// aux method for creating new edge from curNode with given ROLE edge label and CONCEPT at the final label
 	tacticUsage createNewEdge ( const TRole* Role, BipolarPointer Concept,
 								const DepSet& dep, unsigned int flags );

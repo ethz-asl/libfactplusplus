@@ -632,7 +632,7 @@ tacticUsage DlSatTester :: commonTacticBodyValue ( const TRole* R, const TIndivi
 
 	// add all necessary concepts to both ends of the edge
 	return
-		setupEdge ( edge, curNode, curDep, redoForall|redoFunc|redoAtMost|redoIrr ) == utClash
+		setupEdge ( edge, curDep, redoForall|redoFunc|redoAtMost|redoIrr ) == utClash
 			? utClash
 			: utDone;
 }
@@ -655,7 +655,7 @@ tacticUsage DlSatTester :: createNewEdge ( const TRole* Role, BipolarPointer Con
 
 	// add necessary label
 	if ( initNewNode ( pA->getArcEnd(), curDep, Concept ) == utClash ||
-		 setupEdge ( pA, curNode, curDep, flags ) == utClash )
+		 setupEdge ( pA, curDep, flags ) == utClash )
 		return utClash;
 	else
 		return utDone;
@@ -726,16 +726,17 @@ bool DlSatTester :: recheckNodeDBlocked ( const DepSet& curDep )
 	return false;
 }
 
-tacticUsage DlSatTester :: setupEdge ( DlCompletionTreeArc* pA, DlCompletionTree* from,
-									   const DepSet& curDep, unsigned int flags )
+tacticUsage
+DlSatTester :: setupEdge ( DlCompletionTreeArc* pA, const DepSet& curDep, unsigned int flags )
 {
 	tacticUsage ret = utUnusable;
 
 	DlCompletionTree* child = pA->getArcEnd();
+	DlCompletionTree* from = pA->getReverse()->getArcEnd();
 
 	// adds Range and Domain
-	switchResult ( ret, initDomainOfNewEdge ( from, curDep, pA->getRole() ) );
-	switchResult ( ret, initRangeOfNewEdge ( child, curDep, pA->getRole() ) );
+	switchResult ( ret, initHeadOfNewEdge ( from, pA->getRole(), curDep, "RD" ) );
+	switchResult ( ret, initHeadOfNewEdge ( child, pA->getReverse()->getRole(), curDep, "RR" ) );
 
 	// check if we have any AR.X concepts in current node
 	switchResult ( ret, applyUniversalNR ( from, pA, curDep, flags ) );
@@ -823,83 +824,27 @@ tacticUsage DlSatTester :: applyUniversalNR ( DlCompletionTree* Node,
 }
 
 	/// add necessary concepts to the head of the new EDGE
-tacticUsage DlSatTester :: initDomainOfNewEdge ( DlCompletionTree* node, const DepSet& dep, const TRole* R )
+tacticUsage
+DlSatTester :: initHeadOfNewEdge ( DlCompletionTree* node, const TRole* R, const DepSet& dep, const char* reason )
 {
 	// define return value
 	tacticUsage ret = utUnusable;
 
-	switchResult ( ret, addFunctional ( node, dep, R ) );
+	// if R is functional, then add FR with given DEP-set to NODE
+	if ( R->isFunctional() )
+		for ( TRole::iterator r = R->begin_topfunc(); r != R->end_topfunc(); ++r )
+			switchResult ( ret, addToDoEntry ( node, (*r)->getFunctional(), dep, "fr" ) );
 
 	// setup Domain for R
-	switchResult ( ret, addSingleDomain ( node, dep, R ) );
+	switchResult ( ret, addToDoEntry ( node, R->getBPDomain(), dep, reason ) );
 
 	// the following block is unnecessary if every role has R&D from it super-roles.
 	if ( !RKG_UPDATE_RND_FROM_SUPERROLES )
 		// setup Domain for all super-roles of R
 		for ( TRole::iterator ri = R->begin_anc(); ri != R->end_anc(); ++ri )
-			switchResult ( ret, addSingleDomain ( node, dep, *ri ) );
+			switchResult ( ret, addToDoEntry ( node, (*ri)->getBPDomain(), dep, reason ) );
 
 	return ret;
-}
-
-	/// add necessary concepts to the tail of the new EDGE
-tacticUsage DlSatTester :: initRangeOfNewEdge ( DlCompletionTree* node, const DepSet& dep, const TRole* R )
-{
-	// define return value
-	tacticUsage ret = utUnusable;
-
-	// check for inverse-functional
-	switchResult ( ret, addFunctional ( node, dep, R->inverse() ) );
-
-	// setup Range for R
-	switchResult ( ret, addSingleRange ( node, dep, R ) );
-
-	// the following block is unnecessary if every role has R&D from it super-roles.
-	if ( !RKG_UPDATE_RND_FROM_SUPERROLES )
-		// setup Range for all super-roles of R
-		for ( TRole::iterator ri = R->begin_anc(); ri != R->end_anc(); ++ri )
-			switchResult ( ret, addSingleRange ( node, dep, *ri ) );
-
-	return ret;
-}
-
-tacticUsage DlSatTester :: addFunctional ( DlCompletionTree* node, const DepSet& dep, const TRole* R )
-{
-	if ( !R->isFunctional() )
-		return utUnusable;
-
-	tacticUsage ret = utUnusable;
-
-	for ( TRole::iterator r = R->begin_topfunc(); r != R->end_topfunc(); ++r )
-		switchResult ( ret, addToDoEntry ( node, (*r)->getFunctional(), dep, "fr" ) );
-
-	return ret;
-}
-
-	/// add R's domain to a NODE with given DEP-set
-tacticUsage DlSatTester :: addSingleDomain ( DlCompletionTree* node, const DepSet& dep, const TRole* R )
-{
-/*
-#ifdef _USE_LOGGING
-	std::string s("D(");
-	s += R->getName();
-	s += ")";
-#endif
-*/
-	return addToDoEntry ( node, R->getBPDomain(), dep, "RD"/*s.c_str()*/ );
-}
-
-	/// add R's range to a NODE with given DEP-set
-tacticUsage DlSatTester :: addSingleRange ( DlCompletionTree* node, const DepSet& dep, const TRole* R )
-{
-/*
-#ifdef _USE_LOGGING
-	std::string s("R(");
-	s += R->getName();
-	s += ")";
-#endif
-*/
-	return addToDoEntry ( node, R->getBPRange(), dep, "RR" );
 }
 
 //-------------------------------------------------------------------------------
@@ -1117,7 +1062,7 @@ tacticUsage DlSatTester :: createDifferentNeighbours ( const TRole* R, BipolarPo
 
 		// add necessary new node labels and setup new edge
 		switchResult ( ret, initNewNode ( child, dep, C ) );
-		switchResult ( ret, setupEdge ( pA, curNode, dep, redoForall ) );
+		switchResult ( ret, setupEdge ( pA, dep, redoForall ) );
 	}
 	CGraph.finiIR();
 
@@ -1404,7 +1349,7 @@ tacticUsage DlSatTester :: commonTacticBodySomeSelf ( const TRole* R )
 	// create an R-loop through curNode
 	const DepSet& dep = curConcept.getDep();
 	DlCompletionTreeArc* pA = CGraph.addRoleLabel ( curNode, curNode, /*isUpLink=*/false, R, dep );
-	return setupEdge ( pA, curNode, dep, redoForall|redoFunc|redoAtMost|redoIrr );
+	return setupEdge ( pA, dep, redoForall|redoFunc|redoAtMost|redoIrr );
 }
 
 tacticUsage DlSatTester :: commonTacticBodyIrrefl ( const TRole* R )
