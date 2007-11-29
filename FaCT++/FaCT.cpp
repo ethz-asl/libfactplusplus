@@ -81,6 +81,7 @@ DLTree* getNextName ( TsScanner& sc, ReasoningKernel& Kernel )
 #define TryReasoning(action)			\
 	do {								\
 		try { action; }					\
+		catch ( InconsistentKB ) {}		\
 		catch ( EFPPNonSimpleRole nsr )	\
 		{ std::cerr << "WARNING: KB is incorrect: " 		\
 			<< nsr.what() << ". Query is NOT processed\n";	\
