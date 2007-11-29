@@ -828,8 +828,7 @@ tacticUsage DlSatTester :: initDomainOfNewEdge ( DlCompletionTree* node, const D
 	// define return value
 	tacticUsage ret = utUnusable;
 
-	// FIXME!! do not add functional to the DOMAIN for now
-//	switchResult ( ret, addFunctional ( node, dep, R ) );
+	switchResult ( ret, addFunctional ( node, dep, R ) );
 
 	// setup Domain for R
 	switchResult ( ret, addSingleDomain ( node, dep, R ) );
