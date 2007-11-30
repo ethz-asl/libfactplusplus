@@ -903,6 +903,7 @@ tacticUsage DlSatTester :: commonTacticBodyLE ( const DLVertex& cur )	// for <=n
 #endif
 
 	nLeCalls.inc();
+	BipolarPointer C = cur.getC();
 
 	tacticUsage ret = utUnusable;
 
@@ -916,11 +917,11 @@ tacticUsage DlSatTester :: commonTacticBodyLE ( const DLVertex& cur )	// for <=n
 		}
 
 	// check if we have Qualified NR
-	if ( cur.getC() != bpTOP )
-		switchResult ( ret, commonTacticBodyChoose ( cur.getRole(), cur.getC() ) );
+	if ( C != bpTOP )
+		switchResult ( ret, commonTacticBodyChoose ( cur.getRole(), C ) );
 
 	// check whether we need to apply NN rule first
-	if ( isNNApplicable ( cur.getRole(), cur.getC() ) )
+	if ( isNNApplicable ( cur.getRole(), C ) )
 	{
 	applyNN:
 		return commonTacticBodyNN(cur);	// after application <=-rule would be checked again
@@ -945,7 +946,7 @@ tacticUsage DlSatTester :: commonTacticBodyLE ( const DLVertex& cur )	// for <=n
 			initBC(btLE);
 
 			// check the amount of neighbours we have
-			findNeighbours ( bContext->EdgesToMerge, cur.getRole(), cur.getC() );
+			findNeighbours ( bContext->EdgesToMerge, cur.getRole(), C );
 
 			// if the number of R-heighs satisfies condition -- nothing to do
 			if ( bContext->notApplicableLE(cur.getNumberLE()) )
