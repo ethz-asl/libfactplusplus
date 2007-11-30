@@ -252,6 +252,9 @@ public:		// interface
 
 		/// check if P and Q are in IR; if so, setup clash-set
 	bool nonMergable ( const DlCompletionTree* p, const DlCompletionTree* q, const DepSet& ds ) const;
+		/// check if P and Q are in IR; if so, setup clash-set wrt concept C with a TAG
+	bool nonMergable ( const DlCompletionTree* p, const DlCompletionTree* q, const DepSet& ds,
+					   BipolarPointer C, DagTag tag ) const;
 
 	//----------------------------------------------
 	// save/restore
@@ -299,6 +302,13 @@ inline bool
 DlCompletionGraph :: nonMergable ( const DlCompletionTree* p, const DlCompletionTree* q, const DepSet& ds ) const
 {
 	return p->nonMergable ( q, ds );
+}
+
+inline bool
+DlCompletionGraph :: nonMergable ( const DlCompletionTree* p, const DlCompletionTree* q, const DepSet& ds,
+								   BipolarPointer C, DagTag tag ) const
+{
+	return p->nonMergable ( q, ds, C, tag );
 }
 
 inline void

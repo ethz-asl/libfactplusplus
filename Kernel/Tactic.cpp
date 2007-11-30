@@ -972,7 +972,13 @@ applyLE:	// skip init, because here we are after restoring
 		DlCompletionTreeArc* to = bContext->getTo();
 
 		// fast check for from->end() and to->end() are in \neq
-		if ( CGraph.nonMergable ( from->getArcEnd(), to->getArcEnd(), DepSet() ) )
+		bool isNonMergable;
+		if ( C == bpTOP )
+			isNonMergable = CGraph.nonMergable ( from->getArcEnd(), to->getArcEnd(), DepSet() );
+		else
+			isNonMergable = CGraph.nonMergable ( from->getArcEnd(), to->getArcEnd(), DepSet(), C, DLHeap[C].Type() );
+
+		if ( isNonMergable )
 		{
 			updateBranchDep();
 			bContext->nextOption();
