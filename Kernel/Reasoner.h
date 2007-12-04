@@ -985,9 +985,8 @@ TBox :: initReasoner ( void )
 	if ( stdReasoner == NULL )	// 1st action
 	{
 		assert ( nomReasoner == NULL );
-		//FIXME!! make it properly!
-		RoleMaster::roleSet rs;
-		GCIs.setReflexive(RM.fillReflexiveRoles(rs));
+
+		GCIs.setReflexive(RM.hasReflexiveRoles());
 
 		stdReasoner = new DlSatTester ( *this, pOptions );
 		if ( NCFeatures.hasSingletons() )

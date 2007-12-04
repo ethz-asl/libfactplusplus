@@ -45,7 +45,8 @@ DlSatTester :: DlSatTester ( TBox& tbox, const ifOptionSet* Options )
 	// init vector of nominals defined in TBox
 	initNominalVector();
 	// init set of reflexive roles
-	GCIs.setReflexive(tbox.getRM()->fillReflexiveRoles(ReflexiveRoles));
+	tbox.getRM()->fillReflexiveRoles(ReflexiveRoles);
+	GCIs.setReflexive(!ReflexiveRoles.empty());
 
 	resetSessionFlags ();
 }

@@ -195,8 +195,10 @@ public:
 		/// get access to the taxonomy
 	Taxonomy* getTaxonomy ( void ) const { return pTax; }
 
-		/// put all reflexive roles to a RR array; @return true if found any
-	bool fillReflexiveRoles ( roleSet& RR ) const;
+		/// @return true iff there is a reflexive role
+	bool hasReflexiveRoles ( void ) const;
+		/// put all reflexive roles to a RR array
+	void fillReflexiveRoles ( roleSet& RR ) const;
 
 	// output interface
 
@@ -204,13 +206,22 @@ public:
 }; // RoleMaster
 
 inline bool
+RoleMaster :: hasReflexiveRoles ( void ) const
+{
+	for  ( const_iterator p = begin(); p != end(); ++p )
+		if ( (*p)->isReflexive() )
+			return true;
+
+	return false;
+}
+
+inline void
 RoleMaster :: fillReflexiveRoles ( roleSet& RR ) const
 {
 	RR.clear();
 	for  ( const_iterator p = begin(); p != end(); ++p )
 		if ( !(*p)->isSynonym() && (*p)->isReflexive() )
 			RR.push_back(*p);
-	return !RR.empty();
 }
 
 #endif
