@@ -42,14 +42,6 @@ void modelCacheIan :: processConcept ( const DLVertex& cur, BipolarPointer bp )
 			break;
 
 		case dtIrr:		// for \neg \ER.Self: add R to AR-set
-			// FIXME!! we special-case it because the non-simple roles in Irr
-			// still doesn't catched during preprocessing
-			if ( isPositive(bp) )
-				forallRoles.insert(cur.getRole());
-//			else
-//				addExistsRole(cur.getRole());
-			break;
-
 		case dtForall:	// add xR.C roles to *Roles.
 			if ( isPositive (bp) )	// WARNING!!! it's possible to add also every sub-role, but it is extra...
 			{
