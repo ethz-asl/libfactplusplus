@@ -314,9 +314,7 @@ DlCompletionGraph :: nonMergable ( const DlCompletionTree* p, const DlCompletion
 inline void
 DlCompletionGraph :: updateIR ( DlCompletionTree* p, const DlCompletionTree* q, const DepSet& toAdd )
 {
-	TRestorer* ret = p->updateIR ( q, toAdd );
-	if ( ret != NULL )
-		saveRare(ret);
+	saveRareCond ( p->updateIR ( q, toAdd ) );
 }
 
 inline void
