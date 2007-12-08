@@ -313,10 +313,12 @@ tacticUsage DlSatTester :: contOrProcessing ( void )
 
 	BranchingContext::or_iterator beg = bContext->orBeg(), end = bContext->orCur();
 	BipolarPointer C = *end;
-	DepSet curDep(getCurLevel());
 
 	// save current state
 	save();
+
+	// new (just branched) dep-set
+	const DepSet curDep(getCurDepSet());
 
 	// if semantic branching is in use -- add previous entries to the label
 	processSemanticBranching ( beg, end, curDep );
@@ -985,11 +987,11 @@ applyLE:	// skip init, because here we are after restoring
 			goto applyLE;
 		}
 
-		// add depset from current level and FROM arc and to current dep.set
-		DepSet curDep(from->getDep());
-		curDep.add ( getCurLevel() );
-
 		save();
+
+		// add depset from current level and FROM arc and to current dep.set
+		DepSet curDep(getCurDepSet());
+		curDep.add(from->getDep());
 
 		switchResult ( ret, Merge ( from->getArcEnd(), to->getArcEnd(), curDep ) );
 	}
@@ -1238,24 +1240,19 @@ tacticUsage DlSatTester :: applyChooseRule ( DlCompletionTree* node, BipolarPoin
 	if ( node->isLabelledBy(C) || node->isLabelledBy(inverse(C)) )
 		return utUnusable;
 
-	DepSet dep;	// local dep-set
-
 	// now node will be labelled with ~C or C
 	if ( isFirstBranchCall() )
 	{
 		initBC(btChoose);
-		// create new branch level
-		dep.add(getCurLevel());
-
 		// save current state
 		save();
 
-		return addToDoEntry ( node, inverse(C), dep, "cr0" );
+		return addToDoEntry ( node, inverse(C), getCurDepSet(), "cr0" );
 	}
 	else
 	{
 		prepareBranchDep();
-		dep.add(getBranchDep());
+		DepSet dep(getBranchDep());
 		determiniseBranchingOp();
 		return addToDoEntry ( node, C, dep, "cr1" );
 	}
@@ -1282,12 +1279,14 @@ tacticUsage DlSatTester :: commonTacticBodyNN ( const DLVertex& cur )	// NN-rule
 
 	// take next NN number; save it as SAVE() will reset it to 0
 	unsigned int NN = bContext->branchIndex;
-	const DepSet curDep(getCurLevel());
 
 	tacticUsage ret = utDone;	// we WILL create several entries
 
 	// prepare to addition to the label
 	save();
+
+	// new (just branched) dep-set
+	const DepSet curDep(getCurDepSet());
 
 	// create curNN new different edges
 	switchResult ( ret,

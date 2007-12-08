@@ -726,6 +726,9 @@ protected:
 		Stack.pop();	// remove unnecessary context from the stack
 	}
 
+		/// get dep-set wrt current level
+	DepSet getCurDepSet ( void ) const { return DepSet(getCurLevel()-1); }
+
 		/// get RW access to current branching dep-set
 	DepSet& getBranchDep ( void ) { return bContext->branchDep; }
 		/// get RO access to current branching dep-set
