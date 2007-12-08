@@ -1,9 +1,18 @@
+# global optimisation options
+GCC_OPT_OPT = -finline-limit=1200 -ffast-math -W -Wall -Wextra -O3 -fomit-frame-pointer
 
-GCC_DEF_3x = -finline-limit=1200 -ffast-math -fno-math-errno -W -Wall -Wextra -O3 -fomit-frame-pointer
-GCC_DEF_4x = $(GCC_DEF_3x) -fmerge-all-constants -fvariable-expansion-in-unroller \
-          -fmodulo-sched -fgcse-sm -fgcse-las -fgcse-after-reload -ftree-loop-linear \
-		  -ftree-loop-im -fivopts -ftree-loop-ivcanon -ftree-vectorize -ftracer \
-		  -funroll-loops \
+# GCC 3.3 optimisation options that are not included in -O3
+GCC_33_OPT = -ftracer -fgcse-sm
+# -funroll-loops
+# GCC 3.4 optimisation options that are not included in -O3
+GCC_34_OPT = $(GCC_33_OPT) -fgcse-las -fpeel-loops
+# GCC 4.0 optimisation options that are not included in -O3
+GCC_40_OPT = $(GCC_34_OPT) -fmodulo-sched -ftree-loop-linear -ftree-loop-im \
+ -ftree-loop-ivcanon -fivopts -ftree-vectorize -fvariable-expansion-in-unroller
+# GCC 4.1 optimisation options that are not included in -O3
+GCC_41_OPT = $(GCC_40_OPT) -funsafe-loop-optimizations -Wunsafe-loop-optimizations
+# GCC 4.2 optimisation options that are not included in -O3
+GCC_42_OPT = $(GCC_41_OPT) -fsee -fipa-pta 
 
 IX86_OPTS = -maccumulate-outgoing-args
 ATHLON_OPT = $(IX86_OPTS) -march=athlon
@@ -12,7 +21,7 @@ PENTIUM_OPT = $(IX86_OPTS) -march=pentium4
 #GCC_SUFFIX = -4.1
 
 # ALL_DEF is an external defines
-GENERAL_DEFINES = $(IX86_OPTS) $(GCC_DEF_4x) $(ALL_DEF) 
+GENERAL_DEFINES = $(IX86_OPTS) $(GCC_OPT_OPT) $(GCC_40_OPT) $(ALL_DEF)
 
 #---------------------------------------------------------
 # please do not change following lines
@@ -104,10 +113,6 @@ override CL_LDFLAGS_LIBS := $(filter-out -lxerces-c,$(CL_LDFLAGS_LIBS)) -lxerces
 endif
 # Compute the final LDFLAGS
 override LDFLAGS := $(CL_IL_DIRS) $(LD_STATIC_FLAGS) $(CL_LDFLAGS_DIRS) $(CL_LDFLAGS_LIBS) $(CL_LDFLAGS_OTHER)
-
-# Reorder includes so that WI includes are always before other includes
-override INCLUDES := $(filter $(CL_DIR)/%,$(INCLUDES)) $(filter-out $(CL_DIR)/% -I.,$(INCLUDES))
-
 
 # Add $(INCLUDES) and $(DEFINES) to $(CXXFLAGS)
 override CXXFLAGS += $(INCLUDES) $(DEFINES) $(EXTRA_DEF)
