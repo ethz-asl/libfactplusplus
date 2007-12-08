@@ -29,7 +29,14 @@ MMKernel* curKernel = NULL;
 extern "C" {
 #endif
 
+// switch tracing on
+//#define JNI_TRACING
+
 #ifdef ENABLE_CHECKING
+#	define JNI_TRACING
+#endif
+
+#ifdef JNI_TRACING
 #	define TRACE_JNI(func) std::cerr << "call " << func << " from JNI\n"
 #else
 #	define TRACE_JNI(func) (void)NULL
@@ -1140,7 +1147,7 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellDi
 	catch ( EFPPNonSimpleRole nsr )				\
 	{ ThrowNSR ( env, nsr.getRoleName() ); }	\
 	catch ( EFPPCycleInRIA cir )				\
-	{ ThrowRIC ( env, cir.getRoleName() ); }	
+	{ ThrowRIC ( env, cir.getRoleName() ); }
 
 #define PROCESS_ASK_QUERY(Action,Reason)		\
 	bool fail = false;							\
