@@ -12,7 +12,7 @@ GCC_40_OPT = $(GCC_34_OPT) -fmodulo-sched -ftree-loop-linear -ftree-loop-im \
 # GCC 4.1 optimisation options that are not included in -O3
 GCC_41_OPT = $(GCC_40_OPT) -funsafe-loop-optimizations -Wunsafe-loop-optimizations
 # GCC 4.2 optimisation options that are not included in -O3
-GCC_42_OPT = $(GCC_41_OPT) -fsee -fipa-pta 
+GCC_42_OPT = $(GCC_41_OPT)
 
 IX86_OPTS = -maccumulate-outgoing-args
 ATHLON_OPT = $(IX86_OPTS) -march=athlon
