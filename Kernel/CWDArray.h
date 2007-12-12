@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2006 by Dmitry Tsarkov
+Copyright (C) 2003-2007 by Dmitry Tsarkov
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -53,12 +53,6 @@ public:		// type interface
 		/// const iterator on label
 	typedef ConceptSet::const_iterator const_iterator;
 
-private:	// prevent copy
-		/// no copy c'tor
-	CWDArray ( const CWDArray& copy );
-		/// no assignment
-	CWDArray& operator = ( const CWDArray& copy );
-
 public:		// global vars
 		/// contains clash set if clash is encountered in a node label
 	static DepSet clashSet;
@@ -78,8 +72,13 @@ public:		// interface
 	}
 		/// empty c'tor
 	CWDArray ( void ) {}
+		/// copy c'tor
+	CWDArray ( const CWDArray& copy ) : Base(copy.Base) {}
+		/// assignment
+	CWDArray& operator = ( const CWDArray& copy ) { Base = copy.Base; return *this; }
 		/// empty d'tor
 	~CWDArray ( void ) {}
+
 
 	//----------------------------------------------
 	// Label access interface

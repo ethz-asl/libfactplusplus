@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2006 by Dmitry Tsarkov
+Copyright (C) 2006-2007 by Dmitry Tsarkov
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -52,12 +52,6 @@ protected:	// members
 		/// all complex concepts (ie, FORALL, GE), labelled a node
 	CWDArray ccLabel;
 
-private:	// prevent copy
-		/// no copy c'tor
-	CGLabel ( const CGLabel& copy );
-		/// no assignment
-	CGLabel& operator = ( const CGLabel& copy );
-
 protected:	// methods
 		/// @return true iff TAG represents complex concept
 	bool isComplexConcept ( DagTag tag ) const
@@ -73,6 +67,12 @@ public:		// interface
 	void init ( void );
 		/// empty c'tor
 	CGLabel ( void ) {}
+		/// copy c'tor
+	CGLabel ( const CGLabel& copy ) : scLabel(copy.scLabel), ccLabel(copy.ccLabel) {}
+		/// assignment
+	CGLabel& operator = ( const CGLabel& copy )
+		{ scLabel = copy.scLabel; ccLabel = copy.ccLabel; return *this; }
+
 		/// empty d'tor
 	~CGLabel ( void ) {}
 
