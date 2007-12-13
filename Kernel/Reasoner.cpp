@@ -43,8 +43,6 @@ DlSatTester :: DlSatTester ( TBox& tbox, const ifOptionSet* Options )
 	DlCompletionTree::initContext ( &tbox.DLHeap, useLazyBlocking );
 	// init datatype reasoner
 	tBox.getDataTypeCenter().initDataTypeReasoner(DTReasoner);
-	// init vector of nominals defined in TBox
-	initNominalVector();
 	// init set of reflexive roles
 	tbox.getRM()->fillReflexiveRoles(ReflexiveRoles);
 	GCIs.setReflexive(!ReflexiveRoles.empty());

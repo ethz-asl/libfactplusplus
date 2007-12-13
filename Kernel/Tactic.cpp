@@ -198,8 +198,6 @@ tacticUsage DlSatTester :: commonTacticBodySingleton ( const DLVertex& cur )
 
 	nSingletonCalls.inc();
 
-	encounterSingleton = true;
-
 	const TIndividual* C = static_cast<const TIndividual*>(cur.getConcept());
 
 	// init nominal cloud which includes C if necessary

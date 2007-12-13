@@ -339,10 +339,6 @@ protected:	// members
 
 	// session status flags:
 
-		/** Session correctness flag. If true, DLTree contains nominals and reasoning results
-	     *  can be incorrect. Sets up by reasoning procedure. Drop to false when reasoning start.
-		 */
-	bool encounterSingleton;
 		/// flag to show if it is necessary to produce DT reasoning immideately
 	bool checkDataNode;
 
@@ -350,8 +346,6 @@ protected:	// methods
 
 	/// resets all session flags
 	void resetSessionFlags ( void );
-		/// init vector of nominals defined in TBox
-	void initNominalVector ( void );
 
 	//------------  methods  ----------------------------
 	// adds p to the labels of node n.
@@ -402,7 +396,7 @@ protected:	// methods
 
 		/// return cache of given completion tree (implementation)
 	modelCacheInterface* createModelCache ( const DlCompletionTree* p ) const
-		{ return new modelCacheIan ( DLHeap, p, encounterSingleton ); }
+		{ return new modelCacheIan ( DLHeap, p, hasNominals() ); }
 		/// create cache entry for given singleton
 	void registerNominalCache ( TIndividual* p )
 	{
@@ -423,6 +417,8 @@ protected:	// methods
 //--		internal nominal reasoning interface
 //-----------------------------------------------------------------------------
 
+		/// check whether reasoning with nominals is performed
+	bool hasNominals ( void ) const { return !Nominals.empty(); }
 		/// init single nominal node
 	bool initNominalNode ( const TIndividual* nom, const DepSet& dep )
 	{
@@ -817,6 +813,8 @@ public:
 		/// create cache for given DAG node; @return cache
 	modelCacheInterface* createCache ( BipolarPointer p );
 
+		/// init vector of nominals defined in TBox
+	void initNominalVector ( void );
 		/// check whether ontology with nominals is consistent
 	bool consistentNominalCloud ( void );
 
@@ -848,7 +846,6 @@ inline void DlSatTester :: resetSessionFlags ( void )
 	setUsed(bpTOP);
 	setUsed(bpBOTTOM);
 
-	encounterSingleton = false;
 	checkDataNode = true;
 	dBlocked = NULL;
 	iBlocked = NULL;
@@ -996,7 +993,10 @@ TBox :: initReasoner ( void )
 
 		stdReasoner = new DlSatTester ( *this, pOptions );
 		if ( NCFeatures.hasSingletons() )
+		{
 			nomReasoner = new DlSatTester ( *this, pOptions );
+			nomReasoner->initNominalVector();
+		}
 	}
 }
 
