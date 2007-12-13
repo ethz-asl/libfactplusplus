@@ -694,6 +694,8 @@ protected:	// methods
 			CGraph.Print(LL);
 	}
 
+		/// merge session statistics to the global one
+	void finaliseStatistic ( void );
 		/// write down statistics wrt LOCAL flag
 	void logStatisticData ( std::ostream& o, bool needLocal ) const;
 

@@ -102,9 +102,7 @@ void DlSatTester :: clear ( void )
 	CGraph.clear();
 
 	// clear last session information
-	resetSessionFlags ();
-
-	AccumulatedStatistic::accumulateAll();
+	resetSessionFlags();
 
 	Stack.clear();
 
@@ -297,23 +295,32 @@ bool DlSatTester :: runSat ( void )
 	bool result = checkSatisfiability ();
 	pt.Stop ();
 
-	// log the result ant calculation time
-	nAddOps.set(DlCompletionTree::getNAddOps());
-	nCompareOps.set(DlCompletionTree::getNSetCompareOps());
-	nNodeSaves.set(CGraph.getNNodeSaves());
-	nNodeRestores.set(CGraph.getNNodeRestores());
-
-
 	if ( LLM.isWritable(llSatTime) )
 		LL << "\nChecking time was " << pt << " seconds";
 
-	if ( LLM.isWritable(llRStat) )
-		logStatisticData ( LL, /*needLocal=*/true );
+	finaliseStatistic();
 
 	if ( result )
 		writeRoot(llRStat);
 
 	return result;
+}
+
+void
+DlSatTester :: finaliseStatistic ( void )
+{
+	// add the integer stat values
+	nAddOps.set(DlCompletionTree::getNAddOps());
+	nCompareOps.set(DlCompletionTree::getNSetCompareOps());
+	nNodeSaves.set(CGraph.getNNodeSaves());
+	nNodeRestores.set(CGraph.getNNodeRestores());
+
+	// log statistics data
+	if ( LLM.isWritable(llRStat) )
+		logStatisticData ( LL, /*needLocal=*/true );
+
+	// merge local statistics with the global one
+	AccumulatedStatistic::accumulateAll();
 }
 
 	/// create nominal nodes for all individuals in TBox
