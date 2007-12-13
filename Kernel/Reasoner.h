@@ -398,7 +398,9 @@ protected:	// methods
 		/// init some flags using an external option set
 	void readConfig ( const ifOptionSet* Options );
 
-	// cache support
+//-----------------------------------------------------------------------------
+//--		internal cache support
+//-----------------------------------------------------------------------------
 
 		/// return cache of given completion tree (implementation)
 	modelCacheInterface* createModelCache ( const DlCompletionTree* p ) const
@@ -419,7 +421,10 @@ protected:	// methods
 		/// check if newly created node may be cached
 	tacticUsage tryCacheNode ( DlCompletionTree* node );
 
-protected:
+//-----------------------------------------------------------------------------
+//--		internal nominal reasoning interface
+//-----------------------------------------------------------------------------
+
 		/// init single nominal node
 	bool initNominalNode ( const TIndividual* nom, const DepSet& dep )
 	{
@@ -689,6 +694,7 @@ protected:
 			CGraph.Print(LL);
 	}
 
+		/// write down statistics wrt LOCAL flag
 	void logStatisticData ( std::ostream& o, bool needLocal ) const;
 
 	// save/restore methods
