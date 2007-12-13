@@ -343,8 +343,6 @@ protected:	// members
 	     *  can be incorrect. Sets up by reasoning procedure. Drop to false when reasoning start.
 		 */
 	bool encounterSingleton;
-		/// Shows if session contained non-deterministic choises. This is useful for caching
-	bool hasNondet;
 		/// flag to show if it is necessary to produce DT reasoning immideately
 	bool checkDataNode;
 
@@ -851,7 +849,6 @@ inline void DlSatTester :: resetSessionFlags ( void )
 	setUsed(bpBOTTOM);
 
 	encounterSingleton = false;
-	hasNondet = false;
 	checkDataNode = true;
 	dBlocked = NULL;
 	iBlocked = NULL;

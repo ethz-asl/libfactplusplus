@@ -308,9 +308,6 @@ int DlSatTester :: getOrType ( const DLVertex& cur )
 
 tacticUsage DlSatTester :: contOrProcessing ( void )
 {
-	// really non-deterministic operation
-	hasNondet = 1;
-
 	BranchingContext::or_iterator beg = bContext->orBeg(), end = bContext->orCur();
 	BipolarPointer C = *end;
 
