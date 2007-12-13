@@ -970,10 +970,8 @@ TBox :: setToDoPriorities ( bool sat )
 {
 	if ( nomReasoner )
 	{
-		if ( sat )
+		if ( sat )	// don't use priorities for the nominal's reasoner SUB
 			nomReasoner->initToDoPrioritiesSat(pOptions);
-		else
-			nomReasoner->initToDoPrioritiesSub(pOptions);
 	}
 
 	if ( sat )

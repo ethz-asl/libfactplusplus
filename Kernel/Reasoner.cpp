@@ -35,6 +35,7 @@ DlSatTester :: DlSatTester ( TBox& tbox, const ifOptionSet* Options )
 	, GCIs(tbox.GCIs)
 	, bContext(NULL)
 	, tryLevel(1)
+	, curNode(NULL)
 {
 	// init local options
 	readConfig ( Options );
@@ -110,6 +111,7 @@ void DlSatTester :: clear ( void )
 	TODO->clear ();
 	clearNominalCloud();
 
+	curNode = NULL;
 	bContext = NULL;
 	tryLevel = 1;
 }
@@ -508,33 +510,30 @@ DlSatTester :: createCache ( BipolarPointer p )
 
 bool DlSatTester :: checkSatisfiability ( void )
 {
-	tacticUsage ret = utDone;	// if nothing to do -- OK.
-
-	while ( !TODO->empty () )
+	for (;;)
 	{
-		// FIXME: insert here a list of tactics
-		const ToDoEntry* curTDE = TODO->getNextEntry ();
-		assert ( curTDE != NULL );
-
-		// setup current context
-		curNode = curTDE->Node;
-		curConcept = curNode->label().getConcept(curTDE->index);
-
-		ret = commonTactic();
-
-		// if tactic returns clash...
-		while ( ret == utClash )
+		if ( curNode == NULL )
 		{
-			if ( tunedRestore () )	// restoring the state
-				return false;		// ... the concept is unsatisfiable
-			else					//  ... try to use next alternative
-				ret = commonTactic();
-		}
-	}
+			if ( TODO->empty() )	// nothing more to do
+				return true;
 
-	// we are here if either no tactic is usable (ret = utUnusable)
-	// or there are no entryes to deal with (then the answer depends on ret)
-	return ( ret != utClash );
+			const ToDoEntry* curTDE = TODO->getNextEntry ();
+			assert ( curTDE != NULL );
+
+			// setup current context
+			curNode = curTDE->Node;
+			curConcept = curNode->label().getConcept(curTDE->index);
+		}
+
+		// here curNode/curConcept are set
+		if ( commonTactic() == utClash )	// clash found
+		{
+			if ( tunedRestore() )	// the concept is unsatisfiable
+				return false;
+		}
+		else
+			curNode = NULL;
+	}
 }
 
 /********************************************************************************
