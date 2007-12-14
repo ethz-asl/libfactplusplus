@@ -188,6 +188,13 @@ modelCacheState modelCacheIan :: merge ( const modelCacheInterface* p )
 {
 	assert ( p != NULL );
 
+	// check for nominal clash
+	if ( hasNominalClash(p) )
+	{
+		curState = csFailed;
+		return getState();
+	}
+
 	switch ( p->getCacheType() )
 	{
 	case mctConst:		// adds TOP/BOTTOM
