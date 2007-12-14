@@ -763,14 +763,7 @@ public:
 		/// prepare to a new run: cleans all the temp. staff
 	void clear ( void );
 		/// prerpare Nominal Reasoner to a new job
-	void reInit ( void )
-	{
-		restore(1);
-		resetSessionFlags();
-		// here a branching op should be expanded. Make a barrier
-		bContext->init(bContext->tag);
-		save();
-	}
+	void reInit ( void );
 
 		/// init TODO list priority for classification
 	void initToDoPriorities ( const ifOptionSet* OptionSet )

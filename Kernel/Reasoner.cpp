@@ -77,6 +77,19 @@ void DlSatTester :: initNominalVector ( void )
 			Nominals.push_back(*pi);
 }
 
+/// prerpare Nominal Reasoner to a new job
+void
+DlSatTester :: reInit ( void )
+{
+	if ( LLM.isWritable(llSRState) )
+		LL << "\nInitNominalReasoner:";
+
+	restore(1);
+	resetSessionFlags();
+	// here a branching op should be expanded. Make a barrier
+	bContext->init(bContext->tag);
+	save();
+}
 
 void DlSatTester :: clear ( void )
 {
@@ -251,9 +264,13 @@ DlSatTester :: consistentNominalCloud ( void )
 
 	if ( result && tryLevel == 1 )
 	{	// all nominal cloud is classified w/o branching -- make a barrier
+		if ( LLM.isWritable(llSRState) )
+			LL << "InitNominalReasoner[";
 		curNode = NULL;
 		initBC(btBarrier);
 		save();
+		if ( LLM.isWritable(llSRState) )
+			LL << "] utDone";
 	}
 
 	if ( LLM.isWritable(llSatResult) )
