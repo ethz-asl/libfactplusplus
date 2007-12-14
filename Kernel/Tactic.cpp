@@ -744,7 +744,8 @@ DlSatTester :: setupEdge ( DlCompletionTreeArc* pA, const DepSet& curDep, unsign
 	// check if we have any AR.X concepts in current node
 	switchResult ( ret, applyUniversalNR ( from, pA, curDep, flags ) );
 
-	if ( child->isNominalNode() )
+	// for nominal children and loops -- just apply things for the inverces
+	if ( child->isNominalNode() || child == from )
 		switchResult ( ret, applyUniversalNR ( child, pA->getReverse(), curDep, flags ) );
 	else
 	{
