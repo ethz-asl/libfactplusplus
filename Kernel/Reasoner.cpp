@@ -105,7 +105,6 @@ void DlSatTester :: clear ( void )
 	Stack.clear();
 
 	TODO->clear ();
-	clearNominalCloud();
 
 	curNode = NULL;
 	bContext = NULL;
@@ -260,17 +259,19 @@ DlSatTester :: consistentNominalCloud ( void )
 
 	bool result = false;
 
-	do
-	{	// reserve the root for the forthcoming reasoning
-		if ( initNewNode ( CGraph.getRoot(), DepSet(), bpTOP ) == utClash ||
-			 initNominalCloud(DepSet()) )	// clash during initialisation
-			break;
-
-		// make reasoning up-to-branching
-
-		// finish normal reasoning
+	// reserve the root for the forthcoming reasoning
+	if ( initNewNode ( CGraph.getRoot(), DepSet(), bpTOP ) == utClash ||
+		 initNominalCloud(DepSet()) )	// clash during initialisation
+		result = false;
+	else	// perform a normal reasoning
 		result = runSat();
-	} while(0);
+
+	if ( result && tryLevel == 1 )
+	{	// all nominal cloud is classified w/o branching -- make a barrier
+		curNode = NULL;
+		initBC(btBarrier);
+		save();
+	}
 
 	if ( LLM.isWritable(llSatResult) )
 		LL << "\nThe ontology is " << (result ? "consistent" : "INCONSISTENT");

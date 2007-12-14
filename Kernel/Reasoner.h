@@ -760,9 +760,9 @@ protected:	// methods
 	bool tunedRestore ( void );
 
 		/// check if P was used during current reasoning session
-	bool isUsed ( BipolarPointer p ) const { return DLHeap[p].isUsed ( isPositive(p), VUse ); }
+	bool isUsed ( BipolarPointer p ) const { return hasNominals() ? true : DLHeap[p].isUsed ( isPositive(p), VUse ); }
 		/// set P as a used during current reasoning. NOTE: it's not cleared during restores
-	void setUsed ( BipolarPointer p ) { DLHeap[p].setUsed ( isPositive(p), VUse ); }
+	void setUsed ( BipolarPointer p ) { if ( !hasNominals() ) DLHeap[p].setUsed ( isPositive(p), VUse ); }
 
 public:
 	DlSatTester ( TBox& tbox, const ifOptionSet* Options );
@@ -771,7 +771,11 @@ public:
 		/// set-up satisfiability task for given pointers and run runSat on it
 	bool runSat ( BipolarPointer p, BipolarPointer q = bpTOP )
 	{
-		clear();
+		if ( hasNominals() )
+			reInit();
+		else
+			clear();
+
 		// use general method to init node with P and add Q then
 		if ( initNewNode ( CGraph.getRoot(), DepSet(), p ) == utClash ||
 			 addToDoEntry ( CGraph.getRoot(), q, DepSet() ) == utClash )
@@ -786,6 +790,15 @@ public:
 	}
 		/// prepare to a new run: cleans all the temp. staff
 	void clear ( void );
+		/// prerpare Nominal Reasoner to a new job
+	void reInit ( void )
+	{
+		restore(1);
+		resetSessionFlags();
+		// here a branching op should be expanded. Make a barrier
+		bContext->init(bContext->tag);
+		save();
+	}
 
 		/// init TODO list priority for satisfiability checking/model caching
 	void initToDoPrioritiesSat ( const ifOptionSet* OptionSet )
@@ -970,7 +983,7 @@ TBox :: clearReasoner ( void )
 {
 	stdReasoner->clear();
 	if ( nomReasoner )
-		nomReasoner->clear();
+		nomReasoner->reInit();
 }
 
 /// set ToDo priorities for SAT/SUB
