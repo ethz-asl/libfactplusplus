@@ -198,6 +198,9 @@ tacticUsage DlSatTester :: commonTacticBodySingleton ( const DLVertex& cur )
 
 	nSingletonCalls.inc();
 
+	// if the test REALLY uses nominals, remember this
+	encounterNominal = true;
+
 	const TIndividual* C = static_cast<const TIndividual*>(cur.getConcept());
 
 	// init nominal cloud which includes C if necessary
@@ -622,6 +625,9 @@ tacticUsage DlSatTester :: commonTacticBodyValue ( const TRole* R, const TIndivi
 	// check if merging will lead to clash because of disjoint roles
 	if ( R->isDisjoint() && checkDisjointRoleClash ( curNode, realNode, R, curDep ) == utClash )
 		return utClash;
+
+	// here we are sure that there is a nominal connected to a root node
+	encounterNominal = true;
 
 	// create new edge between curNode and the given nominal node
 	DlCompletionTreeArc* edge =

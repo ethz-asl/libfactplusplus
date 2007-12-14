@@ -339,6 +339,8 @@ protected:	// members
 
 	// session status flags:
 
+		/// true if nominal-related expansion rule was fired during reasoning
+	bool encounterNominal;
 		/// flag to show if it is necessary to produce DT reasoning immideately
 	bool checkDataNode;
 
@@ -396,7 +398,7 @@ protected:	// methods
 
 		/// return cache of given completion tree (implementation)
 	modelCacheInterface* createModelCache ( const DlCompletionTree* p ) const
-		{ return new modelCacheIan ( DLHeap, p, hasNominals() ); }
+		{ return new modelCacheIan ( DLHeap, p, encounterNominal ); }
 		/// create cache entry for given singleton
 	void registerNominalCache ( TIndividual* p )
 	{
@@ -846,6 +848,7 @@ inline void DlSatTester :: resetSessionFlags ( void )
 	setUsed(bpTOP);
 	setUsed(bpBOTTOM);
 
+	encounterNominal = false;
 	checkDataNode = true;
 	dBlocked = NULL;
 	iBlocked = NULL;
