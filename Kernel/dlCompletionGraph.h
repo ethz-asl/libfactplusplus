@@ -37,8 +37,10 @@ class DlCompletionGraph
 protected:	// typedefs
 		/// type of the heap
 	typedef std::vector<DlCompletionTree*> nodeBaseType;
-		/// heap's iterator
+		/// heap's RW iterator
 	typedef nodeBaseType::iterator iterator;
+		/// heap's RO iterator
+	typedef nodeBaseType::const_iterator const_iterator;
 
 protected:	// types
 		/// class for S/R local state

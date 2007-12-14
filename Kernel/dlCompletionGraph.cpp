@@ -196,17 +196,13 @@ void DlCompletionGraph :: Print ( std::ostream& o ) const
 	for ( std::vector<bool>::iterator p = CGPFlag.begin(); p != CGPFlag.end(); ++p )
 		*p = false;
 
-#ifdef ENABLE_CHECKING
-	if ( getActualRoot()->beginp() != getActualRoot()->endp() )
-	{
-		o << "\n|-";
-		(*getActualRoot()->beginp())->Print(o);
-		o << " from node " << (*getActualRoot()->beginp())->getArcEnd()->getId();
-	}
-#endif
-	o << "\n";
-	// print tree starting from actual root node
-	PrintNode ( getActualRoot(), o );
+	// print tree starting from the root node
+	PrintNode ( getRoot(), o );
+
+	// if there are nominals in the graph -- print the nominal cloud
+	const_iterator p = NodeBase.begin()+1, p_end = NodeBase.end();
+	for ( ; p < p_end && (*p)->isNominalNode(); ++p )
+		PrintNode ( *p, o );
 	o << "\n";
 }
 
@@ -222,6 +218,9 @@ static void PrintNode ( const DlCompletionTree* node, std::ostream& o )
 		PrintIndent(o);
 		o << "-";
 	}
+	else
+		o << "\n";
+
 	node->PrintBody(o);				// print node's label
 
 	// print all children
