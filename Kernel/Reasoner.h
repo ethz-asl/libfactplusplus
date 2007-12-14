@@ -634,13 +634,17 @@ protected:	// methods
 	tacticUsage checkIrreflexivity ( const DlCompletionTreeArc* edge,
 									 const TRole* R, const DepSet& dep )
 	{
-		if ( edge->getArcEnd() == edge->getReverse()->getArcEnd() && edge->isNeighbour(R) )
-		{
-			DlCompletionTree::setClashSet(dep);
-			DlCompletionTree::updateClashSet(edge->getDep());
-			return utClash;
-		}
-		return utDone;
+		// only loops counts here...
+		if ( edge->getArcEnd() != edge->getReverse()->getArcEnd() )
+			return utDone;
+		// which are labelled either with R or with R-
+		if ( !edge->isNeighbour(R) && !edge->isNeighbour(R->inverse()) )
+			return utDone;
+
+		// set up clash
+		DlCompletionTree::setClashSet(dep);
+		DlCompletionTree::updateClashSet(edge->getDep());
+		return utClash;
 	}
 
 		/** Perform expansion of (C=\AR{state}.X).DEP to an EDGE with a given reason */
