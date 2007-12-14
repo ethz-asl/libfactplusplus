@@ -202,10 +202,7 @@ tacticUsage DlSatTester :: commonTacticBodySingleton ( const DLVertex& cur )
 	encounterNominal = true;
 
 	const TIndividual* C = static_cast<const TIndividual*>(cur.getConcept());
-
-	// init nominal cloud which includes C if necessary
-	if ( ensureNominalCloud(C) )
-		return utClash;
+	assert ( C->node != NULL );
 
 	// if node for C was purged due to merge -- find proper one
 	DepSet dep = curConcept.getDep();
@@ -612,10 +609,6 @@ tacticUsage DlSatTester :: commonTacticBodyValue ( const TRole* R, const TIndivi
 		return utUnusable;
 
 	nSomeCalls.inc();
-
-	// ensure that nominal cloud exists
-	if ( ensureNominalCloud(nom) )
-		return utClash;
 
 	assert ( nom->node != NULL );
 

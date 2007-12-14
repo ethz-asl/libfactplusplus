@@ -144,18 +144,6 @@ protected:	// types
 	};
 
 protected:	// classes
-	friend class TNominalCloudRestorer;
-		/// restorer for the Nominal initialisation
-	class TNominalCloudRestorer : public TRestorer
-	{
-	protected:
-		DlSatTester* p;
-	public:
-		TNominalCloudRestorer ( DlSatTester* q ) : p(q) {}
-		~TNominalCloudRestorer ( void ) {}
-		virtual void restore ( void ) { p->clearNominalCloud(); }
-	}; // TNominalCloudRestorer
-
 		/// class for saving branching context of a Reasoner
 	class BranchingContext
 	{
@@ -422,34 +410,18 @@ protected:	// methods
 		/// check whether reasoning with nominals is performed
 	bool hasNominals ( void ) const { return !Nominals.empty(); }
 		/// init single nominal node
-	bool initNominalNode ( const TIndividual* nom, const DepSet& dep )
+	bool initNominalNode ( const TIndividual* nom )
 	{
 		DlCompletionTree* node = CGraph.getNewNode();
 		node->setNominalLevel();
 		const_cast<TIndividual*>(nom)->node = node;	// init nominal with associated node
-		return initNewNode ( node, dep, nom->pName ) == utClash;	// ABox is inconsistent
+		return initNewNode ( node, DepSet(), nom->pName ) == utClash;	// ABox is inconsistent
 	}
-		/// create nominal nodes for all individuals in TBox wrt dep-set DEP
-	bool initNominalCloud ( const DepSet& dep );
 		/// create nominal nodes for all individuals in TBox
-	bool initNominalCloud ( void ) { return initNominalCloud(curConcept.getDep()); }
-		/// ensure that part of nominal cloud containing given NOMinal exists
-	bool ensureNominalCloud ( const TIndividual* nom )
-	{
-		if ( nom->node == NULL ) // 1st time touch a nominal -- init corresponding nominal
-		{
-			if ( tBox.isPrecompleted() )
-				return initNominalNode ( nom, curConcept.getDep() );
-			else
-				return initNominalCloud();
-		}
-		else	// nominal cloud already exists
-			return false;
-	}
+	bool initNominalCloud ( void );
 		/// make an R-edge between related nominals
 	bool initRelatedNominals ( const TRelated* rel );
-		/// clear links to nominal nodes (if were any)
-	void clearNominalCloud ( void );
+
 		/// check satisfiability of task which is set-up
 	bool runSat ( void );
 

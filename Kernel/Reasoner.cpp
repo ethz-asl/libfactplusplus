@@ -78,23 +78,6 @@ void DlSatTester :: initNominalVector ( void )
 }
 
 
-void DlSatTester :: clearNominalCloud ( void )
-{
-	if ( Nominals.empty() )
-		return;
-
-	SingletonVector::iterator p = Nominals.begin();
-
-	// check if nominals were touched.
-	// FIXME!! check later on where not ALL nominals will be touched
-//	if ( (*p)->node == NULL )
-//		return;
-
-	// clear node link in all nominals
-	for ( ; p != Nominals.end(); ++p )
-		(*p)->node = NULL;
-}
-
 void DlSatTester :: clear ( void )
 {
 	CGraph.clear();
@@ -261,7 +244,7 @@ DlSatTester :: consistentNominalCloud ( void )
 
 	// reserve the root for the forthcoming reasoning
 	if ( initNewNode ( CGraph.getRoot(), DepSet(), bpTOP ) == utClash ||
-		 initNominalCloud(DepSet()) )	// clash during initialisation
+		 initNominalCloud() )	// clash during initialisation
 		result = false;
 	else	// perform a normal reasoning
 		result = runSat();
@@ -323,14 +306,11 @@ DlSatTester :: finaliseStatistic ( void )
 }
 
 	/// create nominal nodes for all individuals in TBox
-bool DlSatTester :: initNominalCloud ( const DepSet& dep )
+bool DlSatTester :: initNominalCloud ( void )
 {
-	// prepare to clear nominal links in case of clash
-	CGraph.saveRareCond(new TNominalCloudRestorer(this));
-
 	// create nominal nodes and fills them with initial values
 	for ( SingletonVector::iterator p = Nominals.begin(); p != Nominals.end(); ++p )
-		if ( initNominalNode ( *p, dep ) )
+		if ( initNominalNode(*p) )
 			return true;	// ABox is inconsistent
 
 	// create edges between related nodes
@@ -342,6 +322,8 @@ bool DlSatTester :: initNominalCloud ( const DepSet& dep )
 	// create disjoint markers on nominal nodes
 	if ( tBox.Different.empty() )
 		return false;
+
+	DepSet dep;
 
 	for ( TBox::DifferentIndividuals::const_iterator
 		  r = tBox.Different.begin(); r != tBox.Different.end(); ++r )
@@ -362,7 +344,7 @@ bool DlSatTester :: initRelatedNominals ( const TRelated* rel )
 	DlCompletionTree* from = rel->a->node;
 	DlCompletionTree* to = rel->b->node;
 	TRole* R = rel->R;
-	const DepSet& dep = curConcept.getDep();
+	DepSet dep;	// empty dep-set
 
 	// check if merging will lead to clash because of disjoint roles
 	if ( R->isDisjoint() && checkDisjointRoleClash ( from, to, R, dep ) == utClash )
