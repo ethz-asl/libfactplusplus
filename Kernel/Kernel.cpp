@@ -300,18 +300,6 @@ bool ReasoningKernel :: initOptions ( void )
 		) )
 		return true;
 
-	// register "IAOEFLGsat" option -- 19.01.05
-	if ( pKernelOptions->RegisterOption (
-		"IAOEFLGsat",
-		"Option 'IAOEFLGsat' define the priorities of different operations in TODO list for SAT reasoning. Possible values are "
-		"7-digit strings with ony possible digit are 0-6. The digits on the places 1, 2, ..., 7 are for "
-		"priority of Id, And, Or, Exists, Forall, LE and GE operations respectively. The smaller number means "
-		"the higher priority. All other constructions (TOP, BOTTOM, etc) has priority 0.",
-		ifOption::iotText,
-		"0"	// invalid (use IAOEFLG values instead)
-		) )
-		return true;
-
 	// options for Reasoner
 
 	// register "useSemanticBranching" option

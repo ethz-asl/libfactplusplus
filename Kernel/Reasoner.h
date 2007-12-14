@@ -800,16 +800,8 @@ public:
 		save();
 	}
 
-		/// init TODO list priority for satisfiability checking/model caching
-	void initToDoPrioritiesSat ( const ifOptionSet* OptionSet )
-	{
-		assert ( TODO != NULL && OptionSet != NULL );
-
-		if ( TODO->initPriorities ( OptionSet, "IAOEFLGsat" ) )
-			initToDoPrioritiesSub(OptionSet);
-	}
 		/// init TODO list priority for classification
-	void initToDoPrioritiesSub ( const ifOptionSet* OptionSet )
+	void initToDoPriorities ( const ifOptionSet* OptionSet )
 	{
 		assert ( TODO != NULL && OptionSet != NULL );
 
@@ -986,20 +978,13 @@ TBox :: clearReasoner ( void )
 		nomReasoner->reInit();
 }
 
-/// set ToDo priorities for SAT/SUB
+/// set ToDo priorities using local OPTIONS
 inline void
-TBox :: setToDoPriorities ( bool sat )
+TBox :: setToDoPriorities ( void )
 {
+	stdReasoner->initToDoPriorities(pOptions);
 	if ( nomReasoner )
-	{
-		if ( sat )	// don't use priorities for the nominal's reasoner SUB
-			nomReasoner->initToDoPrioritiesSat(pOptions);
-	}
-
-	if ( sat )
-		stdReasoner->initToDoPrioritiesSat(pOptions);
-	else
-		stdReasoner->initToDoPrioritiesSub(pOptions);
+		nomReasoner->initToDoPriorities(pOptions);
 }
 
 inline void

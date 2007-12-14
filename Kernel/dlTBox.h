@@ -540,8 +540,8 @@ protected:	// methods
 	}
 		/// prepare the reasoner to the new session
 	void clearReasoner ( void );			// implemented in Reasoner.h
-		/// set ToDo priorities for SAT/SUB
-	void setToDoPriorities ( bool sat );	// implemented in Reasoner.h
+		/// set ToDo priorities using OPTIONS
+	void setToDoPriorities ( void );		// implemented in Reasoner.h
 		/// check whether KB is consistent; @return true if it is
 	bool performConsistencyCheck ( void );	// implemented in Reasoner.h
 
@@ -557,7 +557,6 @@ protected:	// methods
 	void prepareSubReasoning ( void )
 	{
 		DLHeap.setSubOrder();
-		setToDoPriorities(/*sat=*/false);
 		clearReasoner();
 	}
 		/// creating taxonomy for given TBox; include individuals if necessary

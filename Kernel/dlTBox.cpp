@@ -104,7 +104,7 @@ void TBox :: prepareReasoning ( void )
 
 	// init values for SAT tests -- either cache, or consistency check
 	DLHeap.setSatOrder();
-	setToDoPriorities(/*sat=*/true);
+	setToDoPriorities();
 }
 
 bool
