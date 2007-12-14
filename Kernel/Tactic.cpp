@@ -1120,14 +1120,14 @@ tacticUsage DlSatTester :: Merge ( DlCompletionTree* from, DlCompletionTree* to,
 	if ( CGraph.nonMergable ( from, to, depF ) )
 		return utClash;	// clash-set was updated by IR
 
+	tacticUsage ret = utUnusable;
+
 	// copy all node labels
 	DlCompletionTree::const_label_iterator p;
 	for ( p = from->beginl_sc(); p != from->endl_sc(); ++p )
-		if ( addToDoEntry ( to, p->bp(), depF+p->getDep(), "M" ) == utClash )
-			return utClash;
+		switchResult ( ret, addToDoEntry ( to, p->bp(), depF+p->getDep(), "M" ) );
 	for ( p = from->beginl_cc(); p != from->endl_cc(); ++p )
-		if ( addToDoEntry ( to, p->bp(), depF+p->getDep(), "M" ) == utClash )
-			return utClash;
+		switchResult ( ret, addToDoEntry ( to, p->bp(), depF+p->getDep(), "M" ) );
 
 	// correct graph structure
 	typedef std::vector<DlCompletionTreeArc*> edgeVector;
@@ -1149,8 +1149,9 @@ tacticUsage DlSatTester :: Merge ( DlCompletionTree* from, DlCompletionTree* to,
 
 	// for every node added to TO, every ALL, Irr and <=-node should be checked
 	for ( q = edges.begin(); q != q_end; ++q )
-		applyUniversalNR ( to, *q, depF, redoForall|redoFunc|redoAtMost|redoIrr );
+		switchResult ( ret, applyUniversalNR ( to, *q, depF, redoForall|redoFunc|redoAtMost|redoIrr ) );
 
+	// we do real action here, so the return value
 	return utDone;
 }
 
