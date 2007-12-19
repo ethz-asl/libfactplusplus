@@ -21,7 +21,7 @@ PENTIUM_OPT = $(IX86_OPTS) -march=pentium4
 #GCC_SUFFIX = -4.1
 
 # ALL_DEF is an external defines
-GENERAL_DEFINES = $(IX86_OPTS) $(GCC_OPT_OPT) $(GCC_40_OPT) $(ALL_DEF)
+GENERAL_DEFINES = $(IX86_OPTS) $(GCC_OPT_OPT) $(GCC_42_OPT) $(ALL_DEF)
 
 #---------------------------------------------------------
 # please do not change following lines
