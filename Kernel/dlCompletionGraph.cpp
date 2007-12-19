@@ -201,8 +201,8 @@ void DlCompletionGraph :: Print ( std::ostream& o ) const
 	// init indentation and node labels
 	CGPIndent = 0;
 	CGPFlag.resize(endUsed);
-	for ( std::vector<bool>::iterator p = CGPFlag.begin(); p != CGPFlag.end(); ++p )
-		*p = false;
+	for ( std::vector<bool>::iterator i = CGPFlag.begin(); i != CGPFlag.end(); ++i )
+		*i = false;
 
 	// print tree starting from the root node
 	PrintNode ( getRoot(), o );
