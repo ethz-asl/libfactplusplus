@@ -204,11 +204,13 @@ void DlCompletionGraph :: Print ( std::ostream& o ) const
 	for ( std::vector<bool>::iterator i = CGPFlag.begin(); i != CGPFlag.end(); ++i )
 		*i = false;
 
+	const_iterator p = begin(), p_end = end();
+
 	// print tree starting from the root node
-	PrintNode ( getRoot(), o );
+	PrintNode ( *p, o );
 
 	// if there are nominals in the graph -- print the nominal cloud
-	for ( const_iterator p = begin()+1, p_end = end(); p < p_end && (*p)->isNominalNode(); ++p )
+	for ( ++p; p < p_end && (*p)->isNominalNode(); ++p )
 		PrintNodeIfNew ( *p, o );
 	o << "\n";
 }
