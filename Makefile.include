@@ -111,6 +111,15 @@ override LD_STATIC_FLAGS := -static-libgcc
 ifneq ($(filter -lxerces%,$(CL_LDFLAGS_LIBS)),)
 override CL_LDFLAGS_LIBS := $(filter-out -lxerces-c,$(CL_LDFLAGS_LIBS)) -lxerces-c
 endif
+
+#update LD_FLAGS wrt -pg and -fprofile-generate
+ifneq ($(filter -pg,$(DEFINES)),)
+override CL_LDFLAGS_OTHER += -pg
+endif
+ifneq ($(filter -fprofile-generate,$(DEFINES)),)
+override CL_LDFLAGS_OTHER += -fprofile-generate
+endif
+
 # Compute the final LDFLAGS
 override LDFLAGS := $(CL_IL_DIRS) $(LD_STATIC_FLAGS) $(CL_LDFLAGS_DIRS) $(CL_LDFLAGS_LIBS) $(CL_LDFLAGS_OTHER)
 
@@ -199,7 +208,7 @@ $(EXECUTABLE): $(BUILD_DIR) $(BUILD_DIR)/$(EXECUTABLE)
 	rm -f $(EXECUTABLE) && ln -s $(BUILD_DIR)/$(EXECUTABLE) $(EXECUTABLE)
 
 $(BUILD_DIR)/$(EXECUTABLE): $(OBJECTS) $(LIB_DEPS)
-	$(CXX) $(OBJECTS) $(LDFLAGS) -pg -o $@
+	$(CXX) $(OBJECTS) $(LDFLAGS) -o $@
 #	strip $@
 
 endif # EXECUTABLE
@@ -214,7 +223,7 @@ $(LIBRARY_NAME): $(BUILD_DIR) $(BUILD_DIR)/$(LIBRARY_NAME)
 
 ifeq ($(LTYPE),shared)
 $(BUILD_DIR)/$(LIBRARY_NAME): $(OBJECTS) $(LIB_DEPS)
-	$(CXX) -shared -Wl,-h,$(LIBRARY_NAME) -o $@ $(OBJECTS) $(LDFLAGS) -pg
+	$(CXX) -shared -Wl,-h,$(LIBRARY_NAME) -o $@ $(OBJECTS) $(LDFLAGS)
 	strip -v $@
 endif
 
