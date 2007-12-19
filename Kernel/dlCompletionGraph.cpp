@@ -208,8 +208,7 @@ void DlCompletionGraph :: Print ( std::ostream& o ) const
 	PrintNode ( getRoot(), o );
 
 	// if there are nominals in the graph -- print the nominal cloud
-	const_iterator p = NodeBase.begin()+1, p_end = NodeBase.end();
-	for ( ; p < p_end && (*p)->isNominalNode(); ++p )
+	for ( const_iterator p = begin()+1, p_end = end(); p < p_end && (*p)->isNominalNode(); ++p )
 		PrintNodeIfNew ( *p, o );
 	o << "\n";
 }

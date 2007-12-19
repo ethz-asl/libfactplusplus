@@ -134,9 +134,9 @@ protected:	// methods
 	void invalidateEdge ( DlCompletionTreeArc* edge ) { saveRareCond(edge->save()); }
 
 		/// begin of USED nodes
-	iterator begin ( void ) { return NodeBase.begin(); }
+	const_iterator begin ( void ) const { return NodeBase.begin(); }
 		/// end of USED nodes
-	iterator end ( void ) { return NodeBase.begin()+endUsed; }
+	const_iterator end ( void ) const { return NodeBase.begin()+endUsed; }
 
 	//----------------------------------------------
 	// inequality relation methods
