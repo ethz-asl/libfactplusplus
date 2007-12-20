@@ -495,6 +495,16 @@ protected:	// methods
 	void initFunctionalRoles ( void );
 
 		/// set told TOP concept whether necessary
+	void initToldSubsumers ( void )
+	{
+		for ( c_iterator pc = c_begin(); pc != c_end(); ++pc )
+			if ( !(*pc)->isSynonym() )
+				(*pc)->initToldSubsumers();
+		for ( i_iterator pi = i_begin(); pi != i_end(); ++pi )
+			if ( !(*pi)->isSynonym() )
+				(*pi)->initToldSubsumers();
+	}
+		/// set told TOP concept whether necessary
 	void setToldTop ( void )
 	{
 		TConcept* top = const_cast<TConcept*>(pTop);

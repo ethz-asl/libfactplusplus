@@ -62,9 +62,9 @@ void TBox :: Preprocess ( void )
 	preprocessRelated();
 	END_PASS();
 
-	// convert axioms (move some Axioms to Role and Concept Description)
-	BEGIN_PASS("Perform absorption");
-	ConvertAxioms();
+	// init told subsumers as they would be used soon
+	BEGIN_PASS("Init told subsumers");
+	initToldSubsumers();
 	END_PASS();
 
 	// locate told (definitional) cycles and transform them into synonyms
@@ -72,8 +72,21 @@ void TBox :: Preprocess ( void )
 	transformToldCycles();
 	END_PASS();
 
+	// convert axioms (move some Axioms to Role and Concept Description)
+	BEGIN_PASS("Perform absorption");
+	ConvertAxioms();
+	END_PASS();
+
+	// init told subsumers if role absorption were used
+	if ( Axioms.wasRoleAbsorptionApplied() )
+	{
+		BEGIN_PASS("Init told subsumers");
+		initToldSubsumers();
+		END_PASS();
+	}
+
 	// set told TOP concepts whether necessary
-	BEGIN_PASS("Detect and replace told cycles");
+	BEGIN_PASS("Set told TOP");
 	setToldTop();
 	END_PASS();
 
@@ -272,9 +285,6 @@ TConcept* TBox :: checkToldCycle ( TConcept* p )
 
 	// add concept in processing
 	sStack.insert(p);
-
-	// regenerate/init TS info
-	p->initToldSubsumers();
 
 redo:
 

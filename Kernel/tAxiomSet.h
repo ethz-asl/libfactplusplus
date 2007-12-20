@@ -172,6 +172,8 @@ public:		// interface
 	unsigned int absorb ( void );
 		/// get number of (not absorbed) GCIs
 	unsigned int size ( void ) const { return Accum.size(); }
+		/// @return true if non-concept aborption were executed
+	bool wasRoleAbsorptionApplied ( void ) const { return nRoleDomainAbsorbed > 0; }
 		/// get GCI of all non-absorbed axioms
 	DLTree* getGCI ( void ) const
 	{
