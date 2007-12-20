@@ -287,8 +287,8 @@ bool TBox :: removeConcept ( TConcept* p )
 /// classify temporary concept
 bool TBox :: classifyTempConcept ( void )
 {
-	// prepare told subsumers for it
-	initToldSubsumers(defConcept);
+	// prepare told subsumers for classification; as it is non-primitive, it is not CD
+	defConcept->initToldSubsumers();
 
 	assert ( pTax != NULL );
 

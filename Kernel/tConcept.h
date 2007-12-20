@@ -139,7 +139,11 @@ public:		// methods
 		/// add concept expression to concept description
 	void addDesc ( DLTree* Desc );
 		/// remove concept from its own definition (like in case C [= (or C ...)
-	void removeSelfFromDescription ( void ) { Description = replaceWithConst(Description); }
+	void removeSelfFromDescription ( void )
+	{
+		Description = replaceWithConst(Description);
+		initToldSubsumers();
+	}
 		/// remove concept description (to save space)
 	void removeDescription ( void )
 	{	// save Synonym value
@@ -187,20 +191,23 @@ public:		// methods
 		/// find told subsumers by given role and its supers domains
 	void SearchTSbyRoleAndSupers ( const TRole* R );
 		/// init told subsumers of the concept by it's description
-	virtual void initToldSubsumers ( TConcept* top )
+	virtual void initToldSubsumers ( void )
 	{
 		getTold().clear();
 		// normalise description if the only parent is TOP
 		if ( isPrimitive() && Description && Description->Element() == TOP )
 			removeDescription();
 
-		if ( Description == NULL && getTold().empty() )
-		{
-			addParent(top);
+		if ( Description == NULL )
 			setCompletelyDefined(true);
-		}
 		else	// init (additional) told subsumers from definition
 			setCompletelyDefined ( initToldSubsumers(Description) && isPrimitive() );
+	}
+		/// init TOP told subsumer if necessary
+	void setToldTop ( TConcept* top )
+	{
+		if ( Description == NULL && getTold().empty() )
+			addParent(top);
 	}
 		/// calculate depth wrt told subsumers; return the depth
 	unsigned int calculateTSDepth ( void );

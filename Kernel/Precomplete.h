@@ -125,13 +125,7 @@ protected:	// methods
 	void updateIndividualsFromPrecompletion ( void )
 	{
 		for ( i_iterator p = KB.i_begin(), p_end = KB.i_end(); p < p_end; ++p )
-		{
 			(*p)->usePCInfo();
-			// we change description of a concept, so we need to rebuild the TS info
-			// note that precompletion succeed; so there is no need to take into account
-			// RELATED information
-			(*p)->initToldSubsumersC(KB.pTop);
-		}
 	}
 		/// remove all precompletion-related references from KB
 	void clearPrecompletion ( void )

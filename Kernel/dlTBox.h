@@ -352,7 +352,7 @@ protected:	// methods
 			return;	// complex expression -- not a synonym(imm.)
 
 		p->setSynonym(getConcept(p->Description));
-		initToldSubsumers(p);
+		p->initToldSubsumers();
 		++nSynonyms;
 	}
 
@@ -494,8 +494,15 @@ protected:	// methods
 		/// init functional roles with functional entries
 	void initFunctionalRoles ( void );
 
-		/// init told subsumers for given concept p.
-	void initToldSubsumers ( TConcept* p ) { p->initToldSubsumers(const_cast<TConcept*>(pTop)); }
+		/// set told TOP concept whether necessary
+	void setToldTop ( void )
+	{
+		TConcept* top = const_cast<TConcept*>(pTop);
+		for ( c_iterator pc = c_begin(); pc != c_end(); ++pc )
+			(*pc)->setToldTop(top);
+		for ( i_iterator pi = i_begin(); pi != i_end(); ++pi )
+			(*pi)->setToldTop(top);
+	}
 		/// calculate TS depth for all concepts
 	void calculateTSDepth ( void )
 	{

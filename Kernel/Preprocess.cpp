@@ -72,6 +72,11 @@ void TBox :: Preprocess ( void )
 	transformToldCycles();
 	END_PASS();
 
+	// set told TOP concepts whether necessary
+	BEGIN_PASS("Detect and replace told cycles");
+	setToldTop();
+	END_PASS();
+
 	// perform precompletion (if possible)
 	if ( usePrecompletion )
 	{
@@ -79,6 +84,8 @@ void TBox :: Preprocess ( void )
 		performPrecompletion();
 		END_PASS();
 	}
+
+	// no more axiom transformations allowed
 
 	// fills classification tag (strictly after told cycles)
 	BEGIN_PASS("Detect classification tags");
@@ -157,10 +164,10 @@ void TBox :: replaceAllSynonyms ( void )
 
 	for ( c_iterator pc = c_begin(); pc != c_end(); ++pc )
 		if ( replaceSynonymsFromTree ( (*pc)->Description ) )
-			initToldSubsumers(*pc);
+			(*pc)->initToldSubsumers();
 	for ( i_iterator pi = i_begin(); pi != i_end(); ++pi )
 		if ( replaceSynonymsFromTree ( (*pi)->Description ) )
-			initToldSubsumers(*pi);
+			(*pi)->initToldSubsumers();
 
 	// replace synonyms in Different part
 	for ( DifferentIndividuals::iterator di = Different.begin(); di != Different.end(); ++di )
@@ -266,12 +273,12 @@ TConcept* TBox :: checkToldCycle ( TConcept* p )
 	// add concept in processing
 	sStack.insert(p);
 
+	// regenerate/init TS info
+	p->initToldSubsumers();
+
 redo:
 
 //	std::cout << "Start from " << p->getName() << std::endl;
-
-	// regenerate TS info
-	initToldSubsumers(p);
 
 	// not involved in cycle -- check all told subsumers
 	const ClassifiableEntry::linkSet& v = p->getTold();

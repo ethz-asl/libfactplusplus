@@ -62,7 +62,7 @@ public:		// interface
 		/// FIXME!! need this to support the next method
 	virtual bool initToldSubsumers ( const DLTree* desc ) { return TConcept::initToldSubsumers(desc); }
 		/// init told subsumers of the individual by it's description
-	virtual void initToldSubsumers ( TConcept* top )
+	virtual void initToldSubsumers ( void )
 	{
 		getTold().clear();
 		if ( isRelated() )	// check if domain and range of RELATED axioms affects TS
@@ -73,15 +73,12 @@ public:		// interface
 
 		if ( Description == NULL && getTold().empty() )
 		{
-			addParent(top);
 			if ( !isRelated() )	// related individuals are NOT completely defined
 				setCompletelyDefined(true);
 		}
 		else	// init (additional) told subsumers from definition
 			setCompletelyDefined ( initToldSubsumers(Description) && isPrimitive() );
 	}
-		/// init TS as for concept (don't use RELATED info)
-	void initToldSubsumersC ( TConcept* top ) { TConcept::initToldSubsumers(top); }
 
 	// related things
 
@@ -127,7 +124,17 @@ public:		// interface
 		return true;
 	}
 		/// update individual's description from precompletion information
-	void usePCInfo ( void ) { delete Description; Description = PCConcept; PCConcept = NULL; }
+	void usePCInfo ( void )
+	{
+		delete Description;
+		Description = PCConcept;
+		PCConcept = NULL;
+
+		// we change description of a concept, so we need to rebuild the TS info
+		// note that precompletion succeed; so there is no need to take into account
+		// RELATED information
+		TConcept::initToldSubsumers();
+	}
 		/// remove all precompletion-related information
 	void clearPCInfo ( void ) { delete PCConcept; PCConcept = NULL; CSSet.clear(); }
 }; // TIndividual
