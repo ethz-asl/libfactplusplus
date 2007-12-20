@@ -24,6 +24,16 @@ Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #include "logging.h"
 #include "Precomplete.h"
 
+//#define DEBUG_PREPROCESSING
+
+#ifdef DEBUG_PREPROCESSING
+#	define BEGIN_PASS(str) std::cerr << "\n" str "... "
+#	define END_PASS() std::cerr << "done"
+#else
+#	define BEGIN_PASS(str)
+#	define END_PASS()
+#endif
+
 void TBox :: Preprocess ( void )
 {
 	if ( verboseOutput )
@@ -32,7 +42,9 @@ void TBox :: Preprocess ( void )
 	pt.Start();
 
 	// builds role hierarchy
+	BEGIN_PASS("Build role hierarchy");
 	RM.initAncDesc();
+	END_PASS();
 
 	if ( verboseOutput )
 	{
@@ -41,53 +53,87 @@ void TBox :: Preprocess ( void )
 	}
 
 	// all concept descriptions contains synonyms. Remove them now
+	BEGIN_PASS("Replace synonyms in expressions");
 	replaceAllSynonyms();
+	END_PASS();
 
 	// preprocess Related structure (before classification tags are defined)
+	BEGIN_PASS("Preprocess related axioms");
 	preprocessRelated();
+	END_PASS();
 
 	// convert axioms (move some Axioms to Role and Concept Description)
+	BEGIN_PASS("Perform absorption");
 	ConvertAxioms();
+	END_PASS();
 
 	// locate told (definitional) cycles and transform them into synonyms
+	BEGIN_PASS("Detect and replace told cycles");
 	transformToldCycles();
+	END_PASS();
 
 	// perform precompletion (if possible)
 	if ( usePrecompletion )
+	{
+		BEGIN_PASS("Build precompletion");
 		performPrecompletion();
+		END_PASS();
+	}
 
 	// fills classification tag (strictly after told cycles)
+	BEGIN_PASS("Detect classification tags");
 	fillsClassificationTag();
+	END_PASS();
 
 	// set up TS depth
+	BEGIN_PASS("Calculate told subsumer depth");
 	calculateTSDepth();
+	END_PASS();
 
 	// create DAG (concept normalisation etc)
+	BEGIN_PASS("Build DAG");
 	buildDAG();
+	END_PASS();
 
 	// builds Roles range and domain
+	BEGIN_PASS("Build DAG for domain and range for all roles");
 	initRangeDomain();
+	END_PASS();
 
 	// builds Roles functional labels
+	BEGIN_PASS("Build DAG for functional roles");
 	initFunctionalRoles();
+	END_PASS();
 
 	// create sorts for KB
+	BEGIN_PASS("Determine sorts");
 	determineSorts();
+	END_PASS();
 
 	// calculate statistic for the whole KB:
+	BEGIN_PASS("Gather relevance info");
 	gatherRelevanceInfo();
+	END_PASS();
 
 	// GALEN-like flag is known here, so we can set OR defaults
+	BEGIN_PASS("Set defaults for OR orderings");
 	DLHeap.setOrderDefaults ( isGalenLikeTBox() ? "Ddn" : "Sap", isGalenLikeTBox() ? "Ddn" : "Dap" );
+	END_PASS();
 
 	// now we can gather DAG statistics (if necessary)
+	BEGIN_PASS("Gather usage statistics");
 	DLHeap.gatherStatistic();
+	END_PASS();
 
 	// calculate statistic on DAG and Roles
+	BEGIN_PASS("Gather concept-related statistics");
 	CalculateStatistic();
+	END_PASS();
 
 	// free extra memory
+	BEGIN_PASS("Free unused memory");
 	RemoveExtraDescriptions();
+	END_PASS();
 
 	pt.Stop();
 	preprocTime = pt;
