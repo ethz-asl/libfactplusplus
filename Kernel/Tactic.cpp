@@ -224,7 +224,7 @@ tacticUsage DlSatTester :: commonTacticBodySingleton ( const DLVertex& cur )
 tacticUsage DlSatTester :: commonTacticBodyAnd ( const DLVertex& cur )
 {
 #ifdef ENABLE_CHECKING
-	assert ( isPositive(curConcept.bp()) && cur.Type() == dtAnd );	// safety check
+	assert ( isPositive(curConcept.bp()) && ( cur.Type() == dtAnd || cur.Type() == dtCollection ) );	// safety check
 #endif
 
 	nAndCalls.inc();

@@ -399,6 +399,7 @@ void TBox :: PrintDagEntry ( std::ostream& o, BipolarPointer p ) const
 		o << ")";
 		return;
 
+	case dtCollection:
 	case dtAnd:
 		o << " (" << v.getTagName();
 		for ( DLVertex::const_iterator q = v.begin(); q != v.end(); ++q )

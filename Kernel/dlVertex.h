@@ -40,6 +40,7 @@ enum DagTag {
 	// operations
 	dtTop,
 	dtAnd,
+	dtCollection,
 	dtForall,
 	dtAtMost,
 	dtLE = dtAtMost,
@@ -457,6 +458,7 @@ DLVertex :: omitStat ( bool pos ) const
 		return true;
 	case dtPConcept:
 	case dtPSingleton:
+	case dtCollection:
 		return !pos;
 	default:
 		return false;

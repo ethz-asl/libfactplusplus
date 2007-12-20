@@ -71,11 +71,7 @@ void TBox :: addConceptToHeap ( TConcept* pConcept )
 
 	// translate body of a concept
 	if ( pConcept->Description != NULL )	// complex concept
-	{
-//		std::cout << "Declare concept " << pConcept->getName() << std::endl;
 		desc = tree2dag(pConcept->Description);
-//		std::cout << "Define concept " << pConcept->getName() << std::endl;
-	}
 	else			// only primivive concepts here
 		assert ( pConcept->isPrimitive() );
 
@@ -108,26 +104,7 @@ BipolarPointer TBox :: tree2dag ( const DLTree* t )
 		return inverse ( tree2dag ( t->Left() ) );
 
 	case AND:
-	{
-		DLVertex* ret = new DLVertex(dtAnd);
-		// fills it with multiply data
-		if ( fillANDVertex ( ret, t ) )
-		{
-			// sorts are broken now (see bTR11)
-			useSortedReasoning = false;
-			delete ret;
-			return bpBOTTOM;	// clash found => bottom
-		}
-		else	// AND vertex
-			if ( (ret->end() - ret->begin() ) == 1 )	// and(C) = C
-			{
-				BipolarPointer p = *ret->begin();
-				delete ret;
-				return p;
-			}
-			else
-				return DLHeap.add(ret);
-	}
+		return and2dag(t);
 
 	case FORALL:
 		return forall2dag ( role2dag(t->Left()), tree2dag(t->Right()) );
@@ -143,6 +120,30 @@ BipolarPointer TBox :: tree2dag ( const DLTree* t )
 		assert (0);				// extra safety check ;)
 		return bpINVALID;
 	}
+}
+
+/// fills AND-like vertex V with an AND-like expression T; process result
+BipolarPointer
+TBox :: and2dag ( DLVertex* v, const DLTree* t )
+{
+	BipolarPointer ret = bpBOTTOM;
+
+	if ( fillANDVertex ( v, t ) )
+	{	// clash found
+		// sorts are broken now (see bTR11)
+		useSortedReasoning = false;
+		delete v;
+	}
+	else	// AND vertex
+		if ( (v->end() - v->begin() ) == 1 )	// and(C) = C
+		{
+			ret = *v->begin();
+			delete v;
+		}
+		else
+			ret = DLHeap.add(v);
+
+	return ret;
 }
 
 BipolarPointer TBox :: forall2dag ( const TRole* R, BipolarPointer C )

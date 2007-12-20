@@ -110,6 +110,7 @@ protected:	// methods
 	{
 		switch(tag)
 		{
+		case dtCollection:
 		case dtAnd:		return indexAnd;
 		case dtIrr:
 		case dtUAll:
@@ -123,6 +124,7 @@ protected:	// methods
 	{
 		switch(tag)
 		{
+		case dtCollection:
 		case dtAnd:		indexAnd.addElement(value); listAnds.push_back(value); break;
 		case dtIrr:
 		case dtUAll:

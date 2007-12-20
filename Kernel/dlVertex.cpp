@@ -88,6 +88,10 @@ DLVertex :: gatherStat ( const DLDag& dag, bool pos )
 	// ensure that the statistic is gather for all sub-concepts of the expression
 	switch ( Type() )
 	{
+	case dtCollection:	// if pos then behaves like and
+		if ( !pos )		// ~Coll -- nothing to do
+			break;
+		// fallthrough
 	case dtAnd:	// check all the conjuncts
 		for ( const_iterator q = begin(), q_end = end(); q < q_end; ++q )
 			const_cast<DLDag&>(dag)[*q].gatherStat ( dag, pos == isPositive(*q) );	// FIXME!! think later on
@@ -183,7 +187,8 @@ void DLVertex :: incFreq ( DLDag& dag, bool pos )
 void DLVertex :: sortEntry ( const DLDag& dag )
 {
 	// safety check
-	assert ( Type() == dtAnd );
+	if ( Type() != dtAnd )
+		return;
 
 	register BipolarPointer x;	// value of moved element
 	register int j;
@@ -245,6 +250,7 @@ const char* DLVertex :: getTagName ( void ) const
 	case dtDataValue: return "data-value";
 	case dtDataExpr: return "data-expr";
 	case dtAnd:		return "and";
+	case dtCollection:return "collection";
 	case dtForall:	return "all";
 	case dtLE:		return "at-most";
 	case dtUAll:	return "all U";
@@ -267,6 +273,7 @@ DLVertex :: Print ( std::ostream& o ) const
 	switch ( Type() )
 	{
 	case dtAnd:		// nothing to do (except for printing operands)
+	case dtCollection:
 	case dtTop:
 	case dtUAll:
 		break;

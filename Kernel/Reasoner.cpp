@@ -148,6 +148,23 @@ tacticUsage DlSatTester :: addToDoEntry ( DlCompletionTree* n, BipolarPointer c,
 	const DLVertex& v = DLHeap[c];
 	DagTag tag = v.Type();
 
+	// collections shouldn't appear in the node labels
+	if ( tag == dtCollection )
+	{
+		if ( isNegative(c) )	// nothing to do
+			return utUnusable;
+		// setup and run and()
+		nTacticCalls.inc();		// to balance nAndCalls later
+		DlCompletionTree* oldNode = curNode;
+		ConceptWDep oldConcept = curConcept;
+		curNode = n;
+		curConcept = ConceptWDep(c,dep);
+		tacticUsage ret = commonTacticBodyAnd(v);
+		curNode = oldNode;
+		curConcept = oldConcept;
+		return ret;
+	}
+
 	// try to add a concept to a node label
 	switch ( tryAddConcept ( n->label(), tag, c, dep ) )
 	{
