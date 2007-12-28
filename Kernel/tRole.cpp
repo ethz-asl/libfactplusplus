@@ -241,9 +241,9 @@ void TRole :: Print ( std::ostream& o ) const
 
 	// range/domain
 	if ( getTDomain() != NULL )
-		o << " Domain=" << getTDomain();
+		o << " Domain=(" << getBPDomain() << ")=" << getTDomain();
 	if ( getTRange() != NULL )
-		o << " Range=" << getTRange();
+		o << " Range=(" << getBPRange() << ")=" << getTRange();
 
 	o << "\nAutomaton:";
 	A.Print(o);
