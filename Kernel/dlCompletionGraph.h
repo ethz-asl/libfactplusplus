@@ -111,7 +111,6 @@ protected:	// methods
 	void initRoot ( void )
 	{
 		assert ( endUsed == 0 );
-		DlCompletionTree :: resetStatistic ();
 		getNewNode();
 	}
 		/// create edge between nodes with given label and creation level; @return from->to arc
@@ -153,10 +152,9 @@ public:		// interface
 		, endUsed(0)
 		, branchingLevel(initBranchingLevel)
 		, IRLevel(initIRLevel)
-		, nNodeSaves(0)
-		, nNodeRestores(0)
 	{
 		initNodeArray ( NodeBase.begin(), NodeBase.end() );
+		clearStatistics();
 		initRoot();
 	}
 		/// d'tor: delete all allocated nodes
@@ -181,6 +179,13 @@ public:		// interface
 		ret->init(branchingLevel);
 		return ret;
 	}
+		/// clear all the session statistics
+	void clearStatistics ( void )
+	{
+		nNodeSaves = 0;
+		nNodeRestores = 0;
+		DlCompletionTree::resetStatistic();
+	}
 		/// mark all heap elements as unused
 	void clear ( void )
 	{
@@ -191,8 +196,6 @@ public:		// interface
 		RareStack.clear();
 		Stack.clear();
 		SavedNodes.clear();
-		nNodeSaves = 0;
-		nNodeRestores = 0;
 		initRoot();
 	}
 		/// get number of nodes in the CGraph

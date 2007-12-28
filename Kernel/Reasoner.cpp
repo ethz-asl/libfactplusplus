@@ -337,6 +337,9 @@ DlSatTester :: finaliseStatistic ( void )
 
 	// merge local statistics with the global one
 	AccumulatedStatistic::accumulateAll();
+
+	// clear global statistics
+	CGraph.clearStatistics();
 }
 
 	/// create nominal nodes for all individuals in TBox
