@@ -135,13 +135,19 @@ TBox :: and2dag ( DLVertex* v, const DLTree* t )
 		delete v;
 	}
 	else	// AND vertex
-		if ( (v->end() - v->begin() ) == 1 )	// and(C) = C
+		switch ( v->end() - v->begin() )
 		{
+		case 0:	// and(TOP) = TOP
+			delete v;
+			return bpTOP;
+		case 1:	// and(C) = C
 			ret = *v->begin();
 			delete v;
-		}
-		else
+			break;
+		default:
 			ret = DLHeap.add(v);
+			break;
+		}
 
 	return ret;
 }
