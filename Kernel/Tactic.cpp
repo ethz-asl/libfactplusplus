@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2007 by Dmitry Tsarkov
+Copyright (C) 2003-2008 by Dmitry Tsarkov
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -1405,7 +1405,8 @@ tacticUsage DlSatTester :: tryCacheNode ( DlCompletionTree* node )
 		return utUnusable;
 
 	// all cache is on place: accumulate cache
-	modelCacheIan cache(false);
+	// It's unsafe to have a cache that touchs nominal here; set flagNominals to prevent it
+	modelCacheIan cache(true);
 
 	for ( p = node->beginl_sc(); p != node->endl_sc(); ++p )
 		// try to merge cache of a node label element with accumulator
