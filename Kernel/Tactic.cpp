@@ -1378,6 +1378,7 @@ tacticUsage DlSatTester :: tryCacheNode ( DlCompletionTree* node )
 	DlCompletionTree::const_label_iterator p;
 	node->setCached(false);
 	bool shallow = true;
+	unsigned int size = 0;
 
 	// nominal nodes can not be cached
 	if ( node->isNominalNode() )
@@ -1390,6 +1391,7 @@ tacticUsage DlSatTester :: tryCacheNode ( DlCompletionTree* node )
 			return utUnusable;
 
 		shallow &= DLHeap.getCache(p->bp())->shallowCache();
+		++size;
 	}
 
 	for ( p = node->beginl_cc(); p != node->endl_cc(); ++p )
@@ -1398,13 +1400,35 @@ tacticUsage DlSatTester :: tryCacheNode ( DlCompletionTree* node )
 			return utUnusable;
 
 		shallow &= DLHeap.getCache(p->bp())->shallowCache();
+		++size;
 	}
 
 	// it's useless to cache shallow nodes
-	if ( shallow )
+	if ( shallow && size != 0 )
 		return utUnusable;
 
-	// all cache is on place: accumulate cache
+	if ( size == 0 )
+		ret = utDone;
+	else
+		ret = doCacheNode(node);
+
+	if ( ret == utDone )
+	{
+		node->setCached(true);
+		if ( LLM.isWritable(llGTA) )
+			LL << " cached(" << node->getId() << ")";
+	}
+
+	return ret;
+}
+
+/// perform caching of the node (it is known that caching is possible)
+tacticUsage
+DlSatTester :: doCacheNode ( DlCompletionTree* node )
+{
+	tacticUsage ret = utUnusable;
+	DlCompletionTree::const_label_iterator p;
+
 	// It's unsafe to have a cache that touchs nominal here; set flagNominals to prevent it
 	modelCacheIan cache(true);
 
@@ -1425,13 +1449,6 @@ tacticUsage DlSatTester :: tryCacheNode ( DlCompletionTree* node )
 		cachePar.initRolesFromArcs(node);	// the only arc is parent
 
 		ret = processCacheResultCompletely ( cache.merge(&cachePar), node );
-	}
-
-	if ( ret == utDone )
-	{
-		node->setCached(true);
-		if ( LLM.isWritable(llGTA) )
-			LL << " cached(" << node->getId() << ")";
 	}
 
 	return ret;
