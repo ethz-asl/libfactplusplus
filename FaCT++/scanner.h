@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2007 by Dmitry Tsarkov
+Copyright (C) 2003-2008 by Dmitry Tsarkov
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -31,7 +31,7 @@ Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #include "grammar.h"
 
 /// max ID length for scanned objects
-const unsigned int MaxIDLength = 256;
+const unsigned int MaxIDLength = 1024;
 
 /// more-or-less general simple scanner implementation
 class TsScanner
