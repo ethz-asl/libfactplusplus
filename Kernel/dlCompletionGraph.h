@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2005-2007 by Dmitry Tsarkov
+Copyright (C) 2005-2008 by Dmitry Tsarkov
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -132,10 +132,14 @@ protected:	// methods
 		/// invalidate EDGE, save restoring info
 	void invalidateEdge ( DlCompletionTreeArc* edge ) { saveRareCond(edge->save()); }
 
-		/// begin of USED nodes
+		/// begin (RO) of USED nodes
 	const_iterator begin ( void ) const { return NodeBase.begin(); }
-		/// end of USED nodes
+		/// end (RO) of USED nodes
 	const_iterator end ( void ) const { return NodeBase.begin()+endUsed; }
+		/// begin (RW) of USED nodes
+	iterator begin ( void ) { return NodeBase.begin(); }
+		/// end (RW) of USED nodes
+	iterator end ( void ) { return NodeBase.begin()+endUsed; }
 
 	//----------------------------------------------
 	// inequality relation methods

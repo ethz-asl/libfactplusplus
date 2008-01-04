@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2007 by Dmitry Tsarkov
+Copyright (C) 2003-2008 by Dmitry Tsarkov
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -163,9 +163,14 @@ void DlCompletionGraph :: restore ( unsigned int level )
 	SaveState* s = Stack.pop(level);
 	endUsed = s->nNodes;
 	unsigned int nSaved = s->sNodes;
-	for ( iterator p = SavedNodes.begin()+nSaved, p_end = SavedNodes.end(); p < p_end; ++p )
-		if ( (*p)->getId() < endUsed )	// don't restore nodes that are dead anyway
+	iterator p = SavedNodes.begin()+nSaved, p_end = SavedNodes.end();
+	if ( endUsed < p_end - p )	// it's cheaper to restore all nodes
+		for ( p = begin(), p_end = end(); p < p_end; ++p )
 			restoreNode ( (*p), level );
+	else
+		for ( ; p < p_end; ++p )
+			if ( (*p)->getId() < endUsed )	// don't restore nodes that are dead anyway
+				restoreNode ( (*p), level );
 	SavedNodes.resize(nSaved);
 }
 
