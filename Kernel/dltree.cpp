@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2007 by Dmitry Tsarkov
+Copyright (C) 2003-2008 by Dmitry Tsarkov
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -83,7 +83,6 @@ DLTree* createSNFAnd ( DLTree* C, DLTree* D )
 
 	if ( C->Element() == TOP ||		// T\and D = D
 		 D->Element() == BOTTOM )	// C\and F = F
-//		 equalTrees ( C, D ) )		// D\and D = D
 	{
 		deleteTree(C);
 		return D;
@@ -98,6 +97,41 @@ DLTree* createSNFAnd ( DLTree* C, DLTree* D )
 
 	// no simplification possible -- return actual conjunction
 	return new DLTree ( AND, C, D );
+}
+
+static bool
+containsC ( DLTree* C, DLTree* D )
+{
+	switch ( C->Element().getToken() )
+	{
+	case CNAME:
+		return equalTrees ( C, D );
+	case AND:
+		return containsC ( C->Left(), D ) || containsC ( C->Right(), D );
+	default:
+		return false;
+	}
+}
+
+DLTree* createSNFReducedAnd ( DLTree* C, DLTree* D )
+{
+	if ( C == NULL || D == NULL )
+		return createSNFAnd ( C, D );
+
+	if ( D->Element().getToken() == CNAME && containsC ( C, D ) )
+	{
+		delete D;
+		return C;
+	}
+	else if ( D->Element().getToken() == AND )
+	{
+		C = createSNFReducedAnd ( C, D->Left() );
+		C = createSNFReducedAnd ( C, D->Right() );
+		delete D;	// just an AND
+		return C;
+	}
+	else	// can't optimise
+		return createSNFAnd ( C, D );
 }
 
 	/// create universal restriction of given formulas (\AR.C)

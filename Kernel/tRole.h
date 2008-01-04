@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2007 by Dmitry Tsarkov
+Copyright (C) 2003-2008 by Dmitry Tsarkov
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -243,7 +243,7 @@ public:		// interface
 		/// add p to domain of the role
 	void setDomain ( DLTree* p )
 	{
-		if ( equalTrees ( pDomain, p ) )
+		if ( equalTrees ( pDomain, p ) )	// not just a CName
 			deleteTree(p);	// usual case when you have a name for inverse role
 		else if ( isFunctionalExpr ( p, getName() ) )
 		{
@@ -251,7 +251,7 @@ public:		// interface
 			deleteTree(p);	// functional restriction in the role domain means the role is functional
 		}
 		else
-			pDomain = createSNFAnd ( pDomain, p );
+			pDomain = createSNFReducedAnd ( pDomain, p );
 	}
 		/// add p to range of the role
 	void setRange ( DLTree* p ) { inverse()->setDomain(p); }

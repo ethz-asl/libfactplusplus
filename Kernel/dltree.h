@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2007 by Dmitry Tsarkov
+Copyright (C) 2003-2008 by Dmitry Tsarkov
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -88,6 +88,8 @@ extern DLTree* createInverse ( DLTree* R );
 extern DLTree* createSNFNot ( DLTree* C );
 	/// create conjunction of given formulas
 extern DLTree* createSNFAnd ( DLTree* C, DLTree* D );
+	/// create conjunction of given formulas; aggressively reduce for the case C = (and D ...)
+extern DLTree* createSNFReducedAnd ( DLTree* C, DLTree* D );
 	/// create disjunction of given formulas
 inline DLTree* createSNFOr ( DLTree* C, DLTree* D )
 {	// C\or D -> \not(\not C\and\not D)
