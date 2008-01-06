@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2007 by Dmitry Tsarkov
+Copyright (C) 2003-2008 by Dmitry Tsarkov
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -76,6 +76,27 @@ protected:	// types
 			/// empty d'tor: all elements will be deleted in other place
 		virtual ~IndividualCollection ( void ) {}
 	}; // IndividualCollection
+
+		/// class for simple rules like Ch :- Cb1, Cbi, CbN; all C are primitive named concepts
+	class SimpleRule
+	{
+	public:		// members
+			/// body of the rule
+		TBox::ConceptVector Body;
+			/// head of the rule
+		const TConcept* Head;
+
+	public:		// interface
+			/// empty c'tor
+		SimpleRule ( void ) {}
+			/// create c'tor
+		SimpleRule ( const TBox::ConceptVector& body, const TConcept* head ) : Body(body), Head(head) {}
+			/// empty d'tor
+		~SimpleRule ( void ) {}
+	}; // SimpleRule
+
+		/// all simple rules in KB
+	typedef std::vector<SimpleRule> TSimpleRules;
 
 		/// queue for n-ary operations
 	class NAryQueue
@@ -185,6 +206,8 @@ protected:	// members
 	RelatedCollection RelatedI;
 		/// known disjoint sets of individuals
 	DifferentIndividuals Different;
+		/// all simple rules in KB
+	TSimpleRules SimpleRules;
 
 		/// internalisation of a general axioms
 	BipolarPointer T_G;
@@ -537,6 +560,13 @@ protected:	// methods
 		/// replace synonyms in concept expression with their definitions; @return true if DESC has been changed
 	bool replaceSynonymsFromTree ( DLTree* desc );
 
+		/// init Extra Rule field in concepts given by a vector V with a given INDEX
+	inline void
+	initRuleFields ( const ConceptVector& v, BipolarPointer index ) const
+	{
+		for ( ConceptVector::const_iterator q = v.begin(), q_end = v.end(); q < q_end; ++q )
+			(*q)->addExtraRule(index);
+	}
 		/// mark all concepts wrt their classification tag
 	void fillsClassificationTag ( void )
 	{
@@ -633,6 +663,20 @@ protected:	// methods
 		o << "Individuals (" << Individuals.size()-1 << "): \n";
 		for ( i_const_iterator pi = i_begin(); pi != i_end(); ++pi )
 			PrintConcept(o,*pi);
+	}
+	void PrintSimpleRules ( std::ostream& o ) const
+	{
+		if ( SimpleRules.size() == 1 )
+			return;
+		o << "Simple rules (" << SimpleRules.size() << "): \n";
+		for ( TSimpleRules::const_iterator p = SimpleRules.begin()+1; p != SimpleRules.end(); ++p )
+		{
+			ConceptVector::const_iterator q = p->Body.begin(), q_end = p->Body.end();
+			o << "(" << (*q)->getName();
+			for ( ++q; q < q_end; ++q )
+				o << ", " << (*q)->getName();
+			o << ") => " << p->Head->getName() << "\n";
+		}
 	}
 	void PrintAxioms ( std::ostream& o ) const;
 
@@ -858,8 +902,10 @@ public:
 //--		public access interface
 //-----------------------------------------------------------------------------
 
-	/// GCI Axioms access
+		/// GCI Axioms access
 	BipolarPointer getTG ( void ) const { return T_G; }
+		/// get head if the INDEX'th simple rule
+	BipolarPointer getExtraRuleHead ( BipolarPointer index ) const { return SimpleRules[index].Head->pName; }
 
 		/// check if the relevant part of KB contains inverse roles.
 	bool isIRinQuery ( void ) const
@@ -1004,6 +1050,7 @@ inline TBox :: TBox ( const ifOptionSet* Options )
 {
 	readConfig ( Options );
 	initTopBottom ();
+	SimpleRules.push_back(SimpleRule());	// dummy for 0th element
 
 	setForbidUndefinedNames(false);
 }
@@ -1045,6 +1092,7 @@ inline std::ostream& TBox :: Print ( std::ostream& o ) const
 	RM.Print (o);
 	PrintConcepts (o);
 	PrintIndividuals(o);
+	PrintSimpleRules(o);
 	PrintAxioms (o);
 	DLHeap.Print(o);
 	return o;

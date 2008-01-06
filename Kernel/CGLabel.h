@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2006-2007 by Dmitry Tsarkov
+Copyright (C) 2006-2008 by Dmitry Tsarkov
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -34,14 +34,14 @@ public:		// external classes
 	class SaveState
 	{
 	public:
-			/// states for simple- and complex-labels
-		CWDArray::SaveState sc, cc;
+			/// states for simple-, complex- and extra labels
+		CWDArray::SaveState sc, cc, ex;
 
 	public:		// interface
 			/// empty c'tor
 		SaveState ( void ) {}
 			/// copy c'tor
-		SaveState ( const SaveState& ss ) : sc(ss.sc), cc(ss.cc) {}
+		SaveState ( const SaveState& ss ) : sc(ss.sc), cc(ss.cc), ex(ss.ex) {}
 			/// empty d'tor
 		~SaveState ( void ) {}
 	}; // SaveState
@@ -51,6 +51,8 @@ protected:	// members
 	CWDArray scLabel;
 		/// all complex concepts (ie, FORALL, GE), labelled a node
 	CWDArray ccLabel;
+		/// all extra information to save (DJ-like, binary absorption)
+	CWDArray exLabel;
 
 protected:	// methods
 		/// @return true iff TAG represents complex concept
@@ -68,10 +70,10 @@ public:		// interface
 		/// empty c'tor
 	CGLabel ( void ) {}
 		/// copy c'tor
-	CGLabel ( const CGLabel& copy ) : scLabel(copy.scLabel), ccLabel(copy.ccLabel) {}
+	CGLabel ( const CGLabel& copy ) : scLabel(copy.scLabel), ccLabel(copy.ccLabel), exLabel(copy.exLabel) {}
 		/// assignment
 	CGLabel& operator = ( const CGLabel& copy )
-		{ scLabel = copy.scLabel; ccLabel = copy.ccLabel; return *this; }
+		{ scLabel = copy.scLabel; ccLabel = copy.ccLabel; exLabel = copy.exLabel; return *this; }
 
 		/// empty d'tor
 	~CGLabel ( void ) {}
@@ -103,6 +105,17 @@ public:		// interface
 	addConceptResult checkAddedConceptN ( DagTag tag, BipolarPointer p, const DepSet& dep ) const;
 		/// adds concept P to a label, defined by TAG
 	void add ( const ConceptWDep& p, DagTag tag ) { getLabel(tag).add(p); }
+		/// try to add new value to an EXTRA label; @return true iff such value already exists
+	bool addExtraConcept ( BipolarPointer p, const DepSet& dep )
+	{
+		// all concepts here are positive, so try to find a clash
+		if ( exLabel.checkAddedConceptN ( inverse(p), dep ) == acrClash )
+			return true;
+		exLabel.add(ConceptWDep(p,dep));
+		return false;
+	}
+		/// clear extra label
+	void clearExtra ( void ) { exLabel.init(0); }
 
 	// TODO table interface
 
@@ -160,12 +173,14 @@ public:		// interface
 	{
 		scLabel.save(ss.sc);
 		ccLabel.save(ss.cc);
+		exLabel.save(ss.ex);
 	}
 		/// restore label to given LEVEL using given SS
 	void restore ( const SaveState& ss, unsigned int level )
 	{
 		scLabel.restore(ss.sc,level);
 		ccLabel.restore(ss.cc,level);
+		exLabel.restore(ss.ex,level);
 	}
 
 	//----------------------------------------------
@@ -186,6 +201,7 @@ CGLabel :: init ( void )
 	// init label with reasonable size
 	scLabel.init(8);	// FIXME!! correct size later on
 	ccLabel.init(4);	// FIXME!! correct size later on
+	exLabel.init(0);
 }
 
 inline addConceptResult

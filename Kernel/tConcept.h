@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2007 by Dmitry Tsarkov
+Copyright (C) 2003-2008 by Dmitry Tsarkov
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -67,6 +67,14 @@ private:	// members
 		/// label to use in relevant-only checks
 	TLabeller::LabType rel;
 
+protected:	// types
+		/// set of extra rules
+	typedef std::vector<BipolarPointer> ERSet;
+
+public:		// type interface
+		/// extra rules iterators
+	typedef ERSet::const_iterator er_iterator;
+
 public:		// members
 		/// description of a concept
 	DLTree* Description;
@@ -84,6 +92,9 @@ public:		// members
 	LogicFeatures posFeatures;
 		/// features for ~C
 	LogicFeatures negFeatures;
+
+		/// all extra rules for a given concept
+	ERSet erSet;
 
 protected:	// methods
 	// classification TAGs manipulation
@@ -114,6 +125,17 @@ public:		// methods
 	virtual ~TConcept ( void ) { deleteTree(Description); }
 		/// clear all info of the concept. Use it in removeConcept()
 	void clear ( void );
+
+	// disjoint stuff
+
+		/// add disjoint axiom's BP to a DJ set
+	void addExtraRule ( BipolarPointer p ) { erSet.push_back(p); }
+		/// check if a concept is in a disjoint relation with anything
+	bool hasExtraRules ( void ) const { return !erSet.empty(); }
+		/// iterator for accessing DJ elements
+	er_iterator er_begin ( void ) const { return erSet.begin(); }
+		/// iterator for accessing DJ elements
+	er_iterator er_end ( void ) const { return erSet.end(); }
 
 	// Individual-related support
 
@@ -201,7 +223,7 @@ public:		// methods
 		if ( Description == NULL )
 			setCompletelyDefined(true);
 		else	// init (additional) told subsumers from definition
-			setCompletelyDefined ( initToldSubsumers(Description) && isPrimitive() );
+			setCompletelyDefined ( initToldSubsumers(Description) && isPrimitive() && !hasExtraRules() );
 	}
 		/// init TOP told subsumer if necessary
 	void setToldTop ( TConcept* top )
