@@ -220,7 +220,7 @@ public class Reasoner extends MonitorableOWLReasonerAdapter implements FaCTPlusP
     protected void ontologiesCleared() throws OWLReasonerException {
         try {
             getReasoner().clearKernel();
-            markForResyncronisation();
+            synchronised = false;
         }
         catch (Exception e) {
             throw new FaCTPlusPlusReasonerException(e);
@@ -229,12 +229,7 @@ public class Reasoner extends MonitorableOWLReasonerAdapter implements FaCTPlusP
 
 
     protected void ontologiesChanged() throws OWLReasonerException {
-        try {
-            markForResyncronisation();
-        }
-        catch (Exception e) {
-            throw new FaCTPlusPlusReasonerException(e);
-        }
+        synchronised = false;
     }
 
 
