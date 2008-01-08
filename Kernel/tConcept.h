@@ -141,8 +141,6 @@ public:		// methods
 
 		/// check whether a concept is indeed a singleton
 	virtual bool isSingleton ( void ) const { return false; }
-		/// check if individual connected to something with RELATED statement
-	virtual bool isRelated ( void ) const { return false; }
 
 	// classification TAGs manipulation
 
@@ -207,7 +205,7 @@ public:		// methods
 		return p->isPrimitive();
 	}
 		/// init told subsumers of the concept by given DESCription; @return TRUE iff concept is CD
-	virtual bool initToldSubsumers ( const DLTree* desc );
+	bool initToldSubsumers ( const DLTree* desc );
 		/// find told subsumers by given role's domain
 	void SearchTSbyRole ( const TRole* R );
 		/// find told subsumers by given role and its supers domains
@@ -220,10 +218,10 @@ public:		// methods
 		if ( isPrimitive() && Description && Description->Element() == TOP )
 			removeDescription();
 
-		if ( Description == NULL )
-			setCompletelyDefined(true);
-		else	// init (additional) told subsumers from definition
-			setCompletelyDefined ( initToldSubsumers(Description) && isPrimitive() && !hasExtraRules() );
+		bool CD = !hasExtraRules() && isPrimitive();	// not a completely defined if there are extra rules
+		if ( Description != NULL )	// init (additional) told subsumers from definition
+			CD &= initToldSubsumers(Description);
+		setCompletelyDefined(CD);
 	}
 		/// init TOP told subsumer if necessary
 	void setToldTop ( TConcept* top )

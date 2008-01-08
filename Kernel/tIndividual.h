@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2007 by Dmitry Tsarkov
+Copyright (C) 2003-2008 by Dmitry Tsarkov
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -59,8 +59,6 @@ public:		// interface
 
 		/// check whether a concept is indeed a singleton
 	virtual bool isSingleton ( void ) const { return true; }
-		/// FIXME!! need this to support the next method
-	virtual bool initToldSubsumers ( const DLTree* desc ) { return TConcept::initToldSubsumers(desc); }
 		/// init told subsumers of the individual by it's description
 	virtual void initToldSubsumers ( void )
 	{
@@ -71,13 +69,11 @@ public:		// interface
 		if ( isPrimitive() && Description && Description->Element() == TOP )
 			removeDescription();
 
-		if ( Description == NULL && getTold().empty() )
-		{
-			if ( !isRelated() )	// related individuals are NOT completely defined
-				setCompletelyDefined(true);
-		}
-		else	// init (additional) told subsumers from definition
-			setCompletelyDefined ( initToldSubsumers(Description) && isPrimitive() );
+		// not a completely defined if there are extra rules or related individuals
+		bool CD = !hasExtraRules() && isPrimitive() && !isRelated();
+		if ( Description != NULL || !getTold().empty() )
+			CD &= TConcept::initToldSubsumers(Description);
+		setCompletelyDefined(CD);
 	}
 
 	// related things
