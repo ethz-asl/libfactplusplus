@@ -92,6 +92,10 @@ public:		// interface
 	const_iterator begin_cc ( void ) const { return ccLabel.begin(); }
 		/// end() iterator for a label with complex concepts
 	const_iterator end_cc ( void ) const { return ccLabel.end(); }
+		/// begin() iterator for a label with extra concepts
+	const_iterator begin_ex ( void ) const { return exLabel.begin(); }
+		/// end() iterator for a label with extra concepts
+	const_iterator end_ex ( void ) const { return exLabel.end(); }
 
 	//----------------------------------------------
 	// Label access interface

@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2007 by Dmitry Tsarkov
+Copyright (C) 2003-2008 by Dmitry Tsarkov
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -47,6 +47,8 @@ protected:	// members
 	conceptSet posConcepts;
 		/// named concepts that appears negatively in a root node of a cache
 	conceptSet negConcepts;
+		/// extra concepts that are (partial) Simple Rule applications
+	conceptSet extraConcepts;
 		/// role names that are labels of the outgoing edges from the root node
 	roleSet existsRoles;
 		/// role names that appears in the \A restrictions in the root node
@@ -84,6 +86,8 @@ protected:	// methods
 	{
 		processLabelInterval ( DLHeap, pCT->beginl_sc(), pCT->endl_sc() );
 		processLabelInterval ( DLHeap, pCT->beginl_cc(), pCT->endl_cc() );
+		for ( l_iterator p = pCT->label().begin_ex(), p_end = pCT->label().end_ex(); p < p_end; ++p )
+			extraConcepts.insert(p->bp());	// don't care about dep-set here
 	}
 		/// adds role (and all its super-roles) to exists- and funcRoles
 	void addExistsRole ( const TRole* r );
