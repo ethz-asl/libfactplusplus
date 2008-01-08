@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2007 by Dmitry Tsarkov
+Copyright (C) 2003-2008 by Dmitry Tsarkov
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -141,12 +141,6 @@ protected:	// methods
 	void mergeSorts ( TRole* R );
 		/// merge sorts for a given vertex
 	void mergeSorts ( DLVertex& v );
-		/// merge two given DAG entries
-	void merge ( mergableLabel& ml, BipolarPointer p )
-	{
-		if ( p != bpINVALID && p != bpTOP && p != bpBOTTOM )
-			(*this)[p].merge(ml);
-	}
 #endif
 
 #ifdef RKG_PRINT_DAG_USAGE
@@ -249,6 +243,12 @@ public:		// interface
 	// sort interface
 
 #ifdef RKG_USE_SORTED_REASONING
+		/// merge two given DAG entries
+	void merge ( mergableLabel& ml, BipolarPointer p )
+	{
+		if ( p != bpINVALID && p != bpTOP && p != bpBOTTOM )
+			(*this)[p].merge(ml);
+	}
 		/// build the sort system for given TBox
 	void determineSorts ( RoleMaster& RM );
 		/// update sorts for <a,b>:R construction

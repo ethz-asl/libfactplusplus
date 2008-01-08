@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2007 by Dmitry Tsarkov
+Copyright (C) 2003-2008 by Dmitry Tsarkov
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -384,6 +384,16 @@ void TBox :: determineSorts ( void )
 	// so their sorts shall be determined explicitely
 	for ( RelatedCollection::const_iterator p = RelatedI.begin(), p_end = RelatedI.end(); p < p_end; ++p, ++p )
 		DLHeap.updateSorts ( (*p)->a->pName, (*p)->R, (*p)->b->pName );
+
+	// simple rules needs the same treatement
+	for ( TSimpleRules::iterator q = SimpleRules.begin()+1; q != SimpleRules.end(); ++q )
+	{
+		ConceptVector::const_iterator r = q->Body.begin(), r_end = q->Body.end();
+		mergableLabel& lab = DLHeap[(*r)->pName].getSort();
+		for ( ++r; r < r_end; ++r )
+			DLHeap.merge ( lab, (*r)->pName );
+		DLHeap.merge ( lab, q->Head->pName );
+	}
 
 	// create sorts for concept and/or roles
 	DLHeap.determineSorts(RM);
