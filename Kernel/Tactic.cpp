@@ -197,7 +197,7 @@ tacticUsage DlSatTester :: commonTacticBodyId ( const DLVertex& cur )
 	return ret;
 }
 
-tacticUsage 
+tacticUsage
 DlSatTester :: applyExtraRules ( const TConcept* C )
 {
 	tacticUsage ret = utUnusable;
@@ -206,7 +206,7 @@ DlSatTester :: applyExtraRules ( const TConcept* C )
 	CGLabel& lab = const_cast<CGLabel&>(curNode->label());
 	for ( TConcept::er_iterator p = C->er_begin(), p_end=C->er_end(); p < p_end; ++p )
 		if ( lab.addExtraConcept ( *p, dep ) )
-			switchResult ( ret, 
+			switchResult ( ret,
 						   addToDoEntry ( curNode,
 						   				  tBox.getExtraRuleHead(*p), DlCompletionTree::getClashSet() ) );
 
