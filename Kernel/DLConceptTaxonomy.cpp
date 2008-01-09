@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2007 by Dmitry Tsarkov
+Copyright (C) 2003-2008 by Dmitry Tsarkov
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -228,7 +228,12 @@ TBox::ConceptVector arrayCD, arrayNoCD, arrayNP;
 template<class Iterator>
 unsigned int fillArrays ( Iterator begin, Iterator end )
 {
+	unsigned int n = 0;
 	for ( Iterator p = begin; p < end; ++p )
+	{
+		if ( (*p)->isSystem() )
+			continue;
+		++n;
 		switch ( (*p)->getClassTag() )
 		{
 		case cttTrueCompletelyDefined:
@@ -242,8 +247,9 @@ unsigned int fillArrays ( Iterator begin, Iterator end )
 			arrayNP.push_back(*p);
 			break;
 		}
+	}
 
-	return end - begin;
+	return n;
 }
 
 void TBox :: createTaxonomy ( bool needIndividual )

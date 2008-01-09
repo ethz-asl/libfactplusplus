@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2007 by Dmitry Tsarkov
+Copyright (C) 2003-2008 by Dmitry Tsarkov
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -55,9 +55,10 @@ TConcept* TBox :: getAuxConcept ( void )
 
 	std::stringstream name;
 	name << " aux" << ++count;
-	TConcept* ret = getConcept(name.str());
-	ret->setSystem();
-	return ret;
+	TConcept* C = getConcept(name.str());
+	C->setSystem();
+	C->initToldSubsumers();	// it is created after this is done centrally
+	return C;
 }
 
 void TBox :: initTopBottom ( void )
@@ -244,9 +245,6 @@ TConcept* TBox :: createTempConcept ( const DLTree* desc )
 
 //	std::cerr << "Create new temp concept with description =" << desc << "\n";
 	assert ( defConcept != NULL );
-
-	// set concept system
-	defConcept->setSystem ();
 
 	// create description
 	deleteTree ( makeNonPrimitive ( defConcept, clone(desc) ) );

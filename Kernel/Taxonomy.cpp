@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2007 by Dmitry Tsarkov
+Copyright (C) 2003-2008 by Dmitry Tsarkov
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -59,6 +59,7 @@ void Taxonomy :: print ( std::ostream& o ) const
 void Taxonomy :: performClassification ( ClassifiableEntry* p )
 {
 	assert ( p != NULL );
+
 	++nEntries;
 
 	// set this concept as a current
@@ -241,6 +242,10 @@ static void printHeader ( void )
 void Taxonomy :: classifyEntry ( ClassifiableEntry* p )
 {
 	assert ( waitStack.empty () );	// safety check
+
+	// don't classify artificial concepts
+	if ( p->isSystem() )
+		return;
 
 #ifdef TMP_PRINT_TAXONOMY_INFO
 	std::cout << "\n\nClassifying " << p->getName();
