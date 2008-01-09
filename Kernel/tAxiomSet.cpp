@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2007 by Dmitry Tsarkov
+Copyright (C) 2003-2008 by Dmitry Tsarkov
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -63,7 +63,7 @@ bool TAxiomSet :: absorbGCI ( TAxiom* p )
 	{
 		// steps 2-3. Simplify and unfold
 		if ( absorbSimplifyFirst )
-			if ( p->simplify() )
+			if ( simplify(p) )
 				continue;
 
 		// R-or-C part a): necessary
@@ -86,7 +86,7 @@ bool TAxiomSet :: absorbGCI ( TAxiom* p )
 
 		// steps 2-3. Simplify and unfold
 		if ( !absorbSimplifyFirst )
-			if ( p->simplify() )
+			if ( simplify(p) )
 				continue;
 
 		// R-or-C part c): late
