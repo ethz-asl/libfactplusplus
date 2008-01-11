@@ -491,7 +491,7 @@ public class Reasoner extends MonitorableOWLReasonerAdapter implements FaCTPlusP
 
     public boolean hasType(OWLIndividual individual, OWLDescription type, boolean direct) throws OWLReasonerException {
         try {
-            return flattenSetOfSets(getTypes(individual, direct)).contains(type);
+            return getIndividuals(type, direct).contains(individual);
         }
         catch (Exception e) {
             throw new FaCTPlusPlusReasonerException(e);
