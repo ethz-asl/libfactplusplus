@@ -129,7 +129,11 @@ public:		// methods
 	// disjoint stuff
 
 		/// add disjoint axiom's BP to a DJ set
-	void addExtraRule ( BipolarPointer p ) { erSet.push_back(p); }
+	void addExtraRule ( BipolarPointer p )
+	{
+		erSet.push_back(p);
+		setCompletelyDefined(false);
+	}
 		/// check if a concept is in a disjoint relation with anything
 	bool hasExtraRules ( void ) const { return !erSet.empty(); }
 		/// iterator for accessing DJ elements
