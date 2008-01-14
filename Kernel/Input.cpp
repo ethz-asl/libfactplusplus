@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2007 by Dmitry Tsarkov
+Copyright (C) 2003-2008 by Dmitry Tsarkov
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -141,8 +141,10 @@ bool TBox :: addSubsumeAxiom ( TNamedEntry* C, DLTree* right )	// special form: 
 
 bool TBox :: axiomToRangeDomain ( DLTree* l, DLTree* r )
 {
-	// applicability check
-	if ( useRangeDomain && l->Element() == TOP && r->Element () == FORALL )
+	if ( !useRangeDomain )
+		return false;
+	// applicability check for T [= A R.C
+	if ( l->Element() == TOP && r->Element () == FORALL )
 	{
 		TRole* Role = resolveRole(r->Left());
 		assert ( Role != NULL );
@@ -153,8 +155,16 @@ bool TBox :: axiomToRangeDomain ( DLTree* l, DLTree* r )
 		deleteTree(r);
 		return true;
 	}
-	else
-		return false;
+	// applicability check for E R.T [= D
+	if ( l->Element() == NOT && l->Left()->Element() == FORALL && l->Left()->Right()->Element() == BOTTOM )
+	{
+		TRole* Role = resolveRole(l->Left()->Left());
+		assert ( Role != NULL );
+		Role->setDomain(r);
+		deleteTree(l);
+		return true;
+	}
+	return false;
 }
 
 //-----------------------------------------------------------------------------
