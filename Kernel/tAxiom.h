@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2006 by Dmitry Tsarkov
+Copyright (C) 2003-2008 by Dmitry Tsarkov
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -37,6 +37,8 @@ protected:	// types
 	typedef absorptionSet::iterator iterator;
 		/// RO iterator for the elements of GCI
 	typedef absorptionSet::const_iterator const_iterator;
+		/// set of iterators to work with
+	typedef std::vector<iterator> WorkSet;
 
 protected:	// members
 		/// GCI is presented in the form (or Disjuncts);
