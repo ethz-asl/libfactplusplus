@@ -239,6 +239,8 @@ protected:	// members
 	bool useSortedReasoning;
 		/// flag whether TBox is GALEN-like
 	bool isLikeGALEN;
+		/// flag whether TBox is WINE-like
+	bool isLikeWINE;
 		/// flag whether precompletion should be used
 	bool usePrecompletion;
 
@@ -494,6 +496,8 @@ protected:	// methods
 
 		/// check if TBox contains too many GCIs to switch strategy
 	bool isGalenLikeTBox ( void ) const { return isLikeGALEN; }
+		/// check if TBox contains too many nominals and GCIs to switch strategy
+	bool isWineLikeTBox ( void ) const { return isLikeWINE; }
 
 //-----------------------------------------------------------------------------
 //--		internal preprocessing methods
@@ -1043,6 +1047,7 @@ inline TBox :: TBox ( const ifOptionSet* Options )
 	, T_G(bpTOP)	// initialise GCA's concept with Top
 	, useSortedReasoning(true)
 	, isLikeGALEN(false)	// just in case Relevance part would be omited
+	, isLikeWINE(false)
 	, consistencyChecked(false)
 	, Precompleted(false)
 	, preprocTime(0)

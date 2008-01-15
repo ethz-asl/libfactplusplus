@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2007 by Dmitry Tsarkov
+Copyright (C) 2003-2008 by Dmitry Tsarkov
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -20,8 +20,13 @@ Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 
 #include "dlTBox.h"
 
+// how many times nominals were found during translation to DAG
+static int nNominalReferences;
+
 void TBox :: buildDAG ( void )
 {
+	nNominalReferences = 0;
+
 	for ( c_const_iterator pc = c_begin(); pc != c_end(); ++pc )
 		concept2dag(*pc);
 	for ( i_const_iterator pi = i_begin(); pi != i_end(); ++pi )
@@ -31,6 +36,14 @@ void TBox :: buildDAG ( void )
 	DLTree* GCI = Axioms.getGCI();
 	T_G = tree2dag(GCI);
 	deleteTree(GCI);
+
+	// check the type of the ontology
+	if ( nNominalReferences > 0 )
+	{
+		int nInd = i_end() - i_begin();
+		if ( nInd > 100 && nNominalReferences > nInd )
+			isLikeWINE = true;
+	}
 }
 
 /// register data expression in the DAG
@@ -98,6 +111,7 @@ BipolarPointer TBox :: tree2dag ( const DLTree* t )
 	case CNAME:		// concept name
 		return concept2dag(getConcept(cur.getName()));
 	case INAME:		// individual name
+		++nNominalReferences;	// definitely a nominal
 		return concept2dag(getIndividual(cur.getName()));
 
 	case NOT:
