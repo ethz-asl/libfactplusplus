@@ -701,6 +701,9 @@ void DlSatTester :: logStatisticData ( std::ostream& o, bool needLocal ) const
 	nNNCalls.Print		( o, needLocal, "\nThere were made ", " NN rule application" );
 	nMergeCalls.Print	( o, needLocal, "\nThere were made ", " merging operations" );
 
+	nSRuleAdd.Print		( o, needLocal, "\nThere were made ", " simple rule additions" );
+	nSRuleFire.Print	( o, needLocal, "\n       of which ", " simple rules fired" );
+
 	nStateSaves.Print		( o, needLocal, "\nThere were made ", " save(s) of global state" );
 	nStateRestores.Print	( o, needLocal, "\nThere were made ", " restore(s) of global state" );
 	nNodeSaves.Print		( o, needLocal, "\nThere were made ", " save(s) of tree state" );

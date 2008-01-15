@@ -289,6 +289,9 @@ protected:	// members
 		nNNCalls,
 		nMergeCalls,
 
+		nSRuleAdd,
+		nSRuleFire,
+
 		nStateSaves,
 		nStateRestores,
 		nNodeSaves,

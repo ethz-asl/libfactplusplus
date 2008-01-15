@@ -206,9 +206,14 @@ DlSatTester :: applyExtraRules ( const TConcept* C )
 	CGLabel& lab = const_cast<CGLabel&>(curNode->label());
 	for ( TConcept::er_iterator p = C->er_begin(), p_end=C->er_end(); p < p_end; ++p )
 		if ( lab.addExtraConcept ( *p, dep ) )
+		{
+			nSRuleFire.inc();
 			switchResult ( ret,
 						   addToDoEntry ( curNode,
 						   				  tBox.getExtraRuleHead(*p), DlCompletionTree::getClashSet() ) );
+		}
+		else
+			nSRuleAdd.inc();
 
 	return ret;
 }
