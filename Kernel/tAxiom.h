@@ -54,6 +54,14 @@ protected:	// methods
 	{
 		deleteTree(Disjuncts[pos]);
 		gather ( p, pos );
+		// don't create duplicated operands
+		for ( unsigned int i = 0; i < Disjuncts.size(); ++i )
+			if ( i != pos && equalTrees ( Disjuncts[i], p ) )
+			{
+				deleteTree(p);
+				Disjuncts[pos] = new DLTree(TOP);
+				return;
+			}
 		Disjuncts[pos] = p;
 	}
 		/// replace element given by an iterator I with P
