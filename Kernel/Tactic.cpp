@@ -854,20 +854,20 @@ DlSatTester :: initHeadOfNewEdge ( DlCompletionTree* node, const TRole* R, const
 {
 	// define return value
 	tacticUsage ret = utUnusable;
+	TRole::iterator r, r_end;
 
 	// if R is functional, then add FR with given DEP-set to NODE
 	if ( R->isFunctional() )
-		for ( TRole::iterator r = R->begin_topfunc(); r != R->end_topfunc(); ++r )
+		for ( r = R->begin_topfunc(), r_end = R->end_topfunc(); r < r_end; ++r )
 			switchResult ( ret, addToDoEntry ( node, (*r)->getFunctional(), dep, "fr" ) );
 
 	// setup Domain for R
 	switchResult ( ret, addToDoEntry ( node, R->getBPDomain(), dep, reason ) );
 
-	// the following block is unnecessary if every role has R&D from it super-roles.
-	if ( !RKG_UPDATE_RND_FROM_SUPERROLES )
-		// setup Domain for all super-roles of R
-		for ( TRole::iterator ri = R->begin_anc(); ri != R->end_anc(); ++ri )
-			switchResult ( ret, addToDoEntry ( node, (*ri)->getBPDomain(), dep, reason ) );
+#	ifndef RKG_UPDATE_RND_FROM_SUPERROLES
+		for ( r = R->begin_anc(), r_end = R->end_anc(); r < r_end; ++r )
+			switchResult ( ret, addToDoEntry ( node, (*r)->getBPDomain(), dep, reason ) );
+#	endif
 
 	return ret;
 }

@@ -361,12 +361,14 @@ void TBox :: initFunctionalRoles ( void )
 
 void TBox :: initRangeDomain ( void )
 {
-	for ( RoleMaster::iterator p = RM.begin(), p_end = RM.end(); p < p_end; ++p )
+	RoleMaster::iterator p, p_end = RM.end();
+	for ( p = RM.begin(); p < p_end; ++p )
 		if ( !(*p)->isSynonym() )
 		{
+#		ifdef RKG_UPDATE_RND_FROM_SUPERROLES
 			// add R&D from super-roles (do it AFTER axioms are transformed into R&D)
-			if ( RKG_UPDATE_RND_FROM_SUPERROLES )
-				(*p)->collectDomainFromSupers();
+			(*p)->collectDomainFromSupers();
+#		endif
 
 			DLTree* dom = (*p)->getTDomain();
 			if ( dom )

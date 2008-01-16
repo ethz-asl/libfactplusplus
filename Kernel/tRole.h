@@ -261,8 +261,14 @@ public:		// interface
 		/// get range-as-a-tree of the role
 	DLTree* getTRange ( void ) const { return inverse()->pDomain; }
 
+#ifdef RKG_UPDATE_RND_FROM_SUPERROLES
 		/// merge to Domain all domains from super-roles
-	void collectDomainFromSupers ( void );
+	void collectDomainFromSupers ( void )
+	{
+		for ( iterator p = begin_anc(); p != end_anc(); ++p )
+			setDomain ( clone((*p)->getTDomain()) );
+	}
+#endif
 
 		/// set domain-as-a-bipointer to a role
 	void setBPDomain ( BipolarPointer p ) { bpDomain = p; }

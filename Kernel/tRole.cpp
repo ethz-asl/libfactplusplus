@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2007 by Dmitry Tsarkov
+Copyright (C) 2003-2008 by Dmitry Tsarkov
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -348,13 +348,6 @@ void TRole :: initTopFunc ( void )
 	for ( iterator p = begin_anc(); p != end_anc(); ++p )
 		if ( (*p)->isRealTopFunc() )
 			TopFunc.push_back(*p);
-}
-
-/// merge to Domain all domains from super-roles
-void TRole :: collectDomainFromSupers ( void )
-{
-	for ( iterator p = begin_anc(); p != end_anc(); ++p )
-		setDomain ( clone((*p)->getTDomain()) );
 }
 
 void TRole :: initAncMap ( unsigned int n )

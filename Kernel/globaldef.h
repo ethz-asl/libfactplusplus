@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2007 by Dmitry Tsarkov
+Copyright (C) 2003-2008 by Dmitry Tsarkov
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -51,8 +51,8 @@ Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 // set the flag to 1 if want to use general CTree allocation scheme
 #define RKG_DEFAULT_CTREE_ALLOCATION 0
 
-// set the flag to 1 if want to update role's R&D from super-roles
-#define RKG_UPDATE_RND_FROM_SUPERROLES 0
+// uncomment this to update role's R&D from super-roles
+//#define RKG_UPDATE_RND_FROM_SUPERROLES
 
 // Flag to choose kind of NR support.
 
