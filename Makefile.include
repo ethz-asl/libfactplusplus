@@ -112,7 +112,14 @@ ifneq ($(filter -lxerces%,$(CL_LDFLAGS_LIBS)),)
 override CL_LDFLAGS_LIBS := $(filter-out -lxerces-c,$(CL_LDFLAGS_LIBS)) -lxerces-c
 endif
 
-#update LD_FLAGS wrt -pg and -fprofile-generate
+#update LD_FLAGS wrt DEFINES
+
+ifneq ($(filter -g,$(DEFINES)),)
+override CL_LDFLAGS_OTHER += -g
+endif
+ifneq ($(filter -m64,$(DEFINES)),)
+override CL_LDFLAGS_OTHER += -m64
+endif
 ifneq ($(filter -pg,$(DEFINES)),)
 override CL_LDFLAGS_OTHER += -pg
 endif
