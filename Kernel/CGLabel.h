@@ -143,6 +143,16 @@ public:		// interface
 		else
 			return scLabel.getConcept(n);
 	}
+		/// get CC offset of a complex concept BP that appears in the label
+	int getCCOffset ( BipolarPointer bp ) const
+	{
+		for ( const_iterator p = begin_cc(), p_end = end_cc(); p < p_end; ++p )
+			if ( *p == bp )
+				return getCCOffset(p);
+		// BP should appear in the label
+		assert(0);
+		return 0;
+	}
 
 	// check if node is labelled by given concept
 
