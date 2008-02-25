@@ -726,8 +726,11 @@ bool DlSatTester :: recheckNodeDBlocked ( const DepSet& curDep )
 		return true;
 
 	// update node's blocked status
-	updateLevel ( curNode, curDep );
-	curNode->updateDBlockedStatus ();
+	if ( curNode->isAffected() )
+	{
+		updateLevel ( curNode, curDep );
+		curNode->updateDBlockedStatus();
+	}
 
 	// if node became d-blocked -- update cache
 	if ( curNode->isDBlocked() )
