@@ -624,7 +624,7 @@ tacticUsage DlSatTester :: commonTacticBodySome ( const DLVertex& cur )	// for E
 
 	// there no such neighbour - create new successor
 	// all FUNCs are already checked; no (new) irreflexivity possible
-	return createNewEdge ( cur.getRole(), cToAdd, curDep, redoForall|redoAtMost );
+	return createNewEdge ( cur.getRole(), cToAdd, redoForall|redoAtMost );
 }
 
 /// expansion rule for existential quantifier in the form ER {o}
@@ -633,7 +633,7 @@ tacticUsage DlSatTester :: commonTacticBodyValue ( const TRole* R, const TIndivi
 	DepSet curDep = curConcept.getDep();
 
 	// check blocking conditions
-	if ( recheckNodeDBlocked(curDep) )
+	if ( recheckNodeDBlocked() )
 		return utUnusable;
 
 	nSomeCalls.inc();
@@ -665,11 +665,12 @@ tacticUsage DlSatTester :: commonTacticBodyValue ( const TRole* R, const TIndivi
 //	Support for SOME processing
 //-------------------------------------------------------------------------------
 
-tacticUsage DlSatTester :: createNewEdge ( const TRole* Role, BipolarPointer Concept,
-										   const DepSet& curDep, unsigned int flags )
+tacticUsage DlSatTester :: createNewEdge ( const TRole* Role, BipolarPointer Concept, unsigned int flags )
 {
+	const DepSet& curDep = curConcept.getDep();
+
 	// check blocking conditions
-	if ( recheckNodeDBlocked(curDep) )
+	if ( recheckNodeDBlocked() )
 	{
 		nUseless.inc();
 		return utUnusable;
@@ -715,7 +716,7 @@ DlCompletionTreeArc* DlSatTester :: createOneNeighbour ( const TRole* Role, cons
 	return pA;
 }
 
-bool DlSatTester :: recheckNodeDBlocked ( const DepSet& curDep )
+bool DlSatTester :: recheckNodeDBlocked ( void )
 {
 	// for non-lazy blocking blocked status is correct
 	if ( !useLazyBlocking )
@@ -728,7 +729,7 @@ bool DlSatTester :: recheckNodeDBlocked ( const DepSet& curDep )
 	// update node's blocked status
 	if ( curNode->isAffected() )
 	{
-		updateLevel ( curNode, curDep );
+		updateLevel ( curNode, curConcept.getDep() );
 		curNode->updateDBlockedStatus();
 	}
 
@@ -1050,7 +1051,7 @@ tacticUsage DlSatTester :: commonTacticBodyGEsimple ( const DLVertex& cur )	// f
 			return utUnusable;	// don't need to inform about this: return type is unique for the action
 
 	// don't find proper arc -- create new one; no Irr check necessary
-	return createNewEdge ( Role, cur.getC(), curConcept.getDep(), redoForall|redoFunc|redoAtMost );
+	return createNewEdge ( Role, cur.getC(), redoForall|redoFunc|redoAtMost );
 }
 
 tacticUsage DlSatTester :: commonTacticBodyGEusual ( const DLVertex& cur )	// for >=nR.C concepts
@@ -1061,17 +1062,15 @@ tacticUsage DlSatTester :: commonTacticBodyGEusual ( const DLVertex& cur )	// fo
 
 	nGeCalls.inc();
 
-	const DepSet& curDep = curConcept.getDep();
-
 	// check blocking conditions
-	if ( recheckNodeDBlocked(curDep) )
+	if ( recheckNodeDBlocked() )
 	{
 		nUseless.inc();
 		return utUnusable;
 	}
 
 	// create N new different edges
-	return createDifferentNeighbours ( cur.getRole(), cur.getC(), curDep, cur.getNumberGE(), BlockableLevel );
+	return createDifferentNeighbours ( cur.getRole(), cur.getC(), curConcept.getDep(), cur.getNumberGE(), BlockableLevel );
 }
 
 //-------------------------------------------------------------------------------

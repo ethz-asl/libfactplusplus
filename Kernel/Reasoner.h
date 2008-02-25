@@ -516,7 +516,7 @@ protected:	// methods
 	// support for creating/updating edge methods
 
 		/// check if current node is directly blocked (or became directly blocked)
-	bool recheckNodeDBlocked ( const DepSet& curDep );
+	bool recheckNodeDBlocked ( void );
 		/// add C and T_G with given DEP-set to a NODE; @return DONE/CLASH
 	tacticUsage initNewNode ( DlCompletionTree* node, const DepSet& dep, BipolarPointer C );
 		/// apply reflexive roles to the (newly created) NODE with apropriate DEP; @return true for clash
@@ -530,8 +530,7 @@ protected:	// methods
 		/// aux method for setting up new edge PA
 	tacticUsage setupEdge ( DlCompletionTreeArc* pA, const DepSet& curDep, unsigned int flags );
 		/// aux method for creating new edge from curNode with given ROLE edge label and CONCEPT at the final label
-	tacticUsage createNewEdge ( const TRole* Role, BipolarPointer Concept,
-								const DepSet& dep, unsigned int flags );
+	tacticUsage createNewEdge ( const TRole* Role, BipolarPointer Concept, unsigned int flags );
 		/// create new ROLE-neighbour with LEVEL to curNode; return edge to it
 	DlCompletionTreeArc* createOneNeighbour ( const TRole* Role, const DepSet& dep,
 											  CTNominalLevel level = BlockableLevel );
