@@ -5,6 +5,10 @@
 # -- DO NOT CHANGE THE REST OF FILE --
 SUBDIRS = Bdd Kernel FaCT++ DIGParser FaCT++.DIG FaCT++.Server FaCT++.JNI
 
+include Makefile.include
+
+# Additional targets to build parts of the FaCT++
+
 bdd:
 	cd Bdd && make && cd ..
 
@@ -26,4 +30,3 @@ fpp_dig: digparser
 fpp_server: digparser
 	cd FaCT++.Server && make && cd ..
 
-include Makefile.include
