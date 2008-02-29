@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2007 by Dmitry Tsarkov
+Copyright (C) 2003-2008 by Dmitry Tsarkov
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -26,12 +26,18 @@ Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #include "ConceptWithDep.h"
 
 enum addConceptResult { acrClash, acrExist, acrDone };
+class TRestorer;
 
 /// array of concepts with dep-set, which may be viewed as a label of a completion-graph
 class CWDArray
 {
 protected:	// internal typedefs
 	typedef growingArray<ConceptWDep> ConceptSet;
+		/// RW iterator
+	typedef ConceptSet::iterator iterator;
+
+		/// restorer for the merge
+	friend class UnMerge;
 
 public:		// type interface
 		/// class for saving one label
@@ -101,6 +107,8 @@ public:		// interface
 	addConceptResult checkAddedConceptN ( const BipolarPointer p, const DepSet& dep ) const;
 		/// adds concept P to a label
 	void add ( const ConceptWDep& p ) { Base.add(p); }
+		/// update concept BP with a dep-set DEP; @return the appropriate restorer
+	TRestorer* updateDepSet ( BipolarPointer bp, const DepSet& dep );
 
 	// access concepts
 

@@ -1131,7 +1131,7 @@ DlSatTester :: checkMergeClash ( const CGLabel& from, const CGLabel& to, const D
 	CGLabel::const_iterator p, p_end;
 	DepSet clashDep(dep);
 	bool clash = false;
-	for ( p = from.begin_sc(), p_end = from.end_sc(); !clash && p < p_end; ++p )
+	for ( p = from.begin_sc(), p_end = from.end_sc(); p < p_end; ++p )
 		if ( isUsed(inverse(p->bp()))
 			 && to.checkAddedConceptN ( dtPConcept, p->bp(), p->getDep() ) == acrClash )
 		{
@@ -1141,7 +1141,7 @@ DlSatTester :: checkMergeClash ( const CGLabel& from, const CGLabel& to, const D
 			if ( LLM.isWritable(llGTA) )
 				LL << " x(" << nodeId << "," << p->bp() << DlCompletionTree::getClashSet()+dep << ")";
 		}
-	for ( p = from.begin_cc(), p_end = from.end_cc(); !clash && p < p_end; ++p )
+	for ( p = from.begin_cc(), p_end = from.end_cc(); p < p_end; ++p )
 		if ( isUsed(inverse(p->bp()))
 			 && to.checkAddedConceptN ( dtForall, p->bp(), p->getDep() ) == acrClash )
 		{
@@ -1162,6 +1162,8 @@ bool DlSatTester :: mergeLabels ( const CGLabel& from, DlCompletionTree* to, con
 	CGLabel::const_iterator p, p_end;
 	CGLabel& lab(to->label());
 
+	// if the concept is already exists in the node label --
+	// we still need to update it with a new dep-set (due to merging)
 	for ( p = from.begin_sc(), p_end = from.end_sc(); p < p_end; ++p )
 		switch ( lab.checkAddedConceptP ( dtPConcept, p->bp() ) )
 		{
@@ -1170,7 +1172,7 @@ bool DlSatTester :: mergeLabels ( const CGLabel& from, DlCompletionTree* to, con
 			insertToDoEntry ( to, p->bp(), dep+p->getDep(), DLHeap[p->bp()].Type(), "M" );
 			break;
 		case acrExist:
-			// nothing to do
+			CGraph.saveRareCond ( to->label().updateDepSet ( p->bp(), dep+p->getDep(), dtPConcept ) );
 			break;
 		default:	// no clash can appear here
 			assert(0);
@@ -1184,7 +1186,7 @@ bool DlSatTester :: mergeLabels ( const CGLabel& from, DlCompletionTree* to, con
 			insertToDoEntry ( to, p->bp(), dep+p->getDep(), DLHeap[p->bp()].Type(), "M" );
 			break;
 		case acrExist:
-			// nothing to do
+			CGraph.saveRareCond ( to->label().updateDepSet ( p->bp(), dep+p->getDep(), dtForall ) );
 			break;
 		default:	// no clash can appear here
 			assert(0);

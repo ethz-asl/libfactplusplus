@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2006 by Dmitry Tsarkov
+Copyright (C) 2003-2008 by Dmitry Tsarkov
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -17,9 +17,46 @@ Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 */
 
 #include "CWDArray.h"
+#include "tRestorer.h"
 
 DepSet CWDArray :: clashSet;
 unsigned int CWDArray :: nLookups;
+
+/// restore dep-set of the duplicated label element of the merged node
+class UnMerge: public TRestorer
+{
+protected:
+	CWDArray& label;
+	int offset;
+	DepSet dep;
+public:
+	UnMerge ( CWDArray& lab, CWDArray::iterator p ) : label(lab), offset(p-lab.begin()), dep(p->getDep()) {}
+	virtual ~UnMerge ( void ) {}
+	void restore ( void )
+	{
+		CWDArray::iterator p = label.Base.begin() + offset;
+		*p = ConceptWDep(p->bp(),dep);
+	}
+}; // UnMerge
+
+TRestorer*
+CWDArray :: updateDepSet ( BipolarPointer bp, const DepSet& dep )
+{
+	for ( iterator i = Base.begin(), i_end = Base.end(); i < i_end; ++i )
+		if ( i->bp() == bp )
+		{
+			TRestorer* ret = new UnMerge ( *this, i );
+			DepSet odep(i->getDep());
+			i->addDep(dep);
+/*			if ( odep == i->getDep() )
+			{
+				delete ret;
+				ret = NULL;
+			}*/
+			return ret;
+		}
+	return NULL;
+}
 
 /// check if it is possible to add a concept to a label; ~P can't appear in the label
 addConceptResult

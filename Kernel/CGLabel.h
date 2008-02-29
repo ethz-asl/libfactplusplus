@@ -109,6 +109,9 @@ public:		// interface
 	addConceptResult checkAddedConceptN ( DagTag tag, BipolarPointer p, const DepSet& dep ) const;
 		/// adds concept P to a label, defined by TAG
 	void add ( const ConceptWDep& p, DagTag tag ) { getLabel(tag).add(p); }
+		/// update concept BP from the label defined by TAG with a dep-set DEP; @return restorer
+	TRestorer* updateDepSet ( BipolarPointer bp, const DepSet& dep, DagTag tag )
+		{ return dep.empty() ? NULL : getLabel(tag).updateDepSet ( bp, dep ); }
 		/// try to add new value to an EXTRA label; @return true iff such value already exists
 	bool addExtraConcept ( BipolarPointer p, const DepSet& dep )
 	{
