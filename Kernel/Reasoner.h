@@ -598,6 +598,10 @@ protected:	// methods
 
 		/// aux method which fills EdgesToMerge with *different* ROLE-neighbours of curNode
 	void findNeighbours ( EdgeVector& EdgesToMerge, const TRole* Role, BipolarPointer C ) const;
+		/// aux method that checks whether clash occurs during the merge of labels
+	bool checkMergeClash ( const CGLabel& from, const CGLabel& to, const DepSet& dep, unsigned int nodeId ) const;
+		/// aux method that merge FROM label to the TO node with an appropriadte dep-set
+	bool mergeLabels ( const CGLabel& from, DlCompletionTree* to, const DepSet& dep );
 		/// merge FROM node into TO node with additional dep-set DEPF
 	tacticUsage Merge ( DlCompletionTree* from, DlCompletionTree* to, const DepSet& depF );
 		/// check whether clash occures due to new edge from FROM to TO labelled with R

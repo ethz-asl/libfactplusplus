@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2007 by Dmitry Tsarkov
+Copyright (C) 2003-2008 by Dmitry Tsarkov
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -462,6 +462,8 @@ public:		// methods
 
 		/// RO access to a label
 	const CGLabel& label ( void ) const { return Label; }
+		/// RW access to a label
+	CGLabel& label ( void ) { return Label; }
 
 	// label iterators
 

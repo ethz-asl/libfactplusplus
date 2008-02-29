@@ -1124,6 +1124,76 @@ bool DlSatTester :: isNRClash ( const DLVertex& atleast, const DLVertex& atmost,
 	return true;
 }
 
+/// aux method that checks whether clash occurs during the merge of labels
+bool
+DlSatTester :: checkMergeClash ( const CGLabel& from, const CGLabel& to, const DepSet& dep, unsigned int nodeId ) const
+{
+	CGLabel::const_iterator p, p_end;
+	DepSet clashDep(dep);
+	bool clash = false;
+	for ( p = from.begin_sc(), p_end = from.end_sc(); !clash && p < p_end; ++p )
+		if ( isUsed(inverse(p->bp()))
+			 && to.checkAddedConceptN ( dtPConcept, p->bp(), p->getDep() ) == acrClash )
+		{
+			clash = true;
+			clashDep.add(DlCompletionTree::getClashSet());
+			// log the clash
+			if ( LLM.isWritable(llGTA) )
+				LL << " x(" << nodeId << "," << p->bp() << DlCompletionTree::getClashSet()+dep << ")";
+		}
+	for ( p = from.begin_cc(), p_end = from.end_cc(); !clash && p < p_end; ++p )
+		if ( isUsed(inverse(p->bp()))
+			 && to.checkAddedConceptN ( dtForall, p->bp(), p->getDep() ) == acrClash )
+		{
+			clash = true;
+			clashDep.add(DlCompletionTree::getClashSet());
+			// log the clash
+			if ( LLM.isWritable(llGTA) )
+				LL << " x(" << nodeId << "," << p->bp() << DlCompletionTree::getClashSet()+dep << ")";
+		}
+	if ( clash )
+		DlCompletionTree::setClashSet(clashDep);
+	return clash;
+}
+
+bool DlSatTester :: mergeLabels ( const CGLabel& from, DlCompletionTree* to, const DepSet& dep )
+{
+	bool done = false;
+	CGLabel::const_iterator p, p_end;
+	CGLabel& lab(to->label());
+
+	for ( p = from.begin_sc(), p_end = from.end_sc(); p < p_end; ++p )
+		switch ( lab.checkAddedConceptP ( dtPConcept, p->bp() ) )
+		{
+		case acrDone:
+			done = true;
+			insertToDoEntry ( to, p->bp(), dep+p->getDep(), DLHeap[p->bp()].Type(), "M" );
+			break;
+		case acrExist:
+			// nothing to do
+			break;
+		default:	// no clash can appear here
+			assert(0);
+			break;
+		}
+	for ( p = from.begin_cc(), p_end = from.end_cc(); p < p_end; ++p )
+		switch ( lab.checkAddedConceptP ( dtForall, p->bp() ) )
+		{
+		case acrDone:
+			done = true;
+			insertToDoEntry ( to, p->bp(), dep+p->getDep(), DLHeap[p->bp()].Type(), "M" );
+			break;
+		case acrExist:
+			// nothing to do
+			break;
+		default:	// no clash can appear here
+			assert(0);
+			break;
+		}
+
+	return done;
+}
+
 tacticUsage DlSatTester :: Merge ( DlCompletionTree* from, DlCompletionTree* to, const DepSet& depF )
 {
 	// if node is already purged -- nothing to do
@@ -1146,12 +1216,13 @@ tacticUsage DlSatTester :: Merge ( DlCompletionTree* from, DlCompletionTree* to,
 
 	tacticUsage ret = utUnusable;
 
+	// check for the clash before doing anything else
+	if ( checkMergeClash ( from->label(), to->label(), depF, to->getId() ) )
+		return utClash;
+
 	// copy all node labels
-	DlCompletionTree::const_label_iterator p;
-	for ( p = from->beginl_sc(); p != from->endl_sc(); ++p )
-		switchResult ( ret, addToDoEntry ( to, p->bp(), depF+p->getDep(), "M" ) );
-	for ( p = from->beginl_cc(); p != from->endl_cc(); ++p )
-		switchResult ( ret, addToDoEntry ( to, p->bp(), depF+p->getDep(), "M" ) );
+	if ( mergeLabels ( from->label(), to, depF ) )
+		ret = utDone;
 
 	// correct graph structure
 	typedef std::vector<DlCompletionTreeArc*> edgeVector;
