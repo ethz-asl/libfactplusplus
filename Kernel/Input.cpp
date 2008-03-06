@@ -334,7 +334,7 @@ bool TBox :: processDisjoint ( const ConceptSet& v )
 	ConceptSet prim, rest;
 
 	for ( ConceptSet::const_iterator p = v.begin(), p_end = v.end(); p < p_end; ++p )
-		if ( isCN(*p) &&
+		if ( isName(*p) &&
 			 static_cast<const TConcept*>((*p)->Element().getName())->isPrimitive() )
 			prim.push_back(*p);
 		else
