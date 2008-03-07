@@ -590,8 +590,6 @@ public:		// methods
 	}
 		/// check if the current node is in IR with NODE; if so, setup clash-set
 	bool nonMergable ( const DlCompletionTree* node, const DepSet& ds ) const;
-		/// check if the current node is in IR with NODE; if so, setup clash-set including dep-set for C
-	bool nonMergable ( const DlCompletionTree* node, const DepSet& ds, BipolarPointer C, DagTag tag ) const;
 		/// update IR of the current node with IR from NODE and additional dep-set; @return restorer
 	TRestorer* updateIR ( const DlCompletionTree* node, const DepSet& toAdd );
 #endif

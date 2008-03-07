@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2007 by Dmitry Tsarkov
+Copyright (C) 2003-2008 by Dmitry Tsarkov
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -136,27 +136,6 @@ bool DlCompletionTree :: nonMergable ( const DlCompletionTree* node, const DepSe
 			return true;
 
 	return false;
-}
-
-// check if the current node is in IR with NODE; if so, setup clash-set including dep-set for C
-bool
-DlCompletionTree :: nonMergable ( const DlCompletionTree* node, const DepSet& ds, BipolarPointer C, DagTag tag ) const
-{
-	if ( !nonMergable ( node, ds ) )
-		return false;
-
-	// here we know that C is in both labels; set a proper clash-set
-	DepSet dep = getClashSet();
-
-	addConceptResult test = label().checkAddedConceptN ( tag, inverse(C), ds );
-	assert ( test == acrClash );
-	dep.add(getClashSet());
-
-	test = node->label().checkAddedConceptN ( tag, inverse(C), ds );
-	assert ( test == acrClash );
-	updateClashSet(dep);
-
-	return true;
 }
 
 /// update IR of the current node with IR from NODE and additional clash-set; @return restorer

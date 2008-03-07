@@ -1000,15 +1000,26 @@ applyLE:	// skip init, because here we are after restoring
 		DlCompletionTreeArc* from = bContext->getFrom();
 		DlCompletionTreeArc* to = bContext->getTo();
 
+		DepSet dep;	// empty dep-set
 		// fast check for from->end() and to->end() are in \neq
-		bool isNonMergable;
-		if ( C == bpTOP )
-			isNonMergable = CGraph.nonMergable ( from->getArcEnd(), to->getArcEnd(), DepSet() );
-		else
-			isNonMergable = CGraph.nonMergable ( from->getArcEnd(), to->getArcEnd(), DepSet(), C, DLHeap[C].Type() );
-
-		if ( isNonMergable )
+		if ( CGraph.nonMergable ( from->getArcEnd(), to->getArcEnd(), dep ) )
 		{
+			if ( C != bpTOP )	// QCR: update dep-set
+			{
+				// here we know that C is in both labels; set a proper clash-set
+				BipolarPointer invC = inverse(C);
+				dep = DlCompletionTree::getClashSet();	// save dep-set
+				DagTag tag = DLHeap[C].Type();
+
+				addConceptResult test;
+				test = from->getArcEnd()->label().checkAddedConceptN ( tag, invC, dep );
+				assert ( test == acrClash );
+				dep = DlCompletionTree::getClashSet();	// save new dep-set
+
+				test = to->getArcEnd()->label().checkAddedConceptN ( tag, invC, dep );
+				assert ( test == acrClash );
+				// both clash-sets are now in common clash-set
+			}
 			updateBranchDep();
 			bContext->nextOption();
 			goto applyLE;
