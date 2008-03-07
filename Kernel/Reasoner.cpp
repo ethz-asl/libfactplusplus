@@ -360,14 +360,14 @@ bool DlSatTester :: initNominalCloud ( void )
 	if ( tBox.Different.empty() )
 		return false;
 
-	DepSet dep;
+	DepSet dummy;	// empty dep-set for the CGraph
 
 	for ( TBox::DifferentIndividuals::const_iterator
 		  r = tBox.Different.begin(); r != tBox.Different.end(); ++r )
 	{
 		CGraph.initIR();
 		for ( SingletonVector::const_iterator p = r->begin(); p != r->end(); ++p )
-			if ( CGraph.setCurIR ( (*p)->node, dep ) )	// different(c,c)
+			if ( CGraph.setCurIR ( (*p)->node, dummy ) )	// different(c,c)
 				return true;
 		CGraph.finiIR();
 	}

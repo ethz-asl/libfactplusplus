@@ -1008,10 +1008,10 @@ applyLE:	// skip init, because here we are after restoring
 			{
 				// here we know that C is in both labels; set a proper clash-set
 				BipolarPointer invC = inverse(C);
-				dep = DlCompletionTree::getClashSet();	// save dep-set
 				DagTag tag = DLHeap[C].Type();
-
 				addConceptResult test;
+
+				// here dep contains the clash-set
 				test = from->getArcEnd()->label().checkAddedConceptN ( tag, invC, dep );
 				assert ( test == acrClash );
 				dep = DlCompletionTree::getClashSet();	// save new dep-set
@@ -1103,6 +1103,7 @@ tacticUsage DlSatTester :: createDifferentNeighbours ( const TRole* R, BipolarPo
 		DlCompletionTree* child = pA->getArcEnd();
 
 		// make CHILD different from other created nodes
+		// don't care about return value as clash can't occur
 		CGraph.setCurIR ( child, dep );
 
 		// add necessary new node labels and setup new edge
@@ -1224,8 +1225,12 @@ tacticUsage DlSatTester :: Merge ( DlCompletionTree* from, DlCompletionTree* to,
 	nMergeCalls.inc();
 
 	// can't merge 2 nodes which are in inequality relation
-	if ( CGraph.nonMergable ( from, to, depF ) )
-		return utClash;	// clash-set was updated by IR
+	DepSet dep(depF);
+	if ( CGraph.nonMergable ( from, to, dep ) )
+	{
+		DlCompletionTree::setClashSet(dep);
+		return utClash;
+	}
 
 	tacticUsage ret = utUnusable;
 

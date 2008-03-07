@@ -110,7 +110,7 @@ DlCompletionTree :: isTSomeApplicable ( const TRole* R, BipolarPointer C ) const
 	//----------------------------------------------
 
 // check if IR for the node contains C
-bool DlCompletionTree :: inIRwithC ( const ConceptWDep& C, const DepSet& ds ) const
+bool DlCompletionTree :: inIRwithC ( const ConceptWDep& C, DepSet& dep ) const
 {
 	if ( IR.empty() )
 		return false;
@@ -118,7 +118,8 @@ bool DlCompletionTree :: inIRwithC ( const ConceptWDep& C, const DepSet& ds ) co
 	for ( IRInfo::const_iterator p = IR.begin(); p != IR.end(); ++p )
 		if ( p->bp() == C.bp() )
 		{
-			setClashSet ( p->getDep() + C.getDep() + ds );
+			dep += p->getDep();
+			dep += C.getDep();
 			return true;
 		}
 
@@ -126,13 +127,13 @@ bool DlCompletionTree :: inIRwithC ( const ConceptWDep& C, const DepSet& ds ) co
 }
 
 // check if the NODE's and current node's IR are labelled with the same level
-bool DlCompletionTree :: nonMergable ( const DlCompletionTree* node, const DepSet& ds ) const
+bool DlCompletionTree :: nonMergable ( const DlCompletionTree* node, DepSet& dep ) const
 {
 	if ( IR.empty() || node->IR.empty() )
 		return false;
 
 	for ( IRInfo::const_iterator p = node->IR.begin(); p != node->IR.end(); ++p )
-		if ( inIRwithC ( *p, ds ) )
+		if ( inIRwithC ( *p, dep ) )
 			return true;
 
 	return false;

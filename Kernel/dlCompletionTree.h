@@ -312,8 +312,8 @@ protected:	// methods
 	// inequality relation methods
 	//----------------------------------------------
 
-		/// check if the current node is in IR with given C; if so, setup clash-set
-	bool inIRwithC ( const ConceptWDep& C, const DepSet& ds ) const;
+		/// check if the current node is in IR wrt C; if so, write the clash-set to DEP
+	bool inIRwithC ( const ConceptWDep& C, DepSet& dep ) const;
 
 	//----------------------------------------------
 	// saving/restoring
@@ -583,13 +583,14 @@ public:		// methods
 	bool initIR ( unsigned int level, const DepSet& ds )
 	{
 		ConceptWDep C(level,ds);
-		if ( inIRwithC ( C, DepSet() ) )
+		DepSet dummy;	// we don't need a clash-set here
+		if ( inIRwithC ( C, dummy ) )
 			return true;
 		IR.add(C);
 		return false;
 	}
-		/// check if the current node is in IR with NODE; if so, setup clash-set
-	bool nonMergable ( const DlCompletionTree* node, const DepSet& ds ) const;
+		/// check if the current node is in IR with NODE; if so, write the clash-set to DEP
+	bool nonMergable ( const DlCompletionTree* node, DepSet& dep ) const;
 		/// update IR of the current node with IR from NODE and additional dep-set; @return restorer
 	TRestorer* updateIR ( const DlCompletionTree* node, const DepSet& toAdd );
 #endif
