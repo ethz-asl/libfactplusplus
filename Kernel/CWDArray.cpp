@@ -19,9 +19,6 @@ Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #include "CWDArray.h"
 #include "tRestorer.h"
 
-DepSet CWDArray :: clashSet;
-unsigned int CWDArray :: nLookups;
-
 /// restore dep-set of the duplicated label element of the merged node
 class UnMerge: public TRestorer
 {
@@ -59,68 +56,6 @@ CWDArray :: updateDepSet ( BipolarPointer bp, const DepSet& dep )
 			return ret;
 		}
 	return NULL;
-}
-
-/// check if it is possible to add a concept to a label; ~P can't appear in the label
-addConceptResult
-CWDArray :: checkAddedConceptP ( const BipolarPointer p ) const
-{
-	// increase lookup statistics
-	++nLookups;
-
-	for ( const_iterator i = begin(), i_end = end(); i < i_end; ++i )
-		if ( i->bp() == p )
-			return acrExist;
-
-	// we are able to insert a concept
-	return acrDone;
-}
-
-/// check if it is possible to add a concept to a label; P can't appear in the label
-addConceptResult
-CWDArray :: checkAddedConceptN ( const BipolarPointer p, const DepSet& dep ) const
-{
-	const BipolarPointer inv_p = inverse(p);
-
-	// increase lookup statistics
-	++nLookups;
-
-	for ( const_iterator i = begin(), i_end = end(); i < i_end; ++i )
-		if ( i->bp() == inv_p )
-		{
-			// create clashSet
-			clashSet = dep + i->getDep();
-			return acrClash;
-		}
-
-	// we are able to insert a concept
-	return acrDone;
-}
-
-/// check if it is possible to add a concept to a set
-addConceptResult
-CWDArray :: checkAddedConcept ( const BipolarPointer p, const DepSet& dep ) const
-{
-	const BipolarPointer inv_p = inverse(p);
-
-	// increase lookup statistics
-	++nLookups;
-	++nLookups;
-
-	for ( const_iterator i = begin(), i_end = end(); i < i_end; ++i )
-	{
-		if ( i->bp() == p )
-			return acrExist;
-		else if ( i->bp() == inv_p )
-		{
-			// create clashSet
-			clashSet = dep + i->getDep();
-			return acrClash;
-		}
-	}
-
-	// we are able to insert a concept
-	return acrDone;
 }
 
 /// restore label to given LEVEL using given SS

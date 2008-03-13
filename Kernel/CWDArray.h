@@ -59,12 +59,6 @@ public:		// type interface
 		/// const iterator on label
 	typedef ConceptSet::const_iterator const_iterator;
 
-public:		// global vars
-		/// contains clash set if clash is encountered in a node label
-	static DepSet clashSet;
-		/// statistic for number of lookups in a node label
-	static unsigned int nLookups;
-
 protected:	// members
 		/// array of concepts together with dep-sets
 	ConceptSet Base;
@@ -92,19 +86,13 @@ public:		// interface
 
 	// label iterators
 
-		/// begin() iterator
+		/// begin RO iterator
 	const_iterator begin ( void ) const { return Base.begin(); }
-		/// end() iterator
+		/// end RO iterator
 	const_iterator end ( void ) const { return Base.end(); }
 
 	// add concept
 
-		/// check if it is possible to add a concept to a label
-	addConceptResult checkAddedConcept ( const BipolarPointer p, const DepSet& dep ) const;
-		/// check if it is possible to add a concept to a label; ~P can't appear in the label
-	addConceptResult checkAddedConceptP ( const BipolarPointer p ) const;
-		/// check if it is possible to add a concept to a label; P can't appear in the label
-	addConceptResult checkAddedConceptN ( const BipolarPointer p, const DepSet& dep ) const;
 		/// adds concept P to a label
 	void add ( const ConceptWDep& p ) { Base.add(p); }
 		/// update concept BP with a dep-set DEP; @return the appropriate restorer
@@ -146,6 +134,17 @@ public:		// interface
 	void print ( std::ostream& o ) const;
 }; // CWDArray
 
+template<class Iterator>
+inline Iterator
+find ( BipolarPointer bp, Iterator begin, Iterator end )
+{
+	for ( Iterator p = begin; p < end; ++p )
+		if ( p->bp() == bp )
+			return p;
+
+	return end;
+}
+
 //----------------------------------------------
 // Blocking support
 //----------------------------------------------
@@ -153,11 +152,7 @@ public:		// interface
 inline bool
 CWDArray :: contains ( BipolarPointer bp ) const
 {
-	for ( const_iterator p = begin(), p_end = end(); p < p_end; ++p )
-		if ( p->bp() == bp )
-			return true;
-
-	return false;
+	return find ( bp, begin(), end() ) != end();
 }
 
 inline bool

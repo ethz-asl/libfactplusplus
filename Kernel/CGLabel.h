@@ -26,7 +26,7 @@ Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 class CGLabel
 {
 public:		// type interface
-		/// const iterator on label
+		/// RO iterator on label
 	typedef CWDArray::const_iterator const_iterator;
 
 public:		// external classes
@@ -54,7 +54,7 @@ protected:	// members
 
 protected:	// methods
 		/// @return true iff TAG represents complex concept
-	bool isComplexConcept ( DagTag tag ) const
+	static bool isComplexConcept ( DagTag tag )
 		{ return tag == dtForall || tag == dtLE || tag == dtIrr || tag == dtUAll; }
 
 public:		// interface
@@ -89,17 +89,10 @@ public:		// interface
 	//----------------------------------------------
 	// Label access interface
 	//----------------------------------------------
-
 		/// get (RW) label associated with the concepts defined by TAG
 	CWDArray& getLabel ( DagTag tag ) { return isComplexConcept(tag) ? ccLabel : scLabel; }
 		/// get (RO) label associated with the concepts defined by TAG
 	const CWDArray& getLabel ( DagTag tag ) const { return isComplexConcept(tag) ? ccLabel : scLabel; }
-		/// check if it is possible to add a concept to a label given by TAG
-	addConceptResult checkAddedConcept ( DagTag tag, BipolarPointer p, const DepSet& dep ) const;
-		/// try to add a concept to a label given by TAG; ~P can't appear in the label
-	addConceptResult checkAddedConceptP ( DagTag tag, BipolarPointer p ) const;
-		/// try to add a concept to a label given by TAG; P can't appear in the label
-	addConceptResult checkAddedConceptN ( DagTag tag, BipolarPointer p, const DepSet& dep ) const;
 
 	// TODO table interface
 
@@ -193,45 +186,6 @@ CGLabel :: init ( void )
 	// init label with reasonable size
 	scLabel.init(8);	// FIXME!! correct size later on
 	ccLabel.init(4);	// FIXME!! correct size later on
-}
-
-inline addConceptResult
-CGLabel :: checkAddedConcept ( DagTag tag, BipolarPointer p, const DepSet& dep ) const
-{
-#ifdef ENABLE_CHECKING
-	assert ( isCorrect(p) );	// sanity checking
-	// constants are not allowed here
-	assert ( p != bpTOP );
-	assert ( p != bpBOTTOM );
-#endif
-
-	return getLabel(tag).checkAddedConcept ( p, dep );
-}
-
-inline addConceptResult
-CGLabel :: checkAddedConceptP ( DagTag tag, BipolarPointer p ) const
-{
-#ifdef ENABLE_CHECKING
-	assert ( isCorrect(p) );	// sanity checking
-	// constants are not allowed here
-	assert ( p != bpTOP );
-	assert ( p != bpBOTTOM );
-#endif
-
-	return getLabel(tag).checkAddedConceptP(p);
-}
-
-inline addConceptResult
-CGLabel :: checkAddedConceptN ( DagTag tag, BipolarPointer p, const DepSet& dep ) const
-{
-#ifdef ENABLE_CHECKING
-	assert ( isCorrect(p) );	// sanity checking
-	// constants are not allowed here
-	assert ( p != bpTOP );
-	assert ( p != bpBOTTOM );
-#endif
-
-	return getLabel(tag).checkAddedConceptN ( p, dep );
 }
 
 inline bool

@@ -129,6 +129,8 @@ protected:	// type definition
 	typedef TBox::SingletonVector SingletonVector;
 		/// vector of edges
 	typedef std::vector<DlCompletionTreeArc*> EdgeVector;
+		/// RO label iterator
+	typedef DlCompletionTree::const_label_iterator const_label_iterator;
 
 protected:	// types
 		/// possible flags of re-checking ALL-like expressions in new nodes
@@ -297,7 +299,7 @@ protected:	// members
 		nNodeSaves,
 		nNodeRestores,
 
-		nAddOps,
+		nLookups,
 		nCompareOps,
 
 		nCachedSat,
@@ -318,6 +320,9 @@ protected:	// members
 
 		/// label for the usage of verteces
 	TLabeller VUse;
+
+		/// contains clash set if clash is encountered in a node label
+	DepSet clashSet;
 
 	// flag for semantic branching; default true
 	bool useSemanticBranching;
@@ -350,9 +355,17 @@ protected:	// methods
 								  DagTag tag, const char* reason );
 		/// if something was added to cached node N, un- or re-cache it; @return result of re-cache
 	tacticUsage correctCachedEntry ( DlCompletionTree* n );
+
+	// label access interface
+
+		/// check if it is possible to add a concept to a label given by TAG
+	addConceptResult checkAddedConcept ( const CWDArray& lab, BipolarPointer p, const DepSet& dep );
+		/// try to add a concept to a label given by TAG; ~P can't appear in the label
+	bool findConcept ( const CWDArray& lab, BipolarPointer p );
+		/// try to add a concept to a label given by TAG; ~P can't appear in the label; setup clash-set if found
+	bool findConcept ( const CWDArray& lab, BipolarPointer p, const DepSet& dep );
 		/// check if C or ~C is already in LAB
-	addConceptResult tryAddConcept ( const CGLabel& lab, DagTag tag, BipolarPointer c,
-									 const DepSet& dep ) const;
+	addConceptResult tryAddConcept ( const CWDArray& lab, BipolarPointer c, const DepSet& dep );
 
 		/** Adds ToDo entry which already exists in label of NODE. There is no need
 			to add entry to label, but it is necessary to provide offset of existing concept.
@@ -587,7 +600,7 @@ protected:	// methods
 		/// aux method which fills EdgesToMerge with *different* ROLE-neighbours of curNode
 	void findNeighbours ( EdgeVector& EdgesToMerge, const TRole* Role, BipolarPointer C ) const;
 		/// aux method that checks whether clash occurs during the merge of labels
-	bool checkMergeClash ( const CGLabel& from, const CGLabel& to, const DepSet& dep, unsigned int nodeId ) const;
+	bool checkMergeClash ( const CGLabel& from, const CGLabel& to, const DepSet& dep, unsigned int nodeId );
 		/// aux method that merge FROM label to the TO node with an appropriadte dep-set
 	bool mergeLabels ( const CGLabel& from, DlCompletionTree* to, const DepSet& dep );
 		/// merge FROM node into TO node with additional dep-set DEPF
@@ -601,8 +614,8 @@ protected:	// methods
 	{	// clash found
 		if ( edge->getArcEnd() == to && edge->getRole()->isDisjoint(R) )
 		{
-			DlCompletionTree::setClashSet(dep);
-			DlCompletionTree::updateClashSet(edge->getDep());
+			setClashSet(dep);
+			updateClashSet(edge->getDep());
 			return true;
 		}
 		return false;
@@ -622,8 +635,8 @@ protected:	// methods
 			return utDone;
 
 		// set up clash
-		DlCompletionTree::setClashSet(dep);
-		DlCompletionTree::updateClashSet(edge->getDep());
+		setClashSet(dep);
+		updateClashSet(edge->getDep());
 		return utClash;
 	}
 
@@ -647,7 +660,7 @@ protected:	// methods
 	{
 		if ( hasDataClash(node) )
 		{
-			DlCompletionTree::setClashSet(DTReasoner.getClashSet());
+			setClashSet(DTReasoner.getClashSet());
 			return utClash;
 		}
 		else
@@ -725,6 +738,14 @@ protected:	// methods
 		Stack.pop();	// remove unnecessary context from the stack
 	}
 
+	// access to global clashset, which contains result of clash during label addition
+
+		/// get value of global dep-set
+	const DepSet& getClashSet ( void ) const { return clashSet; }
+		/// set value of global dep-set to D
+	void setClashSet ( const DepSet& d ) { clashSet = d; }
+		/// add D to global dep-set
+	void updateClashSet ( const DepSet& d ) { clashSet.add(d); }
 		/// get dep-set wrt current level
 	DepSet getCurDepSet ( void ) const { return DepSet(getCurLevel()-1); }
 
@@ -733,14 +754,14 @@ protected:	// methods
 		/// get RO access to current branching dep-set
 	const DepSet& getBranchDep ( void ) const { return bContext->branchDep; }
 		/// update cumulative branch-dep with current clash-set
-	void updateBranchDep ( void ) { getBranchDep().add(DlCompletionTree::getClashSet()); }
+	void updateBranchDep ( void ) { getBranchDep().add(getClashSet()); }
 		/// prepare cumulative dep-set to usage
 	void prepareBranchDep ( void ) { getBranchDep().restrict(getCurLevel()); }
 		/// prepare cumulative dep-set and copy itto general clash-set
 	void useBranchDep ( void )
 	{
 		prepareBranchDep();
-		DlCompletionTree::setClashSet(getBranchDep());
+		setClashSet(getBranchDep());
 	}
 
 		/// restore one level (no backjumping)
@@ -874,11 +895,11 @@ DlSatTester :: initNewNode ( DlCompletionTree* node, const DepSet& dep, BipolarP
 inline bool DlSatTester :: backJumpedRestore ( void )
 {
 	// if empty clash dep-set -- concept is unsatisfiable
-	if ( DlCompletionTree::getClashSet().empty () )
+	if ( getClashSet().empty () )
 		return true;
 
 	// some non-deterministic choices were done
-	restore ( DlCompletionTree::getClashSet().level() );
+	restore ( getClashSet().level() );
 	return false;
 }
 

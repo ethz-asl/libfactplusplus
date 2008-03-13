@@ -107,9 +107,79 @@ void DlSatTester :: clear ( void )
 	tryLevel = 1;
 }
 
+
 addConceptResult
-DlSatTester :: tryAddConcept ( const CGLabel& lab, DagTag tag, BipolarPointer c,
-							   const DepSet& dep ) const
+DlSatTester :: checkAddedConcept ( const CWDArray& lab, BipolarPointer p, const DepSet& dep )
+{
+#ifdef ENABLE_CHECKING
+	assert ( isCorrect(p) );	// sanity checking
+	// constants are not allowed here
+	assert ( p != bpTOP );
+	assert ( p != bpBOTTOM );
+#endif
+
+	nLookups.inc();
+	nLookups.inc();
+
+	const BipolarPointer inv_p = inverse(p);
+
+	for ( const_label_iterator i = lab.begin(), i_end = lab.end(); i < i_end; ++i )
+	{
+		if ( i->bp() == p )
+			return acrExist;
+		else if ( i->bp() == inv_p )
+		{
+			// create clashSet
+			clashSet = dep + i->getDep();
+			return acrClash;
+		}
+	}
+
+	// we are able to insert a concept
+	return acrDone;
+}
+
+bool
+DlSatTester :: findConcept ( const CWDArray& lab, BipolarPointer p )
+{
+#ifdef ENABLE_CHECKING
+	assert ( isCorrect(p) );	// sanity checking
+	// constants are not allowed here
+	assert ( p != bpTOP );
+	assert ( p != bpBOTTOM );
+#endif
+
+	nLookups.inc();
+
+	return find ( lab.begin(), lab.end(), p ) != lab.end();
+}
+
+bool
+DlSatTester :: findConcept ( const CWDArray& lab, BipolarPointer p, const DepSet& dep )
+{
+#ifdef ENABLE_CHECKING
+	assert ( isCorrect(p) );	// sanity checking
+	// constants are not allowed here
+	assert ( p != bpTOP );
+	assert ( p != bpBOTTOM );
+#endif
+
+	nLookups.inc();
+
+	for ( const_label_iterator i = lab.begin(), i_end = lab.end(); i < i_end; ++i )
+	if ( i->bp() == p )
+	{
+		// create clashSet
+		clashSet = dep + i->getDep();
+		return true;
+	}
+
+	// we are able to insert a concept
+	return false;
+}
+
+addConceptResult
+DlSatTester :: tryAddConcept ( const CWDArray& lab, BipolarPointer c, const DepSet& dep )
 {
 	// check whether C or ~C can occurs in a node label
 	bool canC = isUsed(c);
@@ -119,14 +189,14 @@ DlSatTester :: tryAddConcept ( const CGLabel& lab, DagTag tag, BipolarPointer c,
 	if ( canC )
 	{
 		if ( canNegC )	// both C and ~C can be in the label
-			return lab.checkAddedConcept(tag,c,dep);
+			return checkAddedConcept(lab,c,dep);
 		else			// C but not ~C can be in the label
-			return lab.checkAddedConceptP(tag,c);
+			return findConcept(lab,c) ? acrExist : acrDone;
 	}
 	else
 	{
 		if ( canNegC )	// ~C but not C can be in the label
-			return lab.checkAddedConceptN(tag,c,dep);
+			return findConcept(lab,inverse(c),dep) ? acrClash : acrDone;
 		else			// neither C nor ~C can be in the label
 			return acrDone;
 	}
@@ -139,7 +209,7 @@ tacticUsage DlSatTester :: addToDoEntry ( DlCompletionTree* n, BipolarPointer c,
 		return utUnusable;
 	if ( c == bpBOTTOM )
 	{
-		DlCompletionTree::setClashSet(dep);
+		setClashSet(dep);
 		if ( LLM.isWritable(llGTA) )
 			logClash ( n, c, dep );
 		return utClash;
@@ -166,7 +236,7 @@ tacticUsage DlSatTester :: addToDoEntry ( DlCompletionTree* n, BipolarPointer c,
 	}
 
 	// try to add a concept to a node label
-	switch ( tryAddConcept ( n->label(), tag, c, dep ) )
+	switch ( tryAddConcept ( n->label().getLabel(tag), c, dep ) )
 	{
 	case acrClash:	// clash -- return
 		if ( LLM.isWritable(llGTA) )
@@ -243,7 +313,7 @@ void DlSatTester :: generateCacheClashLevel ( DlCompletionTree* node,
 	for ( p = node->beginl_cc(); p != node->endl_cc(); ++p )
 		cur.add(p->getDep());
 
-	DlCompletionTree::setClashSet(cur);
+	setClashSet(cur);
 }
 
 /// @return true iff given data node contains data contradiction
@@ -327,7 +397,6 @@ void
 DlSatTester :: finaliseStatistic ( void )
 {
 	// add the integer stat values
-	nAddOps.set(DlCompletionTree::getNAddOps());
 	nCompareOps.set(DlCompletionTree::getNSetCompareOps());
 	nNodeSaves.set(CGraph.getNNodeSaves());
 	nNodeRestores.set(CGraph.getNNodeRestores());
@@ -675,7 +744,7 @@ void DlSatTester :: logFinishEntry ( tacticUsage res ) const
 		LL << "utUnusable";
 		break;
 	case utClash:
-		LL << "utClash" << DlCompletionTree::getClashSet();
+		LL << "utClash" << getClashSet();
 		break;
 	default:	// safety check
 		assert (0);
@@ -709,7 +778,7 @@ void DlSatTester :: logStatisticData ( std::ostream& o, bool needLocal ) const
 	nStateRestores.Print	( o, needLocal, "\nThere were made ", " restore(s) of global state" );
 	nNodeSaves.Print		( o, needLocal, "\nThere were made ", " save(s) of tree state" );
 	nNodeRestores.Print		( o, needLocal, "\nThere were made ", " restore(s) of tree state" );
-	nAddOps.Print			( o, needLocal, "\nThere were made ", " concept insertion ops" );
+	nLookups.Print			( o, needLocal, "\nThere were made ", " concept insertion ops" );
 	nCompareOps.Print		( o, needLocal, "\nThere were made ", " set compare ops" );
 
 	nCachedSat.Print		( o, needLocal, "\nThere were build ", " cached satisfiable nodes" );

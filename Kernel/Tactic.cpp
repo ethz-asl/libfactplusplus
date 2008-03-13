@@ -264,7 +264,7 @@ tacticUsage DlSatTester :: commonTacticBodyOr ( const DLVertex& cur )	// for C \
 
 		case 0:		// no more applicable concepts
 			// set global dep-set using accumulated deps in branchDep
-			DlCompletionTree::setClashSet(getBranchDep());
+			setClashSet(getBranchDep());
 			return utClash;
 
 		default:	// complex OR case;
@@ -287,7 +287,7 @@ int DlSatTester :: getOrType ( const DLVertex& cur )
 	// check all OR components for the clash
 	const CGLabel& lab = curNode->label();
 	for ( DLVertex::const_iterator q = cur.begin(), q_end = cur.end(); q < q_end; ++q )
-		switch ( tryAddConcept ( lab, DLHeap[*q].Type(), inverse(*q), DepSet() ) )
+		switch ( tryAddConcept ( lab.getLabel(DLHeap[*q].Type()), inverse(*q), DepSet() ) )
 		{
 		case acrClash:	// clash found -- OK
 			updateBranchDep();
@@ -487,7 +487,7 @@ tacticUsage DlSatTester :: commonTacticBodySome ( const DLVertex& cur )	// for E
 	// check if we have functional role
 	if ( rName->isFunctional() )
 		for ( TRole::iterator r = rName->begin_topfunc(); r != rName->end_topfunc(); ++r )
-			switch ( tryAddConcept ( curNode->label(), dtLE, (*r)->getFunctional(), curDep ) )
+			switch ( tryAddConcept ( curNode->label().getLabel(dtLE), (*r)->getFunctional(), curDep ) )
 			{
 			case acrClash:	// addition leads to clash
 				return utClash;
@@ -982,17 +982,16 @@ applyLE:	// skip init, because here we are after restoring
 			if ( C != bpTOP )	// QCR: update dep-set
 			{
 				// here we know that C is in both labels; set a proper clash-set
-				BipolarPointer invC = inverse(C);
 				DagTag tag = DLHeap[C].Type();
-				addConceptResult test;
+				bool test;
 
 				// here dep contains the clash-set
-				test = from->getArcEnd()->label().checkAddedConceptN ( tag, invC, dep );
-				assert ( test == acrClash );
-				dep = DlCompletionTree::getClashSet();	// save new dep-set
+				test = findConcept(from->getArcEnd()->label().getLabel(tag), C, dep );
+				assert(test);
+				dep = getClashSet();	// save new dep-set
 
-				test = to->getArcEnd()->label().checkAddedConceptN ( tag, invC, dep );
-				assert ( test == acrClash );
+				test = findConcept(to->getArcEnd()->label().getLabel(tag), C, dep );
+				assert(test);
 				// both clash-sets are now in common clash-set
 			}
 			updateBranchDep();
@@ -1102,7 +1101,7 @@ bool DlSatTester :: isNRClash ( const DLVertex& atleast, const DLVertex& atmost,
 		return false;
 
 	// clash exists: create dep-set
-	DlCompletionTree::setClashSet ( curConcept.getDep() + reason.getDep() );
+	setClashSet ( curConcept.getDep() + reason.getDep() );
 
 	// log clash reason
 	if ( LLM.isWritable(llGTA) )
@@ -1113,33 +1112,33 @@ bool DlSatTester :: isNRClash ( const DLVertex& atleast, const DLVertex& atmost,
 
 /// aux method that checks whether clash occurs during the merge of labels
 bool
-DlSatTester :: checkMergeClash ( const CGLabel& from, const CGLabel& to, const DepSet& dep, unsigned int nodeId ) const
+DlSatTester :: checkMergeClash ( const CGLabel& from, const CGLabel& to, const DepSet& dep, unsigned int nodeId )
 {
 	CGLabel::const_iterator p, p_end;
 	DepSet clashDep(dep);
 	bool clash = false;
 	for ( p = from.begin_sc(), p_end = from.end_sc(); p < p_end; ++p )
 		if ( isUsed(inverse(p->bp()))
-			 && to.checkAddedConceptN ( dtPConcept, p->bp(), p->getDep() ) == acrClash )
+			 && findConcept ( to.getLabel(dtPConcept), inverse(p->bp()), p->getDep() ) )
 		{
 			clash = true;
-			clashDep.add(DlCompletionTree::getClashSet());
+			clashDep.add(getClashSet());
 			// log the clash
 			if ( LLM.isWritable(llGTA) )
-				LL << " x(" << nodeId << "," << p->bp() << DlCompletionTree::getClashSet()+dep << ")";
+				LL << " x(" << nodeId << "," << p->bp() << getClashSet()+dep << ")";
 		}
 	for ( p = from.begin_cc(), p_end = from.end_cc(); p < p_end; ++p )
 		if ( isUsed(inverse(p->bp()))
-			 && to.checkAddedConceptN ( dtForall, p->bp(), p->getDep() ) == acrClash )
+			 && findConcept ( to.getLabel(dtForall), inverse(p->bp()), p->getDep() ) )
 		{
 			clash = true;
-			clashDep.add(DlCompletionTree::getClashSet());
+			clashDep.add(getClashSet());
 			// log the clash
 			if ( LLM.isWritable(llGTA) )
-				LL << " x(" << nodeId << "," << p->bp() << DlCompletionTree::getClashSet()+dep << ")";
+				LL << " x(" << nodeId << "," << p->bp() << getClashSet()+dep << ")";
 		}
 	if ( clash )
-		DlCompletionTree::setClashSet(clashDep);
+		setClashSet(clashDep);
 	return clash;
 }
 
@@ -1152,32 +1151,20 @@ bool DlSatTester :: mergeLabels ( const CGLabel& from, DlCompletionTree* to, con
 	// if the concept is already exists in the node label --
 	// we still need to update it with a new dep-set (due to merging)
 	for ( p = from.begin_sc(), p_end = from.end_sc(); p < p_end; ++p )
-		switch ( lab.checkAddedConceptP ( dtPConcept, p->bp() ) )
+		if ( findConcept ( lab.getLabel(dtPConcept), p->bp() ) )
+			CGraph.saveRareCond ( to->label().getLabel(dtPConcept).updateDepSet ( p->bp(), dep+p->getDep() ) );
+		else
 		{
-		case acrDone:
 			done = true;
 			insertToDoEntry ( to, p->bp(), dep+p->getDep(), DLHeap[p->bp()].Type(), "M" );
-			break;
-		case acrExist:
-			CGraph.saveRareCond ( to->label().getLabel(dtPConcept).updateDepSet ( p->bp(), dep+p->getDep() ) );
-			break;
-		default:	// no clash can appear here
-			assert(0);
-			break;
 		}
 	for ( p = from.begin_cc(), p_end = from.end_cc(); p < p_end; ++p )
-		switch ( lab.checkAddedConceptP ( dtForall, p->bp() ) )
+		if ( findConcept ( lab.getLabel(dtForall), p->bp() ) )
+			CGraph.saveRareCond ( to->label().getLabel(dtForall).updateDepSet ( p->bp(), dep+p->getDep() ) );
+		else
 		{
-		case acrDone:
 			done = true;
 			insertToDoEntry ( to, p->bp(), dep+p->getDep(), DLHeap[p->bp()].Type(), "M" );
-			break;
-		case acrExist:
-			CGraph.saveRareCond ( to->label().getLabel(dtForall).updateDepSet ( p->bp(), dep+p->getDep() ) );
-			break;
-		default:	// no clash can appear here
-			assert(0);
-			break;
 		}
 
 	return done;
@@ -1203,7 +1190,7 @@ tacticUsage DlSatTester :: Merge ( DlCompletionTree* from, DlCompletionTree* to,
 	DepSet dep(depF);
 	if ( CGraph.nonMergable ( from, to, dep ) )
 	{
-		DlCompletionTree::setClashSet(dep);
+		setClashSet(dep);
 		return utClash;
 	}
 

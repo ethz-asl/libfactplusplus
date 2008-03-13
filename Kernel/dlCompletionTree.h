@@ -127,7 +127,7 @@ public:		// type interface
 		/// const iterator on edges
 	typedef ArcCollection::const_iterator const_edge_iterator;
 
-		/// const iterator on label
+		/// RO iterator on label
 	typedef CGLabel::const_iterator const_label_iterator;
 
 #ifdef RKG_IR_IN_NODE_LABEL
@@ -156,20 +156,10 @@ public:		// static interface
 	// get read access to statistic
 
 	static unsigned int getNSetCompareOps ( void ) { return nSetCompareOps; }
-	static unsigned int getNAddOps ( void ) { return CWDArray::nLookups; }
-
-	// access to global clashset, which contains result of clash during label addition
-
-		/// get value of global dep-set
-	static const DepSet& getClashSet ( void ) { return CWDArray::clashSet; }
-		/// set value of global dep-set to D
-	static void setClashSet ( const DepSet& d ) { CWDArray::clashSet = d; }
-		/// add D to global dep-set
-	static void updateClashSet ( const DepSet& d ) { CWDArray::clashSet.add(d); }
 
 	// write access to static members
 
-	static void resetStatistic ( void ) { nSetCompareOps = CWDArray::nLookups = 0; }
+	static void resetStatistic ( void ) { nSetCompareOps = 0; }
 	static void setBlockingMethod ( bool isInverse ) { sessionHasInverseRoles = isInverse; }
 
 protected:	// members
