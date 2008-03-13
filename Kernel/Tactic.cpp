@@ -1159,7 +1159,7 @@ bool DlSatTester :: mergeLabels ( const CGLabel& from, DlCompletionTree* to, con
 			insertToDoEntry ( to, p->bp(), dep+p->getDep(), DLHeap[p->bp()].Type(), "M" );
 			break;
 		case acrExist:
-			CGraph.saveRareCond ( to->label().updateDepSet ( p->bp(), dep+p->getDep(), dtPConcept ) );
+			CGraph.saveRareCond ( to->label().getLabel(dtPConcept).updateDepSet ( p->bp(), dep+p->getDep() ) );
 			break;
 		default:	// no clash can appear here
 			assert(0);
@@ -1173,7 +1173,7 @@ bool DlSatTester :: mergeLabels ( const CGLabel& from, DlCompletionTree* to, con
 			insertToDoEntry ( to, p->bp(), dep+p->getDep(), DLHeap[p->bp()].Type(), "M" );
 			break;
 		case acrExist:
-			CGraph.saveRareCond ( to->label().updateDepSet ( p->bp(), dep+p->getDep(), dtForall ) );
+			CGraph.saveRareCond ( to->label().getLabel(dtForall).updateDepSet ( p->bp(), dep+p->getDep() ) );
 			break;
 		default:	// no clash can appear here
 			assert(0);

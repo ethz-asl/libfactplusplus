@@ -56,11 +56,6 @@ protected:	// methods
 		/// @return true iff TAG represents complex concept
 	bool isComplexConcept ( DagTag tag ) const
 		{ return tag == dtForall || tag == dtLE || tag == dtIrr || tag == dtUAll; }
-		/// get (RW) label associated with the concepts defined by TAG
-	CWDArray& getLabel ( DagTag tag ) { return isComplexConcept(tag) ? ccLabel : scLabel; }
-		/// get (RO) label associated with the concepts defined by TAG
-	const CWDArray& getLabel ( DagTag tag ) const
-		{ return isComplexConcept(tag) ? ccLabel : scLabel; }
 
 public:		// interface
 		/// init newly created node
@@ -95,17 +90,16 @@ public:		// interface
 	// Label access interface
 	//----------------------------------------------
 
+		/// get (RW) label associated with the concepts defined by TAG
+	CWDArray& getLabel ( DagTag tag ) { return isComplexConcept(tag) ? ccLabel : scLabel; }
+		/// get (RO) label associated with the concepts defined by TAG
+	const CWDArray& getLabel ( DagTag tag ) const { return isComplexConcept(tag) ? ccLabel : scLabel; }
 		/// check if it is possible to add a concept to a label given by TAG
 	addConceptResult checkAddedConcept ( DagTag tag, BipolarPointer p, const DepSet& dep ) const;
 		/// try to add a concept to a label given by TAG; ~P can't appear in the label
 	addConceptResult checkAddedConceptP ( DagTag tag, BipolarPointer p ) const;
 		/// try to add a concept to a label given by TAG; P can't appear in the label
 	addConceptResult checkAddedConceptN ( DagTag tag, BipolarPointer p, const DepSet& dep ) const;
-		/// adds concept P to a label, defined by TAG
-	void add ( const ConceptWDep& p, DagTag tag ) { getLabel(tag).add(p); }
-		/// update concept BP from the label defined by TAG with a dep-set DEP; @return restorer
-	TRestorer* updateDepSet ( BipolarPointer bp, const DepSet& dep, DagTag tag )
-		{ return dep.empty() ? NULL : getLabel(tag).updateDepSet ( bp, dep ); }
 
 	// TODO table interface
 

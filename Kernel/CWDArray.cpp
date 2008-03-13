@@ -42,6 +42,9 @@ public:
 TRestorer*
 CWDArray :: updateDepSet ( BipolarPointer bp, const DepSet& dep )
 {
+	if ( dep.empty() )
+		return NULL;
+
 	for ( iterator i = Base.begin(), i_end = Base.end(); i < i_end; ++i )
 		if ( i->bp() == bp )
 		{

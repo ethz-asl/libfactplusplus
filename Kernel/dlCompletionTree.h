@@ -752,7 +752,7 @@ inline DlCompletionTree :: ~DlCompletionTree ( void )
 // just adds a concept to a label
 inline void DlCompletionTree :: addConcept ( const ConceptWDep& p, DagTag tag )
 {
-	Label.add ( p, tag );
+	Label.getLabel(tag).add(p);
 
 	// after changing label we need to check if blocking status is changed
 	if ( !useLazyBlocking )
