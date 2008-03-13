@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2005-2007 by Dmitry Tsarkov
+Copyright (C) 2005-2008 by Dmitry Tsarkov
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -17,24 +17,6 @@ Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 */
 
 #include "DataReasoning.h"
-#include "dlTBox.h"
-#include "logging.h"
-
-/// report about clash with dep-set DEP and given REASON and return TRUE (to simplify caller)
-static bool reportClash ( const DepSet& dep, const char* reason )
-{
-	if ( LLM.isWritable(llCDAction) )	// level of logging
-		LL << " DT-" << reason;	// inform about clash...
-
-	DlCompletionTree::setClashSet(dep);
-	return true;
-}
-
-static void logDataValueEntry ( bool pos, const char* value )
-{
-	if ( LLM.isWritable(llCDAction) )	// level of logging
-		LL << ' ' << (pos ? '+' : '-') << value;
-}
 
 //toms code start
 bool DataTypeReasoner :: addDataEntry ( const ConceptWDep& c )
@@ -46,19 +28,19 @@ bool DataTypeReasoner :: addDataEntry ( const ConceptWDep& c )
 	{
 	case dtDataType:		// get appropriate type
 	{
-		DataTypeAppearance& type = getDTAbyType(getDataEntry(p));
+		DataTypeAppearance* type = getDTAbyType(getDataEntry(p));
 
-		logDataValueEntry ( isPositive(p), getDataEntry(p)->getName() );
+		logDataValueEntry(p);
 
 		if ( isPositive(p) )
-			type.setPType(getDTE(c));
+			type->setPType(getDTE(c));
 		else
-			type.NType = getDTE(c);
+			type->NType = getDTE(c);
 
 		return false;	// no clash found
 	}
 	case dtDataValue:
-		logDataValueEntry ( isPositive(p), getDataEntry(p)->getName() );
+		logDataValueEntry(p);
 		return isNegative(p) ?
 			processNegativeDV(getDTE(c)) :
 			processRestriction ( /*pos=*/true, /*min=*/false, /*excl=*/false,
@@ -87,16 +69,22 @@ bool DataTypeReasoner :: addDataEntry ( const ConceptWDep& c )
 
 bool DataTypeReasoner :: checkClash ( void )
 {
-	const DataTypeAppearance* type = NULL;
+	DataTypeAppearance* type = NULL;
 
 	// find a positive class
 	for ( DTAVector::const_iterator p = Types.begin(), p_end = Types.end(); p < p_end; ++p )
-		if ( p->hasPType() )
+		if ( (*p)->hasPType() )
 		{
 			if ( type == NULL )
-				type = &*p;
+				type = *p;
 			else	// 2 different positive classes => contradiction
-				return reportClash ( type->PType.second+p->PType.second, "TT" );
+			{
+				if ( LLM.isWritable(llCDAction) )	// level of logging
+					LL << " DT-TT";					// inform about clash...
+
+				clashDep = type->PType.second+(*p)->PType.second;
+				return true;
+			}
 		}
 
 	// check the case where an interval /min..max/ is completed with !min,...,!max
@@ -221,7 +209,7 @@ DataTypeAppearance :: addInterval ( bool pos, const TDataInterval& Int, const De
 }
 
 bool
-DataTypeAppearance :: checkPNTypeClash ( void ) const
+DataTypeAppearance :: checkPNTypeClash ( void )
 {
 	// check if NType is already present
 	if ( hasNType() )

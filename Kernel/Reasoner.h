@@ -652,8 +652,19 @@ protected:	// methods
 
 	// datatype staff
 
+		/// @return true iff given data node contains inconsistent data constraints
+	bool hasDataClash ( const DlCompletionTree* node );
 		/// @return utClash iff given data node contains inconsistent data constraints
-	tacticUsage checkDataClash ( const DlCompletionTree* node );
+	tacticUsage checkDataClash ( const DlCompletionTree* node )
+	{
+		if ( hasDataClash(node) )
+		{
+			DlCompletionTree::setClashSet(DTReasoner.getClashSet());
+			return utClash;
+		}
+		else
+			return utDone;
+	}
 
 	// logging actions
 

@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2005-2007 by Dmitry Tsarkov
+Copyright (C) 2005-2008 by Dmitry Tsarkov
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -28,6 +28,7 @@ Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #include "DataTypeComparator.h"
 #include "ConceptWithDep.h"
 #include "dlDag.h"
+#include "logging.h"
 
 class DataTypeAppearance
 {
@@ -114,10 +115,23 @@ protected:	// members
 	SingleValues negValues;
 		/// accumulated dep-set
 	DepSet accDep;
+		/// dep-set for the clash
+	DepSet& clashDep;
+
+protected:	// methods
+		/// set clash dep-set to DEP, report with given REASON; @return true to simplify callers
+	bool reportClash ( const DepSet& dep, const char* reason )
+	{
+		if ( LLM.isWritable(llCDAction) )	// level of logging
+			LL << " DT-" << reason;	// inform about clash...
+
+		clashDep = dep;
+		return true;
+	}
 
 public:		// methods
 		/// empty c'tor
-	DataTypeAppearance ( void ) {}
+	DataTypeAppearance ( DepSet& dep ) : clashDep(dep) {}
 		/// empty d'tor
 	~DataTypeAppearance ( void ) {}
 
@@ -160,14 +174,14 @@ public:		// methods
 		/// add restrictions [POS]P to intervals
 	bool addInterval ( bool pos, const TDataInterval& p, const DepSet& dep );
 		/// @return true iff PType and (possibly inferred) NType leads to clash
-	bool checkPNTypeClash ( void ) const;
+	bool checkPNTypeClash ( void );
 }; // DataTypeAppearance
 
 class DataTypeReasoner
 {
 protected:	// types
 		/// vector of data types
-	typedef std::vector<DataTypeAppearance> DTAVector;
+	typedef std::vector<DataTypeAppearance*> DTAVector;
 		/// map from positive BPs (DT pNames) to corresponding data type
 	typedef std::map<const TDataEntry*,size_t> TypeMap;
 		/// complex DTE type copied from DTA
@@ -180,26 +194,28 @@ protected:	// members
 	TypeMap Map;
 		/// external DAG
 	const DLDag& DLHeap;
+		/// dep-set for the clash for *all* the types
+	DepSet clashDep;
 
 protected:	// methods
 
 	// aux functions used by addDataEntry function
 	bool processNegativeDV ( const DepDTE& c )
 	{
-		getDTAbyValue(c.first).addNegValue(c);
+		getDTAbyValue(c.first)->addNegValue(c);
 		return false;
 	}
 		/// set (C,DEP) as a MIN value of a type's interval
 	bool processRestriction ( bool pos, bool min, bool excl, const TDataEntry* c, const DepSet& dep )
 	{
-		DataTypeAppearance& type = getDTAbyValue(c);
+		DataTypeAppearance* type = getDTAbyValue(c);
 		DepDTE C(c,dep);	// real concept to be added
 
 		if (pos)
-			type.setPType(C);
+			type->setPType(C);
 
 		// update maximal border of the interval; @return true if TYPE was changed
-		return type.update ( min, excl, c, dep );
+		return type->update ( min, excl, c, dep );
 	}
 		/// process data expr
 	bool processDataExpr ( bool pos, const TDataEntry* c, const DepSet& dep )
@@ -207,10 +223,10 @@ protected:	// methods
 		const TDataInterval& constraints = *c->getFacet();
 		if ( constraints.empty() )
 			return false;
-		DataTypeAppearance& type = getDTAbyValue(c);
+		DataTypeAppearance* type = getDTAbyValue(c);
 		if (pos)
-			type.setPType(DepDTE(c,dep));
-		return type.addInterval ( pos, constraints, dep );
+			type->setPType(DepDTE(c,dep));
+		return type->addInterval ( pos, constraints, dep );
 	}
 
 		/// get data entry structure by a BP
@@ -223,7 +239,7 @@ protected:	// methods
 	// get access to proper DataTypeAppearance
 
 		/// get DTA by given data-type pointer
-	DataTypeAppearance& getDTAbyType ( const TDataEntry* dataType )
+	DataTypeAppearance* getDTAbyType ( const TDataEntry* dataType )
 	{
 #	ifdef ENABLE_CHECKING
 		assert ( Map.find(dataType) != Map.end() );
@@ -231,7 +247,7 @@ protected:	// methods
 		return Types[Map[dataType]];
 	}
 		/// get DTA by given data-value pointer
-	DataTypeAppearance& getDTAbyValue ( const TDataEntry* dataValue )
+	DataTypeAppearance* getDTAbyValue ( const TDataEntry* dataValue )
 	{
 #	ifdef ENABLE_CHECKING
 		assert ( !dataValue->isBasicDataType() );
@@ -239,11 +255,22 @@ protected:	// methods
 		return getDTAbyType(dataValue->getType());
 	}
 
+		/// log about processing data-value entry
+	void logDataValueEntry ( BipolarPointer p ) const
+	{
+		if ( LLM.isWritable(llCDAction) )	// level of logging
+			LL << ' ' << (isPositive(p) ? '+' : '-') << getDataEntry(p)->getName();
+	}
+
 public:		// interface
 		/// c'tor: save DAG
 	DataTypeReasoner ( const DLDag& dag ) : DLHeap(dag) {}
 		/// empty d'tor
-	~DataTypeReasoner ( void ) {}
+	~DataTypeReasoner ( void )
+	{
+		for ( DTAVector::iterator p = Types.begin(); p < Types.end(); ++p )
+			delete *p;
+	}
 
 	// managing DTR
 
@@ -251,13 +278,13 @@ public:		// interface
 	void registerDataType ( const TDataEntry* p )
 	{
 		Map[p] = Types.size();
-		Types.push_back(DataTypeAppearance());
+		Types.push_back(new DataTypeAppearance(clashDep));
 	}
 		/// prepare types for the reasoning
 	void clear ( void )
 	{
 		for ( DTAVector::iterator p = Types.begin(), p_end = Types.end(); p < p_end; ++p )
-			p->clear();
+			(*p)->clear();
 	}
 
 	// filling structures and getting answers
@@ -266,6 +293,8 @@ public:		// interface
 	bool addDataEntry ( const ConceptWDep& c );
 		/// @return true iff data inconsistency was found in a structure; ClashSet would be set approprietry
 	bool checkClash ( void );
+		/// get clash-set
+	const DepSet& getClashSet ( void ) const { return clashDep; }
 }; // DataTypeReasoner
 
 

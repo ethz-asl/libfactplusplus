@@ -246,8 +246,9 @@ void DlSatTester :: generateCacheClashLevel ( DlCompletionTree* node,
 	DlCompletionTree::setClashSet(cur);
 }
 
-/// @return false iff given data node contains data contradiction
-tacticUsage DlSatTester :: checkDataClash ( const DlCompletionTree* Node )
+/// @return true iff given data node contains data contradiction
+bool
+DlSatTester :: hasDataClash ( const DlCompletionTree* Node )
 {
 	assert ( Node && Node->isDataNode() );	// safety check
 
@@ -256,9 +257,9 @@ tacticUsage DlSatTester :: checkDataClash ( const DlCompletionTree* Node )
 	// data node may contain only "simple" concepts in there
 	for ( DlCompletionTree::const_label_iterator r = Node->beginl_sc(); r != Node->endl_sc(); ++r )
 		if ( DTReasoner.addDataEntry(*r) )	// clash found
-			return utClash;
+			return true;
 
-	return DTReasoner.checkClash() ? utClash : utDone;
+	return DTReasoner.checkClash();
 }
 
 bool
