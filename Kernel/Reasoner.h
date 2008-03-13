@@ -375,7 +375,6 @@ protected:	// methods
 			addExistingToDoEntry ( node, lab.getSCOffset(p), reason );
 		for ( p = lab.begin_cc(); p != lab.end_cc(); ++p )
 			addExistingToDoEntry ( node, lab.getCCOffset(p), reason );
-		const_cast<CGLabel&>(lab).clearExtra();	// all extra information would be re-added
 	}
 
 		/// main reasoning function
@@ -496,17 +495,6 @@ protected:	// methods
 	bool isPIBlocked ( void );
 		/// @return true iff NN-rule wrt (<= R.C) is applicable to the curNode
 	bool isNNApplicable ( const TRole* r, BipolarPointer C ) const;
-		/// apply rule-like actions for the concept P
-	tacticUsage applyExtraRules ( const TConcept* p );
-		/// apply rule-like actions for the concept P if necessary
-	inline
-	tacticUsage applyExtraRulesIf ( const TConcept* p )
-	{
-		if ( !p->hasExtraRules() )
-			return utUnusable;
-		assert ( p->isPrimitive() );
-		return applyExtraRules(p);
-	}
 
 	// support for choose-rule
 

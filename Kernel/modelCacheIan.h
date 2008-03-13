@@ -86,8 +86,6 @@ protected:	// methods
 	{
 		processLabelInterval ( DLHeap, pCT->beginl_sc(), pCT->endl_sc() );
 		processLabelInterval ( DLHeap, pCT->beginl_cc(), pCT->endl_cc() );
-		for ( l_iterator p = pCT->label().begin_ex(), p_end = pCT->label().end_ex(); p < p_end; ++p )
-			extraConcepts.insert(p->bp());	// don't care about dep-set here
 	}
 		/// adds role (and all its super-roles) to exists- and funcRoles
 	void addExistsRole ( const TRole* r );

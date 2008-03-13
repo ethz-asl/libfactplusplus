@@ -186,34 +186,9 @@ tacticUsage DlSatTester :: commonTacticBodyId ( const DLVertex& cur )
 
 	tacticUsage ret = utUnusable;
 
-	// check if we have some DJ statement
-	if ( isPositive(curConcept.bp()) )
-		switchResult ( ret, applyExtraRulesIf(static_cast<const TConcept*>(cur.getConcept())) );
-
 	// get either body(p) or inverse(body(p)), depends on sign of current ID
 	BipolarPointer p = isPositive(curConcept.bp()) ? cur.getC() : inverse(cur.getC());
 	switchResult ( ret, addToDoEntry ( curNode, p, curConcept.getDep() ) );
-
-	return ret;
-}
-
-tacticUsage
-DlSatTester :: applyExtraRules ( const TConcept* C )
-{
-	tacticUsage ret = utUnusable;
-
-	const DepSet& dep = curConcept.getDep();
-	CGLabel& lab = const_cast<CGLabel&>(curNode->label());
-	for ( TConcept::er_iterator p = C->er_begin(), p_end=C->er_end(); p < p_end; ++p )
-		if ( lab.addExtraConcept ( *p, dep ) )
-		{
-			nSRuleFire.inc();
-			switchResult ( ret,
-						   addToDoEntry ( curNode,
-						   				  tBox.getExtraRuleHead(*p), DlCompletionTree::getClashSet() ) );
-		}
-		else
-			nSRuleAdd.inc();
 
 	return ret;
 }
