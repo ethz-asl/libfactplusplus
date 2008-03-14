@@ -34,9 +34,9 @@ ConfSection :: ~ConfSection ( void )
 		delete *i;
 }
 
-ConfSection* Configuration :: FindSection ( const std::string& pc )
+ConfSection* Configuration :: FindSection ( const std::string& pc ) const
 {
-	for ( ConfSectBase::iterator i = Base.begin (); i != Base.end (); ++i )
+	for ( ConfSectBase::const_iterator i = Base.begin (); i != Base.end (); ++i )
 		if ( **i == pc )
 			return *i;
 
@@ -44,9 +44,9 @@ ConfSection* Configuration :: FindSection ( const std::string& pc )
 	return (ConfSection*) NULL;
 }
 
-ConfElem* ConfSection :: FindByName ( const std::string& name )
+ConfElem* ConfSection :: FindByName ( const std::string& name ) const
 {
-	for ( ConfBase::iterator i = Base.begin (); i != Base.end (); ++i )
+	for ( ConfBase::const_iterator i = Base.begin (); i != Base.end (); ++i )
 		if ( (*i)->Name == name )
 			return *i;
 
@@ -54,73 +54,59 @@ ConfElem* ConfSection :: FindByName ( const std::string& name )
 	return (ConfElem*) NULL;
 }
 
-bool Configuration :: useSection ( const std::string& name )
-{
-	Current = FindSection ( name );
-	return !Current;
-}
 
-// add section; set Current to new pointer. Ret 1 if couldn't.
-bool Configuration :: createSection ( const std::string& name )
+// add section; set Section to new pointer. Ret 1 if couldn't.
+void Configuration :: createSection ( const std::string& name )
 {
 	// if section already exists -- nothing to do
 	if ( !useSection ( name ) )
-		return false;
+		return;
 
-	Current = new ConfSection ( name );
-	if ( Current )
-	{
-		Base.push_back ( Current );
-		isSave = false;
-		return false;
-	}
-	else
-		return true;
+	Section = new ConfSection ( name );
+	Base.push_back(Section);
+	isSaved = false;
 }
 
-// add Field.value to current Section; sets Trying to new p.
+// add Field.value to current Section; sets Element to new p.
 bool Configuration :: setValue ( const std::string& Field, const std::string& Value )
 {
-	if ( !Current )
+	if ( !Section )
 		return true;
 
+	//changing things
+	isSaved = false;
+
 	// check for existing field
-	if ( (Trying = Current->FindByName(Field)) )
+	if ( (Element = Section->FindByName(Field)) )
 	{
-		Trying->Value = Value;
-		isSave = false;
+		Element->Value = Value;
 		return false;
 	}
 	else
 	{
-		Current -> addEntry ( Field, Value );
-		isSave = false;
-		return !(Trying = Current->FindByName(Field));
+		Section -> addEntry ( Field, Value );
+		return !(Element = Section->FindByName(Field));
 	}
 }
 
-// check if Field exists if Current is set;
+// check if Field exists if Section is set;
 bool Configuration :: checkValue ( const std::string& Field )
 {
-	if ( !Current )
+	if ( !Section )
 		return true;
 
-	if ( (Trying = Current->FindByName(Field)) == NULL )
-		return true;
-
-	return false;
+	Element = Section->FindByName(Field);
+	return Element == NULL;
 }
 
 // check if Section:Field exists;
-bool Configuration :: checkValue ( const std::string& Section, const std::string& Field )
+bool Configuration :: checkValue ( const std::string& Sect, const std::string& Field )
 {
-	if ( useSection (Section) )
+	if ( useSection(Sect) )
 		return true;
 
-	if ( (Trying = Current->FindByName(Field)) == NULL )
-		return true;
-
-	return false;
+	Element = Section->FindByName(Field);
+	return Element == NULL;
 }
 
 // Manipulation part
@@ -193,13 +179,13 @@ bool Configuration :: isComment ( void ) const
 	return true;
 }
 
-int Configuration :: Load ( const char* Filename )
+bool Configuration :: Load ( const char* Filename )
 {
 	std::ifstream in ( Filename );
 	char *pName, *pValue;
 
-	isLoad = false;
-	if ( !in ) return 1;
+	isLoaded = false;
+	if ( !in ) return true;
 
 	loadString (in);
 	while ( !in.eof () )
@@ -207,7 +193,7 @@ int Configuration :: Load ( const char* Filename )
 		if ( isSection () )
 			loadSection ();
 		else
-			return 2;
+			return true;
 
 		do
 		{
@@ -219,35 +205,34 @@ int Configuration :: Load ( const char* Filename )
 				break;
 
 			if ( SplitLine ( pName, pValue ) )
-				return 3;
+				return true;
 
 			if ( setValue ( pName, pValue ) )
-				return 4;
+				return true;
 		} while ( !in.eof () );
 	}
 
-	isLoad = isSave = true;
+	isLoaded = isSaved = true;
 	fileName = Filename;
-	return 0;
+	return false;
 }
 
-bool Configuration :: loadSection ( void )
+void Configuration :: loadSection ( void )
 {
 	Line [strlen(Line)-1] = (char) 0;	// kill ']' of section
 	#ifdef USE_DEBUG
 		cerr << "\nfound section \'" << Line+1 << "\'";
 	#endif
-	return createSection ( Line+1 );	// skip '['
+	createSection ( Line+1 );	// skip '['
 }
 
 // Save part
-int ConfElem :: Save ( std::ostream& o ) const
+void ConfElem :: Save ( std::ostream& o ) const
 {
 	o << ' ' << Name.c_str () << " = " << Value.c_str () << std::endl;
-	return o.bad ();
 }
 
-int ConfSection :: Save ( std::ostream& o ) const
+void ConfSection :: Save ( std::ostream& o ) const
 {
 	o << "[" << Name.c_str () << "]\n";
 
@@ -255,25 +240,17 @@ int ConfSection :: Save ( std::ostream& o ) const
 		(*i)->Save (o);
 
 	o << std::endl;
-	return o.bad ();
 }
 
-int Configuration :: Save ( const char* Filename )
+bool Configuration :: Save ( const char* Filename )
 {
 	std::ofstream o ( Filename );
 	if ( o.bad () )
-		return 1;
+		return true;
 
-	int res = 0;
-	for ( ConfSectBase::iterator i = Base.begin (); !res && i != Base.end (); ++i )
-		res = (*i)->Save (o);
+	for ( ConfSectBase::iterator i = Base.begin (); i != Base.end (); ++i )
+		(*i)->Save (o);
 
-	res |= o.bad ();
-
-	if ( !res )
-		isLoad = isSave = true;
-	else
-		isSave = false;
-
-	return res;
+	isLoaded = isSaved = true;
+	return false;
 }

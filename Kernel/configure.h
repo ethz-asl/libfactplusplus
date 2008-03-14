@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2004 by Dmitry Tsarkov
+Copyright (C) 2003-2008 by Dmitry Tsarkov
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -16,29 +16,32 @@ along with this program; if not, write to the Free Software
 Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 */
 
-#ifndef __CONFIGUR_HPP
-#define __CONFIGUR_HPP
+#ifndef __CONFIGURE_H
+#define __CONFIGURE_H
 
 const unsigned MaxConfLineLen = 1024;
 
-#include <string.h>
-#include <stdlib.h>
+#include <cstring>
 #include <iostream>
 
 #include <string>
 #include <vector>
 
-// configure element
+/// configure element in the form Name = Value
 class ConfElem
 {
 public:
 	const std::string Name;
 	std::string Value;
 
+
+		/// empty c'tor
 	ConfElem () {}
+		/// init c'tor
 	ConfElem ( const std::string& n, const std::string& v ) : Name (n), Value (v) {}
 
-	int Save ( std::ostream& o ) const;
+		/// save element to target stream
+	void Save ( std::ostream& o ) const;
 
 	// interface
 	long GetLong ( void ) const { return atol ( Value.c_str() ); }
@@ -46,7 +49,7 @@ public:
 	const char* GetString ( void ) const { return Value.c_str(); }
 }; // ConfElem
 
-// class for storing configure
+/// class for storing configure section with all the keys
 class ConfSection
 {
 protected:
@@ -59,84 +62,79 @@ public:
 	ConfSection ( const std::string& pc ) : Name ( pc ) {}
 	~ConfSection ( void );
 
-	int operator == ( const std::string& pc ) const
-		{ return ( Name == pc ); }
-	int operator != ( const std::string& pc ) const
-		{ return ( Name != pc ); }
+	bool operator == ( const std::string& pc ) const { return ( Name == pc ); }
+	bool operator != ( const std::string& pc ) const { return ( Name != pc ); }
 
 	void addEntry ( const std::string& Name, const std::string& Value );
 
 	// find element; return NULL if not found
-	ConfElem* FindByName ( const std::string& name );
+	ConfElem* FindByName ( const std::string& name ) const;
 
-	int Save ( std::ostream& o ) const;
+	void Save ( std::ostream& o ) const;
 }; // ConfSection
 
-// class for reading general configuration file
+/// class for reading general configuration file
 class Configuration
 {
 protected:	// parsing part
 	std::string fileName;	// fileName
 	char Line [MaxConfLineLen+1];	// \0
-	bool isLoad, isSave;	// flags
+	bool isLoaded, isSaved;	// flags
 
 	// parser methods
 	void loadString ( std::istream& );
 	bool isComment ( void ) const;
-	int isSection ( void ) const
+	bool isSection ( void ) const
 		{ return ( Line [0] == '[' && Line [strlen(Line)-1] == ']' ); }
-	bool loadSection ( void );
+	void loadSection ( void );
 	// splits line 'name=value' on 2 ASCIIZ parts
 	int SplitLine ( char*& pName, char*& pValue );
 
 protected:	// logic part
 	typedef std::vector <ConfSection*> ConfSectBase;
 	ConfSectBase Base;
-	ConfSection* Current;
-	ConfElem* Trying;
+	ConfSection* Section;
+	ConfElem* Element;
 
 	// navigation methods
-	ConfSection* FindSection ( const std::string& pc );
+	ConfSection* FindSection ( const std::string& pc ) const;
 
 public:
-	Configuration ( void ) :
-		isLoad (false), isSave (false), Current (NULL), Trying (NULL)  {}
+	Configuration ( void )
+		: isLoaded(false)
+		, isSaved(false)
+		, Section(NULL)
+		, Element(NULL)
+		{}
 	~Configuration ( void );
 
-	// load config from file; -1 if any error
-	int Load ( const char* Filename );
-	// save config to file; -1 if any error
-	int Save ( const char* Filename );
-	// save config to the loaden' file; -1 if any error
-	int Save ( void ) { return isLoad ? Save(fileName.c_str()) : -1; }
+	// load config from file; @return true if cannot
+	bool Load ( const char* Filename );
+	// save config to file; @return true if cannot
+	bool Save ( const char* Filename );
+	// save config to the loaded file; @return true if cannot
+	bool Save ( void ) { return isLoaded ? Save(fileName.c_str()) : true; }
 
 	// status methods
-	bool Loaded ( void ) const { return isLoad; }
-	bool Saved  ( void ) const { return isSave; }
-	// add section; set Current to new pointer. Ret 1 if couldn't.
-	bool createSection ( const std::string& name );
-	// check if Sect.Field exists;
-	bool checkValue ( const std::string& Section, const std::string& Field );
-	// check if Field exists if Current is set;
-	bool checkValue ( const std::string& Field );
-	// add Field.value to current Section; sets Trying to new p.
-	bool setValue ( const std::string& Field, const std::string& Value );
-	// get Sect.Field value; ret. empty string if error
-//	string getValue ( const char* Section, const char* Field ) const;
-	// get Field value if Current is set; empty string if error
-//	string getValue ( const char* Field ) const;
+	bool Loaded ( void ) const { return isLoaded; }
+	bool Saved  ( void ) const { return isSaved; }
+		/// add section if necessary; set Current to new pointer
+	void createSection ( const std::string& name );
+		/// check if Sect.Field exists;
+	bool checkValue ( const std::string& Section, const std::string& Element );
+		/// check if Field exists if Current is set;
+	bool checkValue ( const std::string& Element );
+		/// add Field.value to current Section; sets Trying to new p.
+	bool setValue ( const std::string& Element, const std::string& Value );
 
 	// get checked value
-	std::string getValue ( void ) const
-		{ return Trying -> Value; }
-	long getLong ( void ) const
-		{ return Trying -> GetLong (); }
-	double getDouble ( void ) const
-		{ return Trying -> GetDouble (); }
-	const char* getString ( void ) const
-		{ return Trying -> GetString (); }
+	std::string getValue ( void ) const { return Element->Value; }
+	long getLong ( void ) const { return Element->GetLong(); }
+	double getDouble ( void ) const { return Element->GetDouble(); }
+	const char* getString ( void ) const { return Element->GetString(); }
 	// set Sect as a default
-	bool useSection ( const std::string& Section );
+	bool useSection ( const std::string& name )
+		{ Section = FindSection(name); return !Section; }
 }; // Configuration
 
 #endif
