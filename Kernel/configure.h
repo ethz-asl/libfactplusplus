@@ -22,6 +22,7 @@ Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 const unsigned MaxConfLineLen = 1024;
 
 #include <cstring>
+#include <cstdlib>
 #include <iostream>
 
 #include <string>
