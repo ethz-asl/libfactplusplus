@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2007 by Dmitry Tsarkov
+Copyright (C) 2003-2008 by Dmitry Tsarkov
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -19,12 +19,12 @@ Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #include "Kernel.h"
 #include "comerror.h"
 
-const char* ReasoningKernel :: Version = "1.1.10";
+const char* ReasoningKernel :: Version = "1.1.11";
 const char* ReasoningKernel :: ProductName =
 	"FaCT++.Kernel: Reasoner for the SROIQ(D) Description Logic\n";
 const char* ReasoningKernel :: Copyright =
-	"Copyright (C) Dmitry V. Tsarkov, 2002-2007. ";
-const char* ReasoningKernel :: ReleaseDate = "(30 November 2007)";
+	"Copyright (C) Dmitry V. Tsarkov, 2002-2008. ";
+const char* ReasoningKernel :: ReleaseDate = "(20 March 2008)";
 
 ReasoningKernel :: ReasoningKernel ( void )
 	: pKernelOptions (NULL)
