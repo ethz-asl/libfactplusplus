@@ -312,8 +312,6 @@ protected:	// methods
 		DLHeap[bp].setConcept(p);
 		p->pName = bp;
 	}
-		/// clear cache entry for BP
-	void clearBPforConcept ( BipolarPointer bp ) { DLHeap[bp].setConcept(NULL); }
 
 		/// get concept by it's BP (non-const version)
 	TConcept* getConceptByBP ( BipolarPointer bp )

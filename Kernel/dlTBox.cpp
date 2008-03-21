@@ -254,7 +254,7 @@ TConcept* TBox :: createTempConcept ( const DLTree* desc )
 	addConceptToHeap ( defConcept );
 
 	// DEBUG_ONLY: print the DAG info
-//	std::ofstream debugPrint ( defConceptName );
+//	std::ofstream debugPrint ( defConceptName, std::ios::app|std::ios::out );
 //	Print (debugPrint);
 //	debugPrint << std::endl;
 
@@ -271,10 +271,7 @@ bool TBox :: removeConcept ( TConcept* p )
 
 	// clear DAG and name indeces (if necessary)
 	if ( isCorrect (p->pName) )
-	{
-		clearBPforConcept(p->pName);
-		DLHeap.resize (getValue(p->pName));
-	}
+		DLHeap.removeAfter(p->pName);
 
 	if ( Concepts.Remove(p) )
 		assert(0);	// can't remove non-last concept

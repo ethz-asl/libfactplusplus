@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2007 by Dmitry Tsarkov
+Copyright (C) 2003-2008 by Dmitry Tsarkov
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -70,6 +70,7 @@ inline bool isCNameTag ( DagTag tag ) { return isPNameTag(tag) || isNNameTag(tag
 #define dtPrimName dtPConcept: case dtPSingleton
 #define dtNonPrimName dtNConcept: case dtNSingleton
 #define dtName dtConcept: case dtSingleton
+#define dtData dtDataType: case dtDataValue: case dtDataExpr
 
 /// interface for the cache of DLVertex
 class DLVertexCache

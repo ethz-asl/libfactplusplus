@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2007 by Dmitry Tsarkov
+Copyright (C) 2003-2008 by Dmitry Tsarkov
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -20,6 +20,7 @@ Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 
 #include "comerror.h"
 #include "logging.h"
+#include "tDataEntry.h"
 
 DLDag :: DLDag ( const ifOptionSet* Options )
 	: indexAnd(*this)
@@ -40,6 +41,26 @@ DLDag :: ~DLDag ( void )
 {
 	for ( HeapType::iterator p = Heap.begin(), p_end = Heap.end(); p < p_end; ++p )
 		delete *p;
+}
+
+void
+DLDag :: removeAfter ( size_t n )
+{
+	assert ( n < size() );
+	for ( HeapType::iterator p = Heap.begin()+n, p_end = Heap.end(); p < p_end; ++p )
+	{
+		// make sure data elements can be reused
+		switch ( (*p)->Type() )
+		{
+		case dtData:
+			static_cast<TDataEntry*>((*p)->getConcept())->setBP(bpINVALID);
+			break;
+		default:
+			break;
+		}
+		delete *p;
+	}
+	Heap.resize (n);
 }
 
 void DLDag :: readConfig ( const ifOptionSet* Options )

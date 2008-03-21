@@ -209,13 +209,7 @@ public:		// interface
 		/// get size of DAG
 	size_t size ( void ) const { return Heap.size (); }
 		/// resize DAG to a given number (for clearing intermediate/deleting temp)
-	void resize ( size_t n )
-	{
-		assert ( n < size() );
-		for ( HeapType::iterator p = Heap.begin()+n, p_end = Heap.end(); p < p_end; ++p )
-			delete *p;
-		Heap.resize (n);
-	}
+	void removeAfter ( size_t n );
 
 	// option interface
 
