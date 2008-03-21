@@ -484,14 +484,19 @@ const modelCacheInterface* DlSatTester :: fillsCache ( BipolarPointer p )
 {
 	assert ( isValid(p) );	// safety check
 
-	const modelCacheInterface* ret = DLHeap.getCache(p);
+	const modelCacheInterface* ret;
 
 	// check if cache already calculated
-	if ( ret != NULL )
+	if ( (ret = DLHeap.getCache(p)) != NULL )
 		return ret;
 
 //	std::cout << "\nCCache for " << p << ":";
 	prepareCascadedCache(p);
+
+	// it may be a cycle and the cache for p is already calculated
+	if ( (ret = DLHeap.getCache(p)) != NULL )
+		return ret;
+
 	return DLHeap.setCache ( p, createCache(p) );
 }
 
