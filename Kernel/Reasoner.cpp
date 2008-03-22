@@ -484,20 +484,23 @@ const modelCacheInterface* DlSatTester :: fillsCache ( BipolarPointer p )
 {
 	assert ( isValid(p) );	// safety check
 
-	const modelCacheInterface* ret;
+	const modelCacheInterface* cache;
 
 	// check if cache already calculated
-	if ( (ret = DLHeap.getCache(p)) != NULL )
-		return ret;
+	if ( (cache = DLHeap.getCache(p)) != NULL )
+		return cache;
 
 //	std::cout << "\nCCache for " << p << ":";
 	prepareCascadedCache(p);
 
 	// it may be a cycle and the cache for p is already calculated
-	if ( (ret = DLHeap.getCache(p)) != NULL )
-		return ret;
+	if ( (cache = DLHeap.getCache(p)) != NULL )
+		return cache;
 
-	return DLHeap.setCache ( p, createCache(p) );
+	// need to build cache
+	cache = createCache(p);
+	DLHeap.setCache ( p, cache );
+	return cache;
 }
 
 void
@@ -587,7 +590,7 @@ DlSatTester :: prepareCascadedCache ( BipolarPointer p )
 }
 
 /// create cache for given DAG node; @return cache
-modelCacheInterface*
+const modelCacheInterface*
 DlSatTester :: createCache ( BipolarPointer p )
 {
 	if ( LLM.isWritable(llDagSat) )

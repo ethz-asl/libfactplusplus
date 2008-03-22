@@ -401,7 +401,7 @@ protected:	// methods
 //-----------------------------------------------------------------------------
 
 		/// return cache of given completion tree (implementation)
-	modelCacheInterface* createModelCache ( const DlCompletionTree* p ) const
+	const modelCacheInterface* createModelCache ( const DlCompletionTree* p ) const
 		{ return new modelCacheIan ( DLHeap, p, encounterNominal ); }
 		/// create cache entry for given singleton
 	void registerNominalCache ( TIndividual* p )
@@ -815,7 +815,7 @@ public:
 	}
 
 		/// return [singleton] cache for given concept implementation
-	modelCacheInterface* createModelCache ( BipolarPointer p ) const
+	const modelCacheInterface* createModelCache ( BipolarPointer p ) const
 	{
 		if ( p == bpTOP || p == bpBOTTOM )
 			return new modelCacheConst(p==bpTOP);
@@ -827,7 +827,7 @@ public:
 		/// build cache suitable for classification
 	void prepareCascadedCache ( BipolarPointer p );
 		/// create cache for given DAG node; @return cache
-	modelCacheInterface* createCache ( BipolarPointer p );
+	const modelCacheInterface* createCache ( BipolarPointer p );
 
 		/// init vector of nominals defined in TBox
 	void initNominalVector ( void );

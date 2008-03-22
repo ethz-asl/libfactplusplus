@@ -228,11 +228,8 @@ public:		// interface
 	const modelCacheInterface* getCache ( BipolarPointer p ) const
 		{ return operator[](p).getCache(isPositive(p)); }
 		/// set cache for given BiPointer; @return given cache
-	modelCacheInterface* setCache ( BipolarPointer p, modelCacheInterface* cache )
-	{
-		operator[](p).setCache ( isPositive(p), cache );
-		return cache;
-	}
+	void setCache ( BipolarPointer p, const modelCacheInterface* cache )
+		{ operator[](p).setCache ( isPositive(p), cache ); }
 
 	// sort interface
 
