@@ -116,7 +116,6 @@ public:		// methods
 		, pName (bpINVALID)
 		, pBody (bpINVALID)
 	{
-		setSatisfiable(true);
 		setPrimitive();
 		// not a told subsumer by default; this would be change during TS construction.
 		setNaTS(true);
@@ -239,10 +238,8 @@ public:		// methods
 	// used in the start procedure of SAT/SUBSUME tests
 	BipolarPointer resolveId ( void ) const;	// returns either pName or pBody
 
-		/// register a Satisfiable flag
-	FPP_ADD_FLAG(Satisfiable,0x10);
 		/// register a Primitive flag
-	FPP_ADD_FLAG(Primitive,0x20);
+	FPP_ADD_FLAG(Primitive,0x10);
 
 	// concept non-primitivity methods
 

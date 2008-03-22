@@ -404,11 +404,8 @@ protected:	// methods
 	const modelCacheInterface* createModelCache ( const DlCompletionTree* p ) const
 		{ return new modelCacheIan ( DLHeap, p, encounterNominal ); }
 		/// create cache entry for given singleton
-	void registerNominalCache ( TIndividual* p )
-	{
-		DLHeap.setCache ( p->pName, createModelCache(p->node->resolvePBlocker()) );
-		p->setSatisfiable(true);	// nominals are known to be SAT at this point
-	}
+	void registerNominalCache ( TIndividual* p ) const
+		{ DLHeap.setCache ( p->pName, createModelCache(p->node->resolvePBlocker()) ); }
 
 		/// update statistic of cache usage; return appropriate state
 	tacticUsage processCacheResult ( enum modelCacheState state );
@@ -1069,8 +1066,6 @@ TBox :: initCache ( TConcept* pConcept )
 		clearFeatures();
 	}
 
- 	// set SAT status accordingly to the cache
- 	pConcept->setSatisfiable ( cache->getState() != csInvalid );
 	return cache;
 }
 

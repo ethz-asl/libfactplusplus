@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2007 by Dmitry Tsarkov
+Copyright (C) 2003-2008 by Dmitry Tsarkov
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -176,7 +176,7 @@ inline bool DLConceptTaxonomy :: isUnsatisfiable ( void )
 {
 	const TConcept* p = curConcept();
 
-	if ( p->isSatisfiable() )
+	if ( tBox.isSatisfiable(p) )
 		return false;
 
 	// for unsatisfiable concepts:

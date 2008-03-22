@@ -67,7 +67,6 @@ void TBox :: initTopBottom ( void )
 	TConcept* p = new TConcept ("BOTTOM");
 	p->setId(-1);
 	p->pName = p->pBody = bpBOTTOM;
-	p->setSatisfiable(false);
 	pBottom = p;
 
 	// create TOP concept
@@ -75,7 +74,6 @@ void TBox :: initTopBottom ( void )
 	p->setId(-1);
 	p->pName = p->pBody = bpTOP;
 	p->tsDepth=1;
-	p->setSatisfiable(true);
 	p->classTag = cttTrueCompletelyDefined;
 	pTop = p;
 }
