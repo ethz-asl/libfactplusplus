@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2006 by Dmitry Tsarkov
+Copyright (C) 2003-2008 by Dmitry Tsarkov
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -97,10 +97,8 @@ protected:	// methods
 	}
 
 public:		// interface
-#if !RKG_DEFAULT_CTREE_ALLOCATION
 		/// empty c'tor
 	DlCompletionTreeArc ( void ) {}
-#endif
 		/// d'tor
 	~DlCompletionTreeArc ( void ) {}
 

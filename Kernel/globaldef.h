@@ -48,9 +48,6 @@ Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #	define RKG_IMPROVE_SAVE_RESTORE_DEPSET
 #endif
 
-// set the flag to 1 if want to use general CTree allocation scheme
-#define RKG_DEFAULT_CTREE_ALLOCATION 0
-
 // uncomment this to update role's R&D from super-roles
 //#define RKG_UPDATE_RND_FROM_SUPERROLES
 

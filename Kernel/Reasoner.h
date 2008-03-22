@@ -855,9 +855,6 @@ public:
 
 inline DlSatTester :: ~DlSatTester ( void )
 {
-#if RKG_DEFAULT_CTREE_ALLOCATION
-	delete Root;
-#endif
 	delete TODO;
 }
 

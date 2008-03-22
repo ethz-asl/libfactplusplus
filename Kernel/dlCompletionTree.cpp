@@ -195,10 +195,6 @@ void DlCompletionTree :: restore ( SaveState* nss )
 	Parent.resize ( nss->nPars );
 	// remove new sons
 #ifndef __DYNAMIC_NODE_RESTORE
-#if RKG_DEFAULT_CTREE_ALLOCATION
-	for ( unsigned int i = nss->nSons; i < Son.size (); ++i )
-		delete Son[i];
-#endif
 	Son.resize ( nss->nSons );
 #else
 	for ( int j = Son.size()-1; j >= 0; --j )
@@ -207,10 +203,6 @@ void DlCompletionTree :: restore ( SaveState* nss )
 			Son.resize(j+1);
 			break;
 		}
-#	if RKG_DEFAULT_CTREE_ALLOCATION
-		else
-			delete Son[j];
-#	endif
 #endif
 
 	// restore cached value

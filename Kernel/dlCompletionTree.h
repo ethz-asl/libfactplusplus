@@ -630,7 +630,6 @@ inline void DlCompletionTree :: init ( unsigned int level )
 
 	Label.init();
 
-#if !RKG_DEFAULT_CTREE_ALLOCATION
 	// node was used -- clear all previous content
 	saves.clear();
 #ifdef RKG_IR_IN_NODE_LABEL
@@ -642,7 +641,6 @@ inline void DlCompletionTree :: init ( unsigned int level )
 	iBlocker = NULL;
 	pBlocker = NULL;
 	pDep.clear();
-#endif
 }
 
 inline bool DlCompletionTree :: isParentArcIBlocked ( void ) const
@@ -731,11 +729,6 @@ inline bool DlCompletionTree :: isBlockedBy_SHI ( const DlCompletionTree* p ) co
 
 inline DlCompletionTree :: ~DlCompletionTree ( void )
 {
-#if RKG_DEFAULT_CTREE_ALLOCATION
-	for ( edge_iterator p = begins(); p != ends(); ++p )
-		delete *p;
-#endif
-
 	saves.clear();
 }
 
