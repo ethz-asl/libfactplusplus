@@ -37,7 +37,7 @@ Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 void TBox :: Preprocess ( void )
 {
 	if ( verboseOutput )
-		std::cerr << "\nConstructing DAG...";
+		std::cerr << "\nPreprocessing...";
 	TsProcTimer pt;
 	pt.Start();
 
@@ -161,7 +161,7 @@ void TBox :: Preprocess ( void )
 	pt.Stop();
 	preprocTime = pt;
 	if ( verboseOutput )
-		std::cerr << "\nDAG constructed in " << pt << " seconds\n";
+		std::cerr << " done in " << pt << " seconds\n";
 }
 
 void TBox :: replaceAllSynonyms ( void )
@@ -169,8 +169,6 @@ void TBox :: replaceAllSynonyms ( void )
 	if ( nSynonyms == 0 )
 		return;	// nothing to do
 
-	if ( verboseOutput )
-		std::cerr << "\nReplacing synonyms... ";
 	nSynonyms = 0;
 
 	// replace synonyms in role's domain
@@ -194,8 +192,9 @@ void TBox :: replaceAllSynonyms ( void )
 				*sv = resolveSynonym(*sv);
 			}
 
-	if ( verboseOutput )
-		std::cerr << "done with " << nSynonyms << " replaced";
+	if ( nSynonyms && LLM.isWritable(llAlways) )
+		LL << "\nReplaced " << nSynonyms << " synonyms\n";
+
 	nSynonyms = 0;
 }
 
@@ -251,8 +250,8 @@ void TBox :: transformToldCycles ( void )
 
 	clearRelevanceInfo();
 
-	if ( nSynonyms && verboseOutput )
-		std::cerr << "\nTold cycle detection... done with " << nSynonyms << " synonyms detected";
+	if ( nSynonyms && LLM.isWritable(llAlways) )
+		LL << "\nTold cycle elimination done with " << nSynonyms << " synonyms created";
 
 	// merge synonyms during the TBox
 	replaceAllSynonyms();

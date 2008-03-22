@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2005-2007 by Dmitry Tsarkov
+Copyright (C) 2005-2008 by Dmitry Tsarkov
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -18,7 +18,6 @@ Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 
 #include <cmath>
 #include "dlTBox.h"
-#include "procTimer.h"
 
 /// number of relevant calls to named concepts
 unsigned long nRelevantCCalls;
@@ -102,9 +101,6 @@ void TBox :: setRelevant1 ( TRole* p )
 
 void TBox :: gatherRelevanceInfo ( void )
 {
-	TsProcTimer pt;
-	pt.Start();
-
 	nRelevantCCalls = 0;
 	nRelevantBCalls = 0;
 	unsigned int cSize = 0;
@@ -137,7 +133,6 @@ void TBox :: gatherRelevanceInfo ( void )
 
 	curFeature = NULL;
 	KBFeatures.writeState();
-	pt.Stop();
 
 	float cRatio, bRatio = 0, logCSize = 1, logBSize = 1, sqCSize = 1, sqBSize = 1;
 	if ( cSize > 10 )
@@ -155,8 +150,6 @@ void TBox :: gatherRelevanceInfo ( void )
 			logBSize = log((float)bSize);
 	}
 
-	if ( verboseOutput )
-		std::cerr << "\nRelevance information collected in " << pt << " seconds";
 #if 0
 	if ( LLM.isWritable(llAlways) && cSize > 10 )
 		LL << "There were made " << nRelevantCCalls << " relevance C calls for "
