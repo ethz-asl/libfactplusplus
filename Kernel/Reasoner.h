@@ -1035,7 +1035,13 @@ TBox :: performConsistencyCheck ( void )
 	prepareFeatures ( test, NULL );
 
 	if ( test )
+	{
+		// make a cache for TOP if it is not there
+		if ( DLHeap.getCache(bpTOP) == NULL )
+			initSingletonCache(bpTOP);
+
 		return nomReasoner->consistentNominalCloud();
+	}
 	else
 		return isSatisfiable(pTop);
 }

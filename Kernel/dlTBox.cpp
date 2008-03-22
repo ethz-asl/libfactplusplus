@@ -113,6 +113,11 @@ TBox :: isSatisfiable ( const TConcept* pConcept )
 {
 	assert ( pConcept != NULL );
 
+	// check whether we already does the test
+	const modelCacheInterface* cache = DLHeap.getCache(pConcept->pName);
+	if ( cache != NULL )
+		return ( cache->getState() != csInvalid );
+
 	// logging the startpoint
 	if ( LLM.isWritable(llBegSat) )
 		LL << "\n--------------------------------------------\n"
@@ -123,6 +128,9 @@ TBox :: isSatisfiable ( const TConcept* pConcept )
 	// perform reasoning with a proper logical features
 	prepareFeatures ( pConcept, NULL );
 	bool result = getReasoner()->runSat ( pConcept->resolveId(), bpTOP );
+	// save cache
+	cache = getReasoner()->createCacheByCGraph(result);
+	DLHeap.setCache ( pConcept->pName, cache );
 	clearFeatures();
 
 	CHECK_LL_RETURN_VALUE(llSatResult,result);
