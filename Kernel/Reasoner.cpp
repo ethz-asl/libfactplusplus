@@ -603,13 +603,11 @@ DlSatTester :: createCache ( BipolarPointer p )
 
 	bool sat = runSat(p);
 
-	if ( sat )	// here we need actual (not a p-blocked) root of the tree
-		return createModelCache(CGraph.getActualRoot());
-
-	// fails to prove => P -> \bot
-	if ( LLM.isWritable(llAlways) )
+	// unsat => P -> \bot
+	if ( !sat && LLM.isWritable(llAlways) )
 		LL << "\nDAG entry " << p << " is unsatisfiable\n";
-	return createModelCache(bpBOTTOM);
+
+	return createCacheByCGraph(sat);
 }
 
 bool DlSatTester :: checkSatisfiability ( void )

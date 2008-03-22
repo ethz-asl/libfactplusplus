@@ -828,6 +828,14 @@ public:
 	void prepareCascadedCache ( BipolarPointer p );
 		/// create cache for given DAG node; @return cache
 	const modelCacheInterface* createCache ( BipolarPointer p );
+		/// create model cache for the just-classified entry
+	const modelCacheInterface* createCacheByCGraph ( bool sat ) const
+	{
+		if ( sat )	// here we need actual (not a p-blocked) root of the tree
+			return createModelCache(CGraph.getActualRoot());
+		else		// unsat => cache is just bottom
+			return createModelCache(bpBOTTOM);
+	}
 
 		/// init vector of nominals defined in TBox
 	void initNominalVector ( void );
