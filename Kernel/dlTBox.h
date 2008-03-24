@@ -833,6 +833,18 @@ public:
 	bool isIndividual ( const DLTree* entry ) const
 		{ return (entry->Element().getToken() == INAME && isIndividual(entry->Element().getName())); }
 
+		/// get a DL tree by a given concept-like C
+	DLTree* getTree ( TConcept* C ) const
+	{
+		if ( C == NULL )
+			return NULL;
+		if ( C == pTop )
+			return new DLTree(TOP);
+		if ( C == pBottom )
+			return new DLTree(BOTTOM);
+		return new DLTree ( TLexeme ( isIndividual(C) ? INAME : CNAME, C ) );
+	}
+
 		/// get unique aux concept
 	TConcept* getAuxConcept ( void );
 

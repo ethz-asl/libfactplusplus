@@ -324,7 +324,7 @@ redo:
 //				std::cout << "Write synonym for " << p->getName() << std::endl;
 
 				// some concept inside a cycle: make it synonym of RET, save old desc
-				DLTree* desc = makeNonPrimitive ( p, new DLTree(TLexeme(CNAME,ret) ) );
+				DLTree* desc = makeNonPrimitive ( p, getTree(ret) );
 				commonDescriptions.push_back(desc);
 
 				// no need to continue; finish with this cycle first

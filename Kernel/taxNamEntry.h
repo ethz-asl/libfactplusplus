@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2007 by Dmitry Tsarkov
+Copyright (C) 2003-2008 by Dmitry Tsarkov
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -115,7 +115,7 @@ template<class T>
 inline T*
 resolveSynonym ( T* p )
 {
-	return p->isSynonym() ? resolveSynonym(static_cast<T*>(p->getSynonym())) : p;
+	return !p ? NULL : p->isSynonym() ? resolveSynonym(static_cast<T*>(p->getSynonym())) : p;
 }
 
 /// general RW resolving synonym operator
@@ -123,7 +123,7 @@ template<class T>
 inline const T*
 resolveSynonym ( const T* p )
 {
-	return p->isSynonym() ? resolveSynonym(static_cast<const T*>(p->getSynonym())) : p;
+	return !p ? NULL : p->isSynonym() ? resolveSynonym(static_cast<const T*>(p->getSynonym())) : p;
 }
 
 #endif // _TAXNAMENTRY_H

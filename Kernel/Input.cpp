@@ -136,7 +136,7 @@ bool TBox :: addSubsumeAxiom ( TNamedEntry* C, DLTree* right )	// special form: 
 		return false;
 	}
 	else	// general axiom
-		return addSubsumeAxiom ( new DLTree ( TLexeme (CNAME, C) ), right );
+		return addSubsumeAxiom ( getTree(getConcept(C)), right );
 }
 
 bool TBox :: axiomToRangeDomain ( DLTree* l, DLTree* r )
@@ -201,7 +201,7 @@ bool TBox :: addEqualityAxiom ( DLTree* left, DLTree* right )
 bool
 TBox :: addNonprimitiveDefinition ( DLTree* left, DLTree* right )
 {
-	TConcept* C = getConcept(left);
+	TConcept* C = resolveSynonym(getConcept(left));
 
 	// not a named concept
 	if ( C == NULL || C == pTop || C == pBottom )
@@ -240,7 +240,7 @@ TBox :: addNonprimitiveDefinition ( DLTree* left, DLTree* right )
 bool
 TBox :: switchToNonprimitive ( DLTree* left, DLTree* right )
 {
-	TConcept* C = getConcept(left);
+	TConcept* C = resolveSynonym(getConcept(left));
 
 	// not a named concept
 	if ( C == NULL || C == pTop || C == pBottom )
