@@ -827,16 +827,11 @@ public:
 		/// return registered individual by given NAME; @return NULL if can't register
 	TIndividual* getIndividual ( const std::string& name ) { return Individuals.get(name); }
 
-	/** Ensure that given name is nominal. Register name if it is undefined.
-		@return true if name could not be defined as a nominal; @return false if OK */
-	bool ensureNominal ( TNamedEntry* name ) { return !Individuals.isRegistered(name); }
-		/// ensure that given concept expression is a nominal; @return false if OK
-	bool ensureNominal ( const DLTree* entry )
-	{
-		if ( entry->Element().getToken() != INAME )
-			return true;
-		return ensureNominal(entry->Element().getName());
-	}
+		/// @return true iff given name is a registered individual
+	bool isIndividual ( TNamedEntry* name ) const { return Individuals.isRegistered(name); }
+		/// @return true iff given DLTree represents a registered individual
+	bool isIndividual ( const DLTree* entry ) const
+		{ return (entry->Element().getToken() == INAME && isIndividual(entry->Element().getName())); }
 
 		/// get unique aux concept
 	TConcept* getAuxConcept ( void );
@@ -855,10 +850,10 @@ public:
 	}
 
 	bool RegisterInstance ( TNamedEntry* name, DLTree* Desc )
-		{ return ensureNominal(name) || addSubsumeAxiom ( name, Desc ); }
+		{ return !isIndividual(name) || addSubsumeAxiom ( name, Desc ); }
 	bool RegisterIndividualRelation ( TNamedEntry* a, TNamedEntry* R, TNamedEntry* b )
 	{
-		if ( ensureNominal(a) || ensureNominal(b) )
+		if ( !isIndividual(a) || !isIndividual(b) )
 			return true;
 		RelatedI.push_back ( new
 			TRelated ( static_cast<TIndividual*>(a),

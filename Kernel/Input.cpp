@@ -285,13 +285,13 @@ DLTree* TBox :: processOneOf ( const ConceptSet& v )
 	DLTree* ret = new DLTree(BOTTOM);
 
 	for ( ConceptSet::const_iterator p = v.begin(), p_end = v.end(); p != p_end; ++p )
-		if ( ensureNominal(*p) )
+		if ( isIndividual(*p) )
+			ret = createSNFOr ( ret, *p );
+		else
 		{
 			deleteTree(ret);
 			return NULL;	// sanity check; FIXME!! exception later on
 		}
-		else
-			ret = createSNFOr ( ret, *p );
 
 	return ret;
 }
@@ -395,10 +395,10 @@ bool TBox :: processDifferent ( const ConceptSet& v )
 {
 	SingletonVector acc;
 	for ( ConceptSet::const_iterator q = v.begin (); q != v.end(); ++q )
-		if ( ensureNominal(*q) )	// only nominals in DIFFERENT command
-			return true;
-		else
+		if ( isIndividual(*q) )	// only nominals in DIFFERENT command
 			acc.push_back(static_cast<TIndividual*>((*q)->Element().getName()));
+		else
+			return true;
 
 	// register vector of disjoint nominals in proper place
 	if ( acc.size() < 2 )
@@ -420,16 +420,13 @@ bool TBox :: processSame ( const ConceptSet& v )
 		return false;
 	}
 
-	if ( ensureNominal(*p) )	// only nominals in SAME command
+	if ( !isIndividual(*p) )	// only nominals in SAME command
 		return true;
 
 	// FIXME!! rewrite it with the only iterator
 	for ( ConceptSet::const_iterator q = p+1; q < p_end; ++p, ++q )
-		if ( ensureNominal(*q) )	// only nominals in SAME command
+		if ( !isIndividual(*q) || addEqualityAxiom ( *p, clone(*q) ) )
 			return true;
-		else	// take an existing p and a copy of q
-			if ( addEqualityAxiom ( *p, clone(*q) ) )
-				return true;
 
 	delete *p;	// delete the last entry
 	return false;
