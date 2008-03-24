@@ -862,7 +862,7 @@ public:
 	}
 
 	bool RegisterInstance ( TNamedEntry* name, DLTree* Desc )
-		{ return !isIndividual(name) || addSubsumeAxiom ( name, Desc ); }
+		{ return !isIndividual(name) || addSubsumeAxiom ( getConcept(name), Desc ); }
 	bool RegisterIndividualRelation ( TNamedEntry* a, TNamedEntry* R, TNamedEntry* b )
 	{
 		if ( !isIndividual(a) || !isIndividual(b) )
@@ -878,8 +878,13 @@ public:
 		return false;
 	}
 
+		/// add general subsumption axiom C [= D
 	bool addSubsumeAxiom ( DLTree* left, DLTree* right );
-	bool addSubsumeAxiom ( TNamedEntry* C, DLTree* right );	// special form: CN [= D
+		/// add axiom CN [= D for concept CN
+	bool addSubsumeAxiom ( TConcept* C, DLTree* D );
+		/// add an axiom CN [= D for defined CN (CN=E already in base)
+	bool addSubsumeForDefined ( TConcept* C, DLTree* D );
+		/// add an axiom C = D
 	bool addEqualityAxiom ( DLTree* left, DLTree* right );
 
 	// different ConceptList methods
