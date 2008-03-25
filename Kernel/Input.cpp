@@ -41,15 +41,6 @@ bool TBox :: addSubsumeAxiom ( DLTree* left, DLTree* right )
 		return false;
 	}
 
-	// if axiom is A\in smth, add to a appr. concept
-	if ( left->Element () == CNAME )
-	{
-		TConcept* p = getConcept (left);
-		delete left;
-
-		return addSubsumeAxiom ( resolveSynonym(p), right );
-	}
-
 	// check the case D [= CN, where CN is defined as D
 	if ( right->Element() == CNAME )
 	{
@@ -79,6 +70,15 @@ bool TBox :: addSubsumeAxiom ( DLTree* left, DLTree* right )
 			delete right;
 			return false;
 		}
+	}
+
+	// if axiom is A\in smth, add to a appr. concept
+	if ( left->Element () == CNAME )
+	{
+		TConcept* p = getConcept (left);
+		delete left;
+
+		return addSubsumeAxiom ( resolveSynonym(p), right );
 	}
 
 	// check if an axiom looks like T [= \AR.C
