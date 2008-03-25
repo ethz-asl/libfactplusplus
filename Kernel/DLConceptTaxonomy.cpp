@@ -50,6 +50,7 @@ bool DLConceptTaxonomy :: testSub ( const TConcept* p, const TConcept* q )
 		if ( LLM.isWritable(llTaxTrying) )
 			LL << "NOT holds (sorted result)";
 
+		++nSortedNegative;
 		return false;
 	}
 
@@ -102,7 +103,8 @@ void DLConceptTaxonomy :: print ( std::ostream& o ) const
 
 	o << nPositives << " (" << (unsigned long)(nPositives*100/n) << "%) successfull\n";
 	o << "Besides that " << nCachedPositive << " successfull and " << nCachedNegative
-	  << " unsuccessfull subsumption tests were cached\n";
+	  << " unsuccessfull subsumption tests were cached\nSorted reasoning deals with "
+	  << nSortedNegative << " non-subsumptions\n";
 
 	o << "Current efficiency (wrt Brute-force) is " << nEntries*(nEntries-1)/n << "\n";
 

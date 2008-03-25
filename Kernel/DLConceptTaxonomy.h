@@ -42,6 +42,8 @@ protected:	// members
 	unsigned long nCachedPositive;
 		/// number of negative cached subsumptions
 	unsigned long nCachedNegative;
+		/// number of non-subsumptions detected by a sorted reasoning
+	unsigned long nSortedNegative;
 
 		/// indicator of taxonomy creation progress
 	TProgressMonitor* pTaxProgress;
@@ -141,6 +143,7 @@ public:		// interface
 		, nConcepts (0), nTries (0), nPositives (0), nNegatives (0)
 		, nCachedPositive(0)
 		, nCachedNegative(0)
+		, nSortedNegative(0)
 		, pTaxProgress (NULL)
 		, flagNeedBottomUp(GCIs.isGCI() || (GCIs.isReflexive() && GCIs.isRnD()))
 	{
