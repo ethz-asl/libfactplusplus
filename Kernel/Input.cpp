@@ -118,7 +118,18 @@ bool TBox :: addSubsumeAxiom ( TConcept* C, DLTree* D )
 bool
 TBox :: addSubsumeForDefined ( TConcept* C, DLTree* D )
 {
-	return processGCI ( getTree(C), D );
+	DLTree* oldDesc = clone(C->Description);
+	// try to see whether C contains a reference to itself at the top level
+	C->removeSelfFromDescription();
+	if ( equalTrees ( oldDesc, C->Description ) )
+		return processGCI ( oldDesc, D );
+
+	// note thet we don't know exact semantics of C for now;
+	// we need to split it's definition and work via GCIs
+	C->setPrimitive();	// now we have C [= B
+	C->addDesc(D);		// here C [= (B and D)
+	// all we need is to add (old C's desc) [= C
+	return addSubsumeAxiom ( oldDesc, getTree(C) );
 }
 
 bool TBox :: axiomToRangeDomain ( DLTree* l, DLTree* r )
