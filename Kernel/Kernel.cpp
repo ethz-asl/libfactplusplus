@@ -26,13 +26,20 @@ const char* ReasoningKernel :: Copyright =
 	"Copyright (C) Dmitry V. Tsarkov, 2002-2008. ";
 const char* ReasoningKernel :: ReleaseDate = "(20 March 2008)";
 
+// print the FaCT++ information only once
+static bool KernelFirstRun = true;
+
 ReasoningKernel :: ReasoningKernel ( void )
 	: pKernelOptions (NULL)
 	, pTBox (NULL)
 	, cachedQuery(NULL)
 {
 	// Intro
-	std::cerr << ProductName << Copyright << "Version " << Version << " " << ReleaseDate << std::endl;
+	if ( KernelFirstRun )
+	{
+		std::cerr << ProductName << Copyright << "Version " << Version << " " << ReleaseDate << "\n";
+		KernelFirstRun = false;
+	}
 
 	initCacheAndFlags();
 
