@@ -149,13 +149,18 @@ DLTree* createSNFForall ( DLTree* R, DLTree* C )
 	/// create at-least (GE) restriction of given formulas (>= n R.C)
 DLTree* createSNFGE ( unsigned int n, DLTree* R, DLTree* C )
 {
-	if ( n == 0 )		// >= 0 R.C -> T
-	{
+	if ( n == 0 )
+	{		// >= 0 R.C -> T
 		deleteTree(R);
 		deleteTree(C);
 		return new DLTree ( TOP );
 	}
-	else			// >= n R.C -> !<= (n-1) R.C
+	if ( C->Element() == BOTTOM )
+	{		// >=n R.F -> F
+		deleteTree(R);
+		return C;
+	}
+	else	// >= n R.C -> !<= (n-1) R.C
 		return createSNFNot ( createSNFLE ( n-1 , R, C ) );
 }
 

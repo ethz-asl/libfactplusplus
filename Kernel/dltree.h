@@ -108,10 +108,15 @@ extern DLTree* createSNFGE ( unsigned int n, DLTree* R, DLTree* C );
 	/// create at-most (LE) restriction of given formulas (<= n R.C)
 inline DLTree* createSNFLE ( unsigned int n, DLTree* R, DLTree* C )
 {
-	return n ?
-		new DLTree ( TLexeme ( LE, n ), R, C ) :
-				// <= 0 R.C -> \AR.\not C
-		createSNFForall ( R, createSNFNot(C) );
+	if ( C->Element() == BOTTOM )
+	{				// <= n R.F -> T;
+		deleteTree(R);
+		deleteTree(C);
+		return new DLTree(TOP);
+	}
+	if ( n == 0 )	// <= 0 R.C -> \AR.\not C
+		return createSNFForall ( R, createSNFNot(C) );
+	return new DLTree ( TLexeme ( LE, n ), R, C );
 }
 
 // parser access
