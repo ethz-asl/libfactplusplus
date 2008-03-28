@@ -220,6 +220,7 @@ public class Reasoner extends MonitorableOWLReasonerAdapter implements FaCTPlusP
     protected void ontologiesCleared() throws OWLReasonerException {
         try {
             getReasoner().clearKernel();
+            translator.reset();
             synchronised = false;
         }
         catch (Exception e) {
@@ -229,13 +230,25 @@ public class Reasoner extends MonitorableOWLReasonerAdapter implements FaCTPlusP
 
 
     protected void ontologiesChanged() throws OWLReasonerException {
-        synchronised = false;
+        try {
+            synchronised = false;
+            translator.reset();
+        }
+        catch (OWLException e) {
+            throw new FaCTPlusPlusReasonerException(e);
+        }
     }
 
 
     protected void handleOntologyChanges(List<OWLOntologyChange> changes) throws OWLReasonerException {
         try {
             markForResyncronisation();
+            for(OWLOntologyChange change : changes) {
+                if(change instanceof RemoveAxiom) {
+                    translator.reset();
+                    break;
+                }
+            }
         }
         catch (Exception e) {
             throw new FaCTPlusPlusReasonerException(e);
