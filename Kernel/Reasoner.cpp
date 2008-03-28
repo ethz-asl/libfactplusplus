@@ -784,7 +784,7 @@ void DlSatTester :: logStatisticData ( std::ostream& o, bool needLocal ) const
 	nStateRestores.Print	( o, needLocal, "\nThere were made ", " restore(s) of global state" );
 	nNodeSaves.Print		( o, needLocal, "\nThere were made ", " save(s) of tree state" );
 	nNodeRestores.Print		( o, needLocal, "\nThere were made ", " restore(s) of tree state" );
-	nLookups.Print			( o, needLocal, "\nThere were made ", " concept insertion ops" );
+	nLookups.Print			( o, needLocal, "\nThere were made ", " concept lookups" );
 	nCompareOps.Print		( o, needLocal, "\nThere were made ", " set compare ops" );
 
 	nCachedSat.Print		( o, needLocal, "\nThere were build ", " cached satisfiable nodes" );
