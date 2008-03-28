@@ -330,8 +330,6 @@ protected:	// members
 	bool useBackjumping;
 	/// whether or not check blocking status as late as possible. Default value is true
 	bool useLazyBlocking;
-		/// whether or not DAG cache is used
-	bool useDagCache;
 
 	// session status flags:
 

@@ -63,7 +63,6 @@ void DlSatTester :: readConfig ( const ifOptionSet* Options )
 	addBoolOption(useSemanticBranching);
 	addBoolOption(useBackjumping);
 	addBoolOption(useLazyBlocking);
-	addBoolOption(useDagCache);
 #undef addBoolOption
 }
 

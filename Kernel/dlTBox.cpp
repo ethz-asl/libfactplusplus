@@ -180,31 +180,6 @@ TBox :: isSubHolds ( const TConcept* pConcept, const TConcept* qConcept )
 	return result;
 }
 
-	// build cache for all named concepts
-void TBox :: buildNamedConceptCache ( void )
-{
-	TsProcTimer pt;
-	if ( verboseOutput )
-		std::cerr << "\nInit named concept cache: ";
-
-	pt.Start();
-	CPPI ind ( Concepts.size()-1 );
-
-	for ( c_const_iterator pc = c_begin(); pc != c_end(); ++pc )
-	{
-		initCache(*pc);		// make cache for BiPointer[i]
-		ind.incIndicator();
-	}
-	for ( i_const_iterator pi = i_begin(); pi != i_end(); ++pi )
-	{
-		initCache(*pi);		// make cache for BiPointer[i]
-		ind.incIndicator();
-	}
-	pt.Stop();
-	if ( verboseOutput )
-		std::cerr << " done in " << pt << " seconds\n";
-}
-
 // load init values from config file
 void TBox :: readConfig ( const ifOptionSet* Options )
 {
@@ -216,11 +191,9 @@ void TBox :: readConfig ( const ifOptionSet* Options )
 	if ( LLM.isWritable(llAlways) )			\
 		LL << "Init " #name " = " << name << "\n"
 
-	addBoolOption(useAllNames);
 	addBoolOption(useCompletelyDefined);
 	addBoolOption(useRelevantOnly);
 	addBoolOption(dumpQuery);
-	addBoolOption(useDagCache);
 	addBoolOption(useRangeDomain);
 	addBoolOption(alwaysPreferEquals);
 	addBoolOption(usePrecompletion);

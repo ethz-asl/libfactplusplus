@@ -217,8 +217,6 @@ protected:	// members
 	/////////////////////////////////////////////////////
 	// Flags section
 	/////////////////////////////////////////////////////
-		/// flag for names skipping
-	bool useAllNames;
 		/// flag for full/short KB
 	bool useRelevantOnly;
 		/// flag for using native range and domain support
@@ -227,8 +225,6 @@ protected:	// members
 	bool useCompletelyDefined;
 		/// flag for dumping TBox relevant to query
 	bool dumpQuery;
-		/// whether or not DAG cache is used
-	bool useDagCache;
 		/// whether or not we need classification. Set up in checkQueryNames()
 	bool needClassification;
 		/// shall we prefer C=D axioms to C[=E in definition of concepts
@@ -602,8 +598,6 @@ protected:	// methods
 //--		internal reasoning interface
 //-----------------------------------------------------------------------------
 
-		/// init cache for all named concepts
-	void buildNamedConceptCache ( void );
 		/// init reasoning service: create reasoner(s)
 	void initReasoner ( void );				// implemented in Reasoner.h
 		/// init priorities in order to do subsumption tests

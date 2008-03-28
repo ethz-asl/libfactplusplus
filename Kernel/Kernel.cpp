@@ -205,16 +205,6 @@ bool ReasoningKernel :: initOptions ( void )
 
 	// options for TBox
 
-	// register "useAllNames" option
-	if ( pKernelOptions->RegisterOption (
-		"useAllNames",
-		"Option 'useAllNames' determine whether non-primitive named concepts should "
-		"exist in Completion Tree labels or not. If true, all concept names add into labels.",
-		ifOption::iotBool,
-		"true"
-		) )
-		return true;
-
 	// register "useRelevantOnly" option
 	if ( pKernelOptions->RegisterOption (
 		"useRelevantOnly",
@@ -345,16 +335,6 @@ bool ReasoningKernel :: initOptions ( void )
 		"Option 'dumpQuery' dumps sub-TBox relevant to given satisfiability/subsumption query.",
 		ifOption::iotBool,
 		"false"
-		) )
-		return true;
-
-	// register "useDagCache" option -- 27-10-04
-	if ( pKernelOptions->RegisterOption (
-		"useDagCache",
-		"Option 'useDagCache' switches caching of every DAG entry and usage of this during reasoning."
-		"It is always better to leave it on.",
-		ifOption::iotBool,
-		"false"	// FIXME!! just for now
 		) )
 		return true;
 
