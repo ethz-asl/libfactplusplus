@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2006-2007 by Dmitry Tsarkov
+Copyright (C) 2006-2008 by Dmitry Tsarkov
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -142,7 +142,7 @@ public:
 	static const char* getClassName ( void ) { return "Luk/ac/manchester/cs/factplusplus/IndividualPointer;"; }
 	static bool applicable ( const ClassifiableEntry* p )
 		{ return !p->isSystem() && static_cast<const TConcept*>(p)->isSingleton(); }
-	static bool regular ( const ClassifiableEntry* p ATTR_UNUSED ) { return true; }
+	static bool regular ( const ClassifiableEntry* p ) { return !p->isSystem(); }
 	static bool needPlain ( void ) { return true; }
 	static DLTree* buildTree ( const ClassifiableEntry* p )
 		{ return new DLTree(TLexeme(INAME,const_cast<ClassifiableEntry*>(p))); }
@@ -155,7 +155,8 @@ public:
 	static const char* getClassName ( void ) { return "Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;"; }
 	static bool applicable ( const ClassifiableEntry* p )
 		{ return !p->isSystem() && p->getId() > 0; }
-	static bool regular ( const ClassifiableEntry* p ATTR_UNUSED ) { return true; }
+		/// property is regular if it's primer is a non-inverse one
+	static bool regular ( const ClassifiableEntry* p ) { return applicable(p); }
 	static bool needPlain ( void ) { return false; }
 	static DLTree* buildTree ( const ClassifiableEntry* p )
 		{ return new DLTree(TLexeme(RNAME,const_cast<ClassifiableEntry*>(p))); }
@@ -168,7 +169,8 @@ public:
 	static const char* getClassName ( void ) { return "Luk/ac/manchester/cs/factplusplus/DataPropertyPointer;"; }
 	static bool applicable ( const ClassifiableEntry* p )
 		{ return !p->isSystem() && p->getId() > 0; }
-	static bool regular ( const ClassifiableEntry* p ATTR_UNUSED ) { return true; }
+		/// property is regular if it's primer is a non-inverse one
+	static bool regular ( const ClassifiableEntry* p ) { return applicable(p); }
 	static bool needPlain ( void ) { return false; }
 	static DLTree* buildTree ( const ClassifiableEntry* p )
 		{ return new DLTree(TLexeme(RNAME,const_cast<ClassifiableEntry*>(p))); }
