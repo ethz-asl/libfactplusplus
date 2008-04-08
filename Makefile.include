@@ -13,15 +13,11 @@ GCC_40_OPT = $(GCC_34_OPT) -fmodulo-sched -ftree-loop-linear -ftree-loop-im \
 GCC_41_OPT = $(GCC_40_OPT) -funsafe-loop-optimizations -Wunsafe-loop-optimizations
 # GCC 4.2 optimisation options that are not included in -O3
 GCC_42_OPT = $(GCC_41_OPT)
-
-IX86_OPTS = -maccumulate-outgoing-args
-ATHLON_OPT = $(IX86_OPTS) -march=athlon
-PENTIUM_OPT = $(IX86_OPTS) -march=pentium4
-
-#GCC_SUFFIX = -4.1
+# GCC 4.3 optimisation options that are not included in -O3
+GCC_43_OPT = $(GCC_42_OPT) -fmodulo-sched-allow-regmoves -fipa-cp -fvect-cost-model
 
 # ALL_DEF is an external defines
-GENERAL_DEFINES = $(IX86_OPTS) $(GCC_OPT_OPT) $(GCC_42_OPT) $(ALL_DEF)
+GENERAL_DEFINES = $(GCC_OPT_OPT) $(GCC_42_OPT) $(ALL_DEF)
 
 #---------------------------------------------------------
 # please do not change following lines
