@@ -458,7 +458,7 @@ public class Reasoner extends MonitorableOWLReasonerAdapter implements FaCTPlusP
         try {
             ensureSynchronised();
             checkIndividual(individual);
-            return getOWLAPISets(getFaCTPlusPlus().askIndividualTypes(translator.translate(individual), true));
+            return getOWLAPISets(getFaCTPlusPlus().askIndividualTypes(translator.translate(individual), direct));
         }
         catch (Exception e) {
             throw new FaCTPlusPlusReasonerException(e);
