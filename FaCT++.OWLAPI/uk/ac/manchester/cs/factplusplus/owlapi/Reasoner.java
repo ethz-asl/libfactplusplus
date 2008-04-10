@@ -438,7 +438,8 @@ public class Reasoner extends MonitorableOWLReasonerAdapter implements FaCTPlusP
         try {
             ensureSynchronised();
             checkDescription(owlDescription);
-            IndividualPointer[] individualPointers = getFaCTPlusPlus().askInstances(translator.translate(owlDescription));
+            IndividualPointer[] individualPointers =
+			    getFaCTPlusPlus().askInstances(translator.translate(owlDescription), direct);
             Set<OWLIndividual> individuals = new HashSet<OWLIndividual>();
             for (IndividualPointer individualPointer : individualPointers) {
                 OWLIndividual translation = translator.getOWLIndividual(individualPointer);

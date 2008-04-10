@@ -850,10 +850,10 @@ JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_is
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
  * Method:    askInstances
- * Signature: (Luk/ac/manchester/cs/factplusplus/ClassPointer;)[Luk/ac/manchester/cs/factplusplus/IndividualPointer;
+ * Signature: (Luk/ac/manchester/cs/factplusplus/ClassPointer;Z)[Luk/ac/manchester/cs/factplusplus/IndividualPointer;
  */
 JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_askInstances
-  (JNIEnv *, jobject, jobject);
+  (JNIEnv *, jobject, jobject, jboolean);
 
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus

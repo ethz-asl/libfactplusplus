@@ -638,7 +638,14 @@ public:
 
 	// instances
 
-	// get all instances of given [complex] C
+		/// apply actor::apply() to all direct instances of given [complex] C
+	template<class Actor>
+	bool getDirectInstances ( const ComplexConcept C, Actor& actor )
+	{
+		realiseKB();	// ensure KB is ready to answer the query
+		return getChildren ( C, actor );
+	}
+
 		/// apply actor::apply() to all instances of given [complex] C
 	template<class Actor>
 	bool getInstances ( const ComplexConcept C, Actor& actor )

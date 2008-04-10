@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2006-2007 by Dmitry Tsarkov
+Copyright (C) 2006-2008 by Dmitry Tsarkov
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -1627,15 +1627,16 @@ JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_is
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
  * Method:    askInstances
- * Signature: (Luk/ac/manchester/cs/factplusplus/ClassPointer;)[Luk/ac/manchester/cs/factplusplus/IndividualPointer;
+ * Signature: (Luk/ac/manchester/cs/factplusplus/ClassPointer;Z)[Luk/ac/manchester/cs/factplusplus/IndividualPointer;
  */
 JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_askInstances
-  (JNIEnv * env, jobject obj, jobject arg)
+  (JNIEnv * env, jobject obj, jobject arg, jboolean direct)
 {
 	TRACE_JNI("askInstances");
 	JTaxonomyActor<IndividualPolicy> actor(env);
+	DLTree* p = getROTree(env,arg);
 	PROCESS_ASK_QUERY (
-		getK(env,obj)->getInstances(getROTree(env,arg),actor),
+		direct ? getK(env,obj)->getDirectInstances(p,actor) : getK(env,obj)->getInstances(p,actor),
 		"FaCT++ Kernel: error during askInstances processing" );
 	return actor.getElements();
 }

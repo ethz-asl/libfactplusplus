@@ -376,7 +376,14 @@ public class FaCTPlusPlus {
 
     public native boolean isInstanceOf(IndividualPointer i, ClassPointer c) throws FaCTPlusPlusException;
 
-    public native IndividualPointer [] askInstances(ClassPointer c) throws FaCTPlusPlusException;
+    public native IndividualPointer [] askInstances(ClassPointer c, boolean direct) throws FaCTPlusPlusException;
+
+    /**
+     * This method is deprecated and might be removed in the future releases
+     */
+    public IndividualPointer [] askInstances(ClassPointer c) throws FaCTPlusPlusException {
+		return askInstances(c,"false");
+	}
 
     public native IndividualPointer [] askSameAs(IndividualPointer i) throws FaCTPlusPlusException;
 
