@@ -318,6 +318,11 @@ void TBox :: createTaxonomy ( bool needIndividual )
 	if ( verboseOutput )
 		std::cerr << " done in " << locTimer << " seconds\n";
 
+	if ( needConcept && Status < kbClassified )
+		Status = kbClassified;
+	if ( needIndividual )
+		Status = kbRealised;
+
 	if ( verboseOutput/* && needIndividual*/ )
 	{
 		std::ofstream of ( "Taxonomy.log" );

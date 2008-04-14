@@ -40,6 +40,16 @@ class DLConceptTaxonomy;
 class dumpInterface;
 class modelCacheSingleton;
 
+/// enumeration for the reasoner status
+enum KBStatus
+{
+	kbEmpty,		// no axioms loaded yet; not used in TBox
+	kbLoading,		// axioms are added to the KB, no preprocessing done
+	kbCChecked,		// KB is preprocessed and consistency checked
+	kbClassified,	// KB is classified
+	kbRealised,		// KB is realised
+};
+
 class TBox
 {
 	friend class Precompletor;
@@ -177,6 +187,8 @@ protected:	// members
 	DataTypeCenter DTCenter;
 	/// set of reasoning options
 	const ifOptionSet* pOptions;
+		/// status of the KB
+	KBStatus Status;
 
 		/// global KB features
 	LogicFeatures KBFeatures;
@@ -240,8 +252,6 @@ protected:	// members
 		/// flag whether precompletion should be used
 	bool usePrecompletion;
 
-		/// flag whether consistency was checked
-	bool consistencyChecked;
 		/// whether KB is consistent; valid only if consistencyChecked is true
 	bool Consistent;
 		/// whether KB(ABox) is precompleted
@@ -980,13 +990,13 @@ public:
 		/// set consistency flag
 	void setConsistency ( bool val )
 	{
-		consistencyChecked = true;
+		Status = kbCChecked;
 		Consistent = val;
 	}
 		/// check if the ontology is consistent
 	bool isConsistent ( void )
 	{
-		if ( !consistencyChecked )
+		if ( Status < kbCChecked )
 			setConsistency(performConsistencyCheck());
 		return Consistent;
 	}
@@ -1046,6 +1056,7 @@ inline TBox :: TBox ( const ifOptionSet* Options )
 	, pMonitor(NULL)
 	, pTax (NULL)
 	, pOptions (Options)
+	, Status(kbLoading)
 	, curFeature(NULL)
 	, defConcept (NULL)
 	, Concepts("concept")
@@ -1054,7 +1065,6 @@ inline TBox :: TBox ( const ifOptionSet* Options )
 	, useSortedReasoning(true)
 	, isLikeGALEN(false)	// just in case Relevance part would be omited
 	, isLikeWINE(false)
-	, consistencyChecked(false)
 	, Precompleted(false)
 	, preprocTime(0)
 	, nSynonyms(0)

@@ -42,6 +42,7 @@ ReasoningKernel :: ReasoningKernel ( void )
 	}
 
 	initCacheAndFlags();
+	Status = kbEmpty;
 
 	// init option set (fill with options):
 	if ( initOptions () )
@@ -49,9 +50,9 @@ ReasoningKernel :: ReasoningKernel ( void )
 }
 
 void
-ReasoningKernel :: processKB ( KernelStatus status )
+ReasoningKernel :: processKB ( KBStatus status )
 {
-	assert ( status >= ksCChecked );
+	assert ( status >= kbCChecked );
 
 	// check if something have to be done
 	if ( Status >= status )
@@ -64,9 +65,9 @@ ReasoningKernel :: processKB ( KernelStatus status )
 	// here we have to do something: let's decide what to do
 	switch ( Status )
 	{
-	case ksLoading:		break;	// need to do the whole cycle -- just after the switch
-	case ksCChecked:	goto Classify;	// do classification
-	case ksClassified:	goto Realise;	// do realisation
+	case kbLoading:		break;	// need to do the whole cycle -- just after the switch
+	case kbCChecked:	goto Classify;	// do classification
+	case kbClassified:	goto Realise;	// do realisation
 	default:	// nothing should be here
 		assert(0);
 	}
@@ -79,22 +80,22 @@ ReasoningKernel :: processKB ( KernelStatus status )
 
 	// check whether we have incoherent KB
 	isConsistent = pTBox->isConsistent();
-	Status = ksCChecked;
+	Status = kbCChecked;
 
-	if ( status == ksCChecked )
+	if ( status == kbCChecked )
 		return;
 
 Classify:	// do classification
 
 	// don't do classification twice
-	if ( status == ksRealised )
+	if ( status == kbRealised )
 		goto Realise;
 
 	if ( !isConsistent )
 		return;
 
 	pTBox->performClassification();
-	Status = ksClassified;
+	Status = kbClassified;
 	return;
 
 Realise:	// do realisation
@@ -103,7 +104,7 @@ Realise:	// do realisation
 		return;
 
 	pTBox->performRealisation();
-	Status = ksRealised;
+	Status = kbRealised;
 }
 
 //******************************************

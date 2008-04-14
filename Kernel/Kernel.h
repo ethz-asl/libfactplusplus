@@ -88,8 +88,6 @@ private:
 protected:	// types
 		/// enumeration for the cache
 	enum cacheStatus { csEmpty, csSat, csClassified };
-		/// enumeration for the reasoner status
-	enum KernelStatus { ksLoading, ksCChecked, ksClassified, ksRealised };
 
 protected:	// members
 		/// local TBox (to be created)
@@ -109,7 +107,7 @@ protected:	// members
 	// internal flags
 
 		/// KB status
-	enum KernelStatus Status;
+	KBStatus Status;
 		/// is KB consistent or not
 	bool isConsistent;
 		/// is TBox changed since the last classification
@@ -121,7 +119,7 @@ protected:	// methods
 	bool initOptions ( void );
 
 		/// process KB wrt STATUS
-	void processKB ( KernelStatus status );
+	void processKB ( KBStatus status );
 
 		/// checks if current query is cached
 	bool isCached ( DLTree* query ) const
@@ -136,7 +134,6 @@ protected:	// methods
 		cachedQuery = NULL;
 		cachedConcept = NULL;
 		cachedVertex = NULL;
-		Status = ksLoading;
 		isConsistent = true;
 		isChanged = true;
 	}
@@ -178,11 +175,11 @@ public:	// general staff
 	static const char* getVersion ( void ) { return Version; }
 
 		/// return classification status of KB
-	bool isKBPreprocessed ( void ) const { return Status >= ksCChecked; }
+	bool isKBPreprocessed ( void ) const { return Status >= kbCChecked; }
 		/// return classification status of KB
-	bool isKBClassified ( void ) const { return Status >= ksClassified; }
+	bool isKBClassified ( void ) const { return Status >= kbClassified; }
 		/// return realistion status of KB
-	bool isKBRealised ( void ) const { return Status >= ksRealised; }
+	bool isKBRealised ( void ) const { return Status >= kbRealised; }
 
 		/// set Progress monitor to control the classification process
 	void setProgressMonitor ( TProgressMonitor* pMon ) { getTBox()->setProgressMonitor(pMon); }
@@ -419,15 +416,15 @@ public:
 		/// return consistency status of KB
 	bool isKBConsistent ( void )
 	{
-		if ( Status == ksLoading )
-			processKB(ksCChecked);
+		if ( Status <= kbLoading )
+			processKB(kbCChecked);
 		return isConsistent;
 	}
 		/// ensure that KB is preprocessed/consistence checked
 	void preprocessKB ( void )
 	{
 		if ( !isKBPreprocessed() )
-			processKB(ksCChecked);
+			processKB(kbCChecked);
 		if ( !isConsistent )
 			throw InconsistentKB();
 	}
@@ -435,7 +432,7 @@ public:
 	void classifyKB ( void )
 	{
 		if ( !isKBClassified() )
-			processKB(ksClassified);
+			processKB(kbClassified);
 		if ( !isConsistent )
 			throw InconsistentKB();
 	}
@@ -443,7 +440,7 @@ public:
 	void realiseKB ( void )
 	{
 		if ( !isKBRealised() )
-			processKB(ksRealised);
+			processKB(kbRealised);
 		if ( !isConsistent )
 			throw InconsistentKB();
 	}
@@ -714,6 +711,7 @@ inline bool ReasoningKernel :: newKB ( void )
 
 	pTBox = new TBox ( getOptions () );
 	initCacheAndFlags();
+	Status = kbLoading;
 	return false;
 }
 
@@ -722,6 +720,7 @@ inline bool ReasoningKernel :: releaseKB ( void )
 {
 	delete pTBox;
 	pTBox = NULL;
+	Status = kbEmpty;
 
 	return false;
 }
