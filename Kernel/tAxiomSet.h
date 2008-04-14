@@ -170,6 +170,8 @@ public:		// interface
 		processGCI(p);
 	}
 
+		/// set the early absorption flag
+	void setEarlyAbsorption ( bool flag ) { earlyAbsorption = flag; }
 		/// absorb set of axioms; @return size of not absorbed set
 	unsigned int absorb ( void );
 		/// get number of (not absorbed) GCIs
