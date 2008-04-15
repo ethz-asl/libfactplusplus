@@ -42,11 +42,15 @@ DlCompletionGraph :: createEdge (
 	{
 		from->addParent(forward);
 		to->addChild(backward);
+		if ( LLM.isWritable(llGTA) )
+			LL << " ce(" << to->getId() << "<-" << from->getId() << "," << roleName->getName() << ")";
 	}
 	else	// goes to child
 	{
 		from->addChild(forward);
 		to->addParent(backward);
+		if ( LLM.isWritable(llGTA) )
+			LL << " ce(" << from->getId() << "->" << to->getId() << "," << roleName->getName() << ")";
 	}
 
 	return forward;
