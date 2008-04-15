@@ -60,41 +60,36 @@ DlCompletionTreeArc*
 DlCompletionGraph :: moveEdge ( DlCompletionTree* node, DlCompletionTreeArc* edge,
 								bool isUpLink, const DepSet& dep )
 {
-	DlCompletionTreeArc* ret = NULL;
-
 	// skip already purged edges
 	if ( edge->isIBlocked())
-		return ret;
+		return NULL;
 
 	// skip edges not leading to nominal nodes
 	if ( !isUpLink && !edge->getArcEnd()->isNominalNode() )
-		return ret;
+		return NULL;
 
-	// no need to copy reflexive edges: they would be recreated
-	if ( !edge->isReflexiveEdge() )
-	{
-		// try to find for NODE->TO (TO->NODE) whether we
-		// have TO->NODE (NODE->TO) edge already
-		DlCompletionTree* to = edge->getArcEnd();
-		DlCompletionTree::const_edge_iterator
-			p = isUpLink ? node->begins() : node->beginp(),
-			p_end = isUpLink ? node->ends() : node->endp();
-
-		for ( ; p < p_end; ++p )
-			if ( (*p)->getArcEnd() == to )
-			{
-				ret = addRoleLabel ( node, to, !isUpLink, edge->getRole(), dep );
-				break;
-			}
-
-		if ( ret == NULL )
-			ret = addRoleLabel ( node, to, isUpLink, edge->getRole(), dep );
-	}
+	DlCompletionTree* to = edge->getArcEnd();
+	const TRole* R = edge->getRole();
+	bool isReflexive = edge->isReflexiveEdge();
 
 	// invalidate old edge
 	invalidateEdge(edge);
 
-	return ret;
+	// no need to copy reflexive edges: they would be recreated
+	if ( isReflexive )
+		return NULL;
+
+	// try to find for NODE->TO (TO->NODE) whether we
+	// have TO->NODE (NODE->TO) edge already
+	DlCompletionTree::const_edge_iterator
+		p = isUpLink ? node->begins() : node->beginp(),
+		p_end = isUpLink ? node->ends() : node->endp();
+
+	for ( ; p < p_end; ++p )
+		if ( (*p)->getArcEnd() == to )
+			return addRoleLabel ( node, to, !isUpLink, R, dep );
+
+	return addRoleLabel ( node, to, isUpLink, R, dep );
 }
 
 // merge labels; see SHOIN paper for detailed description
