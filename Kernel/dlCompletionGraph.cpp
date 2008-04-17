@@ -56,6 +56,7 @@ DlCompletionGraph :: createEdge (
 	return forward;
 }
 
+/// replace the EDGE (that comes from old node to X) with a new one, that comes from NODE to X
 DlCompletionTreeArc*
 DlCompletionGraph :: moveEdge ( DlCompletionTree* node, DlCompletionTreeArc* edge,
 								bool isUpLink, const DepSet& dep )
@@ -68,16 +69,16 @@ DlCompletionGraph :: moveEdge ( DlCompletionTree* node, DlCompletionTreeArc* edg
 	if ( !isUpLink && !edge->getArcEnd()->isNominalNode() )
 		return NULL;
 
-	DlCompletionTree* to = edge->getArcEnd();
 	const TRole* R = edge->getRole();
-	bool isReflexive = edge->isReflexiveEdge();
+
+	// we shall copy reflexive edges in a specific way
+	if ( edge->isReflexiveEdge() )
+		return addRoleLabel ( node, node, isUpLink, R, dep );
+
+	DlCompletionTree* to = edge->getArcEnd();
 
 	// invalidate old edge
 	invalidateEdge(edge);
-
-	// no need to copy reflexive edges: they would be recreated
-	if ( isReflexive )
-		return NULL;
 
 	// try to find for NODE->TO (TO->NODE) whether we
 	// have TO->NODE (NODE->TO) edge already
