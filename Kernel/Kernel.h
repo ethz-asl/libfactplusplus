@@ -84,6 +84,8 @@ private:
 	static const char* ProductName;
 	static const char* Copyright;
 	static const char* ReleaseDate;
+		/// header of the file with internal state; defined in SaveLoad.cpp
+	static const char* InternalStateFileHeader;
 
 protected:	// types
 		/// enumeration for the cache
@@ -165,6 +167,23 @@ protected:	// methods
 		/// get access to the role hierarchy
 	const Taxonomy* getRTaxonomy ( void ) const { return isKBPreprocessed() ? getRM()->getTaxonomy() : NULL; }
 
+	//----------------------------------------------
+	//-- save/load support; implementation in SaveLoad.cpp
+	//----------------------------------------------
+
+		/// save the header of the kernel
+	void SaveHeader ( std::ostream& o ) const;
+		/// save the set of Kernel's options
+	void SaveOptions ( std::ostream& o ) const;
+		/// save the status of the KB and the appropriate part of KB
+	void SaveKB ( std::ostream& o ) const;
+		/// load the header for the kernel
+	bool LoadHeader ( std::istream& i );
+		/// load the set of Kernel's options
+	void LoadOptions ( std::istream& i ) const;
+		/// load the status of the KB and the appropriate part of KB
+	void LoadKB ( std::istream& i );
+
 public:	// general staff
 	ReasoningKernel ( void );
 	~ReasoningKernel ( void );
@@ -192,6 +211,19 @@ public:	// general staff
 
 	// aux methods -- for parser
 	DLTree* processOneOf ( void );
+
+	//----------------------------------------------
+	//-- save/load interface; implementation in SaveLoad.cpp
+	//----------------------------------------------
+
+		/// save internal state of the Kernel to a file NAME
+	void Save ( std::ostream& o ) const;
+		/// load internal state of the Kernel from a file NAME
+	void Load ( std::istream& i );
+		/// save internal state of the Kernel to a file NAME
+	void Save ( const char* name ) const;
+		/// load internal state of the Kernel from a file NAME
+	void Load ( const char* name );
 
 	//******************************************
 	//* DataTypes access
