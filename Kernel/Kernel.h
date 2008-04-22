@@ -180,7 +180,7 @@ protected:	// methods
 		/// load the header for the kernel
 	bool LoadHeader ( std::istream& i );
 		/// load the set of Kernel's options
-	void LoadOptions ( std::istream& i ) const;
+	void LoadOptions ( std::istream& i );
 		/// load the status of the KB and the appropriate part of KB
 	void LoadKB ( std::istream& i );
 

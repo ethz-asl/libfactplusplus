@@ -25,19 +25,23 @@ Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #include "eFPPSaveLoad.h"
 #include "Kernel.h"
 
-const char* ReasoningKernel :: InternalStateFileHeader = "FaCT++ internal state dump v1.0";
+const char* ReasoningKernel :: InternalStateFileHeader = "FaCT++InternalStateDump1.0";
 
 const int bytesInInt = sizeof(int);
 
-// FIXME!! should be the other way around
+// FIXME!! try to avoid recursion later on
+static inline
+void saveUIntAux ( ostream& o, unsigned int n, const int rest )
+{
+	if ( rest > 1 )
+		saveUIntAux ( o, n/256, rest-1 );
+	o << (unsigned char)n%256;
+}
+
 static inline
 void saveUInt ( ostream& o, unsigned int n )
 {
-	for ( int j = bytesInInt-1; j >= 0; --j )
-	{
-		o << (unsigned char)n%256;
-		n /= 256;
-	}
+	saveUIntAux ( o, n, bytesInInt );
 }
 
 static inline
@@ -88,6 +92,7 @@ ReasoningKernel :: Load ( const char* name )
 {
 	std::ifstream i(name);
 	CHECK_FILE_STATE();
+	releaseKB();	// we'll start a new one if necessary
 	if ( LoadHeader(i) )
 		throw(EFPPSaveLoad(name,/*save=*/false));
 	CHECK_FILE_STATE();
@@ -109,11 +114,11 @@ bool
 ReasoningKernel :: LoadHeader ( istream& i )
 {
 	string str;
-	str = i.getline(512);
+	i >> str;
 	if ( str != InternalStateFileHeader )
 		return true;
-	str = i.getline(512);
-	// FIXME!! don't do it
+	i >> str;
+	// FIXME!! we don't check version equivalence for now
 //	if ( str != Version )
 //		return true;
 	int n;
@@ -122,3 +127,34 @@ ReasoningKernel :: LoadHeader ( istream& i )
 		return true;
 	return false;
 }
+
+//-- save/load options (Kernel.h)
+
+void
+ReasoningKernel :: SaveOptions ( ostream& o ) const
+{
+	o << "Options\n";
+}
+
+void
+ReasoningKernel :: LoadOptions ( istream& i )
+{
+	std::string options;
+	i >> options;
+}
+
+//-- save/load KB (Kernel.h)
+
+void
+ReasoningKernel :: SaveKB ( ostream& o ) const
+{
+	o << "KB\n";
+}
+
+void
+ReasoningKernel :: LoadKB ( istream& i )
+{
+	std::string KB;
+	i >> KB;
+}
+

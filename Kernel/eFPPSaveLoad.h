@@ -19,6 +19,8 @@ Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #ifndef _EFPPSAVELOAD_H
 #define _EFPPSAVELOAD_H
 
+#include <string>
+
 #include "eFaCTPlusPlus.h"
 
 /// exception thrown in case name can't be registered
