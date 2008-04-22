@@ -31,6 +31,11 @@ public:		// members
 	std::string str;
 
 public:		// interface
+		/// c'tor with a given "what" string
+	EFPPSaveLoad ( const std::string& reason ) throw()
+		: EFaCTPlusPlus()
+		, str(reason)
+		{}
 		/// c'tor: create an output string for the bad filename
 	EFPPSaveLoad ( const std::string& filename, bool save ) throw()
 		: EFaCTPlusPlus()

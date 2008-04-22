@@ -689,6 +689,10 @@ protected:	// methods
 	void PrintAxioms ( std::ostream& o ) const;
 
 //-----------------------------------------------------------------------------
+//--		 save/load support; implementation in SaveLoad.cpp
+//-----------------------------------------------------------------------------
+
+//-----------------------------------------------------------------------------
 //--		internal relevance helper methods
 //-----------------------------------------------------------------------------
 		/// is given concept relevant wrt current TBox
@@ -1040,6 +1044,15 @@ public:
 
 		/// create dump of relevant part of query using given method
 	void dump ( dumpInterface* dump ) const;
+
+//-----------------------------------------------------------------------------
+//--		 save/load interface; implementation in SaveLoad.cpp
+//-----------------------------------------------------------------------------
+
+		/// save the KB into the given stream
+	void Save ( std::ostream& o ) const;
+		/// load the KB from given stream wrt STATUS
+	void Load ( std::istream& o, KBStatus status );
 
 		/// implement DIG-like roleFillers query; @return in Js all J st (I,J):R
 	void getRoleFillers ( TIndividual* I, TRole* R, NamesVector& Js ) const;

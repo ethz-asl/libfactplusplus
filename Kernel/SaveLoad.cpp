@@ -148,13 +148,44 @@ ReasoningKernel :: LoadOptions ( istream& i )
 void
 ReasoningKernel :: SaveKB ( ostream& o ) const
 {
-	o << "KB\n";
+	saveUInt(o,(unsigned int)getStatus());
+	switch ( getStatus() )
+	{
+	case kbEmpty:	// nothing to do
+		return;
+	case kbLoading:
+		throw EFPPSaveLoad("Can't load internal state of the unclassified reasoner");
+	default:
+		getTBox()->Save(o);
+		break;
+	}
 }
 
 void
 ReasoningKernel :: LoadKB ( istream& i )
 {
-	std::string KB;
-	i >> KB;
+	KBStatus status = (KBStatus)loadUInt(i);
+	initCacheAndFlags();	// will be done
+	if ( status == kbEmpty )
+		return;
+	newKB();
+	getTBox()->Load(i,status);
 }
 
+//----------------------------------------------------------
+//-- Implementation of the TBox methods (dlTBox.h)
+//----------------------------------------------------------
+
+void
+TBox :: Save ( ostream& o ) const
+{
+	o << "KB\n";
+}
+
+void
+TBox :: Load ( istream& i, KBStatus status )
+{
+	Status = status;
+	string KB;
+	i >> KB;
+}
