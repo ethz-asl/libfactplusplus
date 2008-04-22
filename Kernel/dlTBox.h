@@ -252,7 +252,7 @@ protected:	// members
 		/// flag whether precompletion should be used
 	bool usePrecompletion;
 
-		/// whether KB is consistent; valid only if consistencyChecked is true
+		/// whether KB is consistent
 	bool Consistent;
 		/// whether KB(ABox) is precompleted
 	bool Precompleted;
@@ -999,7 +999,11 @@ public:
 	bool isConsistent ( void )
 	{
 		if ( Status < kbCChecked )
-			setConsistency(performConsistencyCheck());
+		{
+			prepareReasoning();
+			if ( Status < kbCChecked && Consistent )	// we can detect inconsistency during preprocessing
+				setConsistency(performConsistencyCheck());
+		}
 		return Consistent;
 	}
 		/// check if a subsumption C [= D holds
@@ -1067,6 +1071,7 @@ inline TBox :: TBox ( const ifOptionSet* Options )
 	, useSortedReasoning(true)
 	, isLikeGALEN(false)	// just in case Relevance part would be omited
 	, isLikeWINE(false)
+	, Consistent(true)
 	, Precompleted(false)
 	, preprocTime(0)
 	, nSynonyms(0)

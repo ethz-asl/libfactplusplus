@@ -108,10 +108,6 @@ protected:	// members
 
 	// internal flags
 
-		/// KB status
-	KBStatus Status;
-		/// is KB consistent or not
-	bool isConsistent;
 		/// is TBox changed since the last classification
 	bool isChanged;
 
@@ -120,6 +116,13 @@ protected:	// methods
 	// register all necessary options in local option set
 	bool initOptions ( void );
 
+		/// get status of the KB
+	KBStatus getStatus ( void ) const
+	{
+		if ( pTBox == NULL )
+			return kbEmpty;
+		return pTBox->getStatus();
+	}
 		/// process KB wrt STATUS
 	void processKB ( KBStatus status );
 
@@ -136,7 +139,6 @@ protected:	// methods
 		cachedQuery = NULL;
 		cachedConcept = NULL;
 		cachedVertex = NULL;
-		isConsistent = true;
 		isChanged = true;
 	}
 
@@ -194,11 +196,11 @@ public:	// general staff
 	static const char* getVersion ( void ) { return Version; }
 
 		/// return classification status of KB
-	bool isKBPreprocessed ( void ) const { return Status >= kbCChecked; }
+	bool isKBPreprocessed ( void ) const { return getStatus() >= kbCChecked; }
 		/// return classification status of KB
-	bool isKBClassified ( void ) const { return Status >= kbClassified; }
+	bool isKBClassified ( void ) const { return getStatus() >= kbClassified; }
 		/// return realistion status of KB
-	bool isKBRealised ( void ) const { return Status >= kbRealised; }
+	bool isKBRealised ( void ) const { return getStatus() >= kbRealised; }
 
 		/// set Progress monitor to control the classification process
 	void setProgressMonitor ( TProgressMonitor* pMon ) { getTBox()->setProgressMonitor(pMon); }
@@ -448,16 +450,14 @@ public:
 		/// return consistency status of KB
 	bool isKBConsistent ( void )
 	{
-		if ( Status <= kbLoading )
+		if ( getStatus() <= kbLoading )
 			processKB(kbCChecked);
-		return isConsistent;
+		return getTBox()->isConsistent();
 	}
 		/// ensure that KB is preprocessed/consistence checked
 	void preprocessKB ( void )
 	{
-		if ( !isKBPreprocessed() )
-			processKB(kbCChecked);
-		if ( !isConsistent )
+		if ( !isKBConsistent() )
 			throw InconsistentKB();
 	}
 		/// ensure that KB is classified
@@ -465,7 +465,7 @@ public:
 	{
 		if ( !isKBClassified() )
 			processKB(kbClassified);
-		if ( !isConsistent )
+		if ( !isKBConsistent() )
 			throw InconsistentKB();
 	}
 		/// ensure that KB is realised
@@ -473,7 +473,7 @@ public:
 	{
 		if ( !isKBRealised() )
 			processKB(kbRealised);
-		if ( !isConsistent )
+		if ( !isKBConsistent() )
 			throw InconsistentKB();
 	}
 
@@ -743,7 +743,6 @@ inline bool ReasoningKernel :: newKB ( void )
 
 	pTBox = new TBox ( getOptions () );
 	initCacheAndFlags();
-	Status = kbLoading;
 	return false;
 }
 
@@ -752,7 +751,6 @@ inline bool ReasoningKernel :: releaseKB ( void )
 {
 	delete pTBox;
 	pTBox = NULL;
-	Status = kbEmpty;
 
 	return false;
 }

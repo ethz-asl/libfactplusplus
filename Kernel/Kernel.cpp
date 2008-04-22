@@ -42,7 +42,6 @@ ReasoningKernel :: ReasoningKernel ( void )
 	}
 
 	initCacheAndFlags();
-	Status = kbEmpty;
 
 	// init option set (fill with options):
 	if ( initOptions () )
@@ -55,15 +54,15 @@ ReasoningKernel :: processKB ( KBStatus status )
 	assert ( status >= kbCChecked );
 
 	// check if something have to be done
-	if ( Status >= status )
+	if ( getStatus() >= status )
 	{	// nothing to do; but make sure that we are consistent
-		if ( !isConsistent )
+		if ( !isKBConsistent() )
 			throw InconsistentKB();
 		return;
 	}
 
 	// here we have to do something: let's decide what to do
-	switch ( Status )
+	switch ( getStatus() )
 	{
 	case kbLoading:		break;	// need to do the whole cycle -- just after the switch
 	case kbCChecked:	goto Classify;	// do classification
@@ -75,12 +74,8 @@ ReasoningKernel :: processKB ( KBStatus status )
 	// forbid further changes
 	isChanged = false;
 
-	// do the preprocessing
-	pTBox->prepareReasoning();
-
-	// check whether we have incoherent KB
-	isConsistent = pTBox->isConsistent();
-	Status = kbCChecked;
+	// do the consistency check
+	pTBox->isConsistent();
 
 	if ( status == kbCChecked )
 		return;
@@ -91,20 +86,18 @@ Classify:	// do classification
 	if ( status == kbRealised )
 		goto Realise;
 
-	if ( !isConsistent )
+	if ( !pTBox->isConsistent() )
 		return;
 
 	pTBox->performClassification();
-	Status = kbClassified;
 	return;
 
 Realise:	// do realisation
 
-	if ( !isConsistent )
+	if ( !pTBox->isConsistent() )
 		return;
 
 	pTBox->performRealisation();
-	Status = kbRealised;
 }
 
 //******************************************
