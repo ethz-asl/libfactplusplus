@@ -207,7 +207,7 @@ public:	// general staff
 
 		/// dump query processing TIME, reasoning statistics and a (preprocessed) TBox
 	void writeReasoningResult ( std::ostream& o, float time ) const
-		{ getTBox()->writeReasoningResult ( o, time, isConsistent ); }
+		{ getTBox()->writeReasoningResult ( o, time ); }
 
 	// aux methods -- for parser
 	DLTree* processOneOf ( void );

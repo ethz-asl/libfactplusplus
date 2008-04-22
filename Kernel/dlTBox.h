@@ -987,6 +987,8 @@ public:
 	void setPrecompleted ( void ) { Precompleted = true; }
 		/// if KB is precompleted
 	bool isPrecompleted ( void ) const { return Precompleted; }
+		/// get status flag
+	KBStatus getStatus ( void ) const { return Status; }
 		/// set consistency flag
 	void setConsistency ( bool val )
 	{
@@ -1028,7 +1030,7 @@ public:
 //-----------------------------------------------------------------------------
 
 		/// dump query processing TIME, reasoning statistics and a (preprocessed) TBox
-	void writeReasoningResult ( std::ostream& o, float time, bool isConsistent ) const;
+	void writeReasoningResult ( std::ostream& o, float time ) const;
 	std::ostream& Print ( std::ostream& o ) const;
 	std::ostream& PrintStat ( std::ostream& o ) const;
 

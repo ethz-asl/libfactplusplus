@@ -279,21 +279,22 @@ bool TBox :: classifyTempConcept ( void )
 
 /// dump QUERY processing time, reasoning statistics and a (preprocessed) TBox
 void
-TBox :: writeReasoningResult ( std::ostream& o, float time, bool isConsistent ) const
+TBox :: writeReasoningResult ( std::ostream& o, float time ) const
 {
 	if ( nomReasoner )
 	{
 		o << "Query processing reasoning statistic: Nominals";
 		nomReasoner->writeTotalStatistic(o);
-		o << "\n";
 	}
 	o << "Query processing reasoning statistic: Standard";
 	stdReasoner->writeTotalStatistic(o);
-	o << "\n";
-	if ( isConsistent )
+
+	// we know here whether KB is consistent
+	assert ( getStatus() >= kbCChecked );
+	if ( Consistent )
 		o << "Required";
 	else
-		o << "KB is inconsistent. Query is NOT processed. Consistency";
+		o << "KB is inconsistent. Query is NOT processed\nConsistency";
 
 	float sum = preprocTime;
 	o << " check done in " << time << " seconds\nof which:\nPreproc. takes "

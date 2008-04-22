@@ -843,6 +843,7 @@ public:
 		logStatisticData ( o, /*needLocal=*/false );
 		printBlockingStat (o);
 		clearBlockingStat();
+		o << "\n";
 	}
 
 		/// print SAT/SUB timings to O; @return total time spend during reasoning
