@@ -183,6 +183,20 @@ bool equalTrees ( const DLTree* t1, const DLTree* t2 )
 	return false;
 }
 
+bool isSubTree ( const DLTree* t1, const DLTree* t2 )
+{
+	if ( t1 == NULL || t1->Element() == TOP )
+		return true;
+	if ( t2 == NULL )
+		return false;
+	if ( t1->Element() == AND )
+		return isSubTree ( t1->Left(), t2 ) && isSubTree ( t1->Right(), t2 );
+	// t1 is a single elem, t2 is a (probably) AND-tree
+	if ( t2->Element() == AND )
+		return isSubTree ( t1, t2->Left() ) || isSubTree ( t1, t2->Right() );
+	// t1 and t2 are non-single elements
+	return equalTrees(t1,t2);
+}
 //********************************************************************************************
 //**	OnlySNF realization
 //********************************************************************************************

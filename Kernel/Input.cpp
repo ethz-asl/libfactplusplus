@@ -118,6 +118,12 @@ bool TBox :: addSubsumeAxiom ( TConcept* C, DLTree* D )
 bool
 TBox :: addSubsumeForDefined ( TConcept* C, DLTree* D )
 {
+	// if D is a syntactic sub-class of E, then nothing to do
+	if ( isSubTree ( D, C->Description ) )
+	{
+		deleteTree(D);
+		return false;
+	}
 	DLTree* oldDesc = clone(C->Description);
 	// try to see whether C contains a reference to itself at the top level
 	C->removeSelfFromDescription();

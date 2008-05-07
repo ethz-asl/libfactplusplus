@@ -33,6 +33,8 @@ extern bool isSNF ( const DLTree* t );
 
 	// checks if two trees are the same (syntactically)
 extern bool equalTrees ( const DLTree* t1, const DLTree* t2 );
+	// check whether t1=(and c1..cn), t2 = (and d1..dm) and ci = dj for all i
+extern bool isSubTree ( const DLTree* t1, const DLTree* t2 );
 
 	// builds a copy of the formula t
 inline DLTree* clone ( const DLTree* t ) { return (t==NULL) ? NULL : t->clone(); }
