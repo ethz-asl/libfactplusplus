@@ -38,8 +38,15 @@ extern "C" {
 
 #ifdef JNI_TRACING
 #	define TRACE_JNI(func) std::cerr << "call " << func << " from JNI\n"
+#	define TRACE_ARG(env,obj,arg) do {	\
+		getK(env,obj);					\
+		if ( !curKernel->pRefRecorder->in(getROTree(env,arg)) )	\
+			std::cerr << "argument not in the ref-set: "; \
+		std::cerr << arg << "\n";	\
+		} while(0)
 #else
 #	define TRACE_JNI(func) (void)NULL
+#	define TRACE_ARG(env,obj,arg) (void)NULL
 #endif
 
 //-------------------------------------------------------------
@@ -1221,6 +1228,7 @@ JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_is
   (JNIEnv * env, jobject obj, jobject arg)
 {
 	TRACE_JNI("isClassSatisfiable");
+	TRACE_ARG(env,obj,arg);
 	bool ret = false;
 	PROCESS_ASK_QUERY (
 		getK(env,obj)->isSatisfiable ( getROTree(env,arg), ret ),
@@ -1237,6 +1245,8 @@ JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_is
   (JNIEnv * env, jobject obj, jobject arg1, jobject arg2)
 {
 	TRACE_JNI("isClassSubsumedBy");
+	TRACE_ARG(env,obj,arg1);
+	TRACE_ARG(env,obj,arg2);
 	bool ret = false;
 	PROCESS_ASK_QUERY (
 		getK(env,obj)->isSubsumedBy ( getROTree(env,arg1), getROTree(env,arg2), ret ),
@@ -1253,6 +1263,8 @@ JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_is
   (JNIEnv * env, jobject obj, jobject arg1, jobject arg2)
 {
 	TRACE_JNI("isClassEquivalentTo");
+	TRACE_ARG(env,obj,arg1);
+	TRACE_ARG(env,obj,arg2);
 	bool ret = false;
 	PROCESS_ASK_QUERY (
 		getK(env,obj)->isEquivalent ( getROTree(env,arg1), getROTree(env,arg2), ret ),
@@ -1269,6 +1281,8 @@ JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_is
   (JNIEnv * env, jobject obj, jobject arg1, jobject arg2)
 {
 	TRACE_JNI("isClassDisjointWith");
+	TRACE_ARG(env,obj,arg1);
+	TRACE_ARG(env,obj,arg2);
 	bool ret = false;
 	PROCESS_ASK_QUERY (
 		getK(env,obj)->isDisjoint ( getROTree(env,arg1), getROTree(env,arg2), ret ),
@@ -1285,6 +1299,7 @@ JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlu
   (JNIEnv * env, jobject obj, jobject arg, jboolean direct)
 {
 	TRACE_JNI("askSubClasses");
+	TRACE_ARG(env,obj,arg);
 	JTaxonomyActor<ClassPolicy> actor(env);
 	DLTree* p = getROTree(env,arg);
 	PROCESS_ASK_QUERY (
@@ -1302,6 +1317,7 @@ JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlu
   (JNIEnv * env, jobject obj, jobject arg, jboolean direct)
 {
 	TRACE_JNI("askSuperClasses");
+	TRACE_ARG(env,obj,arg);
 	JTaxonomyActor<ClassPolicy> actor(env);
 	DLTree* p = getROTree(env,arg);
 	PROCESS_ASK_QUERY (
@@ -1319,6 +1335,7 @@ JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlu
   (JNIEnv * env, jobject obj, jobject arg)
 {
 	TRACE_JNI("askEquivalentClasses");
+	TRACE_ARG(env,obj,arg);
 	JTaxonomyActor<ClassPolicy> actor(env);
 	PROCESS_ASK_QUERY (
 		getK(env,obj)->getEquivalents ( getROTree(env,arg), actor ),
@@ -1335,6 +1352,7 @@ JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlu
   (JNIEnv * env, jobject obj, jobject arg, jboolean direct)
 {
 	TRACE_JNI("askSuperObjectProperties");
+	TRACE_ARG(env,obj,arg);
 	JTaxonomyActor<ObjectPropertyPolicy> actor(env);
 	DLTree* p = getROTree(env,arg);
 	PROCESS_ASK_QUERY (
@@ -1352,6 +1370,7 @@ JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlu
   (JNIEnv * env, jobject obj, jobject arg, jboolean direct)
 {
 	TRACE_JNI("askSubObjectProperties");
+	TRACE_ARG(env,obj,arg);
 	JTaxonomyActor<ObjectPropertyPolicy> actor(env);
 	DLTree* p = getROTree(env,arg);
 	PROCESS_ASK_QUERY (
@@ -1369,6 +1388,7 @@ JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlu
   (JNIEnv * env, jobject obj, jobject arg)
 {
 	TRACE_JNI("askEquivalentObjectProperties");
+	TRACE_ARG(env,obj,arg);
 	JTaxonomyActor<ObjectPropertyPolicy> actor(env);
 	PROCESS_ASK_QUERY (
 		getK(env,obj)->getREquivalents ( getROTree(env,arg), actor ),
@@ -1385,6 +1405,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_ask
   (JNIEnv * env, jobject obj, jobject arg)
 {
 	TRACE_JNI("askObjectPropertDomain");
+	TRACE_ARG(env,obj,arg);
 	Throw ( env, "FaCT++ Kernel: unsupported operation" );
 	return NULL;
 }
@@ -1398,6 +1419,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_ask
   (JNIEnv * env, jobject obj, jobject arg)
 {
 	TRACE_JNI("askObjectPropertyRange");
+	TRACE_ARG(env,obj,arg);
 	Throw ( env, "FaCT++ Kernel: unsupported operation" );
 	return NULL;
 }
@@ -1411,6 +1433,7 @@ JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_is
   (JNIEnv * env, jobject obj, jobject arg)
 {
 	TRACE_JNI("isObjectPropertyFunctional");
+	TRACE_ARG(env,obj,arg);
 	bool ret = false;
 	PROCESS_ASK_QUERY (
 		getK(env,obj)->isFunctional ( getROTree(env,arg), ret ),
@@ -1427,6 +1450,7 @@ JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_is
   (JNIEnv * env, jobject obj, jobject arg)
 {
 	TRACE_JNI("isObjectPropertyInverseFunctional");
+	TRACE_ARG(env,obj,arg);
 	bool ret = false;
 	PROCESS_ASK_QUERY (
 		getK(env,obj)->isInverseFunctional ( getROTree(env,arg), ret ),
@@ -1443,6 +1467,7 @@ JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_is
   (JNIEnv * env, jobject obj, jobject arg)
 {
 	TRACE_JNI("isObjectPropertySymmetric");
+	TRACE_ARG(env,obj,arg);
 	Throw ( env, "FaCT++ Kernel: unsupported operation" );
 	return false;
 }
@@ -1456,6 +1481,7 @@ JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_is
   (JNIEnv * env, jobject obj, jobject arg)
 {
 	TRACE_JNI("isObjectPropertyAntiSymmetric");
+	TRACE_ARG(env,obj,arg);
 	Throw ( env, "FaCT++ Kernel: unsupported operation" );
 	return false;
 }
@@ -1469,6 +1495,7 @@ JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_is
   (JNIEnv * env, jobject obj, jobject arg)
 {
 	TRACE_JNI("isObjectPropertyTransitive");
+	TRACE_ARG(env,obj,arg);
 	Throw ( env, "FaCT++ Kernel: unsupported operation" );
 	return false;
 }
@@ -1482,6 +1509,7 @@ JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_is
   (JNIEnv * env, jobject obj, jobject arg)
 {
 	TRACE_JNI("isObjectPropertyReflexive");
+	TRACE_ARG(env,obj,arg);
 	Throw ( env, "FaCT++ Kernel: unsupported operation" );
 	return false;
 }
@@ -1495,6 +1523,7 @@ JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_is
   (JNIEnv * env, jobject obj, jobject arg)
 {
 	TRACE_JNI("isObjectPropertyIrreflexive");
+	TRACE_ARG(env,obj,arg);
 	Throw ( env, "FaCT++ Kernel: unsupported operation" );
 	return false;
 }
@@ -1508,6 +1537,7 @@ JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlu
   (JNIEnv * env, jobject obj, jobject arg, jboolean direct)
 {
 	TRACE_JNI("askSuperDataProperties");
+	TRACE_ARG(env,obj,arg);
 	JTaxonomyActor<DataPropertyPolicy> actor(env);
 	DLTree* p = getROTree(env,arg);
 	PROCESS_ASK_QUERY (
@@ -1525,6 +1555,7 @@ JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlu
   (JNIEnv * env, jobject obj, jobject arg, jboolean direct)
 {
 	TRACE_JNI("askSubDataProperties");
+	TRACE_ARG(env,obj,arg);
 	JTaxonomyActor<DataPropertyPolicy> actor(env);
 	DLTree* p = getROTree(env,arg);
 	PROCESS_ASK_QUERY (
@@ -1542,6 +1573,7 @@ JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlu
   (JNIEnv * env, jobject obj, jobject arg)
 {
 	TRACE_JNI("askEquivalentDataProperties");
+	TRACE_ARG(env,obj,arg);
 	JTaxonomyActor<DataPropertyPolicy> actor(env);
 	PROCESS_ASK_QUERY (
 		getK(env,obj)->getREquivalents ( getROTree(env,arg), actor ),
@@ -1558,6 +1590,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_ask
   (JNIEnv * env, jobject obj, jobject arg)
 {
 	TRACE_JNI("askDataPropertyDomain");
+	TRACE_ARG(env,obj,arg);
 	Throw ( env, "FaCT++ Kernel: unsupported operation" );
 	return NULL;
 }
@@ -1571,6 +1604,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_ask
   (JNIEnv * env, jobject obj, jobject arg)
 {
 	TRACE_JNI("askDataPropertyRange");
+	TRACE_ARG(env,obj,arg);
 	Throw ( env, "FaCT++ Kernel: unsupported operation" );
 	return NULL;
 }
@@ -1584,6 +1618,7 @@ JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_is
   (JNIEnv * env, jobject obj, jobject arg)
 {
 	TRACE_JNI("isDataPropertyFunctional");
+	TRACE_ARG(env,obj,arg);
 	bool ret = false;
 	PROCESS_ASK_QUERY (
 		getK(env,obj)->isFunctional ( getROTree(env,arg), ret ),
@@ -1600,6 +1635,7 @@ JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlu
   (JNIEnv * env, jobject obj, jobject arg, jboolean direct)
 {
 	TRACE_JNI("askIndividualTypes");
+	TRACE_ARG(env,obj,arg);
 	JTaxonomyActor<ClassPolicy> actor(env);
 	DLTree* p = getROTree(env,arg);
 	PROCESS_ASK_QUERY (
@@ -1633,6 +1669,7 @@ JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlu
   (JNIEnv * env, jobject obj, jobject arg, jboolean direct)
 {
 	TRACE_JNI("askInstances");
+	TRACE_ARG(env,obj,arg);
 	JTaxonomyActor<IndividualPolicy> actor(env);
 	DLTree* p = getROTree(env,arg);
 	PROCESS_ASK_QUERY (
@@ -1650,6 +1687,7 @@ JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlu
   (JNIEnv * env, jobject obj, jobject arg)
 {
 	TRACE_JNI("askSameAs");
+	TRACE_ARG(env,obj,arg);
 	JTaxonomyActor<IndividualPolicy> actor(env);
 	PROCESS_ASK_QUERY (
 		getK(env,obj)->getSameAs ( getROTree(env,arg), actor ),
@@ -1666,6 +1704,8 @@ JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_is
   (JNIEnv * env, jobject obj, jobject arg1, jobject arg2)
 {
 	TRACE_JNI("isSameAs");
+	TRACE_ARG(env,obj,arg1);
+	TRACE_ARG(env,obj,arg2);
 	Throw ( env, "FaCT++ Kernel: unsupported operation" );
 	return false;
 }
@@ -1698,6 +1738,7 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_addArg
   (JNIEnv * env, jobject obj, jobject arg)
 {
 	TRACE_JNI("addArg");
+	TRACE_ARG(env,obj,arg);
 	PROCESS_QUERY (
 		getK(env,obj)->contConceptList(getTree(env,arg)),
 		"FaCT++ Kernel: error during addArg processing" );

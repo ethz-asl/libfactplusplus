@@ -62,6 +62,8 @@ public:		// interface
 
 		/// add reference to a repository
 	void add ( DLTree* p ) { refs.push_back(p); }
+		/// check whether P is in the repository
+	bool in ( DLTree* p ) const { return find ( refs.begin(), refs.end(), p ) != refs.end(); }
 		/// clear repository, free all memory
 	void clear ( void )
 	{
