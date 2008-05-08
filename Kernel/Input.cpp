@@ -41,6 +41,14 @@ bool TBox :: addSubsumeAxiom ( DLTree* left, DLTree* right )
 		return false;
 	}
 
+	// cor C [= C: nothing to do
+	if ( equalTrees ( left,right ) )
+	{
+		deleteTree(left);
+		deleteTree(right);
+		return false;
+	}
+
 	// check the case D [= CN, where CN is defined as D
 	if ( right->Element() == CNAME )
 	{
