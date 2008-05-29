@@ -1,9 +1,13 @@
 package uk.ac.manchester.cs.factplusplus.owlapi;
 
 import org.semanticweb.owl.model.*;
+import org.semanticweb.owl.io.OWLOntologyOutputTarget;
 
 import java.io.*;
 import java.net.URI;
+import java.util.logging.Logger;
+
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 /*
  * Copyright (C) 2007, University of Manchester
  *
@@ -36,6 +40,8 @@ import java.net.URI;
  */
 public class FaCTPlusPlusOWLOntologyStorer implements OWLOntologyStorer {
 
+    private Logger logger = Logger.getLogger(FaCTPlusPlusOWLOntologyStorer.class.toString());
+
     public boolean canStoreOntology(OWLOntologyFormat ontologyFormat) {
         return ontologyFormat.equals(new FaCTPlusPlusOntologyFormat());
     }
@@ -44,7 +50,25 @@ public class FaCTPlusPlusOWLOntologyStorer implements OWLOntologyStorer {
     public void storeOntology(OWLOntologyManager manager, OWLOntology ontology, URI physicalURI,
                               OWLOntologyFormat ontologyFormat) throws OWLOntologyStorageException {
         try {
-            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(new File(physicalURI))));
+            storeOntology(manager, ontology, new FileOutputStream(new File(physicalURI)), ontologyFormat);
+        }
+        catch (FileNotFoundException e) {
+            throw new OWLOntologyStorageException(e);
+        }
+    }
+
+
+    public void storeOntology(OWLOntologyManager manager, OWLOntology ontology, OWLOntologyOutputTarget outputTarget,
+                              OWLOntologyFormat ontologyFormat) throws OWLOntologyStorageException {
+            storeOntology(manager, ontology, outputTarget.getOutputStream(), ontologyFormat);
+    }
+
+
+    private void storeOntology(OWLOntologyManager manager, OWLOntology ontology, OutputStream out,
+                              OWLOntologyFormat ontologyFormat) throws OWLOntologyStorageException {
+        try {
+            logger.info("FaCT++ ignoring ontology format requested. Not supported");
+            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(out));
             FaCTPlusPlusRenderer ren = new FaCTPlusPlusRenderer(writer);
             ontology.accept(ren);
             writer.flush();

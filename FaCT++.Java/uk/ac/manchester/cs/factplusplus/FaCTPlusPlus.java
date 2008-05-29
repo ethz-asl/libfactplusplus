@@ -26,7 +26,12 @@ public class FaCTPlusPlus {
     private long KernelId;
 
     public FaCTPlusPlus() throws FaCTPlusPlusException {
-        initKernel();
+        try{
+            initKernel();
+        }
+        catch(Exception e){
+            throw new FaCTPlusPlusException(e);
+        }
     }
 
     /**
@@ -382,8 +387,8 @@ public class FaCTPlusPlus {
      * This method is deprecated and might be removed in the future releases
      */
     public IndividualPointer [] askInstances(ClassPointer c) throws FaCTPlusPlusException {
-		return askInstances(c,"false");
-	}
+        return askInstances(c, false);
+    }
 
     public native IndividualPointer [] askSameAs(IndividualPointer i) throws FaCTPlusPlusException;
 
@@ -424,7 +429,7 @@ public class FaCTPlusPlus {
      * @throws FaCTPlusPlusException
      */
     public native void closeArgList() throws FaCTPlusPlusException;
-    
+
     public native void setProgressMonitor(FaCTPlusPlusProgressMonitor progressMonitor) throws FaCTPlusPlusException;
 
 

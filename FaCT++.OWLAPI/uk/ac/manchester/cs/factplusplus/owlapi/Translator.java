@@ -355,10 +355,6 @@ public class Translator implements OWLDescriptionVisitor, OWLEntityVisitor, OWLP
 
     public void visit(OWLObjectMinCardinalityRestriction desc) {
         try {
-            if (desc.getCardinality() == 0) {
-                // FaCT++ crashes if the min cardinality is zero!
-                return;
-            }
             desc.getFiller().accept(this);
             ClassPointer classPointer = getLastClassPointer();
             desc.getProperty().accept(this);
