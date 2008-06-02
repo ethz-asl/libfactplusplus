@@ -19,12 +19,12 @@ Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #include "Kernel.h"
 #include "comerror.h"
 
-const char* ReasoningKernel :: Version = "1.1.11";
+const char* ReasoningKernel :: Version = "1.1.12";
 const char* ReasoningKernel :: ProductName =
 	"FaCT++.Kernel: Reasoner for the SROIQ(D) Description Logic\n";
 const char* ReasoningKernel :: Copyright =
 	"Copyright (C) Dmitry V. Tsarkov, 2002-2008. ";
-const char* ReasoningKernel :: ReleaseDate = "(28 March 2008)";
+const char* ReasoningKernel :: ReleaseDate = "(02 June 2008)";
 
 // print the FaCT++ information only once
 static bool KernelFirstRun = true;
