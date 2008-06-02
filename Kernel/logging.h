@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2006 by Dmitry Tsarkov
+Copyright (C) 2006-2008 by Dmitry Tsarkov
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -32,12 +32,12 @@ enum
 	llTaxTrying = 2,		// "Try C [= D" message
 	llCDConcept = 2,		// "completely defines concept" message
 	llTSList = 2,			// print list of TS's
-	llTaxInsert = 3,		// "insert C with parents={} and children={}" message
+	llTaxInsert = 2,		// "insert C with parents={} and children={}" message
 	llDagSat = 3,			// "checking SAT of DAG entry" message
 	llSatTime = 3,			// print time for the test
 	llRStat = 5,			// local reasoning statistic
-	llSRInfo = 5,			// node save/restore info
-	llSRState = 5,			// s/r info of the reasoning state
+	llSRInfo = 15,			// node save/restore info
+	llSRState = 15,			// s/r info of the reasoning state
 	llGTA = 10,				// general tactic action
 	llCDAction = llGTA,		// any concrete domain info
 };
