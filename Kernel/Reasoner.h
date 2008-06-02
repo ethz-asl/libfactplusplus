@@ -592,8 +592,26 @@ protected:	// methods
 		/// check if ATLEAST and ATMOST restrictions are in clash; setup depset from CUR
 	bool isNRClash ( const DLVertex& atleast, const DLVertex& atmost, const ConceptWDep& reason );
 
+		/// aux method that fills the dep-set for either C or ~C found in the label; @return whether C was found
+	bool findChooseRuleConcept ( const CWDArray& label, BipolarPointer C, DepSet& Dep )
+	{
+		if ( C == bpTOP )
+			return true;
+		if ( findConcept ( label, C, Dep ) )
+		{
+			Dep = getClashSet();
+			return true;
+		}
+		else if ( findConcept ( label, inverse(C), Dep ) )
+		{
+			Dep = getClashSet();
+			return false;
+		}
+		else
+			assert(0);
+	}
 		/// aux method which fills EdgesToMerge with *different* ROLE-neighbours of curNode
-	void findNeighbours ( EdgeVector& EdgesToMerge, const TRole* Role, BipolarPointer C ) const;
+	void findNeighbours ( EdgeVector& EdgesToMerge, const TRole* Role, BipolarPointer C, DepSet& Dep );
 		/// aux method that checks whether clash occurs during the merge of labels
 	bool checkMergeClash ( const CGLabel& from, const CGLabel& to, const DepSet& dep, unsigned int nodeId );
 		/// aux method that merge FROM label to the TO node with an appropriadte dep-set

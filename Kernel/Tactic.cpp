@@ -876,7 +876,8 @@ tacticUsage DlSatTester :: commonTacticBodyFunc ( const DLVertex& cur )	// for <
 
 	// locate all R-neighbours of curNode
 	EdgeVector EdgesToMerge;
-	findNeighbours ( EdgesToMerge, cur.getRole(), bpTOP );
+	DepSet dummy;	// not used
+	findNeighbours ( EdgesToMerge, cur.getRole(), bpTOP, dummy );
 
 	// check if we have nodes to merge
 	if ( EdgesToMerge.size() < 2 )
@@ -950,7 +951,7 @@ tacticUsage DlSatTester :: commonTacticBodyLE ( const DLVertex& cur )	// for <=n
 			initBC(btLE);
 
 			// check the amount of neighbours we have
-			findNeighbours ( bContext->EdgesToMerge, cur.getRole(), C );
+			findNeighbours ( bContext->EdgesToMerge, cur.getRole(), C, bContext->branchDep );
 
 			// if the number of R-heighs satisfies condition -- nothing to do
 			if ( bContext->notApplicableLE(cur.getNumberLE()) )
@@ -1265,20 +1266,23 @@ bool isNewEdge ( const DlCompletionTree* node, Iterator begin, Iterator end )
 	return true;
 }
 
-void DlSatTester :: findNeighbours ( EdgeVector& EdgesToMerge, const TRole* Role, BipolarPointer C ) const
+void DlSatTester :: findNeighbours ( EdgeVector& EdgesToMerge, const TRole* Role, BipolarPointer C, DepSet& Dep )
 {
 	EdgesToMerge.clear();
 
 	DlCompletionTree::const_edge_iterator p;
+	DagTag tag = DLHeap[C].Type();
 
 	for ( p = curNode->beginp(); p != curNode->endp(); ++p )
-		if ( (*p)->isNeighbour(Role) && (*p)->getArcEnd()->isLabelledBy(C)
-			 && isNewEdge ( (*p)->getArcEnd(), EdgesToMerge.begin(), EdgesToMerge.end() ) )
+		if ( (*p)->isNeighbour(Role)
+			 && isNewEdge ( (*p)->getArcEnd(), EdgesToMerge.begin(), EdgesToMerge.end() )
+			 && findChooseRuleConcept ( (*p)->getArcEnd()->label().getLabel(tag), C, Dep ) )
 			EdgesToMerge.push_back(*p);
 
 	for ( p = curNode->begins(); p != curNode->ends(); ++p )
-		if ( (*p)->isNeighbour(Role) && (*p)->getArcEnd()->isLabelledBy(C)
-			 && isNewEdge ( (*p)->getArcEnd(), EdgesToMerge.begin(), EdgesToMerge.end() ) )
+		if ( (*p)->isNeighbour(Role)
+			 && isNewEdge ( (*p)->getArcEnd(), EdgesToMerge.begin(), EdgesToMerge.end() )
+			 && findChooseRuleConcept ( (*p)->getArcEnd()->label().getLabel(tag), C, Dep ) )
 			EdgesToMerge.push_back(*p);
 
 	// sort EdgesToMerge: From named nominals to generated nominals to blockable nodes
