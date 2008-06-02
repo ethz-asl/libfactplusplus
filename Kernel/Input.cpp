@@ -41,7 +41,7 @@ bool TBox :: addSubsumeAxiom ( DLTree* left, DLTree* right )
 		return false;
 	}
 
-	// cor C [= C: nothing to do
+	// for C [= C: nothing to do
 	if ( equalTrees ( left,right ) )
 	{
 		deleteTree(left);
@@ -138,7 +138,7 @@ TBox :: addSubsumeForDefined ( TConcept* C, DLTree* D )
 	if ( equalTrees ( oldDesc, C->Description ) )
 		return processGCI ( oldDesc, D );
 
-	// note thet we don't know exact semantics of C for now;
+	// note that we don't know exact semantics of C for now;
 	// we need to split it's definition and work via GCIs
 	C->setPrimitive();	// now we have C [= B
 	C->addDesc(D);		// here C [= (B and D)
