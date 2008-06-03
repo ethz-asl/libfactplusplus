@@ -193,14 +193,6 @@ static void PrintIndent ( std::ostream& o )
 static void
 PrintNode ( const DlCompletionTree* node, std::ostream& o );
 
-/// as PrintNode, but doesn't print if node is already printed
-static inline void
-PrintNodeIfNew ( const DlCompletionTree* node, std::ostream& o )
-{
-	if ( !CGPFlag[node->getId()] )
-		PrintNode ( node, o );
-}
-
 void DlCompletionGraph :: Print ( std::ostream& o ) const
 {
 	// init indentation and node labels
@@ -216,7 +208,7 @@ void DlCompletionGraph :: Print ( std::ostream& o ) const
 
 	// if there are nominals in the graph -- print the nominal cloud
 	for ( ++p; p < p_end && (*p)->isNominalNode(); ++p )
-		PrintNodeIfNew ( *p, o );
+		PrintNode ( *p, o );
 	o << "\n";
 }
 
@@ -226,8 +218,6 @@ PrintEdge ( DlCompletionTree::const_edge_iterator edge,
 			const DlCompletionTree* parent, std::ostream& o )
 {
 	const DlCompletionTree* node = (*edge)->getArcEnd();
-	if ( CGPFlag[node->getId()] && node != parent )	// don't print nodes twice
-		return;
 
 	PrintIndent(o);
 	for ( DlCompletionTree::const_edge_iterator p = edge; p != parent->ends(); ++p )
@@ -240,14 +230,13 @@ PrintEdge ( DlCompletionTree::const_edge_iterator edge,
 		o << "-loop to node " << parent->getId();
 	}
 	else
-		PrintNodeIfNew ( node, o );
+		PrintNode ( node, o );
 }
 
 /// print node of the graph with proper indentation
 static void
 PrintNode ( const DlCompletionTree* node, std::ostream& o )
 {
-	CGPFlag[node->getId()] = true;	// mark node printed
 	if ( CGPIndent )
 	{
 		PrintIndent(o);
@@ -257,6 +246,15 @@ PrintNode ( const DlCompletionTree* node, std::ostream& o )
 		o << "\n";
 
 	node->PrintBody(o);				// print node's label
+
+	// don't print subtree twice
+	if ( CGPFlag[node->getId()] )
+	{
+		o << "d";
+		return;
+	}
+
+	CGPFlag[node->getId()] = true;	// mark node printed
 
 	// print all children
 	++CGPIndent;
