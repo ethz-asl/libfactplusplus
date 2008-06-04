@@ -127,10 +127,11 @@ void DlCompletionGraph :: Merge ( DlCompletionTree* from, DlCompletionTree* to,
 	updateIR ( to, from, dep );
 
 	// 5. Purge FROM
-	Purge ( from, to, dep );
+	purgeNode ( from, to, dep );
 }
 
-void DlCompletionGraph :: Purge ( DlCompletionTree* p, const DlCompletionTree* root, const DepSet& dep )
+void
+DlCompletionGraph :: purgeNode ( DlCompletionTree* p, const DlCompletionTree* root, const DepSet& dep )
 {
 	if ( p->isPBlocked() )
 		return;
@@ -139,10 +140,17 @@ void DlCompletionGraph :: Purge ( DlCompletionTree* p, const DlCompletionTree* r
 
 	// update successors
 	for ( DlCompletionTree::const_edge_iterator q = p->begins(); q != p->ends(); ++q )
-		if ( (*q)->getArcEnd()->isBlockableNode() )
-			Purge ( (*q)->getArcEnd(), root, dep );	// purge all blockable successors
-		else
-			invalidateEdge(*q);	// invalidate links to nominal successor
+		if ( !(*q)->isIBlocked() )
+			purgeEdge ( *q, root, dep );
+}
+
+/// purge edge E with given ROOT and DEP-set
+void
+DlCompletionGraph :: purgeEdge ( DlCompletionTreeArc* e, const DlCompletionTree* root, const DepSet& dep )
+{
+	invalidateEdge(e);	// invalidate given link
+	if ( e->getArcEnd()->isBlockableNode() )
+		purgeNode ( e->getArcEnd(), root, dep );	// purge blockable successor
 }
 
 // save/restore

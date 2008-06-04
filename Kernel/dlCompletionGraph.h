@@ -246,7 +246,9 @@ public:		// interface
 	void Merge ( DlCompletionTree* from, DlCompletionTree* to, const DepSet& toAdd,
 				 std::vector<DlCompletionTreeArc*>& edges );
 		/// purge node P with given ROOT and DEP-set
-	void Purge ( DlCompletionTree* p, const DlCompletionTree* root, const DepSet& dep );
+	void purgeNode ( DlCompletionTree* p, const DlCompletionTree* root, const DepSet& dep );
+		/// purge edge E with given ROOT and DEP-set
+	void purgeEdge ( DlCompletionTreeArc* e, const DlCompletionTree* root, const DepSet& dep );
 
 	//----------------------------------------------
 	// inequality relation interface
