@@ -100,23 +100,25 @@ void DlCompletionGraph :: Merge ( DlCompletionTree* from, DlCompletionTree* to,
 {
 	DlCompletionTree::const_edge_iterator q, q_endp = from->endp(), q_ends = from->ends();
 	DlCompletionTreeArc* temp;
+	bool isUpLink;
 
 	edges.clear();
-
-	// 1. For all x: x->FROM make x->TO
-	// FIXME!! no optimisations (in case there exists an edge TO->x labelled with R-)
-	bool isUpLink = true;	// copying predecessors
-	for ( q = from->beginp(); q < q_endp; ++q )
-	{
-		temp = moveEdge ( to, *q, isUpLink, dep );
-		if ( temp != NULL )
-			edges.push_back(temp);
-	}
 
 	// 2. For all nominal x: FROM->x make TO->x
 	// FIXME!! no optimisations (in case there exists an edge x->TO labelled with R-)
 	isUpLink = false;	// copying successors
 	for ( q = from->begins(); q < q_ends; ++q )
+	{
+		temp = moveEdge ( to, *q, isUpLink, dep );
+		if ( temp != NULL )
+			edges.push_back(temp);
+		purgeEdge ( *q, to, dep );
+	}
+
+	// 1. For all x: x->FROM make x->TO
+	// FIXME!! no optimisations (in case there exists an edge TO->x labelled with R-)
+	isUpLink = true;	// copying predecessors
+	for ( q = from->beginp(); q < q_endp; ++q )
 	{
 		temp = moveEdge ( to, *q, isUpLink, dep );
 		if ( temp != NULL )
