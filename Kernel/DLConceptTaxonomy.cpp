@@ -194,6 +194,7 @@ bool DLConceptTaxonomy :: propagateUp ( void )
 			return true;
 
 		++nCommon;
+		aux.clear();
 		(*p)->propagateOne(aux);
 		TaxonomyVertex::clearChecked();
 
