@@ -35,7 +35,9 @@ DlCompletionTree :: isTSuccLabelled ( const TRole* R, BipolarPointer C ) const
 
 	// check all other successors
 	for ( const_edge_iterator p = begins(), p_end = ends(); p < p_end; ++p )
-		if ( (*p)->isNeighbour(R) && (*p)->getArcEnd()->isTSuccLabelled(R,C) )
+		if ( (*p)->isNeighbour(R) &&
+			 !(*p)->isReflexiveEdge() &&	// prevent cycles
+			 (*p)->getArcEnd()->isTSuccLabelled(R,C) )
 			return true;
 
 	// not happens
