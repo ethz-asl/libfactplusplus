@@ -42,7 +42,7 @@ extern "C" {
 		getK(env,obj);					\
 		if ( !curKernel->pRefRecorder->in(getROTree(env,arg)) )	\
 			std::cerr << "argument not in the ref-set: "; \
-		std::cerr << arg << "\n";	\
+		std::cerr << getROTree(env,arg) << "\n";	\
 		} while(0)
 #else
 #	define TRACE_JNI(func) (void)NULL
