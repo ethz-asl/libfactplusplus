@@ -161,8 +161,8 @@ public class Reasoner extends MonitorableOWLReasonerAdapter implements FaCTPlusP
     private void ensureSynchronised() throws OWLReasonerException {
         if (!synchronised) {
             try {
+                synchronised = true; // set sync first in case of errors in classify
                 resync();
-                synchronised = true;
             }
             catch (Exception e) {
                 logger.severe(e.getMessage());

@@ -99,8 +99,14 @@ public class FaCTPlusPlusAxiomFilter implements OWLAxiomFilter, OWLAxiomVisitor,
 
 
     public void visit(OWLDisjointClassesAxiom axiom) {
-        for (OWLDescription desc : axiom.getDescriptions()) {
-            desc.accept(this);
+        if (axiom.getDescriptions().size() < 2){
+            passes = false;
+            reason = "Disjoint classes axiom with less than 2 classes detected.";
+        }
+        else{
+            for (OWLDescription desc : axiom.getDescriptions()) {
+                desc.accept(this);
+            }
         }
     }
 
