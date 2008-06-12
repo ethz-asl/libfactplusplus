@@ -150,7 +150,7 @@ DlSatTester :: findConcept ( const CWDArray& lab, BipolarPointer p )
 
 	nLookups.inc();
 
-	return find ( p, lab.begin(), lab.end() ) != lab.end();
+	return std::find ( lab.begin(), lab.end(), p ) != lab.end();
 }
 
 bool

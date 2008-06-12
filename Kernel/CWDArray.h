@@ -20,6 +20,7 @@ Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #define _CWDARRAY_H
 
 #include <ostream>
+#include <algorithm>	// find
 
 #include "globaldef.h"
 #include "growingArray.h"
@@ -134,17 +135,6 @@ public:		// interface
 	void print ( std::ostream& o ) const;
 }; // CWDArray
 
-template<class Iterator>
-inline Iterator
-find ( BipolarPointer bp, Iterator begin, Iterator end )
-{
-	for ( Iterator p = begin; p < end; ++p )
-		if ( p->bp() == bp )
-			return p;
-
-	return end;
-}
-
 //----------------------------------------------
 // Blocking support
 //----------------------------------------------
@@ -152,7 +142,7 @@ find ( BipolarPointer bp, Iterator begin, Iterator end )
 inline bool
 CWDArray :: contains ( BipolarPointer bp ) const
 {
-	return find ( bp, begin(), end() ) != end();
+	return std::find ( begin(), end(), bp ) != end();
 }
 
 inline bool

@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2006-2007 by Dmitry Tsarkov
+Copyright (C) 2006-2008 by Dmitry Tsarkov
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -63,7 +63,7 @@ public:		// interface
 		/// add reference to a repository
 	void add ( DLTree* p ) { refs.push_back(p); }
 		/// check whether P is in the repository
-	bool in ( DLTree* p ) const { return find ( refs.begin(), refs.end(), p ) != refs.end(); }
+	bool in ( DLTree* p ) const { return std::find ( refs.begin(), refs.end(), p ) != refs.end(); }
 		/// clear repository, free all memory
 	void clear ( void )
 	{
