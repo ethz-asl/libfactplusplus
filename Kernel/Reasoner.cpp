@@ -78,32 +78,31 @@ void DlSatTester :: initNominalVector ( void )
 
 /// prerpare Nominal Reasoner to a new job
 void
-DlSatTester :: reInit ( void )
+DlSatTester :: prepareReasoner ( void )
 {
-	if ( LLM.isWritable(llSRState) )
-		LL << "\nInitNominalReasoner:";
+	if ( hasNominals() )
+	{
+		if ( LLM.isWritable(llSRState) )
+			LL << "\nInitNominalReasoner:";
 
-	restore(1);
-	resetSessionFlags();
-	// here a branching op should be expanded. Make a barrier
-	bContext->init(bContext->tag);
-	save();
-}
+		restore(1);
+		// here a branching op should be expanded. Make a barrier
+		bContext->init(bContext->tag);
+		save();
+	}
+	else
+	{
+		CGraph.clear();
+		Stack.clear();
+		TODO->clear();
 
-void DlSatTester :: clear ( void )
-{
-	CGraph.clear();
+		curNode = NULL;
+		bContext = NULL;
+		tryLevel = 1;
+	}
 
 	// clear last session information
 	resetSessionFlags();
-
-	Stack.clear();
-
-	TODO->clear ();
-
-	curNode = NULL;
-	bContext = NULL;
-	tryLevel = 1;
 }
 
 

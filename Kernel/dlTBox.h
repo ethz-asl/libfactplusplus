@@ -597,8 +597,6 @@ protected:	// methods
 		else
 			return stdReasoner;
 	}
-		/// prepare the reasoner to the new session
-	void clearReasoner ( void );			// implemented in Reasoner.h
 		/// set ToDo priorities using OPTIONS
 	void setToDoPriorities ( void );		// implemented in Reasoner.h
 		/// check whether KB is consistent; @return true if it is
@@ -611,11 +609,7 @@ protected:	// methods
 		/// init reasoning service: create reasoner(s)
 	void initReasoner ( void );				// implemented in Reasoner.h
 		/// init priorities in order to do subsumption tests
-	void prepareSubReasoning ( void )
-	{
-		DLHeap.setSubOrder();
-		clearReasoner();
-	}
+	void prepareSubReasoning ( void ) { DLHeap.setSubOrder(); }
 		/// creating taxonomy for given TBox; include individuals if necessary
 	void createTaxonomy ( bool needIndividuals );
 		/// classify all concepts from given COLLECTION with given CD value

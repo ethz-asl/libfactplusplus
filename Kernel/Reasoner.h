@@ -790,16 +790,15 @@ protected:	// methods
 	void setUsed ( BipolarPointer p ) { if ( !hasNominals() ) DLHeap[p].setUsed ( isPositive(p), VUse ); }
 
 public:
+		/// c'tor
 	DlSatTester ( TBox& tbox, const ifOptionSet* Options );
-	~DlSatTester ( void );
+		/// d'tor
+	~DlSatTester ( void ) { delete TODO; }
 
 		/// set-up satisfiability task for given pointers and run runSat on it
 	bool runSat ( BipolarPointer p, BipolarPointer q = bpTOP )
 	{
-		if ( hasNominals() )
-			reInit();
-		else
-			clear();
+		prepareReasoner();
 
 		// use general method to init node with P and add Q then
 		if ( initNewNode ( CGraph.getRoot(), DepSet(), p ) == utClash ||
@@ -813,10 +812,8 @@ public:
 		timer.Stop();
 		return result;
 	}
-		/// prepare to a new run: cleans all the temp. staff
-	void clear ( void );
-		/// prerpare Nominal Reasoner to a new job
-	void reInit ( void );
+		/// prepare reasoner to a new run
+	void prepareReasoner ( void );
 
 		/// init TODO list priority for classification
 	void initToDoPriorities ( const ifOptionSet* OptionSet )
@@ -869,11 +866,6 @@ public:
 }; // DlSatTester
 
 // implementation
-
-inline DlSatTester :: ~DlSatTester ( void )
-{
-	delete TODO;
-}
 
 inline void DlSatTester :: resetSessionFlags ( void )
 {
@@ -992,15 +984,6 @@ inline tacticUsage DlSatTester :: commonTacticBodyAll ( const DLVertex& cur )
 //-----------------------------------------------------------------------------
 //--		implemenation of reasoner-related parts of TBox
 //-----------------------------------------------------------------------------
-
-/// prepare the reasoner to the new session
-inline void
-TBox :: clearReasoner ( void )
-{
-	stdReasoner->clear();
-	if ( nomReasoner )
-		nomReasoner->reInit();
-}
 
 /// set ToDo priorities using local OPTIONS
 inline void
