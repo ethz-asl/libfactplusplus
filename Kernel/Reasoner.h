@@ -251,7 +251,7 @@ protected:	// members
 		/// Completion Graph of tested concept(s)
 	DlCompletionGraph CGraph;
 		/// TODO list
-	ToDoTableType* TODO;
+	ToDoTableType TODO;
 		/// reasoning subsystem for the datatypes
 	DataTypeReasoner DTReasoner;
 
@@ -373,7 +373,7 @@ protected:	// methods
 	{
 		const ConceptWDep& C = node->label().getConcept(offset);
 		BipolarPointer bp = C.bp();
-		TODO->addEntry ( node, bp, DLHeap[bp].Type(), offset );
+		TODO.addEntry ( node, bp, DLHeap[bp].Type(), offset );
 		if ( LLM.isWritable(llGTA) )
 			logEntry ( node, bp, C.getDep(), reason );
 	}
@@ -793,8 +793,10 @@ public:
 		/// c'tor
 	DlSatTester ( TBox& tbox, const ifOptionSet* Options );
 		/// d'tor
-	~DlSatTester ( void ) { delete TODO; }
+	~DlSatTester ( void ) {}
 
+		/// prepare reasoner to a new run
+	void prepareReasoner ( void );
 		/// set-up satisfiability task for given pointers and run runSat on it
 	bool runSat ( BipolarPointer p, BipolarPointer q = bpTOP )
 	{
@@ -812,15 +814,13 @@ public:
 		timer.Stop();
 		return result;
 	}
-		/// prepare reasoner to a new run
-	void prepareReasoner ( void );
 
 		/// init TODO list priority for classification
 	void initToDoPriorities ( const ifOptionSet* OptionSet )
 	{
-		assert ( TODO != NULL && OptionSet != NULL );
+		assert ( OptionSet != NULL );
 
-		if ( TODO->initPriorities ( OptionSet, "IAOEFLG" ) )
+		if ( TODO.initPriorities ( OptionSet, "IAOEFLG" ) )
 			error ( "Wrong priority option given. Execution stopped." );
 	}
 

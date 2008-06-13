@@ -30,7 +30,6 @@ DlSatTester :: DlSatTester ( TBox& tbox, const ifOptionSet* Options )
 	: tBox(tbox)
 	, DLHeap(tbox.DLHeap)
 	, CGraph(1)
-	, TODO(new ToDoTableType)
 	, DTReasoner(tbox.DLHeap)
 	, GCIs(tbox.GCIs)
 	, bContext(NULL)
@@ -94,7 +93,7 @@ DlSatTester :: prepareReasoner ( void )
 	{
 		CGraph.clear();
 		Stack.clear();
-		TODO->clear();
+		TODO.clear();
 
 		curNode = NULL;
 		bContext = NULL;
@@ -104,7 +103,6 @@ DlSatTester :: prepareReasoner ( void )
 	// clear last session information
 	resetSessionFlags();
 }
-
 
 addConceptResult
 DlSatTester :: checkAddedConcept ( const CWDArray& lab, BipolarPointer p, const DepSet& dep )
@@ -272,7 +270,7 @@ tacticUsage DlSatTester :: insertToDoEntry ( DlCompletionTree* n, BipolarPointer
 	}
 
 	// add new info in TODO list
-	TODO->addEntry ( n, c, tag );
+	TODO.addEntry ( n, c, tag );
 
 	// inform about it
 	if ( LLM.isWritable(llGTA) )
@@ -614,10 +612,10 @@ bool DlSatTester :: checkSatisfiability ( void )
 	{
 		if ( curNode == NULL )
 		{
-			if ( TODO->empty() )	// nothing more to do
+			if ( TODO.empty() )	// nothing more to do
 				return true;
 
-			const ToDoEntry* curTDE = TODO->getNextEntry ();
+			const ToDoEntry* curTDE = TODO.getNextEntry ();
 			assert ( curTDE != NULL );
 
 			// setup current context
@@ -670,7 +668,7 @@ void DlSatTester :: save ( void )
 	CGraph.save();
 
 	// save ToDoList
-	TODO->save ();
+	TODO.save();
 
 	// increase tryLevel
 	++tryLevel;
@@ -704,7 +702,7 @@ void DlSatTester :: restore ( unsigned int newTryLevel )
 	CGraph.restore(getCurLevel());
 
 	// restore TODO list
-	TODO->restore(getCurLevel());
+	TODO.restore(getCurLevel());
 
 	nStateRestores.inc();
 
