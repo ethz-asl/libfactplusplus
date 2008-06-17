@@ -42,8 +42,7 @@ enum DagTag {
 	dtAnd,
 	dtCollection,
 	dtForall,
-	dtAtMost,
-	dtLE = dtAtMost,
+	dtLE,
 	dtUAll,		// \dall U.C
 	dtIrr,		// \neg\exists R.Self
 
