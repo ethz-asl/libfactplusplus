@@ -37,7 +37,7 @@ extern "C" {
 #endif
 
 #ifdef JNI_TRACING
-#	define TRACE_JNI(func) std::cerr << "call " << func << " from JNI\n"
+#	define TRACE_JNI(func) std::cerr << "JNI Kernel " << getK(env,obj) << " Call " << func << "\n"
 #	define TRACE_ARG(env,obj,arg) do {	\
 		getK(env,obj);					\
 		if ( !curKernel->pRefRecorder->in(getROTree(env,arg)) )	\
@@ -61,7 +61,6 @@ extern "C" {
 JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_initKernel
   (JNIEnv * env, jobject obj)
 {
-	TRACE_JNI("initKernel");
 	jclass classThis = env->GetObjectClass(obj);
 
 	if ( classThis == 0 )
@@ -74,6 +73,7 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_initKe
 
 	// create new kernel and save it in an FaCTPlusPlus object
 	env->SetLongField ( obj, fid, (jlong)(curKernel=new MMKernel()) );
+	TRACE_JNI("initKernel");
 }
 
 /*
