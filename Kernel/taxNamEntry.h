@@ -40,6 +40,12 @@ protected:	// members
 		/// pointer to synonym (entry which contains whole information the same as current)
 	ClassifiableEntry* pSynonym;
 
+private:	// no copy
+		/// no copy c'tor
+	ClassifiableEntry ( const ClassifiableEntry& );
+		/// no assignment
+	ClassifiableEntry& operator = ( const ClassifiableEntry& );
+
 protected:	// methods
 		/// add told subsumers as no duplication can happens
 	void includeParent ( ClassifiableEntry* parent );

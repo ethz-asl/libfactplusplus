@@ -53,6 +53,12 @@ protected:	// members
 		/// flag to use Bottom-Up search
 	bool flagNeedBottomUp;
 
+private:	// no copy
+		/// no copy c'tor
+	DLConceptTaxonomy ( const DLConceptTaxonomy& );
+		/// no assignment
+	DLConceptTaxonomy& operator = ( const DLConceptTaxonomy& );
+
 protected:	// methods
 	//-----------------------------------------------------------------
 	//--	General support for DL concept classification

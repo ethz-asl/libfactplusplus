@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2005-2007 by Dmitry Tsarkov
+Copyright (C) 2005-2008 by Dmitry Tsarkov
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -48,6 +48,22 @@ public:		// members
 public:		// interface
 		/// empty c'tor
 	TDataInterval ( void ) : min(NULL), max(NULL) {}
+		/// copy c'tor
+	TDataInterval ( const TDataInterval& copy )
+		: min(copy.min)
+		, max(copy.max)
+		, minExcl(copy.minExcl)
+		, maxExcl(copy.maxExcl)
+		{}
+		/// assignment
+	TDataInterval& operator = ( const TDataInterval& copy )
+	{
+		min = copy.min;
+		max = copy.max;
+		minExcl = copy.minExcl;
+		maxExcl = copy.maxExcl;
+		return *this;
+	}
 		/// empty d'tor
 	~TDataInterval ( void ) {}
 
@@ -101,6 +117,12 @@ protected:	// members
 	ComparableDT comp;
 		/// restriction to the entry
 	TDataInterval Constraints;
+
+private:	// no copy
+		/// no copy c'tor
+	TDataEntry ( const TDataEntry& );
+		/// no assignment
+	TDataEntry& operator = ( const TDataEntry& );
 
 protected:	// methods
 		/// set COMP for the (typed) data value

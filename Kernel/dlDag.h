@@ -72,6 +72,12 @@ protected:	// members
 		/// flag whether cache should be used
 	bool useDLVCache;
 
+private:	// no copy
+		/// no copy c'tor
+	DLDag ( const DLDag& );
+		/// no assignment
+	DLDag& operator= ( const DLDag& );
+
 protected:	// methods
 		/// setup flags by given option set
 	void readConfig ( const ifOptionSet* Options );

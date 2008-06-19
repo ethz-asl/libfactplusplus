@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2005-2006 by Dmitry Tsarkov
+Copyright (C) 2005-2008 by Dmitry Tsarkov
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -46,7 +46,7 @@ public:		// interface
 		/// assignment
 	Flags& operator = ( const Flags& f ) { flags = f.flags; return *this; }
 		/// empty d'tor
-	~Flags ( void ) {}
+	virtual ~Flags ( void ) {}
 }; // Flags
 
 // use this macro to create a new flag

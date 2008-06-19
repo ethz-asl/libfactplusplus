@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2004 by Dmitry Tsarkov
+Copyright (C) 2003-2008 by Dmitry Tsarkov
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -50,6 +50,12 @@ protected:	// members
 	NameTree Base;
 		/// creator of new name
 	TNameCreator<T>* Creator;
+
+private:	// no copy
+		/// no copy c'tor
+	TNameSet ( const TNameSet& );
+		/// no assignment
+	TNameSet& operator = ( const TNameSet& );
 
 public:		// interface
 		/// c'tor (empty)

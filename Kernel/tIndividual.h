@@ -47,6 +47,12 @@ public:		// members
 		/// new concept expression to be added to the label
 	DLTree* PCConcept;
 
+private:	// no copy
+		/// no copy c'tor
+	TIndividual ( const TIndividual& );
+		/// no asssignment
+	TIndividual& operator = ( const TIndividual& );
+
 public:		// interface
 		/// the only c'tor
 	explicit TIndividual ( const std::string& name )

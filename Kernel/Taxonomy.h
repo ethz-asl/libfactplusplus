@@ -65,6 +65,12 @@ protected:	// members
 	/// stack for Taxonomy creating (if necessary)
 	SearchableStack <ClassifiableEntry*> waitStack;
 
+private:	// no copy
+		/// no copy c'tor
+	Taxonomy ( const Taxonomy& );
+		/// no assignment
+	Taxonomy& operator = ( const Taxonomy& );
+
 protected:	// methods
 	/// initialise aux entry with given concept p
 	void setCurrentEntry ( const ClassifiableEntry* p )

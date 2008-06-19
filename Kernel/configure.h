@@ -31,11 +31,13 @@ const unsigned MaxConfLineLen = 1024;
 /// configure element in the form Name = Value
 class ConfElem
 {
-public:
+public:		// members
+		/// name of the field
 	const std::string Name;
+		/// value of the field
 	std::string Value;
 
-
+public:		// interface
 		/// empty c'tor
 	ConfElem () {}
 		/// init c'tor
@@ -99,6 +101,12 @@ protected:	// logic part
 
 	// navigation methods
 	ConfSection* FindSection ( const std::string& pc ) const;
+
+private: 	// no copy
+		/// no copy c'tor
+	Configuration ( const Configuration& );
+		/// no assignment
+	Configuration& operator = ( const Configuration& );
 
 public:
 	Configuration ( void )

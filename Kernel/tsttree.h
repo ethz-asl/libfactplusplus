@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2004 by Dmitry Tsarkov
+Copyright (C) 2003-2008 by Dmitry Tsarkov
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -34,18 +34,18 @@ private:	// members
 		/// pointer to right subtree
 	TsTTree *right;
 
+private:	// prevent copy
+		/// no copy c'tor
+	TsTTree ( const TsTTree& );
+		/// no assignment
+	TsTTree& operator = ( const TsTTree& );
+
 public:		// interface
 		/// default c'tor
 	TsTTree ( const T& Init, TsTTree *l = NULL, TsTTree *r = NULL )
 		: elem(Init)
 		, left(l)
 		, right(r)
-		{}
-		/// copy c'tor
-	TsTTree ( const TsTTree& el )
-		: elem(el.elem)
-		, left(el.left)
-		, right(el.right)
 		{}
 		/// d'tor
 	~TsTTree ( void ) {}
@@ -63,9 +63,11 @@ public:		// interface
 
 	TsTTree* clone ( void ) const
 	{
-		TsTTree* p = new TsTTree ( *this );
-		p->SetLeft ( left ? left->clone() : NULL );
-		p->SetRight ( right ? right->clone() : NULL );
+		TsTTree* p = new TsTTree(Element());
+		if ( left )
+			p->SetLeft(left->clone());
+		if ( right )
+			p->SetRight(right->clone());
 		return p;
 	}
 }; // TsTTree

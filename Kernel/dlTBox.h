@@ -265,6 +265,12 @@ protected:	// members
 		/// number of synonyms encountered/changed
 	unsigned int nSynonyms;
 
+private:	// no copy
+		/// no copy c'tor
+	TBox ( const TBox& );
+		/// no assignment
+	TBox& operator = ( const TBox& );
+
 protected:	// methods
 		/// init all flags using given set of options
 	void readConfig ( const ifOptionSet* Options );

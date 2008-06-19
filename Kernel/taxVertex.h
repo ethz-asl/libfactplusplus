@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2007 by Dmitry Tsarkov
+Copyright (C) 2003-2008 by Dmitry Tsarkov
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -66,6 +66,12 @@ protected:	// members
 	bool checkValue;
 		/// number of common parents of a node
 	unsigned int common;
+
+private:	// no copy
+		/// no copy c'tor
+	TaxonomyVertex ( const TaxonomyVertex& );
+		/// no assignment
+	TaxonomyVertex& operator = ( const TaxonomyVertex& );
 
 public:		// flags interface
 
@@ -142,14 +148,16 @@ public:		// flags interface
 	void propagateOne ( TaxonomyLink& visited );
 
 public:
-	TaxonomyVertex ( void ) : sample(NULL) { initFlags(); }
+		/// the only c'tor
 	TaxonomyVertex ( const ClassifiableEntry* p )
 		: sample(p)
 	{
 		initFlags();
 		const_cast<ClassifiableEntry*>(p)->setTaxVertex (this);
 	}
+		/// empty d'tor
 	~TaxonomyVertex ( void ) {}
+
 	void addSynonym ( const ClassifiableEntry* p )
 	{
 		synonyms.push_back(p);

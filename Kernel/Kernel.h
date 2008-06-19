@@ -111,6 +111,12 @@ protected:	// members
 		/// is TBox changed since the last classification
 	bool isChanged;
 
+private:	// no copy
+		/// no copy c'tor
+	ReasoningKernel ( const ReasoningKernel& );
+		/// no assignment
+	ReasoningKernel& operator = ( const ReasoningKernel& );
+
 protected:	// methods
 
 	// register all necessary options in local option set

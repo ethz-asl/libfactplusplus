@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2007 by Dmitry Tsarkov
+Copyright (C) 2003-2008 by Dmitry Tsarkov
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -62,6 +62,10 @@ protected:	// members
 	bool useUndefinedNames;
 
 private:	// methods
+		/// no copy c'tor
+	RoleMaster ( const RoleMaster& );
+		/// no assignment
+	RoleMaster& operator = ( const RoleMaster& );
 		/// constant defining first user role in the RBox
 	unsigned int firstRoleIndex ( void ) const { return 2; }
 

@@ -338,6 +338,12 @@ protected:	// members
 		/// flag to show if it is necessary to produce DT reasoning immideately
 	bool checkDataNode;
 
+private:	// no copy
+		/// no copy c'tor
+	DlSatTester ( const DlSatTester& );
+		/// no assignment
+	DlSatTester& operator = ( const DlSatTester& );
+
 protected:	// methods
 
 	/// resets all session flags

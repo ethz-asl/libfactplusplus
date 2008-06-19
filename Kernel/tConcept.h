@@ -96,6 +96,12 @@ public:		// members
 		/// all extra rules for a given concept
 	ERSet erSet;
 
+private:	// no copy
+		/// no copy c'tor
+	TConcept ( const TConcept& );
+		/// no assignment
+	TConcept& operator = ( const TConcept& );
+
 protected:	// methods
 	// classification TAGs manipulation
 
