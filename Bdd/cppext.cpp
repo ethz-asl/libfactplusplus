@@ -145,7 +145,7 @@ int bdd_anodecountpp(const bdd *r, int num)
   BDD class functions
 *************************************************************************/
 
-bdd bdd::operator=(const bdd &r)
+bdd& bdd::operator=(const bdd &r)
 {
    if (root != r.root)
    {
@@ -157,7 +157,7 @@ bdd bdd::operator=(const bdd &r)
 }
 
 
-bdd bdd::operator=(int r)
+bdd& bdd::operator=(int r)
 {
    if (root != r)
    {
@@ -535,7 +535,7 @@ bddstrmhandler fdd_strm_hook(bddstrmhandler handler)
    bvec functions
 *************************************************************************/
 
-bvec bvec::operator=(const bvec &src)
+bvec& bvec::operator=(const bvec &src)
 {
    if (&src != this)
    {

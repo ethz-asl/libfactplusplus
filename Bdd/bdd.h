@@ -432,7 +432,7 @@ class bdd
 
    int id(void) const;
    
-   bdd operator=(const bdd &r);
+   bdd& operator=(const bdd &r);
    
    bdd operator&(const bdd &r) const;
    bdd operator&=(const bdd &r);
@@ -456,7 +456,7 @@ private:
    BDD root;
 
    bdd(BDD r) { bdd_addref(root=r); }
-   bdd operator=(BDD r);
+   bdd& operator=(BDD r);
 
    friend int      bdd_init(int, int);
    friend int      bdd_setvarnum(int);

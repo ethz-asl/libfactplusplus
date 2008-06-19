@@ -135,7 +135,7 @@ class bvec
    bdd operator[](int i)  const { return roots.bitvec[i]; }
    int bitnum(void) const       { return roots.bitnum; }
    int empty(void) const        { return roots.bitnum==0; }
-   bvec operator=(const bvec &src);
+   bvec& operator=(const bvec &src);
    
 private:
    BVEC roots;
