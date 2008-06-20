@@ -661,14 +661,14 @@ protected:	// methods
 		/// print all registered concepts
 	void PrintConcepts ( std::ostream& o ) const
 	{
-		o << "Concepts (" << Concepts.size()-1 << "): \n";
+		o << "Concepts (" << Concepts.size() << "): \n";
 		for ( c_const_iterator pc = c_begin(); pc != c_end(); ++pc )
 			PrintConcept(o,*pc);
 	}
 		/// print all registered individuals
 	void PrintIndividuals ( std::ostream& o ) const
 	{
-		o << "Individuals (" << Individuals.size()-1 << "): \n";
+		o << "Individuals (" << Individuals.size() << "): \n";
 		for ( i_const_iterator pi = i_begin(); pi != i_end(); ++pi )
 			PrintConcept(o,*pi);
 	}

@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2005-2007 by Dmitry Tsarkov
+Copyright (C) 2005-2008 by Dmitry Tsarkov
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -56,7 +56,7 @@ protected:	// methods
 		/// register new element in a collection; return this element
 	T* registerElem ( T* p )
 	{
-		p->setId(size());
+		p->setId(Base.size());
 		Base.push_back(p);
 		registerNew(p);
 		return p;
@@ -84,7 +84,7 @@ public:		// interface
 	{
 		int id = name->getId();
 		return  id > 0 &&						// defined entry
-				(unsigned int)id < size() &&	// ID does fit collection
+				size_t(id) < Base.size() &&		// ID does fit collection
 				Base[id] == name;				// ID is an index of given name
 	}
 		/// get entry by NAME from the collection; register it if necessary
@@ -128,7 +128,7 @@ public:		// interface
 	iterator end ( void ) { return Base.end(); }
 	const_iterator end ( void ) const { return Base.end(); }
 
-	size_t size ( void ) const { return Base.size(); }
+	size_t size ( void ) const { return Base.size()-1; }
 }; // TNECollection
 
 #endif
