@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2007 by Dmitry Tsarkov
+Copyright (C) 2003-2008 by Dmitry Tsarkov
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -89,8 +89,14 @@ public:		// interface
 
 	// overall state
 
+		/// check whether no flags are set
 	bool empty ( void ) const { return flags == 0; }
-	void clear ( void ) { flags = 0; }
+		/// get all the flags at once
+	unsigned long getAllFlags ( void ) const { return flags; }
+		/// set all flags to a given value; @return old value of the flags
+	unsigned long setAllFlags ( unsigned int value ) { unsigned int old = flags; flags = value; return old; }
+		/// clear all the flags
+	void clear ( void ) { setAllFlags(0); }
 
 	// collect statistic from different things
 

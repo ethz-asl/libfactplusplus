@@ -258,6 +258,13 @@ public:		// methods
 	bool isRelevant ( const TLabeller& lab ) const { return lab.isLabelled(rel); }
 		/// make given concept relevant to given Labeller's state
 	void setRelevant ( const TLabeller& lab ) { lab.set(rel); }
+
+	// save/load interface; implementation is in SaveLoad.cpp
+
+		/// save entry
+	virtual void Save ( std::ostream& o ) const;
+		/// load entry
+	virtual void Load ( std::istream& i );
 }; // TConcept
 
 /// Class for comparison of TConcepts wrt told subsumer depth

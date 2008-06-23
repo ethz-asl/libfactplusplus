@@ -36,6 +36,11 @@ protected:	// methods for flags maintainance
 		/// set given flag to given value
 	void setFlag ( unsigned int mask, bool Set ) { Set ? setFlag(mask) : clearFlag(mask); }
 
+		/// get all the flags at once
+	unsigned int getAllFlags ( void ) const { return flags; }
+		/// set all flags to a given value; @return old value of the flags
+	unsigned int setAllFlags ( unsigned int value ) { unsigned int old = flags; flags = value; return old; }
+
 public:		// interface
 		/// empty c'tor
 	Flags ( void ) : flags(0) {}

@@ -304,11 +304,61 @@ TNECollection<T> :: Load ( istream& i )
 //----------------------------------------------------------
 
 void
-TNamedEntry :: Save ( ostream& o ATTR_UNUSED ) const
+TNamedEntry :: Save ( ostream& o ) const
 {
+	saveUInt(o,getAllFlags());
 }
 
 void
-TNamedEntry :: Load ( istream& i ATTR_UNUSED )
+TNamedEntry :: Load ( istream& i )
 {
+	setAllFlags(loadUInt(i));
+}
+
+//----------------------------------------------------------
+//-- Implementation of the TConcept methods (tConcept.h)
+//----------------------------------------------------------
+
+void
+TConcept :: Save ( ostream& o ) const
+{
+	TNamedEntry::Save(o);
+	saveUInt(o,(unsigned int)classTag);
+	saveUInt(o,tsDepth);
+	saveSInt(o,pName);
+	saveSInt(o,pBody);
+	saveUInt(o,posFeatures.getAllFlags());
+	saveUInt(o,negFeatures.getAllFlags());
+//	ERSet.Save(o);
+}
+
+void
+TConcept :: Load ( istream& i )
+{
+	TNamedEntry::Load(i);
+	classTag = CTTag(loadUInt(i));
+	tsDepth = loadUInt(i);
+	pName = loadSInt(i);
+	pBody = loadSInt(i);
+	posFeatures.setAllFlags(loadUInt(i));
+	negFeatures.setAllFlags(loadUInt(i));
+//	ERSet.Load(i);
+}
+
+//----------------------------------------------------------
+//-- Implementation of the TIndividual methods (tIndividual.h)
+//----------------------------------------------------------
+
+void
+TIndividual :: Save ( ostream& o ) const
+{
+	TConcept::Save(o);
+//	RelatedIndex.Save(o);
+}
+
+void
+TIndividual :: Load ( istream& i )
+{
+	TConcept::Load(i);
+//	RelatedIndex.Load(i);
 }

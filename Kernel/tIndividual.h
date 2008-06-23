@@ -139,6 +139,13 @@ public:		// interface
 	}
 		/// remove all precompletion-related information
 	void clearPCInfo ( void ) { delete PCConcept; PCConcept = NULL; CSSet.clear(); }
+
+	// save/load interface; implementation is in SaveLoad.cpp
+
+		/// save entry
+	virtual void Save ( std::ostream& o ) const;
+		/// load entry
+	virtual void Load ( std::istream& i );
 }; // TIndividual
 
 #endif
