@@ -56,8 +56,6 @@ protected:	// members
 		/// two halves of disjoint roles axioms
 	roleSet DJRolesA, DJRolesB;
 
-		/// flag whether there are synonyms in RBox
-	bool Synonyms;
 		/// flag if it is possible to introduce new names
 	bool useUndefinedNames;
 
@@ -102,7 +100,6 @@ public:
 		, emptyRole("emptyRole")
 		, universalRole("universalRole")
 		, roleNS()
-		, Synonyms(false)
 		, useUndefinedNames(true)
 	{
 		// no zero-named roles allowed
@@ -177,8 +174,6 @@ public:
 		DJRolesB.push_back(S);
 	}
 
-		/// check whether RBox contains synonyms
-	bool hasSynonyms ( void ) const { return Synonyms; }
 		/// create taxonomy of roles (using the Parent data)
 	void initAncDesc ( void );
 
