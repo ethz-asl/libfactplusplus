@@ -29,6 +29,16 @@ const char* ReasoningKernel :: InternalStateFileHeader = "FaCT++InternalStateDum
 
 const int bytesInInt = sizeof(int);
 
+static inline
+void expectChar ( istream& i, const char C )
+{
+	char c;
+	i >> c;
+	if ( c != C )
+		throw EFPPSaveLoad(C);
+}
+
+#if 0
 // FIXME!! try to avoid recursion later on
 static inline
 void saveUIntAux ( ostream& o, unsigned int n, const int rest )
@@ -63,7 +73,40 @@ unsigned int loadUInt ( istream& i )
 
 static inline
 int loadSInt ( istream& i ) { return (int)loadUInt(i); }
+#else
+static inline
+void saveUInt ( ostream& o, unsigned int n )
+{
+	o << "(" << n << ")";
+}
 
+static inline
+void saveSInt ( ostream& o, int n )
+{
+	o << "(" << n << ")";
+}
+
+static inline
+unsigned int loadUInt ( istream& i )
+{
+	unsigned int ret;
+	expectChar(i,'(');
+	i >> ret;
+	expectChar(i,')');
+	return ret;
+}
+
+static inline
+int loadSInt ( istream& i )
+{
+	int ret;
+	expectChar(i,'(');
+	i >> ret;
+	expectChar(i,')');
+	return ret;
+}
+
+#endif	// 0
 //----------------------------------------------------------
 //-- Implementation of the Kernel methods (Kernel.h)
 //----------------------------------------------------------
@@ -179,7 +222,11 @@ ReasoningKernel :: LoadKB ( istream& i )
 void
 TBox :: Save ( ostream& o ) const
 {
-	o << "KB\n";
+	o << "\nC";
+	Concepts.Save(o);
+	o << "I";
+	Individuals.Save(o);
+	o << "KB";
 }
 
 void
@@ -187,5 +234,81 @@ TBox :: Load ( istream& i, KBStatus status )
 {
 	Status = status;
 	string KB;
-	i >> KB;
+	expectChar(i,'C');
+	Concepts.Load(i);
+	expectChar(i,'I');
+	Individuals.Load(i);
+	expectChar(i,'K');
+	expectChar(i,'B');
+}
+
+//----------------------------------------------------------
+//-- Implementation of the TNECollection methods (tNECollection.h)
+//----------------------------------------------------------
+
+/// Save all the objects in the collection
+template<class T>
+void
+TNECollection<T> :: Save ( ostream& o ) const
+{
+	const_iterator p, p_beg = begin(), p_end = end();
+	// get the max length of the identifier in the collection
+	unsigned int maxLength = 0, curLength;
+
+	for ( p = p_beg; p < p_end; ++p )
+		if ( maxLength < (curLength = strlen((*p)->getName())) )
+			maxLength = curLength;
+
+	// save number of entries and max length of the entry
+	saveUInt(o,size());
+	saveUInt(o,maxLength);
+
+	// save names of all entries
+	for ( p = p_beg; p < p_end; ++p )
+		o << (*p)->getName() << "\n";
+
+	// save the entries itself
+	for ( p = p_beg; p < p_end; ++p )
+		(*p)->Save(o);
+}
+/// Load all the objects into the collection
+template<class T>
+void
+TNECollection<T> :: Load ( istream& i )
+{
+	// sanity check: Load shall be done for the empty collection and only once
+	assert ( size() == 0 );
+
+	unsigned int collSize, maxLength;
+	collSize = loadUInt(i);
+	maxLength = loadUInt(i);
+	++maxLength;
+	char* name = new char[maxLength];
+
+	// register all the named entries
+	for ( unsigned int j = 0; j < collSize; ++j )
+	{
+		i.getline ( name, maxLength, '\n' );
+		get(name);
+	}
+
+	delete [] name;
+
+	// load all the named entries
+	for ( iterator p = begin(); p < end(); ++p )
+		(*p)->Load(i);
+}
+
+//----------------------------------------------------------
+//-- Implementation of the TNamedEntry methods (tNamedEntry.h)
+//----------------------------------------------------------
+
+void
+TNamedEntry :: Save ( ostream& o ATTR_UNUSED ) const
+{
+}
+
+void
+TNamedEntry :: Load ( istream& i ATTR_UNUSED )
+{
 }

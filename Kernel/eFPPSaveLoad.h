@@ -36,6 +36,14 @@ public:		// interface
 		: EFaCTPlusPlus()
 		, str(reason)
 		{}
+		/// c'tor "Char not found"
+	explicit EFPPSaveLoad ( const char c ) throw()
+		: EFaCTPlusPlus()
+	{
+		str = "Expected character '";
+		str += c;
+		str += "' not found";
+	}
 		/// c'tor: create an output string for the bad filename
 	EFPPSaveLoad ( const std::string& filename, bool save ) throw()
 		: EFaCTPlusPlus()

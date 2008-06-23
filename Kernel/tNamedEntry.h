@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2006 by Dmitry Tsarkov
+Copyright (C) 2003-2008 by Dmitry Tsarkov
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -61,6 +61,13 @@ public:		// interface
 	FPP_ADD_FLAG(System,0x1);
 
 	virtual void Print ( std::ostream& o ) const { o << getName (); }
+
+	// save/load interface; implementation is in SaveLoad.cpp
+
+		/// save entry
+	virtual void Save ( std::ostream& o ) const;
+		/// load entry
+	virtual void Load ( std::istream& i );
 }; // TNamedEntry
 
 #endif
