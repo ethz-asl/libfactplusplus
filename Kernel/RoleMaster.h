@@ -93,6 +93,8 @@ protected:	// methods
 		ri->setId (-newRoleId);
 		++newRoleId;
 	}
+		/// get number of roles
+	size_t size ( void ) const { return Roles.size()/2-1; }
 
 public:
 	RoleMaster ( void )
@@ -118,7 +120,7 @@ public:
 		/// d'tor (delete taxonomy)
 	~RoleMaster ( void ) { delete pTax; }
 
-	/// check if role with such EXPERNAL id is defined
+	/// check if role with such EXTERNAL id is defined
 	bool isRegisteredRole ( TNamedEntry* p ) const
 	{
 		unsigned int ind = getRoleIndex(p->getId());

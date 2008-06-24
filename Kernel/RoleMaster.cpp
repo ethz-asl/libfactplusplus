@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2007 by Dmitry Tsarkov
+Copyright (C) 2003-2008 by Dmitry Tsarkov
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -123,7 +123,7 @@ void RoleMaster :: initAncDesc ( void )
 
 void RoleMaster :: Print ( std::ostream& o ) const
 {
-	o << "Roles (" << Roles.size()/2-1 << "): \n";
+	o << "Roles (" << size() << "): \n";
 	for ( const_iterator p = begin(); p != end(); ++p )
 		(*p)->Print(o);
 }
