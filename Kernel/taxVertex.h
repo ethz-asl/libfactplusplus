@@ -31,7 +31,6 @@ public:
 	// typedefs for vertex structure
 	typedef std::vector <TaxonomyVertex*> TaxonomyLink;
 	typedef std::vector <const ClassifiableEntry*> EqualNames;
-	typedef std::vector <EqualNames> SetOfTaxElements;
 
 	// accessors type
 	typedef TaxonomyLink::iterator iterator;

@@ -70,7 +70,7 @@ public:	// types interface
 	typedef vector<ComplexConcept> ConceptExpressionList;
 
 	// ConceptSet = set of synonyms (concept names are positive)
-	typedef TaxonomyVertex::SetOfTaxElements ConceptSet;
+	typedef vector<ConceptList> ConceptSet;
 	// RoleSet = set of synonyms (role may be inverse)
 	typedef vector<RoleNameSet> RoleSet;
 	// IndividualSet is just set of pos. names
