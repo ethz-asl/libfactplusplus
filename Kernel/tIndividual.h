@@ -68,7 +68,7 @@ public:		// interface
 		/// init told subsumers of the individual by it's description
 	virtual void initToldSubsumers ( void )
 	{
-		getTold().clear();
+		toldSubsumers.clear();
 		if ( isRelated() )	// check if domain and range of RELATED axioms affects TS
 			updateToldFromRelated();
 		// normalise description if the only parent is TOP
@@ -77,7 +77,7 @@ public:		// interface
 
 		// not a completely defined if there are extra rules or related individuals
 		bool CD = !hasExtraRules() && isPrimitive() && !isRelated();
-		if ( Description != NULL || !getTold().empty() )
+		if ( Description != NULL || hasToldSubsumers() )
 			CD &= TConcept::initToldSubsumers(Description);
 		setCompletelyDefined(CD);
 	}

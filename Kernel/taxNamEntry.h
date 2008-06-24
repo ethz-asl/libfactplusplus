@@ -30,7 +30,12 @@ class TaxonomyVertex;
 class ClassifiableEntry : public TNamedEntry
 {
 public:		// type definitions
+		/// type for the set of told subsumers
 	typedef std::vector<ClassifiableEntry*> linkSet;
+		/// told subsumers RW iterator
+	typedef linkSet::iterator iterator;
+		/// told subsumers RO iterator
+	typedef linkSet::const_iterator const_iterator;
 
 protected:	// members
 		/// link to taxonomy entry for current entry
@@ -78,14 +83,26 @@ public:		// interface
 
 	// told subsumers interface
 
+		/// begin (RO) of told subsumers
+	const_iterator told_begin ( void ) const { return toldSubsumers.begin(); }
+		/// end (RO) of told subsumers
+	const_iterator told_end ( void ) const { return toldSubsumers.end(); }
+		/// begin (RW) of told subsumers
+	iterator told_begin ( void ) { return toldSubsumers.begin(); }
+		/// end (RW) of told subsumers
+	iterator told_end ( void ) { return toldSubsumers.end(); }
+
+		/// check whether entry ihas any TS
+	bool hasToldSubsumers ( void ) const { return !toldSubsumers.empty(); }
 		/// add told subsumer of entry (duplications possible)
 	void addParent ( ClassifiableEntry* parent ) { toldSubsumers.push_back (parent); }
-		/// add all parents of given entry (with removing duplications)
-	void addAllParents ( ClassifiableEntry* parent );
-		/// get access to told subsumers (non-const version)
-	linkSet& getTold ( void ) { return toldSubsumers; }
-		/// get access to told subsumers (const version)
-	const linkSet& getTold ( void ) const { return toldSubsumers; }
+		/// add all parents (with duplicates) from the range to current node
+	template<class Iterator>
+	void addParents ( Iterator begin, Iterator end )
+	{
+		for ( Iterator p = begin; p < end; ++p )
+			includeParent(*p);
+	}
 
 	// synonym interface
 
@@ -103,17 +120,18 @@ public:		// interface
 		/// add entry's synonym
 	void setSynonym ( ClassifiableEntry* syn )
 	{
-		if ( syn == NULL || pSynonym == NULL )	// clear/create link to synonym
-		{
-			pSynonym = syn;
-			canonicaliseSynonym();
-		}
-		else if ( syn != getSynonym() )	// safety check
-				assert (0);	// FIXME!! check this later on
+		assert ( pSynonym == NULL );	// do it only once
+		pSynonym = syn;
+		canonicaliseSynonym();
 	}
 
 		/// if two synonyms are in 'told' list, merge them
-	void removeSynonymsFromParents ( void );
+	void removeSynonymsFromParents ( void )
+	{
+		linkSet copy;
+		copy.swap(toldSubsumers);
+		addParents ( copy.begin(), copy.end() );
+	}
 }; // ClassifiableEntry
 
 /// general RW resolving synonym operator
@@ -130,6 +148,24 @@ inline const T*
 resolveSynonym ( const T* p )
 {
 	return !p ? NULL : p->isSynonym() ? resolveSynonym(static_cast<const T*>(p->getSynonym())) : p;
+}
+
+inline void
+ClassifiableEntry :: includeParent ( ClassifiableEntry* parent )
+{
+	// resolve synonyms
+	parent = resolveSynonym(parent);
+
+	// node can not be its own parent
+	if ( parent == this )
+		return;
+
+	// check if such entry already exists
+	for ( iterator p = told_begin(); p != told_end(); ++p )
+		if ( parent == *p )
+			return;
+
+	addParent(parent);
 }
 
 #endif // _TAXNAMENTRY_H

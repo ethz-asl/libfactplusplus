@@ -153,17 +153,17 @@ bool Taxonomy :: classifySynonym ( void )
 	return true;
 }
 
-void Taxonomy :: setNonRedundantCandidates ( const ClassifiableEntry::linkSet& v )
+void Taxonomy :: setNonRedundantCandidates ( void )
 {
 	if ( LLM.isWritable(llCDConcept) && needLogging() )
 	{
-		if ( v.size() == 0 )
+		if ( !curEntry->hasToldSubsumers() )
 			LL << "\nTAX: TOP";
 		LL << " completely defines concept " << curEntry->getName();
 	}
 
 	// test if some "told subsumer" is not an immediate TS (ie, not a border element)
-	for ( ClassifiableEntry::linkSet::const_iterator p = v.begin(), p_end = v.end(); p < p_end; ++p )
+	for ( ClassifiableEntry::const_iterator p = curEntry->told_begin(), p_end = curEntry->told_end(); p < p_end; ++p )
 	{
 		TaxonomyVertex* par = (*p)->getTaxVertex();
 		bool stillParent = true;
@@ -189,12 +189,12 @@ void Taxonomy :: setNonRedundantCandidates ( const ClassifiableEntry::linkSet& v
 	}
 }
 
-void Taxonomy :: setToldSubsumers ( const ClassifiableEntry::linkSet& v )
+void Taxonomy :: setToldSubsumers ( void )
 {
-	if ( LLM.isWritable(llTSList) && needLogging() && v.size() > 0 )
+	if ( LLM.isWritable(llTSList) && needLogging() && curEntry->hasToldSubsumers() )
 		LL << "\nTAX: told subsumers";
 
-	for ( ClassifiableEntry::linkSet::const_iterator p = v.begin(), p_end = v.end(); p < p_end; ++p )
+	for ( ClassifiableEntry::const_iterator p = curEntry->told_begin(), p_end = curEntry->told_end(); p < p_end; ++p )
 	{
 		if ( !(*p)->isClassified() )	// non-primitive/non-classifiable concept
 			continue;	// safety check
@@ -267,15 +267,17 @@ void Taxonomy :: classifyEntry ( ClassifiableEntry* p )
 bool Taxonomy :: checkToldSubsumers ( void )
 {
 	assert ( !waitStack.empty () );	// safety check
-	const ClassifiableEntry::linkSet& v = waitStack.top()->getTold();
-	register bool ret = true;
+	bool ret = true;
 
 #ifdef TMP_PRINT_TAXONOMY_INFO
 	++level;
 #endif
-	for ( ClassifiableEntry::linkSet::const_iterator q = v.begin(), q_end = v.end(); q < q_end; ++q )
+	ClassifiableEntry::const_iterator
+		p = waitStack.top()->told_begin(),
+		p_end = waitStack.top()->told_end();
+	for ( ; p < p_end; ++p )
 	{
-		ClassifiableEntry* r = *q;
+		ClassifiableEntry* r = *p;
 		assert ( r != NULL );
 
 #ifdef TMP_PRINT_TAXONOMY_INFO
@@ -301,9 +303,7 @@ bool Taxonomy :: checkToldSubsumers ( void )
 		}
 #ifdef TMP_PRINT_TAXONOMY_INFO
 		else
-		{
 			std::cout << "already classified";
-		}
 #endif
 	}
 #ifdef TMP_PRINT_TAXONOMY_INFO

@@ -292,10 +292,7 @@ redo:
 
 //	std::cout << "Start from " << p->getName() << std::endl;
 
-	// not involved in cycle -- check all told subsumers
-	const ClassifiableEntry::linkSet& v = p->getTold();
-
-	for ( ClassifiableEntry::linkSet::const_iterator r = v.begin(); r != v.end(); ++r )
+	for ( ClassifiableEntry::const_iterator r = p->told_begin(); r != p->told_end(); ++r )
 		// if cycle was detected
 		if ( (ret = checkToldCycle(static_cast<TConcept*>(*r))) != NULL )
 		{
@@ -433,7 +430,7 @@ void TBox :: CalculateStatistic ( void )
 				++npFull;
 		}
 		else
-			if ( n->getTold().size() == 0 )
+			if ( !n->hasToldSubsumers() )
 				++nNoTold;
 	}
 	// calculate statistic for all individuals
@@ -460,7 +457,7 @@ void TBox :: CalculateStatistic ( void )
 				++npFull;
 		}
 		else
-			if ( n->getTold().size() == 0 )
+			if ( !n->hasToldSubsumers() )
 				++nNoTold;
 	}
 

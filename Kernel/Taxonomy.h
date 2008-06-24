@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2007 by Dmitry Tsarkov
+Copyright (C) 2003-2008 by Dmitry Tsarkov
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -93,10 +93,10 @@ protected:	// methods
 		/// return 1 if current entry is classified as a synonym of already classified one
 	bool classifySynonym ( void );
 
-		/// set up Told Subsumers
-	void setToldSubsumers ( const ClassifiableEntry::linkSet& v );
-		/// add non-redundant candidates from given set to parents
-	void setNonRedundantCandidates ( const ClassifiableEntry::linkSet& v );
+		/// set up Told Subsumers for the current entry
+	void setToldSubsumers ( void );
+		/// add non-redundant candidates for the current entry
+	void setNonRedundantCandidates ( void );
 
 	/// insert Current entry into Graph, correcting all links
 	void insertEntry ( void );
@@ -248,8 +248,8 @@ public:		// interface
 inline void Taxonomy :: setupTopDown ( void )
 {
 	++nCDEntries;
-	setToldSubsumers ( curEntry->getTold() );
-	setNonRedundantCandidates ( curEntry->getTold() );
+	setToldSubsumers();
+	setNonRedundantCandidates();
 }
 
 #endif // _TAXONOMY_H

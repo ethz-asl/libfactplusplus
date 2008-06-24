@@ -56,10 +56,8 @@ CTTag TConcept :: determineClassTag ( void )
 	if ( isNonPrimitive() )
 		return cttNonPrimitive;
 
-	const ClassifiableEntry::linkSet& v = getTold();
-
 	// no told subsumers
-	if ( v.size() == 0 )
+	if ( !hasToldSubsumers() )
 		return cttOrphan;
 
 	// now need to check all the told subsumers
@@ -67,7 +65,7 @@ CTTag TConcept :: determineClassTag ( void )
 	bool hasOther = false;
 	bool hasNP = false;
 
-	for ( ClassifiableEntry::linkSet::const_iterator p = v.begin(); p != v.end(); ++p )
+	for ( ClassifiableEntry::const_iterator p = told_begin(); p != told_end(); ++p )
 		switch ( static_cast<TConcept*>(*p)->getClassTag() )
 		{
 		case cttTrueCompletelyDefined:
@@ -222,9 +220,8 @@ unsigned int TConcept :: calculateTSDepth ( void )
 		return tsDepth;
 
 	unsigned int max = 0;
-	ClassifiableEntry::linkSet& tolds ( getTold() );
 
-	for ( ClassifiableEntry::linkSet::iterator p = tolds.begin(); p != tolds.end(); ++p )
+	for ( ClassifiableEntry::iterator p = told_begin(); p != told_end(); ++p )
 	{
 		unsigned int cur = static_cast<TConcept*>(*p)->calculateTSDepth();
 		if ( max < cur )

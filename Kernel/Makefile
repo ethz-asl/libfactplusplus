@@ -27,7 +27,6 @@ SOURCES = \
 		  modelCacheIan.cpp\
 		  DLConceptTaxonomy.cpp\
 		  taxVertex.cpp\
-		  taxNamEntry.cpp\
 		  tRole.cpp\
 		  tConcept.cpp\
 		  dumpInterface.cpp\

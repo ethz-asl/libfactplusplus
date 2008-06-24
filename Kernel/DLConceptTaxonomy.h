@@ -213,13 +213,13 @@ inline void DLConceptTaxonomy :: setupTopDown ( void )
 		return;
 
 	default:
-		setToldSubsumers ( curEntry->getTold() );
+		setToldSubsumers();
 		break;
 	}
 	if ( !needTopDown() )
 	{
 		++nCDEntries;
-		setNonRedundantCandidates ( curEntry->getTold() );
+		setNonRedundantCandidates();
 	}
 }
 

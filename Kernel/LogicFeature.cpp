@@ -44,7 +44,7 @@ void LogicFeatures :: fillRoleData ( const TRole* p, bool both )
 		setX(lfTransitiveRoles);
 
 	// subsumption check
-	if ( p->getTold().size() != 0 )
+	if ( p->hasToldSubsumers() )
 		setX(lfRolesSubsumption);
 
 	// functionality check

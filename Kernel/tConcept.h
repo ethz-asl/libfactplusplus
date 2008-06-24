@@ -222,7 +222,7 @@ public:		// methods
 		/// init told subsumers of the concept by it's description
 	virtual void initToldSubsumers ( void )
 	{
-		getTold().clear();
+		toldSubsumers.clear();
 		// normalise description if the only parent is TOP
 		if ( isPrimitive() && Description && Description->Element() == TOP )
 			removeDescription();
@@ -235,7 +235,7 @@ public:		// methods
 		/// init TOP told subsumer if necessary
 	void setToldTop ( TConcept* top )
 	{
-		if ( Description == NULL && getTold().empty() )
+		if ( Description == NULL && !hasToldSubsumers() )
 			addParent(top);
 	}
 		/// calculate depth wrt told subsumers; return the depth

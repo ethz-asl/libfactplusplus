@@ -100,7 +100,7 @@ void TRole :: addFeaturesToSynonym ( void )
 								  subCompositions.end() );
 
 	// syn should be the only parent for synonym
-	getTold().clear();
+	toldSubsumers.clear();
 	addParent(syn);
 }
 
@@ -147,9 +147,7 @@ TRole* TRole :: eliminateToldCycles ( void )
 	removeSynonymsFromParents();
 
 	// not involved in cycle -- check all told subsumers
-	const ClassifiableEntry::linkSet& v = getTold();
-
-	for ( ClassifiableEntry::linkSet::const_iterator r = v.begin(); r != v.end(); ++r )
+	for ( ClassifiableEntry::const_iterator r = told_begin(); r != told_end(); ++r )
 		// if cycle was detected
 		if ( (ret = static_cast<TRole*>(*r)->eliminateToldCycles()) != NULL )
 		{
@@ -164,7 +162,7 @@ TRole* TRole :: eliminateToldCycles ( void )
 						p = synonyms.begin()+1, p_end = synonyms.end(); p < p_end; ++p )
 				{
 					(*p)->setSynonym(ret);
-					ret->addAllParents(*p);
+					ret->addParents ( (*p)->told_begin(), (*p)->told_end() );
 				}
 
 				synonyms.clear();
@@ -454,7 +452,7 @@ void TRole :: completeAutomaton ( void )
 	// complete automaton
 	A.complete();
 
-	for ( ClassifiableEntry::linkSet::iterator p = getTold().begin(); p < getTold().end(); ++p )
+	for ( ClassifiableEntry::iterator p = told_begin(); p < told_end(); ++p )
 		static_cast<TRole*>(resolveSynonym(*p))->addSubRoleAutomaton(this);
 
 	// finish processing role
