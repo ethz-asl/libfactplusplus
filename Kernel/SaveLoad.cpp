@@ -224,9 +224,11 @@ TBox :: Save ( ostream& o ) const
 {
 	o << "\nC";
 	Concepts.Save(o);
-	o << "I";
+	o << "\nI";
 	Individuals.Save(o);
-	o << "KB";
+	o << "\nR";
+	RM.Save(o);
+	o << "\nKB";
 }
 
 void
@@ -238,6 +240,8 @@ TBox :: Load ( istream& i, KBStatus status )
 	Concepts.Load(i);
 	expectChar(i,'I');
 	Individuals.Load(i);
+	expectChar(i,'R');
+	RM.Load(i);
 	expectChar(i,'K');
 	expectChar(i,'B');
 }
@@ -322,7 +326,7 @@ TNamedEntry :: Load ( istream& i )
 void
 TConcept :: Save ( ostream& o ) const
 {
-	TNamedEntry::Save(o);
+	ClassifiableEntry::Save(o);
 	saveUInt(o,(unsigned int)classTag);
 	saveUInt(o,tsDepth);
 	saveSInt(o,pName);
@@ -335,7 +339,7 @@ TConcept :: Save ( ostream& o ) const
 void
 TConcept :: Load ( istream& i )
 {
-	TNamedEntry::Load(i);
+	ClassifiableEntry::Load(i);
 	classTag = CTTag(loadUInt(i));
 	tsDepth = loadUInt(i);
 	pName = loadSInt(i);
@@ -362,3 +366,85 @@ TIndividual :: Load ( istream& i )
 	TConcept::Load(i);
 //	RelatedIndex.Load(i);
 }
+
+//----------------------------------------------------------
+//-- Implementation of the RoleMaster methods (RoleMaster.h)
+//----------------------------------------------------------
+
+void
+RoleMaster :: Save ( ostream& o ) const
+{
+	const_iterator p, p_beg = begin(), p_end = end();
+	// get the max length of the identifier in the collection
+	unsigned int maxLength = 0, curLength;
+
+	for ( p = p_beg; p < p_end; p += 2 )
+		if ( maxLength < (curLength = strlen((*p)->getName())) )
+			maxLength = curLength;
+
+	// save number of entries and max length of the entry
+	saveUInt(o,size());
+	saveUInt(o,maxLength);
+
+	// save names of all (non-inverse) entries
+	for ( p = p_beg; p < p_end; p += 2 )
+	{
+		saveUInt ( o, (*p)->isDataRole() );
+		o << (*p)->getName() << "\n";
+	}
+
+	// save the entries itself
+	for ( p = p_beg; p < p_end; ++p )
+		(*p)->Save(o);
+
+	// save the rest of the RM
+//	pTax->Save(o);
+}
+
+void
+RoleMaster :: Load ( istream& i )
+{
+	// sanity check: Load shall be done for the empty collection and only once
+	assert ( size() == 0 );
+
+	unsigned int RMSize, maxLength, DataRole;
+	RMSize = loadUInt(i);
+	maxLength = loadUInt(i);
+	++maxLength;
+	char* name = new char[maxLength];
+
+	// register all the named entries
+	for ( unsigned int j = 0; j < RMSize; ++j )
+	{
+		DataRole = loadUInt(i);
+		i.getline ( name, maxLength, '\n' );
+		ensureRoleName ( name, DataRole );
+	}
+
+	delete [] name;
+
+	// load all the named entries
+	for ( iterator p = begin(); p < end(); ++p )
+		(*p)->Load(i);
+
+	// load the rest of the RM
+//	pTax->Load(i);
+	useUndefinedNames = false;	// no names
+}
+
+//----------------------------------------------------------
+//-- Implementation of the TRole methods (tRole.h)
+//----------------------------------------------------------
+
+void
+TRole :: Save ( ostream& o ) const
+{
+	ClassifiableEntry::Save(o);
+}
+
+void
+TRole :: Load ( istream& i )
+{
+	ClassifiableEntry::Load(i);
+}
+

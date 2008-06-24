@@ -373,6 +373,13 @@ public:		// interface
 
 		/// print role to given stream
 	void Print ( std::ostream& o ) const;
+
+	// save/load interface; implementation is in SaveLoad.cpp
+
+		/// save entry
+	virtual void Save ( std::ostream& o ) const;
+		/// load entry
+	virtual void Load ( std::istream& i );
 }; // TRole
 
 /// check if t is in form (inv ... (inv R)...) and return either R or -R. @return 0 in any other case

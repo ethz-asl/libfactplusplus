@@ -132,6 +132,13 @@ public:		// interface
 		copy.swap(toldSubsumers);
 		addParents ( copy.begin(), copy.end() );
 	}
+
+	// save/load interface; don't save anything, all will be restores from Taxonomy
+
+		/// save entry
+	virtual void Save ( std::ostream& o ) const { TNamedEntry::Save(o); }
+		/// load entry
+	virtual void Load ( std::istream& i ) { TNamedEntry::Load(i); }
 }; // ClassifiableEntry
 
 /// general RW resolving synonym operator
