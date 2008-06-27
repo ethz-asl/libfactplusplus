@@ -93,6 +93,17 @@ protected:	// classes
 		bool checkMinMaxClash ( const SingleValues& values, DepSet& dep ) const;
 			/// check if interval is covered by VALUES
 		bool isCovered ( const SingleValues& values, DepSet& dep ) const;
+			/// check if the interval is consistent wrt given type
+		bool consistent ( const TDataEntry* type, DepSet& dep ) const
+		{
+			if ( Constraints.consistent(type) )
+				return true;
+			if ( Constraints.hasMin() )
+				dep += minDep;
+			if ( Constraints.hasMax() )
+				dep += maxDep;
+			return false;
+		}
 			/// clear the interval
 		void clear ( void ) { Constraints.clear(); }
 	}; // DepInterval
@@ -150,6 +161,8 @@ protected:	// methods
 		/// update and add a single interval I to the constraints. @return true iff clash occurs
 	bool addUpdatedInterval ( DepInterval i )
 	{
+		if ( !i.consistent ( localValue->getType(), localDep ) )	// types are mismatch
+			return reportClash ( localDep, "C-IT" );
 		if ( !i.update ( localMin, localExcl, localValue, localDep ) )
 			Constraints.push_back(i);
 		if ( !hasPType() || !i.checkMinMaxClash(negValues,accDep) )

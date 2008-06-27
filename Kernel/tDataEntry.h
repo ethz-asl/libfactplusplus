@@ -96,6 +96,8 @@ public:		// interface
 			ret |= updateMax ( Int.maxExcl, Int.max );
 		return ret;
 	}
+		/// @return true iff all the data is consistent wrt given TYPE
+	bool consistent ( const TDataEntry* type ) const;
 
 		/// print an interval
 	void Print ( std::ostream& o ) const;
@@ -185,6 +187,16 @@ public:		// interface
 		/// set DAG index of the data entry
 	void setBP ( BipolarPointer p ) { pName = p; }
 }; // TDataEntry
+
+inline bool
+TDataInterval :: consistent ( const TDataEntry* type ) const
+{
+	if ( hasMax() && max->getType() != type )
+		return false;
+	if ( hasMin() && min->getType() != type )
+		return false;
+	return true;
+}
 
 inline bool
 TDataInterval :: updateMin ( bool excl, const TDataEntry* value )
