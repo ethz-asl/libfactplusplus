@@ -30,7 +30,8 @@ bool DataTypeReasoner :: addDataEntry ( const ConceptWDep& c )
 	{
 		DataTypeAppearance* type = getDTAbyType(getDataEntry(p));
 
-		logDataValueEntry(p);
+		if ( LLM.isWritable(llCDAction) )	// level of logging
+			LL << ' ' << (isPositive(p) ? '+' : '-') << getDataEntry(p)->getName();
 
 		if ( isPositive(p) )
 			type->setPType(getDTE(c));
@@ -40,13 +41,9 @@ bool DataTypeReasoner :: addDataEntry ( const ConceptWDep& c )
 		return false;	// no clash found
 	}
 	case dtDataValue:
-		logDataValueEntry(p);
 		return isNegative(p) ?
 			processNegativeDV(getDTE(c)) :
-			processRestriction ( /*pos=*/true, /*min=*/false, /*excl=*/false,
-								 getDataEntry(p), c.getDep() ) ||
-			processRestriction ( /*pos=*/true, /*min=*/true, /*excl=*/false,
-								 getDataEntry(p), c.getDep() );
+			processDataValue ( /*pos=*/true, getDataEntry(p), c.getDep() );
 	case dtDataExpr:
 		return processDataExpr ( isPositive(p), getDataEntry(p), c.getDep() );
 	default:
@@ -131,76 +128,48 @@ DataTypeAppearance::DepInterval :: checkMinMaxClash ( const DataTypeAppearance::
 }
 
 bool
-DataTypeAppearance :: update ( bool min, bool excl, const TDataEntry* value, const DepSet& dep )
+DataTypeAppearance :: addPosInterval ( const TDataInterval& Int, const DepSet& dep )
 {
 	DTConstraint aux;
-	Constraints.swap(aux);
-	for ( iterator p = aux.begin(), p_end = aux.end(); p < p_end; ++p )
+	if ( Int.hasMin() )
 	{
-		if ( !p->update ( min, excl, value, dep ) )
-			Constraints.push_back(*p);
-		if ( !hasPType() || !p->checkMinMaxClash(negValues,accDep) )
-			Constraints.push_back(*p);
+		Constraints.swap(aux);
+		setLocal ( /*min=*/true, /*excl=*/Int.minExcl, Int.min, dep );
+		if ( addIntervals ( aux.begin(), aux.end() ) )
+			return true;
+		aux.clear();
 	}
-	aux.clear();
+	if ( Int.hasMax() )
+	{
+		Constraints.swap(aux);
+		setLocal ( /*min=*/false, /*excl=*/Int.maxExcl, Int.max, dep );
+		if ( addIntervals ( aux.begin(), aux.end() ) )
+			return true;
+		aux.clear();
+	}
 	if ( Constraints.empty() )
 		return reportClash ( accDep, "C-MM" );
 	return false;
 }
 
 bool
-DataTypeAppearance :: addInterval ( bool pos, const TDataInterval& Int, const DepSet& dep )
+DataTypeAppearance :: addNegInterval ( const TDataInterval& Int, const DepSet& dep )
 {
-	if ( LLM.isWritable(llCDAction) )	// level of logging
-		LL << ' ' << (pos ? '+' : '-') << Int;
-
-	if ( pos )	// positive interval -- just call UPDATE twice
-	{
-		if ( Int.hasMin() )
-			if ( update ( /*min=*/true, /*excl=*/Int.minExcl, Int.min, dep ) )
-				return true;
-		if ( Int.hasMax() )
-			if ( update ( /*min=*/false, /*excl=*/Int.maxExcl, Int.max, dep ) )
-				return true;
-		return false;
-	}
-
 	// negative interval -- make a copies
 	DTConstraint aux;
 	Constraints.swap(aux);
-	const_iterator p, p_end = aux.end();
-	bool min, excl;
-	const TDataEntry* value;
 
 	if ( Int.hasMin() )
 	{
-		min = false;
-		excl = !Int.minExcl;
-		value = Int.min;
-
-		for ( p = aux.begin(); p < p_end; ++p )
-		{
-			DepInterval temp(*p);
-			if ( !temp.update ( min, excl, value, dep ) )
-				Constraints.push_back(temp);
-			if ( !hasPType() || !temp.checkMinMaxClash(negValues,accDep) )
-				Constraints.push_back(temp);
-		}
+		setLocal ( /*min=*/false, /*excl=*/!Int.minExcl, Int.min, dep );
+		if ( addIntervals ( aux.begin(), aux.end() ) )
+			return true;
 	}
 	if ( Int.hasMax() )
 	{
-		min = true;
-		excl = !Int.maxExcl;
-		value = Int.max;
-
-		for ( p = aux.begin(); p < p_end; ++p )
-		{
-			DepInterval temp(*p);
-			if ( !temp.update ( min, excl, value, dep ) )
-				Constraints.push_back(temp);
-			if ( !hasPType() || !temp.checkMinMaxClash(negValues,accDep) )
-				Constraints.push_back(temp);
-		}
+		setLocal ( /*min=*/ true, /*excl=*/!Int.maxExcl, Int.max, dep );
+		if ( addIntervals ( aux.begin(), aux.end() ) )
+			return true;
 	}
 	aux.clear();
 	if ( Constraints.empty() )

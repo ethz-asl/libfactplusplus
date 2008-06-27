@@ -118,6 +118,17 @@ protected:	// members
 		/// dep-set for the clash
 	DepSet& clashDep;
 
+	// local values for the updating
+
+		/// local value for the min/max flag
+	bool localMin;
+		/// local value for the incl/excl flag
+	bool localExcl;
+		/// local value for the added value
+	const TDataEntry* localValue;
+		/// local dep-set for the update
+	DepSet localDep;
+
 protected:	// methods
 		/// set clash dep-set to DEP, report with given REASON; @return true to simplify callers
 	bool reportClash ( const DepSet& dep, const char* reason )
@@ -128,6 +139,35 @@ protected:	// methods
 		clashDep = dep;
 		return true;
 	}
+		/// set the local parameters for updating
+	void setLocal ( bool min, bool excl, const TDataEntry* value, const DepSet& dep )
+	{
+		localMin = min;
+		localExcl = excl;
+		localValue = value;
+		localDep = dep;
+	}
+		/// update and add a single interval I to the constraints. @return true iff clash occurs
+	bool addUpdatedInterval ( DepInterval i )
+	{
+		if ( !i.update ( localMin, localExcl, localValue, localDep ) )
+			Constraints.push_back(i);
+		if ( !hasPType() || !i.checkMinMaxClash(negValues,accDep) )
+			Constraints.push_back(i);
+		return false;
+	}
+		/// update and add all the intervals from the given range. @return true iff clash occurs
+	bool addIntervals ( iterator begin, iterator end )
+	{
+		for ( ; begin != end; ++begin )
+			if ( addUpdatedInterval(*begin) )
+				return true;
+		return false;
+	}
+		/// add interval INT positively to the DTA
+	bool addPosInterval ( const TDataInterval& Int, const DepSet& dep );
+		/// add interval INT negatively to the DTA
+	bool addNegInterval ( const TDataInterval& Int, const DepSet& dep );
 
 public:		// methods
 		/// empty c'tor
@@ -169,10 +209,14 @@ public:		// methods
 
 	// complex methods
 
-		/// update MIN border of an TYPE's interval with VALUE wrt EXCL
-	bool update ( bool min, bool excl, const TDataEntry* value, const DepSet& dep );
-		/// add restrictions [POS]P to intervals
-	bool addInterval ( bool pos, const TDataInterval& p, const DepSet& dep );
+		/// add restrictions [POS]INT to intervals
+	bool addInterval ( bool pos, const TDataInterval& Int, const DepSet& dep )
+	{
+		if ( LLM.isWritable(llCDAction) )	// level of logging
+			LL << ' ' << (pos ? '+' : '-') << Int;
+		return pos ? addPosInterval ( Int, dep ) : addNegInterval ( Int, dep );
+	}
+
 		/// @return true iff PType and (possibly inferred) NType leads to clash
 	bool checkPNTypeClash ( void );
 }; // DataTypeAppearance
@@ -205,8 +249,8 @@ protected:	// methods
 		getDTAbyValue(c.first)->addNegValue(c);
 		return false;
 	}
-		/// set (C,DEP) as a MIN value of a type's interval
-	bool processRestriction ( bool pos, bool min, bool excl, const TDataEntry* c, const DepSet& dep )
+		/// process data value
+	bool processDataValue ( bool pos, const TDataEntry* c, const DepSet& dep )
 	{
 		DataTypeAppearance* type = getDTAbyValue(c);
 		DepDTE C(c,dep);	// real concept to be added
@@ -214,8 +258,11 @@ protected:	// methods
 		if (pos)
 			type->setPType(C);
 
-		// update maximal border of the interval; @return true if TYPE was changed
-		return type->update ( min, excl, c, dep );
+		// create interval [c,c]
+		TDataInterval constraints;
+		constraints.updateMin ( /*excl=*/false, c );
+		constraints.updateMax ( /*excl=*/false, c );
+		return type->addInterval ( pos, constraints, dep );
 	}
 		/// process data expr
 	bool processDataExpr ( bool pos, const TDataEntry* c, const DepSet& dep )
@@ -253,13 +300,6 @@ protected:	// methods
 		assert ( !dataValue->isBasicDataType() );
 #	endif
 		return getDTAbyType(dataValue->getType());
-	}
-
-		/// log about processing data-value entry
-	void logDataValueEntry ( BipolarPointer p ) const
-	{
-		if ( LLM.isWritable(llCDAction) )	// level of logging
-			LL << ' ' << (isPositive(p) ? '+' : '-') << getDataEntry(p)->getName();
 	}
 
 public:		// interface
