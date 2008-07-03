@@ -263,8 +263,7 @@ void TBox :: createTaxonomy ( bool needIndividual )
 
 	if ( pTax == NULL )	// first run
 	{
-		prepareSubReasoning();
-		pTax = new DLConceptTaxonomy ( pTop, pBottom, *this, GCIs );
+		initTaxonomy();
 		needConcept |= needIndividual;	// together with concepts
 	}
 	else	// not a first run

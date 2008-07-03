@@ -300,14 +300,19 @@ TBox :: Save ( ostream& o ) const
 {
 	tvMap.clear();
 	neMap.clear();
+	o << "\nR";
+	RM.Save(o);
 	neMap.add(pBottom);
 	neMap.add(pTop);
 	o << "\nC";
 	Concepts.Save(o);
 	o << "\nI";
 	Individuals.Save(o);
-	o << "\nR";
-	RM.Save(o);
+	if ( Status > kbCChecked )
+	{
+		o << "\nCT";
+		pTax->Save(o);
+	}
 	o << "\nKB";
 }
 
@@ -316,16 +321,23 @@ TBox :: Load ( istream& i, KBStatus status )
 {
 	Status = status;
 	string KB;
-	expectChar(i,'C');
 	tvMap.clear();
 	neMap.clear();
+	expectChar(i,'R');
+	RM.Load(i);
 	neMap.add(pBottom);
 	neMap.add(pTop);
+	expectChar(i,'C');
 	Concepts.Load(i);
 	expectChar(i,'I');
 	Individuals.Load(i);
-	expectChar(i,'R');
-	RM.Load(i);
+	if ( Status > kbCChecked )
+	{
+		initTaxonomy();
+		expectChar(i,'C');
+		expectChar(i,'T');
+		pTax->Load(i);
+	}
 	expectChar(i,'K');
 	expectChar(i,'B');
 }
@@ -559,6 +571,7 @@ void
 Taxonomy :: Save ( ostream& o ) const
 {
 	const_iterator p, p_beg = begin(), p_end = end();
+	tvMap.clear();	// it would be it's own map for every taxonomy
 	tvMap.add ( p_beg, p_end );
 
 	// save number of taxonomy elements

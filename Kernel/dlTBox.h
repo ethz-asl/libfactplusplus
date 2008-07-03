@@ -614,8 +614,8 @@ protected:	// methods
 
 		/// init reasoning service: create reasoner(s)
 	void initReasoner ( void );				// implemented in Reasoner.h
-		/// init priorities in order to do subsumption tests
-	void prepareSubReasoning ( void ) { DLHeap.setSubOrder(); }
+		/// init taxonomy (for the first time)
+	void initTaxonomy ( void );				// implemented in DLConceptTaxonomy.h
 		/// creating taxonomy for given TBox; include individuals if necessary
 	void createTaxonomy ( bool needIndividuals );
 		/// classify all concepts from given COLLECTION with given CD value

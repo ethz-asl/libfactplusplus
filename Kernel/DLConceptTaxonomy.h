@@ -243,4 +243,15 @@ inline bool DLConceptTaxonomy :: needBottomUp ( void ) const
 	return flagNeedBottomUp || !useCompletelyDefined || curConcept()->isNonPrimitive();
 }
 
+//-----------------------------------------------------------------------------
+//--		implemenation of taxonomy-related parts of TBox
+//-----------------------------------------------------------------------------
+
+inline void
+TBox :: initTaxonomy ( void )
+{
+	DLHeap.setSubOrder();	// init priorities in order to do subsumption tests
+	pTax = new DLConceptTaxonomy ( pTop, pBottom, *this, GCIs );
+}
+
 #endif // _DLCONCEPTTAXONOMY_H
