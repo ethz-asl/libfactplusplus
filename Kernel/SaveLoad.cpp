@@ -107,6 +107,82 @@ int loadSInt ( istream& i )
 }
 
 #endif	// 0
+
+//----------------------------------------------------------
+//-- Global structures used for the methods below
+//----------------------------------------------------------
+
+template<class Pointer>
+class PointerMap
+{
+protected:	// types
+		/// map int->pointer type
+	typedef std::vector<Pointer> I2PMap;
+		/// map pointer->int type
+	typedef std::map<Pointer, unsigned int> P2IMap;
+
+protected:	// members
+		/// map i -> pointer
+	I2PMap i2p;
+		/// map pointer -> i
+	P2IMap p2i;
+		/// ID of the last recorded NE
+	unsigned int last;
+
+protected:	// methods
+		/// @return true if given pointer present in the map
+	bool in ( Pointer p ) const { return p2i.find(p) != p2i.end(); }
+		/// @return true if given index present in the map
+	bool in ( unsigned int i ) const { return i < last; }
+		/// @throw an exception if P is not registered
+	void ensure ( Pointer p ) const { if ( !in(p) ) throw EFPPSaveLoad("Cannot save unregistered pointer"); }
+		/// @throw an exception if I is not registered
+	void ensure ( unsigned int i ) const { if ( !in(i) ) throw EFPPSaveLoad("Cannot load unregistered index"); }
+
+public:		// interface
+		/// empty c'tor
+	PointerMap ( void ) : last(0) {}
+		/// empty d'tor
+	~PointerMap ( void ) { clear(); }
+		/// clear the maps
+	void clear ( void )
+	{
+		i2p.clear();
+		p2i.clear();
+		last = 0;
+	}
+
+	// populate the map
+
+		/// add an entry
+	void add ( Pointer p )
+	{
+		if ( in(p) )
+			return;
+		i2p.push_back(p);
+		p2i[p] = last++;
+	}
+		/// add entries from the [begin,end) range
+	template<class Iterator>
+	void add ( Iterator begin, Iterator end )
+	{
+		for ( ; begin != end; ++begin )
+			add(*begin);
+	}
+
+	// access to the mapped element
+
+		/// get the NE by index I
+	Pointer getP ( unsigned int i ) { ensure(i); return i2p[i]; }
+		/// get the index by NE P
+	unsigned int getI ( Pointer p ) { ensure(p); return p2i[p]; }
+}; // PointerMap
+
+// int -> named entry map for the current taxonomy
+PointerMap<ClassifiableEntry*> neMap;
+// uint -> TaxonomyVertex map to update the taxonomy
+PointerMap<TaxonomyVertex*> tvMap;
+
 //----------------------------------------------------------
 //-- Implementation of the Kernel methods (Kernel.h)
 //----------------------------------------------------------
@@ -222,6 +298,10 @@ ReasoningKernel :: LoadKB ( istream& i )
 void
 TBox :: Save ( ostream& o ) const
 {
+	tvMap.clear();
+	neMap.clear();
+	neMap.add(pBottom);
+	neMap.add(pTop);
 	o << "\nC";
 	Concepts.Save(o);
 	o << "\nI";
@@ -237,6 +317,10 @@ TBox :: Load ( istream& i, KBStatus status )
 	Status = status;
 	string KB;
 	expectChar(i,'C');
+	tvMap.clear();
+	neMap.clear();
+	neMap.add(pBottom);
+	neMap.add(pTop);
 	Concepts.Load(i);
 	expectChar(i,'I');
 	Individuals.Load(i);
@@ -266,6 +350,9 @@ TNECollection<T> :: Save ( ostream& o ) const
 	// save number of entries and max length of the entry
 	saveUInt(o,size());
 	saveUInt(o,maxLength);
+
+	// register all entries in the global map
+	neMap.add ( p_beg, p_end );
 
 	// save names of all entries
 	for ( p = p_beg; p < p_end; ++p )
@@ -297,6 +384,9 @@ TNECollection<T> :: Load ( istream& i )
 	}
 
 	delete [] name;
+
+	// register all entries in the global map
+	neMap.add ( begin(), end() );
 
 	// load all the named entries
 	for ( iterator p = begin(); p < end(); ++p )
@@ -386,6 +476,11 @@ RoleMaster :: Save ( ostream& o ) const
 	saveUInt(o,size());
 	saveUInt(o,maxLength);
 
+	// register all entries in the global map
+	neMap.add(const_cast<ClassifiableEntry*>((const ClassifiableEntry*)&emptyRole));
+	neMap.add(const_cast<ClassifiableEntry*>((const ClassifiableEntry*)&universalRole));
+	neMap.add ( p_beg, p_end );
+
 	// save names of all (non-inverse) entries
 	for ( p = p_beg; p < p_end; p += 2 )
 	{
@@ -398,7 +493,8 @@ RoleMaster :: Save ( ostream& o ) const
 		(*p)->Save(o);
 
 	// save the rest of the RM
-//	pTax->Save(o);
+	o << "\nRT";
+	pTax->Save(o);
 }
 
 void
@@ -423,12 +519,19 @@ RoleMaster :: Load ( istream& i )
 
 	delete [] name;
 
+	// register all entries in the global map
+	neMap.add(&emptyRole);
+	neMap.add(&universalRole);
+	neMap.add ( begin(), end() );
+
 	// load all the named entries
 	for ( iterator p = begin(); p < end(); ++p )
 		(*p)->Load(i);
 
 	// load the rest of the RM
-//	pTax->Load(i);
+	expectChar(i,'R');
+	expectChar(i,'T');
+	pTax->Load(i);
 	useUndefinedNames = false;	// no names
 }
 
@@ -446,5 +549,98 @@ void
 TRole :: Load ( istream& i )
 {
 	ClassifiableEntry::Load(i);
+}
+
+//----------------------------------------------------------
+//-- Implementation of the Taxonomy methods (Taxonomy.h)
+//----------------------------------------------------------
+
+void
+Taxonomy :: Save ( ostream& o ) const
+{
+	const_iterator p, p_beg = begin(), p_end = end();
+	tvMap.add ( p_beg, p_end );
+
+	// save number of taxonomy elements
+	saveUInt(o,Graph.size());
+	o << "\n";
+
+	// save labels for all verteces of the taxonomy
+	for ( p = p_beg; p != p_end; ++p )
+		(*p)->SaveLabel(o);
+
+	// save the taxonomys hierarchy
+	for ( p = p_beg; p != p_end; ++p )
+		(*p)->SaveNeighbours(o);
+}
+
+void
+Taxonomy :: Load ( istream& i )
+{
+	unsigned int size = loadUInt(i);
+	tvMap.clear();
+	Graph.clear();	// both TOP and BOTTOM elements would be load;
+
+	// create all the verteces and load their labels
+	for ( unsigned int j = 0; j < size; ++j )
+	{
+		ClassifiableEntry* p = neMap.getP(loadUInt(i));
+		TaxonomyVertex* v = new TaxonomyVertex(p);
+		Graph.push_back(v);
+		v->LoadLabel(i);
+		tvMap.add(v);
+	}
+
+	// load the hierarchy
+	for ( iterator p = begin(), p_end = end(); p < p_end; ++p )
+		(*p)->LoadNeighbours(i);
+}
+
+//----------------------------------------------------------
+//-- Implementation of the TaxonomyVertex methods (taxVertex.h)
+//----------------------------------------------------------
+
+void
+TaxonomyVertex :: SaveLabel ( ostream& o ) const
+{
+	saveUInt(o,neMap.getI(const_cast<ClassifiableEntry*>(sample)));
+	saveUInt(o,synonyms.size());
+	for ( syn_iterator p = begin_syn(), p_end = end_syn(); p < p_end; ++p )
+		saveUInt(o,neMap.getI(const_cast<ClassifiableEntry*>(*p)));
+	o << "\n";
+}
+
+void
+TaxonomyVertex :: LoadLabel ( istream& i )
+{
+	// note that sample is already loaded
+	unsigned int size = loadUInt(i);
+	for ( unsigned int j = 0; j < size; ++j )
+		addSynonym(neMap.getP(loadUInt(i)));
+}
+
+void
+TaxonomyVertex :: SaveNeighbours ( ostream& o ) const
+{
+	const_iterator p, p_end;
+	saveUInt(o,neigh(true).size());
+	for ( p = begin(true), p_end = end(true); p < p_end; ++p )
+		saveUInt(o,tvMap.getI(*p));
+	saveUInt(o,neigh(false).size());
+	for ( p = begin(false), p_end = end(false); p < p_end; ++p )
+		saveUInt(o,tvMap.getI(*p));
+	o << "\n";
+}
+
+void
+TaxonomyVertex :: LoadNeighbours ( istream& i )
+{
+	unsigned int j, size;
+	size = loadUInt(i);
+	for ( j = 0; j < size; ++j )
+		addNeighbour ( true, tvMap.getP(loadUInt(i)) );
+	size = loadUInt(i);
+	for ( j = 0; j < size; ++j )
+		addNeighbour ( false, tvMap.getP(loadUInt(i)) );
 }
 

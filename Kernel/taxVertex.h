@@ -220,6 +220,17 @@ public:
 		printNeighbours ( o, false );
 		o << "\n";
 	}
+
+	// save/load interface; implementation is in SaveLoad.cpp
+
+		/// save label of the entry
+	void SaveLabel ( std::ostream& o ) const;
+		/// load label of the entry
+	void LoadLabel ( std::istream& i );
+		/// save neighbours of the entry
+	void SaveNeighbours ( std::ostream& o ) const;
+		/// load neighbours of the entry
+	void LoadNeighbours ( std::istream& i );
 }; // TaxonomyVertex
 
 #endif // _TAXVERTEX_H

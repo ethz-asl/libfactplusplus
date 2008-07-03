@@ -243,6 +243,13 @@ public:		// interface
 
 		/// print taxonomy info to a stream
 	virtual void print ( std::ostream& o ) const;
+
+	// save/load interface; implementation is in SaveLoad.cpp
+
+		/// save entry
+	void Save ( std::ostream& o ) const;
+		/// load entry
+	void Load ( std::istream& i );
 }; // Taxonomy
 
 inline void Taxonomy :: setupTopDown ( void )
