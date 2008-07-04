@@ -202,13 +202,8 @@ public:		// methods
 		/// adds concept as a told subsumer of current one; @return value for CDC analisys
 	bool addToldSubsumer ( TConcept* p )
 	{
-		p = resolveSynonym(p);
-
-		if ( p != this )
-		{
-			includeParent (p);
-			p->setNaTS(false);	// p is a told subsumer (for current concept)
-		}
+		addParentIfNew(p);
+		p->setNaTS(false);	// p is a told subsumer (for current concept)
 
 		// if non-primitive concept was found in a description, it's not CD
 		return p->isPrimitive();

@@ -52,8 +52,8 @@ private:	// no copy
 	ClassifiableEntry& operator = ( const ClassifiableEntry& );
 
 protected:	// methods
-		/// add told subsumers as no duplication can happens
-	void includeParent ( ClassifiableEntry* parent );
+		/// add told subsumer if doesn't already recorded
+	void addParentIfNew ( ClassifiableEntry* parent );
 
 public:		// interface
 		/// C'tor
@@ -101,7 +101,7 @@ public:		// interface
 	void addParents ( Iterator begin, Iterator end )
 	{
 		for ( Iterator p = begin; p < end; ++p )
-			includeParent(*p);
+			addParentIfNew(*p);
 	}
 
 	// synonym interface
@@ -158,7 +158,7 @@ resolveSynonym ( const T* p )
 }
 
 inline void
-ClassifiableEntry :: includeParent ( ClassifiableEntry* parent )
+ClassifiableEntry :: addParentIfNew ( ClassifiableEntry* parent )
 {
 	// resolve synonyms
 	parent = resolveSynonym(parent);
