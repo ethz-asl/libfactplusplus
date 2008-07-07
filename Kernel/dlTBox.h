@@ -260,11 +260,6 @@ protected:	// members
 		/// time spend for preprocessing
 	float preprocTime;
 
-	// other statistic
-
-		/// number of synonyms encountered/changed
-	unsigned int nSynonyms;
-
 private:	// no copy
 		/// no copy c'tor
 	TBox ( const TBox& );
@@ -388,7 +383,6 @@ protected:	// methods
 
 		p->setSynonym(getConcept(p->Description));
 		p->initToldSubsumers();
-		++nSynonyms;
 	}
 
 	/// remove concept from TBox by given EXTERNAL id. @return true in case of failure. WARNING!! tested only for TempConcept!!!
@@ -569,6 +563,19 @@ protected:	// methods
 		/// @return concept which creates cycle, NULL if no such concept exists.
 	TConcept* checkToldCycle ( TConcept* p );
 
+		/// @return number of synonyms in the KB
+	unsigned int countSynonyms ( void ) const
+	{
+		unsigned int nSynonyms = 0;
+		for ( c_const_iterator pc = c_begin(); pc != c_end(); ++pc )
+			if ( (*pc)->isSynonym() )
+				++nSynonyms;
+
+		for ( i_const_iterator pi = i_begin(); pi != i_end(); ++pi )
+			if ( (*pi)->isSynonym() )
+				++nSynonyms;
+		return nSynonyms;
+	}
 		/// replace all synonyms in concept descriptions with their definitions
 	void replaceAllSynonyms ( void );
 		/// replace synonyms in concept expression with their definitions; @return true if DESC has been changed
@@ -1087,7 +1094,6 @@ inline TBox :: TBox ( const ifOptionSet* Options )
 	, Consistent(true)
 	, Precompleted(false)
 	, preprocTime(0)
-	, nSynonyms(0)
 {
 	readConfig ( Options );
 	initTopBottom ();

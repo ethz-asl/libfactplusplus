@@ -54,7 +54,8 @@ void TBox :: Preprocess ( void )
 
 	// all concept descriptions contains synonyms. Remove them now
 	BEGIN_PASS("Replace synonyms in expressions");
-	replaceAllSynonyms();
+	if ( countSynonyms() > 0 )
+		replaceAllSynonyms();
 	END_PASS();
 
 	// preprocess Related structure (before classification tags are defined)
@@ -166,11 +167,6 @@ void TBox :: Preprocess ( void )
 
 void TBox :: replaceAllSynonyms ( void )
 {
-	if ( nSynonyms == 0 )
-		return;	// nothing to do
-
-	nSynonyms = 0;
-
 	// replace synonyms in role's domain
 	for ( RoleMaster::iterator pr = RM.begin(), pr_end = RM.end(); pr < pr_end; ++pr )
 		if ( !(*pr)->isSynonym() )
@@ -187,15 +183,7 @@ void TBox :: replaceAllSynonyms ( void )
 	for ( DifferentIndividuals::iterator di = Different.begin(); di != Different.end(); ++di )
 		for ( SingletonVector::iterator sv = di->begin(); sv != di->end(); ++sv )
 			if ( (*sv)->isSynonym() )
-			{
-				++nSynonyms;
 				*sv = resolveSynonym(*sv);
-			}
-
-	if ( nSynonyms && LLM.isWritable(llAlways) )
-		LL << "\nReplaced " << nSynonyms << " synonyms\n";
-
-	nSynonyms = 0;
 }
 
 bool TBox :: replaceSynonymsFromTree ( DLTree* desc )
@@ -210,7 +198,6 @@ bool TBox :: replaceSynonymsFromTree ( DLTree* desc )
 
 		if ( entry->isSynonym() )
 		{
-			++nSynonyms;
 			// check for TOP/BOTTOM
 			//FIXME!! may be, better use ID for TOP/BOTTOM
 			if ( entry->getSynonym()->getId() == -1 )
@@ -238,7 +225,9 @@ void TBox :: preprocessRelated ( void )
 
 void TBox :: transformToldCycles ( void )
 {
-	nSynonyms = 0;
+	// remember number of synonyms appeared in KB
+	unsigned int nSynonyms = countSynonyms();
+
 	clearRelevanceInfo();
 	for ( c_iterator pc = c_begin(); pc != c_end(); ++pc )
 		if ( !(*pc)->isSynonym() )
@@ -247,14 +236,17 @@ void TBox :: transformToldCycles ( void )
 	for ( i_iterator pi = i_begin(); pi != i_end(); ++pi )
 		if ( !(*pi)->isSynonym() )
 			checkToldCycle(*pi);
-
 	clearRelevanceInfo();
 
-	if ( nSynonyms && LLM.isWritable(llAlways) )
-		LL << "\nTold cycle elimination done with " << nSynonyms << " synonyms created";
+	// update nymber of synonyms
+	nSynonyms = countSynonyms() - nSynonyms;
+	if ( nSynonyms )
+	{
+		if ( LLM.isWritable(llAlways) )
+			LL << "\nTold cycle elimination done with " << nSynonyms << " synonyms created";
 
-	// merge synonyms during the TBox
-	replaceAllSynonyms();
+		replaceAllSynonyms();
+	}
 }
 
 TConcept* TBox :: checkToldCycle ( TConcept* p )
@@ -296,7 +288,6 @@ redo:
 		// if cycle was detected
 		if ( (ret = checkToldCycle(static_cast<TConcept*>(*r))) != NULL )
 		{
-			++nSynonyms;
 			if ( ret == p )
 			{
 //				std::cout << "Fill cycle with " << p->getName() << std::endl;
