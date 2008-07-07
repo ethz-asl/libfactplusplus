@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2006 by Dmitry Tsarkov
+Copyright (C) 2006-2008 by Dmitry Tsarkov
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -35,7 +35,7 @@ protected:	// types
 
 protected:	// members
 		/// host DAG that contains actual nodes;
-	DLDag& host;
+	const DLDag& host;
 		/// HT for nodes
 	HashTable Table;
 
@@ -58,7 +58,7 @@ protected:	// methods
 
 public:		// interface
 		/// empty c'tor
-	dlVHashTable ( DLDag& dag ) : host(dag) {}
+	dlVHashTable ( const DLDag& dag ) : host(dag) {}
 		/// empty d'tor
 	~dlVHashTable ( void ) {}
 
