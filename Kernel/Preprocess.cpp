@@ -263,8 +263,8 @@ TConcept* TBox :: checkToldCycle ( TConcept* p )
 
 		// searchable stack for the told subsumers
 	static std::set<TConcept*> sStack;
-		// commonDescriptions will contains all the definitions from all synonyms
-	static ConceptSet commonDescriptions;
+		// descriptions of the all the synonyms in the cycle
+	static DLTree* desc;
 
 	// no reason to process TOP here
 	if ( p == pTop )
@@ -303,17 +303,14 @@ redo:
 
 				// mark the returned concept primitive (to allow addDesc to work)
 				p->setPrimitive();
-
-				// build description based on equal concepts
-				for ( ConceptSet::iterator z = commonDescriptions.begin(); z != commonDescriptions.end(); ++z )
-					p->addDesc(*z);
+				p->addDesc(desc);
+				desc = NULL;
 
 				// replace all synonyms with TOP
 				p->removeSelfFromDescription();
 
 				// clear return status and continue with the same concept
 				ret = NULL;
-				commonDescriptions.clear();
 				goto redo;
 			}
 			else
@@ -321,8 +318,7 @@ redo:
 //				std::cout << "Write synonym for " << p->getName() << std::endl;
 
 				// some concept inside a cycle: make it synonym of RET, save old desc
-				DLTree* desc = makeNonPrimitive ( p, getTree(ret) );
-				commonDescriptions.push_back(desc);
+				desc = createSNFAnd ( desc, makeNonPrimitive ( p, getTree(ret) ) );
 
 				// no need to continue; finish with this cycle first
 				break;
