@@ -165,28 +165,8 @@ void TBox :: Preprocess ( void )
 		std::cerr << " done in " << pt << " seconds\n";
 }
 
-void TBox :: replaceAllSynonyms ( void )
-{
-	// replace synonyms in role's domain
-	for ( RoleMaster::iterator pr = RM.begin(), pr_end = RM.end(); pr < pr_end; ++pr )
-		if ( !(*pr)->isSynonym() )
-			replaceSynonymsFromTree ( (*pr)->getTDomain() );
-
-	for ( c_iterator pc = c_begin(); pc != c_end(); ++pc )
-		if ( replaceSynonymsFromTree ( (*pc)->Description ) )
-			(*pc)->initToldSubsumers();
-	for ( i_iterator pi = i_begin(); pi != i_end(); ++pi )
-		if ( replaceSynonymsFromTree ( (*pi)->Description ) )
-			(*pi)->initToldSubsumers();
-
-	// replace synonyms in Different part
-	for ( DifferentIndividuals::iterator di = Different.begin(); di != Different.end(); ++di )
-		for ( SingletonVector::iterator sv = di->begin(); sv != di->end(); ++sv )
-			if ( (*sv)->isSynonym() )
-				*sv = resolveSynonym(*sv);
-}
-
-bool TBox :: replaceSynonymsFromTree ( DLTree* desc )
+static bool
+replaceSynonymsFromTree ( DLTree* desc )
 {
 	if ( desc == NULL )
 		return false;
@@ -215,6 +195,27 @@ bool TBox :: replaceSynonymsFromTree ( DLTree* desc )
 		ret |= replaceSynonymsFromTree ( desc->Right() );
 		return ret;
 	}
+}
+
+void TBox :: replaceAllSynonyms ( void )
+{
+	// replace synonyms in role's domain
+	for ( RoleMaster::iterator pr = RM.begin(), pr_end = RM.end(); pr < pr_end; ++pr )
+		if ( !(*pr)->isSynonym() )
+			replaceSynonymsFromTree ( (*pr)->getTDomain() );
+
+	for ( c_iterator pc = c_begin(); pc != c_end(); ++pc )
+		if ( replaceSynonymsFromTree ( (*pc)->Description ) )
+			(*pc)->initToldSubsumers();
+	for ( i_iterator pi = i_begin(); pi != i_end(); ++pi )
+		if ( replaceSynonymsFromTree ( (*pi)->Description ) )
+			(*pi)->initToldSubsumers();
+
+	// replace synonyms in Different part
+	for ( DifferentIndividuals::iterator di = Different.begin(); di != Different.end(); ++di )
+		for ( SingletonVector::iterator sv = di->begin(); sv != di->end(); ++sv )
+			if ( (*sv)->isSynonym() )
+				*sv = resolveSynonym(*sv);
 }
 
 void TBox :: preprocessRelated ( void )

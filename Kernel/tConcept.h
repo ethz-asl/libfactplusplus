@@ -180,7 +180,7 @@ public:		// methods
 		Description = NULL;
 	}
 		/// check whether it is possible to init this as a non-primitive concept with DESC
-	bool canMakeNonPrim ( DLTree* desc )
+	bool canInitNonPrim ( DLTree* desc )
 	{
 		if ( Description == NULL )
 			return true;

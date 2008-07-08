@@ -358,7 +358,7 @@ protected:	// methods
 		/// add description to a concept; @return true in case of error
 	bool initNonPrimitive ( TConcept* p, DLTree* desc )
 	{
-		if ( !p->canMakeNonPrim(desc) )
+		if ( !p->canInitNonPrim(desc) )
 			return true;
 		// delete return value in case of duplicated desc
 		deleteTree(makeNonPrimitive(p,desc));
@@ -578,8 +578,6 @@ protected:	// methods
 	}
 		/// replace all synonyms in concept descriptions with their definitions
 	void replaceAllSynonyms ( void );
-		/// replace synonyms in concept expression with their definitions; @return true if DESC has been changed
-	bool replaceSynonymsFromTree ( DLTree* desc );
 
 		/// init Extra Rule field in concepts given by a vector V with a given INDEX
 	inline void
