@@ -591,7 +591,9 @@ DlSatTester :: createCache ( BipolarPointer p )
 {
 	if ( LLM.isWritable(llDagSat) )
 	{
-		LL << "\nChecking satisfiability of DAG entry " << p << ":\n";
+		LL << "\nChecking satisfiability of DAG entry " << p;
+		tBox.PrintDagEntry(LL,p);
+		LL << ":\n";
 #	ifdef __DEBUG_FLUSH_LL
 		LL.flush ();
 #	endif
