@@ -73,18 +73,10 @@ void TBox :: Preprocess ( void )
 	transformToldCycles();
 	END_PASS();
 
-	// convert axioms (move some Axioms to Role and Concept Description)
+	// absorb axioms (move some Axioms to Role and Concept Description)
 	BEGIN_PASS("Perform absorption");
-	ConvertAxioms();
+	AbsorbAxioms();
 	END_PASS();
-
-	// init told subsumers if role absorption were used
-	if ( Axioms.wasRoleAbsorptionApplied() )
-	{
-		BEGIN_PASS("Init told subsumers");
-		initToldSubsumers();
-		END_PASS();
-	}
 
 	// set told TOP concepts whether necessary
 	BEGIN_PASS("Set told TOP");

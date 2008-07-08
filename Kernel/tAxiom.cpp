@@ -18,6 +18,7 @@ Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 
 #include "tAxiom.h"
 #include "tRole.h"
+#include "dlTBox.h"
 
 bool TAxiom :: simplify ( void )
 {
@@ -69,7 +70,7 @@ void TAxiom :: dump ( std::ostream& o ) const
 }
 #endif
 
-unsigned int TAxiom :: absorbIntoConcept ( void )
+unsigned int TAxiom :: absorbIntoConcept ( TBox& KB )
 {
 	WorkSet Cons;
 
@@ -99,6 +100,12 @@ unsigned int TAxiom :: absorbIntoConcept ( void )
 	// adds a new definition
 	Concept->addDesc(createAnAxiom());
 	Concept->removeSelfFromDescription();
+	// in case T [= (A or \neg B) and (B and \neg A) there appears a cycle A [= B [= A
+	// so remove potential cycle
+	// FIXME!! just because TConcept can't get rid of cycle by itself
+	KB.clearRelevanceInfo();
+	KB.checkToldCycle(Concept);
+	KB.clearRelevanceInfo();
 
 	return Cons.size();
 }

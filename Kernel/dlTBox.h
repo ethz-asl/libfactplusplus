@@ -55,6 +55,7 @@ class TBox
 	friend class Precompletor;
 	friend class DlSatTester;
 	friend class ReasoningKernel;
+	friend class TAxiom;	// FIXME!! while TConcept can't get rid of told cycles
 
 public:	// interface
 		/// type for DISJOINT-like statements
@@ -510,7 +511,15 @@ protected:	// methods
 		/// build a roles taxonomy and a DAG
 	void Preprocess ( void );
 		/// absorb all axioms and set hasGCI
-	void ConvertAxioms ( void ) { GCIs.setGCI(Axioms.absorb()); }
+	void AbsorbAxioms ( void )
+	{
+		unsigned int nSynonyms = countSynonyms();
+		GCIs.setGCI(Axioms.absorb());
+		if ( countSynonyms() > nSynonyms )
+			replaceAllSynonyms();
+		if ( Axioms.wasRoleAbsorptionApplied() )
+			initToldSubsumers();
+	}
 
 		/// pre-process RELATED axioms: resolve synonyms, mark individuals as related
 	void preprocessRelated ( void );

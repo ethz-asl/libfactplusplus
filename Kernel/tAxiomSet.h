@@ -125,7 +125,7 @@ protected:	// methods
 		/// absorb single axiom AX into concept; @return true if succeed
 	bool absorbIntoConcept ( TAxiom* ax )
 	{
-		unsigned int n = ax->absorbIntoConcept();
+		unsigned int n = ax->absorbIntoConcept(Host);
 		if ( n == 0 )
 			return false;
 		incConceptAbsorption(n);

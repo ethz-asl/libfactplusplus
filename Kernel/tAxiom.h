@@ -25,6 +25,8 @@ Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #include "dltree.h"
 #include "tConcept.h"
 
+class TBox;
+
 class TAxiom
 {
 private:	// no assignment
@@ -190,7 +192,7 @@ public:		// interface
 		return NULL;
 	}
 		/// absorb into concept; @return number of alternatives
-	unsigned int absorbIntoConcept ( void );
+	unsigned int absorbIntoConcept ( TBox& KB );
 		/// absorb into role domain; @return number of alternatives
 	unsigned int absorbIntoDomain ( void );
 		/// create a concept expressiong corresponding a given GCI
