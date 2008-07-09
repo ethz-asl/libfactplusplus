@@ -263,6 +263,7 @@ void TBox :: createTaxonomy ( bool needIndividual )
 
 	if ( pTax == NULL )	// first run
 	{
+		DLHeap.setSubOrder();	// init priorities in order to do subsumption tests
 		initTaxonomy();
 		needConcept |= needIndividual;	// together with concepts
 	}

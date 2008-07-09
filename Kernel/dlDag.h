@@ -298,6 +298,13 @@ public:		// interface
 
 		o << std::endl;
 	}
+
+	// save/load interface; implementation is in SaveLoad.cpp
+
+		/// save entry
+	void Save ( std::ostream& o ) const;
+		/// load entry
+	void Load ( std::istream& i );
 }; // DLDag
 
 #include "dlVHashImpl.h"

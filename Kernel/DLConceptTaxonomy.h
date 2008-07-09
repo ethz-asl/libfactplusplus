@@ -250,7 +250,6 @@ inline bool DLConceptTaxonomy :: needBottomUp ( void ) const
 inline void
 TBox :: initTaxonomy ( void )
 {
-	DLHeap.setSubOrder();	// init priorities in order to do subsumption tests
 	pTax = new DLConceptTaxonomy ( pTop, pBottom, *this, GCIs );
 }
 

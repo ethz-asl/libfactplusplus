@@ -308,12 +308,13 @@ TBox :: Save ( ostream& o ) const
 	Concepts.Save(o);
 	o << "\nI";
 	Individuals.Save(o);
+	o << "\nD";
+	DLHeap.Save(o);
 	if ( Status > kbCChecked )
 	{
 		o << "\nCT";
 		pTax->Save(o);
 	}
-	o << "\nKB";
 }
 
 void
@@ -331,6 +332,8 @@ TBox :: Load ( istream& i, KBStatus status )
 	Concepts.Load(i);
 	expectChar(i,'I');
 	Individuals.Load(i);
+	expectChar(i,'D');
+	DLHeap.Load(i);
 	if ( Status > kbCChecked )
 	{
 		initTaxonomy();
@@ -338,8 +341,6 @@ TBox :: Load ( istream& i, KBStatus status )
 		expectChar(i,'T');
 		pTax->Load(i);
 	}
-	expectChar(i,'K');
-	expectChar(i,'B');
 }
 
 //----------------------------------------------------------
@@ -657,3 +658,149 @@ TaxonomyVertex :: LoadNeighbours ( istream& i )
 		addNeighbour ( false, tvMap.getP(loadUInt(i)) );
 }
 
+//----------------------------------------------------------
+//-- Implementation of the DLDag methods (dlDag.h)
+//----------------------------------------------------------
+
+void
+DLDag :: Save ( ostream& o ) const
+{
+	saveUInt(o,Heap.size());
+	o << "\n";
+	// skip fake vertex and TOP
+	for ( unsigned int i = 2; i < Heap.size(); ++i )
+		Heap[i]->Save(o);
+}
+
+void
+DLDag :: Load ( istream& i )
+{
+	unsigned int j, size;
+	size = loadUInt(i);
+	for ( j = 2; j < size; ++j )
+	{
+		DagTag tag = static_cast<DagTag>(loadUInt(i));
+		DLVertex* v = new DLVertex(tag);
+		v->Load(i);
+		directAdd(v);	// FIXME!! think about ..AndCache
+	}
+
+	// only reasoning now -- no cache
+	useDLVCache = false;
+}
+
+//----------------------------------------------------------
+//-- Implementation of the DLVertex methods (dlVertex.h)
+//----------------------------------------------------------
+
+void
+DLVertex :: Save ( ostream& o ) const
+{
+	saveUInt(o,static_cast<unsigned int>(Type()));
+	// FIXME!! save Cache if applicable; this will help reasoning
+
+	switch ( Type() )
+	{
+	case dtBad:
+	case dtTop:		// can't be S/L
+	default:
+		assert(0);
+		break;
+
+	case dtAnd:
+	case dtCollection:
+		saveUInt(o,Child.size());
+		for ( const_iterator p = begin(); p != end(); ++p )
+			saveSInt(o,*p);
+		break;
+
+	case dtUAll:
+		saveSInt(o,getC());
+		break;
+
+	case dtLE:
+		saveUInt(o,neMap.getI(const_cast<TRole*>(Role)));
+		saveSInt(o,getC());
+		saveUInt(o,getNumberLE());
+		break;
+
+	case dtForall:
+		saveUInt(o,neMap.getI(const_cast<TRole*>(Role)));
+		saveSInt(o,getC());
+		break;
+
+	case dtIrr:
+		saveUInt(o,neMap.getI(const_cast<TRole*>(Role)));
+		break;
+
+	case dtPConcept:
+	case dtNConcept:
+	case dtPSingleton:
+	case dtNSingleton:
+		saveUInt(o,neMap.getI(static_cast<TConcept*>(Concept)));
+		saveSInt(o,getC());
+		break;
+
+	case dtDataType:
+	case dtDataValue:
+	case dtDataExpr:
+		break;	// FIXME!! for now
+	}
+	o << "\n";
+}
+
+void
+DLVertex :: Load ( istream& i )
+{
+	// now OP is already saved
+	// FIXME!! load Cache if applicable; this will help reasoning
+	switch ( Type() )
+	{
+	case dtBad:
+	case dtTop:		// can't be S/L
+	default:
+		assert(0);
+		break;
+
+	case dtAnd:
+	case dtCollection:
+	{
+		unsigned int size = loadUInt(i);
+		for ( unsigned int j = 0; j < size; ++j )
+			Child.push_back(loadSInt(i));
+		break;
+	}
+
+	case dtUAll:
+		setChild(loadSInt(i));
+		break;
+
+	case dtLE:
+		Role = static_cast<const TRole*>(neMap.getP(loadUInt(i)));
+		setChild(loadSInt(i));
+		Child.push_back(loadUInt(i));
+		break;
+
+	case dtForall:
+		Role = static_cast<const TRole*>(neMap.getP(loadUInt(i)));
+		setChild(loadSInt(i));
+		break;
+
+	case dtIrr:
+		Role = static_cast<const TRole*>(neMap.getP(loadUInt(i)));
+		break;
+
+	case dtPConcept:
+	case dtNConcept:
+	case dtPSingleton:
+	case dtNSingleton:
+		setConcept(neMap.getP(loadUInt(i)));
+		setChild(loadSInt(i));
+		break;
+
+	case dtDataType:
+	case dtDataValue:
+	case dtDataExpr:
+		break;	// FIXME!! for now
+	}
+}

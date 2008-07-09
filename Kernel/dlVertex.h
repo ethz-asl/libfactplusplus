@@ -435,6 +435,13 @@ public:		// interface
 	const char* getTagName ( void ) const;
 		/// print the whole node
 	void Print ( std::ostream& o ) const;
+
+	// save/load interface; implementation is in SaveLoad.cpp
+
+		/// save entry
+	void Save ( std::ostream& o ) const;
+		/// load entry
+	void Load ( std::istream& i );
 };	// DLVertex
 
 
