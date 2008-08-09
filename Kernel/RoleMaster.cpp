@@ -41,7 +41,15 @@ bool RoleMaster :: addRoleParent ( DLTree* tree, TRole* parent )
 		return true;	// FIXME!! exception later on
 
 	parent->addComposition(tree);
-	parent->inverse()->addComposition(inverseComposition(tree));
+	
+	//WAS: parent->inverse()->addComposition(inverseComposition(tree));
+	//MEMORY LEAK 
+	//FIX-BEGIN pawel.kaplanski@gmail.com
+	DLTree* inv=inverseComposition(tree);
+	parent->inverse()->addComposition(inv);
+	deleteTree(inv);
+	//FIX-END
+	
 	return false;
 }
 

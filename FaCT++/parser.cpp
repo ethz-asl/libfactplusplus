@@ -200,7 +200,9 @@ void DLLispParser :: parseCommand ( void )
 		DLTree* id2 = getSingleton();
 		if ( Kernel->relatedTo ( id1, R, id2 ) )
 			parseError ( "Unsupported feature -- relatedTo" );
+		deleteTree(id1);	
 		deleteTree(R);	// clear role tree
+		deleteTree(id2);	// pawel.kaplanski@gmail.com
 		break;
 	}
 
