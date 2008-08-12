@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2007 by Dmitry Tsarkov
+Copyright (C) 2003-2008 by Dmitry Tsarkov
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -35,9 +35,8 @@ Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #	include <fstream>
 #endif
 
-// uncomment the following to use LL in DIG programs
 #ifdef _USE_LOGGING
-//#	define USE_DIG_LL
+#	define USE_DIG_LL
 #endif
 
 #include "DIGParserHandlers.h"
@@ -108,9 +107,8 @@ DIGParseHandlers::DIGParseHandlers()
 	, inAsk (false)
 	, wasError (false)
 {
-	// don't need this for DIG reasoners (too big debug messages)
 #ifdef USE_DIG_LL
-	if ( LLM.initLogger ( 20, "reasoning.log" ) )	// DEBUG_ONLY
+	if ( LLM.initLogger ( 0, "reasoning.log" ) )
 		cerr << "Could not init LeveLogger\n";
 #endif
 }
