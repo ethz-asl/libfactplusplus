@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2007 by Dmitry Tsarkov
+Copyright (C) 2003-2008 by Dmitry Tsarkov
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -200,7 +200,7 @@ void DLLispParser :: parseCommand ( void )
 		DLTree* id2 = getSingleton();
 		if ( Kernel->relatedTo ( id1, R, id2 ) )
 			parseError ( "Unsupported feature -- relatedTo" );
-		deleteTree(id1);	
+		deleteTree(id1);
 		deleteTree(R);	// clear role tree
 		deleteTree(id2);	// pawel.kaplanski@gmail.com
 		break;
