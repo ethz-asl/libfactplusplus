@@ -322,21 +322,6 @@ protected:	// methods
 	}
 
 		/// get concept by it's BP (non-const version)
-	TConcept* getConceptByBP ( BipolarPointer bp )
-	{
-		TConcept* p = static_cast<TConcept*>(DLHeap[bp].getConcept());
-		assert ( p != NULL );
-		return p;
-	}
-		/// get concept by it's BP (const version)
-	const TConcept* getConceptByBP ( BipolarPointer bp ) const
-	{
-		const TConcept* p = static_cast<const TConcept*>(DLHeap[bp].getConcept());
-		assert ( p != NULL );
-		return p;
-	}
-
-		/// get concept by it's BP (non-const version)
 	TDataEntry* getDataEntryByBP ( BipolarPointer bp )
 	{
 		TDataEntry* p = static_cast<TDataEntry*>(DLHeap[bp].getConcept());

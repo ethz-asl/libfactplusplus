@@ -148,16 +148,15 @@ void TBox :: dumpExpression ( dumpInterface* dump, BipolarPointer p ) const
 		return dump->finishOp (diNot);
 	}
 
-	if ( isNamedConcept (p) )
-		return dump->dumpConcept ( getConceptByBP(p) );
-
-	// not named -- check structure
 	const DLVertex& v = DLHeap [getValue(p)];
 
 	switch ( v.Type() )
 	{
 	case dtTop:
 		return dump->dumpTop();
+
+	case dtName:
+		return dump->dumpConcept(static_cast<const TConcept*>(v.getConcept()));
 
 	case dtAnd:
 		dump->startOp (diAnd);

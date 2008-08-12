@@ -52,7 +52,7 @@ void TBox :: setRelevant ( BipolarPointer p )
 	// fall through
 	case dtNConcept:	// named concepts
 	case dtNSingleton:
-		setRelevant(getConceptByBP(p));
+		setRelevant(const_cast<TConcept*>(static_cast<const TConcept*>(v.getConcept())));
 		break;
 
 	case dtForall:

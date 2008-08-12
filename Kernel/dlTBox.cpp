@@ -344,13 +344,6 @@ void TBox :: PrintDagEntry ( std::ostream& o, BipolarPointer p ) const
 		return;
 	}
 
-	if ( isNamedConcept (p) )
-	{
-		o << ' ' << getConceptByBP(p)->getName();
-		return;
-	}
-
-	// not named -- check structure
 	const DLVertex& v = DLHeap [getValue(p)];
 
 	switch ( v.Type() )
@@ -359,9 +352,10 @@ void TBox :: PrintDagEntry ( std::ostream& o, BipolarPointer p ) const
 		o << " *TOP*";
 		return;
 
+	case dtName:
 	case dtDataType:
 	case dtDataValue:
-		o << ' ' << getDataEntryByBP(p)->getName();
+		o << ' ' << v.getConcept()->getName();
 		return;
 
 	case dtDataExpr:
