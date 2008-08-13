@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2007 by Dmitry Tsarkov
+Copyright (C) 2003-2008 by Dmitry Tsarkov
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -29,7 +29,7 @@ Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 // main methods
 bool TsScanner :: isLegalIdChar ( char c ) const	//id=[_a..z0-9[].]
 {
-	return !isspace(c) && c != '(' && c != ')' && c != ';' && c != '|' && c != EOF;
+	return !isspace(c) && c != '(' && c != ')' && c != ';' && c != '|' && !eof(c);
 }
 
 // Word must be in a CAPITAL LETTERS
@@ -78,7 +78,7 @@ Token TsScanner :: GetLex ( void )
 {
 	register char c;
 
-	while ( ( c = NextChar () ) != EOF )
+	while ( !eof( c = NextChar() ) )
 	{
 		if ( c == ' ' || c == '\t' || c == 13 )
 			continue;
@@ -91,7 +91,7 @@ Token TsScanner :: GetLex ( void )
 
 		if ( c == ';' )
 		{	// Skip comments
-			while ( ( c = NextChar () ) != EOF && c != '\n' )
+			while ( ( c = NextChar() ) != '\n' && !eof(c) )
 				(void)NULL;
 			CurLine++;
 			continue;

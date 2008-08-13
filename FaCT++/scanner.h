@@ -55,6 +55,8 @@ protected:	// methods
 	void PutBack ( char c ) const { InFile->putback(c); }
 		/// check if given character is legal in ID
 	bool isLegalIdChar ( char c ) const;
+		/// check whether C is a EOF char
+	static bool eof ( char c ) { return c == std::char_traits<char>::eof(); }
 
 public:		// interface
 		/// c'tor
