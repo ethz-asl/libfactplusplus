@@ -201,6 +201,9 @@ tacticUsage DlSatTester :: commonTacticBodySingleton ( const DLVertex& cur )
 
 	nSingletonCalls.inc();
 
+	// can use this rule only in the Nominal reasoner
+	assert ( hasNominals() );
+
 	// if the test REALLY uses nominals, remember this
 	encounterNominal = true;
 

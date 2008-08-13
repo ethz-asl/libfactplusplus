@@ -232,6 +232,9 @@ TConcept* TBox :: createTempConcept ( const DLTree* desc )
 	DLHeap.setExpressionCache(false);
 	addConceptToHeap ( defConcept );
 
+	// gather statistics about the concept
+	setConceptRelevant(defConcept);
+
 	// DEBUG_ONLY: print the DAG info
 //	std::ofstream debugPrint ( defConceptName, std::ios::app|std::ios::out );
 //	Print (debugPrint);
