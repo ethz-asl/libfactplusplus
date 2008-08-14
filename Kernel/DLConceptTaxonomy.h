@@ -37,6 +37,9 @@ protected:	// members
 	unsigned long nTries;
 	unsigned long nPositives;
 	unsigned long nNegatives;
+	unsigned long nSearchCalls;
+	unsigned long nSubCalls;
+	unsigned long nNonTrivialSubCalls;
 
 		/// number of positive cached subsumptions
 	unsigned long nCachedPositive;
@@ -74,7 +77,17 @@ protected:	// methods
 		/// SEARCH procedure from Baader et al paper
 	void searchBaader ( bool upDirection, TaxonomyVertex* cur );
 		/// ENHANCED_SUBS procedure from Baader et al paper
-	bool enhancedSubs ( bool upDirection, TaxonomyVertex* cur );
+	bool enhancedSubs1 ( bool upDirection, TaxonomyVertex* cur );
+		// wrapper for the ENHANCED_SUBS
+	inline bool enhancedSubs ( bool upDirection, TaxonomyVertex* cur )
+	{
+		++nSubCalls;
+
+		if ( cur->isValued() )
+			return cur->getValue();
+		else
+			return cur->setValued(enhancedSubs1(upDirection, cur));
+	}
 		/// explicetely test appropriate subsumption relation
 	bool testSubsumption ( bool upDirection, TaxonomyVertex* cur );
 
@@ -147,6 +160,9 @@ public:		// interface
 		: Taxonomy ( pTop, pBottom )
 		, tBox(kb)
 		, nConcepts (0), nTries (0), nPositives (0), nNegatives (0)
+		, nSearchCalls(0)
+		, nSubCalls(0)
+		, nNonTrivialSubCalls(0)
 		, nCachedPositive(0)
 		, nCachedNegative(0)
 		, nSortedNegative(0)

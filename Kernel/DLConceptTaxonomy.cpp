@@ -105,7 +105,8 @@ void DLConceptTaxonomy :: print ( std::ostream& o ) const
 	o << "Besides that " << nCachedPositive << " successfull and " << nCachedNegative
 	  << " unsuccessfull subsumption tests were cached\nSorted reasoning deals with "
 	  << nSortedNegative << " non-subsumptions\n";
-
+	o << "There were made " << nSearchCalls << " search calls\nThere were made " << nSubCalls
+	  << " Sub calls, of which " << nNonTrivialSubCalls << " non-trivial\n";
 	o << "Current efficiency (wrt Brute-force) is " << nEntries*(nEntries-1)/n << "\n";
 
 	Taxonomy::print(o);
@@ -117,6 +118,7 @@ void DLConceptTaxonomy :: searchBaader ( bool upDirection, TaxonomyVertex* cur )
 	// label 'visited'
 	cur->setChecked();
 
+	++nSearchCalls;
 	bool noPosSucc = true;
 
 	// check if there are positive successors; use DFS on them.
@@ -131,28 +133,27 @@ void DLConceptTaxonomy :: searchBaader ( bool upDirection, TaxonomyVertex* cur )
 
 	// in case current node is unchecked (no BOTTOM node) -- check it explicitely
 	if ( !cur->isValued() )
-		testSubsumption ( upDirection, cur );
+		cur->setValued ( testSubsumption ( upDirection, cur ) );
 
 	// mark labelled leaf node as a parent
 	if ( noPosSucc && cur->getValue() )
 		Current->addNeighbour ( !upDirection, cur );
 }
 
-bool DLConceptTaxonomy :: enhancedSubs ( bool upDirection, TaxonomyVertex* cur )
+bool DLConceptTaxonomy :: enhancedSubs1 ( bool upDirection, TaxonomyVertex* cur )
 {
-	if ( cur->isValued() )
-		return cur->getValue();
+	++nNonTrivialSubCalls;
 
 	// for going up only
 	// if not successor of up -- return false
 	if ( upDirection && !cur->isCommon() )
-		return cur->setValued(false);
+		return false;
 
 	// need to be valued -- check all parents
 	// propagate false
 	for ( TaxonomyVertex::iterator p = cur->begin(!upDirection), p_end = cur->end(!upDirection); p < p_end; ++p )
 		if ( !enhancedSubs ( upDirection, *p ) )
-			return cur->setValued(false);
+			return false;
 
 	// all subsumptions holds -- test current for subsumption
 	return testSubsumption ( upDirection, cur );
@@ -162,14 +163,14 @@ bool DLConceptTaxonomy :: testSubsumption ( bool upDirection, TaxonomyVertex* cu
 {
 	const TConcept* testC = static_cast<const TConcept*>(cur->getPrimer());
 	if ( upDirection )
-		return cur->setValued ( testSub ( testC, curConcept() ) );
+		return testSub ( testC, curConcept() );
 	else	// top-down phase: if C is NATS and neither C no CUR are non-prim -- return false
 			//FIXME!! need more thinking (see bio1/rtms1 test cases in _BUGS_)
 		if ( 0 && useCompletelyDefined && testC->isNaTS()
 			&& !testC->isNonPrimitive() && !curConcept()->isNonPrimitive() )
-			return cur->setValued(false);
+			return false;
 		else
-			return cur->setValued ( testSub ( curConcept(), testC ) );
+			return testSub ( curConcept(), testC );
 }
 
 bool DLConceptTaxonomy :: propagateUp ( void )
