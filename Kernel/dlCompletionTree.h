@@ -179,6 +179,8 @@ protected:	// members
 	unsigned int id;
 		/// level of a nominal node; 0 means blockable one
 	CTNominalLevel nominalLevel;
+		/// concept that init the newly created node
+	BipolarPointer Init;
 
 	// blocking information
 	const DlCompletionTree* dBlocker;	// direct blocker
@@ -409,6 +411,8 @@ public:		// methods
 
 		/// adds concept P to a label, defined by TAG; update blocked status if necessary
 	void addConcept ( const ConceptWDep& p, DagTag tag );
+		/// set the Init concept
+	void setInit ( BipolarPointer p ) { Init = p; }
 
 	//----------------------------------------------
 	// children/parent access interface
@@ -629,6 +633,7 @@ inline void DlCompletionTree :: init ( unsigned int level )
 	affected = true;	// every (newly created) node can be blocked
 
 	Label.init();
+	Init = bpTOP;
 
 	// node was used -- clear all previous content
 	saves.clear();
@@ -706,6 +711,10 @@ inline bool DlCompletionTree :: isBlockedBy ( const DlCompletionTree* p ) const
 {
 	// nominal nodes can't neither be nor became blocked
 	if ( isNominalNode() || p->isNominalNode() )
+		return false;
+
+	// easy check: Init is not in the label if a blocker
+	if ( !p->label().contains(Init) )
 		return false;
 
 	if ( sessionHasInverseRoles )	// use complex blocking
