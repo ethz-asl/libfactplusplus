@@ -238,6 +238,8 @@ protected:	// methods
 
 	// checking the blocking conditions for optimized blocking
 
+		/// check if B1 holds for a given vertex (p is a candidate for blocker)
+	bool B1 ( const DlCompletionTree* p ) const;
 		/// check if B2 holds for (AS C) a simple automaton A for S
 	bool B2 ( const RoleAutomaton& A, BipolarPointer C ) const;
 		/// check if B2 holds for C=(AS{n} X) a complex automaton A for S

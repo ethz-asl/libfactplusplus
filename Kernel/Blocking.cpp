@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2007 by Dmitry Tsarkov
+Copyright (C) 2003-2008 by Dmitry Tsarkov
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -94,11 +94,8 @@ bool DlCompletionTree :: isBlockedBy_SHIQ_ob ( const DlCompletionTree* p ) const
 bool DlCompletionTree :: isCommonlyBlockedBy ( const DlCompletionTree* p ) const
 {
 	// common B1:
-	if ( !isBlockedBy_SH(p) )
-	{
-		++nB1Fails;
+	if ( !B1(p) )
 		return false;
-	}
 
 	for ( const_label_iterator q = p->beginl_cc(), q_end = p->endl_cc(); q < q_end; ++q )
 	{
@@ -191,10 +188,21 @@ bool DlCompletionTree :: isCBlockedBy ( const DlCompletionTree* p ) const
 }
 
 //----------------------------------------------------------------------
-//--   B2 to B6 conditions implementation
+//--   B1 to B6 conditions implementation
 //--  WARNING!! 19-06-2005. All blockable nodes has the only parent
 //--    (with probably several links to it). So we should check all of them
 //----------------------------------------------------------------------
+
+
+	/// check if B1 holds for a given vertex (p is a candidate for blocker)
+bool DlCompletionTree :: B1 ( const DlCompletionTree* p ) const
+{
+	if ( isBlockedBy_SH(p) )
+		return true;
+
+	++nB1Fails;
+	return false;
+}
 
 	/// check if B2 holds for (AS C) a simple automaton A for S
 bool DlCompletionTree :: B2 ( const RoleAutomaton& A, BipolarPointer C ) const
