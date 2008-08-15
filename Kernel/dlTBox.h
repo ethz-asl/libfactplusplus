@@ -797,7 +797,7 @@ protected:	// methods
 		curFeature = &auxFeatures;
 
 		// set blocking method for the current reasoning session
-		DlCompletionTree::setBlockingMethod(isIRinQuery());
+		DlCompletionTree::setBlockingMethod ( isIRinQuery(), isNRinQuery() );
 	}
 		/// clear current features
 	void clearFeatures ( void ) { curFeature = NULL; }
@@ -937,6 +937,12 @@ public:
 			return curFeature->hasInverseRole();
 		else
 			return KBFeatures.hasInverseRole();
+	}
+		/// check if the relevant part of KB contains number restrictions.
+	bool isNRinQuery ( void ) const
+	{
+		const LogicFeatures* p = curFeature ? curFeature : &KBFeatures;
+		return p->hasFunctionalRestriction() || p->hasNumberRestriction() || p->hasQNumberRestriction();
 	}
 		/// check if the relevant part of KB contains singletons
 	bool testHasNominals ( void ) const

@@ -22,6 +22,7 @@ unsigned int DlCompletionTree :: nSetCompareOps = 0;
 DLDag* DlCompletionTree :: pDLHeap = NULL;
 bool DlCompletionTree :: useLazyBlocking = true;
 bool DlCompletionTree :: sessionHasInverseRoles = false;
+bool DlCompletionTree :: sessionHasNumberRestrictions = false;
 
 /// check if transitive R-successor of the NODE labelled with C
 bool

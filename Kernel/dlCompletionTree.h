@@ -147,6 +147,8 @@ protected:	// global vars
 	static bool useLazyBlocking;
 		/// check if session has inverse roles
 	static bool sessionHasInverseRoles;
+		/// check if session has number restrictions
+	static bool sessionHasNumberRestrictions;
 
 public:		// static interface
 		/// init static context for DL trees
@@ -160,7 +162,11 @@ public:		// static interface
 	// write access to static members
 
 	static void resetStatistic ( void ) { nSetCompareOps = 0; }
-	static void setBlockingMethod ( bool isInverse ) { sessionHasInverseRoles = isInverse; }
+	static void setBlockingMethod ( bool isInverse, bool isQCR )
+	{
+		sessionHasInverseRoles = isInverse;
+		sessionHasNumberRestrictions = isQCR;
+	}
 
 protected:	// members
 		/// label of a node
@@ -719,11 +725,12 @@ inline bool DlCompletionTree :: isBlockedBy ( const DlCompletionTree* p ) const
 	if ( !p->label().contains(Init) )
 		return false;
 
-	if ( sessionHasInverseRoles )	// use complex blocking
-		return isBlockedBy_SHIQ_ob (p);
-//		return isBlockedBy_SHIQ_db (p);
-	else	// no inverse roles -- just subset testing
-		return isBlockedBy_SH (p);
+	if ( !sessionHasInverseRoles )	// subset blocking
+		return isBlockedBy_SH(p);
+	if ( sessionHasNumberRestrictions )	// I+F -- optimised blocking
+		return isBlockedBy_SHIQ_ob(p);
+	else	// just I -- equality blocking
+		return isCommonlyBlockedBy(p);
 }
 
 //  Blocked-By methods for different logics
