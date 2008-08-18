@@ -121,7 +121,10 @@ tacticUsage DlSatTester :: commonTacticBody ( const DLVertex& cur )
 			return commonTacticBodySome(cur);
 
 		// ALL vertex
-		dBlocked = NULL;	// invalidate cache for the blocked node
+
+		// check whether blocked node just became unblocked
+		tryUnblockNode();
+
 		return commonTacticBodyAll(cur);
 
 	case dtIrr:
@@ -135,7 +138,9 @@ tacticUsage DlSatTester :: commonTacticBody ( const DLVertex& cur )
 			return commonTacticBodyGE(cur);
 
 		// <= vertex
-		dBlocked = NULL;	// invalidate cache for the blocked node
+
+		// check whether blocked node just became unblocked
+		tryUnblockNode();
 
 		if ( cur.isFunctional() )
 			return commonTacticBodyFunc(cur);
@@ -730,6 +735,29 @@ bool DlSatTester :: recheckNodeDBlocked ( void )
 
 	// not blocked
 	return false;
+}
+
+void
+DlSatTester :: applyAllGeneratingRules ( void )
+{
+	const CGLabel& label = curNode->label();
+	for ( CGLabel::const_iterator p = label.begin_cc(), p_end = label.end_cc(); p != p_end; ++p )
+	{
+		// need only ER.C or >=nR.C concepts
+		if ( isPositive(p->bp()) )
+			continue;
+
+		switch ( DLHeap[p->bp()].Type() )
+		{
+		case dtForall:
+		case dtLE:
+			addExistingToDoEntry ( curNode, label.getCCOffset(p), "ub" );
+			break;
+
+		default:
+			break;
+		}
+	}
 }
 
 tacticUsage

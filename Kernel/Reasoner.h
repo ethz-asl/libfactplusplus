@@ -519,6 +519,16 @@ protected:	// methods
 
 		/// check if current node is directly blocked (or became directly blocked)
 	bool recheckNodeDBlocked ( void );
+		/// apply all the generating rules for the (unblocked) current node
+	void applyAllGeneratingRules ( void );
+		/// check if current node became unblocked
+	void tryUnblockNode ( void )
+	{
+		if ( !curNode->isBlocked() )		// not blocked -- clear blocked cache
+			dBlocked = NULL;
+		else if ( !recheckNodeDBlocked() )	// became unblocked:
+			applyAllGeneratingRules();		// re-apply all the generating rules
+	}
 		/// add C and T_G with given DEP-set to a NODE; @return DONE/CLASH
 	tacticUsage initNewNode ( DlCompletionTree* node, const DepSet& dep, BipolarPointer C );
 		/// apply reflexive roles to the (newly created) NODE with apropriate DEP; @return true for clash
