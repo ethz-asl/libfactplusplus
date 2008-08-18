@@ -167,7 +167,7 @@ bool DlSatTester :: isPIBlocked ( void )
 			return true;
 
 		// check whether node became unblocked
-		curNode->updateIBlockedStatus();
+		curNode->updateIBlockedStatus(CGraph);
 		if ( curNode->isIBlocked() )
 		{
 			// cache value of i-blocked node
@@ -713,7 +713,7 @@ bool DlSatTester :: recheckNodeDBlocked ( void )
 	if ( curNode->isAffected() )
 	{
 		updateLevel ( curNode, curConcept.getDep() );
-		curNode->updateDBlockedStatus();
+		curNode->updateDBlockedStatus(CGraph);
 	}
 
 	// if node became d-blocked -- update cache

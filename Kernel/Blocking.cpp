@@ -18,6 +18,7 @@ Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 
 #include "dlCompletionTree.h"
 #include "dlDag.h"
+#include "dlCompletionGraph.h"
 
 // statistic for calling blocking
 unsigned long nBlockingCalls = 0,
@@ -359,13 +360,13 @@ bool DlCompletionTree :: B6 ( const TRole* U, BipolarPointer F ) const
 //----------------------------------------------------------------------
 
 
-void DlCompletionTree :: updateBlockedStatus ( void )
+void DlCompletionTree :: updateBlockedStatus ( const DlCompletionGraph& Graph )
 {
 	DlCompletionTree* p = this;
 
 	while ( p->hasParent() && p->isBlockableNode() && p->isAffected() )
 	{
-		p->findDBlocker();
+		p->findDBlocker(Graph);
 		p->clearAffected();
 		if ( p->isBlocked() )
 			return;
@@ -401,7 +402,7 @@ void DlCompletionTree :: setIBlocked ( const DlCompletionTree* p )
 	propagateIBlockedStatus(p);
 }
 
-void DlCompletionTree :: findDBlocker ( void )
+void DlCompletionTree :: findDAncestorBlocker ( void )
 {
 	register const DlCompletionTree* p = this;
 
@@ -421,4 +422,26 @@ void DlCompletionTree :: findDBlocker ( void )
 
 	// no blockers in ancestors => not d-blocked
 	dBlocker = NULL;
+}
+
+void DlCompletionTree :: findDAnywhereBlocker ( const DlCompletionGraph& Graph )
+{
+	dBlocker = NULL;
+
+	for ( unsigned int i = 0; i < getId(); ++i )
+	{
+		const DlCompletionTree* p = Graph.getNode(i);
+
+		// node was merge to smth with the larger ID or is blocked itself
+		if ( p->isBlocked() || p->isPBlocked() )
+			continue;
+
+		if ( isBlockedBy(p) )
+		{
+			dBlocker = p;
+			logNodeDBlocked();
+			propagateIBlockedStatus(p);
+			return;
+		}
+	}
 }

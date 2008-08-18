@@ -324,12 +324,14 @@ protected:	// members
 		/// contains clash set if clash is encountered in a node label
 	DepSet clashSet;
 
-	// flag for semantic branching; default true
+		/// flag for switching semantic branching
 	bool useSemanticBranching;
-	// default = true
+		/// flag for switching backjumping
 	bool useBackjumping;
-	/// whether or not check blocking status as late as possible. Default value is true
+		/// whether or not check blocking status as late as possible
 	bool useLazyBlocking;
+		/// flag for switching between Anywhere and Ancestor blockings
+	bool useAnywhereBlocking;
 
 	// session status flags:
 

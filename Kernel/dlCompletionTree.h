@@ -30,6 +30,7 @@ Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #include "logging.h"
 
 class DLDag;
+class DlCompletionGraph;
 
 // use the following to control logging information about saving/restoring nodes
 #define RKG_CHECK_BACKJUMPING
@@ -145,6 +146,8 @@ protected:	// global vars
 
 		/// use or not lazy blocking (ie test blocking only expanding exists)
 	static bool useLazyBlocking;
+		/// whether to use Anywhere blocking as opposed to an ancestor one
+	static bool useAnywhereBlocking;
 		/// check if session has inverse roles
 	static bool sessionHasInverseRoles;
 		/// check if session has number restrictions
@@ -152,8 +155,8 @@ protected:	// global vars
 
 public:		// static interface
 		/// init static context for DL trees
-	static void initContext ( DLDag* pDag, bool useLB )
-		{ pDLHeap = pDag; useLazyBlocking = useLB; }
+	static void initContext ( DLDag* pDag, bool useLB, bool useAB )
+		{ pDLHeap = pDag; useLazyBlocking = useLB; useAnywhereBlocking = useAB; }
 
 	// get read access to statistic
 
@@ -277,8 +280,18 @@ protected:	// methods
 
 		/// check if d-blocked node is still d-blocked
 	bool isStillDBlocked ( void ) const { return dBlocker && isBlockedBy(dBlocker); }
+		/// try to find d-blocker for a node using ancestor blocking
+	void findDAncestorBlocker ( void );
+		/// try to find d-blocker for a node using anywhere blocking
+	void findDAnywhereBlocker ( const DlCompletionGraph& Graph );
 		/// try to find d-blocker for a node
-	void findDBlocker ( void );
+	void findDBlocker ( const DlCompletionGraph& Graph )
+	{
+		if ( useAnywhereBlocking )
+			findDAnywhereBlocker(Graph);
+		else
+			findDAncestorBlocker();
+	}
 		/// propagate i-blocked status to all children
 	void propagateIBlockedStatus ( const DlCompletionTree* p );
 		/// sets current node and (blockable) subtree i-blocked by given node
@@ -544,11 +557,11 @@ public:		// methods
 	//----------------------------------------------
 
 		/// update (create) blocked status of current node
-	void updateBlockedStatus ( void );
+	void updateBlockedStatus ( const DlCompletionGraph& Graph );
 		/// update blocked status for i-blocked node
-	void updateIBlockedStatus ( void );
+	void updateIBlockedStatus ( const DlCompletionGraph& Graph );
 		/// update blocked status for d-blocked node
-	void updateDBlockedStatus ( void );
+	void updateDBlockedStatus ( const DlCompletionGraph& Graph );
 		/// set node purged
 	TRestorer* setPBlocked ( const DlCompletionTree* p, const DepSet& dep )
 	{
@@ -682,18 +695,18 @@ inline DlCompletionTreeArc* DlCompletionTree :: getEdgeLabelled (
 	return NULL;
 }
 
-inline void DlCompletionTree :: updateDBlockedStatus ( void )
+inline void DlCompletionTree :: updateDBlockedStatus ( const DlCompletionGraph& Graph )
 {
 	if ( !isAffected() )
 		return;
 	if ( isStillDBlocked() )
 		clearAffected();
 	else
-		updateBlockedStatus();
+		updateBlockedStatus(Graph);
 	assert ( !isAffected() );
 }
 
-inline void DlCompletionTree :: updateIBlockedStatus ( void )
+inline void DlCompletionTree :: updateIBlockedStatus ( const DlCompletionGraph& Graph )
 {
 	if ( !hasParent()		// no parents (can't be blocked),
 	     || isPBlocked()	// p-blocked (can't be unblocked)
@@ -710,7 +723,7 @@ inline void DlCompletionTree :: updateIBlockedStatus ( void )
 	if ( iBlocker->isStillDBlocked() )
 		clearAffected();
 	else
-		updateBlockedStatus();	// i-blocked, but blocker became unblocked
+		updateBlockedStatus(Graph);	// i-blocked, but blocker became unblocked
 	assert ( !isAffected() );
 }
 
@@ -756,9 +769,9 @@ inline void DlCompletionTree :: addConcept ( const ConceptWDep& p, DagTag tag )
 	Label.getLabel(tag).add(p);
 
 	// after changing label we need to check if blocking status is changed
-	if ( !useLazyBlocking )
-		updateBlockedStatus ();
-	else
+//	if ( !useLazyBlocking )
+//		updateBlockedStatus ();
+//	else
 		setAffected();
 }
 

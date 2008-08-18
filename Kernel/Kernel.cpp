@@ -323,6 +323,15 @@ bool ReasoningKernel :: initOptions ( void )
 		) )
 		return true;
 
+	// register "useAnywhereBlocking" option (18/08/2008)
+	if ( pKernelOptions->RegisterOption (
+		"useAnywhereBlocking",
+		"Option 'useAnywhereBlocking' allow user to choose between Anywhere and Ancestor blocking.",
+		ifOption::iotBool,
+		"true"
+		) )
+		return true;
+
 	// register "dumpQuery" option -- 11-08-04
 	if ( pKernelOptions->RegisterOption (
 		"dumpQuery",

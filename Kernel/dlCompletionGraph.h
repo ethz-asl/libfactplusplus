@@ -174,6 +174,13 @@ public:		// interface
 	const DlCompletionTree* getRoot ( void ) const { return NodeBase[0]; }
 		/// get actual root of the CGraph (in case root was merged to a nominal node)
 	const DlCompletionTree* getActualRoot ( void ) const { return getRoot()->resolvePBlocker(); }
+		/// get a node by it's ID
+	const DlCompletionTree* getNode ( unsigned int id ) const
+	{
+		if ( id >= endUsed )
+			return NULL;
+		return NodeBase[id];
+	}
 		/// get new node (with internal level)
 	DlCompletionTree* getNewNode ( void )
 	{

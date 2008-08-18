@@ -21,6 +21,7 @@ Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 unsigned int DlCompletionTree :: nSetCompareOps = 0;
 DLDag* DlCompletionTree :: pDLHeap = NULL;
 bool DlCompletionTree :: useLazyBlocking = true;
+bool DlCompletionTree :: useAnywhereBlocking = true;
 bool DlCompletionTree :: sessionHasInverseRoles = false;
 bool DlCompletionTree :: sessionHasNumberRestrictions = false;
 
