@@ -65,7 +65,4 @@ Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 // uncomment the following line if IR is defined as a list of elements in node label
 #define RKG_IR_IN_NODE_LABEL
 
-// switch saving/restoring AFFECTED flag
-//#define RKG_SAVE_AFFECTED
-
 #endif

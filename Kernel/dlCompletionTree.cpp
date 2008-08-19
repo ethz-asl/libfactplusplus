@@ -169,9 +169,7 @@ void DlCompletionTree :: save ( SaveState* nss ) const
 	nss->nSons = Son.size();
 	Label.save(nss->lab);
 	nss->cached = cached;
-#ifdef RKG_SAVE_AFFECTED
 	nss->affected = affected;
-#endif
 
 	logSRNode("SaveNode");
 }
@@ -209,16 +207,9 @@ void DlCompletionTree :: restore ( SaveState* nss )
 		}
 #endif
 
-	// restore cached value
+	// restore flags value
 	cached = nss->cached;
-
-#ifdef RKG_SAVE_AFFECTED
-	// restore affected value
 	affected = nss->affected;
-#else
-	// conservatively set affected value
-	affected = true;
-#endif
 
 	// clear memory
 	delete nss;

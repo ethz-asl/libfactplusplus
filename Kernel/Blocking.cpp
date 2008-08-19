@@ -385,7 +385,7 @@ void DlCompletionTree :: propagateIBlockedStatus ( const DlCompletionTree* p )
 void DlCompletionTree :: setIBlocked ( const DlCompletionTree* p )
 {
 	// nominal nodes can't be blocked
-	if ( isNominalNode() )
+	if ( isPBlocked() || isNominalNode() )
 		return;
 
 	clearAffected();

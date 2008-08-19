@@ -52,20 +52,21 @@ protected:	// internal classes
 	class SaveState
 	{
 	public:		// members
+			/// saving status of the label
+		CGLabel::SaveState lab;
 			/// curLevel of the Node structure
 		unsigned int curLevel;
 			/// amount of parents
 		unsigned int nPars;
 			/// amount of children
 		unsigned int nSons;
-			/// saving status of the label
-		CGLabel::SaveState lab;
+
 			/// flag 'cached'
-		bool cached;
-#	ifdef RKG_SAVE_AFFECTED
+		unsigned int cached : 1;
 			/// affected flag
-		bool affected;
-#	endif
+		unsigned int affected : 1;
+			/// other bits of a flags
+		unsigned int unused : 30;
 
 	private:	// protection from copying
 			/// no assignment
@@ -76,14 +77,12 @@ protected:	// internal classes
 		SaveState ( void ) {}
 			/// copy c'tor
 		SaveState ( const SaveState& node )
-			: curLevel (node.curLevel)
+			: lab (node.lab)
+			, curLevel (node.curLevel)
 			, nPars (node.nPars)
 			, nSons (node.nSons)
-			, lab (node.lab)
 			, cached(node.cached)
-#		ifdef RKG_SAVE_AFFECTED
 			, affected(node.affected)
-#		endif
 			{}
 			/// empty d'tor
 		~SaveState ( void ) {}
@@ -201,14 +200,16 @@ protected:	// members
 	// save state information
 	unsigned int curLevel;	// current level
 
-		/// flag if node is Cached
-	bool cached;
 		/// is given node a data node
-	bool flagDataNode;
+	unsigned int flagDataNode : 1;
+		/// flag if node is Cached
+	unsigned int cached : 1;
 		/** Whether node is affected by change of some potential blocker.
 			This flag may be viewed as a cahce for a 'blocked' status
 		*/
-	bool affected;
+	unsigned int affected : 1;
+		/// the rest
+	unsigned int unused : 29;
 
 private:	// methods
 		/// no copy c'tor
@@ -515,8 +516,8 @@ public:		// methods
 		/// set node (and all subnodes) affected
 	void setAffected ( void )
 	{
-		// don't mark already affected or nominal nodes
-		if ( isAffected() || isNominalNode() )
+		// don't mark already affected, nominal or p-blocked nodes
+		if ( isAffected() || isNominalNode() || isPBlocked() )
 			return;
 		affected = true;
 		for ( const_edge_iterator q = begins(); q != ends(); ++q )
