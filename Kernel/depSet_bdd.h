@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2007 by Dmitry Tsarkov
+Copyright (C) 2003-2008 by Dmitry Tsarkov
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -32,9 +32,9 @@ protected:	// classes
 	class BddManager
 	{
 	private:	// constants
-		static const unsigned int iVars;
-		static const unsigned int iNodes;
-		static const unsigned int iCacheSize;
+		static const unsigned int iVars = 100;
+		static const unsigned int iNodes = 100000;
+		static const unsigned int iCacheSize = 100000;
 	protected:	// members
 			/// current number of vars
 		unsigned int nvars;

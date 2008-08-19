@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2004 by Dmitry Tsarkov
+Copyright (C) 2003-2008 by Dmitry Tsarkov
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -17,9 +17,5 @@ Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 */
 
 #include "depSet_bdd.h"
-
-const unsigned int depSet_bdd::BddManager::iVars = 100;
-const unsigned int depSet_bdd::BddManager::iNodes = 100000;
-const unsigned int depSet_bdd::BddManager::iCacheSize = 100000;
 
 depSet_bdd::BddManager depSet_bdd::Manager;
