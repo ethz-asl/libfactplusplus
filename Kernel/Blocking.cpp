@@ -379,7 +379,8 @@ void DlCompletionTree :: updateBlockedStatus ( const DlCompletionGraph& Graph )
 void DlCompletionTree :: propagateIBlockedStatus ( const DlCompletionTree* p )
 {
 	for ( const_edge_iterator q = begins(), q_end = ends(); q < q_end; ++q )
-		(*q)->getArcEnd()->setIBlocked(p);
+		if ( !(*q)->isIBlocked() )
+			(*q)->getArcEnd()->setIBlocked(p);
 }
 
 void DlCompletionTree :: setIBlocked ( const DlCompletionTree* p )

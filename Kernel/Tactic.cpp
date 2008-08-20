@@ -1455,6 +1455,10 @@ bool DlSatTester :: isNNApplicable ( const TRole* r, BipolarPointer C ) const
 
 tacticUsage DlSatTester :: commonTacticBodySomeSelf ( const TRole* R )
 {
+	// check blocking conditions
+	if ( recheckNodeDBlocked() )
+		return utUnusable;
+
 	// nothing to do if R-loop already exists
 	DlCompletionTree::const_edge_iterator p, p_end;
 	for ( p = curNode->beginp(), p_end = curNode->endp(); p != p_end; ++p )
