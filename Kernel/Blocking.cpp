@@ -392,14 +392,11 @@ void DlCompletionTree :: setIBlocked ( const DlCompletionTree* p )
 	clearAffected();
 
 	if ( iBlocker == p ||	// already iBlocked -- nothing changes
-		 dBlocker == p )	// prevent node to be IBlocked due to reflexivity
+		 this == p )		// prevent node to be IBlocked due to reflexivity
 		return;
 
 	iBlocker = p;
-
 	logNodeIBlocked();
-
-	// update successors
 	propagateIBlockedStatus(p);
 }
 
@@ -414,9 +411,7 @@ void DlCompletionTree :: findDAncestorBlocker ( void )
 		// the node is blocked if Label <= p->Label
 		if ( isBlockedBy (p) )
 		{
-			dBlocker = p;
-			logNodeDBlocked();
-			propagateIBlockedStatus(p);
+			setDBlocked(p);
 			return;
 		}
 	}
@@ -439,9 +434,7 @@ void DlCompletionTree :: findDAnywhereBlocker ( const DlCompletionGraph& Graph )
 
 		if ( isBlockedBy(p) )
 		{
-			dBlocker = p;
-			logNodeDBlocked();
-			propagateIBlockedStatus(p);
+			setDBlocked(p);
 			return;
 		}
 	}

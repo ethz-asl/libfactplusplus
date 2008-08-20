@@ -295,6 +295,13 @@ protected:	// methods
 	}
 		/// propagate i-blocked status to all children
 	void propagateIBlockedStatus ( const DlCompletionTree* p );
+		/// mark node as a d-blocked by P
+	void setDBlocked ( const DlCompletionTree* p )
+	{
+		dBlocker = p;
+		logNodeDBlocked();
+		propagateIBlockedStatus(this);
+	}
 		/// sets current node and (blockable) subtree i-blocked by given node
 	void setIBlocked ( const DlCompletionTree* p );
 		/// check if all parent arcs are blocked
