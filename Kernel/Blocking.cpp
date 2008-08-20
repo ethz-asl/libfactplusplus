@@ -359,6 +359,33 @@ bool DlCompletionTree :: B6 ( const TRole* U, BipolarPointer F ) const
 //--   changing blocked status
 //----------------------------------------------------------------------
 
+void
+DlCompletionTree :: updateIBlockedStatus ( const DlCompletionGraph& Graph )
+{
+	if ( !hasParent()		// no parents (can't be blocked),
+	     || isPBlocked()	// p-blocked (can't be unblocked)
+		 || !isIBlocked()	// was not i-blocked (don't care)
+		 || !isAffected() )	// does not change since previous check
+		return;
+
+	if ( !iBlocker->isAffected() )
+	{	// iBlocker does not changed, so it is still d-blocked, so current is still i-blocked
+		clearAffected();
+		return;
+	}
+
+	if ( iBlocker->isStillDBlocked() )
+		clearAffected();
+	else
+	{	// i-blocked, but blocker became unblocked
+		DlCompletionTree* p = const_cast<DlCompletionTree*>(iBlocker);
+		p->clearIBlockedChildren();		// remove i-blocked mark from all the successors
+		p->updateDBlockedStatus(Graph);	// try to find another blocker for p
+		if ( !p->isBlocked() )
+			updateDBlockedStatus(Graph);
+	}
+	assert ( !isAffected() );
+}
 
 void DlCompletionTree :: updateBlockedStatus ( const DlCompletionGraph& Graph )
 {

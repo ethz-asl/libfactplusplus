@@ -295,6 +295,13 @@ protected:	// methods
 	}
 		/// propagate i-blocked status to all children
 	void propagateIBlockedStatus ( const DlCompletionTree* p );
+		/// clear the i-blocked status from all the children
+	void clearIBlockedChildren ( void )
+	{
+		for ( const_edge_iterator q = begins(), q_end = ends(); q < q_end; ++q )
+			if ( !(*q)->isIBlocked() )
+				(*q)->getArcEnd()->clearIBlocked();
+	}
 		/// mark node as a d-blocked by P
 	void setDBlocked ( const DlCompletionTree* p )
 	{
@@ -304,6 +311,15 @@ protected:	// methods
 	}
 		/// sets current node and (blockable) subtree i-blocked by given node
 	void setIBlocked ( const DlCompletionTree* p );
+		/// clear i-blocked status
+	void clearIBlocked ( void )
+	{
+		if ( !isIBlocked() )
+			return;
+		iBlocker = NULL;
+		logNodeUnblocked();
+		clearIBlockedChildren();
+	}
 		/// check if all parent arcs are blocked
 	bool isParentArcIBlocked ( void ) const;
 
@@ -711,27 +727,6 @@ inline void DlCompletionTree :: updateDBlockedStatus ( const DlCompletionGraph& 
 		clearAffected();
 	else
 		updateBlockedStatus(Graph);
-	assert ( !isAffected() );
-}
-
-inline void DlCompletionTree :: updateIBlockedStatus ( const DlCompletionGraph& Graph )
-{
-	if ( !hasParent()		// no parents (can't be blocked),
-	     || isPBlocked()	// p-blocked (can't be unblocked)
-		 || !isIBlocked()	// was not i-blocked (don't care)
-		 || !isAffected() )	// does not change since previous check
-		return;
-
-	if ( !iBlocker->isAffected() )
-	{	// iBlocker does not changed, so it is still d-blocked, so current is still i-blocked
-		clearAffected();
-		return;
-	}
-
-	if ( iBlocker->isStillDBlocked() )
-		clearAffected();
-	else
-		updateBlockedStatus(Graph);	// i-blocked, but blocker became unblocked
 	assert ( !isAffected() );
 }
 
