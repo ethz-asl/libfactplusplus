@@ -56,15 +56,19 @@ tacticUsage DlSatTester :: commonTactic ( void )
 #endif
 
 	// check if Node is cached and we tries to expand existing result
-	// don't do anything for p- and/or i-blocked nodes (can't be unblocked)
-	if ( curNode->isCached() || isPIBlocked() )
+	// also don't do anything for p-blocked nodes (can't be unblocked)
+	if ( curNode->isCached() || curNode->isPBlocked() )
 		return utUnusable;
 
 	// informs about starting calculations...
 	if ( LLM.isWritable(llGTA) )
 		logStartEntry();
 
-	tacticUsage ret = commonTacticBody ( DLHeap[curConcept.bp()] );
+	tacticUsage ret = utUnusable;
+
+	// apply tactic only if Node is not an i-blocked
+	if ( !isIBlocked() )
+		ret = commonTacticBody ( DLHeap[curConcept.bp()] );
 
 	if ( LLM.isWritable(llGTA) )
 		logFinishEntry(ret);
@@ -153,12 +157,8 @@ tacticUsage DlSatTester :: commonTacticBody ( const DLVertex& cur )
 	}
 }
 
-bool DlSatTester :: isPIBlocked ( void )
+bool DlSatTester :: isIBlocked ( void )
 {
-	// check for p-blocked node (can't be unblocked)
-	if ( curNode->isPBlocked() )
-		return true;
-
 	// check for i-blocked nodes
 	if ( curNode->isIBlocked() )
 	{
