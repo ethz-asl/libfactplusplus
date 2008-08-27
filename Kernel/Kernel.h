@@ -22,11 +22,17 @@ Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #include <cassert>
 #include <string>
 
+//#define FPP_USE_AXIOMS
+
 #include "tNAryQueue.h"
 #include "dlTBox.h"
 #include "Reasoner.h"
 #include "ifOptions.h"
 #include "DLConceptTaxonomy.h"	// for getRelatives()
+
+#ifdef FPP_USE_AXIOMS
+#	include "tOntology.h"
+#endif
 
 using namespace std;
 
@@ -97,6 +103,10 @@ protected:	// members
 	TBox* pTBox;
 		/// set of queues for the n-ary expressions/commands
 	TNAryQueue NAryQueue;
+#ifdef FPP_USE_AXIOMS
+		/// set of axioms
+	TOntology Ontology;
+#endif
 
 	// reasoning cache
 
@@ -858,19 +868,34 @@ ReasoningKernel :: Compose ( void ) { return getTBox()->processRComposition(NAry
 inline bool ReasoningKernel :: impliesConcepts ( const ComplexConcept C, const ComplexConcept D )
 {
 	isChanged = true;
+#ifdef FPP_USE_AXIOMS
+	Ontology.add ( new TDLAxiomConceptInclusion ( C, D ) );
+	return false;
+#else
 	return getTBox()->addSubsumeAxiom ( C, D );
+#endif
 }
 
 	// axiom (C = D)
 inline bool ReasoningKernel :: equalConcepts ( const ComplexConcept C, const ComplexConcept D )
 {
 	isChanged = true;
+#ifdef FPP_USE_AXIOMS
+	Ontology.add ( new TDLAxiomConceptEquivalence ( C, D ) );
+	return false;
+#else
 	return getTBox()->addEqualityAxiom ( C, D );
+#endif
 }
 inline bool ReasoningKernel :: equalConcepts ( void )
 {
 	isChanged = true;
+#ifdef FPP_USE_AXIOMS
+	Ontology.add ( new TDLAxiomConceptEquivalence(NAryQueue.getLastArgList()) );
+	return false;
+#else
 	return getTBox()->processEquivalent(NAryQueue.getLastArgList());
+#endif
 }
 
 inline bool ReasoningKernel :: processDisjoint ( void )

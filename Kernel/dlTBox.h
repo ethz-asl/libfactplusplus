@@ -176,6 +176,9 @@ protected:	// members
 		/// KB flags about GCIs
 	TKBFlags GCIs;
 
+		/// current axiom's ID
+	unsigned int axiomId;
+
 	/////////////////////////////////////////////////////
 	// Flags section
 	/////////////////////////////////////////////////////
@@ -792,6 +795,9 @@ public:
 //-----------------------------------------------------------------------------
 //--		public parser (input) interface
 //-----------------------------------------------------------------------------
+
+		/// set the ID of the axiom to be processed next
+	void setAxiomId ( unsigned int id ) { axiomId = id; }
 
 		/// set the flag that forbid usage of undefined names for concepts/roles; @return old value
 	bool setForbidUndefinedNames ( bool val )

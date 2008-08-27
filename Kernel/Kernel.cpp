@@ -71,6 +71,11 @@ ReasoningKernel :: processKB ( KBStatus status )
 		assert(0);
 	}
 
+#ifdef FPP_USE_AXIOMS
+	// load the axioms from the ontology
+	Ontology.load(*pTBox);
+#endif
+
 	// forbid further changes
 	isChanged = false;
 
