@@ -283,7 +283,7 @@ public class FaCTPlusPlus {
      * Tells an equivalent data properties axiom, whose properties are
      * in the last closed arg list.
      */
-    public native void tellEquivalentDataProperties(DataPropertyPointer s, DataPropertyPointer r) throws FaCTPlusPlusException;
+    public native void tellEquivalentDataProperties() throws FaCTPlusPlusException;
 
     /**
      * Tells a disjoint data properties axiom, whose properties are

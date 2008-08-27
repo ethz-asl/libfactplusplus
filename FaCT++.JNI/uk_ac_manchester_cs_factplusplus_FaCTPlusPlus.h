@@ -546,10 +546,10 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellSu
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
  * Method:    tellEquivalentDataProperties
- * Signature: (Luk/ac/manchester/cs/factplusplus/DataPropertyPointer;Luk/ac/manchester/cs/factplusplus/DataPropertyPointer;)V
+ * Signature: ()V
  */
 JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellEquivalentDataProperties
-  (JNIEnv *, jobject, jobject, jobject);
+  (JNIEnv *, jobject);
 
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus

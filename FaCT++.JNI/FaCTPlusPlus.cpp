@@ -1009,11 +1009,11 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellSu
  * Signature: (Luk/ac/manchester/cs/factplusplus/DataPropertyPointer;Luk/ac/manchester/cs/factplusplus/DataPropertyPointer;)V
  */
 JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellEquivalentDataProperties
-  (JNIEnv * env, jobject obj, jobject arg1, jobject arg2)
+  (JNIEnv * env, jobject obj)
 {
 	TRACE_JNI("tellEquivalentDataProperties");
 	PROCESS_QUERY (
-		getK(env,obj)->equalRoles ( getROTree(env,arg1), getROTree(env,arg2) ),
+		getK(env,obj)->equalRoles(),
 		"FaCT++ Kernel: error during tellEquivalentDataProperties processing" );
 }
 
