@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2007 by Dmitry Tsarkov
+Copyright (C) 2003-2008 by Dmitry Tsarkov
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -507,7 +507,7 @@ void DIGParseHandlers :: endConcept ( DIGTag tag )
 	}
 	case digISet:
 	{
-		pKernel->openConceptList ();
+		pKernel->openArgList();
 
 		if ( workStack.empty() )
 			throwCorruptedStack(tag);
@@ -518,7 +518,7 @@ void DIGParseHandlers :: endConcept ( DIGTag tag )
 
 		while ( !equalTrees(cur,stop) )
 		{
-			pKernel->contConceptList ( cur );
+			pKernel->addArg(cur);
 
 			if ( workStack.empty() )
 				throwCorruptedStack(tag);
@@ -690,7 +690,7 @@ void DIGParseHandlers :: endAxiom ( DIGTag tag )
 	}
 	case digDisjointAxiom:
 	{
-		pKernel->openConceptList ();
+		pKernel->openArgList();
 
 		if ( workStack.empty() )
 			throwCorruptedStack(tag);
@@ -701,7 +701,7 @@ void DIGParseHandlers :: endAxiom ( DIGTag tag )
 
 		while ( !equalTrees(cur,stop) )
 		{
-			pKernel->contConceptList ( cur );
+			pKernel->addArg(cur);
 
 			if ( workStack.empty() )
 				throwCorruptedStack(tag);

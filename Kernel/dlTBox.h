@@ -109,54 +109,6 @@ protected:	// types
 		/// all simple rules in KB
 	typedef std::vector<SimpleRule> TSimpleRules;
 
-		/// queue for n-ary operations
-	class NAryQueue
-	{
-	protected:	// types
-			/// interface with host
-		typedef TBox::ConceptSet ConceptSet;
-			/// type of a base storage
-		typedef std::vector<ConceptSet*> BaseType;
-
-	protected:	// members
-			/// all lists of arguments for n-ary predicates/commands
-		BaseType Base;
-			/// pre-current index of n-ary statement
-		int djLevel;
-
-	protected:	// methods
-			/// increase size of internal AUX array
-		void grow ( void )
-		{
-			unsigned int n = Base.size();
-			Base.resize(2*n);
-			for ( BaseType::iterator p = Base.begin()+n, p_end = Base.end(); p < p_end; ++p )
-				*p = new ConceptSet;
-		}
-
-	public:		// interface
-			/// empty c'tor
-		NAryQueue ( void ) : djLevel(-1) { Base.push_back(new ConceptSet); }
-			/// d'tor
-		~NAryQueue ( void )
-		{
-			for ( BaseType::iterator q = Base.begin(), q_end = Base.end(); q < q_end; ++q )
-				delete *q;
-		}
-
-			/// init new n-ary queue
-		void push ( void )
-		{
-			if ( (unsigned)++djLevel >= Base.size() )
-				grow();
-			Base[djLevel]->resize(0);
-		}
-			/// get access to the last n-ary queue
-		ConceptSet* top ( void ) const { return Base[djLevel]; }
-			/// get access to the last n-ary queue; remove the last queue
-		const ConceptSet* pop ( void ) { return Base[djLevel--]; }
-	}; // NAryQueue
-
 protected:	// typedefs
 		/// RW concept iterator
 	typedef ConceptCollection::iterator c_iterator;
@@ -168,9 +120,6 @@ protected:	// typedefs
 	typedef IndividualCollection::const_iterator i_const_iterator;
 
 protected:	// members
-		/// aux arrays for processing n-ary statements
-	NAryQueue auxConceptList;
-
 	TLabeller relevance;
 
 	DLDag DLHeap;
@@ -377,21 +326,6 @@ protected:	// methods
 //-----------------------------------------------------------------------------
 //--		support for n-ary predicates
 //-----------------------------------------------------------------------------
-
-		/// get access to the last used n-ary array
-	const ConceptSet& getLastNAry ( void ) { return *auxConceptList.pop(); }
-
-	// external-set methods for set-of-concept-names
-	bool processEquivalent ( const ConceptSet& v );
-	bool processDisjoint ( const ConceptSet& v );
-	bool processEquivalentR ( const ConceptSet& v );
-	bool processDisjointR ( const ConceptSet& v );
-	bool processSame ( const ConceptSet& v );
-	bool processDifferent ( const ConceptSet& v );
-	DLTree* processAnd ( const ConceptSet& v );
-	DLTree* processOr ( const ConceptSet& v );
-	DLTree* processOneOf ( const ConceptSet& v );
-	DLTree* processRComposition ( const ConceptSet& v );
 
 		/// build a construction in the form AND (\neg q_i)
 	template<class Iterator>
@@ -894,32 +828,17 @@ public:
 		/// add an axiom C = D
 	bool addEqualityAxiom ( DLTree* left, DLTree* right );
 
-	// different ConceptList methods
-	bool openConceptList ( void )
-	{
-		auxConceptList.push();
-		return false;
-	}
-
-	bool contConceptList ( DLTree* name )
-	{
-		if ( name == NULL )
-			return true;
-		auxConceptList.top()->push_back(name);
-		return false;
-	}
-
-	// internal-set versions of the same methods
-	bool processEquivalent ( void ) { return processEquivalent(getLastNAry()); }
-	bool processDisjoint ( void ) { return processDisjoint(getLastNAry()); }
-	bool processEquivalentR ( void ) { return processEquivalentR(getLastNAry()); }
-	bool processDisjointR ( void ) { return processDisjointR(getLastNAry()); }
-	bool processSame ( void ) { return processSame(getLastNAry()); }
-	bool processDifferent ( void ) { return processDifferent(getLastNAry()); }
-	DLTree* processAnd ( void ) { return processAnd(getLastNAry()); }
-	DLTree* processOr ( void ) { return processOr(getLastNAry()); }
-	DLTree* processOneOf ( void ) { return processOneOf(getLastNAry()); }
-	DLTree* processRComposition ( void ) { return processRComposition(getLastNAry()); }
+	// external-set methods for set-of-concept-expressions
+	bool processEquivalent ( const ConceptSet& v );
+	bool processDisjoint ( const ConceptSet& v );
+	bool processEquivalentR ( const ConceptSet& v );
+	bool processDisjointR ( const ConceptSet& v );
+	bool processSame ( const ConceptSet& v );
+	bool processDifferent ( const ConceptSet& v );
+	DLTree* processAnd ( const ConceptSet& v );
+	DLTree* processOr ( const ConceptSet& v );
+	DLTree* processOneOf ( const ConceptSet& v );
+	DLTree* processRComposition ( const ConceptSet& v );
 
 //-----------------------------------------------------------------------------
 //--		public access interface

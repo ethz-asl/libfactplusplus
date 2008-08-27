@@ -1724,9 +1724,7 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_initAr
   (JNIEnv * env, jobject obj)
 {
 	TRACE_JNI("initArgList");
-	PROCESS_QUERY (
-		getK(env,obj)->openConceptList(),
-		"FaCT++ Kernel: error during initArgList processing" );
+	getK(env,obj)->openArgList();
 }
 
 /*
@@ -1739,9 +1737,7 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_addArg
 {
 	TRACE_JNI("addArg");
 	TRACE_ARG(env,obj,arg);
-	PROCESS_QUERY (
-		getK(env,obj)->contConceptList(getTree(env,arg)),
-		"FaCT++ Kernel: error during addArg processing" );
+	getK(env,obj)->addArg(getTree(env,arg));
 }
 
 /*

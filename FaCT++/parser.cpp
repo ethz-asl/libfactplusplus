@@ -239,18 +239,11 @@ void DLLispParser :: parseCommand ( void )
 
 void DLLispParser :: parseConceptList ( bool singletonsOnly )
 {
-	Kernel->openConceptList ();
+	Kernel->openArgList();
 
 	// continue with all concepts
 	while ( Current != RBRACK )
-	{
-		DLTree* tmp = singletonsOnly ?
-			getSingleton() :
-			processConceptTree();
-
-		if ( Kernel->contConceptList(tmp) )
-			parseError ( "concept/individual list processing failed" );
-	}
+		Kernel->addArg ( singletonsOnly ? getSingleton() : processConceptTree() );
 
 	// skip RBRACK
 	MustBeM (RBRACK);

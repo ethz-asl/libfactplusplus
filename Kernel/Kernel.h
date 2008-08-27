@@ -22,6 +22,7 @@ Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #include <cassert>
 #include <string>
 
+#include "tNAryQueue.h"
 #include "dlTBox.h"
 #include "Reasoner.h"
 #include "ifOptions.h"
@@ -94,6 +95,8 @@ protected:	// types
 protected:	// members
 		/// local TBox (to be created)
 	TBox* pTBox;
+		/// set of queues for the n-ary expressions/commands
+	TNAryQueue NAryQueue;
 
 	// reasoning cache
 
@@ -303,13 +306,12 @@ public:
 		/// @return C1\/...\/Cn
 	ComplexConcept Or ( void );
 
-		/// start new concept list for n-ary concept expressions/axioms
-	bool openConceptList ( void ) { return getTBox()->openConceptList(); }
+		/// start new argument list for n-ary concept expressions/axioms
+	void openArgList ( void ) { NAryQueue.openArgList(); }
+		/// add an element C to the most recent open argument list
+	void addArg ( const ComplexConcept C ) { NAryQueue.addArg(C); }
 		/// start new concept list for n-ary concept expressions/axioms; 1st element is C
-	bool openConceptList ( const ComplexConcept C )
-		{ return openConceptList() || contConceptList(C); }
-		/// add an element C to the most recent open concept list
-	bool contConceptList ( const ComplexConcept C ) { return getTBox()->contConceptList(C); }
+	void openArgList ( const ComplexConcept C ) { openArgList(); addArg(C); }
 
 		/// simple concept expression
 	ComplexConcept SimpleExpression ( Token t, ComplexConcept C, ComplexConcept D ) const
@@ -771,7 +773,7 @@ inline bool ReasoningKernel :: clearKB ( void )
 
 // some aux methods
 
-inline DLTree* ReasoningKernel :: processOneOf ( void ) { return getTBox()->processOneOf(); }
+inline DLTree* ReasoningKernel :: processOneOf ( void ) { return getTBox()->processOneOf(NAryQueue.getLastArgList()); }
 
 //----------------------------------------------------
 //	concept expression interface
@@ -790,7 +792,7 @@ ReasoningKernel :: And ( ComplexConcept C, ComplexConcept D ) const
 	return createSNFAnd ( C, D );
 }
 inline ReasoningKernel::ComplexConcept
-ReasoningKernel :: And ( void ) { return getTBox()->processAnd(); }
+ReasoningKernel :: And ( void ) { return getTBox()->processAnd(NAryQueue.getLastArgList()); }
 	// C\/D
 inline ReasoningKernel::ComplexConcept
 ReasoningKernel :: Or ( ComplexConcept C, ComplexConcept D ) const
@@ -798,7 +800,7 @@ ReasoningKernel :: Or ( ComplexConcept C, ComplexConcept D ) const
 	return createSNFOr ( C, D );
 }
 inline ReasoningKernel::ComplexConcept
-ReasoningKernel :: Or ( void ) { return getTBox()->processOr(); }
+ReasoningKernel :: Or ( void ) { return getTBox()->processOr(NAryQueue.getLastArgList()); }
 	// \E R.C
 inline ReasoningKernel::ComplexConcept
 ReasoningKernel :: Exists ( ComplexRole R, ComplexConcept C ) const
@@ -844,7 +846,7 @@ ReasoningKernel :: Compose ( ComplexRole R, ComplexRole S ) const
 	return new DLTree ( TLexeme(RCOMPOSITION), R, S );
 }
 inline ReasoningKernel::ComplexRole
-ReasoningKernel :: Compose ( void ) { return getTBox()->processRComposition(); }
+ReasoningKernel :: Compose ( void ) { return getTBox()->processRComposition(NAryQueue.getLastArgList()); }
 
 //----------------------------------------------------
 //	TELLS interface
@@ -868,13 +870,13 @@ inline bool ReasoningKernel :: equalConcepts ( const ComplexConcept C, const Com
 inline bool ReasoningKernel :: equalConcepts ( void )
 {
 	isChanged = true;
-	return getTBox()->processEquivalent();
+	return getTBox()->processEquivalent(NAryQueue.getLastArgList());
 }
 
 inline bool ReasoningKernel :: processDisjoint ( void )
 {
 	isChanged = true;
-	return getTBox()->processDisjoint ();
+	return getTBox()->processDisjoint(NAryQueue.getLastArgList());
 }
 
 
@@ -897,7 +899,7 @@ inline bool ReasoningKernel :: equalRoles ( const ComplexRole R, const ComplexRo
 inline bool ReasoningKernel :: equalRoles ( void )
 {
 	isChanged = true;
-	return getTBox()->processEquivalentR();
+	return getTBox()->processEquivalentR(NAryQueue.getLastArgList());
 }
 
 	// axiom (R != S)
@@ -918,7 +920,7 @@ inline bool ReasoningKernel :: disjointRoles ( const ComplexRole R, const Comple
 inline bool ReasoningKernel :: disjointRoles ( void )
 {
 	isChanged = true;
-	return getTBox()->processDisjointR();
+	return getTBox()->processDisjointR(NAryQueue.getLastArgList());
 }
 
 	// Domain (R C)
@@ -1058,14 +1060,14 @@ inline bool ReasoningKernel :: valueOfNot ( const ComplexConcept I, const Comple
 inline bool ReasoningKernel :: processSame ( void )
 {
 	isChanged = true;
-	return getTBox()->processSame ();
+	return getTBox()->processSame(NAryQueue.getLastArgList());
 }
 
 	// implementation stuff: same individuals
 inline bool ReasoningKernel :: processDifferent ( void )
 {
 	isChanged = true;
-	return getTBox()->processDifferent ();
+	return getTBox()->processDifferent(NAryQueue.getLastArgList());
 }
 
 //----------------------------------------------------
