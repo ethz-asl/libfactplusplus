@@ -594,7 +594,10 @@ tacticUsage DlSatTester :: commonTacticBodySome ( const DLVertex& cur )	// for E
 			if ( rfRole != rName )
 			{
 				switchResult ( ret, applyUniversalNR ( curNode, functionalArc, newDep, redoForall ) );
-				switchResult ( ret, applyUniversalNR ( succ, functionalArc->getReverse(), newDep, redoForall ) );
+				// if new role label was added to a functionalArc, some functional restrictions
+				// in the SUCC node might became applicable. See bFunctional1x test
+				switchResult ( ret, applyUniversalNR ( succ, functionalArc->getReverse(), newDep,
+													   redoForall | redoFunc | redoAtMost ) );
 			}
 
 			return ret;
