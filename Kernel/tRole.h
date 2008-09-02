@@ -304,7 +304,7 @@ public:		// interface
 	// role relations checking
 
 		/// two roles are the same iff thy are synonyms of the same role
-	bool operator == ( const TRole& r ) const { return resolveSynonym(this) == resolveSynonym(&r); }
+	bool operator == ( const TRole& r ) const { return this == &r; }
 		/// check if role is a strict sub-role of R
 //	bool operator < ( const TRole& r ) const { return resolveSynonym()->isRelative ( r.resolveSynonym(), true ); }
 	bool operator < ( const TRole& r ) const { return AncMap[getRoleIndex(r.getId())]; }
