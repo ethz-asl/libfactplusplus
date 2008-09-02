@@ -18,6 +18,7 @@ Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 
 #include "Kernel.h"
 #include "comerror.h"
+#include "eFPPFailedReasoning.h"
 
 const char* ReasoningKernel :: Version = "1.1.12";
 const char* ReasoningKernel :: ProductName =
@@ -53,6 +54,10 @@ ReasoningKernel :: processKB ( KBStatus status )
 {
 	assert ( status >= kbCChecked );
 
+	// check whether reasoning was failed
+	if ( reasoningFailed )
+		throw EFPPFailedReasoning();
+
 	// check if something have to be done
 	if ( getStatus() >= status )
 	{	// nothing to do; but make sure that we are consistent
@@ -71,6 +76,9 @@ ReasoningKernel :: processKB ( KBStatus status )
 		assert(0);
 	}
 
+	// start with loading and preprocessing -- here might be a failures
+	reasoningFailed = true;
+
 #ifdef FPP_USE_AXIOMS
 	// load the axioms from the ontology
 	Ontology.load(*pTBox);
@@ -81,6 +89,9 @@ ReasoningKernel :: processKB ( KBStatus status )
 
 	// do the consistency check
 	pTBox->isConsistent();
+
+	// if there were no exception thrown -- clear the failure status
+	reasoningFailed = false;
 
 	if ( status == kbCChecked )
 		return;

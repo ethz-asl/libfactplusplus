@@ -123,6 +123,8 @@ protected:	// members
 
 		/// is TBox changed since the last classification
 	bool isChanged;
+		/// set if TBox throws an exception during preprocessing/classification
+	bool reasoningFailed;
 
 private:	// no copy
 		/// no copy c'tor
@@ -159,6 +161,7 @@ protected:	// methods
 		cachedConcept = NULL;
 		cachedVertex = NULL;
 		isChanged = true;
+		reasoningFailed = false;
 	}
 
 	// get access to internal structures
