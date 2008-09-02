@@ -16,14 +16,14 @@ along with this program; if not, write to the Free Software
 Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 */
 
-#ifndef EAXIOMLOADFAILUREEXCEPTION_H
-#define EAXIOMLOADFAILUREEXCEPTION_H
+#ifndef EFPPAXIOMLOADFAILURE_H
+#define EFPPAXIOMLOADFAILURE_H
 
 #include <string>
 
 #include "eFaCTPlusPlus.h"
 
-class EAxiomLoadFailureException : public EFaCTPlusPlus
+class EFPPAxiomLoadFailure : public EFaCTPlusPlus
 {
 protected:	// members
 		// reason of the failure
@@ -31,16 +31,16 @@ protected:	// members
 
 public:		// interface
 		/// c'tor with a name of a failed axiom
-	EAxiomLoadFailureException ( const std::string& name ) : EFaCTPlusPlus()
+	EFPPAxiomLoadFailure ( const std::string& name ) : EFaCTPlusPlus()
 	{
 		What = "Axiom '";
 		What += name;
 		What += "' failed to load";
 	}
 		/// empty d'tor
-	~EAxiomLoadFailureException ( void ) throw() {}
+	~EFPPAxiomLoadFailure ( void ) throw() {}
 		/// reason
 	virtual const char* what ( void ) const throw() { return What.c_str(); }
-}; // EAxiomLoadFailureException
+}; // EFPPAxiomLoadFailure
 
 #endif
