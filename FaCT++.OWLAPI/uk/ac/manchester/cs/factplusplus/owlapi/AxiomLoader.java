@@ -107,7 +107,13 @@ public class AxiomLoader implements OWLAxiomVisitor {
 
 
     public void visit(OWLEquivalentDataPropertiesAxiom axiom) {
-        throw new FaCTPlusPlusRuntimeException("Ignoring equivalent data properties axiom");
+        try {
+            translateDataPropertyArgList(axiom.getProperties());
+            faCTPlusPlus.tellEquivalentDataProperties();
+        }
+        catch (Exception e) {
+            throw new FaCTPlusPlusRuntimeException(e);
+        }
     }
 
 
@@ -232,10 +238,6 @@ public class AxiomLoader implements OWLAxiomVisitor {
             for (OWLDescription desc : descriptions) {
                 classPointers.add(translate(desc));
             }
-            if(classPointers.size() < 2) {
-
-                throw new FaCTPlusPlusRuntimeException("Class pointer set size is less than 2");
-            }
             faCTPlusPlus.initArgList();
             for (ClassPointer cp : classPointers) {
                 faCTPlusPlus.addArg(cp);
@@ -276,6 +278,19 @@ public class AxiomLoader implements OWLAxiomVisitor {
         }
     }
 
+        private void translateDataPropertyArgList(Set<? extends OWLDataPropertyExpression> properties) throws
+                                                                                                       OWLException {
+        try {
+            faCTPlusPlus.initArgList();
+            for (OWLDataPropertyExpression prop : properties) {
+                faCTPlusPlus.addArg(translate(prop));
+            }
+            faCTPlusPlus.closeArgList();
+        }
+        catch (Exception e) {
+            throw new FaCTPlusPlusRuntimeException(e);
+        }
+    }
 
     private ClassPointer translate(OWLDescription description) {
             description.accept(translator);
