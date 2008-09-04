@@ -789,8 +789,12 @@ public:
 		return new DLTree ( TLexeme ( isIndividual(C) ? INAME : CNAME, C ) );
 	}
 
+	// n-ary absorption support
+
 		/// get unique aux concept
 	TConcept* getAuxConcept ( void );
+		/// replace (AR:C) with ~X such that ~C [= AR^-:X for fresh X. @return X
+	TConcept* replaceForall ( DLTree* R, DLTree* C );
 
 //-----------------------------------------------------------------------------
 //--		public parser (input) interface

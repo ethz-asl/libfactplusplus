@@ -48,7 +48,7 @@ TBox :: ~TBox ( void )
 	delete pTax;
 }
 
-		/// get unique aux concept
+/// get unique aux concept
 TConcept* TBox :: getAuxConcept ( void )
 {
 	static unsigned int count;
@@ -59,6 +59,17 @@ TConcept* TBox :: getAuxConcept ( void )
 	C->setSystem();
 	C->initToldSubsumers();	// it is created after this is done centrally
 	return C;
+}
+
+/// replace (AR:C) with ~X such that ~C [= AR^-:X for fresh X. @return X
+TConcept*
+TBox :: replaceForall ( DLTree* R, DLTree* C )
+{
+	// FIXME!! check whether we already did this before
+	TConcept* X = getAuxConcept();
+	// create ax axiom ~C [= AR^-.X
+	addSubsumeAxiom ( createSNFNot(C), createSNFForall ( createInverse(R), getTree(X) ) );
+	return X;
 }
 
 void TBox :: initTopBottom ( void )
