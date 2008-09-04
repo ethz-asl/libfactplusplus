@@ -61,14 +61,69 @@ TConcept* TBox :: getAuxConcept ( void )
 	return C;
 }
 
-/// replace (AR:C) with ~X such that ~C [= AR^-:X for fresh X. @return X
+// infrastructure for the replaceForall() cache
+class RCCache
+{
+protected:	// types
+		/// array of CE used for given role
+	typedef std::vector<std::pair<const DLTree*,TConcept*> > DTVec;
+		/// "map" role ID -> array
+	typedef std::vector<DTVec> BaseType;
+
+protected:	// members
+		/// cache for direct and inverse roles
+	BaseType DCache, ICache;
+
+protected:	// methods
+		/// get the array for a given role
+	DTVec& getArray ( const TRole* R ) { return R->getId() > 0 ? DCache[R->getId()] : ICache[-R->getId()]; }
+		/// @return pointer to CN, corresponding to given C in an array. @return NULL if no C registered
+	TConcept* find ( const DLTree* C, const DTVec& vec ) const
+	{
+		if ( vec.empty() )
+			return NULL;
+		for ( DTVec::const_iterator p = vec.begin(), p_end = vec.end(); p < p_end; ++p )
+			if ( equalTrees ( C, p->first ) )
+				return p->second;
+		return NULL;
+	}
+
+public:		// interface
+		/// init c'tor
+	RCCache ( size_t n ) : DCache(n+1), ICache(n+1) {}
+		/// empty d'tor
+	~RCCache ( void ) {}
+
+		/// get concept corresponding to <R,C> pair. @return NULL if there are none
+	TConcept* get ( const TRole* R, const DLTree* C ) { return find ( C, getArray(R) ); }
+		/// add CN as a cache entry for <R,C>
+	void add ( const TRole* R, const DLTree* C, TConcept* CN ) { getArray(R).push_back(std::make_pair(C,CN)); }
+}; // RCCache
+
+/// replace (AR:C) with X such that C [= AR^-:X for fresh X. @return X
 TConcept*
 TBox :: replaceForall ( DLTree* R, DLTree* C )
 {
-	// FIXME!! check whether we already did this before
-	TConcept* X = getAuxConcept();
-	// create ax axiom ~C [= AR^-.X
-	addSubsumeAxiom ( createSNFNot(C), createSNFForall ( createInverse(R), getTree(X) ) );
+	// cache init
+	static RCCache* pCache;
+	if ( pCache == NULL )
+		pCache = new RCCache((RM.end()-RM.begin())/2);
+
+	// check whether we already did this before for given R,C
+	const TRole* r = resolveRole(R);
+	TConcept* X = pCache->get(r,C);
+
+	if ( X != NULL )
+		return X;
+
+	// see R and C at the first time
+	X = getAuxConcept();
+	DLTree* c = clone(C);
+	// create ax axiom C [= AR^-.X
+	addSubsumeAxiom ( C, createSNFForall ( createInverse(R), getTree(X) ) );
+	// save cache for R,C
+	pCache->add ( r, c, X );
+
 	return X;
 }
 

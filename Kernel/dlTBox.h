@@ -793,7 +793,7 @@ public:
 
 		/// get unique aux concept
 	TConcept* getAuxConcept ( void );
-		/// replace (AR:C) with ~X such that ~C [= AR^-:X for fresh X. @return X
+		/// replace (AR:C) with X such that C [= AR^-:X for fresh X. @return X
 	TConcept* replaceForall ( DLTree* R, DLTree* C );
 
 //-----------------------------------------------------------------------------
