@@ -633,14 +633,14 @@ protected:	// methods
 	}
 	void PrintSimpleRules ( std::ostream& o ) const
 	{
-		if ( SimpleRules.size() == 1 )
+		if ( SimpleRules.empty() )
 			return;
 		o << "Simple rules (" << SimpleRules.size()-1 << "): \n";
-		for ( TSimpleRules::const_iterator p = SimpleRules.begin()+1; p != SimpleRules.end(); ++p )
+		for ( TSimpleRules::const_iterator p = SimpleRules.begin(); p < SimpleRules.end(); ++p )
 		{
 			ConceptVector::const_iterator q = (*p)->Body.begin(), q_end = (*p)->Body.end();
 			o << "(" << (*q)->getName();
-			for ( ++q; q < q_end; ++q )
+			while ( ++q < q_end )
 				o << ", " << (*q)->getName();
 			o << ") => " << (*p)->tHead << "\n";
 		}

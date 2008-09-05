@@ -367,7 +367,7 @@ void TBox :: determineSorts ( void )
 		DLHeap.updateSorts ( (*p)->a->pName, (*p)->R, (*p)->b->pName );
 
 	// simple rules needs the same treatement
-	for ( TSimpleRules::iterator q = SimpleRules.begin()+1; q != SimpleRules.end(); ++q )
+	for ( TSimpleRules::iterator q = SimpleRules.begin(); q < SimpleRules.end(); ++q )
 	{
 		mergableLabel& lab = DLHeap[(*q)->bpHead].getSort();
 		for ( ConceptVector::const_iterator r = (*q)->Body.begin(), r_end = (*q)->Body.end(); r < r_end; ++r )

@@ -16,9 +16,6 @@ along with this program; if not, write to the Free Software
 Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 */
 
-// uncomment this to allow simple rules processing
-//#define RKG_USE_SIMPLE_RULES
-
 #include "globaldef.h"
 
 #include <algorithm>	// for std::sort

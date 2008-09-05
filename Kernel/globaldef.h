@@ -51,6 +51,9 @@ Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 // uncomment this to update role's R&D from super-roles
 //#define RKG_UPDATE_RND_FROM_SUPERROLES
 
+// uncomment this to allow simple rules processing
+//#define RKG_USE_SIMPLE_RULES
+
 // Flag to choose kind of NR support.
 
 // If 0, then simplistic one is used.  For the >= n R, at most one R-successor is created.  For
