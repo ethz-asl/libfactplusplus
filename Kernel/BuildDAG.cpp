@@ -32,6 +32,10 @@ void TBox :: buildDAG ( void )
 	for ( i_const_iterator pi = i_begin(); pi != i_end(); ++pi )
 		concept2dag(*pi);
 
+	// init heads of simple rules
+	for ( TSimpleRules::iterator q = SimpleRules.begin(), q_end = SimpleRules.end(); q < q_end; ++q )
+		(*q)->bpHead = tree2dag((*q)->tHead);
+
 	// build all GCIs
 	DLTree* GCI = Axioms.getGCI();
 	T_G = tree2dag(GCI);

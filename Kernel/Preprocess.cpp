@@ -369,11 +369,9 @@ void TBox :: determineSorts ( void )
 	// simple rules needs the same treatement
 	for ( TSimpleRules::iterator q = SimpleRules.begin()+1; q != SimpleRules.end(); ++q )
 	{
-		ConceptVector::const_iterator r = q->Body.begin(), r_end = q->Body.end();
-		mergableLabel& lab = DLHeap[(*r)->pName].getSort();
-		for ( ++r; r < r_end; ++r )
+		mergableLabel& lab = DLHeap[(*q)->bpHead].getSort();
+		for ( ConceptVector::const_iterator r = (*q)->Body.begin(), r_end = (*q)->Body.end(); r < r_end; ++r )
 			DLHeap.merge ( lab, (*r)->pName );
-		DLHeap.merge ( lab, q->Head->pName );
 	}
 
 	// create sorts for concept and/or roles

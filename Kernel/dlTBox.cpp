@@ -37,6 +37,10 @@ TBox :: ~TBox ( void )
 	for ( RelatedCollection::iterator p = RelatedI.begin(), p_end = RelatedI.end(); p < p_end; ++p )
 		delete *p;
 
+	// remove all simple rules
+	for ( TSimpleRules::iterator q = SimpleRules.begin(), q_end = SimpleRules.end(); q < q_end; ++q )
+		delete *q;
+
 	// remove all concepts
 	delete pTop;
 	delete pBottom;

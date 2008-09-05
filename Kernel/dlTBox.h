@@ -89,25 +89,35 @@ protected:	// types
 	}; // IndividualCollection
 
 		/// class for simple rules like Ch :- Cb1, Cbi, CbN; all C are primitive named concepts
-	class SimpleRule
+	class TSimpleRule
 	{
 	public:		// members
 			/// body of the rule
 		TBox::ConceptVector Body;
-			/// head of the rule
-		const TConcept* Head;
+			/// head of the rule as a DLTree
+		DLTree* tHead;
+			/// head of the rule as a BP
+		BipolarPointer bpHead;
+
+	private:	// no copy
+			/// no copy c'tor
+		TSimpleRule ( const TSimpleRule& );
+			/// no assignment
+		TSimpleRule& operator= ( const TSimpleRule& );
 
 	public:		// interface
-			/// empty c'tor
-		SimpleRule ( void ) {}
-			/// create c'tor
-		SimpleRule ( const TBox::ConceptVector& body, const TConcept* head ) : Body(body), Head(head) {}
+			/// init c'tor
+		TSimpleRule ( const TBox::ConceptVector& body, DLTree* head )
+			: Body(body)
+			, tHead(head)
+			, bpHead(bpINVALID)
+			{}
 			/// empty d'tor
-		~SimpleRule ( void ) {}
-	}; // SimpleRule
+		~TSimpleRule ( void ) { deleteTree(tHead); }
+	}; // TSimpleRule
 
 		/// all simple rules in KB
-	typedef std::vector<SimpleRule> TSimpleRules;
+	typedef std::vector<TSimpleRule*> TSimpleRules;
 
 protected:	// typedefs
 		/// RW concept iterator
@@ -512,7 +522,7 @@ protected:	// methods
 
 		/// init Extra Rule field in concepts given by a vector V with a given INDEX
 	inline void
-	initRuleFields ( const ConceptVector& v, BipolarPointer index ) const
+	initRuleFields ( const ConceptVector& v, unsigned int index ) const
 	{
 		for ( ConceptVector::const_iterator q = v.begin(), q_end = v.end(); q < q_end; ++q )
 			(*q)->addExtraRule(index);
@@ -612,14 +622,14 @@ protected:	// methods
 	{
 		if ( SimpleRules.size() == 1 )
 			return;
-		o << "Simple rules (" << SimpleRules.size() << "): \n";
+		o << "Simple rules (" << SimpleRules.size()-1 << "): \n";
 		for ( TSimpleRules::const_iterator p = SimpleRules.begin()+1; p != SimpleRules.end(); ++p )
 		{
-			ConceptVector::const_iterator q = p->Body.begin(), q_end = p->Body.end();
+			ConceptVector::const_iterator q = (*p)->Body.begin(), q_end = (*p)->Body.end();
 			o << "(" << (*q)->getName();
 			for ( ++q; q < q_end; ++q )
 				o << ", " << (*q)->getName();
-			o << ") => " << p->Head->getName() << "\n";
+			o << ") => " << (*p)->tHead << "\n";
 		}
 	}
 	void PrintAxioms ( std::ostream& o ) const;
@@ -838,6 +848,22 @@ public:
 		/// add an axiom C = D
 	bool addEqualityAxiom ( DLTree* left, DLTree* right );
 
+		/// add simple rule RULE to the TBox' rules
+	inline
+	void addSimpleRule ( TSimpleRule* Rule )
+	{
+		initRuleFields ( Rule->Body, SimpleRules.size() );
+		SimpleRules.push_back(Rule);
+	}
+		/// add binary simple rule (C0,C1)=>H
+	void addBSimpleRule ( TConcept* C0, TConcept* C1, DLTree* H )
+	{
+		ConceptVector v;
+		v.push_back(C0);
+		v.push_back(C1);
+		addSimpleRule ( new TSimpleRule ( v, H ) );
+	}
+
 	// external-set methods for set-of-concept-expressions
 	bool processEquivalent ( const ConceptSet& v );
 	bool processDisjoint ( const ConceptSet& v );
@@ -857,7 +883,7 @@ public:
 		/// GCI Axioms access
 	BipolarPointer getTG ( void ) const { return T_G; }
 		/// get head if the INDEX'th simple rule
-	BipolarPointer getExtraRuleHead ( BipolarPointer index ) const { return SimpleRules[index].Head->pName; }
+	BipolarPointer getExtraRuleHead ( BipolarPointer index ) const { return SimpleRules[index]->bpHead; }
 
 		/// check if the relevant part of KB contains inverse roles.
 	bool isIRinQuery ( void ) const
@@ -1024,7 +1050,6 @@ inline TBox :: TBox ( const ifOptionSet* Options )
 {
 	readConfig ( Options );
 	initTopBottom ();
-	SimpleRules.push_back(SimpleRule());	// dummy for 0th element
 
 	setForbidUndefinedNames(false);
 }

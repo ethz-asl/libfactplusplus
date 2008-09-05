@@ -69,7 +69,7 @@ private:	// members
 
 protected:	// types
 		/// set of extra rules
-	typedef std::vector<BipolarPointer> ERSet;
+	typedef std::vector<unsigned int> ERSet;
 
 public:		// type interface
 		/// extra rules iterators
@@ -131,10 +131,10 @@ public:		// methods
 		/// clear all info of the concept. Use it in removeConcept()
 	void clear ( void );
 
-	// disjoint stuff
+	// simple rules support
 
-		/// add disjoint axiom's BP to a DJ set
-	void addExtraRule ( BipolarPointer p )
+		/// add index of a simple rule in TBox to the ER set
+	void addExtraRule ( unsigned int p )
 	{
 		erSet.push_back(p);
 		setCompletelyDefined(false);
