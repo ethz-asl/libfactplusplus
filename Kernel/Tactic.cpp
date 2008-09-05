@@ -16,6 +16,9 @@ along with this program; if not, write to the Free Software
 Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 */
 
+// uncomment this to allow simple rules processing
+//#define RKG_USE_SIMPLE_RULES
+
 #include "globaldef.h"
 
 #include <algorithm>	// for std::sort
@@ -191,9 +194,59 @@ tacticUsage DlSatTester :: commonTacticBodyId ( const DLVertex& cur )
 
 	tacticUsage ret = utUnusable;
 
+#ifdef RKG_USE_SIMPLE_RULES
+	// check if we have some simple rules
+	if ( isPositive(curConcept.bp()) )
+		switchResult ( ret, applyExtraRulesIf(static_cast<const TConcept*>(cur.getConcept())) );
+#endif
+
 	// get either body(p) or inverse(body(p)), depends on sign of current ID
 	BipolarPointer p = isPositive(curConcept.bp()) ? cur.getC() : inverse(cur.getC());
 	switchResult ( ret, addToDoEntry ( curNode, p, curConcept.getDep() ) );
+
+	return ret;
+}
+
+/// @return true if the rule is applicable; set the dep-set accordingly
+bool
+DlSatTester :: applicable ( const TBox::TSimpleRule& rule )
+{
+	BipolarPointer bp = curConcept.bp();
+	const CWDArray& lab = curNode->label().getLabel(dtPConcept);
+	// dep-set to keep track for all the concepts in a rule-head
+	DepSet loc = curConcept.getDep();
+
+	
+	for ( TBox::TSimpleRule::const_iterator p = rule.Body.begin(), p_end = rule.Body.end(); p < p_end; ++p )
+	{
+		if ( (*p)->pName == bp )
+			continue;
+		if ( findConcept(lab,(*p)->pName,loc) )
+			loc = getClashSet();	// such a concept exists -- rememeber clash set
+		else	// no such concept -- can not fire a rule
+			return false;
+	}
+
+	// rule will be fired -- set the dep-set
+	setClashSet(loc);
+	return true;
+}
+
+tacticUsage
+DlSatTester :: applyExtraRules ( const TConcept* C )
+{
+	tacticUsage ret = utUnusable;
+
+	for ( TConcept::er_iterator p = C->er_begin(), p_end=C->er_end(); p < p_end; ++p )
+	{
+		const TBox::TSimpleRule* rule = tBox.getSimpleRule(*p);
+		nSRuleAdd.inc();
+		if ( rule->applicable(*this) )	// apply the rule's head
+		{
+			nSRuleFire.inc();
+			switchResult ( ret, addToDoEntry ( curNode, rule->bpHead, getClashSet() ) );
+		}
+	}
 
 	return ret;
 }

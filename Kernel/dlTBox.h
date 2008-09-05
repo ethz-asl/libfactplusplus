@@ -91,9 +91,17 @@ protected:	// types
 		/// class for simple rules like Ch :- Cb1, Cbi, CbN; all C are primitive named concepts
 	class TSimpleRule
 	{
+	public:		// type interface
+			/// type for the rule body
+		typedef TBox::ConceptVector TRuleBody;
+			/// RW iterator over body
+		typedef TRuleBody::iterator iterator;
+			/// RO iterator over body
+		typedef TRuleBody::const_iterator const_iterator;
+
 	public:		// members
 			/// body of the rule
-		TBox::ConceptVector Body;
+		TRuleBody Body;
 			/// head of the rule as a DLTree
 		DLTree* tHead;
 			/// head of the rule as a BP
@@ -107,13 +115,18 @@ protected:	// types
 
 	public:		// interface
 			/// init c'tor
-		TSimpleRule ( const TBox::ConceptVector& body, DLTree* head )
+		TSimpleRule ( const TRuleBody& body, DLTree* head )
 			: Body(body)
 			, tHead(head)
 			, bpHead(bpINVALID)
 			{}
 			/// empty d'tor
-		~TSimpleRule ( void ) { deleteTree(tHead); }
+		virtual ~TSimpleRule ( void ) { deleteTree(tHead); }
+
+		// apply rule -- implementation in Reasoner.h
+
+			/// allow reasoner to check the applicability according to the type of the rule
+		virtual bool applicable ( DlSatTester& Reasoner ) const;
 	}; // TSimpleRule
 
 		/// all simple rules in KB
@@ -882,8 +895,8 @@ public:
 
 		/// GCI Axioms access
 	BipolarPointer getTG ( void ) const { return T_G; }
-		/// get head if the INDEX'th simple rule
-	BipolarPointer getExtraRuleHead ( BipolarPointer index ) const { return SimpleRules[index]->bpHead; }
+		/// get simple rule by its INDEX
+	const TSimpleRule* getSimpleRule ( unsigned int index ) const { return SimpleRules[index]; }
 
 		/// check if the relevant part of KB contains inverse roles.
 	bool isIRinQuery ( void ) const

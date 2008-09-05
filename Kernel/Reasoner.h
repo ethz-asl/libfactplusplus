@@ -511,6 +511,17 @@ protected:	// methods
 	bool isIBlocked ( void );
 		/// @return true iff NN-rule wrt (<= R.C) is applicable to the curNode
 	bool isNNApplicable ( const TRole* r, BipolarPointer C ) const;
+		/// apply rule-like actions for the concept P
+	tacticUsage applyExtraRules ( const TConcept* p );
+		/// apply rule-like actions for the concept P if necessary
+	inline
+	tacticUsage applyExtraRulesIf ( const TConcept* p )
+	{
+		if ( !p->hasExtraRules() )
+			return utUnusable;
+		assert ( p->isPrimitive() );
+		return applyExtraRules(p);
+	}
 
 	// support for choose-rule
 
@@ -807,6 +818,10 @@ protected:	// methods
 		/// set P as a used during current reasoning. NOTE: it's not cleared during restores
 	void setUsed ( BipolarPointer p ) { if ( !hasNominals() ) DLHeap[p].setUsed ( isPositive(p), VUse ); }
 
+public:		// rule's support
+		/// @return true if the rule is applicable; set the dep-set accordingly
+	bool applicable ( const TBox::TSimpleRule& rule );
+
 public:
 		/// c'tor
 	DlSatTester ( TBox& tbox, const ifOptionSet* Options );
@@ -1003,6 +1018,9 @@ inline tacticUsage DlSatTester :: commonTacticBodyAll ( const DLVertex& cur )
 //-----------------------------------------------------------------------------
 //--		implemenation of reasoner-related parts of TBox
 //-----------------------------------------------------------------------------
+
+inline bool
+TBox::TSimpleRule :: applicable ( DlSatTester& Reasoner ) const { return Reasoner.applicable(*this); }
 
 /// set ToDo priorities using local OPTIONS
 inline void
