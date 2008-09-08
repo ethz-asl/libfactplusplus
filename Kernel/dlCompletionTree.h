@@ -738,7 +738,7 @@ inline bool DlCompletionTree :: isBlockedBy ( const DlCompletionTree* p ) const
 		return false;
 
 	// easy check: Init is not in the label if a blocker
-	if ( !p->label().contains(Init) )
+	if ( Init != bpTOP && !p->label().contains(Init) )
 		return false;
 
 	if ( !sessionHasInverseRoles )	// subset blocking
