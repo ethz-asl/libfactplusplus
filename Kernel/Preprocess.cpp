@@ -248,8 +248,8 @@ TConcept* TBox :: checkToldCycle ( TConcept* p )
 
 		// searchable stack for the told subsumers
 	static std::set<TConcept*> sStack;
-		// descriptions of the all the synonyms in the cycle
-	static DLTree* desc;
+		// all the synonyms in the cycle
+	static std::vector<TConcept*> syns;
 
 	// no reason to process TOP here
 	if ( p == pTop )
@@ -284,26 +284,46 @@ redo:
 			if ( ret == p )
 			{
 //				std::cout << "Fill cycle with " << p->getName() << std::endl;
+				syns.push_back(p);
+
+				std::vector<TConcept*>::iterator q, q_end = syns.end();
+
+				// find a representative for the cycle; nominal is preferable
+				for ( q = syns.begin(); q < q_end; ++q )
+					if ( (*q)->isSingleton() )
+						p = *q;
+				// now p is a representative for all the synonyms
+
+				// fill the description
+				DLTree* desc = NULL;
+				for ( q = syns.begin(); q < q_end; ++q )
+					if ( *q != p )	// make it a synonym of RET, save old desc
+						desc = createSNFAnd ( desc, makeNonPrimitive ( *q, getTree(p) ) );
+
+				syns.clear();
 
 				// mark the returned concept primitive (to allow addDesc to work)
 				p->setPrimitive();
 				p->addDesc(desc);
-				desc = NULL;
 
 				// replace all synonyms with TOP
 				p->removeSelfFromDescription();
 
-				// clear return status and continue with the same concept
+				// re-run the search starting from new sample
+				if ( ret != p )	// need to fix the stack 
+				{
+					sStack.erase(ret);
+					sStack.insert(p);
+					ret->setRelevant(relevance);
+					p->dropRelevant(relevance);
+				}
+
 				ret = NULL;
 				goto redo;
 			}
 			else
 			{
-//				std::cout << "Write synonym for " << p->getName() << std::endl;
-
-				// some concept inside a cycle: make it synonym of RET, save old desc
-				desc = createSNFAnd ( desc, makeNonPrimitive ( p, getTree(ret) ) );
-
+				syns.push_back(p);
 				// no need to continue; finish with this cycle first
 				break;
 			}
