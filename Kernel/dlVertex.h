@@ -25,7 +25,6 @@ Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 
 #include "globaldef.h"
 #include "BiPointer.h"
-#include "tLabeller.h"
 #include "modelCacheInterface.h"
 #include "mergableLabel.h"	// for sort inferences
 
@@ -99,27 +98,6 @@ public:		// interface
 			nCache = p;
 	}
 }; // DLVertexCache
-
-/// interface for the 'used' value of DLVertex
-class DLVertexUsed
-{
-protected:	// members
-		/// usage for the positive and negative entries
-	TLabeller::LabType pUsed, nUsed;
-
-public:		// interface
-		/// empty c'tor
-	DLVertexUsed ( void ) : pUsed(0), nUsed(0) {}
-		/// d'tor
-	virtual ~DLVertexUsed ( void ) {}
-
-		/// return used value wrt positive flag
-	bool isUsed ( bool pos, const TLabeller& lab ) const
-		{ return lab.isLabelled(pos ? pUsed : nUsed); }
-		/// set cache wrt positive flag
-	void setUsed ( bool pos, const TLabeller& lab )
-		{ lab.set(pos ? pUsed : nUsed); }
-}; // DLVertexUsed
 
 class DLVertexStatistic
 {
@@ -303,7 +281,6 @@ public:		// interface
 /// Class for normalised Concept Expressions
 class DLVertex
 	: public DLVertexCache
-	, public DLVertexUsed
 	, public DLVertexStatistic
 #ifdef RKG_PRINT_DAG_USAGE
 	, public DLVertexUsage

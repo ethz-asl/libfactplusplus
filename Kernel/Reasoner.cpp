@@ -96,6 +96,8 @@ DlSatTester :: prepareReasoner ( void )
 		CGraph.clear();
 		Stack.clear();
 		TODO.clear();
+		pUsed.clear();
+		nUsed.clear();
 
 		curNode = NULL;
 		bContext = NULL;
@@ -650,6 +652,8 @@ void DlSatTester :: saveBC ( void )
 	// save reasoning context
 	bContext->curNode = curNode;
 	bContext->curConcept = curConcept;
+	bContext->pUsedIndex = pUsed.size();
+	bContext->nUsedIndex = nUsed.size();
 }
 	/// restore local state from BContext
 void DlSatTester :: restoreBC ( void )
@@ -657,6 +661,8 @@ void DlSatTester :: restoreBC ( void )
 	// restore reasoning context
 	curNode = bContext->curNode;
 	curConcept = bContext->curConcept;
+	pUsed.reset(bContext->pUsedIndex);
+	nUsed.reset(bContext->nUsedIndex);
 
 	// update branch dep-set
 	updateBranchDep();

@@ -31,6 +31,7 @@ Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #include "procTimer.h"
 #include "DataReasoning.h"
 #include "ToDoList.h"
+#include "tFastSet.h"
 
 // Enum for usage the Tactics to a ToDoEntry
 enum tacticUsage { utUnusable, utClash, utDone };
@@ -166,6 +167,8 @@ protected:	// classes
 		DlCompletionTree* curNode;
 			/// currently processed concept
 		ConceptWDep curConcept;
+			/// positions of the Used members
+		size_t pUsedIndex, nUsedIndex;
 			/// current branching index; used in several branching rules
 		unsigned int branchIndex;
 			/// index of a merge-candidate (in LE concept)
@@ -254,6 +257,8 @@ protected:	// members
 	ToDoTableType TODO;
 		/// reasoning subsystem for the datatypes
 	DataTypeReasoner DTReasoner;
+		/// Used sets for pos- and neg- entries
+	TFastSet<unsigned int> pUsed, nUsed;
 
 		/// GCI-related KB flags
 	TKBFlags GCIs;
@@ -320,8 +325,6 @@ protected:	// members
 
 		/// size of the DAG with some extra space
 	size_t dagSize;
-		/// label for the usage of verteces
-	TLabeller VUse;
 
 		/// contains clash set if clash is encountered in a node label
 	DepSet clashSet;
@@ -404,7 +407,11 @@ protected:	// methods
 	void ensureDAGSize ( void )
 	{
 		if ( dagSize < DLHeap.size() )
+		{
 			dagSize = DLHeap.maxSize();
+			pUsed.ensureMaxSetSize(dagSize);
+			nUsed.ensureMaxSetSize(dagSize);
+		}
 	}
 
 		/// init some flags using an external option set
@@ -822,9 +829,9 @@ protected:	// methods
 	bool tunedRestore ( void );
 
 		/// check if P was used during current reasoning session
-	bool isUsed ( BipolarPointer p ) const { return hasNominals() ? true : DLHeap[p].isUsed ( isPositive(p), VUse ); }
-		/// set P as a used during current reasoning. NOTE: it's not cleared during restores
-	void setUsed ( BipolarPointer p ) { if ( !hasNominals() ) DLHeap[p].setUsed ( isPositive(p), VUse ); }
+	bool isUsed ( BipolarPointer p ) const { return ( isPositive(p) ? pUsed : nUsed ).in(getValue(p)); }
+		/// set P as a used during current reasoning
+	void setUsed ( BipolarPointer p ) { ( isPositive(p) ? pUsed : nUsed ).add(getValue(p)); }
 
 public:		// rule's support
 		/// @return true if the rule is applicable; set the dep-set accordingly
@@ -910,12 +917,11 @@ public:
 
 inline void DlSatTester :: resetSessionFlags ( void )
 {
-	VUse.newLab();
-	setUsed(bpTOP);
-	setUsed(bpBOTTOM);
-
 	// reflect possible change of DAG size
 	ensureDAGSize();
+
+	setUsed(bpTOP);
+	setUsed(bpBOTTOM);
 
 	encounterNominal = false;
 	checkDataNode = true;
