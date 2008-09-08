@@ -914,6 +914,9 @@ inline void DlSatTester :: resetSessionFlags ( void )
 	setUsed(bpTOP);
 	setUsed(bpBOTTOM);
 
+	// reflect possible change of DAG size
+	ensureDAGSize();
+
 	encounterNominal = false;
 	checkDataNode = true;
 	dBlocked = NULL;
