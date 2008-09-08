@@ -35,6 +35,7 @@ DlSatTester :: DlSatTester ( TBox& tbox, const ifOptionSet* Options )
 	, bContext(NULL)
 	, tryLevel(1)
 	, curNode(NULL)
+	, dagSize(0)
 {
 	// init local options
 	readConfig ( Options );
@@ -45,6 +46,8 @@ DlSatTester :: DlSatTester ( TBox& tbox, const ifOptionSet* Options )
 	// init set of reflexive roles
 	tbox.getRM()->fillReflexiveRoles(ReflexiveRoles);
 	GCIs.setReflexive(!ReflexiveRoles.empty());
+	// init size of DAG
+	ensureDAGSize();
 
 	resetSessionFlags ();
 }
@@ -103,6 +106,8 @@ DlSatTester :: prepareReasoner ( void )
 
 	// clear last session information
 	resetSessionFlags();
+	// new query -- make sure DAG size is reflected proporly
+	ensureDAGSize();
 }
 
 addConceptResult

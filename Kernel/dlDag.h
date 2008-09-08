@@ -214,6 +214,8 @@ public:		// interface
 
 		/// get size of DAG
 	size_t size ( void ) const { return Heap.size (); }
+		/// get approximation of the size after query is added
+	size_t maxSize ( void ) const { return size() + ( size() < 220 ? 10 : size()/20 ); }
 		/// resize DAG to a given number (for clearing intermediate/deleting temp)
 	void removeAfter ( size_t n );
 

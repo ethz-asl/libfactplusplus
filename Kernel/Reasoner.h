@@ -318,6 +318,8 @@ protected:	// members
 		/// last processed i-blocked node
 	DlCompletionTree* iBlocked;
 
+		/// size of the DAG with some extra space
+	size_t dagSize;
 		/// label for the usage of verteces
 	TLabeller VUse;
 
@@ -398,6 +400,12 @@ protected:	// methods
 
 		/// main reasoning function
 	bool checkSatisfiability ( void );
+		/// make sure that the DAG does not grow larger than that was recorded
+	void ensureDAGSize ( void )
+	{
+		if ( dagSize < DLHeap.size() )
+			dagSize = DLHeap.maxSize();
+	}
 
 		/// init some flags using an external option set
 	void readConfig ( const ifOptionSet* Options );
