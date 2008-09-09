@@ -43,11 +43,7 @@ public:		// interface
 		/// empty c'tor
 	TOntology ( void ) : axiomId(0) {}
 		/// d'tor
-	~TOntology ( void )
-	{
-		for ( iterator p = Axioms.begin(), p_end = Axioms.end(); p < p_end; ++p )
-			delete *p;
-	}
+	~TOntology ( void ) { clear(); }
 
 		/// add given axiom to the ontology
 	void add ( TDLAxiom* p )
@@ -60,6 +56,13 @@ public:		// interface
 	{
 		for ( iterator p = Axioms.begin(), p_end = Axioms.end(); p < p_end; ++p )
 			(*p)->load(kb);
+	}
+		/// clear the ontology
+	void clear ( void )
+	{
+		for ( iterator p = Axioms.begin(), p_end = Axioms.end(); p < p_end; ++p )
+			delete *p;
+		Axioms.clear();
 	}
 }; // TOntology
 

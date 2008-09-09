@@ -773,6 +773,10 @@ inline bool ReasoningKernel :: releaseKB ( void )
 	delete pTBox;
 	pTBox = NULL;
 
+#ifdef FPP_USE_AXIOMS
+	Ontology.clear();
+#endif
+
 	return false;
 }
 
