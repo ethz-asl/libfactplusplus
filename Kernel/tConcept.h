@@ -253,6 +253,8 @@ public:		// methods
 	bool isRelevant ( const TLabeller& lab ) const { return lab.isLabelled(rel); }
 		/// make given concept relevant to given Labeller's state
 	void setRelevant ( const TLabeller& lab ) { lab.set(rel); }
+		/// make given concept irrelevant to given Labeller's state
+	void dropRelevant ( const TLabeller& lab ) { lab.clear(rel); }
 
 	// save/load interface; implementation is in SaveLoad.cpp
 
