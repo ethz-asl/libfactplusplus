@@ -310,7 +310,7 @@ redo:
 				p->removeSelfFromDescription();
 
 				// re-run the search starting from new sample
-				if ( ret != p )	// need to fix the stack 
+				if ( ret != p )	// need to fix the stack
 				{
 					sStack.erase(ret);
 					sStack.insert(p);

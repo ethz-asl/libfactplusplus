@@ -213,7 +213,6 @@ DlSatTester :: applicable ( const TBox::TSimpleRule& rule )
 	// dep-set to keep track for all the concepts in a rule-head
 	DepSet loc = curConcept.getDep();
 
-	
 	for ( TBox::TSimpleRule::const_iterator p = rule.Body.begin(), p_end = rule.Body.end(); p < p_end; ++p )
 	{
 		if ( (*p)->pName == bp )
