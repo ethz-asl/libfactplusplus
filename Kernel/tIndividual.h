@@ -69,6 +69,7 @@ public:		// interface
 	virtual void initToldSubsumers ( void )
 	{
 		toldSubsumers.clear();
+		clearHasSP();
 		if ( isRelated() )	// check if domain and range of RELATED axioms affects TS
 			updateToldFromRelated();
 		// normalise description if the only parent is TOP

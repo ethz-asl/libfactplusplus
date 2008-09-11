@@ -204,6 +204,8 @@ public:		// methods
 	{
 		addParentIfNew(p);
 		p->setNaTS(false);	// p is a told subsumer (for current concept)
+		if ( p->isSingleton() || p->isHasSP() )
+			setHasSP();		// this has singleton parent
 
 		// if non-primitive concept was found in a description, it's not CD
 		return p->isPrimitive();
@@ -218,6 +220,7 @@ public:		// methods
 	virtual void initToldSubsumers ( void )
 	{
 		toldSubsumers.clear();
+		clearHasSP();
 		// normalise description if the only parent is TOP
 		if ( isPrimitive() && Description && Description->Element() == TOP )
 			removeDescription();
@@ -241,6 +244,8 @@ public:		// methods
 
 		/// register a Primitive flag
 	FPP_ADD_FLAG(Primitive,0x10);
+		/// register a HasSingletonParent flag
+	FPP_ADD_FLAG(HasSP,0x20);
 
 	// concept non-primitivity methods
 
