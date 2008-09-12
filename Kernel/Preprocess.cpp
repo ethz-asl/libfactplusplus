@@ -250,8 +250,6 @@ TConcept* TBox :: checkToldCycle ( TConcept* p )
 	static std::set<TConcept*> sStack;
 		// all the synonyms in the cycle
 	static std::vector<TConcept*> syns;
-		// individual found on the path
-	static TConcept* pI;
 
 	// no reason to process TOP here
 	if ( p == pTop )
@@ -271,18 +269,6 @@ TConcept* TBox :: checkToldCycle ( TConcept* p )
 	}
 
 	TConcept* ret = NULL;
-
-	// found an individual -- record it
-	if ( p->isSingleton() )
-	{
-		if ( pI == NULL )
-			pI = p;
-		else	// foreign individual -- all of them are equal
-		{
-			syns.push_back(p);
-			return pI;
-		}
-	}
 
 	// add concept in processing
 	sStack.insert(p);
@@ -305,10 +291,7 @@ redo:
 				// find a representative for the cycle; nominal is preferable
 				for ( q = syns.begin(); q < q_end; ++q )
 					if ( (*q)->isSingleton() )
-					{
 						p = *q;
-						break;		// we are interested in the earliest I to be a sample
-					}
 				// now p is a representative for all the synonyms
 
 				// fill the description
@@ -348,10 +331,6 @@ redo:
 
 	// remove processed concept from set
 	sStack.erase(p);
-
-	// no individuals on the way
-	if ( pI == p )
-		pI = NULL;
 
 	p->setRelevant(relevance);
 //	std::cout << "Done with " << p->getName() << std::endl;
