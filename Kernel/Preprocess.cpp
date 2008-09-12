@@ -163,19 +163,20 @@ replaceSynonymsFromTree ( DLTree* desc )
 	if ( desc == NULL )
 		return false;
 
-	TLexeme& cur = desc->Element();	// not const
-	if ( cur == CNAME )
+	if ( isName(desc) )
 	{
+		TLexeme& cur = desc->Element();	// not const
 		ClassifiableEntry* entry = static_cast<ClassifiableEntry*>(cur.getName());
 
 		if ( entry->isSynonym() )
 		{
+			entry = resolveSynonym(entry);
 			// check for TOP/BOTTOM
 			//FIXME!! may be, better use ID for TOP/BOTTOM
-			if ( entry->getSynonym()->getId() == -1 )
-				cur = !strcmp(entry->getSynonym()->getName(), "TOP") ? TOP : BOTTOM;
+			if ( entry->getId() == -1 )
+				cur = !strcmp(entry->getName(), "TOP") ? TOP : BOTTOM;
 			else
-				cur = TLexeme ( CNAME, entry->getSynonym() );
+				cur = TLexeme ( static_cast<TConcept*>(entry)->isSingleton() ? INAME : CNAME, entry );
 			return true;
 		}
 		else

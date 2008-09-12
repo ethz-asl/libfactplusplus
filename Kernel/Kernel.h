@@ -1144,7 +1144,7 @@ ReasoningKernel :: isSatisfiable ( const ComplexConcept C, bool& Result )
 	preprocessKB();	// ensure KB is ready to answer the query
 	if ( isCN(C) )
 	{
-		Result = getTBox()->isSatisfiable(getTBox()->getConcept(C));
+		Result = getTBox()->isSatisfiable(getTBox()->getCI(C));
 		return false;
 	}
 
@@ -1166,7 +1166,7 @@ ReasoningKernel :: isSubsumedBy ( const ComplexConcept C, const ComplexConcept D
 	preprocessKB();	// ensure KB is ready to answer the query
 	if ( isCN(C) && isCN(D) )
 	{
-		Result = getTBox()->isSubHolds ( getTBox()->getConcept(C), getTBox()->getConcept(D) );
+		Result = getTBox()->isSubHolds ( getTBox()->getCI(C), getTBox()->getCI(D) );
 		return false;
 	}
 

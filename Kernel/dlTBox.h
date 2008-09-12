@@ -281,7 +281,7 @@ protected:	// methods
 		/// @return concept by given Named Entry ID
 	TConcept* getConcept ( TNamedEntry* id ) { return static_cast<TConcept*>(id); }
 		/// get TOP/BOTTOM/CN by the DLTree entry
-	TConcept* getConcept ( const DLTree* name );
+	TConcept* getCI ( const DLTree* name );
 		/// @return individual by given Named Entry ID
 	TIndividual* getIndividual ( TNamedEntry* id ) { return static_cast<TIndividual*>(id); }
 
@@ -342,7 +342,7 @@ protected:	// methods
 		if ( !isCN (p->Description) )
 			return;	// complex expression -- not a synonym(imm.)
 
-		p->setSynonym(getConcept(p->Description));
+		p->setSynonym(getCI(p->Description));
 		p->initToldSubsumers();
 	}
 
@@ -1071,7 +1071,7 @@ inline TBox :: TBox ( const ifOptionSet* Options )
 //--		Implementation of ensure*-like stuff
 //---------------------------------------------------------------
 
-inline TConcept* TBox :: getConcept ( const DLTree* name )
+inline TConcept* TBox :: getCI ( const DLTree* name )
 {
 	if ( name->Element() == TOP )
 		return pTop;
@@ -1081,7 +1081,10 @@ inline TConcept* TBox :: getConcept ( const DLTree* name )
 	if ( !isName(name) )
 		return NULL;
 
-	return getConcept(name->Element().getName());
+	if ( name->Element().getToken() == CNAME )
+		return getConcept(name->Element().getName());
+	else
+		return getIndividual(name->Element().getName());
 }
 
 //---------------------------------------------------------------

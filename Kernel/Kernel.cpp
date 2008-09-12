@@ -159,7 +159,7 @@ needSetup:
 	// check if concept-to-cache is defined in ontology
 	if ( isCN (query) )
 	{	// undefined/non-classified concept -- need to reclassify
-		if ( (cachedConcept=pTBox->getConcept (query)) == NULL )
+		if ( (cachedConcept=pTBox->getCI(query)) == NULL )
 		{
 			// invalidate cache
 			cacheLevel = csEmpty;

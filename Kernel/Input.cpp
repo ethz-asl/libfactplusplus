@@ -50,9 +50,9 @@ bool TBox :: addSubsumeAxiom ( DLTree* left, DLTree* right )
 	}
 
 	// check the case D [= CN, where CN is defined as D
-	if ( right->Element() == CNAME )
+	if ( isName(right) )
 	{
-		TConcept* p = resolveSynonym(getConcept(right));
+		TConcept* p = resolveSynonym(getCI(right));
 
 		if ( p == NULL )
 			return true;
@@ -81,9 +81,9 @@ bool TBox :: addSubsumeAxiom ( DLTree* left, DLTree* right )
 	}
 
 	// if axiom is A\in smth, add to a appr. concept
-	if ( left->Element () == CNAME )
+	if ( isName(left) )
 	{
-		TConcept* p = getConcept (left);
+		TConcept* p = getCI(left);
 		delete left;
 
 		return addSubsumeAxiom ( resolveSynonym(p), right );
@@ -208,14 +208,14 @@ bool TBox :: addEqualityAxiom ( DLTree* left, DLTree* right )
 bool
 TBox :: addNonprimitiveDefinition ( DLTree* left, DLTree* right )
 {
-	TConcept* C = resolveSynonym(getConcept(left));
+	TConcept* C = resolveSynonym(getCI(left));
 
 	// not a named concept
 	if ( C == NULL || C == pTop || C == pBottom )
 		return false;
 
 	// check whether the case is C=D for a (concept-like) D
-	TConcept* D = getConcept(right);
+	TConcept* D = getCI(right);
 
 	// nothing to do for the case C := D for named concepts C,D with D = C already
 	if ( D && resolveSynonym(D) == C )
@@ -247,7 +247,7 @@ TBox :: addNonprimitiveDefinition ( DLTree* left, DLTree* right )
 bool
 TBox :: switchToNonprimitive ( DLTree* left, DLTree* right )
 {
-	TConcept* C = resolveSynonym(getConcept(left));
+	TConcept* C = resolveSynonym(getCI(left));
 
 	// not a named concept
 	if ( C == NULL || C == pTop || C == pBottom )
