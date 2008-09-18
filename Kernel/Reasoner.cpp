@@ -437,7 +437,7 @@ bool DlSatTester :: initNominalCloud ( void )
 	{
 		CGraph.initIR();
 		for ( SingletonVector::const_iterator p = r->begin(); p != r->end(); ++p )
-			if ( CGraph.setCurIR ( (*p)->node, dummy ) )	// different(c,c)
+			if ( CGraph.setCurIR ( resolveSynonym(*p)->node, dummy ) )	// different(c,c)
 				return true;
 		CGraph.finiIR();
 	}
@@ -448,9 +448,9 @@ bool DlSatTester :: initNominalCloud ( void )
 
 bool DlSatTester :: initRelatedNominals ( const TRelated* rel )
 {
-	DlCompletionTree* from = rel->a->node;
-	DlCompletionTree* to = rel->b->node;
-	TRole* R = rel->R;
+	DlCompletionTree* from = resolveSynonym(rel->a)->node;
+	DlCompletionTree* to = resolveSynonym(rel->b)->node;
+	TRole* R = resolveSynonym(rel->R);
 	DepSet dep;	// empty dep-set
 
 	// check if merging will lead to clash because of disjoint roles

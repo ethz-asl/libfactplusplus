@@ -203,12 +203,6 @@ void TBox :: replaceAllSynonyms ( void )
 	for ( i_iterator pi = i_begin(); pi != i_end(); ++pi )
 		if ( replaceSynonymsFromTree ( (*pi)->Description ) )
 			(*pi)->initToldSubsumers();
-
-	// replace synonyms in Different part
-	for ( DifferentIndividuals::iterator di = Different.begin(); di != Different.end(); ++di )
-		for ( SingletonVector::iterator sv = di->begin(); sv != di->end(); ++sv )
-			if ( (*sv)->isSynonym() )
-				*sv = resolveSynonym(*sv);
 }
 
 void TBox :: preprocessRelated ( void )
