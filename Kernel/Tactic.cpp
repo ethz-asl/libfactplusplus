@@ -1560,7 +1560,11 @@ tacticUsage DlSatTester :: tryCacheNode ( DlCompletionTree* node )
 	for ( p = node->beginl_sc(); p != node->endl_sc(); ++p )
 	{
 		if ( DLHeap.getCache(p->bp()) == NULL )
+		{
+			if ( LLM.isWritable(llGTA) )
+				LL << " cf(" << p->bp() << ")";
 			return utUnusable;
+		}
 
 		shallow &= DLHeap.getCache(p->bp())->shallowCache();
 		++size;
