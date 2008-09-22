@@ -1546,7 +1546,6 @@ tacticUsage DlSatTester :: commonTacticBodyIrrefl ( const TRole* R )
 
 tacticUsage DlSatTester :: tryCacheNode ( DlCompletionTree* node )
 {
-	tacticUsage ret = utUnusable;
 	DlCompletionTree::const_label_iterator p;
 	node->setCached(false);
 	bool shallow = true;
@@ -1556,11 +1555,14 @@ tacticUsage DlSatTester :: tryCacheNode ( DlCompletionTree* node )
 	if ( node->isNominalNode() )
 		return utUnusable;
 
+	nCacheTry.inc();
+
 	// check applicability of the caching
 	for ( p = node->beginl_sc(); p != node->endl_sc(); ++p )
 	{
 		if ( DLHeap.getCache(p->bp()) == NULL )
 		{
+			nCacheFailedNoCache.inc();
 			if ( LLM.isWritable(llGTA) )
 				LL << " cf(" << p->bp() << ")";
 			return utUnusable;
@@ -1573,7 +1575,12 @@ tacticUsage DlSatTester :: tryCacheNode ( DlCompletionTree* node )
 	for ( p = node->beginl_cc(); p != node->endl_cc(); ++p )
 	{
 		if ( DLHeap.getCache(p->bp()) == NULL )
+		{
+			nCacheFailedNoCache.inc();
+			if ( LLM.isWritable(llGTA) )
+				LL << " cf(" << p->bp() << ")";
 			return utUnusable;
+		}
 
 		shallow &= DLHeap.getCache(p->bp())->shallowCache();
 		++size;
@@ -1581,28 +1588,43 @@ tacticUsage DlSatTester :: tryCacheNode ( DlCompletionTree* node )
 
 	// it's useless to cache shallow nodes
 	if ( shallow && size != 0 )
-		return utUnusable;
-
-	if ( size == 0 )
-		ret = utDone;
-	else
-		ret = doCacheNode(node);
-
-	if ( ret == utDone )
 	{
+		nCacheFailedShallow.inc();
+		if ( LLM.isWritable(llGTA) )
+			LL << " cf(s)";
+		return utUnusable;
+	}
+
+	enum modelCacheState res = size ? doCacheNode(node) : csValid;
+
+	switch ( res )
+	{
+	case csValid:
+		nCachedSat.inc();
 		node->setCached(true);
 		if ( LLM.isWritable(llGTA) )
 			LL << " cached(" << node->getId() << ")";
+		return utDone;
+	case csInvalid:
+		nCachedUnsat.inc();
+		generateCacheClashLevel(node);
+		return utClash;
+	case csFailed:
+	case csUnknown:
+		nCacheFailed.inc();
+		if ( LLM.isWritable(llGTA) )
+			LL << " cf(c)";
+		return utUnusable;
+	default:
+		assert(0);
 	}
-
-	return ret;
 }
 
 /// perform caching of the node (it is known that caching is possible)
-tacticUsage
+enum modelCacheState
 DlSatTester :: doCacheNode ( DlCompletionTree* node )
 {
-	tacticUsage ret = utUnusable;
+	enum modelCacheState ret;
 	DlCompletionTree::const_label_iterator p;
 
 	// It's unsafe to have a cache that touchs nominal here; set flagNominals to prevent it
@@ -1610,12 +1632,12 @@ DlSatTester :: doCacheNode ( DlCompletionTree* node )
 
 	for ( p = node->beginl_sc(); p != node->endl_sc(); ++p )
 		// try to merge cache of a node label element with accumulator
-		if ( (ret = processCacheResultCompletely ( cache.merge(DLHeap.getCache(p->bp())), node )) != utDone )
+		if ( (ret = cache.merge(DLHeap.getCache(p->bp()))) != csValid )
 			return ret; // caching of node fails
 
 	for ( p = node->beginl_cc(); p != node->endl_cc(); ++p )
 		// try to merge cache of a node label element with accumulator
-		if ( (ret = processCacheResultCompletely ( cache.merge(DLHeap.getCache(p->bp())), node )) != utDone )
+		if ( (ret = cache.merge(DLHeap.getCache(p->bp()))) != csValid )
 			return ret; // caching of node fails
 
 	// all concepts in label are mergable; now try to add input arc
@@ -1624,7 +1646,7 @@ DlSatTester :: doCacheNode ( DlCompletionTree* node )
 		modelCacheIan cachePar(false);
 		cachePar.initRolesFromArcs(node);	// the only arc is parent
 
-		ret = processCacheResultCompletely ( cache.merge(&cachePar), node );
+		ret = cache.merge(&cachePar);
 	}
 
 	return ret;

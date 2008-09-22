@@ -307,9 +307,13 @@ protected:	// members
 		nLookups,
 		nCompareOps,
 
+		// reasoning cache
+		nCacheTry,
+		nCacheFailedNoCache,
+		nCacheFailedShallow,
+		nCacheFailed,
 		nCachedSat,
-		nCachedUnsat,
-		nCacheFailures;
+		nCachedUnsat;
 
 	// current values
 
@@ -428,16 +432,12 @@ protected:	// methods
 	void registerNominalCache ( TIndividual* p ) const
 		{ DLHeap.setCache ( p->pName, createModelCache(p->node->resolvePBlocker()) ); }
 
-		/// update statistic of cache usage; return appropriate state
-	tacticUsage processCacheResult ( enum modelCacheState state );
 		/// generate necessary clash level if node's caching lead to clash
 	void generateCacheClashLevel ( DlCompletionTree* node, modelCacheInterface* cache = NULL );
-		/// update statistic of cache usage; generate clash level if necessary
-	tacticUsage processCacheResultCompletely ( enum modelCacheState state, DlCompletionTree* node );
 		/// check if newly created node may be cached
 	tacticUsage tryCacheNode ( DlCompletionTree* node );
 		/// perform caching of the node (it is known that caching is possible)
-	tacticUsage doCacheNode ( DlCompletionTree* node );
+	enum modelCacheState doCacheNode ( DlCompletionTree* node );
 
 //-----------------------------------------------------------------------------
 //--		internal nominal reasoning interface
@@ -982,35 +982,6 @@ inline bool DlSatTester :: tunedRestore ( void )
 		return backJumpedRestore ();
 	else
 		return straightforwardRestore ();
-}
-
-// cache things implementation
-
-inline tacticUsage DlSatTester :: processCacheResult ( enum modelCacheState state )
-{
-	switch ( state )
-	{
-	case csInvalid:		// unsat for sure
-		nCachedUnsat.inc();
-		return utClash;
-	case csValid:		// sat for sure
-		nCachedSat.inc();
-		return utDone;
-	case csFailed:		// no sure result -- fail to cache
-		nCacheFailures.inc();
-	case csUnknown:		// no cache or invalid cache
-		return utUnusable;
-	default:
-		assert(0);		// safety check
-	}
-}
-
-inline tacticUsage DlSatTester :: processCacheResultCompletely ( enum modelCacheState state, DlCompletionTree* node )
-{
-	register tacticUsage ret = processCacheResult(state);
-	if ( ret == utClash )
-		generateCacheClashLevel(node);
-	return ret;
 }
 
 inline tacticUsage DlSatTester :: commonTacticBodyAll ( const DLVertex& cur )

@@ -294,8 +294,6 @@ tacticUsage DlSatTester :: correctCachedEntry ( DlCompletionTree* n )
 		return ret;
 
 	// uncheck cached node status and add all elements in TODO list
-	n->setCached(false);
-
 	redoNodeLabel ( n, "ce" );
 	return ret;
 }
@@ -793,9 +791,13 @@ void DlSatTester :: logStatisticData ( std::ostream& o, bool needLocal ) const
 	nLookups.Print			( o, needLocal, "\nThere were made ", " concept lookups" );
 	nCompareOps.Print		( o, needLocal, "\nThere were made ", " set compare ops" );
 
-	nCachedSat.Print		( o, needLocal, "\nThere were build ", " cached satisfiable nodes" );
-	nCachedUnsat.Print		( o, needLocal, "\nThere were build ", " cached unsatisfiable nodes" );
-	nCacheFailures.Print	( o, needLocal, "\nThere were ", " cached failures" );
+	nCacheTry.Print				( o, needLocal, "\nThere were made ", " tries to cache completion tree node, of which:" );
+	nCacheFailedNoCache.Print	( o, needLocal, "\n                ", " fails due to cache absence" );
+	nCacheFailedShallow.Print	( o, needLocal, "\n                ", " fails due to shallow node" );
+	nCacheFailed.Print			( o, needLocal, "\n                ", " fails due to cache merge failure" );
+	nCachedSat.Print			( o, needLocal, "\n                ", " cached satisfiable nodes" );
+	nCachedUnsat.Print			( o, needLocal, "\n                ", " cached unsatisfiable nodes" );
+
 	if ( !needLocal )
 		o << "\nThe maximal graph size is " << CGraph.maxSize() << " nodes";
 }
