@@ -113,7 +113,7 @@ TConcept :: replaceWithConst ( DLTree* t ) const
 	case NAME:	// if ID contains synonym of P
 	{
 		const ClassifiableEntry* name = static_cast<const ClassifiableEntry*>(t->Element().getName());
-		if ( name == this || name->getSynonym() == this )
+		if ( resolveSynonym(name) == this )
 		{
 			delete t;	// replace it for TOP
 			return new DLTree(TOP);
