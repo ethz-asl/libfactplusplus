@@ -516,6 +516,12 @@ protected:	// methods
 		/// check if P appears in referential cycle;
 		/// @return concept which creates cycle, NULL if no such concept exists.
 	TConcept* checkToldCycle ( TConcept* p );
+		/// transform i [= C [= j into i=C=j for i,j nominals
+	void transformSingletonHierarchy ( void );
+		/// make P and all its non-singleton parents synonyms to its singleton parent; @return that singleton
+	TIndividual* transformSingletonWithSP ( TConcept* p );
+		/// helper to the previous function
+	TIndividual* getSPForConcept ( TConcept* p );
 
 		/// @return number of synonyms in the KB
 	unsigned int countSynonyms ( void ) const

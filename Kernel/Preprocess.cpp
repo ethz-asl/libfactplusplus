@@ -73,6 +73,11 @@ void TBox :: Preprocess ( void )
 	transformToldCycles();
 	END_PASS();
 
+	// detect singleton with singleton parents and make them synonyms
+	BEGIN_PASS("Detect and transform singleton hierarchy");
+	transformSingletonHierarchy();
+	END_PASS();
+
 	// absorb axioms (move some Axioms to Role and Concept Description)
 	BEGIN_PASS("Perform absorption");
 	AbsorbAxioms();
@@ -331,6 +336,65 @@ redo:
 //	std::cout << "Done with " << p->getName() << std::endl;
 
 	return ret;
+}
+
+/// transform i [= C [= j into i=C=j for i,j nominals
+void
+TBox :: transformSingletonHierarchy ( void )
+{
+	// remember number of synonyms appeared in KB
+	unsigned int nSynonyms = countSynonyms();
+
+	// cycle until no new synonyms are created
+	bool changed;
+
+	do
+	{
+		changed = false;
+
+		for ( i_iterator pi = i_begin(); pi != i_end(); ++pi )
+			if ( !(*pi)->isSynonym() && (*pi)->isHasSP() )
+			{
+				TIndividual* i = transformSingletonWithSP(*pi);
+				i->removeSelfFromDescription();
+				changed = true;
+			}
+	} while ( changed );
+
+	// update nymber of synonyms
+	nSynonyms = countSynonyms() - nSynonyms;
+	if ( nSynonyms )
+		replaceAllSynonyms();
+}
+
+/// helper to the transformSingletonWithSP() function
+TIndividual*
+TBox :: getSPForConcept ( TConcept* p )
+{
+	for ( ClassifiableEntry::const_iterator r = p->told_begin(); r != p->told_end(); ++r )
+	{
+		TConcept* i = static_cast<TConcept*>(*r);
+		if ( i->isSingleton() )	// found the end of the chain
+			return static_cast<TIndividual*>(i);
+		if ( i->isHasSP() )		// found the continuation of the chain
+			return transformSingletonWithSP(i);
+	}
+	// will always found the entry
+	assert(0);
+}
+
+/// make P and all its non-singleton parents synonyms to its singleton parent
+TIndividual*
+TBox :: transformSingletonWithSP ( TConcept* p )
+{
+	TIndividual* i = getSPForConcept(p);
+
+	// make p a synonym of i
+	if ( p->isSingleton() )
+		i->addRelated(static_cast<TIndividual*>(p));
+	addSubsumeAxiom ( i, makeNonPrimitive ( p, getTree(i) )	);
+
+	return i;
 }
 
 void

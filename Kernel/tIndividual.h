@@ -98,6 +98,9 @@ public:		// interface
 	bool isRelated ( void ) const { return !RelatedIndex.empty(); }
 		/// set individual related
 	void addRelated ( TRelated* p ) { RelatedIndex.push_back(p); }
+		/// add all the related elements from the given P
+	void addRelated ( TIndividual* p )
+		{ RelatedIndex.insert ( RelatedIndex.end(), p->RelatedIndex.begin(), p->RelatedIndex.end() ); }
 
 	// precompletion interface
 
