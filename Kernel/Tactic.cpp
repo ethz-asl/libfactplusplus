@@ -1226,9 +1226,9 @@ DlSatTester :: checkMergeClash ( const CGLabel& from, const CGLabel& to, const D
 	return clash;
 }
 
-bool DlSatTester :: mergeLabels ( const CGLabel& from, DlCompletionTree* to, const DepSet& dep )
+tacticUsage DlSatTester :: mergeLabels ( const CGLabel& from, DlCompletionTree* to, const DepSet& dep )
 {
-	bool done = false;
+	tacticUsage ret = utUnusable;
 	CGLabel::const_iterator p, p_end;
 	CGLabel& lab(to->label());
 
@@ -1238,20 +1238,14 @@ bool DlSatTester :: mergeLabels ( const CGLabel& from, DlCompletionTree* to, con
 		if ( findConcept ( lab.getLabel(dtPConcept), p->bp() ) )
 			CGraph.saveRareCond ( to->label().getLabel(dtPConcept).updateDepSet ( p->bp(), dep+p->getDep() ) );
 		else
-		{
-			done = true;
-			insertToDoEntry ( to, p->bp(), dep+p->getDep(), DLHeap[p->bp()].Type(), "M" );
-		}
+			switchResult ( ret, insertToDoEntry ( to, p->bp(), dep+p->getDep(), DLHeap[p->bp()].Type(), "M" ) );
 	for ( p = from.begin_cc(), p_end = from.end_cc(); p < p_end; ++p )
 		if ( findConcept ( lab.getLabel(dtForall), p->bp() ) )
 			CGraph.saveRareCond ( to->label().getLabel(dtForall).updateDepSet ( p->bp(), dep+p->getDep() ) );
 		else
-		{
-			done = true;
-			insertToDoEntry ( to, p->bp(), dep+p->getDep(), DLHeap[p->bp()].Type(), "M" );
-		}
+			switchResult ( ret, insertToDoEntry ( to, p->bp(), dep+p->getDep(), DLHeap[p->bp()].Type(), "M" ) );
 
-	return done;
+	return ret;
 }
 
 tacticUsage DlSatTester :: Merge ( DlCompletionTree* from, DlCompletionTree* to, const DepSet& depF )
@@ -1285,8 +1279,7 @@ tacticUsage DlSatTester :: Merge ( DlCompletionTree* from, DlCompletionTree* to,
 		return utClash;
 
 	// copy all node labels
-	if ( mergeLabels ( from->label(), to, depF ) )
-		ret = utDone;
+	switchResult ( ret, mergeLabels ( from->label(), to, depF ) );
 
 	// correct graph structure
 	typedef std::vector<DlCompletionTreeArc*> edgeVector;
