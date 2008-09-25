@@ -737,6 +737,10 @@ inline bool DlCompletionTree :: isBlockedBy ( const DlCompletionTree* p ) const
 	if ( isNominalNode() || p->isNominalNode() )
 		return false;
 
+	// cached node can't be a blocker
+	if ( p->isCached() )
+		return false;
+
 	// easy check: Init is not in the label if a blocker
 	if ( Init != bpTOP && !p->label().contains(Init) )
 		return false;
