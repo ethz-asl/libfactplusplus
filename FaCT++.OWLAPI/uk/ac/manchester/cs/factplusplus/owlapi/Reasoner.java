@@ -201,8 +201,8 @@ public class Reasoner extends MonitorableOWLReasonerAdapter implements FaCTPlusP
                 loader.loadOntologies(getLoadedOntologies(), faCTPlusPlus);
 //            progressMonitor = new FaCTPPProgMon();
         }
-        catch (OWLException e) {
-            throw new FaCTPlusPlusException(e);
+        catch (Exception e) {
+            throw new FaCTPlusPlusReasonerException(e);
         }
     }
 

@@ -1,6 +1,5 @@
 package uk.ac.manchester.cs.factplusplus;
 
-import org.semanticweb.owl.inference.OWLReasonerException;
 /*
  * Copyright (C) 2007, University of Manchester
  *
@@ -31,7 +30,7 @@ import org.semanticweb.owl.inference.OWLReasonerException;
  * Bio-Health Informatics Group<br>
  * Date: 21-Sep-2007<br><br>
  */
-public class FaCTPlusPlusException extends OWLReasonerException {
+public class FaCTPlusPlusException extends Exception {
 
     
 
