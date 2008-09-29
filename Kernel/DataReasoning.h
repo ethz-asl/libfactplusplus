@@ -293,8 +293,8 @@ protected:	// methods
 	const TDataEntry* getDataEntry ( BipolarPointer p ) const
 		{ return static_cast<const TDataEntry*>(DLHeap[p].getConcept()); }
 		/// get TDE with a dep-set by a CWD
-	DepDTE getDTE ( const ConceptWDep& c ) const
-		{ return std::make_pair(getDataEntry(c.bp()),c.getDep()); }
+	DepDTE getDTE ( BipolarPointer p, const DepSet& dep ) const
+		{ return DepDTE(getDataEntry(p),dep); }
 
 	// get access to proper DataTypeAppearance
 
@@ -343,7 +343,7 @@ public:		// interface
 	// filling structures and getting answers
 
 		/// add data entry to the DTAVector; @return true iff data-data clash was found
-	bool addDataEntry ( const ConceptWDep& c );
+	bool addDataEntry ( BipolarPointer p, const DepSet& dep );
 		/// @return true iff data inconsistency was found in a structure; ClashSet would be set approprietry
 	bool checkClash ( void );
 		/// get clash-set

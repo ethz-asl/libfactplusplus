@@ -324,7 +324,7 @@ DlSatTester :: hasDataClash ( const DlCompletionTree* Node )
 
 	// data node may contain only "simple" concepts in there
 	for ( DlCompletionTree::const_label_iterator r = Node->beginl_sc(); r != Node->endl_sc(); ++r )
-		if ( DTReasoner.addDataEntry(*r) )	// clash found
+		if ( DTReasoner.addDataEntry ( r->bp(), r->getDep() ) )	// clash found
 			return true;
 
 	return DTReasoner.checkClash();

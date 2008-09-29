@@ -19,12 +19,11 @@ Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #include "DataReasoning.h"
 
 //toms code start
-bool DataTypeReasoner :: addDataEntry ( const ConceptWDep& c )
+bool DataTypeReasoner :: addDataEntry ( BipolarPointer p, const DepSet& dep )
 {
-	BipolarPointer p = c.bp();
-	DagTag tagType = DLHeap[p].Type();
+	const DLVertex& v = DLHeap[p];
 
-	switch (tagType)
+	switch ( v.Type() )
 	{
 	case dtDataType:		// get appropriate type
 	{
@@ -34,18 +33,18 @@ bool DataTypeReasoner :: addDataEntry ( const ConceptWDep& c )
 			LL << ' ' << (isPositive(p) ? '+' : '-') << getDataEntry(p)->getName();
 
 		if ( isPositive(p) )
-			type->setPType(getDTE(c));
+			type->setPType(getDTE(p,dep));
 		else
-			type->NType = getDTE(c);
+			type->NType = getDTE(p,dep);
 
 		return false;	// no clash found
 	}
 	case dtDataValue:
 		return isNegative(p) ?
-			processNegativeDV(getDTE(c)) :
-			processDataValue ( /*pos=*/true, getDataEntry(p), c.getDep() );
+			processNegativeDV(getDTE(p,dep)) :
+			processDataValue ( /*pos=*/true, getDataEntry(p), dep );
 	case dtDataExpr:
-		return processDataExpr ( isPositive(p), getDataEntry(p), c.getDep() );
+		return processDataExpr ( isPositive(p), getDataEntry(p), dep );
 	default:
 		assert(false);
 		return true;
