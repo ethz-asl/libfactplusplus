@@ -220,10 +220,12 @@ TDataInterval* getFacet ( JNIEnv * env, jobject obj )
 
 // check it pointer is a named concept
 template<class T>
+inline
 jlong getId ( T* p ATTR_UNUSED ) { return 0; }
 
-//
+// specialisation for the DLTree
 template<>
+inline
 jlong getId ( DLTree* p )
 {
 	switch ( p->Element().getToken() )
@@ -237,9 +239,11 @@ jlong getId ( DLTree* p )
 
 // add DLTree* references to a recorder
 template<class T>
+inline
 void registerPointer ( T* p ATTR_UNUSED ) {}
 
 template<>
+inline
 void registerPointer ( DLTree* p )
 {
 	assert(curKernel != NULL );
