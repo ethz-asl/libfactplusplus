@@ -686,6 +686,24 @@ public:
 		return !actor.apply(*p);
 	}
 
+	// domain and range as a set of named concepts
+	
+		/// apply actor::apply() to all NC that are in the domain of [complex] R
+	template<class Actor>
+	bool getRoleDomain ( const ComplexRole r, Actor& actor )
+	{
+		classifyKB();
+		return getDescendants ( Exists(r,Top()), actor );
+	}
+
+		/// apply actor::apply() to all NC that are in the range of [complex] R
+	template<class Actor>
+	bool getRoleRange ( const ComplexRole r, Actor& actor )
+	{
+		classifyKB();
+		return getDescendants ( Exists(Inverse(r),Top()), actor );
+	}
+
 	// instances
 
 		/// apply actor::apply() to all direct instances of given [complex] C
