@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2007 by Dmitry Tsarkov
+Copyright (C) 2007-2008 by Dmitry Tsarkov
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -24,14 +24,26 @@ Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 /// general FaCT++ exception
 class EFaCTPlusPlus: public std::exception
 {
+protected:
+		/// reason of the exception
+	const char* reason;
+
 public:
 		/// empty c'tor
-	EFaCTPlusPlus ( void ) throw() : exception() {}
+	EFaCTPlusPlus ( void ) throw()
+		: exception()
+		, reason("FaCT++.Kernel: General exception")
+		{}
+		/// init c'tor
+	EFaCTPlusPlus ( const char* str ) throw()
+		: exception()
+		, reason(str)
+		{}
 		/// empty d'tor
 	virtual ~EFaCTPlusPlus ( void ) throw() {}
 
 		/// reason
-	virtual const char* what ( void ) const throw() { return "FaCT++.Kernel: General exception"; }
+	virtual const char* what ( void ) const throw() { return reason; }
 }; // EFaCTPlusPlus
 
 #endif

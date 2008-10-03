@@ -24,6 +24,7 @@ Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 
 //#define FPP_USE_AXIOMS
 
+#include "eFaCTPlusPlus.h"
 #include "tNAryQueue.h"
 #include "dlTBox.h"
 #include "Reasoner.h"
@@ -36,20 +37,10 @@ Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 
 using namespace std;
 
-class UnInitException : public exception
+class InconsistentKB : public EFaCTPlusPlus
 {
 public:
-	UnInitException ( void ) throw() {}
-	~UnInitException ( void ) throw() {}
-	const char* what ( void ) const throw() { return "FaCT++ Kernel: KB Not Initialised"; }
-}; // UnInitException
-
-class InconsistentKB : public exception
-{
-public:
-	InconsistentKB ( void ) throw() {}
-	~InconsistentKB ( void ) throw() {}
-	const char* what ( void ) const throw() { return "FaCT++ Kernel: Inconsistent KB"; }
+	InconsistentKB ( void ) throw() : EFaCTPlusPlus("FaCT++ Kernel: Inconsistent KB") {}
 }; // InconsistentKB
 
 class ReasoningKernel
@@ -166,20 +157,16 @@ protected:	// methods
 
 	// get access to internal structures
 
+		/// @throw an exception if no TBox found
+	void checkTBox ( void ) const
+	{
+		if ( pTBox == NULL )
+			throw EFaCTPlusPlus("FaCT++ Kernel: KB Not Initialised");
+	}
 		/// get RW access to TBox
-	TBox* getTBox ( void )
-	{
-		if ( pTBox == NULL )
-			throw UnInitException();
-		return pTBox;
-	}
+	TBox* getTBox ( void ) { checkTBox(); return pTBox; }
 		/// get RO access to TBox
-	const TBox* getTBox ( void ) const
-	{
-		if ( pTBox == NULL )
-			throw UnInitException();
-		return pTBox;
-	}
+	const TBox* getTBox ( void ) const { checkTBox(); return pTBox; }
 
 		/// get RW access to RoleMaster from TBox
 	RoleMaster* getRM ( void ) { return getTBox()->getRM(); }

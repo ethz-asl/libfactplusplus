@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2006-2007 by Dmitry Tsarkov
+Copyright (C) 2006-2008 by Dmitry Tsarkov
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -37,12 +37,10 @@ public:		// interface
 		str += name;
 		str += "' as a ";
 		str += type;
+		reason = str.c_str();
 	}
 		/// empty d'tor
 	virtual ~EFPPCantRegName ( void ) throw() {}
-
-		/// reason
-	virtual const char* what ( void ) const throw() { return str.c_str(); }
 }; // CantRegName
 
 #endif

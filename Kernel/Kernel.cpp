@@ -18,7 +18,6 @@ Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 
 #include "Kernel.h"
 #include "comerror.h"
-#include "eFPPFailedReasoning.h"
 
 const char* ReasoningKernel :: Version = "1.2.0";
 const char* ReasoningKernel :: ProductName =
@@ -56,7 +55,7 @@ ReasoningKernel :: processKB ( KBStatus status )
 
 	// check whether reasoning was failed
 	if ( reasoningFailed )
-		throw EFPPFailedReasoning();
+		throw EFaCTPlusPlus("Can't classify KB because of previous errors");
 
 	// check if something have to be done
 	if ( getStatus() >= status )

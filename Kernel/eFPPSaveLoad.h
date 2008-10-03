@@ -32,10 +32,12 @@ public:		// members
 
 public:		// interface
 		/// c'tor with a given "what" string
-	EFPPSaveLoad ( const std::string& reason ) throw()
+	EFPPSaveLoad ( const std::string& why ) throw()
 		: EFaCTPlusPlus()
-		, str(reason)
-		{}
+		, str(why)
+	{
+		reason = str.c_str();
+	}
 		/// c'tor "Char not found"
 	explicit EFPPSaveLoad ( const char c ) throw()
 		: EFaCTPlusPlus()
@@ -43,6 +45,7 @@ public:		// interface
 		str = "Expected character '";
 		str += c;
 		str += "' not found";
+		reason = str.c_str();
 	}
 		/// c'tor: create an output string for the bad filename
 	EFPPSaveLoad ( const std::string& filename, bool save ) throw()
@@ -57,12 +60,10 @@ public:		// interface
 		str += " file '";
 		str += filename;
 		str += "'";
+		reason = str.c_str();
 	}
 		/// empty d'tor
 	virtual ~EFPPSaveLoad ( void ) throw() {}
-
-		/// reason
-	virtual const char* what ( void ) const throw() { return str.c_str(); }
 }; // EFppSaveLoad
 
 #endif
