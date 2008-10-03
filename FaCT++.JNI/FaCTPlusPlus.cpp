@@ -731,11 +731,12 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
 // Concept/role/individual axioms (TELL language)
 //-------------------------------------------------------------
 
-#define PROCESS_QUERY(Action,Reason)			\
+#define PROCESS_QUERY(Action,Name)				\
+	TRACE_JNI(Name);							\
 	bool fail = false;							\
 	try { fail = Action; }						\
 	catch ( std::exception ) { fail = true; }	\
-	if ( fail ) Throw ( env, Reason )
+	if ( fail ) Throw ( env, "FaCT++ Kernel: error during " Name " processing" )
 
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
@@ -745,10 +746,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
 JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellSubClassOf
   (JNIEnv * env, jobject obj, jobject arg1, jobject arg2)
 {
-	TRACE_JNI("tellSubClassOf");
-	PROCESS_QUERY (
-		getK(env,obj)->impliesConcepts ( getTree(env,arg1), getTree(env,arg2) ),
-		"FaCT++ Kernel: error during tellSubClassOf processing" );
+	PROCESS_QUERY ( getK(env,obj)->impliesConcepts ( getTree(env,arg1), getTree(env,arg2) ), "tellSubClassOf" );
 }
 
 /*
@@ -759,10 +757,7 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellSu
 JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellEquivalentClass
   (JNIEnv * env, jobject obj)
 {
-	TRACE_JNI("tellEquivalentClass");
-	PROCESS_QUERY (
-		getK(env,obj)->equalConcepts(),
-		"FaCT++ Kernel: error during tellEquivalentClasses processing" );
+	PROCESS_QUERY ( getK(env,obj)->equalConcepts(), "tellEquivalentClasses" );
 }
 
 /*
@@ -773,10 +768,7 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellEq
 JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellDisjointClasses
   (JNIEnv * env, jobject obj)
 {
-	TRACE_JNI("tellDisjointClasses");
-	PROCESS_QUERY (
-		getK(env,obj)->processDisjoint(),
-		"FaCT++ Kernel: error during tellDisjointClasses processing" );
+	PROCESS_QUERY ( getK(env,obj)->processDisjoint(), "tellDisjointClasses" );
 }
 
 /*
@@ -787,10 +779,7 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellDi
 JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellSubObjectProperties
   (JNIEnv * env, jobject obj, jobject arg1, jobject arg2)
 {
-	TRACE_JNI("tellSubObjectProperties");
-	PROCESS_QUERY (
-		getK(env,obj)->impliesRoles ( getROTree(env,arg1), getROTree(env,arg2) ),
-		"FaCT++ Kernel: error during tellSubObjectProperties processing" );
+	PROCESS_QUERY ( getK(env,obj)->impliesRoles ( getROTree(env,arg1), getROTree(env,arg2) ), "tellSubObjectProperties" );
 }
 
 /*
@@ -801,10 +790,7 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellSu
 JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellEquivalentObjectProperties
   (JNIEnv * env, jobject obj)
 {
-	TRACE_JNI("tellEquivalentObjectProperties");
-	PROCESS_QUERY (
-		getK(env,obj)->equalRoles(),
-		"FaCT++ Kernel: error during tellEquivalentObjectProperties processing" );
+	PROCESS_QUERY ( getK(env,obj)->equalRoles(), "tellEquivalentObjectProperties" );
 }
 
 /*
@@ -815,10 +801,7 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellEq
 JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellInverseProperties
   (JNIEnv * env, jobject obj, jobject arg1, jobject arg2)
 {
-	TRACE_JNI("tellInverseProperties");
-	PROCESS_QUERY (
-		getK(env,obj)->equalRoles ( getROTree(env,arg1), getK(env,obj)->Inverse(getTree(env,arg2)) ),
-		"FaCT++ Kernel: error during tellInverseProperties processing" );
+	PROCESS_QUERY ( getK(env,obj)->equalRoles ( getROTree(env,arg1), getK(env,obj)->Inverse(getTree(env,arg2)) ), "tellInverseProperties" );
 }
 
 /*
@@ -829,10 +812,7 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellIn
 JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellObjectPropertyRange
   (JNIEnv * env, jobject obj, jobject arg1, jobject arg2)
 {
-	TRACE_JNI("tellObjectPropertyRange");
-	PROCESS_QUERY (
-		getK(env,obj)->setRange ( getROTree(env,arg1), getTree(env,arg2) ),
-		"FaCT++ Kernel: error during tellObjectPropertyRange processing" );
+	PROCESS_QUERY ( getK(env,obj)->setRange ( getROTree(env,arg1), getTree(env,arg2) ), "tellObjectPropertyRange" );
 }
 
 /*
@@ -843,10 +823,7 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellOb
 JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellDataPropertyRange
   (JNIEnv * env, jobject obj, jobject arg1, jobject arg2)
 {
-	TRACE_JNI("tellDataPropertyRange");
-	PROCESS_QUERY (
-		getK(env,obj)->setRange ( getROTree(env,arg1), getTree(env,arg2) ),
-		"FaCT++ Kernel: error during tellDataPropertyRange processing" );
+	PROCESS_QUERY ( getK(env,obj)->setRange ( getROTree(env,arg1), getTree(env,arg2) ), "tellDataPropertyRange" );
 }
 
 /*
@@ -857,10 +834,7 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellDa
 JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellObjectPropertyDomain
   (JNIEnv * env, jobject obj, jobject arg1, jobject arg2)
 {
-	TRACE_JNI("tellObjectPropertyDomain");
-	PROCESS_QUERY (
-		getK(env,obj)->setDomain ( getROTree(env,arg1), getTree(env,arg2) ),
-		"FaCT++ Kernel: error during tellObjectPropertyDomain processing" );
+	PROCESS_QUERY ( getK(env,obj)->setDomain ( getROTree(env,arg1), getTree(env,arg2) ), "tellObjectPropertyDomain" );
 }
 
 /*
@@ -871,10 +845,7 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellOb
 JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellDataPropertyDomain
   (JNIEnv * env, jobject obj, jobject arg1, jobject arg2)
 {
-	TRACE_JNI("tellDataPropertyDomain");
-	PROCESS_QUERY (
-		getK(env,obj)->setDomain ( getROTree(env,arg1), getTree(env,arg2) ),
-		"FaCT++ Kernel: error during tellDataPropertyDomain processing" );
+	PROCESS_QUERY ( getK(env,obj)->setDomain ( getROTree(env,arg1), getTree(env,arg2) ), "tellDataPropertyDomain" );
 }
 
 /*
@@ -885,10 +856,7 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellDa
 JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellDisjointObjectProperties
   (JNIEnv * env, jobject obj)
 {
-	TRACE_JNI("tellDisjointObjectProperties");
-	PROCESS_QUERY (
-		getK(env,obj)->disjointRoles(),
-		"FaCT++ Kernel: error during tellDisjointObjectProperties processing" );
+	PROCESS_QUERY ( getK(env,obj)->disjointRoles(), "tellDisjointObjectProperties" );
 }
 
 /*
@@ -899,10 +867,7 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellDi
 JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellFunctionalObjectProperty
   (JNIEnv * env, jobject obj, jobject arg)
 {
-	TRACE_JNI("tellFunctionalObjectProperty");
-	PROCESS_QUERY (
-		getK(env,obj)->setFunctional(getROTree(env,arg)),
-		"FaCT++ Kernel: error during tellFunctionalObjectProperty processing" );
+	PROCESS_QUERY ( getK(env,obj)->setFunctional(getROTree(env,arg)), "tellFunctionalObjectProperty" );
 }
 
 /*
@@ -913,10 +878,7 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellFu
 JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellInverseFunctionalObjectProperty
   (JNIEnv * env, jobject obj, jobject arg)
 {
-	TRACE_JNI("tellInverseFunctionalObjectProperty");
-	PROCESS_QUERY (
-		getK(env,obj)->setFunctional(getK(env,obj)->Inverse(getTree(env,arg))),
-		"FaCT++ Kernel: error during tellInverseFunctionalObjectProperty processing" );
+	PROCESS_QUERY ( getK(env,obj)->setFunctional(getK(env,obj)->Inverse(getTree(env,arg))), "tellInverseFunctionalObjectProperty" );
 }
 
 /*
@@ -927,10 +889,7 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellIn
 JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellSymmetricObjectProperty
   (JNIEnv * env, jobject obj, jobject arg)
 {
-	TRACE_JNI("tellSymmetricObjectProperty");
-	PROCESS_QUERY (
-		getK(env,obj)->setSymmetric(getROTree(env,arg)),
-		"FaCT++ Kernel: error during tellSymmetricObjectProperty processing" );
+	PROCESS_QUERY ( getK(env,obj)->setSymmetric(getROTree(env,arg)), "tellSymmetricObjectProperty" );
 }
 
 /*
@@ -941,10 +900,7 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellSy
 JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellAntiSymmetricObjectProperty
   (JNIEnv * env, jobject obj, jobject arg)
 {
-	TRACE_JNI("tellAntiSymmetricObjectProperty");
-	PROCESS_QUERY (
-		getK(env,obj)->setAntiSymmetric(getROTree(env,arg)),
-		"FaCT++ Kernel: error during tellAntiSymmetricObjectProperty processing" );
+	PROCESS_QUERY ( getK(env,obj)->setAntiSymmetric(getROTree(env,arg)), "tellAntiSymmetricObjectProperty" );
 }
 
 /*
@@ -955,10 +911,7 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellAn
 JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellReflexiveObjectProperty
   (JNIEnv * env, jobject obj, jobject arg)
 {
-	TRACE_JNI("tellReflexiveObjectProperty");
-	PROCESS_QUERY (
-		getK(env,obj)->setReflexive(getROTree(env,arg)),
-		"FaCT++ Kernel: error during tellReflexiveObjectProperty processing" );
+	PROCESS_QUERY ( getK(env,obj)->setReflexive(getROTree(env,arg)), "tellReflexiveObjectProperty" );
 }
 
 /*
@@ -969,10 +922,7 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellRe
 JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellIrreflexiveObjectProperty
   (JNIEnv * env, jobject obj, jobject arg)
 {
-	TRACE_JNI("tellIrreflexiveObjectProperty");
-	PROCESS_QUERY (
-		getK(env,obj)->setIrreflexive(getROTree(env,arg)),
-		"FaCT++ Kernel: error during tellIrreflexiveObjectProperty processing" );
+	PROCESS_QUERY ( getK(env,obj)->setIrreflexive(getROTree(env,arg)), "tellIrreflexiveObjectProperty" );
 }
 
 /*
@@ -983,10 +933,7 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellIr
 JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellTransitiveObjectProperty
   (JNIEnv * env, jobject obj, jobject arg)
 {
-	TRACE_JNI("tellTransitiveObjectProperty");
-	PROCESS_QUERY (
-		getK(env,obj)->setTransitive(getROTree(env,arg)),
-		"FaCT++ Kernel: error during tellTransitiveObjectProperty processing" );
+	PROCESS_QUERY ( getK(env,obj)->setTransitive(getROTree(env,arg)), "tellTransitiveObjectProperty" );
 }
 
 /*
@@ -997,10 +944,7 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellTr
 JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellSubDataProperties
   (JNIEnv * env, jobject obj, jobject arg1, jobject arg2)
 {
-	TRACE_JNI("tellSubDataProperties");
-	PROCESS_QUERY (
-		getK(env,obj)->impliesRoles ( getROTree(env,arg1), getROTree(env,arg2) ),
-		"FaCT++ Kernel: error during tellSubDataProperties processing" );
+	PROCESS_QUERY ( getK(env,obj)->impliesRoles ( getROTree(env,arg1), getROTree(env,arg2) ), "tellSubDataProperties" );
 }
 
 /*
@@ -1011,10 +955,7 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellSu
 JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellEquivalentDataProperties
   (JNIEnv * env, jobject obj)
 {
-	TRACE_JNI("tellEquivalentDataProperties");
-	PROCESS_QUERY (
-		getK(env,obj)->equalRoles(),
-		"FaCT++ Kernel: error during tellEquivalentDataProperties processing" );
+	PROCESS_QUERY ( getK(env,obj)->equalRoles(), "tellEquivalentDataProperties" );
 }
 
 /*
@@ -1025,10 +966,7 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellEq
 JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellDisjointDataProperties
   (JNIEnv * env, jobject obj, jobject arg1, jobject arg2)
 {
-	TRACE_JNI("tellDisjointDataProperties");
-	PROCESS_QUERY (
-		getK(env,obj)->disjointRoles ( getROTree(env,arg1), getROTree(env,arg2) ),
-		"FaCT++ Kernel: error during tellDisjointDataProperties processing" );
+	PROCESS_QUERY ( getK(env,obj)->disjointRoles ( getROTree(env,arg1), getROTree(env,arg2) ), "tellDisjointDataProperties" );
 }
 
 /*
@@ -1039,10 +977,7 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellDi
 JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellFunctionalDataProperty
   (JNIEnv * env, jobject obj, jobject arg)
 {
-	TRACE_JNI("tellFunctionalDataProperty");
-	PROCESS_QUERY (
-		getK(env,obj)->setFunctional(getROTree(env,arg)),
-		"FaCT++ Kernel: error during tellFunctionalDataProperty processing" );
+	PROCESS_QUERY ( getK(env,obj)->setFunctional(getROTree(env,arg)), "tellFunctionalDataProperty" );
 }
 
 /*
@@ -1053,10 +988,7 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellFu
 JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellIndividualType
   (JNIEnv * env, jobject obj, jobject arg1, jobject arg2)
 {
-	TRACE_JNI("tellIndividualType");
-	PROCESS_QUERY (
-		getK(env,obj)->instanceOf ( getROTree(env,arg1), getTree(env,arg2) ),
-		"FaCT++ Kernel: error during tellIndividualType processing" );
+	PROCESS_QUERY ( getK(env,obj)->instanceOf ( getROTree(env,arg1), getTree(env,arg2) ), "tellIndividualType" );
 }
 
 /*
@@ -1067,10 +999,7 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellIn
 JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellRelatedIndividuals
   (JNIEnv * env, jobject obj, jobject arg1, jobject arg2, jobject arg3)
 {
-	TRACE_JNI("tellRelatedIndividuals");
-	PROCESS_QUERY (
-		getK(env,obj)->relatedTo ( getROTree(env,arg1), getROTree(env,arg2), getROTree(env,arg3) ),
-		"FaCT++ Kernel: error during tellRelatedIndividuals processing" );
+	PROCESS_QUERY ( getK(env,obj)->relatedTo ( getROTree(env,arg1), getROTree(env,arg2), getROTree(env,arg3) ), "tellRelatedIndividuals" );
 }
 
 /*
@@ -1081,10 +1010,7 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellRe
 JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellNotRelatedIndividuals
   (JNIEnv * env, jobject obj, jobject arg1, jobject arg2, jobject arg3)
 {
-	TRACE_JNI("tellNotRelatedIndividuals");
-	PROCESS_QUERY (
-		getK(env,obj)->relatedToNot ( getROTree(env,arg1), getTree(env,arg2), getTree(env,arg3) ),
-		"FaCT++ Kernel: error during tellNotRelatedIndividuals processing" );
+	PROCESS_QUERY ( getK(env,obj)->relatedToNot ( getROTree(env,arg1), getTree(env,arg2), getTree(env,arg3) ), "tellNotRelatedIndividuals" );
 }
 
 /*
@@ -1095,10 +1021,7 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellNo
 JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellRelatedIndividualValue
   (JNIEnv * env, jobject obj, jobject arg1, jobject arg2, jobject arg3)
 {
-	TRACE_JNI("tellRelatedIndividualValue");
-	PROCESS_QUERY (
-		getK(env,obj)->valueOf ( getROTree(env,arg1), getTree(env,arg2), getTree(env,arg3) ),
-		"FaCT++ Kernel: error during tellRelatedIndividualValue processing" );
+	PROCESS_QUERY ( getK(env,obj)->valueOf ( getROTree(env,arg1), getTree(env,arg2), getTree(env,arg3) ), "tellRelatedIndividualValue" );
 }
 
 /*
@@ -1109,10 +1032,7 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellRe
 JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellNotRelatedIndividualValue
   (JNIEnv * env, jobject obj, jobject arg1, jobject arg2, jobject arg3)
 {
-	TRACE_JNI("tellNotRelatedIndividualValue");
-	PROCESS_QUERY (
-		getK(env,obj)->valueOfNot ( getROTree(env,arg1), getTree(env,arg2), getTree(env,arg3) ),
-		"FaCT++ Kernel: error during tellNotRelatedIndividualValue processing" );
+	PROCESS_QUERY ( getK(env,obj)->valueOfNot ( getROTree(env,arg1), getTree(env,arg2), getTree(env,arg3) ), "tellNotRelatedIndividualValue" );
 }
 
 /*
@@ -1123,10 +1043,7 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellNo
 JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellSameIndividuals
   (JNIEnv * env, jobject obj)
 {
-	TRACE_JNI("tellSameIndividuals");
-	PROCESS_QUERY (
-		getK(env,obj)->processSame(),
-		"FaCT++ Kernel: error during tellSameIndividuals processing" );
+	PROCESS_QUERY ( getK(env,obj)->processSame(), "tellSameIndividuals" );
 }
 
 /*
@@ -1137,10 +1054,7 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellSa
 JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellDifferentIndividuals
   (JNIEnv * env, jobject obj)
 {
-	TRACE_JNI("tellDifferentIndividuals");
-	PROCESS_QUERY (
-		getK(env,obj)->processDifferent(),
-		"FaCT++ Kernel: error during tellDifferentIndividuals processing" );
+	PROCESS_QUERY ( getK(env,obj)->processDifferent(), "tellDifferentIndividuals" );
 }
 
 
