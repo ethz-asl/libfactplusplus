@@ -39,6 +39,10 @@ public class Translator implements OWLDescriptionVisitor, OWLEntityVisitor, OWLP
         owlDataProperty2DataPropertyPointerMap = new HashMap<OWLDataProperty, DataPropertyPointer>();
         individualPointerMap = new HashMap<IndividualPointer, OWLIndividual>();
         owlIndividual2IndividualPointerMap = new HashMap<OWLIndividual, IndividualPointer>();
+        dataValuePointerMap = new HashMap<DataValuePointer, OWLConstant>();
+        owlConstant2DataValuePointerMap = new HashMap<OWLConstant, DataValuePointer>();
+        dataTypeExpressionPointerMap = new HashMap<DataTypeExpressionPointer, OWLDataRange>();
+        owlDataRange2DataTypeExpressionPointerMap = new HashMap<OWLDataRange, DataTypeExpressionPointer>();
     }
 
 
@@ -73,6 +77,14 @@ public class Translator implements OWLDescriptionVisitor, OWLEntityVisitor, OWLP
 
     private Map<OWLIndividual, IndividualPointer> owlIndividual2IndividualPointerMap;
 
+    private Map<DataValuePointer, OWLConstant> dataValuePointerMap;
+
+    private Map<OWLConstant, DataValuePointer> owlConstant2DataValuePointerMap;
+
+    private Map<DataTypeExpressionPointer, OWLDataRange> dataTypeExpressionPointerMap;
+
+    private Map<OWLDataRange, DataTypeExpressionPointer> owlDataRange2DataTypeExpressionPointerMap;
+
     /**
      * Resets the translator by clearing out the various mappings
      * of OWLAPI objects to FaCT++ pointer objects.
@@ -87,6 +99,11 @@ public class Translator implements OWLDescriptionVisitor, OWLEntityVisitor, OWLP
             dataPropertyPointerMap.clear();
             individualPointerMap.clear();
             owlIndividual2IndividualPointerMap.clear();
+            dataValuePointerMap.clear();
+            owlConstant2DataValuePointerMap.clear();
+            dataTypeExpressionPointerMap.clear();
+            owlDataRange2DataTypeExpressionPointerMap.clear();
+
             lastClassPointer = null;
             lastObjectPropertyPointer = null;
             lastIndividualPointer = null;
@@ -161,8 +178,8 @@ public class Translator implements OWLDescriptionVisitor, OWLEntityVisitor, OWLP
     }
 
 
-    public ObjectPropertyPointer translate(OWLObjectProperty property) throws OWLException {
-        property.accept((OWLEntityVisitor) this);
+    public ObjectPropertyPointer translate(OWLObjectPropertyExpression property) throws OWLException {
+        property.accept(this);
         return getLastObjectPropertyPointer();
     }
 
@@ -183,6 +200,7 @@ public class Translator implements OWLDescriptionVisitor, OWLEntityVisitor, OWLP
         range.accept(this);
         return getLastDataTypePointer();
     }
+
 
     public DataValuePointer translate(OWLConstant con) throws OWLException {
         con.accept(this);
@@ -519,8 +537,13 @@ public class Translator implements OWLDescriptionVisitor, OWLEntityVisitor, OWLP
 
     public void visit(OWLDataComplementOf node) {
         try {
-            node.getDataRange().accept(this);
-            lastDataTypeExpressionPointer = faCTPlusPlus.getNot(getLastDataTypeExpressionPointer());
+            lastDataTypeExpressionPointer = owlDataRange2DataTypeExpressionPointerMap.get(node);
+            if (lastDataTypeExpressionPointer == null){
+                node.getDataRange().accept(this);
+                lastDataTypeExpressionPointer = faCTPlusPlus.getNot(getLastDataTypeExpressionPointer());
+                owlDataRange2DataTypeExpressionPointerMap.put(node, lastDataTypeExpressionPointer);
+                dataTypeExpressionPointerMap.put(lastDataTypeExpressionPointer, node);
+            }
         }
         catch (Exception e) {
             throw new FaCTPlusPlusRuntimeException(e);
@@ -530,17 +553,23 @@ public class Translator implements OWLDescriptionVisitor, OWLEntityVisitor, OWLP
 
     public void visit(OWLDataOneOf node) {
         try {
-            List<DataValuePointer> pointers = new ArrayList<DataValuePointer>();
-            for (OWLConstant con : node.getValues()) {
-                con.accept(this);
-                pointers.add(getLastDataValuePointer());
+            lastDataTypeExpressionPointer = owlDataRange2DataTypeExpressionPointerMap.get(node);
+            if (lastDataTypeExpressionPointer == null){
+
+                List<DataValuePointer> pointers = new ArrayList<DataValuePointer>();
+                for (OWLConstant con : node.getValues()) {
+                    con.accept(this);
+                    pointers.add(getLastDataValuePointer());
+                }
+                faCTPlusPlus.initArgList();
+                for (DataValuePointer pointer : pointers) {
+                    faCTPlusPlus.addArg(pointer);
+                }
+                faCTPlusPlus.closeArgList();
+                lastDataTypeExpressionPointer = faCTPlusPlus.getDataEnumeration();
+                owlDataRange2DataTypeExpressionPointerMap.put(node, lastDataTypeExpressionPointer);
+                dataTypeExpressionPointerMap.put(lastDataTypeExpressionPointer, node);
             }
-            faCTPlusPlus.initArgList();
-            for (DataValuePointer pointer : pointers) {
-                faCTPlusPlus.addArg(pointer);
-            }
-            faCTPlusPlus.closeArgList();
-            lastDataTypeExpressionPointer = faCTPlusPlus.getDataEnumeration();
         }
         catch (Exception e) {
             throw new FaCTPlusPlusRuntimeException(e);
@@ -550,51 +579,55 @@ public class Translator implements OWLDescriptionVisitor, OWLEntityVisitor, OWLP
 
     public void visit(OWLDataRangeRestriction node) {
         try {
-            DataTypeExpressionPointer dt = null;
-            lastDataTypeExpressionPointer = null;
-            lastDataTypePointer = null;
-            node.getDataRange().accept(this);
-            dt = getLastDataTypeExpressionPointer();
+            lastDataTypeExpressionPointer = owlDataRange2DataTypeExpressionPointerMap.get(node);
+            if (lastDataTypeExpressionPointer == null){
+                lastDataTypeExpressionPointer = null;
+                lastDataTypePointer = null;
+                node.getDataRange().accept(this);
+                DataTypeExpressionPointer dt = getLastDataTypeExpressionPointer();
 
-            for (OWLDataRangeFacetRestriction restriction : node.getFacetRestrictions()) {
+                for (OWLDataRangeFacetRestriction restriction : node.getFacetRestrictions()) {
 
-                restriction.getFacetValue().accept(this);
-                DataValuePointer dv = getLastDataValuePointer();
-                DataTypeFacet facet = null;
-                if (restriction.getFacet().equals(OWLRestrictedDataRangeFacetVocabulary.MIN_INCLUSIVE)) {
-                    facet = faCTPlusPlus.getMinInclusiveFacet(dv);
+                    restriction.getFacetValue().accept(this);
+                    DataValuePointer dv = getLastDataValuePointer();
+                    DataTypeFacet facet = null;
+                    if (restriction.getFacet().equals(OWLRestrictedDataRangeFacetVocabulary.MIN_INCLUSIVE)) {
+                        facet = faCTPlusPlus.getMinInclusiveFacet(dv);
+                    }
+                    else if (restriction.getFacet().equals(OWLRestrictedDataRangeFacetVocabulary.MAX_INCLUSIVE)) {
+                        facet = faCTPlusPlus.getMaxInclusiveFacet(dv);
+                    }
+                    else if (restriction.getFacet().equals(OWLRestrictedDataRangeFacetVocabulary.MIN_EXCLUSIVE)) {
+                        facet = faCTPlusPlus.getMinExclusiveFacet(dv);
+                    }
+                    else if (restriction.getFacet().equals(OWLRestrictedDataRangeFacetVocabulary.MAX_EXCLUSIVE)) {
+                        facet = faCTPlusPlus.getMaxExclusiveFacet(dv);
+                    }
+                    else if (restriction.getFacet().equals(OWLRestrictedDataRangeFacetVocabulary.LENGTH)) {
+                        facet = faCTPlusPlus.getLength(dv);
+                    }
+                    else if (restriction.getFacet().equals(OWLRestrictedDataRangeFacetVocabulary.MIN_LENGTH)) {
+                        facet = faCTPlusPlus.getMinLength(dv);
+                    }
+                    else if (restriction.getFacet().equals(OWLRestrictedDataRangeFacetVocabulary.MAX_LENGTH)) {
+                        facet = faCTPlusPlus.getMaxLength(dv);
+                    }
+                    else if (restriction.getFacet().equals(OWLRestrictedDataRangeFacetVocabulary.FRACTION_DIGITS)) {
+                        facet = faCTPlusPlus.getFractionDigitsFacet(dv);
+                    }
+                    else if (restriction.getFacet().equals(OWLRestrictedDataRangeFacetVocabulary.PATTERN)) {
+                        facet = faCTPlusPlus.getPattern(dv);
+                    }
+                    else if (restriction.getFacet().equals(OWLRestrictedDataRangeFacetVocabulary.TOTAL_DIGITS)) {
+                        facet = faCTPlusPlus.getTotalDigitsFacet(dv);
+                    }
+                    else {
+                        throw new FaCTPlusPlusReasonerException("Unsupported data type facet: " + restriction.getFacet());
+                    }
+                    dt = lastDataTypeExpressionPointer = faCTPlusPlus.getRestrictedDataType(dt, facet);
                 }
-                else if (restriction.getFacet().equals(OWLRestrictedDataRangeFacetVocabulary.MAX_INCLUSIVE)) {
-                    facet = faCTPlusPlus.getMaxInclusiveFacet(dv);
-                }
-                else if (restriction.getFacet().equals(OWLRestrictedDataRangeFacetVocabulary.MIN_EXCLUSIVE)) {
-                    facet = faCTPlusPlus.getMinExclusiveFacet(dv);
-                }
-                else if (restriction.getFacet().equals(OWLRestrictedDataRangeFacetVocabulary.MAX_EXCLUSIVE)) {
-                    facet = faCTPlusPlus.getMaxExclusiveFacet(dv);
-                }
-                else if (restriction.getFacet().equals(OWLRestrictedDataRangeFacetVocabulary.LENGTH)) {
-                    facet = faCTPlusPlus.getLength(dv);
-                }
-                else if (restriction.getFacet().equals(OWLRestrictedDataRangeFacetVocabulary.MIN_LENGTH)) {
-                    facet = faCTPlusPlus.getMinLength(dv);
-                }
-                else if (restriction.getFacet().equals(OWLRestrictedDataRangeFacetVocabulary.MAX_LENGTH)) {
-                    facet = faCTPlusPlus.getMaxLength(dv);
-                }
-                else if (restriction.getFacet().equals(OWLRestrictedDataRangeFacetVocabulary.FRACTION_DIGITS)) {
-                    facet = faCTPlusPlus.getFractionDigitsFacet(dv);
-                }
-                else if (restriction.getFacet().equals(OWLRestrictedDataRangeFacetVocabulary.PATTERN)) {
-                    facet = faCTPlusPlus.getPattern(dv);
-                }
-                else if (restriction.getFacet().equals(OWLRestrictedDataRangeFacetVocabulary.TOTAL_DIGITS)) {
-                    facet = faCTPlusPlus.getTotalDigitsFacet(dv);
-                }
-                else {
-                    throw new FaCTPlusPlusReasonerException("Unsupported data type facet: " + restriction.getFacet());
-                }
-                dt = lastDataTypeExpressionPointer = faCTPlusPlus.getRestrictedDataType(dt, facet);
+                owlDataRange2DataTypeExpressionPointerMap.put(node, lastDataTypeExpressionPointer);
+                dataTypeExpressionPointerMap.put(lastDataTypeExpressionPointer, node);
             }
         }
         catch (Exception e) {
@@ -610,8 +643,13 @@ public class Translator implements OWLDescriptionVisitor, OWLEntityVisitor, OWLP
 
     public void visit(OWLTypedConstant node) {
         try {
-            node.getDataType().accept((OWLDataVisitor) this);
-            lastDataValuePointer = faCTPlusPlus.getDataValue(node.getLiteral(), getLastDataTypePointer());
+            lastDataValuePointer = owlConstant2DataValuePointerMap.get(node);
+            if (lastDataValuePointer == null){
+                node.getDataType().accept((OWLDataVisitor) this);
+                lastDataValuePointer = faCTPlusPlus.getDataValue(node.getLiteral(), getLastDataTypePointer());
+                owlConstant2DataValuePointerMap.put(node, lastDataValuePointer);
+                dataValuePointerMap.put(lastDataValuePointer, node);
+            }
         }
         catch (Exception e) {
             throw new FaCTPlusPlusRuntimeException(e);
@@ -621,8 +659,13 @@ public class Translator implements OWLDescriptionVisitor, OWLEntityVisitor, OWLP
 
     public void visit(OWLUntypedConstant node) {
         try {
-            owlOntologyManager.getOWLDataFactory().getOWLDataType(XSDVocabulary.STRING.getURI()).accept((OWLDataVisitor) this);
-            lastDataValuePointer = faCTPlusPlus.getDataValue(node.getLiteral(), getLastDataTypePointer());
+            lastDataValuePointer = owlConstant2DataValuePointerMap.get(node);
+            if (lastDataValuePointer == null){
+                owlOntologyManager.getOWLDataFactory().getOWLDataType(XSDVocabulary.STRING.getURI()).accept((OWLDataVisitor) this);
+                lastDataValuePointer = faCTPlusPlus.getDataValue(node.getLiteral(), getLastDataTypePointer());
+                owlConstant2DataValuePointerMap.put(node, lastDataValuePointer);
+                dataValuePointerMap.put(lastDataValuePointer, node);
+            }
         }
         catch (Exception e) {
             throw new FaCTPlusPlusRuntimeException(e);
@@ -719,13 +762,17 @@ public class Translator implements OWLDescriptionVisitor, OWLEntityVisitor, OWLP
     public void visit(OWLDataType dataType) {
         try {
             lastDataTypeExpressionPointer = null;
-            if(owlOntologyManager.getOWLDataFactory().getTopDataType().equals(dataType)) {
-                lastDataTypePointer = faCTPlusPlus.getDataTop();
+            lastDataTypePointer = (DataTypePointer)owlDataRange2DataTypeExpressionPointerMap.get(dataType);
+            if (lastDataTypePointer == null){
+                if(owlOntologyManager.getOWLDataFactory().getTopDataType().equals(dataType)) {
+                    lastDataTypePointer = faCTPlusPlus.getDataTop();
+                }
+                else {
+                    lastDataTypePointer = faCTPlusPlus.getBuiltInDataType(dataType.getURI().toString());
+                }
+                owlDataRange2DataTypeExpressionPointerMap.put(dataType, lastDataTypePointer);
+                dataTypeExpressionPointerMap.put(lastDataTypePointer, dataType);
             }
-            else {
-                lastDataTypePointer = faCTPlusPlus.getBuiltInDataType(dataType.getURI().toString());
-            }
-
         }
         catch (Exception e) {
             throw new FaCTPlusPlusRuntimeException(e);
@@ -737,6 +784,29 @@ public class Translator implements OWLDescriptionVisitor, OWLEntityVisitor, OWLP
     // Pointer to entity
     //
     ////////////////////////////////////////////////////////////////////////////////////////
+
+
+    public OWLObject getOWLObject(Pointer pointer) {
+        if (pointer instanceof ClassPointer){
+            return getOWLClass((ClassPointer)pointer);
+        }
+        if (pointer instanceof ObjectPropertyPointer){
+            return getOWLObjectProperty((ObjectPropertyPointer)pointer);
+        }
+        if (pointer instanceof DataPropertyPointer){
+            return getOWLDataProperty((DataPropertyPointer)pointer);
+        }
+        if (pointer instanceof IndividualPointer){
+            return getOWLIndividual((IndividualPointer)pointer);
+        }
+        if (pointer instanceof DataValuePointer){
+            return getOWLConstant((DataValuePointer)pointer);
+        }
+        if (pointer instanceof DataTypeExpressionPointer){
+            return getOWLDataRange((DataTypeExpressionPointer)pointer);
+        }
+        return null;
+    }
 
 
     public OWLClass getOWLClass(ClassPointer classPointer) {
@@ -755,5 +825,15 @@ public class Translator implements OWLDescriptionVisitor, OWLEntityVisitor, OWLP
 
     public OWLIndividual getOWLIndividual(IndividualPointer individualPointer) {
         return individualPointerMap.get(individualPointer);
+    }
+
+
+    public OWLConstant getOWLConstant(DataValuePointer constantPointer) {
+        return dataValuePointerMap.get(constantPointer);
+    }
+
+
+    public OWLDataRange getOWLDataRange(DataTypeExpressionPointer pointer) {
+        return dataTypeExpressionPointerMap.get(pointer);
     }
 }

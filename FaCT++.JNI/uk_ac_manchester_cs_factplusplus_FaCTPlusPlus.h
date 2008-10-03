@@ -713,18 +713,18 @@ JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlu
 
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
- * Method:    askObjectPropertDomain
- * Signature: (Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;)Luk/ac/manchester/cs/factplusplus/ClassPointer;
+ * Method:    askObjectPropertyDomain
+ * Signature: (Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;)[[Luk/ac/manchester/cs/factplusplus/ClassPointer;
  */
-JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_askObjectPropertDomain
+JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_askObjectPropertyDomain
   (JNIEnv *, jobject, jobject);
 
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
  * Method:    askObjectPropertyRange
- * Signature: (Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;)Luk/ac/manchester/cs/factplusplus/ClassPointer;
+ * Signature: (Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;)[[Luk/ac/manchester/cs/factplusplus/ClassPointer;
  */
-JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_askObjectPropertyRange
+JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_askObjectPropertyRange
   (JNIEnv *, jobject, jobject);
 
 /*
@@ -810,9 +810,9 @@ JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlu
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
  * Method:    askDataPropertyDomain
- * Signature: (Luk/ac/manchester/cs/factplusplus/DataPropertyPointer;)Luk/ac/manchester/cs/factplusplus/ClassPointer;
+ * Signature: (Luk/ac/manchester/cs/factplusplus/DataPropertyPointer;)[[Luk/ac/manchester/cs/factplusplus/ClassPointer;
  */
-JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_askDataPropertyDomain
+JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_askDataPropertyDomain
   (JNIEnv *, jobject, jobject);
 
 /*
@@ -838,6 +838,70 @@ JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_is
  */
 JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_askIndividualTypes
   (JNIEnv *, jobject, jobject, jboolean);
+
+/*
+ * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
+ * Method:    askObjectProperties
+ * Signature: (Luk/ac/manchester/cs/factplusplus/IndividualPointer;)[Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;
+ */
+JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_askObjectProperties
+  (JNIEnv *, jobject, jobject);
+
+/*
+ * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
+ * Method:    askObjectPropertyRelationObjects
+ * Signature: (Luk/ac/manchester/cs/factplusplus/IndividualPointer;Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;)[Luk/ac/manchester/cs/factplusplus/IndividualPointer;
+ */
+JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_askObjectPropertyRelationObjects
+  (JNIEnv *, jobject, jobject, jobject);
+
+/*
+ * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
+ * Method:    askDataProperties
+ * Signature: (Luk/ac/manchester/cs/factplusplus/IndividualPointer;)[Luk/ac/manchester/cs/factplusplus/DataPropertyPointer;
+ */
+JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_askDataProperties
+  (JNIEnv *, jobject, jobject);
+
+/*
+ * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
+ * Method:    askDataPropertyRelationValues
+ * Signature: (Luk/ac/manchester/cs/factplusplus/IndividualPointer;Luk/ac/manchester/cs/factplusplus/DataPropertyPointer;)[Luk/ac/manchester/cs/factplusplus/DataValuePointer;
+ */
+JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_askDataPropertyRelationValues
+  (JNIEnv *, jobject, jobject, jobject);
+
+/*
+ * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
+ * Method:    askRelatedIndividuals
+ * Signature: (Luk/ac/manchester/cs/factplusplus/IndividualPointer;Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;)[Luk/ac/manchester/cs/factplusplus/IndividualPointer;
+ */
+JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_askRelatedIndividuals
+  (JNIEnv *, jobject, jobject, jobject);
+
+/*
+ * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
+ * Method:    askRelatedValues
+ * Signature: (Luk/ac/manchester/cs/factplusplus/IndividualPointer;Luk/ac/manchester/cs/factplusplus/DataPropertyPointer;)[Luk/ac/manchester/cs/factplusplus/DataValuePointer;
+ */
+JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_askRelatedValues
+  (JNIEnv *, jobject, jobject, jobject);
+
+/*
+ * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
+ * Method:    hasDataPropertyRelationship
+ * Signature: (Luk/ac/manchester/cs/factplusplus/IndividualPointer;Luk/ac/manchester/cs/factplusplus/DataPropertyPointer;Luk/ac/manchester/cs/factplusplus/DataValuePointer;)Z
+ */
+JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_hasDataPropertyRelationship
+  (JNIEnv *, jobject, jobject, jobject, jobject);
+
+/*
+ * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
+ * Method:    hasObjectPropertyRelationship
+ * Signature: (Luk/ac/manchester/cs/factplusplus/IndividualPointer;Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;Luk/ac/manchester/cs/factplusplus/IndividualPointer;)Z
+ */
+JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_hasObjectPropertyRelationship
+  (JNIEnv *, jobject, jobject, jobject, jobject);
 
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus

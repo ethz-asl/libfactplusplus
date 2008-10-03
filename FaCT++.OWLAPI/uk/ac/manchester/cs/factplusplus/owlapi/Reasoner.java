@@ -2,7 +2,6 @@ package uk.ac.manchester.cs.factplusplus.owlapi;
 
 import org.semanticweb.owl.inference.MonitorableOWLReasonerAdapter;
 import org.semanticweb.owl.inference.OWLReasonerException;
-import org.semanticweb.owl.inference.UnsupportedReasonerOperationException;
 import org.semanticweb.owl.model.*;
 import uk.ac.manchester.cs.factplusplus.*;
 
@@ -53,6 +52,9 @@ public class Reasoner extends MonitorableOWLReasonerAdapter implements FaCTPlusP
      */
     private boolean classified = false;
 
+
+    private TranslatorUtils translatorUtils;
+
     /**
      * There is only one kernel per reasoner.  For a new
      * kernel, a new <code>Reasoner</code> needs to be created.
@@ -68,6 +70,8 @@ public class Reasoner extends MonitorableOWLReasonerAdapter implements FaCTPlusP
         // Create the one and only translator that translates between FaCT++
         // objects and OWLAPI objects
         translator = new Translator(owlOntologyManager, faCTPlusPlus);
+
+        translatorUtils = new TranslatorUtils(owlOntologyManager, faCTPlusPlus, translator);
     }
 
 
@@ -170,8 +174,8 @@ public class Reasoner extends MonitorableOWLReasonerAdapter implements FaCTPlusP
     private void ensureSynchronised(boolean force) throws OWLReasonerException {
         if (!synchronised &&
             (autoSync || force)) {
-                synchronised = true; // set sync first in case of errors in classify
-                resync();
+            synchronised = true; // set sync first in case of errors in classify
+            resync();
         }
     }
 
@@ -196,9 +200,9 @@ public class Reasoner extends MonitorableOWLReasonerAdapter implements FaCTPlusP
             translator.reset();
 
             faCTPlusPlus.setProgressMonitor(this);
-                // Now reload the ontologies
-                OntologyLoader loader = new OntologyLoader(getOWLOntologyManager(), translator);
-                loader.loadOntologies(getLoadedOntologies(), faCTPlusPlus);
+            // Now reload the ontologies
+            OntologyLoader loader = new OntologyLoader(getOWLOntologyManager(), translator);
+            loader.loadOntologies(getLoadedOntologies(), faCTPlusPlus);
 //            progressMonitor = new FaCTPPProgMon();
         }
         catch (Exception e) {
@@ -308,29 +312,13 @@ public class Reasoner extends MonitorableOWLReasonerAdapter implements FaCTPlusP
     }
 
 
-    private void checkDescription(OWLDescription owlDescription) {
-        if (owlDescription instanceof OWLClass) {
-            if (!translator.contains((OWLClass) owlDescription)) {
-                throw new FaCTPlusPlusRuntimeException("Asking about unknown class (" + ((OWLClass) owlDescription).getURI() + ").  (Check that the reasoner is synchronized)");
-            }
-        }
-    }
-
-
-    private void checkIndividual(OWLIndividual individual) {
-        if (!translator.contains(individual)) {
-            throw new FaCTPlusPlusRuntimeException("Asking about unknown individual (" + individual.getURI() + ") (Check that the reasoner is synchronized)");
-        }
-    }
-
-
     public boolean isSatisfiable(OWLDescription owlDescription) throws OWLReasonerException {
         try {
             ensureSynchronised();
             if (!faCTPlusPlus.isKBConsistent()) {
                 return false;
             }
-            checkDescription(owlDescription);
+            translatorUtils.checkParams(owlDescription);
             return getFaCTPlusPlus().isClassSatisfiable(translator.translate(owlDescription));
         }
         catch (Exception e) {
@@ -342,10 +330,10 @@ public class Reasoner extends MonitorableOWLReasonerAdapter implements FaCTPlusP
     public Set<Set<OWLClass>> getSuperClasses(OWLDescription owlDescription) throws OWLReasonerException {
         try {
             ensureSynchronised();
-            checkDescription(owlDescription);
+            translatorUtils.checkParams(owlDescription);
 
             ClassPointer[][] result = getFaCTPlusPlus().askSuperClasses(translator.translate(owlDescription), true);
-            return getOWLAPISets(result);
+            return translatorUtils.getOWLAPISets(result);
         }
         catch (Exception e) {
             throw new FaCTPlusPlusReasonerException(e);
@@ -356,10 +344,10 @@ public class Reasoner extends MonitorableOWLReasonerAdapter implements FaCTPlusP
     public Set<Set<OWLClass>> getAncestorClasses(OWLDescription owlDescription) throws OWLReasonerException {
         try {
             ensureSynchronised();
-            checkDescription(owlDescription);
+            translatorUtils.checkParams(owlDescription);
 
             ClassPointer[][] result = getFaCTPlusPlus().askSuperClasses(translator.translate(owlDescription), false);
-            return getOWLAPISets(result);
+            return translatorUtils.getOWLAPISets(result);
         }
         catch (Exception e) {
             throw new FaCTPlusPlusReasonerException(e);
@@ -370,10 +358,10 @@ public class Reasoner extends MonitorableOWLReasonerAdapter implements FaCTPlusP
     public Set<Set<OWLClass>> getSubClasses(OWLDescription owlDescription) throws OWLReasonerException {
         try {
             ensureSynchronised();
-            checkDescription(owlDescription);
+            translatorUtils.checkParams(owlDescription);
 
             ClassPointer[][] result = getFaCTPlusPlus().askSubClasses(translator.translate(owlDescription), true);
-            return getOWLAPISets(result);
+            return translatorUtils.getOWLAPISets(result);
         }
         catch (Exception e) {
             throw new FaCTPlusPlusReasonerException(e);
@@ -384,10 +372,10 @@ public class Reasoner extends MonitorableOWLReasonerAdapter implements FaCTPlusP
     public Set<Set<OWLClass>> getDescendantClasses(OWLDescription owlDescription) throws OWLReasonerException {
         try {
             ensureSynchronised();
-            checkDescription(owlDescription);
+            translatorUtils.checkParams(owlDescription);
 
             ClassPointer[][] result = getFaCTPlusPlus().askSubClasses(translator.translate(owlDescription), false);
-            return getOWLAPISets(result);
+            return translatorUtils.getOWLAPISets(result);
         }
         catch (Exception e) {
             throw new FaCTPlusPlusReasonerException(e);
@@ -398,17 +386,9 @@ public class Reasoner extends MonitorableOWLReasonerAdapter implements FaCTPlusP
     public Set<OWLClass> getEquivalentClasses(OWLDescription owlDescription) throws OWLReasonerException {
         try {
             ensureSynchronised();
-            checkDescription(owlDescription);
+            translatorUtils.checkParams(owlDescription);
 
-            Set<OWLClass> apiresult = new HashSet<OWLClass>();
-            ClassPointer[] result = getFaCTPlusPlus().askEquivalentClasses(translator.translate(owlDescription));
-            for (ClassPointer cp : result) {
-                OWLClass cls = translator.getOWLClass(cp);
-                if (cls != null) {
-                    apiresult.add(cls);
-                }
-            }
-            return apiresult;
+            return translatorUtils.getOWLAPISet(getFaCTPlusPlus().askEquivalentClasses(translator.translate(owlDescription)));
         }
         catch (Exception e) {
             throw new FaCTPlusPlusReasonerException(e);
@@ -420,6 +400,8 @@ public class Reasoner extends MonitorableOWLReasonerAdapter implements FaCTPlusP
             OWLReasonerException {
         try {
             ensureSynchronised();
+            translatorUtils.checkParams(owlIndividual, owlDescription);
+
             return getFaCTPlusPlus().isInstanceOf(translator.translate(owlIndividual),
                                                   translator.translate(owlDescription));
         }
@@ -443,17 +425,9 @@ public class Reasoner extends MonitorableOWLReasonerAdapter implements FaCTPlusP
             OWLReasonerException {
         try {
             ensureSynchronised();
-            checkDescription(owlDescription);
-            IndividualPointer[] individualPointers =
-                    getFaCTPlusPlus().askInstances(translator.translate(owlDescription), direct);
-            Set<OWLIndividual> individuals = new HashSet<OWLIndividual>();
-            for (IndividualPointer individualPointer : individualPointers) {
-                OWLIndividual translation = translator.getOWLIndividual(individualPointer);
-                if (translation != null) {
-                    individuals.add(translation);
-                }
-            }
-            return individuals;
+            translatorUtils.checkParams(owlDescription);
+
+            return translatorUtils.getOWLAPISet(getFaCTPlusPlus().askInstances(translator.translate(owlDescription), direct));
         }
         catch (Exception e) {
             throw new FaCTPlusPlusReasonerException(e);
@@ -464,8 +438,9 @@ public class Reasoner extends MonitorableOWLReasonerAdapter implements FaCTPlusP
     public Set<Set<OWLClass>> getTypes(OWLIndividual individual, boolean direct) throws OWLReasonerException {
         try {
             ensureSynchronised();
-            checkIndividual(individual);
-            return getOWLAPISets(getFaCTPlusPlus().askIndividualTypes(translator.translate(individual), direct));
+            translatorUtils.checkParams(individual);
+
+            return translatorUtils.getOWLAPISets(getFaCTPlusPlus().askIndividualTypes(translator.translate(individual), direct));
         }
         catch (Exception e) {
             throw new FaCTPlusPlusReasonerException(e);
@@ -473,44 +448,110 @@ public class Reasoner extends MonitorableOWLReasonerAdapter implements FaCTPlusP
     }
 
 
-    public Map<OWLObjectProperty, Set<OWLIndividual>> getObjectPropertyRelationships(OWLIndividual individual) throws
-            OWLReasonerException {
-        throw new UnsupportedReasonerOperationException();
+    public Map<OWLObjectProperty, Set<OWLIndividual>> getObjectPropertyRelationships(OWLIndividual individual) throws OWLReasonerException {
+        try {
+            ensureSynchronised();
+            translatorUtils.checkParams(individual);
+
+            Map<OWLObjectProperty, Set<OWLIndividual>> results = new HashMap<OWLObjectProperty, Set<OWLIndividual>>();
+            ObjectPropertyPointer[] props = getFaCTPlusPlus().askObjectProperties(translator.translate(individual));
+            for (ObjectPropertyPointer prop : props){
+                Set<OWLIndividual> inds = translatorUtils.getOWLAPISet(getFaCTPlusPlus().askObjectPropertyRelationObjects(translator.translate(individual), prop));
+                if(!inds.isEmpty()){
+                    results.put(translator.getOWLObjectProperty(prop), inds);
+                }
+            }
+            return results;
+        }
+        catch (Exception e) {
+            throw new FaCTPlusPlusReasonerException(e);
+        }
     }
 
 
-    public Map<OWLDataProperty, Set<OWLConstant>> getDataPropertyRelationships(OWLIndividual invidual) throws
+    public Map<OWLDataProperty, Set<OWLConstant>> getDataPropertyRelationships(OWLIndividual individual) throws
             OWLReasonerException {
-        throw new UnsupportedReasonerOperationException();
+        try {
+            ensureSynchronised();
+            translatorUtils.checkParams(individual);
+
+            Map<OWLDataProperty, Set<OWLConstant>> results = new HashMap<OWLDataProperty, Set<OWLConstant>>();
+            DataPropertyPointer[] props = getFaCTPlusPlus().askDataProperties(translator.translate(individual));
+            for (DataPropertyPointer prop : props){
+                Set<OWLConstant> inds = translatorUtils.getOWLAPISet(getFaCTPlusPlus().askDataPropertyRelationValues(translator.translate(individual), prop));
+                if(!inds.isEmpty()){
+                    results.put(translator.getOWLDataProperty(prop), inds);
+                }
+            }
+            return results;
+        }
+        catch (Exception e) {
+            throw new FaCTPlusPlusReasonerException(e);
+        }
     }
 
 
     public Set<OWLIndividual> getRelatedIndividuals(OWLIndividual subject, OWLObjectPropertyExpression property) throws
             OWLReasonerException {
-        throw new UnsupportedReasonerOperationException();
+        try {
+            ensureSynchronised();
+            translatorUtils.checkParams(subject, property);
+
+            return translatorUtils.getOWLAPISet(getFaCTPlusPlus().askRelatedIndividuals(translator.translate(subject), translator.translate(property)));
+        }
+        catch (Exception e) {
+            throw new FaCTPlusPlusReasonerException(e);
+        }
     }
 
 
     public Set<OWLConstant> getRelatedValues(OWLIndividual subject, OWLDataPropertyExpression property) throws
             OWLReasonerException {
-        throw new UnsupportedReasonerOperationException();
+        try {
+            ensureSynchronised();
+            translatorUtils.checkParams(subject, property);
+
+            return translatorUtils.getOWLAPISet(getFaCTPlusPlus().askRelatedValues(translator.translate(subject), translator.translate(property)));
+        }
+        catch (Exception e) {
+            throw new FaCTPlusPlusReasonerException(e);
+        }
     }
 
 
     public boolean hasDataPropertyRelationship(OWLIndividual subject, OWLDataPropertyExpression property,
                                                OWLConstant object) throws OWLReasonerException {
-        return false;
+        try {
+            ensureSynchronised();
+            translatorUtils.checkParams(subject, property);
+
+            return getFaCTPlusPlus().hasDataPropertyRelationship(translator.translate(subject), translator.translate(property), translator.translate(object));
+        }
+        catch (Exception e) {
+            throw new FaCTPlusPlusReasonerException(e);
+        }
     }
 
 
     public boolean hasObjectPropertyRelationship(OWLIndividual subject, OWLObjectPropertyExpression property,
                                                  OWLIndividual object) throws OWLReasonerException {
-        return false;
+        try {
+            ensureSynchronised();
+            translatorUtils.checkParams(subject, object);
+
+            return getFaCTPlusPlus().hasObjectPropertyRelationship(translator.translate(subject), translator.translate(property), translator.translate(object));
+        }
+        catch (Exception e) {
+            throw new FaCTPlusPlusReasonerException(e);
+        }
     }
 
 
     public boolean hasType(OWLIndividual individual, OWLDescription type, boolean direct) throws OWLReasonerException {
         try {
+            ensureSynchronised();
+            translatorUtils.checkParams(individual, type);
+
             return getIndividuals(type, direct).contains(individual);
         }
         catch (Exception e) {
@@ -522,7 +563,9 @@ public class Reasoner extends MonitorableOWLReasonerAdapter implements FaCTPlusP
     public Set<Set<OWLObjectProperty>> getSuperProperties(OWLObjectProperty property) throws OWLReasonerException {
         try {
             ensureSynchronised();
-            return getOWLAPISets(faCTPlusPlus.askSuperObjectProperties(translator.translate(property), true));
+            translatorUtils.checkParams(property);
+
+            return translatorUtils.getOWLAPISets(faCTPlusPlus.askSuperObjectProperties(translator.translate(property), true));
         }
         catch (Exception e) {
             throw new FaCTPlusPlusReasonerException(e);
@@ -533,7 +576,9 @@ public class Reasoner extends MonitorableOWLReasonerAdapter implements FaCTPlusP
     public Set<Set<OWLObjectProperty>> getSubProperties(OWLObjectProperty property) throws OWLReasonerException {
         try {
             ensureSynchronised();
-            return getOWLAPISets(faCTPlusPlus.askSubObjectProperties(translator.translate(property), true));
+            translatorUtils.checkParams(property);
+
+            return translatorUtils.getOWLAPISets(faCTPlusPlus.askSubObjectProperties(translator.translate(property), true));
         }
         catch (Exception e) {
             throw new FaCTPlusPlusReasonerException(e);
@@ -544,7 +589,9 @@ public class Reasoner extends MonitorableOWLReasonerAdapter implements FaCTPlusP
     public Set<Set<OWLObjectProperty>> getAncestorProperties(OWLObjectProperty property) throws OWLReasonerException {
         try {
             ensureSynchronised();
-            return getOWLAPISets(faCTPlusPlus.askSuperObjectProperties(translator.translate(property), false));
+            translatorUtils.checkParams(property);
+
+            return translatorUtils.getOWLAPISets(faCTPlusPlus.askSuperObjectProperties(translator.translate(property), false));
         }
         catch (Exception e) {
             throw new FaCTPlusPlusReasonerException(e);
@@ -555,7 +602,9 @@ public class Reasoner extends MonitorableOWLReasonerAdapter implements FaCTPlusP
     public Set<Set<OWLObjectProperty>> getDescendantProperties(OWLObjectProperty property) throws OWLReasonerException {
         try {
             ensureSynchronised();
-            return getOWLAPISets(faCTPlusPlus.askSubObjectProperties(translator.translate(property), false));
+            translatorUtils.checkParams(property);
+
+            return translatorUtils.getOWLAPISets(faCTPlusPlus.askSubObjectProperties(translator.translate(property), false));
         }
         catch (Exception e) {
             throw new FaCTPlusPlusReasonerException(e);
@@ -566,6 +615,8 @@ public class Reasoner extends MonitorableOWLReasonerAdapter implements FaCTPlusP
     public Set<Set<OWLObjectProperty>> getInverseProperties(OWLObjectProperty property) throws OWLReasonerException {
         try {
             ensureSynchronised();
+            translatorUtils.checkParams(property);
+
             OWLObjectProperty invProp = translator.getOWLObjectProperty(faCTPlusPlus.getInverseProperty(translator.translate(
                     property)));
             Set<Set<OWLObjectProperty>> props = new HashSet<Set<OWLObjectProperty>>();
@@ -586,13 +637,9 @@ public class Reasoner extends MonitorableOWLReasonerAdapter implements FaCTPlusP
     public Set<OWLObjectProperty> getEquivalentProperties(OWLObjectProperty property) throws OWLReasonerException {
         try {
             ensureSynchronised();
-            ObjectPropertyPointer[] equivalentProperties = faCTPlusPlus.askEquivalentObjectProperties(translator.translate(
-                    property));
-            Set<OWLObjectProperty> props = new HashSet<OWLObjectProperty>();
-            for (ObjectPropertyPointer ptr : equivalentProperties) {
-                props.add(translator.getOWLObjectProperty(ptr));
-            }
-            return props;
+            translatorUtils.checkParams(property);
+
+            return translatorUtils.getOWLAPISet(faCTPlusPlus.askEquivalentObjectProperties(translator.translate(property)));
         }
         catch (Exception e) {
             throw new FaCTPlusPlusReasonerException(e);
@@ -601,18 +648,36 @@ public class Reasoner extends MonitorableOWLReasonerAdapter implements FaCTPlusP
 
 
     public Set<Set<OWLDescription>> getDomains(OWLObjectProperty property) throws OWLReasonerException {
-        throw new UnsupportedReasonerOperationException();
+        try {
+            ensureSynchronised();
+            translatorUtils.checkParams(property);
+
+            return translatorUtils.getOWLAPIDescriptionSets(getFaCTPlusPlus().askObjectPropertyDomain(translator.translate(property)));
+        }
+        catch (Exception e) {
+            throw new FaCTPlusPlusReasonerException(e);
+        }
     }
 
 
     public Set<OWLDescription> getRanges(OWLObjectProperty property) throws OWLReasonerException {
-        throw new UnsupportedReasonerOperationException();
+        try {
+            ensureSynchronised();
+            translatorUtils.checkParams(property);
+
+            return translatorUtils.getOWLAPIDescriptionSet(getFaCTPlusPlus().askObjectPropertyRange(translator.translate(property)));
+        }
+        catch (Exception e) {
+            throw new FaCTPlusPlusReasonerException(e);
+        }
     }
 
 
     public boolean isFunctional(OWLObjectProperty property) throws OWLReasonerException {
         try {
             ensureSynchronised();
+            translatorUtils.checkParams(property);
+
             return getReasoner().isObjectPropertyFunctional(translator.translate(property));
         }
         catch (Exception e) {
@@ -624,6 +689,8 @@ public class Reasoner extends MonitorableOWLReasonerAdapter implements FaCTPlusP
     public boolean isInverseFunctional(OWLObjectProperty property) throws OWLReasonerException {
         try {
             ensureSynchronised();
+            translatorUtils.checkParams(property);
+
             return getReasoner().isObjectPropertyInverseFunctional(translator.translate(property));
         }
         catch (Exception e) {
@@ -635,6 +702,8 @@ public class Reasoner extends MonitorableOWLReasonerAdapter implements FaCTPlusP
     public boolean isSymmetric(OWLObjectProperty property) throws OWLReasonerException {
         try {
             ensureSynchronised();
+            translatorUtils.checkParams(property);
+
             return getReasoner().isObjectPropertySymmetric(translator.translate(property));
         }
         catch (Exception e) {
@@ -646,6 +715,8 @@ public class Reasoner extends MonitorableOWLReasonerAdapter implements FaCTPlusP
     public boolean isTransitive(OWLObjectProperty property) throws OWLReasonerException {
         try {
             ensureSynchronised();
+            translatorUtils.checkParams(property);
+
             return getReasoner().isObjectPropertyTransitive(translator.translate(property));
         }
         catch (Exception e) {
@@ -657,6 +728,8 @@ public class Reasoner extends MonitorableOWLReasonerAdapter implements FaCTPlusP
     public boolean isReflexive(OWLObjectProperty property) throws OWLReasonerException {
         try {
             ensureSynchronised();
+            translatorUtils.checkParams(property);
+
             return getReasoner().isObjectPropertyReflexive(translator.translate(property));
         }
         catch (Exception e) {
@@ -668,6 +741,8 @@ public class Reasoner extends MonitorableOWLReasonerAdapter implements FaCTPlusP
     public boolean isIrreflexive(OWLObjectProperty property) throws OWLReasonerException {
         try {
             ensureSynchronised();
+            translatorUtils.checkParams(property);
+
             return getReasoner().isObjectPropertyIrreflexive(translator.translate(property));
         }
         catch (Exception e) {
@@ -679,6 +754,8 @@ public class Reasoner extends MonitorableOWLReasonerAdapter implements FaCTPlusP
     public boolean isAntiSymmetric(OWLObjectProperty property) throws OWLReasonerException {
         try {
             ensureSynchronised();
+            translatorUtils.checkParams(property);
+
             return getReasoner().isObjectPropertyAntiSymmetric(translator.translate(property));
         }
         catch (Exception e) {
@@ -690,7 +767,9 @@ public class Reasoner extends MonitorableOWLReasonerAdapter implements FaCTPlusP
     public Set<Set<OWLDataProperty>> getSuperProperties(OWLDataProperty property) throws OWLReasonerException {
         try {
             ensureSynchronised();
-            return getOWLAPISets(faCTPlusPlus.askSuperDataProperties(translator.translate(property), true));
+            translatorUtils.checkParams(property);
+
+            return translatorUtils.getOWLAPISets(faCTPlusPlus.askSuperDataProperties(translator.translate(property), true));
         }
         catch (Exception e) {
             throw new FaCTPlusPlusReasonerException(e);
@@ -701,7 +780,9 @@ public class Reasoner extends MonitorableOWLReasonerAdapter implements FaCTPlusP
     public Set<Set<OWLDataProperty>> getSubProperties(OWLDataProperty property) throws OWLReasonerException {
         try {
             ensureSynchronised();
-            return getOWLAPISets(faCTPlusPlus.askSubDataProperties(translator.translate(property), true));
+            translatorUtils.checkParams(property);
+
+            return translatorUtils.getOWLAPISets(faCTPlusPlus.askSubDataProperties(translator.translate(property), true));
         }
         catch (Exception e) {
             throw new FaCTPlusPlusReasonerException(e);
@@ -712,7 +793,9 @@ public class Reasoner extends MonitorableOWLReasonerAdapter implements FaCTPlusP
     public Set<Set<OWLDataProperty>> getAncestorProperties(OWLDataProperty property) throws OWLReasonerException {
         try {
             ensureSynchronised();
-            return getOWLAPISets(faCTPlusPlus.askSuperDataProperties(translator.translate(property), false));
+            translatorUtils.checkParams(property);
+
+            return translatorUtils.getOWLAPISets(faCTPlusPlus.askSuperDataProperties(translator.translate(property), false));
         }
         catch (Exception e) {
             throw new FaCTPlusPlusReasonerException(e);
@@ -723,7 +806,9 @@ public class Reasoner extends MonitorableOWLReasonerAdapter implements FaCTPlusP
     public Set<Set<OWLDataProperty>> getDescendantProperties(OWLDataProperty property) throws OWLReasonerException {
         try {
             ensureSynchronised();
-            return getOWLAPISets(faCTPlusPlus.askSubDataProperties(translator.translate(property), false));
+            translatorUtils.checkParams(property);
+
+            return translatorUtils.getOWLAPISets(faCTPlusPlus.askSubDataProperties(translator.translate(property), false));
         }
         catch (Exception e) {
             throw new FaCTPlusPlusReasonerException(e);
@@ -734,13 +819,9 @@ public class Reasoner extends MonitorableOWLReasonerAdapter implements FaCTPlusP
     public Set<OWLDataProperty> getEquivalentProperties(OWLDataProperty property) throws OWLReasonerException {
         try {
             ensureSynchronised();
-            DataPropertyPointer[] equivalentProperties = faCTPlusPlus.askEquivalentDataProperties(translator.translate(
-                    property));
-            Set<OWLDataProperty> props = new HashSet<OWLDataProperty>();
-            for (DataPropertyPointer ptr : equivalentProperties) {
-                props.add(translator.getOWLDataProperty(ptr));
-            }
-            return props;
+            translatorUtils.checkParams(property);
+
+            return translatorUtils.getOWLAPISet(faCTPlusPlus.askEquivalentDataProperties(translator.translate(property)));
         }
         catch (Exception e) {
             throw new FaCTPlusPlusReasonerException(e);
@@ -749,19 +830,11 @@ public class Reasoner extends MonitorableOWLReasonerAdapter implements FaCTPlusP
 
 
     public Set<Set<OWLDescription>> getDomains(OWLDataProperty property) throws OWLReasonerException {
-        throw new UnsupportedReasonerOperationException();
-    }
-
-
-    public Set<OWLDataRange> getRanges(OWLDataProperty property) throws OWLReasonerException {
-        throw new UnsupportedReasonerOperationException();
-    }
-
-
-    public boolean isFunctional(OWLDataProperty property) throws OWLReasonerException {
         try {
             ensureSynchronised();
-            return faCTPlusPlus.isDataPropertyFunctional(translator.translate(property));
+            translatorUtils.checkParams(property);
+
+            return translatorUtils.getOWLAPIDescriptionSets(getFaCTPlusPlus().askDataPropertyDomain(translator.translate(property)));
         }
         catch (Exception e) {
             throw new FaCTPlusPlusReasonerException(e);
@@ -769,82 +842,29 @@ public class Reasoner extends MonitorableOWLReasonerAdapter implements FaCTPlusP
     }
 
 
-    /**
-     * Given an array of arrays of class pointers, this method translates
-     * them into a set of sets of OWLAPI <code>OWLClass</code> objects.
-     * @param clsPointers The array of arrays of class pointers to be translated.
-     */
-    private Set<Set<OWLClass>> getOWLAPISets(ClassPointer[][] clsPointers) throws OWLReasonerException {
-        Set<Set<OWLClass>> clsSets = new HashSet<Set<OWLClass>>();
-        for (ClassPointer[] clsPointArray : clsPointers) {
-            Set<OWLClass> clses = new HashSet<OWLClass>();
-            for (ClassPointer clsPointer : clsPointArray) {
-                OWLClass cls = translator.getOWLClass(clsPointer);
-                if (cls != null) {
-                    clses.add(cls);
-                }
-                else {
-                    try {
-                        if (clsPointer.equals(faCTPlusPlus.getThing())) {
-                            clses.add(getOWLDataFactory().getOWLThing());
-                            logger.fine("Missing translation for Thing");
-                        }
-                        else if (clsPointer.equals(faCTPlusPlus.getNothing())) {
-                            clses.add(getOWLDataFactory().getOWLNothing());
-                            logger.fine("Missing translation for Nothing");
-                        }
-                        else {
-                            logger.severe("Translation failed for class pointer: " + clsPointer);
-                        }
-                    }
-                    catch (Exception e) {
-                        throw new FaCTPlusPlusReasonerException(e);
-                    }
-                }
-            }
-            clsSets.add(clses);
+    public Set<OWLDataRange> getRanges(OWLDataProperty property) throws OWLReasonerException {
+        try {
+            ensureSynchronised();
+            translatorUtils.checkParams(property);
+
+            return translatorUtils.getOWLAPISet(new DataTypeExpressionPointer[]{getFaCTPlusPlus().askDataPropertyRange(translator.translate(property))});
         }
-        return clsSets;
+        catch (Exception e) {
+            throw new FaCTPlusPlusReasonerException(e);
+        }
     }
 
 
-    private Set<Set<OWLObjectProperty>> getOWLAPISets(ObjectPropertyPointer[][] propertyPointers) throws
-            OWLReasonerException {
-        Set<Set<OWLObjectProperty>> propSets = new HashSet<Set<OWLObjectProperty>>();
-        for (ObjectPropertyPointer[] propertyPointerArray : propertyPointers) {
-            Set<OWLObjectProperty> props = new HashSet<OWLObjectProperty>();
-            for (ObjectPropertyPointer propPointer : propertyPointerArray) {
-                OWLObjectProperty prop = translator.getOWLObjectProperty(propPointer);
-                if (prop != null) {
-                    props.add(prop);
-                }
-                else {
-                    logger.severe("Translation failed for object pointer: " + propPointer);
-                }
-            }
-            propSets.add(props);
+    public boolean isFunctional(OWLDataProperty property) throws OWLReasonerException {
+        try {
+            ensureSynchronised();
+            translatorUtils.checkParams(property);
+                        
+            return faCTPlusPlus.isDataPropertyFunctional(translator.translate(property));
         }
-        return propSets;
-    }
-
-
-    private Set<Set<OWLDataProperty>> getOWLAPISets(DataPropertyPointer[][] propertyPointers) throws
-            OWLReasonerException {
-        Set<Set<OWLDataProperty>> propSets = new HashSet<Set<OWLDataProperty>>();
-        for (DataPropertyPointer[] propertyPointerArray : propertyPointers) {
-            Set<OWLDataProperty> props = new HashSet<OWLDataProperty>();
-            for (DataPropertyPointer propPointer : propertyPointerArray) {
-                OWLDataProperty prop = translator.getOWLDataProperty(propPointer);
-                if (prop != null) {
-                    props.add(prop);
-                }
-                else {
-                    logger.severe("Translation failed for object pointer: " + propPointer);
-                }
-            }
-            propSets.add(props);
+        catch (Exception e) {
+            throw new FaCTPlusPlusReasonerException(e);
         }
-        return propSets;
     }
 
 

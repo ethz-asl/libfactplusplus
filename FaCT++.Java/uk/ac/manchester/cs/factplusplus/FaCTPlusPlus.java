@@ -1,5 +1,6 @@
 package uk.ac.manchester.cs.factplusplus;
 
+
 /**
  * Author: Matthew Horridge<br>
  * The University Of Manchester<br>
@@ -345,9 +346,9 @@ public class FaCTPlusPlus {
 
     public native ObjectPropertyPointer [] askEquivalentObjectProperties(ObjectPropertyPointer r) throws FaCTPlusPlusException;
 
-    public native ClassPointer askObjectPropertDomain(ObjectPropertyPointer r) throws FaCTPlusPlusException;
+    public native ClassPointer [][] askObjectPropertyDomain(ObjectPropertyPointer r) throws FaCTPlusPlusException;
 
-    public native ClassPointer askObjectPropertyRange(ObjectPropertyPointer r) throws FaCTPlusPlusException;
+    public native ClassPointer [][] askObjectPropertyRange(ObjectPropertyPointer r) throws FaCTPlusPlusException;
 
     public native boolean isObjectPropertyFunctional(ObjectPropertyPointer r) throws FaCTPlusPlusException;
 
@@ -370,7 +371,7 @@ public class FaCTPlusPlus {
 
     public native DataPropertyPointer [] askEquivalentDataProperties(DataPropertyPointer r) throws FaCTPlusPlusException;
 
-    public native ClassPointer askDataPropertyDomain(DataPropertyPointer r) throws FaCTPlusPlusException;
+    public native ClassPointer [][] askDataPropertyDomain(DataPropertyPointer r) throws FaCTPlusPlusException;
 
     public native DataTypeExpressionPointer askDataPropertyRange(DataPropertyPointer r) throws FaCTPlusPlusException;
 
@@ -379,9 +380,26 @@ public class FaCTPlusPlus {
 
     public native ClassPointer [][] askIndividualTypes(IndividualPointer i, boolean direct) throws FaCTPlusPlusException;
 
+    // split the askObjectPropertyRelationships() into two calls
+    public native ObjectPropertyPointer [] askObjectProperties(IndividualPointer i) throws FaCTPlusPlusException;
+    public native IndividualPointer [] askObjectPropertyRelationObjects(IndividualPointer i, ObjectPropertyPointer r) throws FaCTPlusPlusException;
+
+    // split the askDataPropertyRelationships() into two calls
+    public native DataPropertyPointer [] askDataProperties(IndividualPointer i) throws FaCTPlusPlusException;
+    public native DataValuePointer [] askDataPropertyRelationValues(IndividualPointer i, DataPropertyPointer r) throws FaCTPlusPlusException;
+
+    public native IndividualPointer [] askRelatedIndividuals(IndividualPointer individualPointer, ObjectPropertyPointer r) throws FaCTPlusPlusException;
+
+    public native DataValuePointer [] askRelatedValues(IndividualPointer individualPointer, DataPropertyPointer r) throws FaCTPlusPlusException;
+
+    public native boolean hasDataPropertyRelationship(IndividualPointer i, DataPropertyPointer r, DataValuePointer v) throws FaCTPlusPlusException;
+
+    public native boolean hasObjectPropertyRelationship(IndividualPointer i, ObjectPropertyPointer r, IndividualPointer j) throws FaCTPlusPlusException;
+
     public native boolean isInstanceOf(IndividualPointer i, ClassPointer c) throws FaCTPlusPlusException;
 
     public native IndividualPointer [] askInstances(ClassPointer c, boolean direct) throws FaCTPlusPlusException;
+
 
     /**
      * This method is deprecated and might be removed in the future releases
@@ -431,6 +449,4 @@ public class FaCTPlusPlus {
     public native void closeArgList() throws FaCTPlusPlusException;
 
     public native void setProgressMonitor(FaCTPlusPlusProgressMonitor progressMonitor) throws FaCTPlusPlusException;
-
-
 }
