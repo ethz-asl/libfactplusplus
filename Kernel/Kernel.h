@@ -687,7 +687,7 @@ public:
 	}
 
 	// domain and range as a set of named concepts
-	
+
 		/// apply actor::apply() to all NC that are in the domain of [complex] R
 	template<class Actor>
 	bool getRoleDomain ( const ComplexRole r, Actor& actor )

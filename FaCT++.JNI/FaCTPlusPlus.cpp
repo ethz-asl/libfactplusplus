@@ -1398,30 +1398,34 @@ JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlu
 
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
- * Method:    askObjectPropertDomain
- * Signature: (Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;)Luk/ac/manchester/cs/factplusplus/ClassPointer;
+ * Method:    askObjectPropertyDomain
+ * Signature: (Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;)[[Luk/ac/manchester/cs/factplusplus/ClassPointer;
  */
-JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_askObjectPropertDomain
+JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_askObjectPropertyDomain
   (JNIEnv * env, jobject obj, jobject arg)
 {
-	TRACE_JNI("askObjectPropertDomain");
+	TRACE_JNI("askObjectPropertyDomain");
 	TRACE_ARG(env,obj,arg);
-	Throw ( env, "FaCT++ Kernel: unsupported operation" );
-	return NULL;
+	JTaxonomyActor<ClassPolicy> actor(env);
+	PROCESS_ASK_QUERY ( getK(env,obj)->getRoleDomain ( getROTree(env,arg), actor ),
+		"FaCT++ Kernel: error during askObjectPropertyDomain processing" );
+	return actor.getElements();
 }
 
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
  * Method:    askObjectPropertyRange
- * Signature: (Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;)Luk/ac/manchester/cs/factplusplus/ClassPointer;
+ * Signature: (Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;)[[Luk/ac/manchester/cs/factplusplus/ClassPointer;
  */
-JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_askObjectPropertyRange
+JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_askObjectPropertyRange
   (JNIEnv * env, jobject obj, jobject arg)
 {
 	TRACE_JNI("askObjectPropertyRange");
 	TRACE_ARG(env,obj,arg);
-	Throw ( env, "FaCT++ Kernel: unsupported operation" );
-	return NULL;
+	JTaxonomyActor<ClassPolicy> actor(env);
+	PROCESS_ASK_QUERY ( getK(env,obj)->getRoleRange ( getROTree(env,arg), actor ),
+		"FaCT++ Kernel: error during askObjectPropertyRange processing" );
+	return actor.getElements();
 }
 
 /*
@@ -1584,15 +1588,17 @@ JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlu
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
  * Method:    askDataPropertyDomain
- * Signature: (Luk/ac/manchester/cs/factplusplus/DataPropertyPointer;)Luk/ac/manchester/cs/factplusplus/ClassPointer;
+ * Signature: (Luk/ac/manchester/cs/factplusplus/DataPropertyPointer;)[[Luk/ac/manchester/cs/factplusplus/ClassPointer;
  */
-JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_askDataPropertyDomain
+JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_askDataPropertyDomain
   (JNIEnv * env, jobject obj, jobject arg)
 {
 	TRACE_JNI("askDataPropertyDomain");
 	TRACE_ARG(env,obj,arg);
-	Throw ( env, "FaCT++ Kernel: unsupported operation" );
-	return NULL;
+	JTaxonomyActor<ClassPolicy> actor(env);
+	PROCESS_ASK_QUERY ( getK(env,obj)->getRoleDomain ( getROTree(env,arg), actor ),
+		"FaCT++ Kernel: error during askDataPropertyDomain processing" );
+	return actor.getElements();
 }
 
 /*
