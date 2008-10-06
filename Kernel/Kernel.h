@@ -142,7 +142,7 @@ protected:	// methods
 	bool isCached ( DLTree* query ) const
 		{ return ( cachedQuery == NULL ? false : equalTrees ( cachedQuery, query ) ); }
 		/// set up cache for query, performing additional (re-)classification if necessary
-	bool setUpCache ( DLTree* query, cacheStatus level );
+	void setUpCache ( DLTree* query, cacheStatus level );
 		/// clear cache and flags
 	void initCacheAndFlags ( void )
 	{
@@ -174,9 +174,37 @@ protected:	// methods
 	const RoleMaster* getRM ( void ) const { return getTBox()->getRM(); }
 
 		/// get access to the concept hierarchy
-	const Taxonomy* getCTaxonomy ( void ) const { return isKBClassified() ? pTBox->getTaxonomy() : NULL; }
+	const Taxonomy* getCTaxonomy ( void ) const
+	{
+		if ( !isKBClassified() )
+			throw EFaCTPlusPlus("No access to concept taxonomy: ontology not classified");
+		return getTBox()->getTaxonomy();
+	}
 		/// get access to the role hierarchy
-	const Taxonomy* getRTaxonomy ( void ) const { return isKBPreprocessed() ? getRM()->getTaxonomy() : NULL; }
+	const Taxonomy* getRTaxonomy ( void ) const
+	{
+		if ( !isKBPreprocessed() )
+			throw EFaCTPlusPlus("No access to role taxonomy: ontology not preprocessed");
+		return getRM()->getTaxonomy();
+	}
+
+	// transformation methods
+
+		/// get individual by a DLTree
+	TIndividual* getIndividual ( const ComplexConcept i, const char* reason )
+	{
+		if ( !getTBox()->isIndividual(i) )
+			throw EFaCTPlusPlus(reason);
+		return static_cast<TIndividual*>(getTBox()->getCI(i));
+	}
+		/// get role by the DLTree
+	TRole* getRole ( const ComplexRole r, const char* reason )
+	{
+		TRole* R = resolveRole(r);
+		if ( R == NULL )
+			throw EFaCTPlusPlus(reason);
+		return R;
+	}
 
 	//----------------------------------------------
 	//-- save/load support; implementation in SaveLoad.cpp
@@ -499,8 +527,6 @@ public:
 	bool getAllConcepts ( Actor& actor )
 	{
 		classifyKB();	// ensure KB is ready to answer the query
-		if ( getCTaxonomy() == NULL )
-			return true;
 		TaxonomyVertex* p = getCTaxonomy()->getTop();	// need for successful compilation
 		p->getRelativesInfo</*needCurrent=*/true, /*onlyDirect=*/false, /*upDirection=*/false>(actor);
 		return false;
@@ -511,8 +537,6 @@ public:
 	bool getAllRoles ( Actor& actor )
 	{
 		preprocessKB();	// ensure KB is ready to answer the query
-		if ( getRTaxonomy() == NULL )
-			return true;
 		TaxonomyVertex* p = getRTaxonomy()->getBottom();	// need for successful compilation
 		p->getRelativesInfo</*needCurrent=*/false, /*onlyDirect=*/false, /*upDirection=*/true>(actor);
 		return false;
@@ -523,8 +547,6 @@ public:
 	bool getAllIndividuals ( Actor& actor )
 	{
 		realiseKB();	// ensure KB is ready to answer the query
-		if ( getCTaxonomy() == NULL )
-			return true;
 		TaxonomyVertex* p = getCTaxonomy()->getTop();	// need for successful compilation
 		p->getRelativesInfo</*needCurrent=*/true, /*onlyDirect=*/false, /*upDirection=*/false>(actor);
 		return false;
@@ -548,8 +570,7 @@ public:
 	bool getParents ( const ComplexConcept C, Actor& actor )
 	{
 		classifyKB();	// ensure KB is ready to answer the query
-		if ( setUpCache ( C, csClassified ) )	// cache result
-			return true;	// FIXME!! later
+		setUpCache ( C, csClassified );
 		cachedVertex->getRelativesInfo</*needCurrent=*/false, /*onlyDirect=*/true,
 									   /*upDirection=*/true>(actor);
 		return false;
@@ -559,8 +580,7 @@ public:
 	bool getChildren ( const ComplexConcept C, Actor& actor )
 	{
 		classifyKB();	// ensure KB is ready to answer the query
-		if ( setUpCache ( C, csClassified ) )	// cache result
-			return true;	// FIXME!! later
+		setUpCache ( C, csClassified );
 		cachedVertex->getRelativesInfo</*needCurrent=*/false, /*onlyDirect=*/true,
 									   /*upDirection=*/false>(actor);
 		return false;
@@ -570,8 +590,7 @@ public:
 	bool getAncestors ( const ComplexConcept C, Actor& actor )
 	{
 		classifyKB();	// ensure KB is ready to answer the query
-		if ( setUpCache ( C, csClassified ) )	// cache result
-			return true;	// FIXME!! later
+		setUpCache ( C, csClassified );
 		cachedVertex->getRelativesInfo</*needCurrent=*/false, /*onlyDirect=*/false,
 									   /*upDirection=*/true>(actor);
 		return false;
@@ -581,8 +600,7 @@ public:
 	bool getDescendants ( const ComplexConcept C, Actor& actor )
 	{
 		classifyKB();	// ensure KB is ready to answer the query
-		if ( setUpCache ( C, csClassified ) )	// cache result
-			return true;	// FIXME!! later
+		setUpCache ( C, csClassified );
 		cachedVertex->getRelativesInfo</*needCurrent=*/false, /*onlyDirect=*/false,
 									   /*upDirection=*/false>(actor);
 		return false;
@@ -592,8 +610,7 @@ public:
 	bool getEquivalents ( const ComplexConcept C, Actor& actor )
 	{
 		classifyKB();	// ensure KB is ready to answer the query
-		if ( setUpCache ( C, csClassified ) )	// cache result
-			return true;	// FIXME!! later
+		setUpCache ( C, csClassified );
 		return !actor.apply(*cachedVertex);
 	}
 
@@ -604,12 +621,8 @@ public:
 	bool getRParents ( const ComplexRole r, Actor& actor )
 	{
 		preprocessKB();	// ensure KB is ready to answer the query
-		TRole* R = resolveRole(r);
-		if ( R == NULL )
-			return true;
+		TRole* R = getRole ( r, "Role expression expected in getRParents()" );
 		TaxonomyVertex* p = R->getTaxVertex();	// need this for compiler
-		if ( p == NULL )
-			return true;
 		p->getRelativesInfo</*needCurrent=*/false, /*onlyDirect=*/true, /*upDirection=*/true>(actor);
 		return false;
 	}
@@ -619,12 +632,8 @@ public:
 	bool getRChildren ( const ComplexRole r, Actor& actor )
 	{
 		preprocessKB();	// ensure KB is ready to answer the query
-		TRole* R = resolveRole(r);
-		if ( R == NULL )
-			return true;
+		TRole* R = getRole ( r, "Role expression expected in getRChildren()" );
 		TaxonomyVertex* p = R->getTaxVertex();	// need this for compiler
-		if ( p == NULL )
-			return true;
 		p->getRelativesInfo</*needCurrent=*/false, /*onlyDirect=*/true, /*upDirection=*/false>(actor);
 		return false;
 	}
@@ -634,12 +643,8 @@ public:
 	bool getRAncestors ( const ComplexRole r, Actor& actor )
 	{
 		preprocessKB();	// ensure KB is ready to answer the query
-		TRole* R = resolveRole(r);
-		if ( R == NULL )
-			return true;
+		TRole* R = getRole ( r, "Role expression expected in getRAncestors()" );
 		TaxonomyVertex* p = R->getTaxVertex();	// need this for compiler
-		if ( p == NULL )
-			return true;
 		p->getRelativesInfo</*needCurrent=*/false, /*onlyDirect=*/false, /*upDirection=*/true>(actor);
 		return false;
 	}
@@ -649,12 +654,8 @@ public:
 	bool getRDescendants ( const ComplexRole r, Actor& actor )
 	{
 		preprocessKB();	// ensure KB is ready to answer the query
-		TRole* R = resolveRole(r);
-		if ( R == NULL )
-			return true;
+		TRole* R = getRole ( r, "Role expression expected in getRDescendants()" );
 		TaxonomyVertex* p = R->getTaxVertex();	// need this for compiler
-		if ( p == NULL )
-			return true;
 		p->getRelativesInfo</*needCurrent=*/false, /*onlyDirect=*/false, /*upDirection=*/false>(actor);
 		return false;
 	}
@@ -664,12 +665,8 @@ public:
 	bool getREquivalents ( const ComplexRole r, Actor& actor )
 	{
 		preprocessKB();	// ensure KB is ready to answer the query
-		TRole* R = resolveRole(r);
-		if ( R == NULL )
-			return true;
+		TRole* R = getRole ( r, "Role expression expected in getREquivalents()" );
 		TaxonomyVertex* p = R->getTaxVertex();	// need this for compiler
-		if ( p == NULL )
-			return true;
 		return !actor.apply(*p);
 	}
 
@@ -734,21 +731,37 @@ public:
 	bool isSameIndividuals ( const ComplexConcept I, const ComplexConcept J, bool& Result )
 	{
 		realiseKB();
-		if ( !getTBox()->isIndividual(I) || !getTBox()->isIndividual(J) )
-			throw EFaCTPlusPlus("Only known individuals are allowed in the isSameAs query");
-		Result = getTBox()->isSameIndividuals(I->Element().getName(),J->Element().getName());
+		TIndividual* i = getIndividual ( I, "Only known individuals are allowed in the isSameAs()" );
+		TIndividual* j = getIndividual ( J, "Only known individuals are allowed in the isSameAs()" );
+		Result = getTBox()->isSameIndividuals(i,j);
 		return false;
 	}
-
-	// if I is instance of given [complex] C
-	bool isInstance ( const ComplexConcept I, const ComplexConcept C, bool& Result );
-
-	// set of J such that (I R J)
-	bool getRoleFillers ( const ComplexConcept I, const ComplexRole R, IndividualSet& Result );
-
-	// set of (I,J) such that (I R J)
-	bool getRelatedIndividuals ( const ComplexRole R, IndividualSet& Is, IndividualSet& Js );
-
+		/// @return true iff individual I is instance of given [complex] C
+	bool isInstance ( const ComplexConcept I, const ComplexConcept C, bool& Result )
+	{
+		realiseKB();	// ensure KB is ready to answer the query
+		getIndividual ( I, "individual name expected in the isInstance()" );
+		return isSubsumedBy ( I, C, Result );
+	}
+		/// set RESULT into set of J's such that R(I,J)
+	bool getRoleFillers ( const ComplexConcept I, const ComplexRole R, IndividualSet& Result )
+	{
+		preprocessKB();	// only told information here
+		getTBox()->getRoleFillers (
+			getIndividual ( I, "Individual name expected in the getRoleFillers()" ),
+			getRole ( R, "Role expression expected in the getRoleFillers()" ),
+			Result );
+		return false;
+	}
+		/// set RESULT into set of (I,J)'s such that R(I,J)
+	bool getRelatedIndividuals ( const ComplexRole R, IndividualSet& Is, IndividualSet& Js )
+	{
+		preprocessKB();	// only told information here
+		getTBox()->getRelatedIndividuals (
+			getRole ( R, "Role expression expected in the getRelatedIndividuals()" ),
+			Is, Js );
+		return false;
+	}
 	// ???
 	// bool getToldValues ( const IndividualName I, const RoleName A, ??? Result );	// FIXME!! unsupported
 
@@ -1128,16 +1141,9 @@ ReasoningKernel :: isFunctional ( const ComplexRole R, bool& Result )
 
 	// universal role is not functional
 	if ( isUniversalRole(R) )
-	{
 		Result = false;
-		return false;
-	}
-
-	TRole* r = resolveRole(R);
-	if ( r == NULL )
-		return true;
-
-	Result = r->isFunctional();
+	else
+		Result = getRole ( R, "Role expression expected in isFunctional()" )->isFunctional();
 	return false;
 }
 
@@ -1162,12 +1168,7 @@ ReasoningKernel :: isSatisfiable ( const ComplexConcept C, bool& Result )
 		return false;
 	}
 
-	if ( setUpCache ( C, csSat ) )	// cache result
-		return true;
-
-	// sanity check
-	if ( cachedConcept == NULL || !isCorrect(cachedConcept->pBody) )
-		return true;
+	setUpCache ( C, csSat );
 
 	Result = getTBox()->isSatisfiable(cachedConcept);
 	return false;
@@ -1236,37 +1237,6 @@ ReasoningKernel :: isEquivalent ( const ComplexConcept C, const ComplexConcept D
 
 	return fail;
 }
-
-	// isInstance test: simulation via concept subsumption
-inline bool ReasoningKernel :: isInstance ( const ComplexConcept I, const ComplexConcept C, bool& Result )
-{
-	realiseKB();	// ensure KB is ready to answer the query
-	return isSubsumedBy ( I, C, Result );
-}
-
-	// set of J such that (I R J)
-inline bool
-ReasoningKernel :: getRoleFillers ( const ComplexConcept I, const ComplexRole R, IndividualSet& Result )
-{
-	preprocessKB();	// only told information here
-	if ( I->Element().getToken() != INAME || resolveRole(R) == NULL )
-		return true;
-	getTBox()->getRoleFillers (
-		static_cast<TIndividual*>(I->Element().getName()), resolveRole(R), Result );
-	return false;
-}
-
-	// set of (I,J) such that (I R J)
-inline bool
-ReasoningKernel :: getRelatedIndividuals ( const ComplexRole R, IndividualSet& Is, IndividualSet& Js )
-{
-	preprocessKB();	// only told information here
-	if ( resolveRole(R) == NULL )
-		return true;
-	getTBox()->getRelatedIndividuals ( resolveRole(R), Is, Js );
-	return false;
-}
-
 
 //----------------------------------------------------
 //	extra ASKS implementation

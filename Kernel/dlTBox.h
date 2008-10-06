@@ -998,12 +998,10 @@ public:
 		/// check if a concept C is satisfiable
 	bool isSatisfiable ( const TConcept* C );
 		/// check that 2 individuals are the same
-	bool isSameIndividuals ( const TNamedEntry* I, const TNamedEntry* J )
+	bool isSameIndividuals ( const TIndividual* a, const TIndividual* b )
 	{
-		if ( !isIndividual(I) || !isIndividual(J) )
+		if ( !isIndividual(a) || !isIndividual(b) )
 			throw EFaCTPlusPlus("Individuals are expected in the isSameIndividuals() query");
-		const TIndividual* a = toIndividual(I);
-		const TIndividual* b = toIndividual(J);
 		if ( a->node == NULL || b->node == NULL )
 			throw EFaCTPlusPlus("isSameIndividuals() query with non-realised ontology");
 		return a->node->resolvePBlocker() == b->node->resolvePBlocker();

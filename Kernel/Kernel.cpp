@@ -118,20 +118,14 @@ Realise:	// do realisation
 //******************************************
 //* caching support
 //******************************************
-bool ReasoningKernel :: setUpCache ( DLTree* query, cacheStatus level )
+void
+ReasoningKernel :: setUpCache ( DLTree* query, cacheStatus level )
 {
-	if ( pTBox == NULL )
-		return true;
-
-	// no query answers for inconsistent KBs
-	if ( !isKBConsistent() )
-		return true;
-
 	// check if the query is already cached
 	if ( isCached (query) )
 	{	// ... with the same level -- nothing to do
 		if ( level <= cacheLevel )
-			return false;
+			return;
 		else
 		{	// concept was defined but not classified yet
 			assert ( level == csClassified && cacheLevel != csClassified );
@@ -147,7 +141,7 @@ bool ReasoningKernel :: setUpCache ( DLTree* query, cacheStatus level )
 	{
 		// invalidate cache
 		cacheLevel = csEmpty;
-		return true;
+		throw EFaCTPlusPlus("FaCT++ Kernel: incremental classification not supported");
 	}
 
 	// change current query
@@ -155,51 +149,49 @@ bool ReasoningKernel :: setUpCache ( DLTree* query, cacheStatus level )
 	cachedQuery = clone (query);
 
 needSetup:
+	// clean cached info
+	cachedVertex = NULL;
+
 	// check if concept-to-cache is defined in ontology
 	if ( isCN (query) )
-	{	// undefined/non-classified concept -- need to reclassify
-		if ( (cachedConcept=pTBox->getCI(query)) == NULL )
+	{
+		cachedConcept = getTBox()->getCI(query);
+
+		// undefined/non-classified concept -- need to reclassify
+		if ( cachedConcept == NULL )
 		{
 			// invalidate cache
 			cacheLevel = csEmpty;
-			return true;	// FIXME!! later -- reclassification
+			// FIXME!! reclassification
+			throw EFaCTPlusPlus("FaCT++ Kernel: incremental classification not supported");
 		}
 
-		if ( level == csSat )
+		cacheLevel = level;
+
+		if ( level == csClassified )	// need to set the pointers
 		{
-			cacheLevel = csSat;
-			return false;
+			classifyKB();
+			cachedVertex = cachedConcept->getTaxVertex();
 		}
-
-		classifyKB();
-
-		// usual case -- just re-set pointers
-		cachedVertex = cachedConcept->getTaxVertex();
-		cacheLevel = csClassified;
-		return false;
+		return;
 	}
 
 	// we are preprocessed here
 
 	// case of complex query
-	cachedConcept = pTBox->createTempConcept (query);
-
-	if ( level == csSat )
-	{	// nothing to do -- just set up all data
-		cacheLevel = csSat;
-		cachedVertex = NULL;
-		return false;
-	}
+	cachedConcept = getTBox()->createTempConcept(query);
+	cacheLevel = level;
 
 needClassify:	// classification only needed for complex expression
 
-	classifyKB();
-	pTBox->classifyTempConcept();
-	// cached concept now have to be classified
-	assert ( cachedConcept->isClassified() );
-	cachedVertex = cachedConcept->getTaxVertex();
-	cacheLevel = csClassified;
-	return false;
+	if ( level == csClassified )
+	{
+		classifyKB();
+		getTBox()->classifyTempConcept();
+		// cached concept now have to be classified
+		assert ( cachedConcept->isClassified() );
+		cachedVertex = cachedConcept->getTaxVertex();
+	}
 }
 
 //******************************************

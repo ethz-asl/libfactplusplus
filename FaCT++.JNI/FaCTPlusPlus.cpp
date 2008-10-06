@@ -1069,7 +1069,9 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellDi
 	catch ( EFPPNonSimpleRole nsr )				\
 	{ ThrowNSR ( env, nsr.getRoleName() ); }	\
 	catch ( EFPPCycleInRIA cir )				\
-	{ ThrowRIC ( env, cir.getRoleName() ); }
+	{ ThrowRIC ( env, cir.getRoleName() ); }	\
+	catch ( EFaCTPlusPlus fpp )					\
+	{ Throw ( env, fpp.what() ); }
 
 #define PROCESS_ASK_QUERY(Action,Name)			\
 	bool fail = false;							\
