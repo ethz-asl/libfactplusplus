@@ -317,9 +317,8 @@ void DIGParseHandlers :: endAsk ( DIGTag tag )
 			fail = pKernel->getAncestors ( p, actor );
 		else if ( tag == digCDescendants )
 			fail = pKernel->getDescendants ( p, actor );
-		else if ( tag == digTypes )		// FIXME!! correct later
-			fail = pKernel->getParents ( p, actor );
-//			ret = pKernel->getTypes ( workStack.top()->Element().GetID(), Set );
+		else if ( tag == digTypes )
+			fail = pKernel->getDirectTypes ( p, actor );
 
 		deleteTree(p);
 
@@ -550,9 +549,9 @@ void DIGParseHandlers :: outputSupportedLanguage ( void )
 		simpleXMLEntry ( "transitive", *o );
 		simpleXMLEntry ( "functional", *o );
 
-		simpleXMLEntry ( "instanceof", *o );	// simulates
-		simpleXMLEntry ( "related", *o );	// simulates
-		simpleXMLEntry ( "value", *o );		// simulates
+		simpleXMLEntry ( "instanceof", *o );
+		simpleXMLEntry ( "related", *o );
+		simpleXMLEntry ( "value", *o );
 	}
 
 	// ask part
