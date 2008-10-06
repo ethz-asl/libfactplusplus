@@ -230,6 +230,13 @@ void DIGParseHandlers :: endAsk ( DIGTag tag )
 		outError ( 401, Reason.c_str(), "" );				\
 	} while(0)
 
+// FIXME!! make more detailed error notification in the future
+#define ASK_QUERY(Action)		\
+	do { try { Action; }		\
+	catch ( EFaCTPlusPlus )		\
+		{ fail = true; }		\
+	} while(0)
+
 	bool fail = false;
 
 	switch (tag)
@@ -237,22 +244,19 @@ void DIGParseHandlers :: endAsk ( DIGTag tag )
 	case digAllConceptNames:	// all
 	{
 		ConceptActor actor ( *o, curId.c_str() );
-		if ( pKernel->getAllConcepts(actor) )
-			ERROR_401;
+		ASK_QUERY(pKernel->getAllConcepts(actor));
 		return;
 	}
 	case digAllRoleNames:
 	{
 		RoleActor actor ( *o, curId.c_str() );
-		if ( pKernel->getAllRoles(actor) )
-			ERROR_401;
+		ASK_QUERY(pKernel->getAllRoles(actor));
 		return;
 	}
 	case digAllIndividuals:
 	{
 		IndividualActor actor ( *o, curId.c_str() );
-		if ( pKernel->getAllIndividuals(actor) )
-			ERROR_401;
+		ASK_QUERY(pKernel->getAllIndividuals(actor));
 		return;
 	}
 	case digSatisfiable:	// sat
@@ -270,7 +274,7 @@ void DIGParseHandlers :: endAsk ( DIGTag tag )
 		if ( wasError )
 			fail = true;
 		else if ( tag == digSatisfiable )
-			fail = pKernel->isSatisfiable ( q, ret );
+			ASK_QUERY ( ret = pKernel->isSatisfiable(q) ) ;
 		else
 		{
 			if ( workStack.empty() )
@@ -279,11 +283,11 @@ void DIGParseHandlers :: endAsk ( DIGTag tag )
 			workStack.pop();
 
 			if ( tag == digSubsumes )
-				fail = pKernel->isSubsumedBy ( q, p, ret );
+				ASK_QUERY ( ret = pKernel->isSubsumedBy ( q, p ) );
 			else if ( tag == digInstance )
-				fail = pKernel->isInstance ( p, q, ret );
+				ASK_QUERY ( ret = pKernel->isInstance ( p, q ) );
 			else	// ( name == "disjoint" )
-				fail = pKernel->isDisjoint ( p, q, ret );
+				ASK_QUERY ( ret = pKernel->isDisjoint ( p, q ) );
 
 			deleteTree(p);
 		}
@@ -310,15 +314,15 @@ void DIGParseHandlers :: endAsk ( DIGTag tag )
 		if ( wasError )
 			fail = true;
 		else if ( tag == digCParents )
-			fail = pKernel->getParents ( p, actor );
+			ASK_QUERY ( pKernel->getParents ( p, actor ) );
 		else if ( tag == digCChildren )
-			fail = pKernel->getChildren ( p, actor );
+			ASK_QUERY ( pKernel->getChildren ( p, actor ) );
 		else if ( tag == digCAncestors )
-			fail = pKernel->getAncestors ( p, actor );
+			ASK_QUERY ( pKernel->getAncestors ( p, actor ) );
 		else if ( tag == digCDescendants )
-			fail = pKernel->getDescendants ( p, actor );
+			ASK_QUERY ( pKernel->getDescendants ( p, actor ) );
 		else if ( tag == digTypes )
-			fail = pKernel->getDirectTypes ( p, actor );
+			ASK_QUERY ( pKernel->getDirectTypes ( p, actor ) );
 
 		deleteTree(p);
 
@@ -335,7 +339,11 @@ void DIGParseHandlers :: endAsk ( DIGTag tag )
 		workStack.pop();
 		ConceptActor actor ( *o, curId.c_str() );
 
-		fail = wasError || pKernel->getEquivalents ( p, actor );
+		if ( wasError )
+			fail = true;
+		else
+			ASK_QUERY ( pKernel->getEquivalents ( p, actor ) );
+
 		deleteTree(p);
 
 		if ( fail )	// error
@@ -359,13 +367,13 @@ void DIGParseHandlers :: endAsk ( DIGTag tag )
 		if ( wasError )
 			fail = true;
 		else if ( tag == digRParents )
-			fail = pKernel->getRParents ( p, actor );
+			ASK_QUERY ( pKernel->getRParents ( p, actor ) );
 		else if ( tag == digRChildren )
-			fail = pKernel->getRChildren ( p, actor );
+			ASK_QUERY ( pKernel->getRChildren ( p, actor ) );
 		else if ( tag == digRAncestors )
-			fail = pKernel->getRAncestors ( p, actor );
+			ASK_QUERY ( pKernel->getRAncestors ( p, actor ) );
 		else if ( tag == digRDescendants )
-			fail = pKernel->getRDescendants ( p, actor );
+			ASK_QUERY ( pKernel->getRDescendants ( p, actor ) );
 
 		deleteTree(p);
 
@@ -384,7 +392,11 @@ void DIGParseHandlers :: endAsk ( DIGTag tag )
 		IndividualActor actor ( *o, curId.c_str() );
 
 		// to find instances just locate all descendants and remove non-nominals
-		fail = wasError || pKernel->getInstances ( p, actor );
+		if ( wasError )
+			fail = true;
+		else
+			ASK_QUERY ( pKernel->getInstances ( p, actor ) );
+
 		deleteTree(p);
 
 		if ( fail )
@@ -408,7 +420,7 @@ void DIGParseHandlers :: endAsk ( DIGTag tag )
 		if ( wasError )
 			fail = true;
 		else
-			fail = pKernel->getRoleFillers ( I, R, Js );
+			ASK_QUERY ( pKernel->getRoleFillers ( I, R, Js ) );
 
 		deleteTree(I);
 		deleteTree(R);
@@ -436,7 +448,7 @@ void DIGParseHandlers :: endAsk ( DIGTag tag )
 		if ( wasError )
 			fail = true;
 		else
-			fail = pKernel->getRelatedIndividuals ( R, Is, Js );
+			ASK_QUERY ( pKernel->getRelatedIndividuals ( R, Is, Js ) );
 
 		deleteTree(R);
 

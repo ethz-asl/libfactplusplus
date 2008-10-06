@@ -1063,7 +1063,8 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellDi
 // minimal query language (ASK languages)
 //-------------------------------------------------------------
 
-#define CATCH_BLOCK								\
+#define PROCESS_ASK_QUERY(Action,Name)			\
+	do { try { Action; }						\
 	catch ( InconsistentKB )					\
 	{ ThrowICO(env); }							\
 	catch ( EFPPNonSimpleRole nsr )				\
@@ -1071,14 +1072,9 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellDi
 	catch ( EFPPCycleInRIA cir )				\
 	{ ThrowRIC ( env, cir.getRoleName() ); }	\
 	catch ( EFaCTPlusPlus fpp )					\
-	{ Throw ( env, fpp.what() ); }
-
-#define PROCESS_ASK_QUERY(Action,Name)			\
-	bool fail = false;							\
-	try { fail = Action; }						\
-	CATCH_BLOCK									\
-	catch ( std::exception ) { fail = true; }	\
-	if ( fail ) Throw ( env, "FaCT++ Kernel: error during " Name " processing" )
+	{ Throw ( env, fpp.what() ); }				\
+	catch ( std::exception ex )					\
+	{ Throw ( env, ex.what() ); }  } while(0)
 
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
@@ -1089,17 +1085,8 @@ JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_is
   (JNIEnv * env, jobject obj)
 {
 	TRACE_JNI("isKBConsistent");
-	bool ret = true;
-	try
-	{
-		ret = getK(env,obj)->isKBConsistent();
-	}
-	CATCH_BLOCK
-	catch ( std::exception )
-	{
-		Throw ( env, "FaCT++ Kernel: out of memory" );
-	}
-
+	bool ret = false;
+	PROCESS_ASK_QUERY ( ret=getK(env,obj)->isKBConsistent(),"isKBConsistent");
 	return ret;
 }
 
@@ -1112,11 +1099,7 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_classi
   (JNIEnv * env, jobject obj)
 {
 	TRACE_JNI("classify");
-	try
-	{
-		getK(env,obj)->classifyKB();
-	}
-	CATCH_BLOCK
+	PROCESS_ASK_QUERY ( getK(env,obj)->classifyKB(),"classify");
 }
 
 /*
@@ -1128,11 +1111,7 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_realis
   (JNIEnv * env, jobject obj)
 {
 	TRACE_JNI("realise");
-	try
-	{
-		getK(env,obj)->realiseKB();
-	}
-	CATCH_BLOCK
+	PROCESS_ASK_QUERY ( getK(env,obj)->realiseKB(),"classify");
 }
 
 
@@ -1147,7 +1126,7 @@ JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_is
 	TRACE_JNI("isClassSatisfiable");
 	TRACE_ARG(env,obj,arg);
 	bool ret = false;
-	PROCESS_ASK_QUERY ( getK(env,obj)->isSatisfiable ( getROTree(env,arg), ret ),"isClassSatisfiable");
+	PROCESS_ASK_QUERY ( ret=getK(env,obj)->isSatisfiable ( getROTree(env,arg) ),"isClassSatisfiable");
 	return ret;
 }
 
@@ -1163,7 +1142,7 @@ JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_is
 	TRACE_ARG(env,obj,arg1);
 	TRACE_ARG(env,obj,arg2);
 	bool ret = false;
-	PROCESS_ASK_QUERY ( getK(env,obj)->isSubsumedBy ( getROTree(env,arg1), getROTree(env,arg2), ret ),"isClassSubsumedBy");
+	PROCESS_ASK_QUERY ( ret=getK(env,obj)->isSubsumedBy ( getROTree(env,arg1), getROTree(env,arg2) ),"isClassSubsumedBy");
 	return ret;
 }
 
@@ -1179,7 +1158,7 @@ JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_is
 	TRACE_ARG(env,obj,arg1);
 	TRACE_ARG(env,obj,arg2);
 	bool ret = false;
-	PROCESS_ASK_QUERY ( getK(env,obj)->isEquivalent ( getROTree(env,arg1), getROTree(env,arg2), ret ),"isClassEquivalentTo");
+	PROCESS_ASK_QUERY ( ret=getK(env,obj)->isEquivalent ( getROTree(env,arg1), getROTree(env,arg2) ),"isClassEquivalentTo");
 	return ret;
 }
 
@@ -1195,7 +1174,7 @@ JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_is
 	TRACE_ARG(env,obj,arg1);
 	TRACE_ARG(env,obj,arg2);
 	bool ret = false;
-	PROCESS_ASK_QUERY ( getK(env,obj)->isDisjoint ( getROTree(env,arg1), getROTree(env,arg2), ret ),"isClassDisjointWith");
+	PROCESS_ASK_QUERY ( ret=getK(env,obj)->isDisjoint ( getROTree(env,arg1), getROTree(env,arg2) ),"isClassDisjointWith");
 	return ret;
 }
 
@@ -1335,7 +1314,7 @@ JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_is
 	TRACE_JNI("isObjectPropertyFunctional");
 	TRACE_ARG(env,obj,arg);
 	bool ret = false;
-	PROCESS_ASK_QUERY ( getK(env,obj)->isFunctional ( getROTree(env,arg), ret ),"isObjectPropertyFunctional");
+	PROCESS_ASK_QUERY ( ret=getK(env,obj)->isFunctional ( getROTree(env,arg) ),"isObjectPropertyFunctional");
 	return ret;
 }
 
@@ -1350,7 +1329,7 @@ JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_is
 	TRACE_JNI("isObjectPropertyInverseFunctional");
 	TRACE_ARG(env,obj,arg);
 	bool ret = false;
-	PROCESS_ASK_QUERY ( getK(env,obj)->isInverseFunctional ( getROTree(env,arg), ret ),"isObjectPropertyInverseFunctional");
+	PROCESS_ASK_QUERY ( ret=getK(env,obj)->isInverseFunctional ( getROTree(env,arg) ),"isObjectPropertyInverseFunctional");
 	return ret;
 }
 
@@ -1511,7 +1490,7 @@ JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_is
 	TRACE_JNI("isDataPropertyFunctional");
 	TRACE_ARG(env,obj,arg);
 	bool ret = false;
-	PROCESS_ASK_QUERY ( getK(env,obj)->isFunctional ( getROTree(env,arg), ret ),"isDataPropertyFunctional");
+	PROCESS_ASK_QUERY ( ret=getK(env,obj)->isFunctional ( getROTree(env,arg) ),"isDataPropertyFunctional");
 	return ret;
 }
 
@@ -1661,7 +1640,7 @@ JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_is
 {
 	TRACE_JNI("isInstanceOf");
 	bool ret = false;
-	PROCESS_ASK_QUERY ( getK(env,obj)->isInstance ( getROTree(env,arg1), getROTree(env,arg2), ret ),"isInstanceOf");
+	PROCESS_ASK_QUERY ( ret=getK(env,obj)->isInstance ( getROTree(env,arg1), getROTree(env,arg2) ),"isInstanceOf");
 	return ret;
 }
 
@@ -1708,7 +1687,7 @@ JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_is
 	TRACE_ARG(env,obj,arg1);
 	TRACE_ARG(env,obj,arg2);
 	bool ret = false;
-	PROCESS_ASK_QUERY ( getK(env,obj)->isSameIndividuals ( getROTree(env,arg1), getROTree(env,arg2), ret ),"isSameAs");
+	PROCESS_ASK_QUERY ( ret=getK(env,obj)->isSameIndividuals ( getROTree(env,arg1), getROTree(env,arg2) ),"isSameAs");
 	return ret;
 }
 

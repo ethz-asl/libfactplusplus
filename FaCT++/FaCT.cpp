@@ -104,7 +104,7 @@ void testSat ( const std::string& names, ReasoningKernel& Kernel )
 		if ( sat->Element().getToken() == TOP )
 			result = Kernel.isKBConsistent();
 		else
-			TryReasoning ( Kernel.isSatisfiable ( sat, result ) );
+			TryReasoning ( result = Kernel.isSatisfiable(sat) );
 
 		std::cout << "The '" << sat << "' concept is ";
 		if ( !result )
@@ -126,7 +126,7 @@ void testSub ( const std::string& names1, const std::string& names2, ReasoningKe
 		while ( (sup = getNextName(sc2,Kernel)) != NULL )
 		{
 			bool result = false;
-			TryReasoning ( Kernel.isSubsumedBy ( sub, sup, result ) );
+			TryReasoning ( result = Kernel.isSubsumedBy ( sub, sup ) );
 
 			std::cout << "The '" << sub << " [= " << sup << "' subsumption does";
 			if ( !result )

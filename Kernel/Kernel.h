@@ -515,261 +515,279 @@ public:
 
 	// role info retrieval
 
-		/// RESULT is true iff role is functional
-	bool isFunctional ( const ComplexRole R, bool& Result );
-		/// RESULT is true iff role is inverse-functional
-	bool isInverseFunctional ( const ComplexRole R, bool& Result );
+		/// @return true iff role is functional
+	bool isFunctional ( const ComplexRole R )
+	{
+		preprocessKB();	// ensure KB is ready to answer the query
+		if ( isUniversalRole(R) )
+			return false;	// universal role is not functional
+
+		return getRole ( R, "Role expression expected in isFunctional()" )->isFunctional();
+	}
+		/// @return true iff role is inverse-functional
+	bool isInverseFunctional ( const ComplexRole R )
+	{
+		ComplexRole iR = Inverse(clone(R));
+		bool ret = isFunctional(iR);
+		deleteTree(iR);
+		return ret;
+	}
 
 	// TBox info retriveal
 
 	// apply actor.apply() to all concept names
 	template<class Actor>
-	bool getAllConcepts ( Actor& actor )
+	void getAllConcepts ( Actor& actor )
 	{
 		classifyKB();	// ensure KB is ready to answer the query
 		TaxonomyVertex* p = getCTaxonomy()->getTop();	// need for successful compilation
 		p->getRelativesInfo</*needCurrent=*/true, /*onlyDirect=*/false, /*upDirection=*/false>(actor);
-		return false;
 	}
 
 	// apply actor.apply() to all rolenames
 	template<class Actor>
-	bool getAllRoles ( Actor& actor )
+	void getAllRoles ( Actor& actor )
 	{
 		preprocessKB();	// ensure KB is ready to answer the query
 		TaxonomyVertex* p = getRTaxonomy()->getBottom();	// need for successful compilation
 		p->getRelativesInfo</*needCurrent=*/false, /*onlyDirect=*/false, /*upDirection=*/true>(actor);
-		return false;
 	}
 
 	// apply actor.apply() to all individual names
 	template<class Actor>
-	bool getAllIndividuals ( Actor& actor )
+	void getAllIndividuals ( Actor& actor )
 	{
 		realiseKB();	// ensure KB is ready to answer the query
 		TaxonomyVertex* p = getCTaxonomy()->getTop();	// need for successful compilation
 		p->getRelativesInfo</*needCurrent=*/true, /*onlyDirect=*/false, /*upDirection=*/false>(actor);
-		return false;
 	}
 
 	// single satisfiability
 
-		/// is C satisfiable
-	bool isSatisfiable ( const ComplexConcept C, bool& Result );
-		/// does C [= D holds
-	bool isSubsumedBy ( const ComplexConcept C, const ComplexConcept D, bool& Result );
-		/// is C disjoint with D
-	bool isDisjoint ( const ComplexConcept C, const ComplexConcept D, bool& Result );
-		/// is C equivalent to D
-	bool isEquivalent ( const ComplexConcept C, const ComplexConcept D, bool& Result );
+		/// @return true iff C is satisfiable
+	bool isSatisfiable ( const ComplexConcept C )
+	{
+		preprocessKB();	// ensure KB is ready to answer the query
+		if ( isCN(C) )
+			return getTBox()->isSatisfiable(getTBox()->getCI(C));
+
+		setUpCache ( C, csSat );
+		return getTBox()->isSatisfiable(cachedConcept);
+	}
+		/// @return true iff C [= D holds
+	bool isSubsumedBy ( const ComplexConcept C, const ComplexConcept D )
+	{
+		preprocessKB();	// ensure KB is ready to answer the query
+		if ( isCN(C) && isCN(D) )
+			return getTBox()->isSubHolds ( getTBox()->getCI(C), getTBox()->getCI(D) );
+
+		ComplexConcept Probe = And ( clone(C), Not(clone(D)) );
+		bool ret = isSatisfiable(Probe);
+		deleteTree(Probe);
+		return !ret;
+	}
+		/// @return true iff C is disjoint with D
+	bool isDisjoint ( const ComplexConcept C, const ComplexConcept D )
+		{ return !isSubsumedBy ( C, D ) && !isSubsumedBy ( D, C ); }
+		/// @return true iff C is equivalent to D
+	bool isEquivalent ( const ComplexConcept C, const ComplexConcept D )
+		{ return isSubsumedBy ( C, D ) && isSubsumedBy ( D, C ); }
 
 	// concept hierarchy
 
 		/// apply actor::apply() to all direct parents of [complex] C (with possible synonyms)
 	template<class Actor>
-	bool getParents ( const ComplexConcept C, Actor& actor )
+	void getParents ( const ComplexConcept C, Actor& actor )
 	{
 		classifyKB();	// ensure KB is ready to answer the query
 		setUpCache ( C, csClassified );
 		cachedVertex->getRelativesInfo</*needCurrent=*/false, /*onlyDirect=*/true,
 									   /*upDirection=*/true>(actor);
-		return false;
 	}
 		/// apply Actor::apply() to all direct children of [complex] C (with possible synonyms)
 	template<class Actor>
-	bool getChildren ( const ComplexConcept C, Actor& actor )
+	void getChildren ( const ComplexConcept C, Actor& actor )
 	{
 		classifyKB();	// ensure KB is ready to answer the query
 		setUpCache ( C, csClassified );
 		cachedVertex->getRelativesInfo</*needCurrent=*/false, /*onlyDirect=*/true,
 									   /*upDirection=*/false>(actor);
-		return false;
 	}
 		/// apply actor::apply() to all parents of [complex] C (with possible synonyms)
 	template<class Actor>
-	bool getAncestors ( const ComplexConcept C, Actor& actor )
+	void getAncestors ( const ComplexConcept C, Actor& actor )
 	{
 		classifyKB();	// ensure KB is ready to answer the query
 		setUpCache ( C, csClassified );
 		cachedVertex->getRelativesInfo</*needCurrent=*/false, /*onlyDirect=*/false,
 									   /*upDirection=*/true>(actor);
-		return false;
 	}
 		/// apply actor::apply() to all children of [complex] C (with possible synonyms)
 	template<class Actor>
-	bool getDescendants ( const ComplexConcept C, Actor& actor )
+	void getDescendants ( const ComplexConcept C, Actor& actor )
 	{
 		classifyKB();	// ensure KB is ready to answer the query
 		setUpCache ( C, csClassified );
 		cachedVertex->getRelativesInfo</*needCurrent=*/false, /*onlyDirect=*/false,
 									   /*upDirection=*/false>(actor);
-		return false;
 	}
 		/// apply actor::apply() to all synonyms of [complex] C
 	template<class Actor>
-	bool getEquivalents ( const ComplexConcept C, Actor& actor )
+	void getEquivalents ( const ComplexConcept C, Actor& actor )
 	{
 		classifyKB();	// ensure KB is ready to answer the query
 		setUpCache ( C, csClassified );
-		return !actor.apply(*cachedVertex);
+		actor.apply(*cachedVertex);
 	}
 
 	// role hierarchy
 
 	// all direct parents of R (with possible synonyms)
 	template<class Actor>
-	bool getRParents ( const ComplexRole r, Actor& actor )
+	void getRParents ( const ComplexRole r, Actor& actor )
 	{
 		preprocessKB();	// ensure KB is ready to answer the query
 		TRole* R = getRole ( r, "Role expression expected in getRParents()" );
 		TaxonomyVertex* p = R->getTaxVertex();	// need this for compiler
 		p->getRelativesInfo</*needCurrent=*/false, /*onlyDirect=*/true, /*upDirection=*/true>(actor);
-		return false;
 	}
 
 	// all direct children of R (with possible synonyms)
 	template<class Actor>
-	bool getRChildren ( const ComplexRole r, Actor& actor )
+	void getRChildren ( const ComplexRole r, Actor& actor )
 	{
 		preprocessKB();	// ensure KB is ready to answer the query
 		TRole* R = getRole ( r, "Role expression expected in getRChildren()" );
 		TaxonomyVertex* p = R->getTaxVertex();	// need this for compiler
 		p->getRelativesInfo</*needCurrent=*/false, /*onlyDirect=*/true, /*upDirection=*/false>(actor);
-		return false;
 	}
 
 	// all parents of R (with possible synonyms)
 	template<class Actor>
-	bool getRAncestors ( const ComplexRole r, Actor& actor )
+	void getRAncestors ( const ComplexRole r, Actor& actor )
 	{
 		preprocessKB();	// ensure KB is ready to answer the query
 		TRole* R = getRole ( r, "Role expression expected in getRAncestors()" );
 		TaxonomyVertex* p = R->getTaxVertex();	// need this for compiler
 		p->getRelativesInfo</*needCurrent=*/false, /*onlyDirect=*/false, /*upDirection=*/true>(actor);
-		return false;
 	}
 
 	// all children of R (with possible synonyms)
 	template<class Actor>
-	bool getRDescendants ( const ComplexRole r, Actor& actor )
+	void getRDescendants ( const ComplexRole r, Actor& actor )
 	{
 		preprocessKB();	// ensure KB is ready to answer the query
 		TRole* R = getRole ( r, "Role expression expected in getRDescendants()" );
 		TaxonomyVertex* p = R->getTaxVertex();	// need this for compiler
 		p->getRelativesInfo</*needCurrent=*/false, /*onlyDirect=*/false, /*upDirection=*/false>(actor);
-		return false;
 	}
 
 		/// apply actor::apply() to all synonyms of [complex] R
 	template<class Actor>
-	bool getREquivalents ( const ComplexRole r, Actor& actor )
+	void getREquivalents ( const ComplexRole r, Actor& actor )
 	{
 		preprocessKB();	// ensure KB is ready to answer the query
 		TRole* R = getRole ( r, "Role expression expected in getREquivalents()" );
 		TaxonomyVertex* p = R->getTaxVertex();	// need this for compiler
-		return !actor.apply(*p);
+		actor.apply(*p);
 	}
 
 	// domain and range as a set of named concepts
 
 		/// apply actor::apply() to all NC that are in the domain of [complex] R
 	template<class Actor>
-	bool getRoleDomain ( const ComplexRole r, Actor& actor )
+	void getRoleDomain ( const ComplexRole r, Actor& actor )
 	{
-		classifyKB();
-		return getDescendants ( Exists(r,Top()), actor );
+		getDescendants ( Exists(r,Top()), actor );
 	}
 
 		/// apply actor::apply() to all NC that are in the range of [complex] R
 	template<class Actor>
-	bool getRoleRange ( const ComplexRole r, Actor& actor )
+	void getRoleRange ( const ComplexRole r, Actor& actor )
 	{
-		classifyKB();
-		return getDescendants ( Exists(Inverse(r),Top()), actor );
+		getDescendants ( Exists(Inverse(r),Top()), actor );
 	}
 
 	// instances
 
 		/// apply actor::apply() to all direct instances of given [complex] C
 	template<class Actor>
-	bool getDirectInstances ( const ComplexConcept C, Actor& actor )
+	void getDirectInstances ( const ComplexConcept C, Actor& actor )
 	{
 		realiseKB();	// ensure KB is ready to answer the query
-		return getChildren ( C, actor );
+		getChildren ( C, actor );
 	}
 
 		/// apply actor::apply() to all instances of given [complex] C
 	template<class Actor>
-	bool getInstances ( const ComplexConcept C, Actor& actor )
+	void getInstances ( const ComplexConcept C, Actor& actor )
 	{	// FIXME!! check for Racer's/IS approach
 		realiseKB();	// ensure KB is ready to answer the query
-		return getDescendants ( C, actor );
+		getDescendants ( C, actor );
 	}
 
 		/// apply actor::apply() to all direct concept parents of an individual I
 	template<class Actor>
-	bool getDirectTypes ( const ComplexConcept I, Actor& actor )
+	void getDirectTypes ( const ComplexConcept I, Actor& actor )
 	{
 		realiseKB();	// ensure KB is ready to answer the query
-		return getParents ( I, actor );
+		getParents ( I, actor );
 	}
 		/// apply actor::apply() to all concept ancestors of an individual I
 	template<class Actor>
-	bool getTypes ( const ComplexConcept I, Actor& actor )
+	void getTypes ( const ComplexConcept I, Actor& actor )
 	{
 		realiseKB();	// ensure KB is ready to answer the query
-		return getAncestors ( I, actor );
+		getAncestors ( I, actor );
 	}
 		/// apply actor::apply() to all synonyms of an individual I
 	template<class Actor>
-	bool getSameAs ( const ComplexConcept I, Actor& actor )
+	void getSameAs ( const ComplexConcept I, Actor& actor )
 	{
 		realiseKB();	// ensure KB is ready to answer the query
-		return getEquivalents ( I, actor );
+		getEquivalents ( I, actor );
 	}
 		/// @return true iff I and J refer to the same individual
-	bool isSameIndividuals ( const ComplexConcept I, const ComplexConcept J, bool& Result )
+	bool isSameIndividuals ( const ComplexConcept I, const ComplexConcept J )
 	{
 		realiseKB();
 		TIndividual* i = getIndividual ( I, "Only known individuals are allowed in the isSameAs()" );
 		TIndividual* j = getIndividual ( J, "Only known individuals are allowed in the isSameAs()" );
-		Result = getTBox()->isSameIndividuals(i,j);
-		return false;
+		return getTBox()->isSameIndividuals(i,j);
 	}
 		/// @return true iff individual I is instance of given [complex] C
-	bool isInstance ( const ComplexConcept I, const ComplexConcept C, bool& Result )
+	bool isInstance ( const ComplexConcept I, const ComplexConcept C )
 	{
 		realiseKB();	// ensure KB is ready to answer the query
 		getIndividual ( I, "individual name expected in the isInstance()" );
-		return isSubsumedBy ( I, C, Result );
+		return isSubsumedBy ( I, C );
 	}
 		/// set RESULT into set of J's such that R(I,J)
-	bool getRoleFillers ( const ComplexConcept I, const ComplexRole R, IndividualSet& Result )
+	void getRoleFillers ( const ComplexConcept I, const ComplexRole R, IndividualSet& Result )
 	{
 		preprocessKB();	// only told information here
 		getTBox()->getRoleFillers (
 			getIndividual ( I, "Individual name expected in the getRoleFillers()" ),
 			getRole ( R, "Role expression expected in the getRoleFillers()" ),
 			Result );
-		return false;
 	}
 		/// set RESULT into set of (I,J)'s such that R(I,J)
-	bool getRelatedIndividuals ( const ComplexRole R, IndividualSet& Is, IndividualSet& Js )
+	void getRelatedIndividuals ( const ComplexRole R, IndividualSet& Is, IndividualSet& Js )
 	{
 		preprocessKB();	// only told information here
 		getTBox()->getRelatedIndividuals (
 			getRole ( R, "Role expression expected in the getRelatedIndividuals()" ),
 			Is, Js );
-		return false;
 	}
 	// ???
-	// bool getToldValues ( const IndividualName I, const RoleName A, ??? Result );	// FIXME!! unsupported
+	// ??? getToldValues ( const IndividualName I, const RoleName A );	// FIXME!! unsupported
 
 	// extra DIG operations
 		/// implement absorbedPrimitiveConceptDefinitions DIG extension
-	void absorbedPrimitiveConceptDefinitions ( std::ostream& o ) const;
+	void absorbedPrimitiveConceptDefinitions ( std::ostream& o ) const
+		{ getTBox()->absorbedPrimitiveConceptDefinitions(o); }
 		/// implement unabsorbed DIG extension
-	void unabsorbed ( std::ostream& o ) const;
+	void unabsorbed ( std::ostream& o ) const { getTBox()->unabsorbed(o); }
 }; // ReasoningKernel
 
 //----------------------------------------------------
@@ -1127,130 +1145,6 @@ inline bool ReasoningKernel :: processDifferent ( void )
 {
 	isChanged = true;
 	return getTBox()->processDifferent(NAryQueue.getLastArgList());
-}
-
-//----------------------------------------------------
-//	ASKS implementation
-//----------------------------------------------------
-
-/// is R functional
-inline bool
-ReasoningKernel :: isFunctional ( const ComplexRole R, bool& Result )
-{
-	preprocessKB();	// ensure KB is ready to answer the query
-
-	// universal role is not functional
-	if ( isUniversalRole(R) )
-		Result = false;
-	else
-		Result = getRole ( R, "Role expression expected in isFunctional()" )->isFunctional();
-	return false;
-}
-
-/// is R inverse-functional
-inline bool
-ReasoningKernel :: isInverseFunctional ( const ComplexRole R, bool& Result )
-{
-	ComplexRole iR = Inverse(clone(R));
-	bool ret = isFunctional ( iR, Result );
-	deleteTree(iR);
-	return ret;
-}
-
-	// is C satisfiable
-inline bool
-ReasoningKernel :: isSatisfiable ( const ComplexConcept C, bool& Result )
-{
-	preprocessKB();	// ensure KB is ready to answer the query
-	if ( isCN(C) )
-	{
-		Result = getTBox()->isSatisfiable(getTBox()->getCI(C));
-		return false;
-	}
-
-	setUpCache ( C, csSat );
-
-	Result = getTBox()->isSatisfiable(cachedConcept);
-	return false;
-}
-
-	// is C [= D holds
-inline bool
-ReasoningKernel :: isSubsumedBy ( const ComplexConcept C, const ComplexConcept D, bool& Result )
-{
-	preprocessKB();	// ensure KB is ready to answer the query
-	if ( isCN(C) && isCN(D) )
-	{
-		Result = getTBox()->isSubHolds ( getTBox()->getCI(C), getTBox()->getCI(D) );
-		return false;
-	}
-
-	ComplexConcept Probe = And ( clone(C), Not(clone(D)) );
-	bool ret = isSatisfiable ( Probe, Result );
-	deleteTree(Probe);
-	Result = !Result;
-	return ret;
-}
-
-	// is C&D disjoint
-inline bool
-ReasoningKernel :: isDisjoint ( const ComplexConcept C, const ComplexConcept D, bool& Result )
-{
-	preprocessKB();	// ensure KB is ready to answer the query
-	bool sub = false, fail;
-
-	// check if one of subsumption holds
-	fail = isSubsumedBy ( C, D, sub );
-
-	if ( fail )
-		return true;
-
-	// check second one if 1st subsumption not holds
-	if ( !sub )
-		fail = isSubsumedBy ( D, C, sub );
-
-	if ( !fail )
-		Result = !sub;
-
-	return fail;
-}
-
-// are C and D equivalent
-inline bool
-ReasoningKernel :: isEquivalent ( const ComplexConcept C, const ComplexConcept D, bool& Result )
-{
-	preprocessKB();	// ensure KB is ready to answer the query
-	bool sub = false, fail;
-
-	// check if one of subsumption holds
-	fail = isSubsumedBy ( C, D, sub );
-
-	if ( fail )
-		return true;
-
-	// check second one if 1st subsumption not holds
-	if ( sub )
-		fail = isSubsumedBy ( D, C, sub );
-
-	if ( !fail )
-		Result = sub;
-
-	return fail;
-}
-
-//----------------------------------------------------
-//	extra ASKS implementation
-//----------------------------------------------------
-
-	/// implement absorbedPrimitiveConceptDefinitions DIG extension
-inline void ReasoningKernel :: absorbedPrimitiveConceptDefinitions ( std::ostream& o ) const
-{
-	getTBox()->absorbedPrimitiveConceptDefinitions(o);
-}
-	/// implement unabsorbed DIG extension
-inline void ReasoningKernel :: unabsorbed ( std::ostream& o ) const
-{
-	getTBox()->unabsorbed(o);
 }
 
 #endif
