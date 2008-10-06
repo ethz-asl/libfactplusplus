@@ -730,6 +730,15 @@ public:
 		realiseKB();	// ensure KB is ready to answer the query
 		return getEquivalents ( I, actor );
 	}
+		/// @return true iff I and J refer to the same individual
+	bool isSameIndividuals ( const ComplexConcept I, const ComplexConcept J, bool& Result )
+	{
+		realiseKB();
+		if ( !getTBox()->isIndividual(I) || !getTBox()->isIndividual(J) )
+			throw EFaCTPlusPlus("Only known individuals are allowed in the isSameAs query");
+		Result = getTBox()->isSameIndividuals(I->Element().getName(),J->Element().getName());
+		return false;
+	}
 
 	// if I is instance of given [complex] C
 	bool isInstance ( const ComplexConcept I, const ComplexConcept C, bool& Result );

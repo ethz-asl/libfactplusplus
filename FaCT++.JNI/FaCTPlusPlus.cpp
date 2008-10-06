@@ -1705,8 +1705,9 @@ JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_is
 	TRACE_JNI("isSameAs");
 	TRACE_ARG(env,obj,arg1);
 	TRACE_ARG(env,obj,arg2);
-	Throw ( env, "FaCT++ Kernel: unsupported operation" );
-	return false;
+	bool ret = false;
+	PROCESS_ASK_QUERY ( getK(env,obj)->isSameIndividuals ( getROTree(env,arg1), getROTree(env,arg2), ret ),"isSameAs");
+	return ret;
 }
 
 //-------------------------------------------------------------

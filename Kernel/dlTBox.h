@@ -997,6 +997,17 @@ public:
 	bool isSubHolds ( const TConcept* C, const TConcept* D );
 		/// check if a concept C is satisfiable
 	bool isSatisfiable ( const TConcept* C );
+		/// check that 2 individuals are the same
+	bool isSameIndividuals ( const TNamedEntry* I, const TNamedEntry* J )
+	{
+		if ( !isIndividual(I) || !isIndividual(J) )
+			throw EFaCTPlusPlus("Individuals are expected in the isSameIndividuals() query");
+		const TIndividual* a = toIndividual(I);
+		const TIndividual* b = toIndividual(J);
+		if ( a->node == NULL || b->node == NULL )
+			throw EFaCTPlusPlus("isSameIndividuals() query with non-realised ontology");
+		return a->node->resolvePBlocker() == b->node->resolvePBlocker();
+	}
 
 		/// fills cache entry for given concept; set up SAT flag to a concept
 	const modelCacheInterface* initCache ( TConcept* pConcept );
