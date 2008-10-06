@@ -279,11 +279,15 @@ protected:	// methods
 	bool isRegisteredConcept ( const TNamedEntry* name ) const { return Concepts.isRegistered(name); }
 
 		/// @return concept by given Named Entry ID
-	TConcept* getConcept ( TNamedEntry* id ) { return static_cast<TConcept*>(id); }
+	TConcept* toConcept ( TNamedEntry* id ) { return static_cast<TConcept*>(id); }
+		/// @return concept by given Named Entry ID
+	const TConcept* toConcept ( const TNamedEntry* id ) const { return static_cast<const TConcept*>(id); }
+		/// @return individual by given Named Entry ID
+	TIndividual* toIndividual ( TNamedEntry* id ) { return static_cast<TIndividual*>(id); }
+		/// @return individual by given Named Entry ID
+	const TIndividual* toIndividual ( const TNamedEntry* id ) const { return static_cast<const TIndividual*>(id); }
 		/// get TOP/BOTTOM/CN by the DLTree entry
 	TConcept* getCI ( const DLTree* name );
-		/// @return individual by given Named Entry ID
-	TIndividual* getIndividual ( TNamedEntry* id ) { return static_cast<TIndividual*>(id); }
 
 //-----------------------------------------------------------------------------
 //--		internal BP-to-concept interface
@@ -801,7 +805,7 @@ public:
 	TIndividual* getIndividual ( const std::string& name ) { return Individuals.get(name); }
 
 		/// @return true iff given name is a registered individual
-	bool isIndividual ( TNamedEntry* name ) const { return Individuals.isRegistered(name); }
+	bool isIndividual ( const TNamedEntry* name ) const { return Individuals.isRegistered(name); }
 		/// @return true iff given DLTree represents a registered individual
 	bool isIndividual ( const DLTree* entry ) const
 		{ return (entry->Element().getToken() == INAME && isIndividual(entry->Element().getName())); }
@@ -842,18 +846,18 @@ public:
 	}
 
 	bool RegisterInstance ( TNamedEntry* name, DLTree* Desc )
-		{ return !isIndividual(name) || addSubsumeAxiom ( getConcept(name), Desc ); }
+		{ return !isIndividual(name) || addSubsumeAxiom ( toConcept(name), Desc ); }
 	bool RegisterIndividualRelation ( TNamedEntry* a, TNamedEntry* R, TNamedEntry* b )
 	{
 		if ( !isIndividual(a) || !isIndividual(b) )
 			return true;
 		RelatedI.push_back ( new
-			TRelated ( static_cast<TIndividual*>(a),
-					   static_cast<TIndividual*>(b),
+			TRelated ( toIndividual(a),
+					   toIndividual(b),
 					   static_cast<TRole*>(R) ) );
 		RelatedI.push_back ( new
-			TRelated ( static_cast<TIndividual*>(b),
-					   static_cast<TIndividual*>(a),
+			TRelated ( toIndividual(b),
+					   toIndividual(a),
 					   static_cast<TRole*>(R)->inverse() ) );
 		return false;
 	}
@@ -1088,9 +1092,9 @@ inline TConcept* TBox :: getCI ( const DLTree* name )
 		return NULL;
 
 	if ( name->Element().getToken() == CNAME )
-		return getConcept(name->Element().getName());
+		return toConcept(name->Element().getName());
 	else
-		return getIndividual(name->Element().getName());
+		return toIndividual(name->Element().getName());
 }
 
 //---------------------------------------------------------------

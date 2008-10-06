@@ -113,10 +113,10 @@ BipolarPointer TBox :: tree2dag ( const DLTree* t )
 	case DATAEXPR:	// data-related expression
 		return addDataExprToHeap ( static_cast<TDataEntry*>(cur.getName()) );
 	case CNAME:		// concept name
-		return concept2dag(getConcept(cur.getName()));
+		return concept2dag(toConcept(cur.getName()));
 	case INAME:		// individual name
 		++nNominalReferences;	// definitely a nominal
-		return concept2dag(getIndividual(cur.getName()));
+		return concept2dag(toIndividual(cur.getName()));
 
 	case NOT:
 		return inverse ( tree2dag ( t->Left() ) );
