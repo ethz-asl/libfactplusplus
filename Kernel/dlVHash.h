@@ -46,6 +46,8 @@ protected:	// methods
 		BipolarPointer sum = 0;
 		if ( v.getRole() != NULL )
 			sum += v.getRole()->getId();
+		sum += v.getC();
+		sum += v.getNumberLE();
 		for ( DLVertex::const_iterator p = v.begin(), p_end = v.end(); p < p_end; ++p )
 			sum += *p;
 		return sum;

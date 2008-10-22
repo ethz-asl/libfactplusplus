@@ -313,6 +313,10 @@ protected:	// members
 	TNamedEntry* Concept;
 		/// pointer to role (for E\A, NR)
 	const TRole* Role;
+		/// C if available
+	BipolarPointer C;
+		/// n if available
+	unsigned int n;
 
 public:		// interface
 		/// empty c'tor (do nothing)
@@ -320,34 +324,41 @@ public:		// interface
 		: DLVertexTagDFS(dtBad)
 		, Concept(NULL)
 		, Role(NULL)
+		, C(bpINVALID)
+		, n(0)
 		{}
 		/// c'tor for Top/CN/And (before adding any operands)
 	explicit DLVertex ( DagTag op )
 		: DLVertexTagDFS(op)
 		, Concept(NULL)
 		, Role(NULL)
+		, C(bpINVALID)
+		, n(0)
 		{}
 		/// c'tor for Refl/Irr
 	DLVertex ( DagTag op, const TRole* R )
 		: DLVertexTagDFS(op)
 		, Concept(NULL)
 		, Role(R)
+		, C(bpINVALID)
+		, n(0)
 		{}
 		/// c'tor for CN/DE; C is an operand
-	DLVertex ( DagTag op, BipolarPointer C )
+	DLVertex ( DagTag op, BipolarPointer c )
 		: DLVertexTagDFS(op)
 		, Concept(NULL)
 		, Role(NULL)
-		{ Child.push_back(C); }
+		, C(c)
+		, n(0)
+		{}
 		/// c'tor for <= n R_C; and for \A R{n}_C; Note order C, n, R->pointer
-	DLVertex ( DagTag op, BipolarPointer n, const TRole* R, BipolarPointer C )
+	DLVertex ( DagTag op, BipolarPointer m, const TRole* R, BipolarPointer c )
 		: DLVertexTagDFS(op)
 		, Concept(NULL)
 		, Role(R)
-	{
-		Child.push_back(C);
-		Child.push_back(n);
-	}
+		, C(c)
+		, n(m)
+		{}
 		/// d'tor (empty)
 	virtual ~DLVertex ( void ) {}
 
@@ -356,23 +367,25 @@ public:		// interface
 	{
 		return (Type() == v.Type()) &&
 			   (Role == v.Role) &&
+			   (C == v.C) &&
+			   (n == v.n) &&
 			   (Child == v.Child);
 	}
 		/// return TRUE iff CE is functional restriction for some role ( in the form (<= 1 R [TOP]))
 	bool isFunctional ( void ) const { return ( Type() == dtLE && getNumberLE() == 1 && getC() == bpTOP ); }
 		/// return C for concepts/quantifiers/NR verteces
-	BipolarPointer getC ( void ) const { return Child[0]; }
+	BipolarPointer getC ( void ) const { return C; }
 		/// return N for the (<= n R) vertex
-	unsigned int getNumberLE ( void ) const { return Child[1]; }
+	unsigned int getNumberLE ( void ) const { return n; }
 		/// return N for the (>= n R) vertex
-	unsigned int getNumberGE ( void ) const { return Child[1]+1; }
+	unsigned int getNumberGE ( void ) const { return n+1; }
 		/// return STATE for the (\all R{state}.C) vertex
-	unsigned int getState ( void ) const { return Child[1]; }
+	unsigned int getState ( void ) const { return n; }
 
 		/// return pointer to the first concept name of the entry
 	const_iterator begin ( void ) const { return Child.begin(); }
 		/// return pointer after the last concept name of the entry
-	const_iterator end ( void ) const { return (Type() == dtLE || Type() == dtForall) ? Child.begin()+1 : Child.end(); }
+	const_iterator end ( void ) const { return Child.end(); }
 
 		/// return pointer to the last concept name of the entry; WARNING!! works for AND only
 	const_reverse_iterator rbegin ( void ) const { return Child.rbegin(); }
@@ -389,7 +402,7 @@ public:		// interface
  		/// set TConcept value to entry
 	void setConcept ( TNamedEntry* p ) { Concept = p; }
 		/// set a concept (child) to Name-like vertex
-	void setChild ( BipolarPointer p ) { Child.push_back(p); }
+	void setChild ( BipolarPointer p ) { C = p; }
 		/// adds a child to 'AND' vertex; returns TRUE if contradiction found
 	bool addChild ( BipolarPointer p );
 

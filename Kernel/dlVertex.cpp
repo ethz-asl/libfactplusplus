@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2007 by Dmitry Tsarkov
+Copyright (C) 2003-2008 by Dmitry Tsarkov
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -116,23 +116,33 @@ void DLVertex :: initStat ( const DLDag& dag, bool pos )
 {
 	StatType d = 0, s = 1, b = 0, g = 0, d_loc;
 
+#define UPDATE_STAT()			\
+	if ( v.isInCycle(posQ) )	\
+		setInCycle(pos);		\
+	d_loc = v.getDepth(posQ);	\
+	s += v.getSize(posQ);		\
+	b += v.getBranch(posQ);		\
+	g += v.getGener(posQ);		\
+	if ( d_loc > d ) d = d_loc
+	
 	if ( !omitStat(pos) )
-		for ( const_iterator q = begin(), q_end = end(); q < q_end; ++q )
+	{
+		if ( isValid(getC()) )
 		{
-			const DLVertex& v = dag[*q];
-			bool posQ = (pos == isPositive(*q));
-
-			if ( v.isInCycle(posQ) )
-				setInCycle(pos);
-
-			d_loc = v.getDepth(posQ);
-			s += v.getSize(posQ);
-			b += v.getBranch(posQ);
-			g += v.getGener(posQ);
-
-			if ( d_loc > d )
-				d = d_loc;
+			const DLVertex& v = dag[getC()];
+			bool posQ = (pos == isPositive(getC()));
+			UPDATE_STAT();
 		}
+		else
+			for ( const_iterator q = begin(), q_end = end(); q < q_end; ++q )
+			{
+				const DLVertex& v = dag[*q];
+				bool posQ = (pos == isPositive(*q));
+				UPDATE_STAT();
+			}
+	}
+
+#undef UPDATE_STAT
 
 	// correct values wrt POS
 	switch ( Type() )
@@ -174,8 +184,11 @@ void DLVertex :: incFreq ( DLDag& dag, bool pos )
 		return;
 
 	// increment frequence of all subvertex
-	for ( const_iterator q = begin(); q != end(); ++q )
-		dag[*q].incFreq ( dag, pos == isPositive(*q) );
+	if ( isValid(getC()) )
+		dag[getC()].incFreq ( dag, pos == isPositive(getC()) );
+	else
+		for ( const_iterator q = begin(); q != end(); ++q )
+			dag[*q].incFreq ( dag, pos == isPositive(*q) );
 }
 
 // Sort given entry in the order defined by flags in a DAG.
@@ -289,20 +302,20 @@ DLVertex :: Print ( std::ostream& o ) const
 	case dtNConcept:
 	case dtPSingleton:
 	case dtNSingleton:
-		o << '(' << getConcept()->getName() << ") " << (isNNameTag(Type()) ? "=" : "[=");
-		break;
+		o << '(' << getConcept()->getName() << ") " << (isNNameTag(Type()) ? "=" : "[=") << ' ' << getC();
+		return;
 
 	case dtLE:
-		o << ' ' << getNumberLE() << ' ' << getRole()->getName();
-		break;
+		o << ' ' << getNumberLE() << ' ' << getRole()->getName() << ' ' << getC();
+		return;
 
 	case dtForall:
-		o << ' ' << getRole()->getName() << '{' << getState() << '}';
-		break;
+		o << ' ' << getRole()->getName() << '{' << getState() << '}' << ' ' << getC();
+		return;
 
 	case dtIrr:
 		o << ' ' << getRole()->getName();
-		break;
+		return;
 
 	default:
 		std::cerr << "Error printing vertex of type " << getTagName() << "(" << Type() << ")";
