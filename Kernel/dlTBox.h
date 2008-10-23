@@ -755,20 +755,7 @@ protected:	// methods
 		}
 	}
 		/// prepare features for SAT(P), or SUB(P,Q) test
-	void prepareFeatures ( const TConcept* pConcept, const TConcept* qConcept )
-	{
-		auxFeatures = GCIFeatures;
-		if ( pConcept != NULL )
-			updateAuxFeatures(pConcept->posFeatures);
-		if ( qConcept != NULL )
-			updateAuxFeatures(qConcept->negFeatures);
-		if ( auxFeatures.hasSingletons() )
-			updateAuxFeatures(NCFeatures);
-		curFeature = &auxFeatures;
-
-		// set blocking method for the current reasoning session
-		DlCompletionTree::setBlockingMethod ( isIRinQuery(), isNRinQuery() );
-	}
+	void prepareFeatures ( const TConcept* pConcept, const TConcept* qConcept );
 		/// clear current features
 	void clearFeatures ( void ) { curFeature = NULL; }
 

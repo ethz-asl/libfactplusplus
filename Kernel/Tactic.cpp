@@ -167,7 +167,7 @@ bool DlSatTester :: isIBlocked ( void )
 			return true;
 
 		// check whether node became unblocked
-		curNode->updateIBlockedStatus(CGraph);
+		CGraph.updateIBlockedStatus(curNode);
 		if ( curNode->isIBlocked() )
 		{
 			// cache value of i-blocked node
@@ -765,7 +765,7 @@ bool DlSatTester :: recheckNodeDBlocked ( void )
 	if ( curNode->isAffected() )
 	{
 		updateLevel ( curNode, curConcept.getDep() );
-		curNode->updateDBlockedStatus(CGraph);
+		CGraph.updateDBlockedStatus(curNode);
 	}
 
 	// if node became d-blocked -- update cache

@@ -124,7 +124,7 @@ void DLVertex :: initStat ( const DLDag& dag, bool pos )
 	b += v.getBranch(posQ);		\
 	g += v.getGener(posQ);		\
 	if ( d_loc > d ) d = d_loc
-	
+
 	if ( !omitStat(pos) )
 	{
 		if ( isValid(getC()) )

@@ -176,6 +176,22 @@ void TBox :: prepareReasoning ( void )
 	setToDoPriorities();
 }
 
+/// prepare features for SAT(P), or SUB(P,Q) test
+void TBox :: prepareFeatures ( const TConcept* pConcept, const TConcept* qConcept )
+{
+	auxFeatures = GCIFeatures;
+	if ( pConcept != NULL )
+		updateAuxFeatures(pConcept->posFeatures);
+	if ( qConcept != NULL )
+		updateAuxFeatures(qConcept->negFeatures);
+	if ( auxFeatures.hasSingletons() )
+		updateAuxFeatures(NCFeatures);
+	curFeature = &auxFeatures;
+
+	// set blocking method for the current reasoning session
+	getReasoner()->setBlockingMethod ( isIRinQuery(), isNRinQuery() );
+}
+
 bool
 TBox :: isSatisfiable ( const TConcept* pConcept )
 {

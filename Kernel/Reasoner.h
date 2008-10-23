@@ -871,6 +871,8 @@ public:
 		if ( TODO.initPriorities ( OptionSet, "IAOEFLG" ) )
 			error ( "Wrong priority option given. Execution stopped." );
 	}
+		/// set blocking method for a session
+	void setBlockingMethod ( bool hasInverse, bool hasQCR ) { CGraph.setBlockingMethod ( hasInverse, hasQCR ); }
 
 		/// return [singleton] cache for given concept implementation
 	const modelCacheInterface* createModelCache ( BipolarPointer p ) const

@@ -94,6 +94,18 @@ protected:	// members
 		/// number of node' saves
 	unsigned int nNodeRestores;
 
+	// flags
+
+		/// use or not lazy blocking (ie test blocking only expanding exists)
+	bool useLazyBlocking;
+		/// whether to use Anywhere blocking as opposed to an ancestor one
+	bool useAnywhereBlocking;
+
+		/// check if session has inverse roles
+	bool sessionHasInverseRoles;
+		/// check if session has number restrictions
+	bool sessionHasNumberRestrictions;
+
 protected:	// methods
 		/// init vector [B,E) with new objects T
 	void initNodeArray ( iterator b, iterator e )
@@ -148,6 +160,29 @@ protected:	// methods
 		/// update IR in P with IR from Q and additional dep-set
 	void updateIR ( DlCompletionTree* p, const DlCompletionTree* q, const DepSet& toAdd );
 
+	//----------------------------------------------
+	// re-building blocking hierarchy
+	//----------------------------------------------
+
+		/// check whether NODE is blocked by a BLOCKER
+	bool isBlockedBy ( const DlCompletionTree* node, const DlCompletionTree* blocker ) const;
+		/// check if d-blocked node is still d-blocked
+	bool isStillDBlocked ( const DlCompletionTree* node ) const { return node->isDBlocked() && isBlockedBy ( node, node->dBlocker ); }
+		/// update (create) blocked status of current node
+	void updateBlockedStatus ( DlCompletionTree* node ) const;
+		/// try to find d-blocker for a node using ancestor blocking
+	void findDAncestorBlocker ( DlCompletionTree* node ) const;
+		/// try to find d-blocker for a node using anywhere blocking
+	void findDAnywhereBlocker ( DlCompletionTree* node ) const;
+		/// try to find d-blocker for a node
+	void findDBlocker ( DlCompletionTree* node ) const
+	{
+		if ( useAnywhereBlocking )
+			findDAnywhereBlocker(node);
+		else
+			findDAncestorBlocker(node);
+	}
+
 public:		// interface
 		/// c'tor: make INIT_SIZE objects
 	DlCompletionGraph ( unsigned int initSize )
@@ -167,6 +202,24 @@ public:		// interface
 		for ( iterator p = NodeBase.begin(); p != NodeBase.end(); ++p )
 			delete *p;
 	}
+
+	// flag setting
+
+		/// set flags for blocking
+	void initContext ( DLDag* pDag, bool useLB, bool useAB )
+	{
+		DlCompletionTree::initContext(pDag);
+		useLazyBlocking = useLB;
+		useAnywhereBlocking = useAB;
+	}
+		/// set blocking method for a session
+	void setBlockingMethod ( bool hasInverse, bool hasQCR )
+	{
+		sessionHasInverseRoles = hasInverse;
+		sessionHasNumberRestrictions = hasQCR;
+	}
+
+	// access to nodes
 
 		/// get a root node (non-const)
 	DlCompletionTree* getRoot ( void ) { return NodeBase[0]; }
@@ -190,6 +243,23 @@ public:		// interface
 		ret->init(branchingLevel);
 		return ret;
 	}
+
+	// blocking
+
+		/// update blocked status for i-blocked node
+	void updateIBlockedStatus ( DlCompletionTree* node ) const;
+		/// update blocked status for d-blocked node
+	void updateDBlockedStatus ( DlCompletionTree* node ) const
+	{
+		if ( !node->isAffected() )
+			return;
+		if ( isStillDBlocked(node) )
+			node->clearAffected();
+		else
+			updateBlockedStatus(node);
+		assert ( !node->isAffected() );
+	}
+
 		/// clear all the session statistics
 	void clearStatistics ( void )
 	{
@@ -311,6 +381,32 @@ public:		// interface
 		/// print graph starting from the root
 	void Print ( std::ostream& o ) const;
 }; // DlCompletionGraph
+
+// blocking
+
+// universal Blocked-By method
+inline bool
+DlCompletionGraph :: isBlockedBy ( const DlCompletionTree* node, const DlCompletionTree* blocker ) const
+{
+	// nominal nodes can't neither be nor became blocked
+	if ( node->isNominalNode() || blocker->isNominalNode() )
+		return false;
+
+	// cached node can't be a blocker
+	if ( blocker->isCached() )
+		return false;
+
+	// easy check: Init is not in the label if a blocker
+	if ( !blocker->canBlockInit(node) )
+		return false;
+
+	if ( !sessionHasInverseRoles )	// subset blocking
+		return node->isBlockedBy_SH(blocker);
+	if ( sessionHasNumberRestrictions )	// I+F -- optimised blocking
+		return node->isBlockedBy_SHIQ_ob(blocker);
+	else	// just I -- equality blocking
+		return node->isCommonlyBlockedBy(blocker);
+}
 
 #if defined(RKG_IR_IN_NODE_LABEL)
 inline bool

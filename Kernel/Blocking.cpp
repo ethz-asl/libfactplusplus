@@ -360,40 +360,40 @@ bool DlCompletionTree :: B6 ( const TRole* U, BipolarPointer F ) const
 //----------------------------------------------------------------------
 
 void
-DlCompletionTree :: updateIBlockedStatus ( const DlCompletionGraph& Graph )
+DlCompletionGraph :: updateIBlockedStatus ( DlCompletionTree* node ) const
 {
-	if ( !hasParent()		// no parents (can't be blocked),
-	     || isPBlocked()	// p-blocked (can't be unblocked)
-		 || !isIBlocked()	// was not i-blocked (don't care)
-		 || !isAffected() )	// does not change since previous check
+	if ( !node->hasParent()			// no parents (can't be blocked),
+		 || node->isPBlocked()		// p-blocked (can't be unblocked)
+		 || !node->isIBlocked()		// was not i-blocked (don't care)
+		 || !node->isAffected() )	// does not change since previous check
 		return;
 
-	if ( !iBlocker->isAffected() )
+	if ( !node->iBlocker->isAffected() )
 	{	// iBlocker does not changed, so it is still d-blocked, so current is still i-blocked
-		clearAffected();
+		node->clearAffected();
 		return;
 	}
 
-	if ( iBlocker->isStillDBlocked() )
-		clearAffected();
+	if ( isStillDBlocked(node->iBlocker) )
+		node->clearAffected();
 	else
 	{	// i-blocked, but blocker became unblocked
-		DlCompletionTree* p = const_cast<DlCompletionTree*>(iBlocker);
+		DlCompletionTree* p = const_cast<DlCompletionTree*>(node->iBlocker);
 		p->clearIBlockedChildren();		// remove i-blocked mark from all the successors
-		p->updateDBlockedStatus(Graph);	// try to find another blocker for p
+		updateDBlockedStatus(p);		// try to find another blocker for p
 		if ( !p->isBlocked() )
-			updateDBlockedStatus(Graph);
+			updateDBlockedStatus(node);
 	}
-	assert ( !isAffected() );
+	assert ( !node->isAffected() );
 }
 
-void DlCompletionTree :: updateBlockedStatus ( const DlCompletionGraph& Graph )
+void DlCompletionGraph :: updateBlockedStatus ( DlCompletionTree* node ) const
 {
-	DlCompletionTree* p = this;
+	DlCompletionTree* p = node;
 
 	while ( p->hasParent() && p->isBlockableNode() && p->isAffected() )
 	{
-		p->findDBlocker(Graph);
+		findDBlocker(p);
 		p->clearAffected();
 		if ( p->isBlocked() )
 			return;
@@ -427,41 +427,38 @@ void DlCompletionTree :: setIBlocked ( const DlCompletionTree* p )
 	propagateIBlockedStatus(p);
 }
 
-void DlCompletionTree :: findDAncestorBlocker ( void )
+void DlCompletionGraph :: findDAncestorBlocker ( DlCompletionTree* node ) const
 {
-	register const DlCompletionTree* p = this;
+	node->dBlocker = NULL;
+	register const DlCompletionTree* p = node;
 
 	while ( p->hasParent() && p->isBlockableNode() )
 	{
 		p = p->getParentNode();
 
-		// the node is blocked if Label <= p->Label
-		if ( isBlockedBy (p) )
+		if ( isBlockedBy ( node, p ) )
 		{
-			setDBlocked(p);
+			node->setDBlocked(p);
 			return;
 		}
 	}
-
-	// no blockers in ancestors => not d-blocked
-	dBlocker = NULL;
 }
 
-void DlCompletionTree :: findDAnywhereBlocker ( const DlCompletionGraph& Graph )
+void DlCompletionGraph :: findDAnywhereBlocker ( DlCompletionTree* node ) const
 {
-	dBlocker = NULL;
+	node->dBlocker = NULL;
 
-	for ( unsigned int i = 0; i < getId(); ++i )
+	for ( const_iterator q = begin(), q_end = end(); q < q_end && *q != node; ++q )
 	{
-		const DlCompletionTree* p = Graph.getNode(i);
+		const DlCompletionTree* p = *q;
 
 		// node was merge to smth with the larger ID or is blocked itself
 		if ( p->isBlocked() || p->isPBlocked() )
 			continue;
 
-		if ( isBlockedBy(p) )
+		if ( isBlockedBy ( node, p ) )
 		{
-			setDBlocked(p);
+			node->setDBlocked(p);
 			return;
 		}
 	}

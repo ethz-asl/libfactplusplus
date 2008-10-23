@@ -20,10 +20,6 @@ Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 
 unsigned int DlCompletionTree :: nSetCompareOps = 0;
 DLDag* DlCompletionTree :: pDLHeap = NULL;
-bool DlCompletionTree :: useLazyBlocking = true;
-bool DlCompletionTree :: useAnywhereBlocking = true;
-bool DlCompletionTree :: sessionHasInverseRoles = false;
-bool DlCompletionTree :: sessionHasNumberRestrictions = false;
 
 /// check if transitive R-successor of the NODE labelled with C
 bool
@@ -79,8 +75,8 @@ DlCompletionTree :: isNSomeApplicable ( const TRole* R, BipolarPointer C ) const
 		if ( (*p)->isNeighbour(R) && (*p)->getArcEnd()->isLabelledBy(C) )
 			return true;	// already contained such a label
 
-	if ( !sessionHasInverseRoles )
-		return false;
+//	if ( !sessionHasInverseRoles )
+//		return false;
 
 	for ( p = beginp(); p < p_end; ++p )
 		if ( (*p)->isNeighbour(R) && (*p)->getArcEnd()->isLabelledBy(C) )
@@ -98,8 +94,8 @@ DlCompletionTree :: isTSomeApplicable ( const TRole* R, BipolarPointer C ) const
 		if ( (*p)->isNeighbour(R) && (*p)->getArcEnd()->isTSuccLabelled(R,C) )
 			return true;	// already contained such a label
 
-	if ( !sessionHasInverseRoles )
-		return false;
+//	if ( !sessionHasInverseRoles )
+//		return false;
 
 	for ( p = beginp(); p < p_end; ++p )
 		if ( (*p)->isNeighbour(R) && (*p)->getArcEnd()->isTPredLabelled(R,C,this) )

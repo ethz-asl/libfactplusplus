@@ -47,6 +47,8 @@ const CTNominalLevel BlockableLevel = static_cast<CTNominalLevel>(-1);
 
 class DlCompletionTree//: public Loki::SmallObject<>
 {
+	friend class DlCompletionGraph;
+
 protected:	// internal classes
 		/// class for saving Completion Tree nodes state
 	class SaveState
@@ -143,32 +145,13 @@ protected:	// global vars
 
 	static unsigned int nSetCompareOps;
 
-		/// use or not lazy blocking (ie test blocking only expanding exists)
-	static bool useLazyBlocking;
-		/// whether to use Anywhere blocking as opposed to an ancestor one
-	static bool useAnywhereBlocking;
-		/// check if session has inverse roles
-	static bool sessionHasInverseRoles;
-		/// check if session has number restrictions
-	static bool sessionHasNumberRestrictions;
-
 public:		// static interface
 		/// init static context for DL trees
-	static void initContext ( DLDag* pDag, bool useLB, bool useAB )
-		{ pDLHeap = pDag; useLazyBlocking = useLB; useAnywhereBlocking = useAB; }
-
-	// get read access to statistic
-
+	static void initContext ( DLDag* pDag ) { pDLHeap = pDag; }
+		/// get read access to statistic
 	static unsigned int getNSetCompareOps ( void ) { return nSetCompareOps; }
-
-	// write access to static members
-
+		/// clear static members
 	static void resetStatistic ( void ) { nSetCompareOps = 0; }
-	static void setBlockingMethod ( bool isInverse, bool isQCR )
-	{
-		sessionHasInverseRoles = isInverse;
-		sessionHasNumberRestrictions = isQCR;
-	}
 
 protected:	// members
 		/// label of a node
@@ -223,9 +206,6 @@ protected:	// methods
 	// blocking support methods
 	//----------------------------------------------
 
-		/// main (tunable) Blocked-By method: is current node blocked by given one
-	bool isBlockedBy ( const DlCompletionTree* p ) const;
-
 	//  Blocked-By methods for different logics
 
 		/// check blocking condition for SH logic
@@ -279,20 +259,8 @@ protected:	// methods
 	// re-building blocking hierarchy
 	//----------------------------------------------
 
-		/// check if d-blocked node is still d-blocked
-	bool isStillDBlocked ( void ) const { return dBlocker && isBlockedBy(dBlocker); }
-		/// try to find d-blocker for a node using ancestor blocking
-	void findDAncestorBlocker ( void );
-		/// try to find d-blocker for a node using anywhere blocking
-	void findDAnywhereBlocker ( const DlCompletionGraph& Graph );
-		/// try to find d-blocker for a node
-	void findDBlocker ( const DlCompletionGraph& Graph )
-	{
-		if ( useAnywhereBlocking )
-			findDAnywhereBlocker(Graph);
-		else
-			findDAncestorBlocker();
-	}
+		/// check whether a node can block another one with init concept C
+	bool canBlockInit ( BipolarPointer C ) const { return C == bpTOP || label().contains(C); }
 		/// propagate i-blocked status to all children
 	void propagateIBlockedStatus ( const DlCompletionTree* p );
 		/// clear the i-blocked status from all the children
@@ -575,17 +543,13 @@ public:		// methods
 		dep += pDep;
 		return const_cast<DlCompletionTree*>(pBlocker)->resolvePBlocker(dep);
 	}
+		/// check whether a node can block node P according to it's Init value
+	bool canBlockInit ( const DlCompletionTree* p ) const { return canBlockInit(p->Init); }
 
 	//----------------------------------------------
 	// re-building blocking hierarchy
 	//----------------------------------------------
 
-		/// update (create) blocked status of current node
-	void updateBlockedStatus ( const DlCompletionGraph& Graph );
-		/// update blocked status for i-blocked node
-	void updateIBlockedStatus ( const DlCompletionGraph& Graph );
-		/// update blocked status for d-blocked node
-	void updateDBlockedStatus ( const DlCompletionGraph& Graph );
 		/// set node purged
 	TRestorer* setPBlocked ( const DlCompletionTree* p, const DepSet& dep )
 	{
@@ -717,40 +681,6 @@ inline DlCompletionTreeArc* DlCompletionTree :: getEdgeLabelled (
 		if ( (*p)->getArcEnd() == q && (*p)->isNeighbour(R) )
 			return *p;
 	return NULL;
-}
-
-inline void DlCompletionTree :: updateDBlockedStatus ( const DlCompletionGraph& Graph )
-{
-	if ( !isAffected() )
-		return;
-	if ( isStillDBlocked() )
-		clearAffected();
-	else
-		updateBlockedStatus(Graph);
-	assert ( !isAffected() );
-}
-
-// universal Blocked-By method
-inline bool DlCompletionTree :: isBlockedBy ( const DlCompletionTree* p ) const
-{
-	// nominal nodes can't neither be nor became blocked
-	if ( isNominalNode() || p->isNominalNode() )
-		return false;
-
-	// cached node can't be a blocker
-	if ( p->isCached() )
-		return false;
-
-	// easy check: Init is not in the label if a blocker
-	if ( Init != bpTOP && !p->label().contains(Init) )
-		return false;
-
-	if ( !sessionHasInverseRoles )	// subset blocking
-		return isBlockedBy_SH(p);
-	if ( sessionHasNumberRestrictions )	// I+F -- optimised blocking
-		return isBlockedBy_SHIQ_ob(p);
-	else	// just I -- equality blocking
-		return isCommonlyBlockedBy(p);
 }
 
 //  Blocked-By methods for different logics
