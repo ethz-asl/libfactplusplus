@@ -27,7 +27,6 @@ Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #include "modelCacheSingleton.h"
 #include "modelCacheIan.h"
 #include "tSaveStack.h"
-#include "tRareSaveStack.h"
 #include "procTimer.h"
 #include "DataReasoning.h"
 #include "ToDoList.h"

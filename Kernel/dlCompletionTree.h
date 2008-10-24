@@ -209,9 +209,9 @@ protected:	// methods
 	//  Blocked-By methods for different logics
 
 		/// check blocking condition for SH logic
-	bool isBlockedBy_SH ( const DlCompletionTree* p ) const;
+	bool isBlockedBy_SH ( const DlCompletionTree* p ) const { ++nSetCompareOps; return Label <= p->Label; }
 		/// check blocking condition for SHI logic
-	bool isBlockedBy_SHI ( const DlCompletionTree* p ) const;
+	bool isBlockedBy_SHI ( const DlCompletionTree* p ) const { return isBlockedBy_SH(p) && p->isBlockedBy_SH(this); }
 		/// check blocking condition for SHIQ logic using double blocking
 	bool isBlockedBy_SHIQ_db ( const DlCompletionTree* p ) const;
 		/// check blocking condition for SHIQ logic using optimised blocking
@@ -289,7 +289,13 @@ protected:	// methods
 		clearIBlockedChildren();
 	}
 		/// check if all parent arcs are blocked
-	bool isParentArcIBlocked ( void ) const;
+	bool isParentArcIBlocked ( void ) const
+	{
+		for ( const_edge_iterator p = beginp(); p != endp(); ++p )
+			if ( !(*p)->isIBlocked() )
+				return false;
+		return true;
+	}
 
 	//----------------------------------------------
 	// Transitive SOME support interface
@@ -311,7 +317,14 @@ protected:	// methods
 		/// @return an edge from BEG to END ending in P and labelled by R; @return NULL if no such edge found
 	template<class Iterator>
 	DlCompletionTreeArc* getEdgeLabelled ( Iterator beg, Iterator end,
-										   const TRole* R, const DlCompletionTree* p ) const;
+										   const TRole* R, const DlCompletionTree* p ) const
+	{
+		for ( ; beg != end; ++beg )
+			if ( (*beg)->getArcEnd() == p && (*beg)->isNeighbour(R) )
+				return *beg;
+		return NULL;
+	}
+
 
 	//----------------------------------------------
 	// inequality relation methods
@@ -385,8 +398,8 @@ public:		// methods
 	void init ( unsigned int level );
 		/// c'tor: create an empty node
 	DlCompletionTree ( unsigned int newId ) : id(newId) {}
-		/// d'tor: delete node AND ALL THEIR SONS!!!
-	~DlCompletionTree ( void );
+		/// d'tor: delete node
+	~DlCompletionTree ( void ) { saves.clear(); }
 
 		/// add given arc as a parent
 	void addParent ( DlCompletionTreeArc* parent ) { Parent.push_back(parent); }
@@ -423,7 +436,7 @@ public:		// methods
 	}
 
 		/// adds concept P to a label, defined by TAG; update blocked status if necessary
-	void addConcept ( const ConceptWDep& p, DagTag tag );
+	void addConcept ( const ConceptWDep& p, DagTag tag ) { Label.getLabel(tag).add(p); }
 		/// set the Init concept
 	void setInit ( BipolarPointer p ) { Init = p; }
 
@@ -566,7 +579,13 @@ public:		// methods
 	//----------------------------------------------
 
 		/// check if parent arc is labelled by R; works well only for blockable nodes
-	bool isParentArcLabelled ( const TRole* R ) const;
+	bool isParentArcLabelled ( const TRole* R ) const
+	{
+		for ( const_edge_iterator p = beginp(); p != endp(); ++p )
+			if ( (*p)->isNeighbour(R) )
+				return true;
+		return false;
+	}
 		/// check if parent edge to P is labelled by R; return NULL if does not
 	DlCompletionTreeArc* getParentEdgeLabelled ( const TRole* R, const DlCompletionTree* p ) const
 		{ return getEdgeLabelled ( beginp(), endp(), R, p ); }
@@ -655,61 +674,6 @@ inline void DlCompletionTree :: init ( unsigned int level )
 	iBlocker = NULL;
 	pBlocker = NULL;
 	pDep.clear();
-}
-
-inline bool DlCompletionTree :: isParentArcIBlocked ( void ) const
-{
-	for ( const_edge_iterator p = beginp(); p != endp(); ++p )
-		if ( !(*p)->isIBlocked() )
-			return false;
-	return true;
-}
-
-inline bool DlCompletionTree :: isParentArcLabelled ( const TRole* R ) const
-{
-	for ( const_edge_iterator p = beginp(); p != endp(); ++p )
-		if ( (*p)->isNeighbour(R) )
-			return true;
-	return false;
-}
-
-template<class Iterator>
-inline DlCompletionTreeArc* DlCompletionTree :: getEdgeLabelled (
-	Iterator beg, Iterator end, const TRole* R, const DlCompletionTree* q ) const
-{
-	for ( Iterator p = beg; p != end; ++p )
-		if ( (*p)->getArcEnd() == q && (*p)->isNeighbour(R) )
-			return *p;
-	return NULL;
-}
-
-//  Blocked-By methods for different logics
-inline bool DlCompletionTree :: isBlockedBy_SH ( const DlCompletionTree* p ) const
-{
-	++nSetCompareOps;
-	return Label <= p->Label;
-}
-
-inline bool DlCompletionTree :: isBlockedBy_SHI ( const DlCompletionTree* p ) const
-{
-	return isBlockedBy_SH(p) && p->isBlockedBy_SH(this);
-}
-
-inline DlCompletionTree :: ~DlCompletionTree ( void )
-{
-	saves.clear();
-}
-
-// just adds a concept to a label
-inline void DlCompletionTree :: addConcept ( const ConceptWDep& p, DagTag tag )
-{
-	Label.getLabel(tag).add(p);
-
-	// after changing label we need to check if blocking status is changed
-//	if ( !useLazyBlocking )
-//		updateBlockedStatus ();
-//	else
-		setAffected();
 }
 
 #endif // _DLCOMPLETIONTREE_H

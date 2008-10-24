@@ -218,6 +218,16 @@ public:		// interface
 		sessionHasInverseRoles = hasInverse;
 		sessionHasNumberRestrictions = hasQCR;
 	}
+		/// add concept C of a type TAG to NODE; call blocking check if appropriate
+	void addConceptToNode ( DlCompletionTree* node, const ConceptWDep& c, DagTag tag )
+	{
+		node->addConcept(c,tag);
+
+		if ( useLazyBlocking )
+			node->setAffected();
+		else
+			updateBlockedStatus(node);
+	}
 
 	// access to nodes
 

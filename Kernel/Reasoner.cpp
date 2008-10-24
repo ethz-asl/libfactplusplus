@@ -260,7 +260,7 @@ tacticUsage DlSatTester :: insertToDoEntry ( DlCompletionTree* n, BipolarPointer
 
 	// we will change current Node => save it if necessary
 	updateLevel ( n, dep );
-	n->addConcept ( p, tag );
+	CGraph.addConceptToNode ( n, p, tag );
 
 	setUsed(c);
 

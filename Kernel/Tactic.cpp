@@ -555,7 +555,7 @@ tacticUsage DlSatTester :: commonTacticBodySome ( const DLVertex& cur )	// for E
 
 				ConceptWDep rFuncRestriction ( (*r)->getFunctional(), curDep );
 				// NOTE! not added into TODO (because will be checked right now)
-				curNode->addConcept ( rFuncRestriction, dtLE );
+				CGraph.addConceptToNode ( curNode, rFuncRestriction, dtLE );
 				setUsed(rFuncRestriction.bp());
 
 				if ( LLM.isWritable(llGTA) )
