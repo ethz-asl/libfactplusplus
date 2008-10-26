@@ -168,8 +168,8 @@ protected:	// methods
 	bool isBlockedBy ( const DlCompletionTree* node, const DlCompletionTree* blocker ) const;
 		/// check if d-blocked node is still d-blocked
 	bool isStillDBlocked ( const DlCompletionTree* node ) const { return node->isDBlocked() && isBlockedBy ( node, node->dBlocker ); }
-		/// update (create) blocked status of current node
-	void updateBlockedStatus ( DlCompletionTree* node ) const;
+		/// detect blocked status of current node by checking whether NODE and/or its ancestors are d-blocked
+	void detectBlockedStatus ( DlCompletionTree* node );
 		/// try to find d-blocker for a node using ancestor blocking
 	void findDAncestorBlocker ( DlCompletionTree* node ) const;
 		/// try to find d-blocker for a node using anywhere blocking
@@ -177,10 +177,31 @@ protected:	// methods
 		/// try to find d-blocker for a node
 	void findDBlocker ( DlCompletionTree* node ) const
 	{
+		node->iBlocker = node->dBlocker = NULL;
+		node->clearAffected();
 		if ( useAnywhereBlocking )
 			findDAnywhereBlocker(node);
 		else
 			findDAncestorBlocker(node);
+	}
+		/// unblock all the children of the node
+	void unblockNodeChildren ( DlCompletionTree* node )
+	{
+		for ( DlCompletionTree::const_edge_iterator q = node->begins(), q_end = node->ends(); q < q_end; ++q )
+			if ( !(*q)->isIBlocked() )
+				unblockNode((*q)->getArcEnd());
+	}
+		/// mark node unblocked; unblock all the hierarchy
+	void unblockNode ( DlCompletionTree* node )
+	{
+		if ( node->isPBlocked() || !node->isBlockableNode() )
+			return;
+		findDBlocker(node);
+		if ( !node->isDBlocked() )
+		{
+			node->logNodeUnblocked();
+			unblockNodeChildren(node);
+		}
 	}
 
 public:		// interface
@@ -226,7 +247,7 @@ public:		// interface
 		if ( useLazyBlocking )
 			node->setAffected();
 		else
-			updateBlockedStatus(node);
+			detectBlockedStatus(node);
 	}
 
 	// access to nodes
@@ -257,16 +278,17 @@ public:		// interface
 	// blocking
 
 		/// update blocked status for i-blocked node
-	void updateIBlockedStatus ( DlCompletionTree* node ) const;
+	void updateIBlockedStatus ( DlCompletionTree* node );
 		/// update blocked status for d-blocked node
-	void updateDBlockedStatus ( DlCompletionTree* node ) const
+	void updateDBlockedStatus ( DlCompletionTree* node )
 	{
 		if ( !node->isAffected() )
 			return;
 		if ( isStillDBlocked(node) )
+			// FIXME!! clear affected in all children
 			node->clearAffected();
 		else
-			updateBlockedStatus(node);
+			detectBlockedStatus(node);
 		assert ( !node->isAffected() );
 	}
 

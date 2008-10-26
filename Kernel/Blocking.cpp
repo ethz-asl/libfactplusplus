@@ -360,36 +360,25 @@ bool DlCompletionTree :: B6 ( const TRole* U, BipolarPointer F ) const
 //----------------------------------------------------------------------
 
 void
-DlCompletionGraph :: updateIBlockedStatus ( DlCompletionTree* node ) const
+DlCompletionGraph :: updateIBlockedStatus ( DlCompletionTree* node )
 {
-	if ( !node->hasParent()			// no parents (can't be blocked),
+	if ( !node->isIBlocked()		// was not i-blocked (don't care)
 		 || node->isPBlocked()		// p-blocked (can't be unblocked)
-		 || !node->isIBlocked()		// was not i-blocked (don't care)
 		 || !node->isAffected() )	// does not change since previous check
 		return;
 
-	if ( !node->iBlocker->isAffected() )
-	{	// iBlocker does not changed, so it is still d-blocked, so current is still i-blocked
+	if ( node->iBlocker->isAffected() )
+		updateDBlockedStatus(const_cast<DlCompletionTree*>(node->iBlocker));
+	else	// iBlocker does not changed, so it is still d-blocked, so current is still i-blocked
 		node->clearAffected();
-		return;
-	}
-
-	if ( isStillDBlocked(node->iBlocker) )
-		node->clearAffected();
-	else
-	{	// i-blocked, but blocker became unblocked
-		DlCompletionTree* p = const_cast<DlCompletionTree*>(node->iBlocker);
-		p->clearIBlockedChildren();		// remove i-blocked mark from all the successors
-		updateDBlockedStatus(p);		// try to find another blocker for p
-		if ( !p->isBlocked() )
-			updateDBlockedStatus(node);
-	}
-	assert ( !node->isAffected() );
+	// FIXME!! for now
+//	assert ( !node->isAffected() );
 }
 
-void DlCompletionGraph :: updateBlockedStatus ( DlCompletionTree* node ) const
+void DlCompletionGraph :: detectBlockedStatus ( DlCompletionTree* node )
 {
 	DlCompletionTree* p = node;
+	bool wasBlocked = node->isBlocked();
 
 	while ( p->hasParent() && p->isBlockableNode() && p->isAffected() )
 	{
@@ -400,6 +389,11 @@ void DlCompletionGraph :: updateBlockedStatus ( DlCompletionTree* node ) const
 		p = p->getParentNode();
 	}
 	p->clearAffected();
+	if ( wasBlocked && !node->isBlocked() )
+	{
+		node->logNodeUnblocked();
+		unblockNodeChildren(node);
+	}
 }
 
 /// propagate blocked status to children/check it
@@ -429,7 +423,6 @@ void DlCompletionTree :: setIBlocked ( const DlCompletionTree* p )
 
 void DlCompletionGraph :: findDAncestorBlocker ( DlCompletionTree* node ) const
 {
-	node->dBlocker = NULL;
 	register const DlCompletionTree* p = node;
 
 	while ( p->hasParent() && p->isBlockableNode() )
@@ -446,8 +439,6 @@ void DlCompletionGraph :: findDAncestorBlocker ( DlCompletionTree* node ) const
 
 void DlCompletionGraph :: findDAnywhereBlocker ( DlCompletionTree* node ) const
 {
-	node->dBlocker = NULL;
-
 	for ( const_iterator q = begin(), q_end = end(); q < q_end && *q != node; ++q )
 	{
 		const DlCompletionTree* p = *q;
