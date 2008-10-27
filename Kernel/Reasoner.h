@@ -547,15 +547,7 @@ protected:	// methods
 		/// check if current node is directly blocked (or became directly blocked)
 	bool recheckNodeDBlocked ( void );
 		/// apply all the generating rules for the (unblocked) current node
-	void applyAllGeneratingRules ( void );
-		/// check if current node became unblocked
-	void tryUnblockNode ( void )
-	{
-		if ( !curNode->isBlocked() )		// not blocked -- clear blocked cache
-			dBlocked = NULL;
-		else if ( !recheckNodeDBlocked() )	// became unblocked:
-			applyAllGeneratingRules();		// re-apply all the generating rules
-	}
+	void applyAllGeneratingRules ( DlCompletionTree* node );
 		/// add C and T_G with given DEP-set to a NODE; @return DONE/CLASH
 	tacticUsage initNewNode ( DlCompletionTree* node, const DepSet& dep, BipolarPointer C );
 		/// apply reflexive roles to the (newly created) NODE with apropriate DEP; @return true for clash
@@ -725,6 +717,8 @@ protected:	// methods
 
 	// logging actions
 
+		/// log indentation
+	void logIndentation ( void ) const;
 		/// log start of processing of a ToDo entry
 	void logStartEntry ( void ) const;
 		/// log finish of processing of a ToDo entry
@@ -835,6 +829,16 @@ protected:	// methods
 public:		// rule's support
 		/// @return true if the rule is applicable; set the dep-set accordingly
 	bool applicable ( const TBox::TSimpleRule& rule );
+
+public:		// blocking support
+		/// re-apply all the relevant expantion rules to a given unblocked NODE
+	void repeatUnblockedNode ( DlCompletionTree* node, bool direct )
+	{
+		if ( direct )		// not blocked -- clear blocked cache
+			applyAllGeneratingRules(node);		// re-apply all the generating rules
+		else
+			redoNodeLabel ( node, "ubi" );
+	}
 
 public:
 		/// c'tor

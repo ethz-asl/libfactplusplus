@@ -29,7 +29,7 @@ AccumulatedStatistic* AccumulatedStatistic::root = NULL;
 DlSatTester :: DlSatTester ( TBox& tbox, const ifOptionSet* Options )
 	: tBox(tbox)
 	, DLHeap(tbox.DLHeap)
-	, CGraph(1)
+	, CGraph(1,this)
 	, DTReasoner(tbox.DLHeap)
 	, GCIs(tbox.GCIs)
 	, bContext(NULL)
@@ -617,7 +617,18 @@ bool DlSatTester :: checkSatisfiability ( void )
 		if ( curNode == NULL )
 		{
 			if ( TODO.empty() )	// nothing more to do
-				return true;
+			{	// make sure all blocked nodes are still blocked
+				if ( LLM.isWritable(llGTA) )
+				{
+					logIndentation();
+					LL << "[*ub:";
+				}
+				CGraph.retestCGBlockedStatus();
+				if ( LLM.isWritable(llGTA) )
+					LL << "] utDone";
+				if ( TODO.empty() )
+					return true;
+			}
 
 			const ToDoEntry* curTDE = TODO.getNextEntry ();
 			assert ( curTDE != NULL );
@@ -725,13 +736,17 @@ void DlSatTester :: restore ( unsigned int newTryLevel )
   * logging methods
   */
 
-void DlSatTester :: logStartEntry ( void ) const
+void DlSatTester :: logIndentation ( void ) const
 {
 	CHECK_LL_RETURN(llGTA);	// useless but safe
-
 	LL << "\n";
 	for ( register unsigned int i = getCurLevel(); --i; )
 		LL << " ";
+}
+void DlSatTester :: logStartEntry ( void ) const
+{
+	CHECK_LL_RETURN(llGTA);	// useless but safe
+	logIndentation();
 	LL << "[*(";
 	curNode->logNode ();
 	LL << "," << curConcept << "){";

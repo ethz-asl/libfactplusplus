@@ -28,6 +28,8 @@ Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #include "tSaveStack.h"
 #include "tRareSaveStack.h"
 
+class DlSatTester;
+
 /**
  * Class for maintaining graph of CT nodes. Behaves like
  * deleteless allocator for nodes, plus some obvious features
@@ -74,6 +76,8 @@ protected:	// members
 	nodeBaseType NodeBase;
 		/// nodes, saved on current branching level
 	nodeBaseType SavedNodes;
+		/// host reasoner
+	DlSatTester* pReasoner;
 		/// remember the last generated ID for the node
 	unsigned int nodeId;
 		/// index of the next unallocated entry
@@ -192,22 +196,13 @@ protected:	// methods
 				unblockNode((*q)->getArcEnd());
 	}
 		/// mark node unblocked; unblock all the hierarchy
-	void unblockNode ( DlCompletionTree* node )
-	{
-		if ( node->isPBlocked() || !node->isBlockableNode() )
-			return;
-		findDBlocker(node);
-		if ( !node->isDBlocked() )
-		{
-			node->logNodeUnblocked();
-			unblockNodeChildren(node);
-		}
-	}
+	void unblockNode ( DlCompletionTree* node );
 
 public:		// interface
 		/// c'tor: make INIT_SIZE objects
-	DlCompletionGraph ( unsigned int initSize )
+	DlCompletionGraph ( unsigned int initSize, DlSatTester* p )
 		: NodeBase(initSize)
+		, pReasoner(p)
 		, nodeId(0)
 		, endUsed(0)
 		, branchingLevel(initBranchingLevel)
@@ -290,6 +285,13 @@ public:		// interface
 		else
 			detectBlockedStatus(node);
 		assert ( !node->isAffected() );
+	}
+		/// retest every d-blocked node in the CG. Use it after the CG was build
+	void retestCGBlockedStatus ( void )
+	{
+		for ( iterator p = begin(), p_end = end(); p < p_end; ++p )
+			if ( (*p)->isDBlocked() )
+				updateDBlockedStatus(*p);
 	}
 
 		/// clear all the session statistics

@@ -16,9 +16,9 @@ along with this program; if not, write to the Free Software
 Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 */
 
-#include "dlCompletionTree.h"
 #include "dlDag.h"
 #include "dlCompletionGraph.h"
+#include "Reasoner.h"
 
 // statistic for calling blocking
 unsigned long nBlockingCalls = 0,
@@ -379,6 +379,7 @@ void DlCompletionGraph :: detectBlockedStatus ( DlCompletionTree* node )
 {
 	DlCompletionTree* p = node;
 	bool wasBlocked = node->isBlocked();
+	bool wasDBlocked = node->isDBlocked();
 
 	while ( p->hasParent() && p->isBlockableNode() && p->isAffected() )
 	{
@@ -390,6 +391,19 @@ void DlCompletionGraph :: detectBlockedStatus ( DlCompletionTree* node )
 	}
 	p->clearAffected();
 	if ( wasBlocked && !node->isBlocked() )
+	{
+		node->logNodeUnblocked();
+		pReasoner->repeatUnblockedNode(node,wasDBlocked);
+		unblockNodeChildren(node);
+	}
+}
+
+void DlCompletionGraph :: unblockNode ( DlCompletionTree* node )
+{
+	if ( node->isPBlocked() || !node->isBlockableNode() )
+		return;
+	findDBlocker(node);
+	if ( !node->isDBlocked() )
 	{
 		node->logNodeUnblocked();
 		unblockNodeChildren(node);

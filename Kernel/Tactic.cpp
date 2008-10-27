@@ -125,10 +125,6 @@ tacticUsage DlSatTester :: commonTacticBody ( const DLVertex& cur )
 			return commonTacticBodySome(cur);
 
 		// ALL vertex
-
-		// check whether blocked node just became unblocked
-		tryUnblockNode();
-
 		return commonTacticBodyAll(cur);
 
 	case dtIrr:
@@ -142,10 +138,6 @@ tacticUsage DlSatTester :: commonTacticBody ( const DLVertex& cur )
 			return commonTacticBodyGE(cur);
 
 		// <= vertex
-
-		// check whether blocked node just became unblocked
-		tryUnblockNode();
-
 		if ( cur.isFunctional() )
 			return commonTacticBodyFunc(cur);
 		else
@@ -790,9 +782,9 @@ bool DlSatTester :: recheckNodeDBlocked ( void )
 }
 
 void
-DlSatTester :: applyAllGeneratingRules ( void )
+DlSatTester :: applyAllGeneratingRules ( DlCompletionTree* node )
 {
-	const CGLabel& label = curNode->label();
+	const CGLabel& label = node->label();
 	for ( CGLabel::const_iterator p = label.begin_cc(), p_end = label.end_cc(); p != p_end; ++p )
 	{
 		// need only ER.C or >=nR.C concepts
@@ -803,7 +795,7 @@ DlSatTester :: applyAllGeneratingRules ( void )
 		{
 		case dtForall:
 		case dtLE:
-			addExistingToDoEntry ( curNode, label.getCCOffset(p), "ub" );
+			addExistingToDoEntry ( node, label.getCCOffset(p), "ubd" );
 			break;
 
 		default:
