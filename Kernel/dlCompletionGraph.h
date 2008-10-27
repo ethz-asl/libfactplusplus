@@ -192,11 +192,11 @@ protected:	// methods
 	void unblockNodeChildren ( DlCompletionTree* node )
 	{
 		for ( DlCompletionTree::const_edge_iterator q = node->begins(), q_end = node->ends(); q < q_end; ++q )
-			if ( !(*q)->isIBlocked() )
-				unblockNode((*q)->getArcEnd());
+			if ( !(*q)->isIBlocked() )	// all of them are i-blocked
+				unblockNode ( (*q)->getArcEnd(), false );
 	}
 		/// mark node unblocked; unblock all the hierarchy
-	void unblockNode ( DlCompletionTree* node );
+	void unblockNode ( DlCompletionTree* node, bool wasDBlocked );
 
 public:		// interface
 		/// c'tor: make INIT_SIZE objects

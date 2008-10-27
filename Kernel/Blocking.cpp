@@ -359,22 +359,6 @@ bool DlCompletionTree :: B6 ( const TRole* U, BipolarPointer F ) const
 //--   changing blocked status
 //----------------------------------------------------------------------
 
-void
-DlCompletionGraph :: updateIBlockedStatus ( DlCompletionTree* node )
-{
-	if ( !node->isIBlocked()		// was not i-blocked (don't care)
-		 || node->isPBlocked()		// p-blocked (can't be unblocked)
-		 || !node->isAffected() )	// does not change since previous check
-		return;
-
-	if ( node->iBlocker->isAffected() )
-		updateDBlockedStatus(const_cast<DlCompletionTree*>(node->iBlocker));
-	else	// iBlocker does not changed, so it is still d-blocked, so current is still i-blocked
-		node->clearAffected();
-	// FIXME!! for now
-//	assert ( !node->isAffected() );
-}
-
 void DlCompletionGraph :: detectBlockedStatus ( DlCompletionTree* node )
 {
 	DlCompletionTree* p = node;
@@ -391,23 +375,17 @@ void DlCompletionGraph :: detectBlockedStatus ( DlCompletionTree* node )
 	}
 	p->clearAffected();
 	if ( wasBlocked && !node->isBlocked() )
-	{
-		node->logNodeUnblocked();
-		pReasoner->repeatUnblockedNode(node,wasDBlocked);
-		unblockNodeChildren(node);
-	}
+		unblockNode ( node, wasDBlocked );
 }
 
-void DlCompletionGraph :: unblockNode ( DlCompletionTree* node )
+void DlCompletionGraph :: unblockNode ( DlCompletionTree* node, bool wasDBlocked )
 {
 	if ( node->isPBlocked() || !node->isBlockableNode() )
 		return;
-	findDBlocker(node);
-	if ( !node->isDBlocked() )
-	{
-		node->logNodeUnblocked();
-		unblockNodeChildren(node);
-	}
+	node->dBlocker = node->iBlocker = NULL;
+	node->logNodeUnblocked();
+	pReasoner->repeatUnblockedNode(node,wasDBlocked);
+	unblockNodeChildren(node);
 }
 
 /// propagate blocked status to children/check it

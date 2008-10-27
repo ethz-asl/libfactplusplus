@@ -263,13 +263,6 @@ protected:	// methods
 	bool canBlockInit ( BipolarPointer C ) const { return C == bpTOP || label().contains(C); }
 		/// propagate i-blocked status to all children
 	void propagateIBlockedStatus ( const DlCompletionTree* p );
-		/// clear the i-blocked status from all the children
-	void clearIBlockedChildren ( void )
-	{
-		for ( const_edge_iterator q = begins(), q_end = ends(); q < q_end; ++q )
-			if ( !(*q)->isIBlocked() )
-				(*q)->getArcEnd()->clearIBlocked();
-	}
 		/// mark node as a d-blocked by P
 	void setDBlocked ( const DlCompletionTree* p )
 	{
@@ -279,15 +272,6 @@ protected:	// methods
 	}
 		/// sets current node and (blockable) subtree i-blocked by given node
 	void setIBlocked ( const DlCompletionTree* p );
-		/// clear i-blocked status
-	void clearIBlocked ( void )
-	{
-		if ( !isIBlocked() )
-			return;
-		iBlocker = NULL;
-		logNodeUnblocked();
-		clearIBlockedChildren();
-	}
 		/// check if all parent arcs are blocked
 	bool isParentArcIBlocked ( void ) const
 	{

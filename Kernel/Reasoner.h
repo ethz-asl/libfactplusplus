@@ -522,7 +522,7 @@ protected:	// methods
 	// support for inapplicable tactics
 
 		/// @return true iff current node is i-blocked (ie, no expansion necessary)
-	bool isIBlocked ( void );
+	bool isIBlocked ( void ) const { return curNode->isIBlocked(); }
 		/// @return true iff NN-rule wrt (<= R.C) is applicable to the curNode
 	bool isNNApplicable ( const TRole* r, BipolarPointer C ) const;
 		/// apply rule-like actions for the concept P

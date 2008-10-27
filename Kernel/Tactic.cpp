@@ -149,30 +149,6 @@ tacticUsage DlSatTester :: commonTacticBody ( const DLVertex& cur )
 	}
 }
 
-bool DlSatTester :: isIBlocked ( void )
-{
-	// check for i-blocked nodes
-	if ( curNode->isIBlocked() )
-	{
-		// check if it is the same i-blocked node as earlier
-		if ( curNode == iBlocked )
-			return true;
-
-		// check whether node became unblocked
-		CGraph.updateIBlockedStatus(curNode);
-		if ( curNode->isIBlocked() )
-		{
-			// cache value of i-blocked node
-			iBlocked = curNode;
-			return true;
-		}
-	}
-
-	// clear i-blocked cache
-	iBlocked = NULL;
-	return false;
-}
-
 tacticUsage DlSatTester :: commonTacticBodyId ( const DLVertex& cur )
 {
 #ifdef ENABLE_CHECKING
@@ -754,7 +730,7 @@ bool DlSatTester :: recheckNodeDBlocked ( void )
 		return true;
 
 	// update node's blocked status
-	if ( curNode->isAffected() )
+	if ( !curNode->isBlocked() && curNode->isAffected() )
 	{
 		updateLevel ( curNode, curConcept.getDep() );
 		CGraph.updateDBlockedStatus(curNode);
