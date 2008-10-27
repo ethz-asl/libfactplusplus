@@ -171,22 +171,24 @@ protected:	// methods
 		/// check whether NODE is blocked by a BLOCKER
 	bool isBlockedBy ( const DlCompletionTree* node, const DlCompletionTree* blocker ) const;
 		/// check if d-blocked node is still d-blocked
-	bool isStillDBlocked ( const DlCompletionTree* node ) const { return node->isDBlocked() && isBlockedBy ( node, node->dBlocker ); }
+	bool isStillDBlocked ( const DlCompletionTree* node ) const { return node->isDBlocked() && isBlockedBy ( node, node->Blocker ); }
 		/// detect blocked status of current node by checking whether NODE and/or its ancestors are d-blocked
 	void detectBlockedStatus ( DlCompletionTree* node );
 		/// try to find d-blocker for a node using ancestor blocking
-	void findDAncestorBlocker ( DlCompletionTree* node ) const;
+	void findDAncestorBlocker ( DlCompletionTree* node );
 		/// try to find d-blocker for a node using anywhere blocking
-	void findDAnywhereBlocker ( DlCompletionTree* node ) const;
+	void findDAnywhereBlocker ( DlCompletionTree* node );
 		/// try to find d-blocker for a node
-	void findDBlocker ( DlCompletionTree* node ) const
+	void findDBlocker ( DlCompletionTree* node )
 	{
-		node->iBlocker = node->dBlocker = NULL;
 		node->clearAffected();
+		if ( node->isBlocked() )
+			saveRareCond(node->setUBlocked());
 		if ( useAnywhereBlocking )
 			findDAnywhereBlocker(node);
 		else
 			findDAncestorBlocker(node);
+		
 	}
 		/// unblock all the children of the node
 	void unblockNodeChildren ( DlCompletionTree* node )
@@ -197,6 +199,39 @@ protected:	// methods
 	}
 		/// mark node unblocked; unblock all the hierarchy
 	void unblockNode ( DlCompletionTree* node, bool wasDBlocked );
+
+		/// mark NODE as a d-blocked by a BLOCKER
+	void setNodeDBlocked ( DlCompletionTree* node, const DlCompletionTree* blocker )
+	{
+		saveRareCond(node->setDBlocked(blocker));
+		propagateIBlockedStatus ( node, node );
+	}
+		/// mark NODE as an i-blocked by a BLOCKER
+	void setNodeIBlocked ( DlCompletionTree* node, const DlCompletionTree* blocker )
+	{
+		// nominal nodes can't be blocked
+		if ( node->isPBlocked() || node->isNominalNode() )
+			return;
+
+		node->clearAffected();
+
+		// already iBlocked -- nothing changes
+		if ( node->isIBlocked() && node->Blocker == blocker )
+			return;
+		// prevent node to be IBlocked due to reflexivity
+		if ( node == blocker )
+			return;
+
+		saveRareCond(node->setIBlocked(blocker));
+		propagateIBlockedStatus ( node, blocker );
+	}
+		/// propagate i-blocked status to all children of NODE
+	void propagateIBlockedStatus ( DlCompletionTree* node, const DlCompletionTree* blocker )
+	{
+		for ( DlCompletionTree::const_edge_iterator q = node->begins(), q_end = node->ends(); q < q_end; ++q )
+			if ( !(*q)->isIBlocked() )
+				setNodeIBlocked ( (*q)->getArcEnd(), blocker );
+	}
 
 public:		// interface
 		/// c'tor: make INIT_SIZE objects
@@ -272,8 +307,6 @@ public:		// interface
 
 	// blocking
 
-		/// update blocked status for i-blocked node
-	void updateIBlockedStatus ( DlCompletionTree* node );
 		/// update blocked status for d-blocked node
 	void updateDBlockedStatus ( DlCompletionTree* node )
 	{

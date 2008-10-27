@@ -185,10 +185,6 @@ void DlCompletionTree :: restore ( SaveState* nss )
 	// label restore
 	Label.restore ( nss->lab, curLevel );
 
-	// we don't save blockers info, so just invalidate blockers
-	iBlocker = NULL;
-	dBlocker = NULL;
-
 	// remove new parents
 	Parent.resize ( nss->nPars );
 	// remove new sons

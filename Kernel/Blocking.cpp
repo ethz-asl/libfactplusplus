@@ -382,38 +382,13 @@ void DlCompletionGraph :: unblockNode ( DlCompletionTree* node, bool wasDBlocked
 {
 	if ( node->isPBlocked() || !node->isBlockableNode() )
 		return;
-	node->dBlocker = node->iBlocker = NULL;
-	node->logNodeUnblocked();
+	if ( !wasDBlocked )	// if it was DBlocked -- findDBlocker() made it
+		saveRareCond(node->setUBlocked());
 	pReasoner->repeatUnblockedNode(node,wasDBlocked);
 	unblockNodeChildren(node);
 }
 
-/// propagate blocked status to children/check it
-void DlCompletionTree :: propagateIBlockedStatus ( const DlCompletionTree* p )
-{
-	for ( const_edge_iterator q = begins(), q_end = ends(); q < q_end; ++q )
-		if ( !(*q)->isIBlocked() )
-			(*q)->getArcEnd()->setIBlocked(p);
-}
-
-void DlCompletionTree :: setIBlocked ( const DlCompletionTree* p )
-{
-	// nominal nodes can't be blocked
-	if ( isPBlocked() || isNominalNode() )
-		return;
-
-	clearAffected();
-
-	if ( iBlocker == p ||	// already iBlocked -- nothing changes
-		 this == p )		// prevent node to be IBlocked due to reflexivity
-		return;
-
-	iBlocker = p;
-	logNodeIBlocked();
-	propagateIBlockedStatus(p);
-}
-
-void DlCompletionGraph :: findDAncestorBlocker ( DlCompletionTree* node ) const
+void DlCompletionGraph :: findDAncestorBlocker ( DlCompletionTree* node )
 {
 	register const DlCompletionTree* p = node;
 
@@ -423,13 +398,13 @@ void DlCompletionGraph :: findDAncestorBlocker ( DlCompletionTree* node ) const
 
 		if ( isBlockedBy ( node, p ) )
 		{
-			node->setDBlocked(p);
+			setNodeDBlocked ( node, p );
 			return;
 		}
 	}
 }
 
-void DlCompletionGraph :: findDAnywhereBlocker ( DlCompletionTree* node ) const
+void DlCompletionGraph :: findDAnywhereBlocker ( DlCompletionTree* node )
 {
 	for ( const_iterator q = begin(), q_end = end(); q < q_end && *q != node; ++q )
 	{
@@ -441,7 +416,7 @@ void DlCompletionGraph :: findDAnywhereBlocker ( DlCompletionTree* node ) const
 
 		if ( isBlockedBy ( node, p ) )
 		{
-			node->setDBlocked(p);
+			setNodeDBlocked ( node, p );
 			return;
 		}
 	}

@@ -93,18 +93,19 @@ protected:	// internal classes
 		unsigned int level ( void ) const { return curLevel; }
 	}; // SaveState
 
-		/// restore purged node
-	class UnPurge: public TRestorer
+		/// restore blocked node
+	class UnBlock: public TRestorer
 	{
 	protected:
 		DlCompletionTree* p;
-		const DlCompletionTree* pBlocker;
+		const DlCompletionTree* Blocker;
 		DepSet dep;
+		bool pBlocked, dBlocked;
 	public:
-		UnPurge ( DlCompletionTree* q ) : p(q), pBlocker(q->pBlocker), dep(q->pDep) {}
-		virtual ~UnPurge ( void ) {}
-		void restore ( void ) { p->pBlocker = pBlocker; p->pDep = dep; }
-	}; // UnPurge
+		UnBlock ( DlCompletionTree* q ) : p(q), Blocker(q->Blocker), dep(q->pDep), pBlocked(q->pBlocked), dBlocked(q->dBlocked) {}
+		virtual ~UnBlock ( void ) {}
+		void restore ( void ) { p->Blocker = Blocker; p->pDep = dep; p->pBlocked = pBlocked; p->dBlocked = dBlocked; }
+	}; // UnBlock
 
 #ifdef RKG_IR_IN_NODE_LABEL
 		/// restore node after IR set change
@@ -173,10 +174,8 @@ protected:	// members
 		/// concept that init the newly created node
 	BipolarPointer Init;
 
-	// blocking information
-	const DlCompletionTree* dBlocker;	// direct blocker
-	const DlCompletionTree* iBlocker;	// indirect blocker
-	const DlCompletionTree* pBlocker;	// purge blocker
+		/// blocker of a node
+	const DlCompletionTree* Blocker;
 		/// dep-set for Purge op
 	DepSet pDep;
 
@@ -187,12 +186,16 @@ protected:	// members
 	unsigned int flagDataNode : 1;
 		/// flag if node is Cached
 	unsigned int cached : 1;
+		/// flag whether node is permanently/temporarily blocked
+	unsigned int pBlocked : 1;
+		/// flag whether node is directly/indirectly blocked
+	unsigned int dBlocked : 1;
 		/** Whether node is affected by change of some potential blocker.
 			This flag may be viewed as a cahce for a 'blocked' status
 		*/
 	unsigned int affected : 1;
 		/// the rest
-	unsigned int unused : 29;
+	unsigned int unused : 27;
 
 private:	// methods
 		/// no copy c'tor
@@ -261,17 +264,6 @@ protected:	// methods
 
 		/// check whether a node can block another one with init concept C
 	bool canBlockInit ( BipolarPointer C ) const { return C == bpTOP || label().contains(C); }
-		/// propagate i-blocked status to all children
-	void propagateIBlockedStatus ( const DlCompletionTree* p );
-		/// mark node as a d-blocked by P
-	void setDBlocked ( const DlCompletionTree* p )
-	{
-		dBlocker = p;
-		logNodeDBlocked();
-		propagateIBlockedStatus(this);
-	}
-		/// sets current node and (blockable) subtree i-blocked by given node
-	void setIBlocked ( const DlCompletionTree* p );
 		/// check if all parent arcs are blocked
 	bool isParentArcIBlocked ( void ) const
 	{
@@ -339,42 +331,27 @@ protected:	// methods
 #		undef RKG_CHECK_BACKJUMPING		// it is the only user
 #	endif
 	}
+		/// get letter corresponding to the blocking mode
+	const char* getBlockingStatusName ( void ) const { return isPBlocked() ? "p" : isDBlocked() ? "d" : isIBlocked() ? "i" : "u"; }
 		/// log node status (d-,i-,p-blocked or cached
 	void logNodeBStatus ( std::ostream& o ) const
 	{
 		// blocking status information
-		if ( isPBlocked() )
-			o << "p" << pBlocker->getId();
-		if ( isIBlocked() )
-			o << "i" << iBlocker->getId();
-		if ( isDBlocked() )
-			o << "d" << dBlocker->getId();
+		if ( Blocker )
+			o << getBlockingStatusName() << Blocker->getId();
 		if ( isCached() )
 			o << "c";
 	}
  		/// log if node became p-blocked
-	void logNodePBlocked ( void ) const
+	void logNodeBlocked ( void ) const
 	{
 		if ( LLM.isWritable(llGTA) )
-			LL << " pb(" << id << "," << pBlocker->id << ")";
-	}
-		/// log if node became i-blocked
-	void logNodeIBlocked ( void ) const
-	{
-		if ( LLM.isWritable(llGTA) )
-			LL << " ib(" << id << "," << iBlocker->id << ")";
-	}
-		/// log if node became d-blocked
-	void logNodeDBlocked ( void ) const
-	{
-		if ( LLM.isWritable(llGTA) )
-			LL << " db(" << id << "," << dBlocker->id << ")";
-	}
-		/// log if node became unblocked
-	void logNodeUnblocked ( void ) const
-	{
-		if ( LLM.isWritable(llGTA) )
-			LL << " ub(" << id << ")";
+		{
+			LL << " " << getBlockingStatusName() << "b(" << id;
+			if ( Blocker )
+				LL << "," << Blocker->id;
+			LL << ")";
+		}
 	}
 
 public:		// methods
@@ -517,18 +494,18 @@ public:		// methods
 	// just returns calculated values
 
 		/// check if node is directly blocked
-	bool isDBlocked ( void ) const { return ( dBlocker != NULL ); }
+	bool isDBlocked ( void ) const { return Blocker != NULL && !pBlocked && dBlocked; }
 		/// check if node is indirectly blocked
-	bool isIBlocked ( void ) const { return ( iBlocker != NULL ); }
+	bool isIBlocked ( void ) const { return Blocker != NULL && !pBlocked && !dBlocked; }
 		/// check if node is purged (and so indirectly blocked)
-	bool isPBlocked ( void ) const { return pBlocker != NULL; }
-		/// check if node is blocked
-	bool isBlocked ( void ) const { return isDBlocked() || isIBlocked(); }
+	bool isPBlocked ( void ) const { return Blocker != NULL && pBlocked && !dBlocked; }
+		/// check if node is blocked (d/i)
+	bool isBlocked ( void ) const { return Blocker != NULL && !pBlocked; }
 		/// get node to which current one was merged
 	const DlCompletionTree* resolvePBlocker ( void ) const
 	{
 		if ( isPBlocked() )
-			return pBlocker->resolvePBlocker();
+			return Blocker->resolvePBlocker();
 		else
 			return this;
 	}
@@ -538,7 +515,7 @@ public:		// methods
 		if ( !isPBlocked() )
 			return this;
 		dep += pDep;
-		return const_cast<DlCompletionTree*>(pBlocker)->resolvePBlocker(dep);
+		return const_cast<DlCompletionTree*>(Blocker)->resolvePBlocker(dep);
 	}
 		/// check whether a node can block node P according to it's Init value
 	bool canBlockInit ( const DlCompletionTree* p ) const { return canBlockInit(p->Init); }
@@ -547,14 +524,32 @@ public:		// methods
 	// re-building blocking hierarchy
 	//----------------------------------------------
 
-		/// set node purged
-	TRestorer* setPBlocked ( const DlCompletionTree* p, const DepSet& dep )
+		/// set node blocked
+	TRestorer* setBlocked ( const DlCompletionTree* blocker, bool permanently, bool directly )
 	{
-		TRestorer* ret = new UnPurge(this);
-		pBlocker = p;
+		TRestorer* ret = new UnBlock(this);
+		Blocker = blocker;
+		pBlocked = permanently;
+		dBlocked = directly;
+		logNodeBlocked();
+		return ret;
+	}
+		/// mark node d-blocked
+	TRestorer* setDBlocked ( const DlCompletionTree* blocker ) { return setBlocked ( blocker, false, true ); }
+		/// mark node i-blocked
+	TRestorer* setIBlocked ( const DlCompletionTree* blocker ) { return setBlocked ( blocker, false, false ); }
+		/// mark node unblocked
+	TRestorer* setUBlocked ( void ) { return setBlocked ( NULL, true, true ); }
+		/// mark node purged
+	TRestorer* setPBlocked ( const DlCompletionTree* blocker, const DepSet& dep )
+	{
+		TRestorer* ret = new UnBlock(this);
+		Blocker = blocker;
 		if ( isNominalNode() )
 			pDep = dep;
-		logNodePBlocked();
+		pBlocked = true;
+		dBlocked = false;
+		logNodeBlocked();
 		return ret;
 	}
 
@@ -643,6 +638,8 @@ inline void DlCompletionTree :: init ( unsigned int level )
 	curLevel = level;
 	cached = false;
 	affected = true;	// every (newly created) node can be blocked
+	dBlocked = true;
+	pBlocked = true;	// unused flag combination
 
 	Label.init();
 	Init = bpTOP;
@@ -654,9 +651,7 @@ inline void DlCompletionTree :: init ( unsigned int level )
 #endif
 	Parent.clear();
 	Son.clear();
-	dBlocker = NULL;
-	iBlocker = NULL;
-	pBlocker = NULL;
+	Blocker = NULL;
 	pDep.clear();
 }
 
