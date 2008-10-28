@@ -188,7 +188,6 @@ protected:	// methods
 			findDAnywhereBlocker(node);
 		else
 			findDAncestorBlocker(node);
-		
 	}
 		/// unblock all the children of the node
 	void unblockNodeChildren ( DlCompletionTree* node )

@@ -323,8 +323,6 @@ protected:	// members
 
 		/// last processed d-blocked node
 	DlCompletionTree* dBlocked;
-		/// last processed i-blocked node
-	DlCompletionTree* iBlocked;
 
 		/// size of the DAG with some extra space
 	size_t dagSize;
@@ -931,7 +929,6 @@ inline void DlSatTester :: resetSessionFlags ( void )
 	encounterNominal = false;
 	checkDataNode = true;
 	dBlocked = NULL;
-	iBlocked = NULL;
 }
 
 inline tacticUsage

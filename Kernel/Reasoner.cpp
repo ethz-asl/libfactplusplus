@@ -627,7 +627,6 @@ bool DlSatTester :: checkSatisfiability ( void )
 				if ( LLM.isWritable(llGTA) )
 					LL << "] utDone";
 				// clear blocker cache
-				iBlocked = NULL;
 				dBlocked = NULL;
 				if ( TODO.empty() )
 					return true;

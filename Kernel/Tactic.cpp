@@ -730,6 +730,7 @@ bool DlSatTester :: recheckNodeDBlocked ( void )
 		return true;
 
 	// update node's blocked status
+	// FIXME!! if you remove the 1st check, more unblocks would be possible during reasoning
 	if ( !curNode->isBlocked() && curNode->isAffected() )
 	{
 		updateLevel ( curNode, curConcept.getDep() );
@@ -746,12 +747,9 @@ bool DlSatTester :: recheckNodeDBlocked ( void )
 	// clear d-blocker cache
 	dBlocked = NULL;
 
-	// if node became i-blocked -- update appropriate cache
+	// if node became i-blocked -- don't need to do anything
 	if ( curNode->isIBlocked() )
-	{
-		iBlocked = curNode;
 		return true;
-	}
 
 	// not blocked
 	return false;
