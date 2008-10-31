@@ -96,8 +96,8 @@ DataTypeAppearance::DepInterval :: checkMinMaxClash ( const DataTypeAppearance::
 	if ( !Constraints.closed() )
 		return false;
 
-	const ComparableDT& Min = Constraints.min->getComp();
-	const ComparableDT& Max = Constraints.max->getComp();
+	const ComparableDT& Min = Constraints.min;
+	const ComparableDT& Max = Constraints.max;
 
 	// normal interval
 	if ( Min < Max )
@@ -210,8 +210,8 @@ DataTypeAppearance::DepInterval :: isCovered ( const DataTypeAppearance::SingleV
 	 * check if you can infer NType from all negative constraints
 	 * Examples include not(<5) && not(5) && not(6) && not(>=7)
 	 */
-	const ComparableDT& Min = Constraints.min->getComp();
-	const ComparableDT& Max = Constraints.max->getComp();
+	const ComparableDT& Min = Constraints.min;
+	const ComparableDT& Max = Constraints.max;
 
 	if ( !Min.hasDiscreteType() )
 		return false;

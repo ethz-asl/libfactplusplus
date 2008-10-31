@@ -36,28 +36,21 @@ class TDataEntry;
 class TDataInterval
 {
 public:		// members
-		/// type of the interval
-	const TDataEntry* type;
 		/// left border of the interval
-	const TDataEntry* min;
+	ComparableDT min;
 		/// right border of the interval
-	const TDataEntry* max;
+	ComparableDT max;
 		/// type of the left border
 	bool minExcl;
 		/// type of the right border
 	bool maxExcl;
 
-protected:	// methods
-		/// @return true iff interval has inconsistent type with DTYPE; mark interval as inconsisted in this case
-	bool updateType ( const TDataEntry* dtype );
-
 public:		// interface
 		/// empty c'tor
-	TDataInterval ( void ) : type(NULL), min(NULL), max(NULL) {}
+	TDataInterval ( void ) {}
 		/// copy c'tor
 	TDataInterval ( const TDataInterval& copy )
-		: type(copy.type)
-		, min(copy.min)
+		: min(copy.min)
 		, max(copy.max)
 		, minExcl(copy.minExcl)
 		, maxExcl(copy.maxExcl)
@@ -65,7 +58,6 @@ public:		// interface
 		/// assignment
 	TDataInterval& operator = ( const TDataInterval& copy )
 	{
-		type = copy.type;
 		min = copy.min;
 		max = copy.max;
 		minExcl = copy.minExcl;
@@ -76,23 +68,23 @@ public:		// interface
 	~TDataInterval ( void ) {}
 
 		/// clear an interval
-	void clear ( void ) { type = min = max = NULL; }
+	void clear ( void ) { min = max = ComparableDT(); }
 
-		/// no constraints
-	bool empty ( void ) const { return min == NULL && max == NULL; }
 		/// check if min value range have been set
-	bool hasMin ( void ) const { return min != NULL; }
+	bool hasMin ( void ) const { return min.inited(); }
 		/// check if max value range have been set
-	bool hasMax ( void ) const { return max != NULL; }
+	bool hasMax ( void ) const { return max.inited(); }
+		/// no constraints
+	bool empty ( void ) const { return !hasMin() && !hasMax(); }
 		/// closed interval
-	bool closed ( void ) const { return min != NULL && max != NULL; }
+	bool closed ( void ) const { return hasMin() && hasMax(); }
 
 		/// update MIN border of an interval with VALUE wrt EXCL
-	bool updateMin ( bool excl, const TDataEntry* value );
+	bool updateMin ( bool excl, const ComparableDT& value );
 		/// update MAX border of an interval with VALUE wrt EXCL
-	bool updateMax ( bool excl, const TDataEntry* value );
+	bool updateMax ( bool excl, const ComparableDT& value );
 		/// update given border of an interval with VALUE wrt EXCL
-	bool update ( bool min, bool excl, const TDataEntry* value )
+	bool update ( bool min, bool excl, const ComparableDT& value )
 		{ return min ? updateMin ( excl, value ) : updateMax ( excl, value ); }
 		/// update wrt another interval
 	bool update ( const TDataInterval& Int )
@@ -105,7 +97,14 @@ public:		// interface
 		return ret;
 	}
 		/// @return true iff all the data is consistent wrt given TYPE
-	bool consistent ( const TDataEntry* atype ) const;
+	bool consistent ( const ComparableDT& dtype ) const
+	{
+		if ( hasMin() && !min.compatible(dtype) )
+			return false;
+		if ( hasMax() && !max.compatible(dtype) )
+			return false;
+		return true;
+	}
 
 		/// print an interval
 	void Print ( std::ostream& o ) const;
@@ -196,52 +195,15 @@ public:		// interface
 	void setBP ( BipolarPointer p ) { pName = p; }
 }; // TDataEntry
 
-		/// @return true iff interval has inconsistent type with DTYPE; mark interval as inconsisted in this case
 inline bool
-TDataInterval :: updateType ( const TDataEntry* dtype )
+TDataInterval :: updateMin ( bool excl, const ComparableDT& value )
 {
-	if ( type == NULL )		// new type
-	{
-		type = dtype;
-		return false;
-	}
-	if ( type == dtype )	// same type
-		return false;
-	// different type -- make clash
-	if ( hasMin() )
-	{	// make {x,x) interval
-		max = min;
-		maxExcl = true;
-	}
-	else
-	{	// make (x,x} interval
-		assert ( hasMax() );	// as there is another type
-		min = max;
-		minExcl = true;
-	}
-	return true;
-}
-
-inline bool
-TDataInterval :: consistent ( const TDataEntry* dtype ) const
-{
-	if ( type && type != dtype )
-		return false;
-	return true;
-}
-
-inline bool
-TDataInterval :: updateMin ( bool excl, const TDataEntry* value )
-{
-	if ( updateType(value->getType()) )
-		return true;
-
 	if ( hasMin() )	// another min value: check if we need update
 	{
 		// constraint is >= or >
-		if ( min->getComp() > value->getComp() )	// was: {7,}; now: {5,}: no update needed
+		if ( min > value )		// was: {7,}; now: {5,}: no update needed
 			return false;
-		if ( min->getComp() == value->getComp() &&	// was: (5,}; now: [5,}: no update needed
+		if ( min == value &&	// was: (5,}; now: [5,}: no update needed
 			 minExcl && !excl )
 			return false;
 		// fallthrough: update is necessary for everything else
@@ -253,17 +215,14 @@ TDataInterval :: updateMin ( bool excl, const TDataEntry* value )
 }
 
 inline bool
-TDataInterval :: updateMax ( bool excl, const TDataEntry* value )
+TDataInterval :: updateMax ( bool excl, const ComparableDT& value )
 {
-	if ( updateType(value->getType()) )
-		return true;
-
 	if ( hasMax() )	// another max value: check if we need update
 	{
 		// constraint is <= or <
-		if ( max->getComp() < value->getComp() )	// was: {,5}; now: {,7}: no update needed
+		if ( max < value )		// was: {,5}; now: {,7}: no update needed
 			return false;
-		if ( max->getComp() == value->getComp() &&	// was: {,5); now: {,5]: no update needed
+		if ( max == value &&	// was: {,5); now: {,5]: no update needed
 			 maxExcl && !excl )
 			return false;
 		// fallthrough: update is necessary for everything else
@@ -277,11 +236,11 @@ TDataInterval :: updateMax ( bool excl, const TDataEntry* value )
 inline void
 TDataInterval :: Print ( std::ostream& o ) const
 {
-	o << (min ? (minExcl ? '(' : '[') : '{');
-	if ( min ) o << min->getName();
+	o << (hasMin() ? (minExcl ? '(' : '[') : '{');
+	if ( hasMin() ) o << min;
 	o << ',';
-	if ( max ) o << max->getName();
-	o << (max ? (maxExcl ? ')' : ']') : '}');
+	if ( hasMax() ) o << max;
+	o << (hasMax() ? (maxExcl ? ')' : ']') : '}');
 }
 
 inline std::ostream&

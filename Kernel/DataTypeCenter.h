@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2007 by Dmitry Tsarkov
+Copyright (C) 2003-2008 by Dmitry Tsarkov
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -143,28 +143,28 @@ public:		// interface
 	TDataInterval* getMinInclusiveFacet ( DLTree* value ) const
 	{
 		TDataInterval* ret = getFacet(value);
-		ret->updateMin ( /*excl=*/false, unwrap(value) );
+		ret->updateMin ( /*excl=*/false, unwrap(value)->getComp() );
 		return ret;
 	}
 		/// facet for >
 	TDataInterval* getMinExclusiveFacet ( DLTree* value ) const
 	{
 		TDataInterval* ret = getFacet(value);
-		ret->updateMin ( /*excl=*/true, unwrap(value) );
+		ret->updateMin ( /*excl=*/true, unwrap(value)->getComp() );
 		return ret;
 	}
 		/// facet for <=
 	TDataInterval* getMaxInclusiveFacet ( DLTree* value ) const
 	{
 		TDataInterval* ret = getFacet(value);
-		ret->updateMax ( /*excl=*/false, unwrap(value) );
+		ret->updateMax ( /*excl=*/false, unwrap(value)->getComp() );
 		return ret;
 	}
 		/// facet for <
 	TDataInterval* getMaxExclusiveFacet ( DLTree* value ) const
 	{
 		TDataInterval* ret = getFacet(value);
-		ret->updateMax ( /*excl=*/true, unwrap(value) );
+		ret->updateMax ( /*excl=*/true, unwrap(value)->getComp() );
 		return ret;
 	}
 

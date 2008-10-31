@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2005-2007 by Dmitry Tsarkov
+Copyright (C) 2005-2008 by Dmitry Tsarkov
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -21,6 +21,7 @@ Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 
 #include <string>
 #include <cassert>
+#include <ostream>
 
 class TDataEntry;
 
@@ -93,6 +94,10 @@ public:
 	float getFloatValue ( void ) const { return floatValue; }
 		/// check if the datatype is discrete
 	bool hasDiscreteType ( void ) const { return vType == INT; }
+		/// check whether the comparator is inited
+	bool inited ( void ) const { return vType != UNUSED; }
+		/// check whether the comparator is compatible with another one
+	bool compatible ( const ComparableDT& other ) const { return !inited() || !other.inited() || vType == other.vType; }
 
 	// compare 2 values
 
@@ -125,6 +130,21 @@ public:
 	}
 		/// check whether 2 DT entries with the same TYPE are in '>' relation
 	bool operator > ( const ComparableDT& other ) const { return other < *this; }
+
+	friend std::ostream& operator << ( std::ostream& o, const ComparableDT& cdt );
 }; // ComparableDT
+
+inline
+std::ostream& operator << ( std::ostream& o, const ComparableDT& cdt )
+{
+	switch ( cdt.vType )
+	{
+	case ComparableDT::INT:	o << cdt.getLongIntValue(); break;
+	case ComparableDT::STR:	o << cdt.getStringValue().c_str(); break;
+	case ComparableDT::FLOAT:	o << cdt.getFloatValue(); break;
+	default:	assert(0);
+	}
+	return o;
+}
 
 #endif

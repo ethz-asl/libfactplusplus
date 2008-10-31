@@ -79,7 +79,7 @@ protected:	// classes
 		~DepInterval ( void ) {}
 
 			/// update MIN border of an TYPE's interval with VALUE wrt EXCL
-		bool update ( bool min, bool excl, const TDataEntry* value, const DepSet& dep )
+		bool update ( bool min, bool excl, const ComparableDT& value, const DepSet& dep )
 		{
 			if ( !Constraints.update ( min, excl, value ) )
 				return false;
@@ -94,7 +94,7 @@ protected:	// classes
 			/// check if interval is covered by VALUES
 		bool isCovered ( const SingleValues& values, DepSet& dep ) const;
 			/// check if the interval is consistent wrt given type
-		bool consistent ( const TDataEntry* type, DepSet& dep ) const
+		bool consistent ( const ComparableDT& type, DepSet& dep ) const
 		{
 			if ( Constraints.consistent(type) )
 				return true;
@@ -136,7 +136,7 @@ protected:	// members
 		/// local value for the incl/excl flag
 	bool localExcl;
 		/// local value for the added value
-	const TDataEntry* localValue;
+	ComparableDT localValue;
 		/// local dep-set for the update
 	DepSet localDep;
 
@@ -151,7 +151,7 @@ protected:	// methods
 		return true;
 	}
 		/// set the local parameters for updating
-	void setLocal ( bool min, bool excl, const TDataEntry* value, const DepSet& dep )
+	void setLocal ( bool min, bool excl, const ComparableDT& value, const DepSet& dep )
 	{
 		localMin = min;
 		localExcl = excl;
@@ -161,7 +161,7 @@ protected:	// methods
 		/// update and add a single interval I to the constraints. @return true iff clash occurs
 	bool addUpdatedInterval ( DepInterval i )
 	{
-		if ( !i.consistent ( localValue->getType(), localDep ) )	// types are mismatch
+		if ( !i.consistent ( localValue, localDep ) )	// types are mismatch
 			return reportClash ( localDep, "C-IT" );
 		if ( !i.update ( localMin, localExcl, localValue, localDep ) )
 			Constraints.push_back(i);
@@ -266,15 +266,14 @@ protected:	// methods
 	bool processDataValue ( bool pos, const TDataEntry* c, const DepSet& dep )
 	{
 		DataTypeAppearance* type = getDTAbyValue(c);
-		DepDTE C(c,dep);	// real concept to be added
 
 		if (pos)
-			type->setPType(C);
+			type->setPType(DepDTE(c,dep));
 
 		// create interval [c,c]
 		TDataInterval constraints;
-		constraints.updateMin ( /*excl=*/false, c );
-		constraints.updateMax ( /*excl=*/false, c );
+		constraints.updateMin ( /*excl=*/false, c->getComp() );
+		constraints.updateMax ( /*excl=*/false, c->getComp() );
 		return type->addInterval ( pos, constraints, dep );
 	}
 		/// process data expr
