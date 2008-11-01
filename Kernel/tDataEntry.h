@@ -107,7 +107,18 @@ public:		// interface
 	}
 
 		/// print an interval
-	void Print ( std::ostream& o ) const;
+	void Print ( std::ostream& o ) const
+	{
+		if ( hasMin() )
+			o << (minExcl ? '(' : '[') << min;
+		else
+			o << '{';
+		o << ',';
+		if ( hasMax() )
+			o << max << (maxExcl ? ')' : ']');
+		else
+			o << '}';
+	}
 }; // TDataInterval
 
 /// class for representing general data entry ("name" of data type or data value)
@@ -231,16 +242,6 @@ TDataInterval :: updateMax ( bool excl, const ComparableDT& value )
 	max = value;
 	maxExcl = max.correctMax(excl);
 	return true;
-}
-
-inline void
-TDataInterval :: Print ( std::ostream& o ) const
-{
-	o << (hasMin() ? (minExcl ? '(' : '[') : '{');
-	if ( hasMin() ) o << min;
-	o << ',';
-	if ( hasMax() ) o << max;
-	o << (hasMax() ? (maxExcl ? ')' : ']') : '}');
 }
 
 inline std::ostream&
