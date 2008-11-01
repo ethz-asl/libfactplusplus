@@ -210,7 +210,7 @@ TDataInterval :: updateMin ( bool excl, const ComparableDT& value )
 	}
 
 	min = value;
-	minExcl = excl;
+	minExcl = min.correctMin(excl);
 	return true;
 }
 
@@ -229,7 +229,7 @@ TDataInterval :: updateMax ( bool excl, const ComparableDT& value )
 	}
 
 	max = value;
-	maxExcl = excl;
+	maxExcl = max.correctMax(excl);
 	return true;
 }
 

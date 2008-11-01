@@ -98,6 +98,26 @@ public:
 	bool inited ( void ) const { return vType != UNUSED; }
 		/// check whether the comparator is compatible with another one
 	bool compatible ( const ComparableDT& other ) const { return !inited() || !other.inited() || vType == other.vType; }
+		/// correct min value if the DT is discrete and EXCL is true; @return new EXCL value
+	bool correctMin ( bool excl )
+	{
+		if ( vType == INT && excl )
+		{	// transform (n,} into [n+1,}
+			longIntValue++;
+			return false;
+		}
+		return excl;
+	}
+		/// correct max value if the DT is discrete and EXCL is true; @return new EXCL value
+	bool correctMax ( bool excl )
+	{
+		if ( vType == INT && excl )
+		{	// transform (n,} into [n+1,}
+			longIntValue--;
+			return false;
+		}
+		return excl;
+	}
 
 	// compare 2 values
 
