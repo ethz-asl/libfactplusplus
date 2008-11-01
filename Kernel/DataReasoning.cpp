@@ -40,9 +40,7 @@ bool DataTypeReasoner :: addDataEntry ( BipolarPointer p, const DepSet& dep )
 		return false;	// no clash found
 	}
 	case dtDataValue:
-		return isNegative(p) ?
-			processNegativeDV(getDTE(p,dep)) :
-			processDataValue ( /*pos=*/true, getDataEntry(p), dep );
+		return processDataValue ( isPositive(p), getDataEntry(p), dep );
 	case dtDataExpr:
 		return processDataExpr ( isPositive(p), getDataEntry(p), dep );
 	default:
@@ -90,7 +88,7 @@ bool DataTypeReasoner :: checkClash ( void )
 // ---------- Processing different alternatives
 
 bool
-DataTypeAppearance::DepInterval :: checkMinMaxClash ( const DataTypeAppearance::SingleValues& values, DepSet& dep ) const
+DataTypeAppearance::DepInterval :: checkMinMaxClash ( DepSet& dep ) const
 {
 	// we are interested in a NEG intervals iff a PType is set
 	if ( !Constraints.closed() )
@@ -109,17 +107,6 @@ DataTypeAppearance::DepInterval :: checkMinMaxClash ( const DataTypeAppearance::
 	{
 		dep += minDep;
 		dep += maxDep;
-		return true;
-	}
-
-	// here we have an interval [X,X]
-	// if X is in negValues, then clash occurs
-	DepSet loc;
-	if ( values.find ( Min, loc ) )
-	{
-		dep += minDep;
-		dep += maxDep;
-		dep += loc;
 		return true;
 	}
 
@@ -174,77 +161,4 @@ DataTypeAppearance :: addNegInterval ( const TDataInterval& Int, const DepSet& d
 	if ( Constraints.empty() )
 		return reportClash ( accDep, "C-MM" );
 	return false;
-}
-
-bool
-DataTypeAppearance :: checkPNTypeClash ( void )
-{
-	// check if NType is already present
-	if ( hasNType() )
-		return reportClash ( PType.second+NType.second, "TNT" );
-
-	DepSet acc(accDep), dep;
-	for ( const_iterator p = Constraints.begin(), p_end = Constraints.end(); p < p_end; ++p )
-	{
-		dep.clear();
-		if ( p->isCovered ( negValues, dep ) )
-			acc += dep;
-		else
-			return false;
-	}
-
-	// NType can be inferred
-	return reportClash ( PType.second+acc, "NI" );
-}
-
-bool
-DataTypeAppearance::DepInterval :: isCovered ( const DataTypeAppearance::SingleValues& values,
-											   DepSet& dep ) const
-{
-	// not a closed interval -- can't infer NType
-	//FIXME!! check this if/when enumeration types will appear
-	if ( !Constraints.closed() )
-		return false;
-
-	/*
-	 * check if you can infer NType from all negative constraints
-	 * Examples include not(<5) && not(5) && not(6) && not(>=7)
-	 */
-	const ComparableDT& Min = Constraints.min;
-	const ComparableDT& Max = Constraints.max;
-
-	if ( !Min.hasDiscreteType() )
-		return false;
-
-	long startInt = Min.getLongIntValue() + Constraints.minExcl;
-	long finalInt = Max.getLongIntValue() - Constraints.maxExcl;
-
-	dep += minDep;
-	dep += maxDep;
-	return values.covers ( startInt, finalInt, dep );
-}
-
-bool
-DataTypeAppearance :: SingleValues :: find ( const ComparableDT& value, DepSet& dep ) const
-{
-	for ( DEVector::const_iterator i = Base.begin(), i_end = Base.end(); i < i_end; ++i )
-		if ( value == i->first->getComp() )
-		{
-			dep += i->second;
-			return true;
-		}
-
-	return false;
-}
-
-bool
-DataTypeAppearance :: SingleValues :: covers ( long from, long to, DepSet& dep ) const
-{
-
-	for ( long l = from; l <= to; ++l )
-		if ( !find ( ComparableDT(l), dep ) )
-			return false;
-
-	// all interval is covered
-	return true;
 }

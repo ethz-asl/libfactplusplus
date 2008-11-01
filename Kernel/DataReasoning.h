@@ -36,32 +36,6 @@ public:		// typedefs
 	typedef std::pair<const TDataEntry*, DepSet> DepDTE;
 
 protected:	// classes
-		/// class for keeping single values
-	class SingleValues
-	{
-	protected:	// types
-			/// base type
-		typedef std::vector<DepDTE> DEVector;
-	protected:	// members
-			/// array of values
-		DEVector Base;
-	public:		// interface
-			/// empty c'tor
-		SingleValues ( void ) {}
-			/// empty d'tor
-		~SingleValues ( void ) {}
-
-			/// add new value
-		void add ( const DepDTE& value ) { Base.push_back(value); }
-			/// clear all values
-		void clear ( void ) { Base.clear(); }
-
-			/// check if VALUE is found in values; fills DEP with a dep-set
-		bool find ( const ComparableDT& value, DepSet& dep ) const;
-			/// check if [from..to] is completely covered by values
-		bool covers ( long from, long to, DepSet& dep ) const;
-	}; // SingleValues
-
 		/// data interval with dep-sets
 	class DepInterval
 	{
@@ -90,9 +64,7 @@ protected:	// classes
 			return true;
 		}
 			/// correct MIN and MAX operands of a type
-		bool checkMinMaxClash ( const SingleValues& values, DepSet& dep ) const;
-			/// check if interval is covered by VALUES
-		bool isCovered ( const SingleValues& values, DepSet& dep ) const;
+		bool checkMinMaxClash ( DepSet& dep ) const;
 			/// check if the interval is consistent wrt given type
 		bool consistent ( const ComparableDT& type, DepSet& dep ) const
 		{
@@ -122,8 +94,6 @@ public:		// members
 protected:	// members
 		/// interval of possible values
 	DTConstraint Constraints;
-		/// negated single values
-	SingleValues negValues;
 		/// accumulated dep-set
 	DepSet accDep;
 		/// dep-set for the clash
@@ -165,7 +135,7 @@ protected:	// methods
 			return reportClash ( localDep, "C-IT" );
 		if ( !i.update ( localMin, localExcl, localValue, localDep ) )
 			Constraints.push_back(i);
-		if ( !hasPType() || !i.checkMinMaxClash(negValues,accDep) )
+		if ( !hasPType() || !i.checkMinMaxClash(accDep) )
 			Constraints.push_back(i);
 		return false;
 	}
@@ -195,7 +165,6 @@ public:		// methods
 			std::make_pair(static_cast<const TDataEntry*>(NULL),DepSet());
 		Constraints.clear();
 		Constraints.push_back(DepInterval());
-		negValues.clear();
 		accDep.clear();
 	}
 
@@ -217,8 +186,6 @@ public:		// methods
 		if ( !hasPType() )
 			PType = std::make_pair(value->getType(),dep);
 	}
-		/// add (not VALUE) constraint
-	void addNegValue ( const DepDTE& value ) { negValues.add(value); }
 
 	// complex methods
 
@@ -230,8 +197,14 @@ public:		// methods
 		return pos ? addPosInterval ( Int, dep ) : addNegInterval ( Int, dep );
 	}
 
-		/// @return true iff PType and (possibly inferred) NType leads to clash
-	bool checkPNTypeClash ( void );
+		/// @return true iff PType and NType leads to clash
+	bool checkPNTypeClash ( void )
+	{
+		if ( hasNType() )
+			return reportClash ( PType.second+NType.second, "TNT" );
+
+		return false;
+	}
 }; // DataTypeAppearance
 
 class DataTypeReasoner
@@ -255,13 +228,6 @@ protected:	// members
 	DepSet clashDep;
 
 protected:	// methods
-
-	// aux functions used by addDataEntry function
-	bool processNegativeDV ( const DepDTE& c )
-	{
-		getDTAbyValue(c.first)->addNegValue(c);
-		return false;
-	}
 		/// process data value
 	bool processDataValue ( bool pos, const TDataEntry* c, const DepSet& dep )
 	{
