@@ -290,12 +290,12 @@ DLTree* TBox :: processOr ( const ConceptSet& v )
 }
 
 // return OR (nominals)
-DLTree* TBox :: processOneOf ( const ConceptSet& v )
+DLTree* TBox :: processOneOf ( const ConceptSet& v, bool data )
 {
 	DLTree* ret = new DLTree(BOTTOM);
 
 	for ( ConceptSet::const_iterator p = v.begin(), p_end = v.end(); p != p_end; ++p )
-		if ( isIndividual(*p) )
+		if ( (data && isDataValue(*p)) || (!data && isIndividual(*p)) )
 			ret = createSNFOr ( ret, *p );
 		else
 		{

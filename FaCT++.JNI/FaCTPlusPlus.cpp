@@ -299,8 +299,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
   (JNIEnv * env, jobject obj)
 {
 	TRACE_JNI("getDataEnumeration");
-	Throw ( env, "FaCT++ Kernel: unsupported operation" );
-	return NULL;
+	return DataTypeExpression ( env, getK(env,obj)->processOneOf(/*data=*/true) );
 }
 
 /*
@@ -711,7 +710,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
   (JNIEnv * env, jobject obj)
 {
 	TRACE_JNI("getOneOf");
-	return Class ( env, getK(env,obj)->processOneOf() );
+	return Class ( env, getK(env,obj)->processOneOf(/*data=*/false) );
 }
 
 /*

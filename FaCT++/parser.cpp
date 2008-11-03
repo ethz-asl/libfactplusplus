@@ -430,6 +430,10 @@ DLTree* DLLispParser :: processComplexConceptTree ( void )
 		parseConceptList(/*singletonsOnly=*/true);
 		return Kernel->processOneOf ();
 
+	case DONEOF:
+		parseConceptList(/*singletonsOnly=*/false);
+		return Kernel->processOneOf(/*data=*/true);
+
 	case STRING:	// expression (string <value>)
 	case NUMBER:	// expression (number <value>)
 	case REAL:		// expression (real <value>)

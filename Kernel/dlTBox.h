@@ -796,6 +796,12 @@ public:
 		/// @return true iff given DLTree represents a registered individual
 	bool isIndividual ( const DLTree* entry ) const
 		{ return (entry->Element().getToken() == INAME && isIndividual(entry->Element().getName())); }
+		/// @return true iff given DLTree represents a data value
+	static bool isDataValue ( const DLTree* entry )
+	{
+		return entry->Element().getToken() == DATAEXPR &&
+			static_cast<const TDataEntry*>(entry->Element().getName())->isDataValue();
+	}
 
 		/// get a DL tree by a given concept-like C
 	DLTree* getTree ( TConcept* C ) const
@@ -883,7 +889,7 @@ public:
 	bool processDifferent ( const ConceptSet& v );
 	DLTree* processAnd ( const ConceptSet& v );
 	DLTree* processOr ( const ConceptSet& v );
-	DLTree* processOneOf ( const ConceptSet& v );
+	DLTree* processOneOf ( const ConceptSet& v, bool data );
 	DLTree* processRComposition ( const ConceptSet& v );
 
 //-----------------------------------------------------------------------------

@@ -211,6 +211,9 @@ Token TsScanner :: getExpressionKeyword ( void ) const
 	if ( isKeyword("in-range") )
 		return INRANGE;
 
+	if ( isKeyword("d-one-of") )
+		return DONEOF;
+
 	// not a keyword -- error
 	return BAD_LEX;
 }

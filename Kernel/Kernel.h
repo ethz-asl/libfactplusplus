@@ -248,8 +248,8 @@ public:	// general staff
 	void writeReasoningResult ( std::ostream& o, float time ) const
 		{ getTBox()->writeReasoningResult ( o, time ); }
 
-	// aux methods -- for parser
-	DLTree* processOneOf ( void );
+		/// @return one-of construction for the arguments in NAryQueue; data is true if data one-of is used
+	DLTree* processOneOf ( bool data = false );
 
 	//----------------------------------------------
 	//-- save/load interface; implementation in SaveLoad.cpp
@@ -835,7 +835,11 @@ inline bool ReasoningKernel :: clearKB ( void )
 
 // some aux methods
 
-inline DLTree* ReasoningKernel :: processOneOf ( void ) { return getTBox()->processOneOf(NAryQueue.getLastArgList()); }
+inline DLTree*
+ReasoningKernel :: processOneOf ( bool data )
+{
+	return getTBox()->processOneOf ( NAryQueue.getLastArgList(), data );
+}
 
 //----------------------------------------------------
 //	concept expression interface
