@@ -43,6 +43,8 @@ bool DataTypeReasoner :: addDataEntry ( BipolarPointer p, const DepSet& dep )
 		return processDataValue ( isPositive(p), getDataEntry(p), dep );
 	case dtDataExpr:
 		return processDataExpr ( isPositive(p), getDataEntry(p), dep );
+	case dtAnd:		// processed by general reasoning
+		return false;
 	default:
 		assert(false);
 		return true;

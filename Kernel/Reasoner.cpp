@@ -264,9 +264,6 @@ tacticUsage DlSatTester :: insertToDoEntry ( DlCompletionTree* n, BipolarPointer
 
 	setUsed(c);
 
-	if ( n->isDataNode() )	// data concept -- run data center for it
-		return checkDataNode ? checkDataClash(n) : utUnusable;
-
 	if ( n->isCached() )
 	{
 		tacticUsage ret = correctCachedEntry(n);
@@ -276,8 +273,9 @@ tacticUsage DlSatTester :: insertToDoEntry ( DlCompletionTree* n, BipolarPointer
 	// add new info in TODO list
 	TODO.addEntry ( n, c, tag );
 
-	// inform about it
-	if ( LLM.isWritable(llGTA) )
+	if ( n->isDataNode() )	// data concept -- run data center for it
+		return checkDataNode ? checkDataClash(n) : utUnusable;
+	else if ( LLM.isWritable(llGTA) )	// inform about it
 		logEntry ( n, c, dep, reason );
 
 	return utDone;
