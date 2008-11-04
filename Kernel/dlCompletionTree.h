@@ -64,11 +64,7 @@ protected:	// internal classes
 		unsigned int nSons;
 
 			/// flag 'cached'
-		unsigned int cached : 1;
-			/// affected flag
-		unsigned int affected : 1;
-			/// other bits of a flags
-		unsigned int unused : 30;
+		bool cached;
 
 	private:	// protection from copying
 			/// no assignment
@@ -84,7 +80,6 @@ protected:	// internal classes
 			, nPars (node.nPars)
 			, nSons (node.nSons)
 			, cached(node.cached)
-			, affected(node.affected)
 			{}
 			/// empty d'tor
 		~SaveState ( void ) {}

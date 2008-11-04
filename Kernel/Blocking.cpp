@@ -361,18 +361,13 @@ bool DlCompletionTree :: B6 ( const TRole* U, BipolarPointer F ) const
 
 void DlCompletionGraph :: detectBlockedStatus ( DlCompletionTree* node )
 {
-	DlCompletionTree* p = node;
 	bool wasBlocked = node->isBlocked();
 	bool wasDBlocked = node->isDBlocked();
 
-	while ( p->hasParent() && p->isBlockableNode() && p->isAffected() )
-	{
-		findDBlocker(p);
-		if ( p->isBlocked() )
-			return;
-		p = p->getParentNode();
-	}
-	p->clearAffected();
+	if ( node->hasParent() && node->isBlockableNode() )
+		findDBlocker(node);
+	else
+		node->clearAffected();
 	if ( wasBlocked && !node->isBlocked() )
 		unblockNode ( node, wasDBlocked );
 }
