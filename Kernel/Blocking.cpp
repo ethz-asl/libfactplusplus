@@ -368,7 +368,6 @@ void DlCompletionGraph :: detectBlockedStatus ( DlCompletionTree* node )
 	while ( p->hasParent() && p->isBlockableNode() && p->isAffected() )
 	{
 		findDBlocker(p);
-		p->clearAffected();
 		if ( p->isBlocked() )
 			return;
 		p = p->getParentNode();

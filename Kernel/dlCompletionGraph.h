@@ -181,6 +181,7 @@ protected:	// methods
 		/// try to find d-blocker for a node
 	void findDBlocker ( DlCompletionTree* node )
 	{
+		saveNode ( node, branchingLevel );
 		node->clearAffected();
 		if ( node->isBlocked() )
 			saveRareCond(node->setUBlocked());
