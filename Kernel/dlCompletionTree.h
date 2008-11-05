@@ -63,9 +63,6 @@ protected:	// internal classes
 			/// amount of children
 		unsigned int nSons;
 
-			/// flag 'cached'
-		bool cached;
-
 	private:	// protection from copying
 			/// no assignment
 		SaveState& operator = ( const SaveState& node );
@@ -79,7 +76,6 @@ protected:	// internal classes
 			, curLevel (node.curLevel)
 			, nPars (node.nPars)
 			, nSons (node.nSons)
-			, cached(node.cached)
 			{}
 			/// empty d'tor
 		~SaveState ( void ) {}
@@ -101,6 +97,18 @@ protected:	// internal classes
 		virtual ~UnBlock ( void ) {}
 		void restore ( void ) { p->Blocker = Blocker; p->pDep = dep; p->pBlocked = pBlocked; p->dBlocked = dBlocked; }
 	}; // UnBlock
+
+		/// restore (un)cached node
+	class CacheRestorer: public TRestorer
+	{
+	protected:
+		DlCompletionTree* p;
+		bool cached;
+	public:
+		CacheRestorer ( DlCompletionTree* q ) : p(q), cached(q->cached) {}
+		virtual ~CacheRestorer ( void ) {}
+		void restore ( void ) { p->cached = cached; }
+	}; // CacheRestorer
 
 #ifdef RKG_IR_IN_NODE_LABEL
 		/// restore node after IR set change
@@ -186,7 +194,7 @@ protected:	// members
 		/// flag whether node is directly/indirectly blocked
 	unsigned int dBlocked : 1;
 		/** Whether node is affected by change of some potential blocker.
-			This flag may be viewed as a cahce for a 'blocked' status
+			This flag may be viewed as a cache for a 'blocked' status
 		*/
 	unsigned int affected : 1;
 		/// the rest
@@ -367,7 +375,14 @@ public:		// methods
 		/// check if the node is cached (IE need not to be expanded)
 	bool isCached ( void ) const { return cached; }
 		/// set cached status of given node
-	void setCached ( bool val ) { cached = val; }
+	TRestorer* setCached ( bool val )
+	{
+		if ( cached == val )
+			return NULL;
+		TRestorer* ret = new CacheRestorer(this);
+		cached = val;
+		return ret;
+	}
 
 	// data node methods
 

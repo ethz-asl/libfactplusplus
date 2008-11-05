@@ -1503,10 +1503,9 @@ tacticUsage DlSatTester :: commonTacticBodyIrrefl ( const TRole* R )
 //	Support for cached reasoning deep in the tree
 //-------------------------------------------------------------------------------
 
-tacticUsage DlSatTester :: tryCacheNode ( DlCompletionTree* node )
+tacticUsage DlSatTester :: tryCacheNode1 ( DlCompletionTree* node )
 {
 	DlCompletionTree::const_label_iterator p;
-	node->setCached(false);
 	bool shallow = true;
 	unsigned int size = 0;
 
@@ -1560,7 +1559,6 @@ tacticUsage DlSatTester :: tryCacheNode ( DlCompletionTree* node )
 	{
 	case csValid:
 		nCachedSat.inc();
-		node->setCached(true);
 		if ( LLM.isWritable(llGTA) )
 			LL << " cached(" << node->getId() << ")";
 		return utDone;

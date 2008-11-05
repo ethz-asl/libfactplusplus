@@ -431,8 +431,16 @@ protected:	// methods
 
 		/// generate necessary clash level if node's caching lead to clash
 	void generateCacheClashLevel ( DlCompletionTree* node, modelCacheInterface* cache = NULL );
-		/// check if newly created node may be cached
-	tacticUsage tryCacheNode ( DlCompletionTree* node );
+		/// check whether node may be (un)cached
+	tacticUsage tryCacheNode1 ( DlCompletionTree* node );
+		/// check whether node may be (un)cached; save node if something is changed
+	tacticUsage tryCacheNode ( DlCompletionTree* node )
+	{
+		tacticUsage ret = tryCacheNode1(node);
+		// node is cached if RET is utDone
+		CGraph.saveRareCond(node->setCached(ret == utDone));
+		return ret;
+	}
 		/// perform caching of the node (it is known that caching is possible)
 	enum modelCacheState doCacheNode ( DlCompletionTree* node );
 

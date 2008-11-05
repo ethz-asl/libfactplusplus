@@ -164,7 +164,6 @@ void DlCompletionTree :: save ( SaveState* nss ) const
 	nss->nPars = Parent.size();
 	nss->nSons = Son.size();
 	Label.save(nss->lab);
-	nss->cached = cached;
 
 	logSRNode("SaveNode");
 }
@@ -198,8 +197,6 @@ void DlCompletionTree :: restore ( SaveState* nss )
 		}
 #endif
 
-	// restore flags value
-	cached = nss->cached;
 	// it's cheaper to dirty affected flag than to consistently save nodes
 	affected = true;
 
