@@ -21,40 +21,29 @@ Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #include "Reasoner.h"
 
 // statistic for calling blocking
-unsigned long nBlockingCalls = 0,
-			  nSuccessfullBlocks = 0,
-			  nB2Tries = 0,
-			  nB3Tries = 0,
-			  nB4Tries = 0,
-			  nB5Tries = 0,
-			  nB6Tries = 0,
-			  nB1Fails = 0,
-			  nB2Fails = 0,
-			  nB3Fails = 0,
-			  nB4Fails = 0,
-			  nB5Fails = 0,
-			  nB6Fails = 0;
+unsigned long tries[6], fails[6], nSucc, blockIndex;
 
 void printBlockingStat ( std::ostream& o )
 {
-	if ( nBlockingCalls == 0 )	// nothing to inform
+	if ( *tries == 0 )	// nothing to inform
 		return;
 
 	// else -- print precize statistics
-	o << "\nThere were made " << nBlockingCalls << " blocking tests of which "
-	  << nSuccessfullBlocks << " successfull.\nBlocking rules failure statistic: "
-	  << nB1Fails << "/" << nBlockingCalls << ", "
-	  << nB2Fails << "/" << nB2Tries << ", "
-	  << nB3Fails << "/" << nB3Tries << ", "
-	  << nB4Fails << "/" << nB4Tries << ", "
-	  << nB5Fails << "/" << nB5Tries << ", "
-	  << nB6Fails << "/" << nB6Tries;
+	o << "\nThere were made " << *tries << " blocking tests of which "
+	  << nSucc << " successfull.\nBlocking rules failure statistic:";
+	for ( uint i = 0; i < 6; ++i )
+	{
+		if ( i != 0 )
+			o << ",";
+		o << " " << fails[i] << "/" << tries[i];
+	}
 }
 
 void clearBlockingStat ( void )
 {
-	nBlockingCalls = nSuccessfullBlocks = nB2Tries = nB3Tries = nB4Tries = nB5Tries =
-	nB6Tries = nB1Fails = nB2Fails = nB3Fails = nB4Fails = nB5Fails = nB6Fails = 0;
+	for ( int i = 5; i >= 0; --i )
+		tries[i] = fails[i] = 0;
+	nSucc = blockIndex = 0;
 }
 
 // SHIQ double-blocking method
@@ -83,7 +72,7 @@ bool DlCompletionTree :: isBlockedBy_SHI ( const DlCompletionTree* p ) const
 	// optimized double-blocking method
 	if ( isCommonlyBlockedBy(p) )
 	{
-		++nSuccessfullBlocks;
+		++nSucc;
 		return true;
 	}
 
@@ -98,7 +87,7 @@ bool DlCompletionTree :: isBlockedBy_SHIQ_ob ( const DlCompletionTree* p ) const
 	// optimized double-blocking method
 	if ( isCommonlyBlockedBy(p) && ( isCBlockedBy(p) || isABlockedBy(p) ) )
 	{
-		++nSuccessfullBlocks;
+		++nSucc;
 		return true;
 	}
 
@@ -107,8 +96,6 @@ bool DlCompletionTree :: isBlockedBy_SHIQ_ob ( const DlCompletionTree* p ) const
 
 bool DlCompletionTree :: isCommonlyBlockedBy ( const DlCompletionTree* p ) const
 {
-	++nBlockingCalls;
-
 	// common B1:
 	if ( !B1(p) )
 		return false;
@@ -209,14 +196,18 @@ bool DlCompletionTree :: isCBlockedBy ( const DlCompletionTree* p ) const
 //--    (with probably several links to it). So we should check all of them
 //----------------------------------------------------------------------
 
+#define TRY_B(i)		++tries[i-1]
+#define FAIL_B(i)		++fails[i-1]
 
 	/// check if B1 holds for a given vertex (p is a candidate for blocker)
 bool DlCompletionTree :: B1 ( const DlCompletionTree* p ) const
 {
+	TRY_B(1);
+
 	if ( isBlockedBy_SH(p) )
 		return true;
 
-	++nB1Fails;
+	FAIL_B(1);
 	return false;
 }
 
@@ -226,14 +217,14 @@ bool DlCompletionTree :: B2 ( const RoleAutomaton& A, BipolarPointer C ) const
 	const DlCompletionTree* parent = getParentNode();
 	const CGLabel& parLab = parent->label();
 	RATransition* trans = *A.begin(0);
-	++nB2Tries;
+	TRY_B(2);
 
 	for ( const_edge_iterator p = beginp(), p_end = endp(); p < p_end; ++p )
 		if ( !(*p)->isIBlocked() && (*p)->getArcEnd() == parent && trans->applicable((*p)->getRole()) )
 		{
 			if ( !parLab.contains(C) )
 			{
-				++nB2Fails;
+				FAIL_B(2);
 				return false;
 			}
 			else
@@ -249,7 +240,7 @@ bool DlCompletionTree :: B2 ( const RoleAutomaton& A, BipolarPointer C, RAState 
 	const DlCompletionTree* parent = getParentNode();
 	const CGLabel& parLab = parent->label();
 	RoleAutomaton::const_trans_iterator q, end = A.end(n);
-	++nB2Tries;
+	TRY_B(2);
 
 	for ( const_edge_iterator p = beginp(), p_end = endp(); p < p_end; ++p )
 	{
@@ -261,7 +252,7 @@ bool DlCompletionTree :: B2 ( const RoleAutomaton& A, BipolarPointer C, RAState 
 			if ( (*q)->applicable(R) )
 				if ( !parLab.containsCC(C-n+(*q)->final()) )
 				{
-					++nB2Fails;
+					FAIL_B(2);
 					return false;
 				}
 	}
@@ -275,7 +266,7 @@ bool DlCompletionTree :: B3 ( const DlCompletionTree* p, unsigned int n, const T
 #ifdef ENABLE_CHECKING
 	assert ( hasParent () );	// safety check
 #endif
-	++nB3Tries;
+	TRY_B(3);
 
 	bool ret;
 	// if (<= n S C) \in L(w') then
@@ -299,7 +290,7 @@ bool DlCompletionTree :: B3 ( const DlCompletionTree* p, unsigned int n, const T
 	}
 
 	if ( !ret )
-		++nB3Fails;
+		FAIL_B(3);
 
 	return ret;
 }
@@ -310,7 +301,7 @@ bool DlCompletionTree :: B4 ( const DlCompletionTree* p, unsigned int m, const T
 #ifdef ENABLE_CHECKING
 	assert ( hasParent () );	// safety check
 #endif
-	++nB4Tries;
+	TRY_B(4);
 
 	// if (>= m T E) \in L(w') then
 	// b) w is an inv(T) succ of v and E\in L(v) and m == 1 or
@@ -326,7 +317,7 @@ bool DlCompletionTree :: B4 ( const DlCompletionTree* p, unsigned int m, const T
 				return true;
 
 	// rule check fails
-	++nB4Fails;
+	FAIL_B(4);
 	return false;
 }
 
@@ -336,7 +327,7 @@ bool DlCompletionTree :: B5 ( const TRole* T, BipolarPointer E ) const
 #ifdef ENABLE_CHECKING
 	assert ( hasParent () );	// safety check
 #endif
-	++nB5Tries;
+	TRY_B(5);
 
 	// if (<= n T E) \in L(w'), then
 	// either w is not an inv(T)-successor of v...
@@ -346,7 +337,7 @@ bool DlCompletionTree :: B5 ( const TRole* T, BipolarPointer E ) const
 	if ( getParentNode()->isLabelledBy ( inverse(E) ) )
 		return true;
 
-	++nB5Fails;
+	FAIL_B(5);
 	return false;
 }
 
@@ -356,7 +347,7 @@ bool DlCompletionTree :: B6 ( const TRole* U, BipolarPointer F ) const
 #ifdef ENABLE_CHECKING
 	assert ( hasParent () );	// safety check
 #endif
-	++nB6Tries;
+	TRY_B(6);
 
 	// if (>= m U F) \in L(v), and
 	// w is U-successor of v...
@@ -366,9 +357,12 @@ bool DlCompletionTree :: B6 ( const TRole* U, BipolarPointer F ) const
 	if ( isLabelledBy ( inverse(F) ) )
 		return true;
 
-	++nB6Fails;
+	FAIL_B(6);
 	return false;
 }
+
+#undef TRY_B
+#undef FAIL_B
 
 //----------------------------------------------------------------------
 //--   changing blocked status

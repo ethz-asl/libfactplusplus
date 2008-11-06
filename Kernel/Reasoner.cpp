@@ -46,6 +46,8 @@ DlSatTester :: DlSatTester ( TBox& tbox, const ifOptionSet* Options )
 	// init set of reflexive roles
 	tbox.getRM()->fillReflexiveRoles(ReflexiveRoles);
 	GCIs.setReflexive(!ReflexiveRoles.empty());
+	// init blocking statistics
+	clearBlockingStat();
 
 	resetSessionFlags ();
 }
