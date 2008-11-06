@@ -75,12 +75,25 @@ bool DlCompletionTree :: isBlockedBy_SHIQ_db ( const DlCompletionTree* p ) const
 			 );
 }
 
+// optimized blocking for SHI
+bool DlCompletionTree :: isBlockedBy_SHI ( const DlCompletionTree* p ) const
+{
+	assert ( pDLHeap != NULL );
+
+	// optimized double-blocking method
+	if ( isCommonlyBlockedBy(p) )
+	{
+		++nSuccessfullBlocks;
+		return true;
+	}
+
+	return false;
+}
+
 // optimized blocking for SHIQ
 bool DlCompletionTree :: isBlockedBy_SHIQ_ob ( const DlCompletionTree* p ) const
 {
 	assert ( pDLHeap != NULL );
-
-	++nBlockingCalls;
 
 	// optimized double-blocking method
 	if ( isCommonlyBlockedBy(p) && ( isCBlockedBy(p) || isABlockedBy(p) ) )
@@ -94,6 +107,8 @@ bool DlCompletionTree :: isBlockedBy_SHIQ_ob ( const DlCompletionTree* p ) const
 
 bool DlCompletionTree :: isCommonlyBlockedBy ( const DlCompletionTree* p ) const
 {
+	++nBlockingCalls;
+
 	// common B1:
 	if ( !B1(p) )
 		return false;

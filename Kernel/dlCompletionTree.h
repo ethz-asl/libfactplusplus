@@ -217,7 +217,7 @@ protected:	// methods
 		/// check blocking condition for SH logic
 	bool isBlockedBy_SH ( const DlCompletionTree* p ) const { ++nSetCompareOps; return Label <= p->Label; }
 		/// check blocking condition for SHI logic
-	bool isBlockedBy_SHI ( const DlCompletionTree* p ) const { return isBlockedBy_SH(p) && p->isBlockedBy_SH(this); }
+	bool isBlockedBy_SHI ( const DlCompletionTree* p ) const;
 		/// check blocking condition for SHIQ logic using double blocking
 	bool isBlockedBy_SHIQ_db ( const DlCompletionTree* p ) const;
 		/// check blocking condition for SHIQ logic using optimised blocking

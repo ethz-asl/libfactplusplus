@@ -472,7 +472,7 @@ DlCompletionGraph :: isBlockedBy ( const DlCompletionTree* node, const DlComplet
 	if ( sessionHasNumberRestrictions )	// I+F -- optimised blocking
 		return node->isBlockedBy_SHIQ_ob(blocker);
 	else	// just I -- equality blocking
-		return node->isCommonlyBlockedBy(blocker);
+		return node->isBlockedBy_SHI(blocker);
 }
 
 #if defined(RKG_IR_IN_NODE_LABEL)
