@@ -332,7 +332,6 @@ public:		// interface
 	{
 		nNodeSaves = 0;
 		nNodeRestores = 0;
-		DlCompletionTree::resetStatistic();
 	}
 		/// mark all heap elements as unused
 	void clear ( void )
@@ -450,30 +449,6 @@ public:		// interface
 }; // DlCompletionGraph
 
 // blocking
-
-// universal Blocked-By method
-inline bool
-DlCompletionGraph :: isBlockedBy ( const DlCompletionTree* node, const DlCompletionTree* blocker ) const
-{
-	// nominal nodes can't neither be nor became blocked
-	if ( node->isNominalNode() || blocker->isNominalNode() )
-		return false;
-
-	// cached node can't be a blocker
-	if ( blocker->isCached() )
-		return false;
-
-	// easy check: Init is not in the label if a blocker
-	if ( !blocker->canBlockInit(node) )
-		return false;
-
-	if ( !sessionHasInverseRoles )	// subset blocking
-		return node->isBlockedBy_SH(blocker);
-	if ( sessionHasNumberRestrictions )	// I+F -- optimised blocking
-		return node->isBlockedBy_SHIQ_ob(blocker);
-	else	// just I -- equality blocking
-		return node->isBlockedBy_SHI(blocker);
-}
 
 #if defined(RKG_IR_IN_NODE_LABEL)
 inline bool

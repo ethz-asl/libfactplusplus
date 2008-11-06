@@ -145,17 +145,9 @@ protected:	// global vars
 		/// DAG of operands
 	static DLDag* pDLHeap;
 
-	// statistic counters
-
-	static unsigned int nSetCompareOps;
-
 public:		// static interface
 		/// init static context for DL trees
 	static void initContext ( DLDag* pDag ) { pDLHeap = pDag; }
-		/// get read access to statistic
-	static unsigned int getNSetCompareOps ( void ) { return nSetCompareOps; }
-		/// clear static members
-	static void resetStatistic ( void ) { nSetCompareOps = 0; }
 
 protected:	// members
 		/// label of a node
@@ -211,17 +203,6 @@ protected:	// methods
 	//----------------------------------------------
 	// blocking support methods
 	//----------------------------------------------
-
-	//  Blocked-By methods for different logics
-
-		/// check blocking condition for SH logic
-	bool isBlockedBy_SH ( const DlCompletionTree* p ) const { ++nSetCompareOps; return Label <= p->Label; }
-		/// check blocking condition for SHI logic
-	bool isBlockedBy_SHI ( const DlCompletionTree* p ) const;
-		/// check blocking condition for SHIQ logic using double blocking
-	bool isBlockedBy_SHIQ_db ( const DlCompletionTree* p ) const;
-		/// check blocking condition for SHIQ logic using optimised blocking
-	bool isBlockedBy_SHIQ_ob ( const DlCompletionTree* p ) const;
 
 	// sub-methods for optimal blocking
 
@@ -473,6 +454,15 @@ public:		// methods
 	//----------------------------------------------
 	// blocking interface
 	//----------------------------------------------
+
+	//  Blocked-By methods for different logics
+
+		/// check blocking condition for SH logic
+	bool isBlockedBy_SH ( const DlCompletionTree* p ) const { return B1(p); }
+		/// check blocking condition for SHI logic
+	bool isBlockedBy_SHI ( const DlCompletionTree* p ) const { return isCommonlyBlockedBy(p); }
+		/// check blocking condition for SHIQ logic using optimised blocking
+	bool isBlockedBy_SHIQ ( const DlCompletionTree* p ) const { return isCommonlyBlockedBy(p) && ( isCBlockedBy(p) || isABlockedBy(p) ); }
 
 	// WARNING!! works only for blockable nodes
 	// every non-root node will have first upcoming edge pointed to a parent

@@ -18,7 +18,6 @@ Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 
 #include "dlCompletionTree.h"
 
-unsigned int DlCompletionTree :: nSetCompareOps = 0;
 DLDag* DlCompletionTree :: pDLHeap = NULL;
 
 /// check if transitive R-successor of the NODE labelled with C

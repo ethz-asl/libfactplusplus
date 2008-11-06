@@ -304,7 +304,6 @@ protected:	// members
 		nNodeRestores,
 
 		nLookups,
-		nCompareOps,
 
 		// reasoning cache
 		nCacheTry,

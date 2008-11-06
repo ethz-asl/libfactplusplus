@@ -46,53 +46,39 @@ void clearBlockingStat ( void )
 	nSucc = blockIndex = 0;
 }
 
-// SHIQ double-blocking method
-bool DlCompletionTree :: isBlockedBy_SHIQ_db ( const DlCompletionTree* p ) const
+// universal Blocked-By method
+bool
+DlCompletionGraph :: isBlockedBy ( const DlCompletionTree* node, const DlCompletionTree* blocker ) const
 {
-	// here is classical double-blocking method,
-	// current node is x, blocking node (p) is y
+	// nominal nodes can't neither be nor became blocked
+	if ( node->isNominalNode() || blocker->isNominalNode() )
+		return false;
 
-	assert ( hasParent () );	// there exists x'
+	// cached node can't be a blocker
+	if ( blocker->isCached() )
+		return false;
 
-	if ( !p->hasParent () )
-		return false;	// we cannot find y'
+	// easy check: Init is not in the label if a blocker
+	if ( !blocker->canBlockInit(node) )
+		return false;
 
-	return ( isBlockedBy_SHI( getParentNode() )  		// L(x)=L(x')
-			 && p->isBlockedBy_SHI( p->getParentNode() )  	// L(y)=L(y')
-			 //FIXME!!! not just '==' but 2 equal sets
-//			 && getParent()->Label == p->getParent()->Label 	// L((x',x))=L((y',y))
-			 );
-}
-
-// optimized blocking for SHI
-bool DlCompletionTree :: isBlockedBy_SHI ( const DlCompletionTree* p ) const
-{
-	assert ( pDLHeap != NULL );
-
-	// optimized double-blocking method
-	if ( isCommonlyBlockedBy(p) )
+	bool ret;
+	if ( sessionHasInverseRoles )	// subset blocking
 	{
-		++nSucc;
-		return true;
+		if ( sessionHasNumberRestrictions )	// I+F -- optimised blocking
+			ret = node->isBlockedBy_SHIQ(blocker);
+		else								// just I -- equality blocking
+			ret = node->isBlockedBy_SHI(blocker);
 	}
+	else
+		ret = node->isBlockedBy_SH(blocker);
 
-	return false;
+	if ( ret )
+		++nSucc;
+	return ret;
 }
 
-// optimized blocking for SHIQ
-bool DlCompletionTree :: isBlockedBy_SHIQ_ob ( const DlCompletionTree* p ) const
-{
-	assert ( pDLHeap != NULL );
-
-	// optimized double-blocking method
-	if ( isCommonlyBlockedBy(p) && ( isCBlockedBy(p) || isABlockedBy(p) ) )
-	{
-		++nSucc;
-		return true;
-	}
-
-	return false;
-}
+// Blocked-by implementation
 
 bool DlCompletionTree :: isCommonlyBlockedBy ( const DlCompletionTree* p ) const
 {
@@ -204,7 +190,7 @@ bool DlCompletionTree :: B1 ( const DlCompletionTree* p ) const
 {
 	TRY_B(1);
 
-	if ( isBlockedBy_SH(p) )
+	if ( Label <= p->Label )
 		return true;
 
 	FAIL_B(1);

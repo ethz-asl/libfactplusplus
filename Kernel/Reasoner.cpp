@@ -395,7 +395,6 @@ void
 DlSatTester :: finaliseStatistic ( void )
 {
 	// add the integer stat values
-	nCompareOps.set(DlCompletionTree::getNSetCompareOps());
 	nNodeSaves.set(CGraph.getNNodeSaves());
 	nNodeRestores.set(CGraph.getNNodeRestores());
 
@@ -806,7 +805,6 @@ void DlSatTester :: logStatisticData ( std::ostream& o, bool needLocal ) const
 	nNodeSaves.Print		( o, needLocal, "\nThere were made ", " save(s) of tree state" );
 	nNodeRestores.Print		( o, needLocal, "\nThere were made ", " restore(s) of tree state" );
 	nLookups.Print			( o, needLocal, "\nThere were made ", " concept lookups" );
-	nCompareOps.Print		( o, needLocal, "\nThere were made ", " set compare ops" );
 
 	nCacheTry.Print				( o, needLocal, "\nThere were made ", " tries to cache completion tree node, of which:" );
 	nCacheFailedNoCache.Print	( o, needLocal, "\n                ", " fails due to cache absence" );
