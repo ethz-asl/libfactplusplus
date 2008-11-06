@@ -19,9 +19,10 @@ Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #include "dlDag.h"
 #include "dlCompletionGraph.h"
 #include "Reasoner.h"
+#include "logging.h"
 
 // statistic for calling blocking
-unsigned long tries[6], fails[6], nSucc, blockIndex;
+unsigned long tries[6], fails[6], nSucc, failedRule;
 
 void printBlockingStat ( std::ostream& o )
 {
@@ -43,7 +44,7 @@ void clearBlockingStat ( void )
 {
 	for ( int i = 5; i >= 0; --i )
 		tries[i] = fails[i] = 0;
-	nSucc = blockIndex = 0;
+	nSucc = failedRule = 0;
 }
 
 // universal Blocked-By method
@@ -62,6 +63,7 @@ DlCompletionGraph :: isBlockedBy ( const DlCompletionTree* node, const DlComplet
 	if ( !blocker->canBlockInit(node) )
 		return false;
 
+
 	bool ret;
 	if ( sessionHasInverseRoles )	// subset blocking
 	{
@@ -75,6 +77,10 @@ DlCompletionGraph :: isBlockedBy ( const DlCompletionTree* node, const DlComplet
 
 	if ( ret )
 		++nSucc;
+	else
+		if ( LLM.isWritable(llGTA) )
+			LL << " fb" << failedRule << "(" << node->getId() << "," << blocker->getId() << ")";
+
 	return ret;
 }
 
@@ -183,7 +189,7 @@ bool DlCompletionTree :: isCBlockedBy ( const DlCompletionTree* p ) const
 //----------------------------------------------------------------------
 
 #define TRY_B(i)		++tries[i-1]
-#define FAIL_B(i)		++fails[i-1]
+#define FAIL_B(i)		failedRule = i, ++fails[i-1]
 
 	/// check if B1 holds for a given vertex (p is a candidate for blocker)
 bool DlCompletionTree :: B1 ( const DlCompletionTree* p ) const
