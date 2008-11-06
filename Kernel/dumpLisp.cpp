@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2005 by Dmitry Tsarkov
+Copyright (C) 2003-2008 by Dmitry Tsarkov
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -78,7 +78,7 @@ void dumpLisp :: startAx ( diAx Ax )
 		break;
 		// role axioms
 	case diDefineR:
-		o << "defrole";
+		o << "defprimrole";
 		break;
 	case diTransitiveR:
 		o << "transitive";
