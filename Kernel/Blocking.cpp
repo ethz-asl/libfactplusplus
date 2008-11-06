@@ -51,9 +51,8 @@ void clearBlockingStat ( void )
 bool
 DlCompletionGraph :: isBlockedBy ( const DlCompletionTree* node, const DlCompletionTree* blocker ) const
 {
-	// nominal nodes can't neither be nor became blocked
-	if ( node->isNominalNode() || blocker->isNominalNode() )
-		return false;
+	assert ( !node->isNominalNode() );
+	assert ( !blocker->isNominalNode() );
 
 	// cached node can't be a blocker
 	if ( blocker->isCached() )
@@ -62,7 +61,6 @@ DlCompletionGraph :: isBlockedBy ( const DlCompletionTree* node, const DlComplet
 	// easy check: Init is not in the label if a blocker
 	if ( !blocker->canBlockInit(node) )
 		return false;
-
 
 	bool ret;
 	if ( sessionHasInverseRoles )	// subset blocking
@@ -411,7 +409,7 @@ void DlCompletionGraph :: findDAnywhereBlocker ( DlCompletionTree* node )
 		const DlCompletionTree* p = *q;
 
 		// node was merge to smth with the larger ID or is blocked itself
-		if ( p->isBlocked() || p->isPBlocked() )
+		if ( p->isBlocked() || p->isPBlocked() || p->isNominalNode() )
 			continue;
 
 		if ( isBlockedBy ( node, p ) )
