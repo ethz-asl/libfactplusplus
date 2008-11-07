@@ -32,7 +32,7 @@ void printBlockingStat ( std::ostream& o )
 	// else -- print precize statistics
 	o << "\nThere were made " << *tries << " blocking tests of which "
 	  << nSucc << " successfull.\nBlocking rules failure statistic:";
-	for ( uint i = 0; i < 6; ++i )
+	for ( int i = 0; i < 6; ++i )
 	{
 		if ( i != 0 )
 			o << ",";
