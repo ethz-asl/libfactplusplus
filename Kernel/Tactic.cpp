@@ -1581,7 +1581,7 @@ tacticUsage DlSatTester :: tryCacheNode1 ( DlCompletionTree* node )
 enum modelCacheState
 DlSatTester :: doCacheNode ( DlCompletionTree* node )
 {
-	enum modelCacheState ret;
+	enum modelCacheState ret = csValid;
 	DlCompletionTree::const_label_iterator p;
 
 	// It's unsafe to have a cache that touchs nominal here; set flagNominals to prevent it
