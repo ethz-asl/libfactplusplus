@@ -112,6 +112,8 @@ endif
 
 ifneq ($(filter -g,$(DEFINES)),)
 override CL_LDFLAGS_OTHER += -g
+else
+override CL_LDFLAGS_OTHER += -s
 endif
 ifneq ($(filter -m64,$(DEFINES)),)
 override CL_LDFLAGS_OTHER += -m64
@@ -211,7 +213,7 @@ $(EXECUTABLE): $(BUILD_DIR) $(BUILD_DIR)/$(EXECUTABLE)
 	rm -f $(EXECUTABLE) && ln -s $(BUILD_DIR)/$(EXECUTABLE) $(EXECUTABLE)
 
 $(BUILD_DIR)/$(EXECUTABLE): $(OBJECTS) $(LIB_DEPS)
-	$(CXX) -s $(OBJECTS) $(LDFLAGS) -o $@
+	$(CXX) $(OBJECTS) $(LDFLAGS) -o $@
 
 endif # EXECUTABLE
 
@@ -225,7 +227,7 @@ $(LIBRARY_NAME): $(BUILD_DIR) $(BUILD_DIR)/$(LIBRARY_NAME)
 
 ifeq ($(LTYPE),shared)
 $(BUILD_DIR)/$(LIBRARY_NAME): $(OBJECTS) $(LIB_DEPS)
-	$(CXX) -s -shared -Wl,-h,$(LIBRARY_NAME) -o $@ $(OBJECTS) $(LDFLAGS)
+	$(CXX) -shared -Wl,-h,$(LIBRARY_NAME) -o $@ $(OBJECTS) $(LDFLAGS)
 endif
 
 ifeq ($(LTYPE),static)
