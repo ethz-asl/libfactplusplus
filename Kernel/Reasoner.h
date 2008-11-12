@@ -430,18 +430,20 @@ protected:	// methods
 
 		/// generate necessary clash level if node's caching lead to clash
 	void generateCacheClashLevel ( DlCompletionTree* node, modelCacheInterface* cache = NULL );
-		/// check whether node may be (un)cached
-	tacticUsage tryCacheNode1 ( DlCompletionTree* node );
+		/// check whether given NODE can be cached
+	bool canBeCached ( DlCompletionTree* node );
+		/// perform caching of the node (it is known that caching is possible)
+	enum modelCacheState doCacheNode ( DlCompletionTree* node );
+		/// mark NODE (un)cached depending on the joint cache STATUS; @return appropriate TU
+	tacticUsage reportNodeCached ( enum modelCacheState status, DlCompletionTree* node );
 		/// check whether node may be (un)cached; save node if something is changed
 	tacticUsage tryCacheNode ( DlCompletionTree* node )
 	{
-		tacticUsage ret = tryCacheNode1(node);
+		tacticUsage ret = canBeCached(node) ? reportNodeCached ( doCacheNode(node), node ) : utUnusable;
 		// node is cached if RET is utDone
 		CGraph.saveRareCond(node->setCached(ret == utDone));
 		return ret;
 	}
-		/// perform caching of the node (it is known that caching is possible)
-	enum modelCacheState doCacheNode ( DlCompletionTree* node );
 
 //-----------------------------------------------------------------------------
 //--		internal nominal reasoning interface

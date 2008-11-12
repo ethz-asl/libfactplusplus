@@ -1503,7 +1503,7 @@ tacticUsage DlSatTester :: commonTacticBodyIrrefl ( const TRole* R )
 //	Support for cached reasoning deep in the tree
 //-------------------------------------------------------------------------------
 
-tacticUsage DlSatTester :: tryCacheNode1 ( DlCompletionTree* node )
+bool DlSatTester :: canBeCached ( DlCompletionTree* node )
 {
 	DlCompletionTree::const_label_iterator p;
 	bool shallow = true;
@@ -1511,7 +1511,7 @@ tacticUsage DlSatTester :: tryCacheNode1 ( DlCompletionTree* node )
 
 	// nominal nodes can not be cached
 	if ( node->isNominalNode() )
-		return utUnusable;
+		return false;
 
 	nCacheTry.inc();
 
@@ -1523,7 +1523,7 @@ tacticUsage DlSatTester :: tryCacheNode1 ( DlCompletionTree* node )
 			nCacheFailedNoCache.inc();
 			if ( LLM.isWritable(llGTA) )
 				LL << " cf(" << p->bp() << ")";
-			return utUnusable;
+			return false;
 		}
 
 		shallow &= DLHeap.getCache(p->bp())->shallowCache();
@@ -1537,7 +1537,7 @@ tacticUsage DlSatTester :: tryCacheNode1 ( DlCompletionTree* node )
 			nCacheFailedNoCache.inc();
 			if ( LLM.isWritable(llGTA) )
 				LL << " cf(" << p->bp() << ")";
-			return utUnusable;
+			return false;
 		}
 
 		shallow &= DLHeap.getCache(p->bp())->shallowCache();
@@ -1550,12 +1550,15 @@ tacticUsage DlSatTester :: tryCacheNode1 ( DlCompletionTree* node )
 		nCacheFailedShallow.inc();
 		if ( LLM.isWritable(llGTA) )
 			LL << " cf(s)";
-		return utUnusable;
+		return false;
 	}
 
-	enum modelCacheState res = size ? doCacheNode(node) : csValid;
+	return true;
+}
 
-	switch ( res )
+tacticUsage DlSatTester :: reportNodeCached ( enum modelCacheState status, DlCompletionTree* node )
+{
+	switch ( status )
 	{
 	case csValid:
 		nCachedSat.inc();
