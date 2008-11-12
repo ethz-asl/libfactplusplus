@@ -269,7 +269,7 @@ tacticUsage DlSatTester :: insertToDoEntry ( DlCompletionTree* n, BipolarPointer
 	if ( n->isCached() )
 	{
 		tacticUsage ret = correctCachedEntry(n);
-		return ret != utUnusable ? ret : utDone;
+		return ret == utUnusable ? utDone : ret;
 	}
 
 	// add new info in TODO list
@@ -342,24 +342,23 @@ DlSatTester :: canBeCached ( DlCompletionTree* node )
 }
 
 /// perform caching of the node (it is known that caching is possible)
-enum modelCacheState
+modelCacheIan*
 DlSatTester :: doCacheNode ( DlCompletionTree* node )
 {
-	enum modelCacheState ret = csValid;
 	DlCompletionTree::const_label_iterator p;
 
 	// It's unsafe to have a cache that touchs nominal here; set flagNominals to prevent it
-	modelCacheIan cache(true);
+	modelCacheIan* cache = new modelCacheIan(true);
 
 	for ( p = node->beginl_sc(); p != node->endl_sc(); ++p )
 		// try to merge cache of a node label element with accumulator
-		if ( (ret = cache.merge(DLHeap.getCache(p->bp()))) != csValid )
-			return ret; // caching of node fails
+		if ( cache->merge(DLHeap.getCache(p->bp())) != csValid )
+			return cache; // caching of node fails
 
 	for ( p = node->beginl_cc(); p != node->endl_cc(); ++p )
 		// try to merge cache of a node label element with accumulator
-		if ( (ret = cache.merge(DLHeap.getCache(p->bp()))) != csValid )
-			return ret; // caching of node fails
+		if ( cache->merge(DLHeap.getCache(p->bp())) != csValid )
+			return cache; // caching of node fails
 
 	// all concepts in label are mergable; now try to add input arc
 	if ( node->hasParent() )
@@ -367,14 +366,17 @@ DlSatTester :: doCacheNode ( DlCompletionTree* node )
 		modelCacheIan cachePar(false);
 		cachePar.initRolesFromArcs(node);	// the only arc is parent
 
-		ret = cache.merge(&cachePar);
+		cache->merge(&cachePar);
 	}
 
-	return ret;
+	return cache;
 }
 
-tacticUsage DlSatTester :: reportNodeCached ( enum modelCacheState status, DlCompletionTree* node )
+tacticUsage
+DlSatTester :: reportNodeCached ( modelCacheIan* cache, DlCompletionTree* node )
 {
+	enum modelCacheState status = cache->getState();
+	delete cache;
 	switch ( status )
 	{
 	case csValid:

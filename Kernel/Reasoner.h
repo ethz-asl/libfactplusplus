@@ -433,9 +433,9 @@ protected:	// methods
 		/// check whether given NODE can be cached
 	bool canBeCached ( DlCompletionTree* node );
 		/// perform caching of the node (it is known that caching is possible)
-	enum modelCacheState doCacheNode ( DlCompletionTree* node );
+	modelCacheIan* doCacheNode ( DlCompletionTree* node );
 		/// mark NODE (un)cached depending on the joint cache STATUS; @return appropriate TU
-	tacticUsage reportNodeCached ( enum modelCacheState status, DlCompletionTree* node );
+	tacticUsage reportNodeCached ( modelCacheIan* cache, DlCompletionTree* node );
 		/// check whether node may be (un)cached; save node if something is changed
 	tacticUsage tryCacheNode ( DlCompletionTree* node )
 	{
