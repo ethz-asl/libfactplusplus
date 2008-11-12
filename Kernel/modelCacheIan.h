@@ -121,7 +121,18 @@ public:
 		, Deterministic(true)
 		{}
 		/// copy c'tor
-	modelCacheIan ( const modelCacheIan& m );
+	modelCacheIan ( const modelCacheIan& m )
+		: modelCacheInterface(m.hasNominalNode)
+		, posConcepts(m.posConcepts)
+		, negConcepts(m.negConcepts)
+		, existsRoles(m.existsRoles)
+		, forallRoles(m.forallRoles)
+		, funcRoles(m.funcRoles)
+		, curState(m.getState())
+		, Deterministic(m.Deterministic)
+		{}
+		/// create a clone of the given cache
+	modelCacheIan* clone ( void ) const { return new modelCacheIan(*this); }
 		/// empty d'tor
 	virtual ~modelCacheIan ( void ) {}
 
@@ -156,17 +167,5 @@ public:
 	/// log this cache entry (with given level)
 	virtual void logCacheEntry ( unsigned int level ) const;
 }; // modelCacheIan
-
-inline
-modelCacheIan :: modelCacheIan ( const modelCacheIan& m )
-	: modelCacheInterface(m.hasNominalNode)
-	, posConcepts(m.posConcepts)
-	, negConcepts(m.negConcepts)
-	, existsRoles(m.existsRoles)
-	, forallRoles(m.forallRoles)
-	, funcRoles(m.funcRoles)
-	, curState(m.getState())
-	, Deterministic(m.Deterministic)
-	{}
 
 #endif
