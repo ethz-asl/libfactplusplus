@@ -283,6 +283,120 @@ tacticUsage DlSatTester :: insertToDoEntry ( DlCompletionTree* n, BipolarPointer
 	return utDone;
 }
 
+//-----------------------------------------------------------------------------
+//--		internal cache support
+//-----------------------------------------------------------------------------
+
+bool
+DlSatTester :: canBeCached ( DlCompletionTree* node )
+{
+	DlCompletionTree::const_label_iterator p;
+	bool shallow = true;
+	unsigned int size = 0;
+
+	// nominal nodes can not be cached
+	if ( node->isNominalNode() )
+		return false;
+
+	nCacheTry.inc();
+
+	// check applicability of the caching
+	for ( p = node->beginl_sc(); p != node->endl_sc(); ++p )
+	{
+		if ( DLHeap.getCache(p->bp()) == NULL )
+		{
+			nCacheFailedNoCache.inc();
+			if ( LLM.isWritable(llGTA) )
+				LL << " cf(" << p->bp() << ")";
+			return false;
+		}
+
+		shallow &= DLHeap.getCache(p->bp())->shallowCache();
+		++size;
+	}
+
+	for ( p = node->beginl_cc(); p != node->endl_cc(); ++p )
+	{
+		if ( DLHeap.getCache(p->bp()) == NULL )
+		{
+			nCacheFailedNoCache.inc();
+			if ( LLM.isWritable(llGTA) )
+				LL << " cf(" << p->bp() << ")";
+			return false;
+		}
+
+		shallow &= DLHeap.getCache(p->bp())->shallowCache();
+		++size;
+	}
+
+	// it's useless to cache shallow nodes
+	if ( shallow && size != 0 )
+	{
+		nCacheFailedShallow.inc();
+		if ( LLM.isWritable(llGTA) )
+			LL << " cf(s)";
+		return false;
+	}
+
+	return true;
+}
+
+/// perform caching of the node (it is known that caching is possible)
+enum modelCacheState
+DlSatTester :: doCacheNode ( DlCompletionTree* node )
+{
+	enum modelCacheState ret = csValid;
+	DlCompletionTree::const_label_iterator p;
+
+	// It's unsafe to have a cache that touchs nominal here; set flagNominals to prevent it
+	modelCacheIan cache(true);
+
+	for ( p = node->beginl_sc(); p != node->endl_sc(); ++p )
+		// try to merge cache of a node label element with accumulator
+		if ( (ret = cache.merge(DLHeap.getCache(p->bp()))) != csValid )
+			return ret; // caching of node fails
+
+	for ( p = node->beginl_cc(); p != node->endl_cc(); ++p )
+		// try to merge cache of a node label element with accumulator
+		if ( (ret = cache.merge(DLHeap.getCache(p->bp()))) != csValid )
+			return ret; // caching of node fails
+
+	// all concepts in label are mergable; now try to add input arc
+	if ( node->hasParent() )
+	{
+		modelCacheIan cachePar(false);
+		cachePar.initRolesFromArcs(node);	// the only arc is parent
+
+		ret = cache.merge(&cachePar);
+	}
+
+	return ret;
+}
+
+tacticUsage DlSatTester :: reportNodeCached ( enum modelCacheState status, DlCompletionTree* node )
+{
+	switch ( status )
+	{
+	case csValid:
+		nCachedSat.inc();
+		if ( LLM.isWritable(llGTA) )
+			LL << " cached(" << node->getId() << ")";
+		return utDone;
+	case csInvalid:
+		nCachedUnsat.inc();
+		generateCacheClashLevel(node);
+		return utClash;
+	case csFailed:
+	case csUnknown:
+		nCacheFailed.inc();
+		if ( LLM.isWritable(llGTA) )
+			LL << " cf(c)";
+		return utUnusable;
+	default:
+		assert(0);
+	}
+}
+
 tacticUsage DlSatTester :: correctCachedEntry ( DlCompletionTree* n )
 {
 	assert ( n->isCached() );	// safety check
@@ -290,11 +404,10 @@ tacticUsage DlSatTester :: correctCachedEntry ( DlCompletionTree* n )
 	// FIXME!! check if it is possible to leave node cached in more efficient way
 	tacticUsage ret = tryCacheNode(n);
 
-	if ( ret != utUnusable )
-		return ret;
-
 	// uncheck cached node status and add all elements in TODO list
-	redoNodeLabel ( n, "ce" );
+	if ( ret == utUnusable )
+		redoNodeLabel ( n, "ce" );
+
 	return ret;
 }
 
@@ -314,6 +427,10 @@ void DlSatTester :: generateCacheClashLevel ( DlCompletionTree* node,
 	setClashSet(cur);
 }
 
+//-----------------------------------------------------------------------------
+//--		internal datatype support
+//-----------------------------------------------------------------------------
+
 /// @return true iff given data node contains data contradiction
 bool
 DlSatTester :: hasDataClash ( const DlCompletionTree* Node )
@@ -329,6 +446,10 @@ DlSatTester :: hasDataClash ( const DlCompletionTree* Node )
 
 	return DTReasoner.checkClash();
 }
+
+//-----------------------------------------------------------------------------
+//--		internal nominal reasoning interface
+//-----------------------------------------------------------------------------
 
 bool
 DlSatTester :: consistentNominalCloud ( void )
