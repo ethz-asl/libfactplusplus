@@ -354,7 +354,7 @@ void TRole :: initAncMap ( unsigned int n )
 	AncMap.resize(n);
 
 	for ( iterator p = begin_anc(); p != end_anc(); ++p )
-		AncMap[getRoleIndex((*p)->getId())] = true;
+		AncMap[(*p)->getIndex()] = true;
 }
 
 // disjoint-related implementation
@@ -385,7 +385,7 @@ void TRole :: initDJMap ( void )
 {
 	// role R is disjoint with every role S' [= S such that R != S
 	for ( SetOfRoles::iterator q = Disjoint.begin(), q_end = Disjoint.end(); q != q_end; ++q )
-		DJRoles[getRoleIndex((*q)->getId())] = true;
+		DJRoles[(*q)->getIndex()] = true;
 }
 
 // automaton-related implementation

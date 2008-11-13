@@ -31,6 +31,7 @@ class RoleMaster
 {
 public:		// types
 	typedef TRole::roleSet roleSet;
+	typedef TRole::RoleBitMap RoleBitMap;
 
 		/// RW access to roles
 	typedef roleSet::iterator iterator;
@@ -65,7 +66,7 @@ private:	// methods
 		/// no assignment
 	RoleMaster& operator = ( const RoleMaster& );
 		/// constant defining first user role in the RBox
-	unsigned int firstRoleIndex ( void ) const { return 2; }
+	static unsigned int firstRoleIndex ( void ) { return 2; }
 
 protected:	// methods
 		/// register TRole and it's inverse in RoleBox
@@ -121,9 +122,12 @@ public:
 	~RoleMaster ( void ) { delete pTax; }
 
 	/// check if role with such EXTERNAL id is defined
-	bool isRegisteredRole ( TNamedEntry* p ) const
+	bool isRegisteredRole ( const TNamedEntry* p ) const
 	{
-		unsigned int ind = getRoleIndex(p->getId());
+		const TRole* R = reinterpret_cast<const TRole*>(p);
+		if ( R == NULL )
+			return false;
+		unsigned int ind = R->getIndex();
 		return ( ind >= firstRoleIndex() &&
 				 ind < Roles.size() &&
 				 Roles[ind] == p );

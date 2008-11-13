@@ -38,9 +38,6 @@ Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 class TBox;
 class RoleMaster;
 
-/// get index of role by its bipolar representation
-inline unsigned int getRoleIndex ( BipolarPointer i ) { return ( (i>0) ? 2*i : -2*i+1 ); }
-
 /// Define class with all information about DL role
 class TRole: public ClassifiableEntry
 {
@@ -56,6 +53,7 @@ public:		// types
 	typedef std::vector<const TRole*> constRoleSet;
 	typedef roleSet::const_iterator iterator;
 	typedef std::set<TRole*> SetOfRoles;
+	typedef std::vector<bool> RoleBitMap;
 
 protected:	// members
 		/// pointer to role's functional definition DAG entry (or just TOP)
@@ -88,9 +86,9 @@ protected:	// members
 	std::vector<roleSet> subCompositions;
 
 		/// bit-vector of all parents
-	std::vector<bool> AncMap;
+	RoleBitMap AncMap;
 		/// bit-vector of all roles disjoint with current
-	std::vector<bool> DJRoles;
+	RoleBitMap DJRoles;
 
 		/// automaton for role
 	RoleAutomaton A;
@@ -177,6 +175,13 @@ public:		// interface
 	TRole ( const std::string& name );
 		/// d'tor
 	~TRole ( void );
+
+		/// get (unsigned) unique index of the role
+	unsigned int getIndex ( void ) const
+	{
+		int i = getId();
+		return i > 0 ? 2*i : -2*i+1;
+	}
 
 	// synonym operations
 
@@ -299,7 +304,7 @@ public:		// interface
 		/// check whether a role is disjoint with anything
 	bool isDisjoint ( void ) const { return !Disjoint.empty(); }
 		/// check whether a role is disjoint with R
-	bool isDisjoint ( const TRole* r ) const { return DJRoles[getRoleIndex(r->getId())]; }
+	bool isDisjoint ( const TRole* r ) const { return DJRoles[r->getIndex()]; }
 
 	// role relations checking
 
@@ -307,7 +312,7 @@ public:		// interface
 	bool operator == ( const TRole& r ) const { return this == &r; }
 		/// check if role is a strict sub-role of R
 //	bool operator < ( const TRole& r ) const { return resolveSynonym()->isRelative ( r.resolveSynonym(), true ); }
-	bool operator < ( const TRole& r ) const { return AncMap[getRoleIndex(r.getId())]; }
+	bool operator < ( const TRole& r ) const { return AncMap[r.getIndex()]; }
 		/// check if role is a non-strict sub-role of R
 	bool operator <= ( const TRole& r ) const { return (*this == r) || (*this < r); }
 		/// check if role is a strict super-role of R
