@@ -272,10 +272,11 @@ void TRole :: initADbyTaxonomy ( unsigned int nRoles )
 
 	// determine Simple attribute
 	initSimple();
-	// init map for fast Anc/Desc access
-	initAncMap(nRoles);
-	// resize map for disjoint roles
+	// resize maps for fast access
 	DJRoles.resize(nRoles);
+	AncMap.resize(nRoles);
+	// init map for fast Anc/Desc access
+	addAncestorsToBitMap(AncMap);
 }
 
 void TRole :: postProcess ( void )
@@ -336,15 +337,6 @@ void TRole :: initTopFunc ( void )
 	for ( iterator p = begin_anc(); p != end_anc(); ++p )
 		if ( (*p)->isRealTopFunc() )
 			TopFunc.push_back(*p);
-}
-
-void TRole :: initAncMap ( unsigned int n )
-{
-	assert ( AncMap.empty() );	// safety check (init only once)
-	AncMap.resize(n);
-
-	for ( iterator p = begin_anc(); p != end_anc(); ++p )
-		AncMap[(*p)->getIndex()] = true;
 }
 
 // disjoint-related implementation

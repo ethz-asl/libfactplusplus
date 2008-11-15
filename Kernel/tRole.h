@@ -102,8 +102,6 @@ protected:	// methods
 	bool isRealTopFunc ( void ) const;
 		/// set up TopFunc member properly (internal-use only)
 	void initTopFunc ( void );
-		/// init map of all ancestors (N is a size of a bitmap)
-	void initAncMap ( unsigned int n );
 		/// init map of all disjoint roles
 	void initDJMap ( void );
 
@@ -326,6 +324,16 @@ public:		// interface
 		/// get access to the func super-roles w/o func parents via iterator
 	iterator begin_topfunc ( void ) const { return TopFunc.begin(); }
 	iterator end_topfunc ( void ) const { return TopFunc.end(); }
+
+		/// fills BITMAP with the role's ancestors
+	void addAncestorsToBitMap ( RoleBitMap& bitmap ) const
+	{
+		assert ( !bitmap.empty() );	// use only after the size is known
+		for ( iterator p = begin_anc(); p != end_anc(); ++p )
+			bitmap[(*p)->getIndex()] = true;
+	}
+
+	// automaton construction
 
 		/// add composition to a role
 	void addComposition ( DLTree* tree )
