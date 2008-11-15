@@ -94,10 +94,6 @@ protected:	// members
 	RoleAutomaton A;
 
 protected:	// methods
-		/// check if R is relative of this role wrt direction (ancestor/descendant)
-		// make sure that both THIS and R are not synonyms
-	bool isRelative ( const TRole* r, bool need_ancestors ) const;
-
 	// support for Anc/Desc filling and such
 
 		/// check if role or any of its sub-roles is transitive (ie non-simple)
@@ -311,7 +307,6 @@ public:		// interface
 		/// two roles are the same iff thy are synonyms of the same role
 	bool operator == ( const TRole& r ) const { return this == &r; }
 		/// check if role is a strict sub-role of R
-//	bool operator < ( const TRole& r ) const { return resolveSynonym()->isRelative ( r.resolveSynonym(), true ); }
 	bool operator < ( const TRole& r ) const { return AncMap[r.getIndex()]; }
 		/// check if role is a non-strict sub-role of R
 	bool operator <= ( const TRole& r ) const { return (*this == r) || (*this < r); }

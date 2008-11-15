@@ -39,16 +39,6 @@ TRole* resolveRole ( const DLTree* t )
 	}
 }
 
-bool TRole :: isRelative ( const TRole* r, bool need_ancestors ) const
-{
-	const roleSet& v = need_ancestors ? Ancestor : Descendant;
-	for ( roleSet::const_iterator p = v.begin(); p != v.end(); ++p )
-		if ( (*p) == r )
-			return true;
-
-	return false;
-}
-
 void TRole :: fillsComposition ( roleSet& Composition, DLTree* tree ) const
 {
 	if ( tree->Element() == RCOMPOSITION )
