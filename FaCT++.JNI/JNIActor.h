@@ -46,15 +46,7 @@ protected:	// members
 protected:	// methods
 		/// create vector of Java objects by given SynVector
 	jobjectArray getArray ( const SynVector& vec ) const
-	{
-		const char* objClassName = AccessPolicy::getClassName();
-		jclass objClass = env->FindClass(objClassName);
-		jobjectArray ret = env->NewObjectArray ( vec.size(), objClass, NULL );
-		for ( unsigned int i = 0; i < vec.size(); ++i )
-			env->SetObjectArrayElement ( ret, i, retObject ( env, vec[i], objClassName ) );
-		return ret;
-	}
-
+		{ return buildArray ( env, vec, AccessPolicy::getClassName() ); }
 		/// try current entry
 	void tryEntry ( const ClassifiableEntry* p )
 	{

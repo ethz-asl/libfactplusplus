@@ -367,4 +367,16 @@ jobject Facet ( JNIEnv * env, TDataInterval* t )
 	return retObject ( env, t, "Luk/ac/manchester/cs/factplusplus/DataTypeFacet;" );
 }
 
+
+/// create vector of Java objects of class CLASSNAME by given VEC
+inline
+jobjectArray buildArray ( JNIEnv* env, const std::vector<DLTree*>& vec, const char* className )
+{
+	jclass objClass = env->FindClass(className);
+	jobjectArray ret = env->NewObjectArray ( vec.size(), objClass, NULL );
+	for ( unsigned int i = 0; i < vec.size(); ++i )
+		env->SetObjectArrayElement ( ret, i, retObject ( env, vec[i], className ) );
+	return ret;
+}
+
 #endif
