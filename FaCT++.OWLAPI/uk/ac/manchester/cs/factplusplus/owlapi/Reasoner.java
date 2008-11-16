@@ -456,7 +456,7 @@ public class Reasoner extends MonitorableOWLReasonerAdapter implements FaCTPlusP
             Map<OWLObjectProperty, Set<OWLIndividual>> results = new HashMap<OWLObjectProperty, Set<OWLIndividual>>();
             ObjectPropertyPointer[] props = getFaCTPlusPlus().askObjectProperties(translator.translate(individual));
             for (ObjectPropertyPointer prop : props){
-                Set<OWLIndividual> inds = translatorUtils.getOWLAPISet(getFaCTPlusPlus().askObjectPropertyRelationObjects(translator.translate(individual), prop));
+                Set<OWLIndividual> inds = translatorUtils.getOWLAPISet(getFaCTPlusPlus().askRelatedIndividuals(translator.translate(individual), prop));
                 if(!inds.isEmpty()){
                     results.put(translator.getOWLObjectProperty(prop), inds);
                 }
@@ -478,7 +478,7 @@ public class Reasoner extends MonitorableOWLReasonerAdapter implements FaCTPlusP
             Map<OWLDataProperty, Set<OWLConstant>> results = new HashMap<OWLDataProperty, Set<OWLConstant>>();
             DataPropertyPointer[] props = getFaCTPlusPlus().askDataProperties(translator.translate(individual));
             for (DataPropertyPointer prop : props){
-                Set<OWLConstant> inds = translatorUtils.getOWLAPISet(getFaCTPlusPlus().askDataPropertyRelationValues(translator.translate(individual), prop));
+                Set<OWLConstant> inds = translatorUtils.getOWLAPISet(getFaCTPlusPlus().askRelatedValues(translator.translate(individual), prop));
                 if(!inds.isEmpty()){
                     results.put(translator.getOWLDataProperty(prop), inds);
                 }

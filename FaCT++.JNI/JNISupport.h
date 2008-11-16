@@ -29,6 +29,10 @@ inline const char* cnClassPointer ( void ) { return "Luk/ac/manchester/cs/factpl
 inline const char* cnIndividualPointer ( void ) { return "Luk/ac/manchester/cs/factplusplus/IndividualPointer;"; }
 inline const char* cnObjectPropertyPointer ( void ) { return "Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;"; }
 inline const char* cnDataPropertyPointer ( void ) { return "Luk/ac/manchester/cs/factplusplus/DataPropertyPointer;"; }
+inline const char* cnDataTypePointer ( void ) { return "Luk/ac/manchester/cs/factplusplus/DataTypePointer;"; }
+inline const char* cnDataTypeExpressionPointer ( void ) { return "Luk/ac/manchester/cs/factplusplus/DataTypeExpressionPointer;"; }
+inline const char* cnDataValuePointer ( void ) { return "Luk/ac/manchester/cs/factplusplus/DataValuePointer;"; }
+
 
 //-------------------------------------------------------------
 // Support functions
@@ -355,19 +359,19 @@ jobject DataProperty ( JNIEnv * env, DLTree* t )
 inline
 jobject DataType ( JNIEnv * env, DLTree* t )
 {
-	return retObject ( env, t, "Luk/ac/manchester/cs/factplusplus/DataTypePointer;" );
+	return retObject ( env, t, cnDataTypePointer() );
 }
 
 inline
 jobject DataTypeExpression ( JNIEnv * env, DLTree* t )
 {
-	return retObject ( env, t, "Luk/ac/manchester/cs/factplusplus/DataTypeExpressionPointer;" );
+	return retObject ( env, t, cnDataTypeExpressionPointer() );
 }
 
 inline
 jobject DataValue ( JNIEnv * env, DLTree* t )
 {
-	return retObject ( env, t, "Luk/ac/manchester/cs/factplusplus/DataValuePointer;" );
+	return retObject ( env, t, cnDataValuePointer() );
 }
 
 inline

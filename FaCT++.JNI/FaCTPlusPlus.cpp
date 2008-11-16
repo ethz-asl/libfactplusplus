@@ -1528,17 +1528,21 @@ JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlu
 
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
- * Method:    askObjectPropertyRelationObjects
+ * Method:    askRelatedIndividuals
  * Signature: (Luk/ac/manchester/cs/factplusplus/IndividualPointer;Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;)[Luk/ac/manchester/cs/factplusplus/IndividualPointer;
  */
-JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_askObjectPropertyRelationObjects
+JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_askRelatedIndividuals
   (JNIEnv * env, jobject obj, jobject arg1, jobject arg2)
 {
-	TRACE_JNI("askObjectPropertyRelationObjects");
+	TRACE_JNI("askRelatedIndividuals");
 	TRACE_ARG(env,obj,arg1);
 	TRACE_ARG(env,obj,arg2);
-	Throw ( env, "FaCT++ Kernel: unsupported operation" );
-	return NULL;
+	ReasoningKernel::NamesVector Js;
+	PROCESS_ASK_QUERY ( getK(env,obj)->getRoleFillers ( getROTree(env,arg1), getROTree(env,arg2), Js ),"askRelatedIndividuals");
+	vector<DLTree*> acc;
+	for ( ReasoningKernel::NamesVector::const_iterator p = Js.begin(), p_end = Js.end(); p < p_end; ++p )
+		acc.push_back(new DLTree(TLexeme(INAME,*p)));
+	return buildArray ( env, acc, cnIndividualPointer() );
 }
 
 /*
@@ -1562,36 +1566,6 @@ JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlu
 
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
- * Method:    askDataPropertyRelationValues
- * Signature: (Luk/ac/manchester/cs/factplusplus/IndividualPointer;Luk/ac/manchester/cs/factplusplus/DataPropertyPointer;)[Luk/ac/manchester/cs/factplusplus/DataValuePointer;
- */
-JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_askDataPropertyRelationValues
-  (JNIEnv * env, jobject obj, jobject arg1, jobject arg2)
-{
-	TRACE_JNI("askDataPropertyRelationValues");
-	TRACE_ARG(env,obj,arg1);
-	TRACE_ARG(env,obj,arg2);
-	Throw ( env, "FaCT++ Kernel: unsupported operation" );
-	return NULL;
-}
-
-/*
- * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
- * Method:    askRelatedIndividuals
- * Signature: (Luk/ac/manchester/cs/factplusplus/IndividualPointer;Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;)[Luk/ac/manchester/cs/factplusplus/IndividualPointer;
- */
-JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_askRelatedIndividuals
-  (JNIEnv * env, jobject obj, jobject arg1, jobject arg2)
-{
-	TRACE_JNI("askRelatedIndividuals");
-	TRACE_ARG(env,obj,arg1);
-	TRACE_ARG(env,obj,arg2);
-	Throw ( env, "FaCT++ Kernel: unsupported operation" );
-	return NULL;
-}
-
-/*
- * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
  * Method:    askRelatedValues
  * Signature: (Luk/ac/manchester/cs/factplusplus/IndividualPointer;Luk/ac/manchester/cs/factplusplus/DataPropertyPointer;)[Luk/ac/manchester/cs/factplusplus/DataValuePointer;
  */
@@ -1601,8 +1575,12 @@ JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlu
 	TRACE_JNI("askRelatedValues");
 	TRACE_ARG(env,obj,arg1);
 	TRACE_ARG(env,obj,arg2);
-	Throw ( env, "FaCT++ Kernel: unsupported operation" );
-	return NULL;
+	ReasoningKernel::NamesVector Js;
+	PROCESS_ASK_QUERY ( getK(env,obj)->getRoleFillers ( getROTree(env,arg1), getROTree(env,arg2), Js ),"askRelatedValues");
+	vector<DLTree*> acc;
+	for ( ReasoningKernel::NamesVector::const_iterator p = Js.begin(), p_end = Js.end(); p < p_end; ++p )
+		acc.push_back(new DLTree(TLexeme(DATAEXPR,*p)));
+	return buildArray ( env, acc, cnDataValuePointer() );
 }
 
 /*

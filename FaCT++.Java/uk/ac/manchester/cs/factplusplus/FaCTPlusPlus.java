@@ -380,15 +380,13 @@ public class FaCTPlusPlus {
 
     public native ClassPointer [][] askIndividualTypes(IndividualPointer i, boolean direct) throws FaCTPlusPlusException;
 
-    // split the askObjectPropertyRelationships() into two calls
+    // helper for the askObjectPropertyRelationships()
     public native ObjectPropertyPointer [] askObjectProperties(IndividualPointer i) throws FaCTPlusPlusException;
-    public native IndividualPointer [] askObjectPropertyRelationObjects(IndividualPointer i, ObjectPropertyPointer r) throws FaCTPlusPlusException;
-
-    // split the askDataPropertyRelationships() into two calls
-    public native DataPropertyPointer [] askDataProperties(IndividualPointer i) throws FaCTPlusPlusException;
-    public native DataValuePointer [] askDataPropertyRelationValues(IndividualPointer i, DataPropertyPointer r) throws FaCTPlusPlusException;
 
     public native IndividualPointer [] askRelatedIndividuals(IndividualPointer individualPointer, ObjectPropertyPointer r) throws FaCTPlusPlusException;
+
+    // helper for the askDataPropertyRelationships()
+    public native DataPropertyPointer [] askDataProperties(IndividualPointer i) throws FaCTPlusPlusException;
 
     public native DataValuePointer [] askRelatedValues(IndividualPointer individualPointer, DataPropertyPointer r) throws FaCTPlusPlusException;
 
