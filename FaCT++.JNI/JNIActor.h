@@ -51,7 +51,7 @@ protected:	// methods
 	void tryEntry ( const ClassifiableEntry* p )
 	{
 		if ( AccessPolicy::applicable(p) )
-			syn.push_back(AccessPolicy::buildTree(p));
+			syn.push_back(AccessPolicy::buildTree(const_cast<ClassifiableEntry*>(p)));
 	}
 
 public:		// interface
@@ -110,10 +110,10 @@ public:
 	static bool regular ( const ClassifiableEntry* p )
 		{ return !p->isSystem() || strcmp ( p->getName(), "FaCT++.default" ) != 0; }
 	static bool needPlain ( void ) { return false; }
-	static DLTree* buildTree ( const ClassifiableEntry* p )
+	static DLTree* buildTree ( ClassifiableEntry* p )
 	{
 		if ( p->getId () >= 0 )
-			return new DLTree(TLexeme(CNAME,const_cast<ClassifiableEntry*>(p)));
+			return new DLTree(TLexeme(CNAME,p));
 
 		// top or bottom
 		std::string name(p->getName());
@@ -136,8 +136,8 @@ public:
 		{ return !p->isSystem() && static_cast<const TConcept*>(p)->isSingleton(); }
 	static bool regular ( const ClassifiableEntry* p ) { return !p->isSystem(); }
 	static bool needPlain ( void ) { return true; }
-	static DLTree* buildTree ( const ClassifiableEntry* p )
-		{ return new DLTree(TLexeme(INAME,const_cast<ClassifiableEntry*>(p))); }
+	static DLTree* buildTree ( ClassifiableEntry* p )
+		{ return new DLTree(TLexeme(INAME,p)); }
 }; // IndividualPolicy
 
 /// policy for object properties
@@ -150,8 +150,8 @@ public:
 		/// property is regular if it's primer is a non-inverse one
 	static bool regular ( const ClassifiableEntry* p ) { return applicable(p); }
 	static bool needPlain ( void ) { return false; }
-	static DLTree* buildTree ( const ClassifiableEntry* p )
-		{ return new DLTree(TLexeme(RNAME,const_cast<ClassifiableEntry*>(p))); }
+	static DLTree* buildTree ( ClassifiableEntry* p )
+		{ return new DLTree(TLexeme(RNAME,p)); }
 }; // ObjectPropertyPolicy
 
 /// policy for data properties
@@ -164,8 +164,8 @@ public:
 		/// property is regular if it's primer is a non-inverse one
 	static bool regular ( const ClassifiableEntry* p ) { return applicable(p); }
 	static bool needPlain ( void ) { return false; }
-	static DLTree* buildTree ( const ClassifiableEntry* p )
-		{ return new DLTree(TLexeme(RNAME,const_cast<ClassifiableEntry*>(p))); }
+	static DLTree* buildTree ( ClassifiableEntry* p )
+		{ return new DLTree(TLexeme(RNAME,p)); }
 }; // DataPropertyPolicy
 
 #endif
