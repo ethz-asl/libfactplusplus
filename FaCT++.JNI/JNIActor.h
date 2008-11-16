@@ -104,7 +104,7 @@ public:		// interface
 class ClassPolicy
 {
 public:
-	static const char* getClassName ( void ) { return "Luk/ac/manchester/cs/factplusplus/ClassPointer;"; }
+	static const char* getClassName ( void ) { return cnClassPointer(); }
 	static bool applicable ( const ClassifiableEntry* p )
 		{ return !p->isSystem() && !static_cast<const TConcept*>(p)->isSingleton(); }
 	static bool regular ( const ClassifiableEntry* p )
@@ -131,7 +131,7 @@ public:
 class IndividualPolicy
 {
 public:
-	static const char* getClassName ( void ) { return "Luk/ac/manchester/cs/factplusplus/IndividualPointer;"; }
+	static const char* getClassName ( void ) { return cnIndividualPointer(); }
 	static bool applicable ( const ClassifiableEntry* p )
 		{ return !p->isSystem() && static_cast<const TConcept*>(p)->isSingleton(); }
 	static bool regular ( const ClassifiableEntry* p ) { return !p->isSystem(); }
@@ -144,7 +144,7 @@ public:
 class ObjectPropertyPolicy
 {
 public:
-	static const char* getClassName ( void ) { return "Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;"; }
+	static const char* getClassName ( void ) { return cnObjectPropertyPointer(); }
 	static bool applicable ( const ClassifiableEntry* p )
 		{ return !p->isSystem() && p->getId() > 0; }
 		/// property is regular if it's primer is a non-inverse one
@@ -158,7 +158,7 @@ public:
 class DataPropertyPolicy
 {
 public:
-	static const char* getClassName ( void ) { return "Luk/ac/manchester/cs/factplusplus/DataPropertyPointer;"; }
+	static const char* getClassName ( void ) { return cnDataPropertyPointer(); }
 	static bool applicable ( const ClassifiableEntry* p )
 		{ return !p->isSystem() && p->getId() > 0; }
 		/// property is regular if it's primer is a non-inverse one

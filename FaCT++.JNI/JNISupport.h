@@ -22,6 +22,15 @@ Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #include <jni.h>
 
 //-------------------------------------------------------------
+// class names for different Java classes corresponding to FaCT++ structures
+//-------------------------------------------------------------
+
+inline const char* cnClassPointer ( void ) { return "Luk/ac/manchester/cs/factplusplus/ClassPointer;"; }
+inline const char* cnIndividualPointer ( void ) { return "Luk/ac/manchester/cs/factplusplus/IndividualPointer;"; }
+inline const char* cnObjectPropertyPointer ( void ) { return "Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;"; }
+inline const char* cnDataPropertyPointer ( void ) { return "Luk/ac/manchester/cs/factplusplus/DataPropertyPointer;"; }
+
+//-------------------------------------------------------------
 // Support functions
 //-------------------------------------------------------------
 
@@ -322,25 +331,25 @@ jobject retObject ( JNIEnv * env, T* t, const char* className )
 inline
 jobject Class ( JNIEnv * env, DLTree* t )
 {
-	return retObject ( env, t, "Luk/ac/manchester/cs/factplusplus/ClassPointer;" );
+	return retObject ( env, t, cnClassPointer() );
 }
 
 inline
 jobject Individual ( JNIEnv * env, DLTree* t )
 {
-	return retObject ( env, t, "Luk/ac/manchester/cs/factplusplus/IndividualPointer;" );
+	return retObject ( env, t, cnIndividualPointer() );
 }
 
 inline
 jobject ObjectProperty ( JNIEnv * env, DLTree* t )
 {
-	return retObject ( env, t, "Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;" );
+	return retObject ( env, t, cnObjectPropertyPointer() );
 }
 
 inline
 jobject DataProperty ( JNIEnv * env, DLTree* t )
 {
-	return retObject ( env, t, "Luk/ac/manchester/cs/factplusplus/DataPropertyPointer;" );
+	return retObject ( env, t, cnDataPropertyPointer() );
 }
 
 inline
