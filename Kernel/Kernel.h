@@ -66,6 +66,7 @@ public:	// types interface
 	typedef vector<ConceptName> ConceptNameSet;
 	typedef vector<RoleName> RoleNameSet;
 	typedef vector<ComplexConcept> ConceptExpressionList;
+	typedef TBox::NamesVector NamesVector;
 
 	// ConceptSet = set of synonyms (concept names are positive)
 	typedef vector<ConceptList> ConceptSet;
@@ -761,6 +762,14 @@ public:
 		realiseKB();	// ensure KB is ready to answer the query
 		getIndividual ( I, "individual name expected in the isInstance()" );
 		return isSubsumedBy ( I, C );
+	}
+		/// @return in Rs all (DATA)-roles R s.t. (I,x):R; add inverses if NEEDI is true
+	void getRelatedRoles ( const ComplexConcept I, NamesVector& Rs, bool data, bool needI )
+	{
+		realiseKB();	// ensure KB is ready to answer the query
+		getTBox()->getRelatedRoles (
+			getIndividual ( I, "individual name expected in the getRelatedRoles()" ),
+			Rs, data, needI );
 	}
 		/// set RESULT into set of J's such that R(I,J)
 	void getRoleFillers ( const ComplexConcept I, const ComplexRole R, IndividualSet& Result )

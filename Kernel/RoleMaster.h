@@ -97,7 +97,8 @@ protected:	// methods
 		/// get number of roles
 	size_t size ( void ) const { return Roles.size()/2-1; }
 
-public:
+public:		// interface
+		/// the only c'tor
 	RoleMaster ( void )
 		: newRoleId(1)
 		, emptyRole("emptyRole")
@@ -121,7 +122,7 @@ public:
 		/// d'tor (delete taxonomy)
 	~RoleMaster ( void ) { delete pTax; }
 
-	/// check if role with such EXTERNAL id is defined
+		/// @return true if P is a role that is registered in the RM
 	bool isRegisteredRole ( const TNamedEntry* p ) const
 	{
 		const TRole* R = reinterpret_cast<const TRole*>(p);
@@ -205,6 +206,12 @@ public:
 		/// put all reflexive roles to a RR array
 	void fillReflexiveRoles ( roleSet& RR ) const;
 
+		/// get new bit-map big enough to keep all the roles from the RM
+	RoleBitMap newBitMap ( void ) const { return RoleBitMap(Roles.size(),false); }
+		/// fills Rs with the role names that appears within [BEGIN,END) interval of the TRelated
+	template<class Iterator>
+	void getRelatedRoles ( Iterator begin, Iterator end, std::vector<TNamedEntry*>& Rs, bool data, bool needI ) const;
+
 	// output interface
 
 	void Print ( std::ostream& o ) const;
@@ -234,6 +241,31 @@ RoleMaster :: fillReflexiveRoles ( roleSet& RR ) const
 	for  ( const_iterator p = begin(); p != end(); ++p )
 		if ( !(*p)->isSynonym() && (*p)->isReflexive() )
 			RR.push_back(*p);
+}
+
+template<class Iterator> void
+RoleMaster :: getRelatedRoles ( Iterator begin, Iterator end, std::vector<TNamedEntry*>& Rs, bool data, bool needI ) const
+{
+	size_t i;
+	Rs.clear();
+	RoleBitMap local = newBitMap();
+
+	// fill roles with just named roles from the array
+	for ( ; begin < end; ++begin )
+		if ( (*begin)->R->isDataRole() == data )
+			local[(*begin)->R->getIndex()] = true;
+	// add all the ancestors of the role to the bitmap
+	for ( i = firstRoleIndex(); i < Roles.size(); ++i )
+		if ( local[i] )
+			Roles[i]->addAncestorsToBitMap(local);
+	// add synonyms to the map
+	for ( i = firstRoleIndex(); i < Roles.size(); ++i )
+		if ( Roles[i]->isSynonym() && local[resolveSynonym(Roles[i])->getIndex()] )
+			local[i] = true;
+	// now put all the roles into the output array
+	for ( i = firstRoleIndex(); i < Roles.size(); ++i )
+		if ( local[i] && ( Roles[i]->getId() > 0 || needI ) )
+			Rs.push_back(Roles[i]);
 }
 
 #endif

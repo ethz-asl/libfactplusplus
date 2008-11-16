@@ -1039,6 +1039,12 @@ public:
 		/// load the KB from given stream wrt STATUS
 	void Load ( std::istream& o, KBStatus status );
 
+		/// implement related-based query; @return in Rs all R s.t. (I,x):R
+	void getRelatedRoles ( TIndividual* I, NamesVector& Rs, bool data, bool needI ) const
+	{
+		TIndividual* i = resolveSynonym(I);
+		RM.getRelatedRoles ( i->RelatedIndex.begin(), i->RelatedIndex.end(), Rs, data, needI );
+	}
 		/// implement DIG-like roleFillers query; @return in Js all J st (I,J):R
 	void getRoleFillers ( TIndividual* I, TRole* R, NamesVector& Js ) const;
 		/// implement DIG-like RelatedIndividuals query; @return Is and Js st (I,J):R

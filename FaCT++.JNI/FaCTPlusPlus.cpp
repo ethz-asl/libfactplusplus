@@ -1518,8 +1518,12 @@ JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlu
 {
 	TRACE_JNI("askObjectProperties");
 	TRACE_ARG(env,obj,arg);
-	Throw ( env, "FaCT++ Kernel: unsupported operation" );
-	return NULL;
+	ReasoningKernel::NamesVector Rs;
+	PROCESS_ASK_QUERY ( getK(env,obj)->getRelatedRoles ( getROTree(env,arg), Rs, /*data=*/false, /*needI=*/false ),"askObjectProperties");
+	vector<DLTree*> acc;
+	for ( ReasoningKernel::NamesVector::const_iterator p = Rs.begin(), p_end = Rs.end(); p < p_end; ++p )
+		acc.push_back(new DLTree(TLexeme(RNAME,*p)));
+	return buildArray ( env, acc, cnObjectPropertyPointer() );
 }
 
 /*
@@ -1547,7 +1551,12 @@ JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlu
 {
 	TRACE_JNI("askDataProperties");
 	TRACE_ARG(env,obj,arg);
-	Throw ( env, "FaCT++ Kernel: unsupported operation" );
+	ReasoningKernel::NamesVector Rs;
+	PROCESS_ASK_QUERY ( getK(env,obj)->getRelatedRoles ( getROTree(env,arg), Rs, /*data=*/true, /*needI=*/false ),"askDataProperties");
+	vector<DLTree*> acc;
+	for ( ReasoningKernel::NamesVector::const_iterator p = Rs.begin(), p_end = Rs.end(); p < p_end; ++p )
+		acc.push_back(new DLTree(TLexeme(RNAME,*p)));
+	return buildArray ( env, acc, cnDataPropertyPointer() );
 	return NULL;
 }
 
