@@ -139,8 +139,6 @@ public class FaCTPlusPlus {
 
     public native DataTypeFacet getPattern(DataValuePointer dv) throws FaCTPlusPlusException;
 
-    public native DataTypeFacet getEnumeration(DataValuePointer dv) throws FaCTPlusPlusException;
-
     public native DataTypeFacet getMinExclusiveFacet(DataValuePointer dv) throws FaCTPlusPlusException;
 
     public native DataTypeFacet getMaxExclusiveFacet(DataValuePointer dv) throws FaCTPlusPlusException;
