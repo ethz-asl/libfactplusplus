@@ -699,14 +699,14 @@ public:
 	template<class Actor>
 	void getRoleDomain ( const ComplexRole r, Actor& actor )
 	{
-		getDescendants ( Exists(r,Top()), actor );
+		getAncestors ( Exists(r,Top()), actor );
 	}
 
 		/// apply actor::apply() to all NC that are in the range of [complex] R
 	template<class Actor>
 	void getRoleRange ( const ComplexRole r, Actor& actor )
 	{
-		getDescendants ( Exists(Inverse(r),Top()), actor );
+		getAncestors ( Exists(Inverse(r),Top()), actor );
 	}
 
 	// instances
