@@ -80,10 +80,6 @@ public class AxiomLoader implements OWLAxiomVisitor {
 
     public void visit(OWLDataPropertyRangeAxiom owlDataPropertyRangeAxiom) {
         try {
-            if(owlDataPropertyRangeAxiom.getRange() instanceof OWLDataOneOf) {
-                logger.info("WARNING! Can't handle data enumerations.  Ignoring " + owlDataPropertyRangeAxiom);
-                return;
-            }
             owlDataPropertyRangeAxiom.getProperty().accept(translator);
             DataPropertyPointer p = translator.getLastDataPropertyPointer();
             owlDataPropertyRangeAxiom.getRange().accept(translator);
