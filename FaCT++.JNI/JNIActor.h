@@ -87,7 +87,7 @@ public:		// interface
 		for ( TaxonomyVertex::syn_iterator p = v.begin_syn(), p_end=v.end_syn(); p != p_end; ++p )
 			tryEntry(*p);
 
-		if ( syn.empty() && AccessPolicy::regular(v.getPrimer()) )
+		if ( syn.empty() )
 			return false;	// special-case equivalents of temp-concept
 
 		if ( AccessPolicy::needPlain() )
