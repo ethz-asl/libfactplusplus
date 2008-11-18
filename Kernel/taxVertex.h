@@ -199,8 +199,12 @@ public:
 	template<bool needCurrent, bool onlyDirect, bool upDirection, class Actor>
 	void getRelativesInfo ( Actor& actor )
 	{
+		// if current node processed OK and there is no need to continue -- exit
+		// this is the helper to the case like getDomain():
+		//   if there is a named concept that represent's a domain -- that's what we need
 		if ( needCurrent )
-			actor.apply(*this);
+			if ( actor.apply(*this) && onlyDirect )
+				return;
 
 		for ( iterator p = begin(upDirection), p_end = end(upDirection); p != p_end; ++p )
 			(*p)->getRelativesInfoRec<onlyDirect, upDirection>(actor);

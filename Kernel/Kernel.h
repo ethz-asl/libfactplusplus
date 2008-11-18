@@ -699,14 +699,20 @@ public:
 	template<class Actor>
 	void getRoleDomain ( const ComplexRole r, Actor& actor )
 	{
-		getAncestors ( Exists(r,Top()), actor );
+		classifyKB();	// ensure KB is ready to answer the query
+		DLTree* C = Exists(r,Top());
+		setUpCache ( C, csClassified );
+		// gets an exact domain is named concept; otherwise, set of the most specific concepts
+		cachedVertex->getRelativesInfo</*needCurrent=*/true, /*onlyDirect=*/true,
+									   /*upDirection=*/true>(actor);
+		delete C;	// not deleteTree() to keep R
 	}
 
 		/// apply actor::apply() to all NC that are in the range of [complex] R
 	template<class Actor>
 	void getRoleRange ( const ComplexRole r, Actor& actor )
 	{
-		getAncestors ( Exists(Inverse(r),Top()), actor );
+		getRoleDomain ( Inverse(r), actor );
 	}
 
 	// instances
