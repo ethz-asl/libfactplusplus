@@ -562,6 +562,25 @@ TBox :: getRelatedIndividuals ( TRole* r, NamesVector& Is, NamesVector& Js ) con
 	}
 }
 
+	/// implement related-based query; @return true iff (I,J):R
+bool
+TBox :: isRelated ( TIndividual* i, TRole* r, TIndividual* j ) const
+{
+	TIndividual* I = resolveSynonym(i);
+	TRole* R = resolveSynonym(r);
+	TIndividual* J = resolveSynonym(j);
+	if ( !I->RelatedRoleMap[R->getIndex()] )
+		return false;
+	TIndividual::RelatedSet::const_iterator p, p_end;
+	for ( p = I->RelatedIndex.begin(), p_end = I->RelatedIndex.end(); p < p_end; ++p )
+	{
+		const TRelated& rel = **p;
+		if ( *R >= *rel.getRole() && J == rel.b )
+			return true;
+	}
+	return false;
+}
+
 void TBox :: absorbedPrimitiveConceptDefinitions ( std::ostream& o ) const
 {
 	dumpDIG DIG(o);

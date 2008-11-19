@@ -1582,8 +1582,9 @@ JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_ha
 	TRACE_ARG(env,obj,arg1);
 	TRACE_ARG(env,obj,arg2);
 	TRACE_ARG(env,obj,arg3);
-	Throw ( env, "FaCT++ Kernel: unsupported operation" );
-	return false;
+	bool ret = false;
+	PROCESS_ASK_QUERY ( ret=getK(env,obj)->isRelated ( getROTree(env,arg1), getROTree(env,arg2), getROTree(env,arg3) ),"hasDataPropertyRelationship");
+	return ret;
 }
 
 /*
@@ -1598,8 +1599,9 @@ JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_ha
 	TRACE_ARG(env,obj,arg1);
 	TRACE_ARG(env,obj,arg2);
 	TRACE_ARG(env,obj,arg3);
-	Throw ( env, "FaCT++ Kernel: unsupported operation" );
-	return false;
+	bool ret = false;
+	PROCESS_ASK_QUERY ( ret=getK(env,obj)->isRelated ( getROTree(env,arg1), getROTree(env,arg2), getROTree(env,arg3) ),"hasObjectPropertyRelationship");
+	return ret;
 }
 
 /*

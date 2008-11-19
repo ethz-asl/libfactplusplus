@@ -780,7 +780,7 @@ public:
 		/// set RESULT into set of J's such that R(I,J)
 	void getRoleFillers ( const ComplexConcept I, const ComplexRole R, IndividualSet& Result )
 	{
-		preprocessKB();	// only told information here
+		realiseKB();	// ensure KB is ready to answer the query
 		getTBox()->getRoleFillers (
 			getIndividual ( I, "Individual name expected in the getRoleFillers()" ),
 			getRole ( R, "Role expression expected in the getRoleFillers()" ),
@@ -789,10 +789,21 @@ public:
 		/// set RESULT into set of (I,J)'s such that R(I,J)
 	void getRelatedIndividuals ( const ComplexRole R, IndividualSet& Is, IndividualSet& Js )
 	{
-		preprocessKB();	// only told information here
+		realiseKB();	// ensure KB is ready to answer the query
 		getTBox()->getRelatedIndividuals (
 			getRole ( R, "Role expression expected in the getRelatedIndividuals()" ),
 			Is, Js );
+	}
+		/// set RESULT into set of J's such that R(I,J)
+	bool isRelated ( const ComplexConcept I, const ComplexRole R, const ComplexConcept J )
+	{
+		realiseKB();	// ensure KB is ready to answer the query
+		TIndividual* i = getIndividual ( I, "Individual name expected in the isRelated()" );
+		TRole* r = getRole ( R, "Role expression expected in the isRelated()" );
+		if ( r->isDataRole() )
+			return false;	// FIXME!! not implemented
+		else
+			return getTBox()->isRelated ( i, r, getIndividual ( J, "Individual name expected in the isRelated()" ) );
 	}
 	// ???
 	// ??? getToldValues ( const IndividualName I, const RoleName A );	// FIXME!! unsupported

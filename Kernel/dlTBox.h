@@ -1061,6 +1061,8 @@ public:
 	void getRoleFillers ( TIndividual* I, TRole* R, NamesVector& Js ) const;
 		/// implement DIG-like RelatedIndividuals query; @return Is and Js st (I,J):R
 	void getRelatedIndividuals ( TRole* R, NamesVector& Is, NamesVector& Js ) const;
+		/// implement related-based query; @return true iff (I,J):R
+	bool isRelated ( TIndividual* I, TRole* R, TIndividual* J ) const;
 		/// implement absorbedPrimitiveConceptDefinitions DIG extension
 	void absorbedPrimitiveConceptDefinitions ( std::ostream& o ) const;
 		/// implement unabsorbed DIG extension
