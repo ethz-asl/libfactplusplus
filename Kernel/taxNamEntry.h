@@ -80,6 +80,8 @@ public:		// interface
 	FPP_ADD_FLAG(CompletelyDefined,0x2);
 		/// register a Not-a-Told-Subsumer flag
 	FPP_ADD_FLAG(NaTS,0x4);
+		/// register a non-classifiable flag
+	FPP_ADD_FLAG(NonClassifiable,0x8);
 
 	// told subsumers interface
 

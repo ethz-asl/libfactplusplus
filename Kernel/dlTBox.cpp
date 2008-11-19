@@ -61,6 +61,7 @@ TConcept* TBox :: getAuxConcept ( void )
 	name << " aux" << ++count;
 	TConcept* C = getConcept(name.str());
 	C->setSystem();
+	C->setNonClassifiable();
 	C->initToldSubsumers();	// it is created after this is done centrally
 	return C;
 }
@@ -313,6 +314,7 @@ TConcept* TBox :: createTempConcept ( const DLTree* desc )
 
 	// create description
 	deleteTree ( makeNonPrimitive ( defConcept, clone(desc) ) );
+	defConcept->setSystem();
 
 	// build DAG entries for the default concept
 	DLHeap.setExpressionCache(false);

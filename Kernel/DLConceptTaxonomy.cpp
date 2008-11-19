@@ -235,7 +235,7 @@ unsigned int fillArrays ( Iterator begin, Iterator end )
 	unsigned int n = 0;
 	for ( Iterator p = begin; p < end; ++p )
 	{
-		if ( (*p)->isSystem() )
+		if ( (*p)->isNonClassifiable() )
 			continue;
 		++n;
 		switch ( (*p)->getClassTag() )

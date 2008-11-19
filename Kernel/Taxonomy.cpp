@@ -244,7 +244,7 @@ void Taxonomy :: classifyEntry ( ClassifiableEntry* p )
 	assert ( waitStack.empty () );	// safety check
 
 	// don't classify artificial concepts
-	if ( p->isSystem() )
+	if ( p->isNonClassifiable() )
 		return;
 
 #ifdef TMP_PRINT_TAXONOMY_INFO

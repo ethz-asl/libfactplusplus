@@ -812,7 +812,6 @@ public:
 inline ReasoningKernel :: ~ReasoningKernel ( void )
 {
 	releaseKB ();
-	deleteTree(cachedQuery);
 	delete pKernelOptions;
 }
 
@@ -832,6 +831,8 @@ inline bool ReasoningKernel :: releaseKB ( void )
 {
 	delete pTBox;
 	pTBox = NULL;
+	deleteTree(cachedQuery);
+	cachedQuery = NULL;
 
 #ifdef FPP_USE_AXIOMS
 	Ontology.clear();

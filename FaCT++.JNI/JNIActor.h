@@ -23,6 +23,8 @@ Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #include "JNISupport.h"
 #include "Kernel.h"
 
+bool debug = false;
+
 /// class for acting with concept taxonomy
 template<class AccessPolicy>
 class JTaxonomyActor
@@ -50,6 +52,8 @@ protected:	// methods
 		/// try current entry
 	void tryEntry ( const ClassifiableEntry* p )
 	{
+		if ( p->isSystem() )
+			return;
 		if ( AccessPolicy::applicable(p) )
 			syn.push_back(AccessPolicy::buildTree(const_cast<ClassifiableEntry*>(p)));
 	}
@@ -63,7 +67,7 @@ public:		// interface
 	// return values
 
 		/// get single vector of synonyms (necessary for Equivalents, for example)
-	jobjectArray getSynonyms ( void ) const { return getArray(acc[0]); }
+	jobjectArray getSynonyms ( void ) const { return getArray ( acc.empty() ? SynVector() : acc[0] ); }
 		/// get 2D array of all required elements of the taxonomy
 	jobjectArray getElements ( void ) const
 	{
@@ -78,7 +82,9 @@ public:		// interface
 		return ret;
 	}
 
-		/// taxonomy walking method
+		/// taxonomy walking method.
+		/// @return true if node was processed, and there is no need to go further
+		/// @return false if node can not be processed in current settings
 	bool apply ( const TaxonomyVertex& v )
 	{
 		syn.clear();
@@ -87,8 +93,9 @@ public:		// interface
 		for ( TaxonomyVertex::syn_iterator p = v.begin_syn(), p_end=v.end_syn(); p != p_end; ++p )
 			tryEntry(*p);
 
+		/// no applicable elements were found
 		if ( syn.empty() )
-			return false;	// special-case equivalents of temp-concept
+			return false;
 
 		if ( AccessPolicy::needPlain() )
 			plain.insert ( plain.end(), syn.begin(), syn.end() );
@@ -106,9 +113,7 @@ class ClassPolicy
 public:
 	static const char* getClassName ( void ) { return cnClassPointer(); }
 	static bool applicable ( const ClassifiableEntry* p )
-		{ return !p->isSystem() && !static_cast<const TConcept*>(p)->isSingleton(); }
-	static bool regular ( const ClassifiableEntry* p )
-		{ return !p->isSystem() || strcmp ( p->getName(), "FaCT++.default" ) != 0; }
+		{ return !static_cast<const TConcept*>(p)->isSingleton(); }
 	static bool needPlain ( void ) { return false; }
 	static DLTree* buildTree ( ClassifiableEntry* p )
 	{
@@ -133,8 +138,7 @@ class IndividualPolicy
 public:
 	static const char* getClassName ( void ) { return cnIndividualPointer(); }
 	static bool applicable ( const ClassifiableEntry* p )
-		{ return !p->isSystem() && static_cast<const TConcept*>(p)->isSingleton(); }
-	static bool regular ( const ClassifiableEntry* p ) { return !p->isSystem(); }
+		{ return static_cast<const TConcept*>(p)->isSingleton(); }
 	static bool needPlain ( void ) { return true; }
 	static DLTree* buildTree ( ClassifiableEntry* p )
 		{ return new DLTree(TLexeme(INAME,p)); }
@@ -145,10 +149,7 @@ class ObjectPropertyPolicy
 {
 public:
 	static const char* getClassName ( void ) { return cnObjectPropertyPointer(); }
-	static bool applicable ( const ClassifiableEntry* p )
-		{ return !p->isSystem() && p->getId() > 0; }
-		/// property is regular if it's primer is a non-inverse one
-	static bool regular ( const ClassifiableEntry* p ) { return applicable(p); }
+	static bool applicable ( const ClassifiableEntry* p ) { return p->getId() > 0; }
 	static bool needPlain ( void ) { return false; }
 	static DLTree* buildTree ( ClassifiableEntry* p )
 		{ return new DLTree(TLexeme(RNAME,p)); }
@@ -159,10 +160,7 @@ class DataPropertyPolicy
 {
 public:
 	static const char* getClassName ( void ) { return cnDataPropertyPointer(); }
-	static bool applicable ( const ClassifiableEntry* p )
-		{ return !p->isSystem() && p->getId() > 0; }
-		/// property is regular if it's primer is a non-inverse one
-	static bool regular ( const ClassifiableEntry* p ) { return applicable(p); }
+	static bool applicable ( const ClassifiableEntry* p ) { return p->getId() > 0; }
 	static bool needPlain ( void ) { return false; }
 	static DLTree* buildTree ( ClassifiableEntry* p )
 		{ return new DLTree(TLexeme(RNAME,p)); }
