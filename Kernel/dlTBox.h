@@ -487,6 +487,18 @@ protected:	// methods
 		/// init functional roles with functional entries
 	void initFunctionalRoles ( void );
 
+	
+		/// build related roles cache for given individual
+	void buildRelatedRoles ( TIndividual* i ) const
+		{ i->RelatedRoleMap = RM.buildRelatedRoles ( i->RelatedIndex.begin(), i->RelatedIndex.end() ); }
+		/// build related roles cache for every individual
+	void buildRelatedRoles ( void ) const
+	{
+		for ( i_const_iterator pi = i_begin(); pi != i_end(); ++pi )
+			if ( !(*pi)->isSynonym() )
+				buildRelatedRoles(*pi);
+	}
+
 		/// set told TOP concept whether necessary
 	void initToldSubsumers ( void )
 	{
@@ -1043,7 +1055,7 @@ public:
 	void getRelatedRoles ( TIndividual* I, NamesVector& Rs, bool data, bool needI ) const
 	{
 		TIndividual* i = resolveSynonym(I);
-		RM.getRelatedRoles ( i->RelatedIndex.begin(), i->RelatedIndex.end(), Rs, data, needI );
+		RM.getRelatedRoles ( i->RelatedRoleMap, Rs, data, needI );
 	}
 		/// implement DIG-like roleFillers query; @return in Js all J st (I,J):R
 	void getRoleFillers ( TIndividual* I, TRole* R, NamesVector& Js ) const;

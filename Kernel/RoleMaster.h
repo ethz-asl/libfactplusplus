@@ -208,9 +208,20 @@ public:		// interface
 
 		/// get new bit-map big enough to keep all the roles from the RM
 	RoleBitMap newBitMap ( void ) const { return RoleBitMap(Roles.size(),false); }
-		/// fills Rs with the role names that appears within [BEGIN,END) interval of the TRelated
+		/// @return a bitmap which corresponds role names that appears within [BEGIN,END) interval of the TRelated
 	template<class Iterator>
-	void getRelatedRoles ( Iterator begin, Iterator end, std::vector<TNamedEntry*>& Rs, bool data, bool needI ) const;
+	RoleBitMap buildRelatedRoles ( Iterator begin, Iterator end ) const;
+		/// fills Rs with the role names that are in RBM and corresponds to DATA and NEEDI
+	void getRelatedRoles ( const RoleBitMap& rbm, std::vector<TNamedEntry*>& Rs, bool data, bool needI ) const
+	{
+		Rs.clear();
+		for ( unsigned int i = firstRoleIndex(); i < Roles.size(); ++i )
+		{
+			TRole* R = Roles[i];
+			if ( R->isDataRole() == data && ( R->getId() > 0 || needI ) && rbm[i] )
+				Rs.push_back(Roles[i]);
+		}
+	}
 
 	// output interface
 
@@ -243,17 +254,15 @@ RoleMaster :: fillReflexiveRoles ( roleSet& RR ) const
 			RR.push_back(*p);
 }
 
-template<class Iterator> void
-RoleMaster :: getRelatedRoles ( Iterator begin, Iterator end, std::vector<TNamedEntry*>& Rs, bool data, bool needI ) const
+template<class Iterator> RoleMaster::RoleBitMap
+RoleMaster :: buildRelatedRoles ( Iterator begin, Iterator end ) const
 {
 	size_t i;
-	Rs.clear();
 	RoleBitMap local = newBitMap();
 
 	// fill roles with just named roles from the array
 	for ( ; begin < end; ++begin )
-		if ( (*begin)->R->isDataRole() == data )
-			local[(*begin)->R->getIndex()] = true;
+		local[(*begin)->R->getIndex()] = true;
 	// add all the ancestors of the role to the bitmap
 	for ( i = firstRoleIndex(); i < Roles.size(); ++i )
 		if ( local[i] )
@@ -262,10 +271,7 @@ RoleMaster :: getRelatedRoles ( Iterator begin, Iterator end, std::vector<TNamed
 	for ( i = firstRoleIndex(); i < Roles.size(); ++i )
 		if ( Roles[i]->isSynonym() && local[resolveSynonym(Roles[i])->getIndex()] )
 			local[i] = true;
-	// now put all the roles into the output array
-	for ( i = firstRoleIndex(); i < Roles.size(); ++i )
-		if ( local[i] && ( Roles[i]->getId() > 0 || needI ) )
-			Rs.push_back(Roles[i]);
+	return local;
 }
-
+	
 #endif

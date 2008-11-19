@@ -123,6 +123,12 @@ void TBox :: Preprocess ( void )
 	initFunctionalRoles();
 	END_PASS();
 
+	// create related roles' cache for individuals
+	// placement: after related are processed and all synonyms are detected
+	BEGIN_PASS("Build related roles cache");
+	buildRelatedRoles();
+	END_PASS();
+
 	// create sorts for KB
 	BEGIN_PASS("Determine sorts");
 	determineSorts();

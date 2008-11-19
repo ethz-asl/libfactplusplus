@@ -39,6 +39,8 @@ public:		// members
 
 		/// index for axioms <this,C>:R
 	RelatedSet RelatedIndex;
+		/// index for the roles used in <this,C>:R
+	std::vector<bool> RelatedRoleMap;
 
 	// precompletion support
 
