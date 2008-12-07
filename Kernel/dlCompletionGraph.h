@@ -194,7 +194,7 @@ protected:	// methods
 	void unblockNodeChildren ( DlCompletionTree* node )
 	{
 		for ( DlCompletionTree::const_edge_iterator q = node->begins(), q_end = node->ends(); q < q_end; ++q )
-			if ( !(*q)->isIBlocked() )	// all of them are i-blocked
+			if ( !(*q)->isIBlocked() && !(*q)->isReflexiveEdge() )	// all of them are i-blocked
 				unblockNode ( (*q)->getArcEnd(), false );
 	}
 		/// mark node unblocked; unblock all the hierarchy
