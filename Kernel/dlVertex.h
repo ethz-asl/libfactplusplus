@@ -319,14 +319,6 @@ protected:	// members
 	unsigned int n;
 
 public:		// interface
-		/// empty c'tor (do nothing)
-	DLVertex ( void )
-		: DLVertexTagDFS(dtBad)
-		, Concept(NULL)
-		, Role(NULL)
-		, C(bpINVALID)
-		, n(0)
-		{}
 		/// c'tor for Top/CN/And (before adding any operands)
 	explicit DLVertex ( DagTag op )
 		: DLVertexTagDFS(op)

@@ -656,7 +656,7 @@ protected:	// methods
 	{
 		if ( SimpleRules.empty() )
 			return;
-		o << "Simple rules (" << SimpleRules.size()-1 << "): \n";
+		o << "Simple rules (" << SimpleRules.size() << "): \n";
 		for ( TSimpleRules::const_iterator p = SimpleRules.begin(); p < SimpleRules.end(); ++p )
 		{
 			ConceptVector::const_iterator q = (*p)->Body.begin(), q_end = (*p)->Body.end();
