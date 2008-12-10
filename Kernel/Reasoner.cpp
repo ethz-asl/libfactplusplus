@@ -734,6 +734,7 @@ DlSatTester :: createCache ( BipolarPointer p )
 
 bool DlSatTester :: checkSatisfiability ( void )
 {
+	unsigned int loop = 0;
 	for (;;)
 	{
 		if ( curNode == NULL )
@@ -762,6 +763,12 @@ bool DlSatTester :: checkSatisfiability ( void )
 			curConcept = curNode->label().getConcept(curTDE->index);
 		}
 
+		if ( ++loop == 1000 )
+		{
+			loop = 0;
+			if ( tBox.isCancelled() )
+				return false;
+		}
 		// here curNode/curConcept are set
 		if ( commonTactic() == utClash )	// clash found
 		{
