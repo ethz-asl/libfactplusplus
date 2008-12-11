@@ -202,6 +202,11 @@ protected:	// members
 		/// current axiom's ID
 	unsigned int axiomId;
 
+		/// reactive fairness constraint
+	TConcept* fcReactive;
+		/// proactive fairness constraint
+	TConcept* fcProactive;
+
 	/////////////////////////////////////////////////////
 	// Flags section
 	/////////////////////////////////////////////////////
@@ -903,6 +908,20 @@ public:
 	DLTree* processOneOf ( const ConceptSet& v, bool data );
 	DLTree* processRComposition ( const ConceptSet& v );
 
+		/// mark concept name C to be a fairness constraint
+	bool setFairnessConstraint ( TNamedEntry* C, bool proactive )
+	{
+		// only primitive concepts here
+		if ( !isRegisteredConcept(C) )
+			return true;
+		TConcept*& fc = proactive ? fcProactive : fcReactive;
+		// a single concept for now
+		if ( fc != NULL )
+			return true;
+		fc = toConcept(C);
+		return fc->isPrimitive();
+	}
+
 //-----------------------------------------------------------------------------
 //--		public access interface
 //-----------------------------------------------------------------------------
@@ -1085,6 +1104,8 @@ inline TBox :: TBox ( const ifOptionSet* Options )
 	, Concepts("concept")
 	, Axioms(*this)
 	, T_G(bpTOP)	// initialise GCA's concept with Top
+	, fcReactive(NULL)
+	, fcProactive(NULL)
 	, useSortedReasoning(true)
 	, isLikeGALEN(false)	// just in case Relevance part would be omited
 	, isLikeWINE(false)

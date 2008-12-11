@@ -480,6 +480,9 @@ public:
 	// implementation stuff: same individuals
 	bool processDifferent ( void );
 
+		/// mark concept name C to be a fairness constraint
+	bool setFairnessConstraint ( const ComplexConcept C, bool proactive );
+
 	//******************************************
 	//* ASK part
 	//******************************************
@@ -1176,6 +1179,15 @@ inline bool ReasoningKernel :: processDifferent ( void )
 {
 	isChanged = true;
 	return getTBox()->processDifferent(NAryQueue.getLastArgList());
+}
+
+	/// mark concept name C to be a fairness constraint
+inline bool ReasoningKernel :: setFairnessConstraint ( const ComplexConcept C, bool proactive )
+{
+	if ( C->Element().getToken() != CNAME )
+		return true;
+	isChanged = true;
+	return getTBox()->setFairnessConstraint ( C->Element().getName(), proactive );
 }
 
 #endif
