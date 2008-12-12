@@ -919,7 +919,7 @@ public:
 		if ( fc != NULL )
 			return true;
 		fc = toConcept(C);
-		return fc->isPrimitive();
+		return !fc->isPrimitive();
 	}
 
 //-----------------------------------------------------------------------------

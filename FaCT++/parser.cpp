@@ -230,6 +230,14 @@ void DLLispParser :: parseCommand ( void )
 		delete getDataRole();
 		break;
 
+	case FCREACTIVE:
+	case FCPROACTIVE:
+		Name = getConcept();
+		if ( Kernel->setFairnessConstraint ( Name, t == FCPROACTIVE ) )
+			parseError ( "Second fairness constraint or not a named concept" );
+		deleteTree(Name);
+		break;
+
 	default:
 		parseError ( "Unrecognised command" );
 	}

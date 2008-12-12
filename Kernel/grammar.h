@@ -109,6 +109,10 @@ enum Token {
 	ONEOF,
 	SAME,
 	DIFFERENT,
+
+	// fairness constraints
+	FCREACTIVE,
+	FCPROACTIVE,
 };
 
 // some multi-case defines

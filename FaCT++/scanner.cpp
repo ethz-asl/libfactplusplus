@@ -300,6 +300,12 @@ Token TsScanner :: getCommandKeyword ( void ) const
 	if ( isKeyword ("different") )
 		return DIFFERENT;
 
+	if ( isKeyword ("fairness-re") )
+		return FCREACTIVE;
+
+	if ( isKeyword ("fairness-pro") )
+		return FCPROACTIVE;
+
 	// not a keyword -- error
 	return BAD_LEX;
 }
