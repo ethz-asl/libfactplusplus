@@ -54,6 +54,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 // uncomment this to allow simple rules processing
 //#define RKG_USE_SIMPLE_RULES
 
+// uncomment this to support fairness constraints
+//#define RKG_USE_FAIRNESS
+
 // Flag to choose kind of NR support.
 
 // If 0, then simplistic one is used.  For the >= n R, at most one R-successor is created.  For

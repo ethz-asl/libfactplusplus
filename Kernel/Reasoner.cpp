@@ -39,6 +39,15 @@ DlSatTester :: DlSatTester ( TBox& tbox, const ifOptionSet* Options )
 {
 	// init local options
 	readConfig ( Options );
+
+	// in presence of fairness constraints use ancestor blocking
+	if ( (tBox.fcReactive || tBox.fcProactive) && useAnywhereBlocking )
+	{
+		useAnywhereBlocking = false;
+		if ( LLM.isWritable(llAlways) )
+			LL << "Fairness constraints: set useAnywhereBlocking = false\n";
+	}
+
 	// init static part of CTree
 	CGraph.initContext ( &tbox.DLHeap, useLazyBlocking, useAnywhereBlocking );
 	// init datatype reasoner
@@ -752,7 +761,33 @@ bool DlSatTester :: checkSatisfiability ( void )
 				// clear blocker cache
 				dBlocked = NULL;
 				if ( TODO.empty() )
+#				ifndef RKG_USE_FAIRNESS
 					return true;
+#				else
+				{	// check fairness constraints
+					// check reactive one first, as pro-active can add
+					// new entries in the TODO list
+
+					// if reactive fairness constraints are violated,
+					// we shall try to find another way to satisfy it.
+					// Right now we just restore one step back
+					if ( tBox.fcReactive != NULL && CGraph.checkFairness(tBox.fcReactive->pName) )
+						if ( straightforwardRestore() )	// no more branching alternatives
+							return false;
+
+					if ( tBox.fcProactive != NULL )
+					{
+						DlCompletionTree* blocker = CGraph.checkFairness(tBox.fcProactive->pName);
+						if ( blocker )
+							if ( addToDoEntry ( blocker, tBox.fcProactive->pName, getCurDepSet(), "fair" ) == utClash )
+								if ( tunedRestore() )
+									return false;
+					}
+
+					if ( TODO.empty() )
+						return true;
+				}
+#				endif
 			}
 
 			const ToDoEntry* curTDE = TODO.getNextEntry ();

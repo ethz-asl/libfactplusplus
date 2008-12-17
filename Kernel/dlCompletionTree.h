@@ -520,6 +520,18 @@ public:		// methods
 		/// check whether a node can block node P according to it's Init value
 	bool canBlockInit ( const DlCompletionTree* p ) const { return canBlockInit(p->Init); }
 
+		/// check whether the loop between a DBlocked NODE and it's parent blocked contains C
+	bool isLoopLabelled ( BipolarPointer c )
+	{
+		assert ( isDBlocked() );
+		if ( Blocker->isLabelledBy(c) )
+			return true;
+		for ( DlCompletionTree* p = getParentNode(); p->hasParent() && p != Blocker; p = p->getParentNode() )
+			if ( p->isLabelledBy(c) )
+				return true;
+		return false;
+	}
+
 	//----------------------------------------------
 	// re-building blocking hierarchy
 	//----------------------------------------------

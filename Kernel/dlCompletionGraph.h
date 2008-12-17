@@ -327,6 +327,17 @@ public:		// interface
 				updateDBlockedStatus(*p);
 	}
 
+	// fairness support
+
+		/// make a check for the reactive fairness constraint C
+	DlCompletionTree* checkFairness ( BipolarPointer C )
+	{
+		for ( iterator p = begin(), p_end = end(); p < p_end; ++p )
+			if ( (*p)->isDBlocked() && !(*p)->isLoopLabelled(C) )
+				return const_cast<DlCompletionTree*>((*p)->Blocker);
+		return NULL;
+	}
+
 		/// clear all the session statistics
 	void clearStatistics ( void )
 	{
