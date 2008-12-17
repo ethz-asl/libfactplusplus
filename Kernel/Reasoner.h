@@ -783,7 +783,7 @@ protected:	// methods
 		/// save current reasoning state
 	void save ( void );
 		/// restore reasoning state to the latest saved position
-	void restore ( void ) { return restore(getCurLevel()); }
+	void restore ( void ) { return restore(getCurLevel()-1); }
 		/// restore reasoning state to the NEWTRYLEVEL position
 	void restore ( unsigned int newTryLevel );
 		/// update level in N node and save it's state (if necessary)
