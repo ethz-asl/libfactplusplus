@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2007 by Dmitry Tsarkov
+Copyright (C) 2003-2008 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -244,9 +244,25 @@ protected:	// members
 
 protected:	// methods
 		/// save current TODO table content to given saveState entry
-	void saveState ( SaveState* tss );
+	void saveState ( SaveState* tss )
+	{
+		queueID.save(tss->backupID);
+		queueNN.save(tss->backupNN);
+		for ( register int i = nRegularOps-1; i >= 0; --i )
+			Wait[i].save(tss->backup[i]);
+
+		tss->noe = noe;
+	}
 		/// restore TODO table content from given saveState entry
-	void restoreState ( const SaveState* tss );
+	void restoreState ( const SaveState* tss )
+	{
+		queueID.restore(tss->backupID);
+		queueNN.restore(tss->backupNN);
+		for ( register int i = nRegularOps-1; i >= 0; --i )
+			Wait[i].restore(tss->backup[i]);
+
+		noe = tss->noe;
+	}
 
 public:
 		/// the only c'tor
@@ -261,7 +277,16 @@ public:
 		{ return Matrix.initPriorities ( Options->getText(optionName), optionName ); }
 
 		/// clear TODO table
-	void clear ( void );
+	void clear ( void )
+	{
+		queueID.clear();
+		queueNN.clear();
+		for ( register int i = nRegularOps-1; i >= 0; --i )
+			Wait[i].clear();
+
+		SaveStack.clear();
+		noe = 0;
+	}
 		/// check if TODO table is empty
 	bool empty ( void ) const { return !noe; }
 
@@ -300,17 +325,6 @@ public:
 	void restore ( unsigned int level ) { restoreState(SaveStack.pop(level)); }
 }; // ToDoList
 
-inline void ToDoList :: clear ( void )
-{
-	queueID.clear();
-	queueNN.clear();
-	for ( register int i = nRegularOps-1; i >= 0; --i )
-		Wait[i].clear();
-
-	SaveStack.clear();
-	noe = 0;
-}
-
 inline const ToDoEntry* ToDoList :: getNextEntry ( void )
 {
 #ifdef ENABLE_CHECKING
@@ -335,26 +349,6 @@ inline const ToDoEntry* ToDoList :: getNextEntry ( void )
 
 	// that's impossible, but still...
 	return NULL;
-}
-
-inline void ToDoList :: saveState ( SaveState* tss )
-{
-	queueID.save(tss->backupID);
-	queueNN.save(tss->backupNN);
-	for ( register int i = nRegularOps-1; i >= 0; --i )
-		Wait[i].save(tss->backup[i]);
-
-	tss->noe = noe;
-}
-
-inline void ToDoList :: restoreState ( const SaveState* tss )
-{
-	queueID.restore(tss->backupID);
-	queueNN.restore(tss->backupNN);
-	for ( register int i = nRegularOps-1; i >= 0; --i )
-		Wait[i].restore(tss->backup[i]);
-
-	noe = tss->noe;
 }
 
 #endif

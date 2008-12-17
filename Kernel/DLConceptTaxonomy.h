@@ -183,20 +183,6 @@ public:		// interface
 // DLConceptTaxonomy implementation
 //
 
-inline bool DLConceptTaxonomy :: immediatelyClassified ( void )
-{
-	if ( classifySynonym() )
-		return true;
-
-	if ( curConcept()->getClassTag() == cttTrueCompletelyDefined )
-		return false;	// true CD concepts can not be unsat
-
-	// after SAT testing plan would be implemented
-	tBox.initCache(const_cast<TConcept*>(curConcept()));
-
-	return isUnsatisfiable();
-}
-
 inline bool DLConceptTaxonomy :: isUnsatisfiable ( void )
 {
 	const TConcept* p = curConcept();
@@ -215,6 +201,20 @@ inline bool DLConceptTaxonomy :: isUnsatisfiable ( void )
 		const_cast<TConcept*>(p)->setTaxVertex (getBottom());
 
 	return true;
+}
+
+inline bool DLConceptTaxonomy :: immediatelyClassified ( void )
+{
+	if ( classifySynonym() )
+		return true;
+
+	if ( curConcept()->getClassTag() == cttTrueCompletelyDefined )
+		return false;	// true CD concepts can not be unsat
+
+	// after SAT testing plan would be implemented
+	tBox.initCache(const_cast<TConcept*>(curConcept()));
+
+	return isUnsatisfiable();
 }
 
 inline void DLConceptTaxonomy :: setupTopDown ( void )

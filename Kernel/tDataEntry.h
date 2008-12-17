@@ -80,9 +80,41 @@ public:		// interface
 	bool closed ( void ) const { return hasMin() && hasMax(); }
 
 		/// update MIN border of an interval with VALUE wrt EXCL
-	bool updateMin ( bool excl, const ComparableDT& value );
+	bool updateMin ( bool excl, const ComparableDT& value )
+	{
+		if ( hasMin() )	// another min value: check if we need update
+		{
+			// constraint is >= or >
+			if ( min > value )		// was: {7,}; now: {5,}: no update needed
+				return false;
+			if ( min == value &&	// was: (5,}; now: [5,}: no update needed
+				 minExcl && !excl )
+				return false;
+			// fallthrough: update is necessary for everything else
+		}
+
+		min = value;
+		minExcl = min.correctMin(excl);
+		return true;
+	}
 		/// update MAX border of an interval with VALUE wrt EXCL
-	bool updateMax ( bool excl, const ComparableDT& value );
+	bool updateMax ( bool excl, const ComparableDT& value )
+	{
+		if ( hasMax() )	// another max value: check if we need update
+		{
+			// constraint is <= or <
+			if ( max < value )		// was: {,5}; now: {,7}: no update needed
+				return false;
+			if ( max == value &&	// was: {,5); now: {,5]: no update needed
+				 maxExcl && !excl )
+				return false;
+			// fallthrough: update is necessary for everything else
+		}
+
+		max = value;
+		maxExcl = max.correctMax(excl);
+		return true;
+	}
 		/// update given border of an interval with VALUE wrt EXCL
 	bool update ( bool min, bool excl, const ComparableDT& value )
 		{ return min ? updateMin ( excl, value ) : updateMax ( excl, value ); }
@@ -205,44 +237,6 @@ public:		// interface
 		/// set DAG index of the data entry
 	void setBP ( BipolarPointer p ) { pName = p; }
 }; // TDataEntry
-
-inline bool
-TDataInterval :: updateMin ( bool excl, const ComparableDT& value )
-{
-	if ( hasMin() )	// another min value: check if we need update
-	{
-		// constraint is >= or >
-		if ( min > value )		// was: {7,}; now: {5,}: no update needed
-			return false;
-		if ( min == value &&	// was: (5,}; now: [5,}: no update needed
-			 minExcl && !excl )
-			return false;
-		// fallthrough: update is necessary for everything else
-	}
-
-	min = value;
-	minExcl = min.correctMin(excl);
-	return true;
-}
-
-inline bool
-TDataInterval :: updateMax ( bool excl, const ComparableDT& value )
-{
-	if ( hasMax() )	// another max value: check if we need update
-	{
-		// constraint is <= or <
-		if ( max < value )		// was: {,5}; now: {,7}: no update needed
-			return false;
-		if ( max == value &&	// was: {,5); now: {,5]: no update needed
-			 maxExcl && !excl )
-			return false;
-		// fallthrough: update is necessary for everything else
-	}
-
-	max = value;
-	maxExcl = max.correctMax(excl);
-	return true;
-}
 
 inline std::ostream&
 operator << ( std::ostream& o, const TDataInterval& c )

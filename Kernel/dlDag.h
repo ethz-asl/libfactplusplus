@@ -183,8 +183,7 @@ public:		// interface
 	bool isLast ( BipolarPointer p ) const { return (getValue(p) == Heap.size()-1); }
 
 		/// init role's functional entry
-	void initFunctionalRole ( TRole* r )	// insert node (<= 1 R) into DAG
-		{ r->setFunctional ( add ( new DLVertex ( dtLE, 1, r, bpTOP ) ) ); }
+	void initFunctionalRole ( TRole* r );
 
 	// access methods
 
@@ -311,7 +310,6 @@ public:		// interface
 
 #include "dlVHashImpl.h"
 
-
 inline BipolarPointer
 DLDag :: add ( DLVertex* v )
 {
@@ -324,6 +322,13 @@ DLDag :: add ( DLVertex* v )
 	++nCacheHits;
 	delete v;
 	return ret;
+}
+
+/// init role's functional entry
+inline void
+DLDag :: initFunctionalRole ( TRole* r )
+{
+	r->setFunctional ( add ( new DLVertex ( dtLE, 1, r, bpTOP ) ) );
 }
 
 #endif

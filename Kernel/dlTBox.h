@@ -292,7 +292,21 @@ protected:	// methods
 		/// @return individual by given Named Entry ID
 	const TIndividual* toIndividual ( const TNamedEntry* id ) const { return static_cast<const TIndividual*>(id); }
 		/// get TOP/BOTTOM/CN by the DLTree entry
-	TConcept* getCI ( const DLTree* name );
+	TConcept* getCI ( const DLTree* name )
+	{
+		if ( name->Element() == TOP )
+			return pTop;
+		if ( name->Element() == BOTTOM )
+			return pBottom;
+
+		if ( !isName(name) )
+			return NULL;
+
+		if ( name->Element().getToken() == CNAME )
+			return toConcept(name->Element().getName());
+		else
+			return toIndividual(name->Element().getName());
+	}
 
 //-----------------------------------------------------------------------------
 //--		internal BP-to-concept interface
@@ -451,7 +465,12 @@ protected:	// methods
 	// return true if transformation was performed
 	bool axiomToRangeDomain ( DLTree* l, DLTree* r );
 
-	bool isNamedConcept ( BipolarPointer p ) const;
+		/// @return true if BP represents a named entry in a DAG
+	bool isNamedConcept ( BipolarPointer bp ) const
+	{
+		DagTag tag = DLHeap[bp].Type();
+		return isCNameTag(tag) || tag == dtDataType || tag == dtDataValue;
+	}
 
 		/// check if TBox contains too many GCIs to switch strategy
 	bool isGalenLikeTBox ( void ) const { return isLikeGALEN; }
@@ -1054,8 +1073,17 @@ public:
 
 		/// dump query processing TIME, reasoning statistics and a (preprocessed) TBox
 	void writeReasoningResult ( std::ostream& o, float time ) const;
-	std::ostream& Print ( std::ostream& o ) const;
-	std::ostream& PrintStat ( std::ostream& o ) const;
+		/// print TBox as a whole
+	void Print ( std::ostream& o ) const
+	{
+		DLHeap.PrintStat(o);
+		RM.Print(o);
+		PrintConcepts(o);
+		PrintIndividuals(o);
+		PrintSimpleRules(o);
+		PrintAxioms(o);
+		DLHeap.Print(o);
+	}
 
 		/// create dump of relevant part of query using given method
 	void dump ( dumpInterface* dump ) const;
@@ -1086,83 +1114,5 @@ public:
 		/// implement unabsorbed DIG extension
 	void unabsorbed ( std::ostream& o ) const;
 }; // TBox
-
-/**
-  * Implementation of TBox class
-  */
-
-inline TBox :: TBox ( const ifOptionSet* Options )
-	: DLHeap(Options)
-	, stdReasoner(NULL)
-	, nomReasoner(NULL)
-	, pMonitor(NULL)
-	, pTax (NULL)
-	, pOptions (Options)
-	, Status(kbLoading)
-	, curFeature(NULL)
-	, defConcept (NULL)
-	, Concepts("concept")
-	, Axioms(*this)
-	, T_G(bpTOP)	// initialise GCA's concept with Top
-	, fcReactive(NULL)
-	, fcProactive(NULL)
-	, useSortedReasoning(true)
-	, isLikeGALEN(false)	// just in case Relevance part would be omited
-	, isLikeWINE(false)
-	, Consistent(true)
-	, Precompleted(false)
-	, preprocTime(0)
-{
-	readConfig ( Options );
-	initTopBottom ();
-
-	setForbidUndefinedNames(false);
-}
-
-//---------------------------------------------------------------
-//--		Implementation of ensure*-like stuff
-//---------------------------------------------------------------
-
-inline TConcept* TBox :: getCI ( const DLTree* name )
-{
-	if ( name->Element() == TOP )
-		return pTop;
-	if ( name->Element() == BOTTOM )
-		return pBottom;
-
-	if ( !isName(name) )
-		return NULL;
-
-	if ( name->Element().getToken() == CNAME )
-		return toConcept(name->Element().getName());
-	else
-		return toIndividual(name->Element().getName());
-}
-
-//---------------------------------------------------------------
-//--		access to concept by BiPointer
-//---------------------------------------------------------------
-
-inline bool TBox :: isNamedConcept ( BipolarPointer bp ) const
-{
-	DagTag tag = DLHeap[bp].Type();
-	return isCNameTag(tag) || tag == dtDataType || tag == dtDataValue;
-}
-
-//---------------------------------------------------------------
-//--		misc inline implementation
-//---------------------------------------------------------------
-
-inline std::ostream& TBox :: Print ( std::ostream& o ) const
-{
-	DLHeap.PrintStat (o);
-	RM.Print (o);
-	PrintConcepts (o);
-	PrintIndividuals(o);
-	PrintSimpleRules(o);
-	PrintAxioms (o);
-	DLHeap.Print(o);
-	return o;
-}
 
 #endif

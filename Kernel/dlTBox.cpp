@@ -31,6 +31,34 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "dumpDIG.h"
 #include "logging.h"
 
+TBox :: TBox ( const ifOptionSet* Options )
+	: DLHeap(Options)
+	, stdReasoner(NULL)
+	, nomReasoner(NULL)
+	, pMonitor(NULL)
+	, pTax (NULL)
+	, pOptions (Options)
+	, Status(kbLoading)
+	, curFeature(NULL)
+	, defConcept (NULL)
+	, Concepts("concept")
+	, Axioms(*this)
+	, T_G(bpTOP)	// initialise GCA's concept with Top
+	, fcReactive(NULL)
+	, fcProactive(NULL)
+	, useSortedReasoning(true)
+	, isLikeGALEN(false)	// just in case Relevance part would be omited
+	, isLikeWINE(false)
+	, Consistent(true)
+	, Precompleted(false)
+	, preprocTime(0)
+{
+	readConfig ( Options );
+	initTopBottom ();
+
+	setForbidUndefinedNames(false);
+}
+
 TBox :: ~TBox ( void )
 {
 	// remove all RELATED structures
