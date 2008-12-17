@@ -67,11 +67,7 @@ public:		// interface
 		/// add an element (given by a POSition) to hash
 	void addElement ( BipolarPointer pos );
 		/// locate given vertice in the hash
-	BipolarPointer locate ( const DLVertex& v ) const
-	{
-		HashTable::const_iterator p = Table.find(hash(v));
-		return p == Table.end() ? bpINVALID : locate ( p->second, v );
-	}
+	BipolarPointer locate ( const DLVertex& v ) const;
 }; // dlVHashTable
 
 #endif

@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2006 by Dmitry Tsarkov
+Copyright (C) 2006-2008 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -29,6 +29,13 @@ dlVHashTable :: locate ( const HashLeaf& leaf, const DLVertex& v ) const
 			return *p;
 
 	return bpINVALID;
+}
+
+inline BipolarPointer
+dlVHashTable :: locate ( const DLVertex& v ) const
+{
+	HashTable::const_iterator p = Table.find(hash(v));
+	return p == Table.end() ? bpINVALID : locate ( p->second, v );
 }
 
 inline void

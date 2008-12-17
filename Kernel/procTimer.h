@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2007 by Dmitry Tsarkov
+Copyright (C) 2003-2008 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -45,7 +45,7 @@ private:	// methods
 
 public:		// interface
 		/// the only c'tor
-	TsProcTimer ( void ) : startTime(0) { Reset(); }
+	TsProcTimer ( void ) : startTime(0), resultTime(0.0), Started(false) {}
 		/// empty d'tor
 	~TsProcTimer ( void ) {}
 
@@ -69,24 +69,6 @@ inline void TsProcTimer :: Reset ( void )
 {
 	Started = false;
 	resultTime = 0;
-}
-
-inline void TsProcTimer :: Start ( void )
-{
-	if ( !Started )
-	{
-		startTime = clock();
-		Started = true;
-	}
-}
-
-inline void TsProcTimer :: Stop ( void )
-{
-	if ( Started )
-	{
-		Started = false;
-		resultTime += calcDelta ();
-	}
 }
 
 inline float TsProcTimer :: calcDelta ( void ) const
@@ -117,6 +99,24 @@ inline TsProcTimer :: operator float ( void ) const
 
 	// normalise value up to CONST
 	return ((unsigned long)(realProcTime*norm))/(float)norm;
+}
+
+inline void TsProcTimer :: Start ( void )
+{
+	if ( !Started )
+	{
+		startTime = clock();
+		Started = true;
+	}
+}
+
+inline void TsProcTimer :: Stop ( void )
+{
+	if ( Started )
+	{
+		Started = false;
+		resultTime += calcDelta ();
+	}
 }
 
 #endif

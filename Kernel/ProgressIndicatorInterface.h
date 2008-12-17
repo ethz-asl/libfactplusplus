@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2007 by Dmitry Tsarkov
+Copyright (C) 2003-2008 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -26,7 +26,16 @@ protected:
 	unsigned long uCurrent;
 
 	virtual void expose ( void ) = 0;
-	bool checkMax ( void );
+	bool checkMax ( void )
+	{
+		if ( uCurrent > uLimit )
+		{
+			uCurrent = uLimit;
+			return true;
+		}
+		else
+			return false;
+	}
 
 public:
 	ProgressIndicatorInterface ( void ) : uLimit (0), uCurrent (0) {}
@@ -34,38 +43,19 @@ public:
 		{ setLimit (limit); }
 	virtual ~ProgressIndicatorInterface ( void ) {}
 
-	void setLimit ( unsigned long limit );
-	void setIndicator ( unsigned long value );
+	void setLimit ( unsigned long limit ) { uLimit = limit; reset(); }
+	void setIndicator ( unsigned long value )
+	{
+		if ( uCurrent != value )
+		{
+			uCurrent = value;
+			checkMax ();
+			expose ();
+		}
+	}
 	void incIndicator ( unsigned long delta = 1 );
 	void reset ( void ) { setIndicator (0); }
 }; // ProgressIndicatorInterface
-
-inline void ProgressIndicatorInterface::setLimit ( unsigned long limit )
-{
-	uLimit = limit;
-	reset();
-}
-
-inline bool ProgressIndicatorInterface::checkMax ( void )
-{
-	if ( uCurrent > uLimit )
-	{
-		uCurrent = uLimit;
-		return true;
-	}
-	else
-		return false;
-}
-
-inline void ProgressIndicatorInterface::setIndicator ( unsigned long value )
-{
-	if ( uCurrent != value )
-	{
-		uCurrent = value;
-		checkMax ();
-		expose ();
-	}
-}
 
 inline void ProgressIndicatorInterface::incIndicator ( unsigned long delta )
 {

@@ -102,7 +102,7 @@ public:		// interface
 	// access concepts
 
 		/// check whether label contains BP (ignoring dep-set)
-	bool contains ( BipolarPointer bp ) const;
+	bool contains ( BipolarPointer bp ) const { return std::find ( begin(), end(), bp ) != end(); }
 		/// get the concept by given index in the node's label
 	const ConceptWDep& getConcept ( int n ) const { return Base[n]; }
 
@@ -111,7 +111,14 @@ public:		// interface
 	//----------------------------------------------
 
 		/// check whether LABEL is a superset of a current one
-	bool operator <= ( const CWDArray& label ) const;
+	bool operator <= ( const CWDArray& label ) const
+	{
+		for ( const_iterator p = begin(), p_end = end(); p < p_end; ++p )
+			if ( !label.contains(p->bp()) )
+				return false;
+
+		return true;
+	}
 		/// check whether LABEL is a subset of a current one
 	bool operator >= ( const CWDArray& label ) const { return label <= *this; }
 		/// check whether LABEL is the same as a current one
@@ -134,25 +141,5 @@ public:		// interface
 		/// print the whole label
 	void print ( std::ostream& o ) const;
 }; // CWDArray
-
-//----------------------------------------------
-// Blocking support
-//----------------------------------------------
-
-inline bool
-CWDArray :: contains ( BipolarPointer bp ) const
-{
-	return std::find ( begin(), end(), bp ) != end();
-}
-
-inline bool
-CWDArray :: operator <= ( const CWDArray& label ) const
-{
-	for ( const_iterator p = begin(), p_end = end(); p < p_end; ++p )
-		if ( !label.contains(p->bp()) )
-			return false;
-
-	return true;
-}
 
 #endif
