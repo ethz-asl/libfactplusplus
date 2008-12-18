@@ -310,11 +310,36 @@ public:
 	//******************************************
 
 		/// create new KB
-	bool newKB ( void );
+	bool newKB ( void )
+	{
+		if ( pTBox != NULL )
+			return true;
+
+		pTBox = new TBox ( getOptions () );
+		initCacheAndFlags();
+		return false;
+	}
 		/// delete existed KB
-	bool releaseKB ( void );
+	bool releaseKB ( void )
+	{
+		delete pTBox;
+		pTBox = NULL;
+		deleteTree(cachedQuery);
+		cachedQuery = NULL;
+
+#	ifdef FPP_USE_AXIOMS
+		Ontology.clear();
+#	endif
+
+		return false;
+	}
 		/// reset current KB
-	bool clearKB ( void );
+	bool clearKB ( void )
+	{
+		if ( pTBox == NULL )
+			return true;
+		return releaseKB () || newKB ();
+	}
 
 	//******************************************
 	//* Concept/Role expressions. DL syntax, not DIG/OWL
@@ -325,15 +350,15 @@ public:
 		/// @return BOTTOM
 	ComplexConcept Bottom ( void ) const { return new DLTree(BOTTOM); }
 		/// @return ~C
-	ComplexConcept Not ( ComplexConcept C ) const;
+	ComplexConcept Not ( ComplexConcept C ) const { return createSNFNot(C); }
 		/// @return C/\D
-	ComplexConcept And ( ComplexConcept C, ComplexConcept D ) const;
+	ComplexConcept And ( ComplexConcept C, ComplexConcept D ) const { return createSNFAnd ( C, D ); }
 		/// @return C1/\.../\Cn
-	ComplexConcept And ( void );
+	ComplexConcept And ( void ) { return getTBox()->processAnd(NAryQueue.getLastArgList()); }
 		/// @return C\/D
-	ComplexConcept Or ( ComplexConcept C, ComplexConcept D ) const;
+	ComplexConcept Or ( ComplexConcept C, ComplexConcept D ) const { return createSNFOr ( C, D ); }
 		/// @return C1\/...\/Cn
-	ComplexConcept Or ( void );
+	ComplexConcept Or ( void ) { return getTBox()->processOr(NAryQueue.getLastArgList()); }
 
 		/// start new argument list for n-ary concept expressions/axioms
 	void openArgList ( void ) { NAryQueue.openArgList(); }
@@ -352,15 +377,15 @@ public:
 			return Or ( C, D );
 	}
 		/// @return \E R.C
-	ComplexConcept Exists ( ComplexRole R, ComplexConcept C ) const;
+	ComplexConcept Exists ( ComplexRole R, ComplexConcept C ) const { return createSNFExists ( R, C ); } 
 		/// @return \A R.C
-	ComplexConcept Forall ( ComplexRole R, ComplexConcept C ) const;
+	ComplexConcept Forall ( ComplexRole R, ComplexConcept C ) const { return createSNFForall ( R, C ); }
 		/// @return \E R.I for individual/data value I
-	ComplexConcept Value ( ComplexRole R, ComplexConcept I ) const;
+	ComplexConcept Value ( ComplexRole R, ComplexConcept I ) const { return createSNFExists ( R, I ); }
 		/// @return <= n R.C
-	ComplexConcept MaxCardinality ( unsigned int n, ComplexRole R, ComplexConcept C ) const;
+	ComplexConcept MaxCardinality ( unsigned int n, ComplexRole R, ComplexConcept C ) const { return createSNFLE ( n, R, C ); }
 		/// @return >= n R.C
-	ComplexConcept MinCardinality ( unsigned int n, ComplexRole R, ComplexConcept C ) const;
+	ComplexConcept MinCardinality ( unsigned int n, ComplexRole R, ComplexConcept C ) const { return createSNFGE ( n, R, C ); }
 		/// @return = n R.C
 	ComplexConcept Cardinality ( unsigned int n, ComplexRole R, ComplexConcept C ) const
 	{
@@ -393,11 +418,11 @@ public:
 		/// @return universal role
 	ComplexRole UniversalRole ( void ) const { return new DLTree(UROLE); }
 		/// @return R^-
-	ComplexRole Inverse ( ComplexRole R ) const;
+	ComplexRole Inverse ( ComplexRole R ) const { return createInverse(R); }
 		/// @return R*S
-	ComplexRole Compose ( ComplexRole R, ComplexRole S ) const;
+	ComplexRole Compose ( ComplexRole R, ComplexRole S ) const { return new DLTree ( TLexeme(RCOMPOSITION), R, S ); }
 		/// @return R1*...*Rn
-	ComplexRole Compose ( void );
+	ComplexRole Compose ( void ) { return getTBox()->processRComposition(NAryQueue.getLastArgList()); }
 
 	// data-related expressions -- to be done
 
@@ -829,40 +854,6 @@ inline ReasoningKernel :: ~ReasoningKernel ( void )
 	delete pKernelOptions;
 }
 
-// create new KB
-inline bool ReasoningKernel :: newKB ( void )
-{
-	if ( pTBox != NULL )
-		return true;
-
-	pTBox = new TBox ( getOptions () );
-	initCacheAndFlags();
-	return false;
-}
-
-// delete current KB
-inline bool ReasoningKernel :: releaseKB ( void )
-{
-	delete pTBox;
-	pTBox = NULL;
-	deleteTree(cachedQuery);
-	cachedQuery = NULL;
-
-#ifdef FPP_USE_AXIOMS
-	Ontology.clear();
-#endif
-
-	return false;
-}
-
-// clear current KB
-inline bool ReasoningKernel :: clearKB ( void )
-{
-	if ( pTBox == NULL )
-		return true;
-	return releaseKB () || newKB ();
-}
-
 // some aux methods
 
 inline DLTree*
@@ -870,79 +861,6 @@ ReasoningKernel :: processOneOf ( bool data )
 {
 	return getTBox()->processOneOf ( NAryQueue.getLastArgList(), data );
 }
-
-//----------------------------------------------------
-//	concept expression interface
-//----------------------------------------------------
-
-	// ~C
-inline ReasoningKernel::ComplexConcept
-ReasoningKernel :: Not ( ComplexConcept C ) const
-{
-	return createSNFNot(C);
-}
-	// C/\D
-inline ReasoningKernel::ComplexConcept
-ReasoningKernel :: And ( ComplexConcept C, ComplexConcept D ) const
-{
-	return createSNFAnd ( C, D );
-}
-inline ReasoningKernel::ComplexConcept
-ReasoningKernel :: And ( void ) { return getTBox()->processAnd(NAryQueue.getLastArgList()); }
-	// C\/D
-inline ReasoningKernel::ComplexConcept
-ReasoningKernel :: Or ( ComplexConcept C, ComplexConcept D ) const
-{
-	return createSNFOr ( C, D );
-}
-inline ReasoningKernel::ComplexConcept
-ReasoningKernel :: Or ( void ) { return getTBox()->processOr(NAryQueue.getLastArgList()); }
-	// \E R.C
-inline ReasoningKernel::ComplexConcept
-ReasoningKernel :: Exists ( ComplexRole R, ComplexConcept C ) const
-{
-	return createSNFExists ( R, C );
-}
-	// \A R.C
-inline ReasoningKernel::ComplexConcept
-ReasoningKernel :: Forall ( ComplexRole R, ComplexConcept C ) const
-{
-	return createSNFForall ( R, C );
-}
-	// \E R.I for individual/data value I
-inline ReasoningKernel::ComplexConcept
-ReasoningKernel :: Value ( ComplexRole R, ComplexConcept I ) const
-{
-	return createSNFExists ( R, I );
-}
-	// <= n R.C
-inline ReasoningKernel::ComplexConcept
-ReasoningKernel :: MaxCardinality ( unsigned int n, ComplexRole R, ComplexConcept C ) const
-{
-	return createSNFLE ( n, R, C );
-}
-	// >= n R.C
-inline ReasoningKernel::ComplexConcept
-ReasoningKernel :: MinCardinality ( unsigned int n, ComplexRole R, ComplexConcept C ) const
-{
-	return createSNFGE ( n, R, C );
-}
-
-	// R^-
-inline ReasoningKernel::ComplexRole
-ReasoningKernel :: Inverse ( ComplexRole R ) const
-{
-	return createInverse(R);
-}
-
-	// R*S
-inline ReasoningKernel::ComplexRole
-ReasoningKernel :: Compose ( ComplexRole R, ComplexRole S ) const
-{
-	return new DLTree ( TLexeme(RCOMPOSITION), R, S );
-}
-inline ReasoningKernel::ComplexRole
-ReasoningKernel :: Compose ( void ) { return getTBox()->processRComposition(NAryQueue.getLastArgList()); }
 
 //----------------------------------------------------
 //	TELLS interface

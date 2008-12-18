@@ -221,6 +221,28 @@ void TBox :: prepareFeatures ( const TConcept* pConcept, const TConcept* qConcep
 	getReasoner()->setBlockingMethod ( isIRinQuery(), isNRinQuery() );
 }
 
+void
+TBox :: buildSimpleCache ( void )
+{
+	// set cache for BOTTOM entry
+	initSingletonCache(bpBOTTOM);
+
+	// inapplicable if KB contains CGIs in any form
+	if ( GCIs.isGCI() || GCIs.isReflexive() )
+		return;
+
+	// it is now safe to make a TOP cache
+	initSingletonCache(bpTOP);
+
+	for ( c_const_iterator c = c_begin(), cend = c_end(); c < cend; ++c )
+		if ( (*c)->isPrimitive() )
+			initSingletonCache(inverse((*c)->pName));
+
+	for ( i_const_iterator i = i_begin(), iend = i_end(); i < iend; ++i )
+		if ( (*i)->isPrimitive() )
+			initSingletonCache(inverse((*i)->pName));
+}
+
 bool
 TBox :: isSatisfiable ( const TConcept* pConcept )
 {

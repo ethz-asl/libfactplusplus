@@ -452,13 +452,7 @@ protected:	// methods
 		/// check whether reasoning with nominals is performed
 	bool hasNominals ( void ) const { return !Nominals.empty(); }
 		/// init single nominal node
-	bool initNominalNode ( const TIndividual* nom )
-	{
-		DlCompletionTree* node = CGraph.getNewNode();
-		node->setNominalLevel();
-		const_cast<TIndividual*>(nom)->node = node;	// init nominal with associated node
-		return initNewNode ( node, DepSet(), nom->pName ) == utClash;	// ABox is inconsistent
-	}
+	bool initNominalNode ( const TIndividual* nom );
 		/// create nominal nodes for all individuals in TBox
 	bool initNominalCloud ( void );
 		/// make an R-edge between related nominals
@@ -856,22 +850,7 @@ public:
 		/// prepare reasoner to a new run
 	void prepareReasoner ( void );
 		/// set-up satisfiability task for given pointers and run runSat on it
-	bool runSat ( BipolarPointer p, BipolarPointer q = bpTOP )
-	{
-		prepareReasoner();
-
-		// use general method to init node with P and add Q then
-		if ( initNewNode ( CGraph.getRoot(), DepSet(), p ) == utClash ||
-			 addToDoEntry ( CGraph.getRoot(), q, DepSet() ) == utClash )
-			return false;		// concept[s] unsatisfiable
-
-		// check satisfiability explicitly
-		TsProcTimer& timer = q == bpTOP ? satTimer : subTimer;
-		timer.Start();
-		bool result = runSat();
-		timer.Stop();
-		return result;
-	}
+	bool runSat ( BipolarPointer p, BipolarPointer q = bpTOP );
 
 		/// init TODO list priority for classification
 	void initToDoPriorities ( const ifOptionSet* OptionSet )
@@ -962,6 +941,33 @@ DlSatTester :: initNewNode ( DlCompletionTree* node, const DepSet& dep, BipolarP
 		return utClash;
 
 	return utDone;
+}
+
+inline bool
+DlSatTester :: initNominalNode ( const TIndividual* nom )
+{
+	DlCompletionTree* node = CGraph.getNewNode();
+	node->setNominalLevel();
+	const_cast<TIndividual*>(nom)->node = node;	// init nominal with associated node
+	return initNewNode ( node, DepSet(), nom->pName ) == utClash;	// ABox is inconsistent
+}
+
+inline bool
+DlSatTester :: runSat ( BipolarPointer p, BipolarPointer q )
+{
+	prepareReasoner();
+
+	// use general method to init node with P and add Q then
+	if ( initNewNode ( CGraph.getRoot(), DepSet(), p ) == utClash ||
+		 addToDoEntry ( CGraph.getRoot(), q, DepSet() ) == utClash )
+		return false;		// concept[s] unsatisfiable
+
+	// check satisfiability explicitly
+	TsProcTimer& timer = q == bpTOP ? satTimer : subTimer;
+	timer.Start();
+	bool result = runSat();
+	timer.Stop();
+	return result;
 }
 
 // restore implementation
@@ -1076,17 +1082,6 @@ TBox :: performConsistencyCheck ( void )
 		return isSatisfiable(pTop);
 }
 
-/// test if 2 concept non-subsumption can be determined by cache merging
-inline enum modelCacheState
-TBox :: testCachedNonSubsumption ( const TConcept* p, const TConcept* q )
-{
-	const modelCacheInterface* pCache = initCache(const_cast<TConcept*>(p));
-	prepareFeatures ( NULL, q );	// make appropriate conditions for reasoning
-	const modelCacheInterface* nCache = getReasoner()->fillsCache(inverse(q->pName));
-	clearFeatures();
-	return pCache->canMerge(nCache);
-}
-
 inline const modelCacheInterface*
 TBox :: initCache ( TConcept* pConcept )
 {
@@ -1100,6 +1095,17 @@ TBox :: initCache ( TConcept* pConcept )
 	}
 
 	return cache;
+}
+
+/// test if 2 concept non-subsumption can be determined by cache merging
+inline enum modelCacheState
+TBox :: testCachedNonSubsumption ( const TConcept* p, const TConcept* q )
+{
+	const modelCacheInterface* pCache = initCache(const_cast<TConcept*>(p));
+	prepareFeatures ( NULL, q );	// make appropriate conditions for reasoning
+	const modelCacheInterface* nCache = getReasoner()->fillsCache(inverse(q->pName));
+	clearFeatures();
+	return pCache->canMerge(nCache);
 }
 
 #endif
