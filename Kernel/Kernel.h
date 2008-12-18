@@ -250,7 +250,7 @@ public:	// general staff
 		{ getTBox()->writeReasoningResult ( o, time ); }
 
 		/// @return one-of construction for the arguments in NAryQueue; data is true if data one-of is used
-	DLTree* processOneOf ( bool data = false );
+	DLTree* processOneOf ( bool data = false ) { return getTBox()->processOneOf ( NAryQueue.getLastArgList(), data ); }
 
 	//----------------------------------------------
 	//-- save/load interface; implementation in SaveLoad.cpp
@@ -377,7 +377,7 @@ public:
 			return Or ( C, D );
 	}
 		/// @return \E R.C
-	ComplexConcept Exists ( ComplexRole R, ComplexConcept C ) const { return createSNFExists ( R, C ); } 
+	ComplexConcept Exists ( ComplexRole R, ComplexConcept C ) const { return createSNFExists ( R, C ); }
 		/// @return \A R.C
 	ComplexConcept Forall ( ComplexRole R, ComplexConcept C ) const { return createSNFForall ( R, C ); }
 		/// @return \E R.I for individual/data value I
@@ -852,14 +852,6 @@ inline ReasoningKernel :: ~ReasoningKernel ( void )
 {
 	releaseKB ();
 	delete pKernelOptions;
-}
-
-// some aux methods
-
-inline DLTree*
-ReasoningKernel :: processOneOf ( bool data )
-{
-	return getTBox()->processOneOf ( NAryQueue.getLastArgList(), data );
 }
 
 //----------------------------------------------------
