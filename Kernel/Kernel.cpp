@@ -226,6 +226,15 @@ bool ReasoningKernel :: initOptions ( void )
 		) )
 		return true;
 
+	// register "dumpQuery" option -- 11-08-04
+	if ( pKernelOptions->RegisterOption (
+		"dumpQuery",
+		"Option 'dumpQuery' dumps sub-TBox relevant to given satisfiability/subsumption query.",
+		ifOption::iotBool,
+		"false"
+		) )
+		return true;
+
 	// register "absorptionFlags" option (04/05/2005)
 	if ( pKernelOptions->RegisterOption (
 		"absorptionFlags",
@@ -254,6 +263,15 @@ bool ReasoningKernel :: initOptions ( void )
 	if ( pKernelOptions->RegisterOption (
 		"usePrecompletion",
 		"Option 'usePrecompletion' switchs on and off precompletion process for ABox.",
+		ifOption::iotBool,
+		"false"
+		) )
+		return true;
+
+	// register "useProactiveFairness" option (22/12/2008)
+	if ( pKernelOptions->RegisterOption (
+		"useProactiveFairness",
+		"Option 'useProactiveFairness' switch between reactive and proactive fairness checking.",
 		ifOption::iotBool,
 		"false"
 		) )
@@ -320,6 +338,8 @@ bool ReasoningKernel :: initOptions ( void )
 		) )
 		return true;
 
+	// options for Blocking
+
 	// register "useLazyBlocking" option -- 08-03-04
 	if ( pKernelOptions->RegisterOption (
 		"useLazyBlocking",
@@ -336,15 +356,6 @@ bool ReasoningKernel :: initOptions ( void )
 		"Option 'useAnywhereBlocking' allow user to choose between Anywhere and Ancestor blocking.",
 		ifOption::iotBool,
 		"true"
-		) )
-		return true;
-
-	// register "dumpQuery" option -- 11-08-04
-	if ( pKernelOptions->RegisterOption (
-		"dumpQuery",
-		"Option 'dumpQuery' dumps sub-TBox relevant to given satisfiability/subsumption query.",
-		ifOption::iotBool,
-		"false"
 		) )
 		return true;
 

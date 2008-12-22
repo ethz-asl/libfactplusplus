@@ -337,6 +337,8 @@ protected:	// members
 	bool useLazyBlocking;
 		/// flag for switching between Anywhere and Ancestor blockings
 	bool useAnywhereBlocking;
+		/// flag whether fairness should be proactive
+	bool useProactiveFairness;
 
 	// session status flags:
 

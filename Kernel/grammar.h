@@ -111,8 +111,7 @@ enum Token {
 	DIFFERENT,
 
 	// fairness constraints
-	FCREACTIVE,
-	FCPROACTIVE,
+	FAIRNESS,
 };
 
 // some multi-case defines

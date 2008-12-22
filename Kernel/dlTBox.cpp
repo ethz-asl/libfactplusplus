@@ -44,8 +44,7 @@ TBox :: TBox ( const ifOptionSet* Options )
 	, Concepts("concept")
 	, Axioms(*this)
 	, T_G(bpTOP)	// initialise GCA's concept with Top
-	, fcReactive(NULL)
-	, fcProactive(NULL)
+	, Fairness(NULL)
 	, useSortedReasoning(true)
 	, isLikeGALEN(false)	// just in case Relevance part would be omited
 	, isLikeWINE(false)

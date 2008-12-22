@@ -230,11 +230,10 @@ void DLLispParser :: parseCommand ( void )
 		delete getDataRole();
 		break;
 
-	case FCREACTIVE:
-	case FCPROACTIVE:
+	case FAIRNESS:
 		Name = getConcept();
-		if ( Kernel->setFairnessConstraint ( Name, t == FCPROACTIVE ) )
-			parseError ( "Second fairness constraint or not a named concept" );
+		if ( Kernel->setFairnessConstraint(Name) )
+			parseError ( "Second fairness constraint or not a primitive named concept" );
 		deleteTree(Name);
 		break;
 

@@ -41,7 +41,7 @@ DlSatTester :: DlSatTester ( TBox& tbox, const ifOptionSet* Options )
 	readConfig ( Options );
 
 	// in presence of fairness constraints use ancestor blocking
-	if ( (tBox.fcReactive || tBox.fcProactive) && useAnywhereBlocking )
+	if ( tBox.hasFC() && useAnywhereBlocking )
 	{
 		useAnywhereBlocking = false;
 		if ( LLM.isWritable(llAlways) )
@@ -75,6 +75,7 @@ void DlSatTester :: readConfig ( const ifOptionSet* Options )
 	addBoolOption(useBackjumping);
 	addBoolOption(useLazyBlocking);
 	addBoolOption(useAnywhereBlocking);
+	addBoolOption(useProactiveFairness);
 #undef addBoolOption
 }
 
@@ -765,24 +766,22 @@ bool DlSatTester :: checkSatisfiability ( void )
 					return true;
 #				else
 				{	// check fairness constraints
-					// check reactive one first, as pro-active can add
-					// new entries in the TODO list
-
-					// if reactive fairness constraints are violated,
-					// we shall try to find another way to satisfy it.
-					// Right now we just restore one step back
-					if ( tBox.fcReactive != NULL && CGraph.checkFairness(tBox.fcReactive->pName) )
-						if ( straightforwardRestore() )	// no more branching alternatives
-							return false;
-
-					if ( tBox.fcProactive != NULL )
+					if ( !tBox.hasFC() )
+						return true;
+					BipolarPointer C = tBox.Fairness->pName;
+					if ( useProactiveFairness )
 					{
-						DlCompletionTree* blocker = CGraph.checkFairness(tBox.fcProactive->pName);
-						if ( blocker )
-							if ( addToDoEntry ( blocker, tBox.fcProactive->pName, getCurDepSet(), "fair" ) == utClash )
+						// try to find a cycle that violates fairness
+						DlCompletionTree* blocker = CGraph.checkFairness(C);
+						if ( blocker )	// found one -- add C to the node of the cycle
+							if ( addToDoEntry ( blocker, C, getCurDepSet(), "fair" ) == utClash )
 								if ( tunedRestore() )
 									return false;
 					}
+					else	// reactive fairness: if FC are violated, reject current CGraph
+						if ( CGraph.checkFairness(C) )
+							if ( straightforwardRestore() )	// no more branching alternatives
+								return false;
 
 					if ( TODO.empty() )
 						return true;

@@ -506,7 +506,7 @@ public:
 	bool processDifferent ( void );
 
 		/// mark concept name C to be a fairness constraint
-	bool setFairnessConstraint ( const ComplexConcept C, bool proactive );
+	bool setFairnessConstraint ( const ComplexConcept C );
 
 	//******************************************
 	//* ASK part
@@ -1092,12 +1092,12 @@ inline bool ReasoningKernel :: processDifferent ( void )
 }
 
 	/// mark concept name C to be a fairness constraint
-inline bool ReasoningKernel :: setFairnessConstraint ( const ComplexConcept C, bool proactive )
+inline bool ReasoningKernel :: setFairnessConstraint ( const ComplexConcept C )
 {
 	if ( C->Element().getToken() != CNAME )
 		return true;
 	isChanged = true;
-	return getTBox()->setFairnessConstraint ( C->Element().getName(), proactive );
+	return getTBox()->setFairnessConstraint ( C->Element().getName() );
 }
 
 #endif

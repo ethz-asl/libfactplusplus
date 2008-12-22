@@ -202,10 +202,8 @@ protected:	// members
 		/// current axiom's ID
 	unsigned int axiomId;
 
-		/// reactive fairness constraint
-	TConcept* fcReactive;
-		/// proactive fairness constraint
-	TConcept* fcProactive;
+		/// fairness constraint
+	TConcept* Fairness;
 
 	/////////////////////////////////////////////////////
 	// Flags section
@@ -908,18 +906,19 @@ public:
 	DLTree* processOneOf ( const ConceptSet& v, bool data );
 	DLTree* processRComposition ( const ConceptSet& v );
 
+		/// @return true if KB contains fairness constraints
+	bool hasFC ( void ) const { return Fairness != NULL; }
 		/// mark concept name C to be a fairness constraint
-	bool setFairnessConstraint ( TNamedEntry* C, bool proactive )
+	bool setFairnessConstraint ( TNamedEntry* C )
 	{
 		// only primitive concepts here
 		if ( !isRegisteredConcept(C) )
 			return true;
-		TConcept*& fc = proactive ? fcProactive : fcReactive;
 		// a single concept for now
-		if ( fc != NULL )
+		if ( hasFC() )
 			return true;
-		fc = toConcept(C);
-		return !fc->isPrimitive();
+		Fairness = toConcept(C);
+		return !Fairness->isPrimitive();
 	}
 
 //-----------------------------------------------------------------------------
