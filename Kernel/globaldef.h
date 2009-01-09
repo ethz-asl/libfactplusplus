@@ -55,7 +55,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 //#define RKG_USE_SIMPLE_RULES
 
 // uncomment this to support fairness constraints
-#define RKG_USE_FAIRNESS
+//#define RKG_USE_FAIRNESS
 
 // Flag to choose kind of NR support.
 

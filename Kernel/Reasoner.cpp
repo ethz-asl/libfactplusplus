@@ -767,10 +767,11 @@ bool DlSatTester :: checkSatisfiability ( void )
 				{	// check fairness constraints
 					if ( !tBox.hasFC() )
 						return true;
-					// reactive fairness: for every given FC, if it is violated, reject current CGraph
+					// reactive fairness: for every given FC, if it is violated, reject current model
 					for ( TBox::ConceptVector::const_iterator p = tBox.Fairness.begin(), p_end = tBox.Fairness.end(); p < p_end; ++p )
 						if ( CGraph.isFCViolated((*p)->pName) )
 						{
+							nFairnessViolations.inc();
 							if ( straightforwardRestore() )	// no more branching alternatives
 								return false;
 							else
@@ -963,6 +964,9 @@ void DlSatTester :: logStatisticData ( std::ostream& o, bool needLocal ) const
 	nNodeSaves.Print		( o, needLocal, "\nThere were made ", " save(s) of tree state" );
 	nNodeRestores.Print		( o, needLocal, "\nThere were made ", " restore(s) of tree state" );
 	nLookups.Print			( o, needLocal, "\nThere were made ", " concept lookups" );
+#ifdef RKG_USE_FAIRNESS
+	nFairnessViolations.Print	( o, needLocal, "\nThere were ", " fairness constraints violation" );
+#endif
 
 	nCacheTry.Print				( o, needLocal, "\nThere were made ", " tries to cache completion tree node, of which:" );
 	nCacheFailedNoCache.Print	( o, needLocal, "\n                ", " fails due to cache absence" );

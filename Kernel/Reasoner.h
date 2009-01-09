@@ -305,6 +305,8 @@ protected:	// members
 
 		nLookups,
 
+		nFairnessViolations,
+
 		// reasoning cache
 		nCacheTry,
 		nCacheFailedNoCache,
