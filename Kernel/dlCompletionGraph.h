@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2005-2008 by Dmitry Tsarkov
+Copyright (C) 2005-2009 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -329,13 +329,13 @@ public:		// interface
 
 	// fairness support
 
-		/// make a check for the reactive fairness constraint C
-	DlCompletionTree* checkFairness ( BipolarPointer C )
+		/// @ return true if a fairness constraint C is violated in one of the loops in the CGraph
+	bool isFCViolated ( BipolarPointer C ) const
 	{
-		for ( iterator p = begin(), p_end = end(); p < p_end; ++p )
+		for ( const_iterator p = begin(), p_end = end(); p < p_end; ++p )
 			if ( (*p)->isDBlocked() && !(*p)->isLoopLabelled(C) )
-				return const_cast<DlCompletionTree*>((*p)->Blocker);
-		return NULL;
+				return true;
+		return false;
 	}
 
 		/// clear all the session statistics

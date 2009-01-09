@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2008 by Dmitry Tsarkov
+Copyright (C) 2003-2009 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -337,8 +337,6 @@ protected:	// members
 	bool useLazyBlocking;
 		/// flag for switching between Anywhere and Ancestor blockings
 	bool useAnywhereBlocking;
-		/// flag whether fairness should be proactive
-	bool useProactiveFairness;
 
 	// session status flags:
 

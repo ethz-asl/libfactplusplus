@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2008 by Dmitry Tsarkov
+Copyright (C) 2003-2009 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -75,7 +75,6 @@ void DlSatTester :: readConfig ( const ifOptionSet* Options )
 	addBoolOption(useBackjumping);
 	addBoolOption(useLazyBlocking);
 	addBoolOption(useAnywhereBlocking);
-	addBoolOption(useProactiveFairness);
 #undef addBoolOption
 }
 
@@ -769,19 +768,10 @@ bool DlSatTester :: checkSatisfiability ( void )
 					if ( !tBox.hasFC() )
 						return true;
 					BipolarPointer C = tBox.Fairness->pName;
-					if ( useProactiveFairness )
-					{
-						// try to find a cycle that violates fairness
-						DlCompletionTree* blocker = CGraph.checkFairness(C);
-						if ( blocker )	// found one -- add C to the node of the cycle
-							if ( addToDoEntry ( blocker, C, getCurDepSet(), "fair" ) == utClash )
-								if ( tunedRestore() )
-									return false;
-					}
-					else	// reactive fairness: if FC are violated, reject current CGraph
-						if ( CGraph.checkFairness(C) )
-							if ( straightforwardRestore() )	// no more branching alternatives
-								return false;
+					// reactive fairness: if FC are violated, reject current CGraph
+					if ( CGraph.isFCViolated(C) )
+						if ( straightforwardRestore() )	// no more branching alternatives
+							return false;
 
 					if ( TODO.empty() )
 						return true;

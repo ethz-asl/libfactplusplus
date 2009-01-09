@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2008 by Dmitry Tsarkov
+Copyright (C) 2003-2009 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -263,15 +263,6 @@ bool ReasoningKernel :: initOptions ( void )
 	if ( pKernelOptions->RegisterOption (
 		"usePrecompletion",
 		"Option 'usePrecompletion' switchs on and off precompletion process for ABox.",
-		ifOption::iotBool,
-		"false"
-		) )
-		return true;
-
-	// register "useProactiveFairness" option (22/12/2008)
-	if ( pKernelOptions->RegisterOption (
-		"useProactiveFairness",
-		"Option 'useProactiveFairness' switch between reactive and proactive fairness checking.",
 		ifOption::iotBool,
 		"false"
 		) )
