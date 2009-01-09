@@ -505,8 +505,8 @@ public:
 	// implementation stuff: same individuals
 	bool processDifferent ( void );
 
-		/// mark concept name C to be a fairness constraint
-	bool setFairnessConstraint ( const ComplexConcept C );
+		/// mark concept expresions from ArgQuery as fairness constraints
+	bool setFairnessConstraint ( void );
 
 	//******************************************
 	//* ASK part
@@ -1084,18 +1084,18 @@ inline bool ReasoningKernel :: processSame ( void )
 	return getTBox()->processSame(NAryQueue.getLastArgList());
 }
 
-	// implementation stuff: same individuals
+	// implementation stuff: different individuals
 inline bool ReasoningKernel :: processDifferent ( void )
 {
 	isChanged = true;
 	return getTBox()->processDifferent(NAryQueue.getLastArgList());
 }
 
-	/// mark concept name C to be a fairness constraint
-inline bool ReasoningKernel :: setFairnessConstraint ( const ComplexConcept C )
+	/// let all concept expressions in the ArgQueue to be fairness constraints
+inline bool ReasoningKernel :: setFairnessConstraint ( void )
 {
 	isChanged = true;
-	return getTBox()->setFairnessConstraint(C);
+	return getTBox()->setFairnessConstraint(NAryQueue.getLastArgList());
 }
 
 #endif

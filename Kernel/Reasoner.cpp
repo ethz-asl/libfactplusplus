@@ -767,11 +767,15 @@ bool DlSatTester :: checkSatisfiability ( void )
 				{	// check fairness constraints
 					if ( !tBox.hasFC() )
 						return true;
-					BipolarPointer C = tBox.Fairness->pName;
-					// reactive fairness: if FC are violated, reject current CGraph
-					if ( CGraph.isFCViolated(C) )
-						if ( straightforwardRestore() )	// no more branching alternatives
-							return false;
+					// reactive fairness: for every given FC, if it is violated, reject current CGraph
+					for ( TBox::ConceptVector::const_iterator p = tBox.Fairness.begin(), p_end = tBox.Fairness.end(); p < p_end; ++p )
+						if ( CGraph.isFCViolated((*p)->pName) )
+						{
+							if ( straightforwardRestore() )	// no more branching alternatives
+								return false;
+							else
+								break;
+						}
 
 					if ( TODO.empty() )
 						return true;

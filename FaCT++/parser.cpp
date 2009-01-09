@@ -140,15 +140,20 @@ void DLLispParser :: parseCommand ( void )
 
 	// disjoint-like operator
 	if ( t == DISJOINT ||
+		 t == FAIRNESS ||
 		 t == DIFFERENT ||
 		 t == SAME )
 	{
-		parseConceptList ( /*singletonsOnly=*/ t != DISJOINT );
+		parseConceptList ( /*singletonsOnly=*/ (t != DISJOINT) && (t != FAIRNESS) );
 		switch (t)
 		{
 		case DISJOINT:
 			if ( Kernel->processDisjoint () )
 				parseError ( "Singular Disjoint statement" );
+			return;		// already read ')'
+		case FAIRNESS:
+			if ( Kernel->setFairnessConstraint() )
+				parseError ( "Failure in fairness constraint" );
 			return;		// already read ')'
 		case SAME:
 			if ( Kernel->processSame () )
@@ -228,11 +233,6 @@ void DLLispParser :: parseCommand ( void )
 
 	case DATAROLE:		// register data role
 		delete getDataRole();
-		break;
-
-	case FAIRNESS:
-		if ( Kernel->setFairnessConstraint(processConceptTree()) )
-			parseError ( "Second fairness constraint" );
 		break;
 
 	default:

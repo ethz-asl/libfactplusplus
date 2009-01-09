@@ -202,8 +202,8 @@ protected:	// members
 		/// current axiom's ID
 	unsigned int axiomId;
 
-		/// fairness constraint
-	TConcept* Fairness;
+		/// fairness constraints
+	ConceptVector Fairness;
 
 	/////////////////////////////////////////////////////
 	// Flags section
@@ -907,17 +907,20 @@ public:
 	DLTree* processRComposition ( const ConceptSet& v );
 
 		/// @return true if KB contains fairness constraints
-	bool hasFC ( void ) const { return Fairness != NULL; }
+	bool hasFC ( void ) const { return !Fairness.empty(); }
 		/// add concept expression C as a fairness constraint
-	bool setFairnessConstraint ( DLTree* C )
+	bool setFairnessConstraint ( const ConceptSet& v )
 	{
-		// a single concept for now
-		if ( hasFC() )
-			return true;
-		// build a flag for a FC
-		Fairness = getAuxConcept();
-		// make an axiom: C [= FC
-		return addSubsumeAxiom ( C, getTree(Fairness) );
+		for ( ConceptSet::const_iterator p = v.begin(), p_end = v.end(); p < p_end; ++p )
+		{
+			// build a flag for a FC
+			TConcept* fc = getAuxConcept();
+			Fairness.push_back(fc);
+			// make an axiom: C [= FC
+			if ( addSubsumeAxiom ( *p, getTree(fc) ) )
+				return true;
+		}
+		return false;
 	}
 
 //-----------------------------------------------------------------------------
