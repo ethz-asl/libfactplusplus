@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2004 by Dmitry Tsarkov
+Copyright (C) 2003-2009 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -117,12 +117,13 @@ enum DIGTag
 	digCChildren,
 	digCAncestors,
 	digCDescendants,
-	digEquivalents,		// ??? CEq, could be REq?
+	digCEquivalents,
 
 	digRParents,
 	digRChildren,
 	digRAncestors,
 	digRDescendants,
+	digREquivalents,
 
 	digInstances,
 	digTypes,

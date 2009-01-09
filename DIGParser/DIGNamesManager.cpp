@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2004 by Dmitry Tsarkov
+Copyright (C) 2003-2009 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -103,12 +103,13 @@ NamesManager_DIG_1x :: NamesManager_DIG_1x ( void )
 	addName ( digCChildren, "children" );
 	addName ( digCAncestors, "ancestors" );
 	addName ( digCDescendants, "descendants" );
-	addName ( digEquivalents, "equivalents" );
+	addName ( digCEquivalents, "equivalents" );
 
 	addName ( digRParents, "rparents" );
 	addName ( digRChildren, "rchildren" );
 	addName ( digRAncestors, "rancestors" );
 	addName ( digRDescendants, "rdescendants" );
+	addName ( digREquivalents, "rquivalents" );
 
 	addName ( digInstances, "instances" );
 	addName ( digTypes, "types" );

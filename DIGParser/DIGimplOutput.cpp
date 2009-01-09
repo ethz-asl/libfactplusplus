@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2008 by Dmitry Tsarkov
+Copyright (C) 2003-2009 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -331,7 +331,7 @@ void DIGParseHandlers :: endAsk ( DIGTag tag )
 
 		return;
 	}
-	case digEquivalents:
+	case digCEquivalents:
 	{
 		if ( workStack.empty() )
 			throwArgumentAbsence ( "concept expression", tag );
@@ -374,6 +374,26 @@ void DIGParseHandlers :: endAsk ( DIGTag tag )
 			ASK_QUERY ( pKernel->getRAncestors ( p, actor ) );
 		else if ( tag == digRDescendants )
 			ASK_QUERY ( pKernel->getRDescendants ( p, actor ) );
+
+		deleteTree(p);
+
+		if ( fail )	// error
+			ERROR_400;
+
+		return;
+	}
+	case digREquivalents:
+	{
+		if ( workStack.empty() )
+			throwArgumentAbsence ( "role", tag );
+		DLTree* p = workStack.top();
+		workStack.pop();
+		RoleActor actor ( *o, curId.c_str() );
+
+		if ( wasError )
+			fail = true;
+		else
+			ASK_QUERY ( pKernel->getREquivalents ( p, actor ) );
 
 		deleteTree(p);
 
