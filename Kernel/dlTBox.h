@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2008 by Dmitry Tsarkov
+Copyright (C) 2003-2009 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -908,17 +908,16 @@ public:
 
 		/// @return true if KB contains fairness constraints
 	bool hasFC ( void ) const { return Fairness != NULL; }
-		/// mark concept name C to be a fairness constraint
-	bool setFairnessConstraint ( TNamedEntry* C )
+		/// add concept expression C as a fairness constraint
+	bool setFairnessConstraint ( DLTree* C )
 	{
-		// only primitive concepts here
-		if ( !isRegisteredConcept(C) )
-			return true;
 		// a single concept for now
 		if ( hasFC() )
 			return true;
-		Fairness = toConcept(C);
-		return !Fairness->isPrimitive();
+		// build a flag for a FC
+		Fairness = getAuxConcept();
+		// make an axiom: C [= FC
+		return addSubsumeAxiom ( C, getTree(Fairness) );
 	}
 
 //-----------------------------------------------------------------------------

@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2008 by Dmitry Tsarkov
+Copyright (C) 2003-2009 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -1094,10 +1094,8 @@ inline bool ReasoningKernel :: processDifferent ( void )
 	/// mark concept name C to be a fairness constraint
 inline bool ReasoningKernel :: setFairnessConstraint ( const ComplexConcept C )
 {
-	if ( C->Element().getToken() != CNAME )
-		return true;
 	isChanged = true;
-	return getTBox()->setFairnessConstraint ( C->Element().getName() );
+	return getTBox()->setFairnessConstraint(C);
 }
 
 #endif
