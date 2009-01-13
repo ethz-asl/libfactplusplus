@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2008 by Dmitry Tsarkov
+Copyright (C) 2003-2009 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -40,8 +40,8 @@ protected:	// members
 	TypesVector Types;
 
 protected:	// methods
-		/// register data type with a given name
-	void RegisterDataType ( const std::string& name ) { Types.push_back(new TDataType(name)); }
+		/// register new data type
+	void RegisterDataType ( TDataType* p ) { Types.push_back(p); }
 
 	// iterators
 
@@ -93,9 +93,9 @@ public:		// interface
 	DataTypeCenter ( void )
 	{
 		// register primitive DataTypes
-		RegisterDataType ( "Number" );
-		RegisterDataType ( "String" );
-		RegisterDataType ( "Real" );
+		RegisterDataType(new TDataType("Number"));
+		RegisterDataType(new TDataType("String"));
+		RegisterDataType(new TDataType("Real"));
 	}
 		/// d'tor: delete all datatypes
 	~DataTypeCenter ( void );
