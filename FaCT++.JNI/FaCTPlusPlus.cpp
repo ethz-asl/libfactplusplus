@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2006-2008 by Dmitry Tsarkov
+Copyright (C) 2006-2009 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -250,6 +250,9 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
 		return DataType ( env, getK(env,obj)->getDataTypeCenter().getRealType());
 	if ( DTName == "http://www.w3.org/2001/XMLSchema#double" )
 		return DataType ( env, getK(env,obj)->getDataTypeCenter().getRealType());
+
+	if ( DTName == "http://www.w3.org/2001/XMLSchema#boolean" )
+		return DataType ( env, getK(env,obj)->getDataTypeCenter().getDataType("bool"));
 
 	Throw ( env, "Unsupported datatype in getBuiltInDataType" );
 	return (jobject)0;

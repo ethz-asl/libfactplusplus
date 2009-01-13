@@ -21,6 +21,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "tDataType.h"
 #include "dltree.h"
+#include "tDataTypeBool.h"
 
 class DataTypeReasoner;
 
@@ -96,6 +97,7 @@ public:		// interface
 		RegisterDataType(new TDataType("Number"));
 		RegisterDataType(new TDataType("String"));
 		RegisterDataType(new TDataType("Real"));
+		RegisterDataType(new TDataTypeBool());
 	}
 		/// d'tor: delete all datatypes
 	~DataTypeCenter ( void );
@@ -121,6 +123,9 @@ public:		// interface
 		/// return registered data expression of the type, defined by SAMPLE;
 	DLTree* getDataExpr ( const DLTree* sample ) const
 		{ return wrap(getTypeBySample(unwrap(sample))->getExpr()); }
+		/// get datatype by its name
+	DLTree* getDataType ( const std::string& name )
+		{ return wrap(getTypeByName(name)->getType()); }
 		/// define named datatype as equal to given EXPR. FIXME!! stub for JNI for now
 	DLTree* getDataType ( const std::string& name ATTR_UNUSED, DLTree* expr )
 		{ return expr; }

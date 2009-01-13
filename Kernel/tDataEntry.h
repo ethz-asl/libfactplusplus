@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2005-2008 by Dmitry Tsarkov
+Copyright (C) 2005-2009 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -186,6 +186,8 @@ protected:	// methods
 			comp = ComparableDT((long)atoi(getName()));
 		else if ( typeName == "Real" )
 			comp = ComparableDT((float)atof(getName()));
+		else if ( typeName == "bool" )	// FIXME!! dirty hack
+			comp = ComparableDT(getName());
 	}
 
 public:		// interface
