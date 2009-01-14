@@ -58,6 +58,7 @@ public class FaCTPlusPlusAxiomFilter implements OWLAxiomFilter, OWLAxiomVisitor,
         supportedDataTypes.add(XSDVocabulary.FLOAT.getURI());
         supportedDataTypes.add(XSDVocabulary.INTEGER.getURI());
         supportedDataTypes.add(XSDVocabulary.STRING.getURI());
+        supportedDataTypes.add(XSDVocabulary.BOOLEAN.getURI());
         supportedDataTypes.add(OWLRDFVocabulary.RDFS_LITERAL.getURI());
     }
 
