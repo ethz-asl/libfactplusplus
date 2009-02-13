@@ -594,13 +594,8 @@ protected:	// methods
 
 	// support for disjunction
 
-	/** Aux method for locating OR node characteristics.
-		Fills branchDep with clashset's and indexVec with applicable concepts.
-		@return -1 if some of OR entries are in Label of given Node
-		@return 0 if all OR entries leads to clash;
-		@return n>0 if there are n applicable entries;
-	*/
-	int getOrType ( const DLVertex& cur );
+		/// Aux method for locating OR node characteristics; @return true if node is labelled by one of DJs
+	bool planOrProcessing ( const DLVertex& cur );
 		/// aux method for disjunction processing
 	tacticUsage processOrEntry ( void );
 		/// process semantic branching for the OR entry within [BEG,END) with given dep-set

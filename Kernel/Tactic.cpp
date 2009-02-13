@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2008 by Dmitry Tsarkov
+Copyright (C) 2003-2009 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -277,39 +277,39 @@ tacticUsage DlSatTester :: commonTacticBodyOr ( const DLVertex& cur )	// for C \
 	nOrCalls.inc();
 
 	if ( isFirstBranchCall() )	// check the structure of OR operation (number of applicable concepts)
-		switch ( getOrType(cur) )
-		{
-		case -1:	// found existing component
+	{
+		initBC(btOr);
+		if ( planOrProcessing(cur) )
+		{	// found existing component
 			if ( LLM.isWritable(llGTA) )
 				LL << " E(" << *bContext->orBeg() << ")";
 
 			// we create extra (useless) BC; now we shall get rid of it
 			determiniseBranchingOp();
 			return utUnusable;
-
-		case 0:		// no more applicable concepts
+		}
+		if ( bContext->applicableOrEntries.empty() )
+		{	// no more applicable concepts:
 			// set global dep-set using accumulated deps in branchDep
 			setClashSet(getBranchDep());
 			return utClash;
-
-		default:	// complex OR case;
-			break;
 		}
+	}
 
 	// now it is OR case with 1 or more applicable concepts
 	return processOrEntry();
 }
 
-int DlSatTester :: getOrType ( const DLVertex& cur )
+bool DlSatTester :: planOrProcessing ( const DLVertex& cur )
 {
-	initBC(btOr);
 	BranchingContext::OrIndex& indexVec = bContext->applicableOrEntries;
 	indexVec.clear();
 
 	// check all OR components for the clash
 	const CGLabel& lab = curNode->label();
+	const DepSet dep;
 	for ( DLVertex::const_iterator q = cur.begin(), q_end = cur.end(); q < q_end; ++q )
-		switch ( tryAddConcept ( lab.getLabel(DLHeap[*q].Type()), inverse(*q), DepSet() ) )
+		switch ( tryAddConcept ( lab.getLabel(DLHeap[*q].Type()), inverse(*q), dep ) )
 		{
 		case acrClash:	// clash found -- OK
 			updateBranchDep();
@@ -317,7 +317,7 @@ int DlSatTester :: getOrType ( const DLVertex& cur )
 		case acrExist:	// already have such concept -- save it to the 1st position
 			indexVec.resize(1);
 			indexVec[0] = inverse(*q);
-			return -1;
+			return true;
 		case acrDone:
 			indexVec.push_back(inverse(*q));
 			continue;
@@ -325,8 +325,7 @@ int DlSatTester :: getOrType ( const DLVertex& cur )
 			assert (0);
 		}
 
-	// return number of items to be processed
-	return indexVec.size();
+	return false;
 }
 
 tacticUsage DlSatTester :: processOrEntry ( void )
