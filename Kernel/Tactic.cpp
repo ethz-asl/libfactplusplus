@@ -297,10 +297,7 @@ tacticUsage DlSatTester :: commonTacticBodyOr ( const DLVertex& cur )	// for C \
 		}
 
 	// now it is OR case with 1 or more applicable concepts
-	if ( bContext->isLastOrEntry() )
-		return finOrProcessing();
-	else
-		return contOrProcessing();
+	return processOrEntry();
 }
 
 int DlSatTester :: getOrType ( const DLVertex& cur )
@@ -332,51 +329,39 @@ int DlSatTester :: getOrType ( const DLVertex& cur )
 	return indexVec.size();
 }
 
-tacticUsage DlSatTester :: contOrProcessing ( void )
+tacticUsage DlSatTester :: processOrEntry ( void )
 {
 	BranchingContext::or_iterator beg = bContext->orBeg(), end = bContext->orCur();
 	BipolarPointer C = *end;
+	const char* reason = NULL;
+	DepSet dep;
 
-	// save current state
-	save();
-
-	// new (just branched) dep-set
-	const DepSet curDep(getCurDepSet());
+	if ( bContext->isLastOrEntry() )
+	{
+		// cumulative dep-set will be used
+		prepareBranchDep();
+		dep = getBranchDep();
+		// no more branching decisions
+		determiniseBranchingOp();
+		reason = "bcp";
+	}
+	else
+	{
+		// save current state
+		save();
+		// new (just branched) dep-set
+		dep = getCurDepSet();
+	}
 
 	// if semantic branching is in use -- add previous entries to the label
-	processSemanticBranching ( beg, end, curDep );
+	processSemanticBranching ( beg, end, dep );
 
 	// add new entry to current node; we know the result would be DONE
 	return
 #	ifdef RKG_USE_DYNAMIC_BACKJUMPING
-		addToDoEntry ( curNode, C, curDep );
+		addToDoEntry ( curNode, C, dep, reason );
 #	else
-		insertToDoEntry ( curNode, C, curDep, DLHeap[C].Type(), NULL );
-#	endif
-}
-
-tacticUsage DlSatTester :: finOrProcessing ( void )
-{
-	BranchingContext::or_iterator beg = bContext->orBeg(), end = bContext->orCur();
-	BipolarPointer C = *end;
-
-	// we will use cumulative dep-set
-	prepareBranchDep();
-
-	const DepSet& branchDep = getBranchDep();
-
-	// we did no save here => drop branching index by hands
-	determiniseBranchingOp();
-
-	// if semantic branching is in use -- add previous entries to the label
-	processSemanticBranching ( beg, end, branchDep );
-
-	// add new entry to current node; we know the result would be DONE
-	return
-#	ifdef RKG_USE_DYNAMIC_BACKJUMPING
-		addToDoEntry ( curNode, C, branchDep, "bcp" );
-#	else
-		insertToDoEntry ( curNode, C, branchDep, DLHeap[C].Type(), "bcp" );
+		insertToDoEntry ( curNode, C, dep, DLHeap[C].Type(), reason );
 #	endif
 }
 

@@ -602,9 +602,7 @@ protected:	// methods
 	*/
 	int getOrType ( const DLVertex& cur );
 		/// aux method for disjunction processing
-	tacticUsage contOrProcessing ( void );
-		/// aux method for disjunction processing
-	tacticUsage finOrProcessing ( void );
+	tacticUsage processOrEntry ( void );
 		/// process semantic branching for the OR entry within [BEG,END) with given dep-set
 	template<class Iterator>
 	void processSemanticBranching ( Iterator beg, Iterator end, const DepSet& dep )
