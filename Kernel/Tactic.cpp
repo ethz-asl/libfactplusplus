@@ -357,26 +357,27 @@ tacticUsage DlSatTester :: contOrProcessing ( void )
 
 tacticUsage DlSatTester :: finOrProcessing ( void )
 {
+	BranchingContext::or_iterator beg = bContext->orBeg(), end = bContext->orCur();
+	BipolarPointer C = *end;
+
 	// we will use cumulative dep-set
 	prepareBranchDep();
 
 	const DepSet& branchDep = getBranchDep();
-	BipolarPointer C = *bContext->orCur();
+
+	// we did no save here => drop branching index by hands
+	determiniseBranchingOp();
 
 	// if semantic branching is in use -- add previous entries to the label
-	processSemanticBranching ( bContext->orBeg(), bContext->orCur(), branchDep );
+	processSemanticBranching ( beg, end, branchDep );
 
 	// add new entry to current node; we know the result would be DONE
-	tacticUsage ret =
+	return
 #	ifdef RKG_USE_DYNAMIC_BACKJUMPING
 		addToDoEntry ( curNode, C, branchDep, "bcp" );
 #	else
 		insertToDoEntry ( curNode, C, branchDep, DLHeap[C].Type(), "bcp" );
 #	endif
-
-	// we did no save here => drop branching index by hands
-	determiniseBranchingOp();
-	return ret;
 }
 
 //-------------------------------------------------------------------------------
