@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2008 by Dmitry Tsarkov
+Copyright (C) 2003-2009 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -256,6 +256,9 @@ TConcept* TBox :: checkToldCycle ( TConcept* p )
 	static std::set<TConcept*> sStack;
 		// all the synonyms in the cycle
 	static std::vector<TConcept*> syns;
+
+	// resolve synonym (if happens) to prevent cases like A[=B[=C[=A, A[=D[=B
+	p = resolveSynonym(p);
 
 	// no reason to process TOP here
 	if ( p == pTop )
