@@ -109,9 +109,12 @@ void DlCompletionGraph :: Merge ( DlCompletionTree* from, DlCompletionTree* to,
 	isUpLink = false;	// copying successors
 	for ( q = from->begins(); q < q_ends; ++q )
 	{
-		temp = moveEdge ( to, *q, isUpLink, dep );
-		if ( temp != NULL )
-			edges.push_back(temp);
+		if ( (*q)->getArcEnd()->isNominalNode() )
+		{
+			temp = moveEdge ( to, *q, isUpLink, dep );
+			if ( temp != NULL )
+				edges.push_back(temp);
+		}
 		purgeEdge ( *q, to, dep );
 	}
 
