@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2008 by Dmitry Tsarkov
+Copyright (C) 2003-2009 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -313,7 +313,10 @@ void TBox :: createTaxonomy ( bool needIndividual )
 	classifyConcepts ( arrayNP, false, "non-primitive" );
 
 	if ( pMonitor )
+	{
 		pMonitor->setFinished();
+		setProgressMonitor(NULL);	// no need of PM after classification done
+	}
 	pTax->finalise();
 
 	locTimer.Stop();
