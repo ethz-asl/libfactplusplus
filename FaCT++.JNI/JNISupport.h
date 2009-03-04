@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2006-2008 by Dmitry Tsarkov
+Copyright (C) 2006-2009 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -74,7 +74,13 @@ public:		// interface
 	~RefRecorder ( void ) { clear(); }
 
 		/// add reference to a repository
-	void add ( DLTree* p ) { refs.push_back(p); }
+	void add ( DLTree* p )
+	{
+#	ifdef JNI_TRACING
+		std::cerr << "Registering (" << (void*)p << ") " << p << "\n";
+#	endif
+		refs.push_back(p);
+	}
 		/// check whether P is in the repository
 	bool in ( DLTree* p ) const { return std::find ( refs.begin(), refs.end(), p ) != refs.end(); }
 		/// clear repository, free all memory

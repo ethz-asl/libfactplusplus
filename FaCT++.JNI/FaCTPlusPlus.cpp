@@ -16,6 +16,13 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
+// switch tracing on
+//#define JNI_TRACING
+
+#ifdef ENABLE_CHECKING
+#	define JNI_TRACING
+#endif
+
 #include "uk_ac_manchester_cs_factplusplus_FaCTPlusPlus.h"
 #include "Kernel.h"
 #include "JNISupport.h"
@@ -29,20 +36,14 @@ MMKernel* curKernel = NULL;
 extern "C" {
 #endif
 
-// switch tracing on
-//#define JNI_TRACING
-
-#ifdef ENABLE_CHECKING
-#	define JNI_TRACING
-#endif
-
 #ifdef JNI_TRACING
 #	define TRACE_JNI(func) std::cerr << "JNI Kernel " << getK(env,obj) << " Call " << func << "\n"
 #	define TRACE_ARG(env,obj,arg) do {	\
 		getK(env,obj);					\
-		if ( !curKernel->pRefRecorder->in(getROTree(env,arg)) )	\
+		DLTree* p = getROTree(env,arg);	\
+		if ( !curKernel->pRefRecorder->in(p) )	\
 			std::cerr << "argument not in the ref-set: "; \
-		std::cerr << getROTree(env,arg) << "\n";	\
+		std::cerr << p << "\n";	\
 		} while(0)
 #else
 #	define TRACE_JNI(func) (void)NULL
