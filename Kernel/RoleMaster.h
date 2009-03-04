@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2008 by Dmitry Tsarkov
+Copyright (C) 2003-2009 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -225,7 +225,15 @@ public:		// interface
 
 	// output interface
 
-	void Print ( std::ostream& o ) const;
+	void Print ( std::ostream& o ) const
+	{
+		if ( size() == 0 )
+			return;
+		o << "Roles (" << size() << "):\n";
+		for ( const_iterator p = begin(); p != end(); ++p )
+			(*p)->Print(o);
+	}
+
 
 	// save/load interface; implementation is in SaveLoad.cpp
 

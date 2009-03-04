@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2008 by Dmitry Tsarkov
+Copyright (C) 2003-2009 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -453,12 +453,6 @@ TBox :: writeReasoningResult ( std::ostream& o, float time ) const
 	Print(o);
 }
 
-void TBox :: PrintDagEntrySR ( std::ostream& o, const TRole* p ) const
-{
-	assert ( p != NULL );
-	o << ' ' << p->getName();
-}
-
 void TBox :: PrintDagEntry ( std::ostream& o, BipolarPointer p ) const
 {
 	assert ( isValid (p) );
@@ -503,9 +497,7 @@ void TBox :: PrintDagEntry ( std::ostream& o, BipolarPointer p ) const
 		return;
 
 	case dtIrr:
-		o << " (" << v.getTagName();
-		PrintDagEntrySR ( o, v.getRole() );
-		o << ")";
+		o << " (" << v.getTagName() << ' ' << v.getRole()->getName() << ")";
 		return;
 
 	case dtCollection:
@@ -521,15 +513,15 @@ void TBox :: PrintDagEntry ( std::ostream& o, BipolarPointer p ) const
 		o << " (" << v.getTagName();
 		if ( v.Type() == dtLE )
 			o << ' ' << v.getNumberLE();
-		PrintDagEntrySR ( o, v.getRole() );
+		o << ' ' << v.getRole()->getName();
 		PrintDagEntry ( o, v.getC() );
 		o << ")";
 		return;
 
-	default:
+	default:	// invalid value
 		std::cerr << "Error printing vertex of type " << v.getTagName() << "(" << v.Type () << ")";
 		assert (0);
-		return;	// invalid value
+		return;
 	}
 }
 
@@ -557,15 +549,6 @@ void TBox :: PrintConcept ( std::ostream& o, const TConcept* p ) const
 
 		o << "\n";
 	}
-}
-
-void TBox :: PrintAxioms ( std::ostream& o ) const
-{
-	if ( T_G == bpTOP )
-		return;
-
-	o << "Axioms: \nT [=";
-	PrintDagEntry ( o, T_G );
 }
 
 //-----------------------------------------------------------------------------

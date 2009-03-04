@@ -637,21 +637,24 @@ protected:	// methods
 //-----------------------------------------------------------------------------
 
 	void PrintDagEntry ( std::ostream& o, BipolarPointer p ) const;
-	void PrintDagEntrySR ( std::ostream& o, const TRole* p ) const;
 	void PrintRoles ( std::ostream& o ) const;
 		/// print one concept-like entry
 	void PrintConcept ( std::ostream& o, const TConcept* p ) const;
 		/// print all registered concepts
 	void PrintConcepts ( std::ostream& o ) const
 	{
-		o << "Concepts (" << Concepts.size() << "): \n";
+		if ( Concepts.size() == 0 )
+			return;
+		o << "Concepts (" << Concepts.size() << "):\n";
 		for ( c_const_iterator pc = c_begin(); pc != c_end(); ++pc )
 			PrintConcept(o,*pc);
 	}
 		/// print all registered individuals
 	void PrintIndividuals ( std::ostream& o ) const
 	{
-		o << "Individuals (" << Individuals.size() << "): \n";
+		if ( Individuals.size() == 0 )
+			return;
+		o << "Individuals (" << Individuals.size() << "):\n";
 		for ( i_const_iterator pi = i_begin(); pi != i_end(); ++pi )
 			PrintConcept(o,*pi);
 	}
@@ -659,7 +662,7 @@ protected:	// methods
 	{
 		if ( SimpleRules.empty() )
 			return;
-		o << "Simple rules (" << SimpleRules.size() << "): \n";
+		o << "Simple rules (" << SimpleRules.size() << "):\n";
 		for ( TSimpleRules::const_iterator p = SimpleRules.begin(); p < SimpleRules.end(); ++p )
 		{
 			ConceptVector::const_iterator q = (*p)->Body.begin(), q_end = (*p)->Body.end();
@@ -669,7 +672,13 @@ protected:	// methods
 			o << ") => " << (*p)->tHead << "\n";
 		}
 	}
-	void PrintAxioms ( std::ostream& o ) const;
+	void PrintAxioms ( std::ostream& o ) const
+	{
+		if ( T_G == bpTOP )
+			return;
+		o << "Axioms:\nT [=";
+		PrintDagEntry ( o, T_G );
+	}
 
 //-----------------------------------------------------------------------------
 //--		 save/load support; implementation in SaveLoad.cpp
