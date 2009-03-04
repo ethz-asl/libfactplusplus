@@ -360,6 +360,10 @@ void DlCompletionGraph :: detectBlockedStatus ( DlCompletionTree* node )
 	bool wasBlocked = node->isBlocked();
 	bool wasDBlocked = node->isDBlocked();
 
+	// if we are here, then node *need* to be checked
+	// so this is to prevent from going out of the loop
+	node->setAffected();
+
 	while ( p->hasParent() && p->isBlockableNode() && p->isAffected() )
 	{
 		findDBlocker(p);

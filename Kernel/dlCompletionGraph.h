@@ -232,6 +232,16 @@ protected:	// methods
 			if ( !(*q)->isIBlocked() )
 				setNodeIBlocked ( (*q)->getArcEnd(), blocker );
 	}
+		/// @return true iff node might became unblocked
+	bool canBeUnBlocked ( DlCompletionTree* node ) const
+	{
+		// in presence of inverse roles it is not enough
+		// to check the affected flag for both node and its blocker
+		// see tModal* for example
+		if ( sessionHasInverseRoles )
+			return true;
+		return node->isAffected();
+	}
 
 public:		// interface
 		/// c'tor: make INIT_SIZE objects
@@ -310,7 +320,7 @@ public:		// interface
 		/// update blocked status for d-blocked node
 	void updateDBlockedStatus ( DlCompletionTree* node )
 	{
-		if ( !node->isAffected() )
+		if ( !canBeUnBlocked(node) )
 			return;
 		if ( isStillDBlocked(node) )
 			// FIXME!! clear affected in all children
