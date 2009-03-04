@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2008 by Dmitry Tsarkov
+Copyright (C) 2003-2009 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -53,10 +53,6 @@ DlCompletionGraph :: isBlockedBy ( const DlCompletionTree* node, const DlComplet
 {
 	assert ( !node->isNominalNode() );
 	assert ( !blocker->isNominalNode() );
-
-	// cached node can't be a blocker
-	if ( blocker->isCached() )
-		return false;
 
 	// easy check: Init is not in the label if a blocker
 	if ( !blocker->canBlockInit(node) )
@@ -408,8 +404,8 @@ void DlCompletionGraph :: findDAnywhereBlocker ( DlCompletionTree* node )
 	{
 		const DlCompletionTree* p = *q;
 
-		// node was merge to smth with the larger ID or is blocked itself
-		if ( p->isBlocked() || p->isPBlocked() || p->isNominalNode() )
+		// node was merge to smth with the larger ID or is cached or blocked itself
+		if ( p->isBlocked() || p->isPBlocked() || p->isNominalNode() || p->isCached() )
 			continue;
 
 		if ( isBlockedBy ( node, p ) )
