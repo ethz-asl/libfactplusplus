@@ -364,8 +364,6 @@ public:
 	void openArgList ( void ) { NAryQueue.openArgList(); }
 		/// add an element C to the most recent open argument list
 	void addArg ( const ComplexConcept C ) { NAryQueue.addArg(C); }
-		/// start new concept list for n-ary concept expressions/axioms; 1st element is C
-	void openArgList ( const ComplexConcept C ) { openArgList(); addArg(C); }
 
 		/// simple concept expression
 	ComplexConcept SimpleExpression ( Token t, ComplexConcept C, ComplexConcept D ) const
