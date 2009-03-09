@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2008 by Dmitry Tsarkov
+Copyright (C) 2003-2009 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -390,8 +390,26 @@ public:		// interface
 	virtual void Load ( std::istream& i );
 }; // TRole
 
-/// check if t is in form (inv ... (inv R)...) and return either R or -R. @return 0 in any other case
-extern TRole* resolveRole ( const DLTree* t );
+/// @return R or -R for T in the form (inv ... (inv R)...)
+inline
+TRole*
+resolveRoleHelper ( const DLTree* t )
+{
+	if ( t == NULL )			// empty tree -- error
+		throw EFaCTPlusPlus("Role expression expected");
+	switch ( t->Element().getToken() )
+	{
+	case RNAME:	// role name
+		return static_cast<TRole*>(t->Element().getName());
+	case INV:	// inversion
+		return resolveRoleHelper(t->Left())->inverse();
+	default:	// error
+		throw EFaCTPlusPlus("Invalid role expression");
+	}
+}
+
+/// @return R or -R for T in the form (inv ... (inv R)...); remove synonyms
+inline TRole* resolveRole ( const DLTree* t ) { return resolveSynonym(resolveRoleHelper(t)); }
 
 //--------------------------------------------------
 //	TRole implementation

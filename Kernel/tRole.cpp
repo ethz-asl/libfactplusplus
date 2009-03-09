@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2008 by Dmitry Tsarkov
+Copyright (C) 2003-2009 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -22,22 +22,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "tRole.h"
 #include "taxVertex.h"
-
-// found (inv ... (inv R)...) case and return either R or -R. @return 0 if error
-TRole* resolveRole ( const DLTree* t )
-{
-	if ( t == NULL )			// empty tree -- error
-		return NULL;
-	switch ( t->Element().getToken() )
-	{
-	case RNAME:	// role name
-		return static_cast<TRole*>(t->Element().getName());
-	case INV:	// inversion
-		return resolveRole(t->Left())->inverse();
-	default:	// error
-		return NULL;
-	}
-}
 
 void TRole :: fillsComposition ( roleSet& Composition, DLTree* tree ) const
 {

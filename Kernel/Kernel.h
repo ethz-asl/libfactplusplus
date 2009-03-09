@@ -199,12 +199,10 @@ protected:	// methods
 		return static_cast<TIndividual*>(getTBox()->getCI(i));
 	}
 		/// get role by the DLTree
-	TRole* getRole ( const ComplexRole r, const char* reason )
+	TRole* getRole ( const ComplexRole r, const char* reason ) const
 	{
-		TRole* R = resolveRole(r);
-		if ( R == NULL )
-			throw EFaCTPlusPlus(reason);
-		return R;
+		try { return resolveRole(r); }
+		catch ( EFaCTPlusPlus e ) { throw EFaCTPlusPlus(reason); }
 	}
 
 	//----------------------------------------------
@@ -906,50 +904,44 @@ inline bool ReasoningKernel :: processDisjoint ( void )
 inline bool ReasoningKernel :: impliesRoles ( const ComplexRole R, const ComplexRole S )
 {
 	isChanged = true;
-	return getRM()->addRoleParent ( R, resolveRole(S) );
+	return getRM()->addRoleParent ( R, getRole ( S, "Role expression expected in impliesRoles()" ) );
 }
 
-	// axiom (R = S)
-inline bool ReasoningKernel :: equalRoles ( const ComplexRole R, const ComplexRole S )
-{
-	isChanged = true;
-	return getRM()->addRoleSynonym ( resolveRole(R), resolveRole(S) );
-}
+	// axiom R1 = R2 = ...
 inline bool ReasoningKernel :: equalRoles ( void )
 {
 	isChanged = true;
 	return getTBox()->processEquivalentR(NAryQueue.getLastArgList());
 }
-
-	// axiom (R != S)
-inline bool ReasoningKernel :: disjointRoles ( const ComplexRole R, const ComplexRole S )
+	// axiom (R = S)
+inline bool ReasoningKernel :: equalRoles ( const ComplexRole R, const ComplexRole S )
 {
-	isChanged = true;
-
-	if ( isUniversalRole(R) || isUniversalRole(S) )
-		return true;
-
-	TRole* r = resolveRole(R);
-	TRole* s = resolveRole(S);
-	if ( r == NULL || s == NULL )
-		return true;
-	getRM()->addDisjointRoles(r,s);
-	return false;
+	openArgList();
+	addArg(R);
+	addArg(S);
+	return equalRoles();
 }
+
+	// axiom R1 != R2 != ...
 inline bool ReasoningKernel :: disjointRoles ( void )
 {
 	isChanged = true;
 	return getTBox()->processDisjointR(NAryQueue.getLastArgList());
+}
+	// axiom (R != S)
+inline bool ReasoningKernel :: disjointRoles ( const ComplexRole R, const ComplexRole S )
+{
+	openArgList();
+	addArg(R);
+	addArg(S);
+	return disjointRoles();
 }
 
 	// Domain (R C)
 inline bool ReasoningKernel :: setDomain ( const ComplexRole R, const ComplexConcept C )
 {
 	isChanged = true;
-	TRole* r = resolveRole(R);
-	if ( r == NULL )
-		return true;
-	r->setDomain(C);
+	getRole ( R, "Role expression expected in setDomain()" )->setDomain(C);
 	return false;
 }
 
@@ -957,10 +949,7 @@ inline bool ReasoningKernel :: setDomain ( const ComplexRole R, const ComplexCon
 inline bool ReasoningKernel :: setRange ( const ComplexRole R, const ComplexConcept C )
 {
 	isChanged = true;
-	TRole* r = resolveRole(R);
-	if ( r == NULL )
-		return true;
-	r->setRange(C);
+	getRole ( R, "Role expression expected in setRange()" )->setRange(C);
 	return false;
 }
 
@@ -968,10 +957,7 @@ inline bool ReasoningKernel :: setRange ( const ComplexRole R, const ComplexConc
 inline bool ReasoningKernel :: setTransitive ( const ComplexRole R )
 {
 	isChanged = true;
-	TRole* r = resolveRole(R);
-	if ( r == NULL )
-		return true;
-	r->setBothTransitive();
+	getRole ( R, "Role expression expected in setTransitive()" )->setBothTransitive();
 	return false;
 }
 
@@ -979,10 +965,7 @@ inline bool ReasoningKernel :: setTransitive ( const ComplexRole R )
 inline bool ReasoningKernel :: setReflexive ( const ComplexRole R )
 {
 	isChanged = true;
-	TRole* r = resolveRole(R);
-	if ( r == NULL )
-		return true;
-	r->setBothReflexive();
+	getRole ( R, "Role expression expected in setReflexive()" )->setBothReflexive();
 	return false;
 }
 
@@ -1013,14 +996,12 @@ inline bool ReasoningKernel :: setAntiSymmetric ( const ComplexRole R )
 	// Functional (R)
 inline bool ReasoningKernel :: setFunctional ( const ComplexRole R )
 {
-	TRole* r = resolveRole(R);
-	if ( r == NULL )
-		return true;
-	if ( r->isFunctional() )
-		return false;
-
-	isChanged = true;
-	r->setFunctional();
+	TRole* r = getRole ( R, "Role expression expected in setFunctional()" );
+	if ( !r->isFunctional() )
+	{
+		isChanged = true;
+		r->setFunctional();
+	}
 	return false;
 }
 
@@ -1045,7 +1026,7 @@ inline bool ReasoningKernel :: relatedTo ( const ComplexConcept I, const Complex
 		return false;
 	return getTBox()->RegisterIndividualRelation (
 		I->Element().getName(),
-		resolveRole(R),
+		getRole ( R, "Role expression expected in relatedTo()" ),
 		J->Element().getName() );
 }
 

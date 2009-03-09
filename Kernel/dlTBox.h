@@ -405,9 +405,6 @@ protected:	// methods
 	BipolarPointer addDataExprToHeap ( TDataEntry* p );
 		/// builds DAG entry by general concept expression
 	BipolarPointer tree2dag ( const DLTree* );
-		/// build role (from RM) by given tree representation
-	const TRole* role2dag ( const DLTree* t )
-		{ TRole* r = resolveRole(t); return r ? resolveSynonym(r) : NULL; }
 		/// create forall node (together with transitive sub-roles entries)
 	BipolarPointer forall2dag ( const TRole* R, BipolarPointer C );
 		/// create atmost node (together with NN-rule entries)

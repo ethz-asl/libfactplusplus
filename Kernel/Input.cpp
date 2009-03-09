@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2008 by Dmitry Tsarkov
+Copyright (C) 2003-2009 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -154,7 +154,6 @@ bool TBox :: axiomToRangeDomain ( DLTree* l, DLTree* r )
 	if ( l->Element() == TOP && r->Element () == FORALL )
 	{
 		TRole* Role = resolveRole(r->Left());
-		assert ( Role != NULL );
 		Role->setRange(r->Right());
 		// free unused memory
 		delete l;
@@ -166,7 +165,6 @@ bool TBox :: axiomToRangeDomain ( DLTree* l, DLTree* r )
 	if ( l->Element() == NOT && l->Left()->Element() == FORALL && l->Left()->Right()->Element() == BOTTOM )
 	{
 		TRole* Role = resolveRole(l->Left()->Left());
-		assert ( Role != NULL );
 		Role->setDomain(r);
 		deleteTree(l);
 		return true;
@@ -314,20 +312,20 @@ DLTree* TBox :: processOneOf ( const ConceptSet& v, bool data )
 DLTree* TBox :: processRComposition ( const ConceptSet& v )
 {
 	if ( v.empty() )
-		return NULL;
+		throw EFaCTPlusPlus("Empty role composition chain");
 
 	ConceptSet::const_iterator p, p_end = v.end();
 
 	// check that all id's are correct role names
 	for ( p = v.begin(); p != p_end; ++p )
-		if ( isUniversalRole(*p) || resolveRole(*p) == NULL )
-			return NULL;
+		if ( isUniversalRole(*p) )
+			throw EFaCTPlusPlus("Universal role can not be used in role composition chain");
 
 	p = v.begin();
-	DLTree* ret = new DLTree ( TLexeme(RNAME,resolveRole(*p)) );
+	DLTree* ret = *p;
 
 	while ( ++p < p_end )
-		ret = new DLTree ( TLexeme(RCOMPOSITION), ret, new DLTree ( TLexeme(RNAME,resolveRole(*p)) ) );
+		ret = new DLTree ( TLexeme(RCOMPOSITION), ret, *p );
 
 	return ret;
 }
@@ -449,14 +447,14 @@ bool TBox :: processSame ( const ConceptSet& v )
 bool TBox :: processDisjointR ( const ConceptSet& v )
 {
 	if ( v.empty() )
-		return true;
+		throw EFaCTPlusPlus("Empty disjoint role axiom");
 
 	ConceptSet::const_iterator p, q, p_end = v.end();
 
 	// check that all id's are correct role names
 	for ( p = v.begin(); p != p_end; ++p )
-		if ( isUniversalRole(*p) || resolveRole(*p) == NULL )
-			return true;
+		if ( isUniversalRole(*p) )
+			throw EFaCTPlusPlus("Universal role in the disjoint roles axiom");
 
 	// make a disjoint roles
 	for ( p = v.begin(); p != p_end; ++p )

@@ -80,8 +80,11 @@ void DLLispParser :: parseCommand ( void )
 			parseError ( "Undefined role name in role axiom" );
 
 		// clean role stuff
-		deleteTree(left);
-		deleteTree(right);
+		if ( t != DISJOINT_R )
+		{
+			deleteTree(left);
+			deleteTree(right);
+		}
 
 		MustBeM ( RBRACK );
 		return;
@@ -132,7 +135,8 @@ void DLLispParser :: parseCommand ( void )
 		if ( fail )
 			parseError ( "Undefined role name in role property command" );
 
-		delete R;
+		if ( t != ANTISYMMETRIC )
+			delete R;
 
 		MustBeM ( RBRACK );
 		return;

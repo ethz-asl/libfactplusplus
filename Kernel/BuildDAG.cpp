@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2008 by Dmitry Tsarkov
+Copyright (C) 2003-2009 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -125,13 +125,13 @@ BipolarPointer TBox :: tree2dag ( const DLTree* t )
 		return and2dag(t);
 
 	case FORALL:
-		return forall2dag ( role2dag(t->Left()), tree2dag(t->Right()) );
+		return forall2dag ( resolveRole(t->Left()), tree2dag(t->Right()) );
 
 	case REFLEXIVE:
-		return reflexive2dag(role2dag(t->Left()));
+		return reflexive2dag(resolveRole(t->Left()));
 
 	case LE:
-		return atmost2dag ( cur.getData(), role2dag(t->Left()), tree2dag(t->Right()) );
+		return atmost2dag ( cur.getData(), resolveRole(t->Left()), tree2dag(t->Right()) );
 
 	default:
 		assert ( isSNF(t) );	// safety check

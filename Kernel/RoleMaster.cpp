@@ -31,21 +31,16 @@ DLTree* inverseComposition ( DLTree* tree )
 
 bool RoleMaster :: addRoleParent ( DLTree* tree, TRole* parent )
 {
-	TRole* role = resolveRole(tree);
-
-	if ( role != NULL )
-		return addRoleParent ( role, parent );
-
-	// expected role composition
-	if ( tree == NULL || tree->Element() != RCOMPOSITION )
-		return true;	// FIXME!! exception later on
-
-	parent->addComposition(tree);
-	DLTree* inv = inverseComposition(tree);
-	parent->inverse()->addComposition(inv);
-	deleteTree(inv);
-
-	return false;
+	if ( tree && tree->Element() == RCOMPOSITION )
+	{
+		parent->addComposition(tree);
+		DLTree* inv = inverseComposition(tree);
+		parent->inverse()->addComposition(inv);
+		deleteTree(inv);
+		return false;
+	}
+	else
+		return addRoleParent ( resolveRole(tree), parent );
 }
 
 void RoleMaster :: initAncDesc ( void )

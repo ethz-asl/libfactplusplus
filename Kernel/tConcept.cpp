@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2008 by Dmitry Tsarkov
+Copyright (C) 2003-2009 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -181,7 +181,6 @@ bool TConcept :: initToldSubsumers ( const DLTree* desc )
 
 void TConcept :: SearchTSbyRole ( const TRole* R )
 {
-	assert ( R != NULL );
 	const DLTree* Domain = R->getTDomain();
 	if ( Domain == NULL || isConst(Domain) )
 		return;

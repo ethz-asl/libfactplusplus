@@ -176,7 +176,7 @@ bool equalTrees ( const DLTree* t1, const DLTree* t2 )
 	// empty and non-empty trees are not equal
 	if ( t1 == NULL || t2 == NULL )
 		return false;
-	
+
 	// non-empty trees are checked recursively
 	return ( t1->Element() == t2->Element() ) &&
 		   equalTrees ( t1->Left(), t2->Left() ) &&
