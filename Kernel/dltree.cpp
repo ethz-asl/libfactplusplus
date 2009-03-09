@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2008 by Dmitry Tsarkov
+Copyright (C) 2003-2009 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -173,14 +173,14 @@ bool equalTrees ( const DLTree* t1, const DLTree* t2 )
 	if ( t1 == NULL && t2 == NULL )
 		return true;
 
-	// non-empty trees are checked recursively
-	if ( t1 != NULL && t2 != NULL )
-		return ( t1->Element() == t2->Element() ) &&
-			   equalTrees ( t1->Left(), t2->Left() ) &&
-			   equalTrees ( t1->Right(), t2->Right() );
-
 	// empty and non-empty trees are not equal
-	return false;
+	if ( t1 == NULL || t2 == NULL )
+		return false;
+	
+	// non-empty trees are checked recursively
+	return ( t1->Element() == t2->Element() ) &&
+		   equalTrees ( t1->Left(), t2->Left() ) &&
+		   equalTrees ( t1->Right(), t2->Right() );
 }
 
 bool isSubTree ( const DLTree* t1, const DLTree* t2 )
