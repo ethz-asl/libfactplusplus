@@ -420,89 +420,201 @@ public:
 		/// @return R1*...*Rn
 	ComplexRole Compose ( void ) { return getTBox()->processRComposition(NAryQueue.getLastArgList()); }
 
-	// data-related expressions -- to be done
+	//----------------------------------------------------
+	//	TELLS interface
+	//----------------------------------------------------
 
-	//******************************************
-	//* TELL part
-	//******************************************
+	// Concept axioms
 
-	// concept axioms
-
-	// axiom (C [= D)
-	bool impliesConcepts ( const ComplexConcept C, const ComplexConcept D );
-
-	// axiom (C = D)
-	bool equalConcepts ( const ComplexConcept C, const ComplexConcept D );
+		/// axiom C [= D
+	void impliesConcepts ( const ComplexConcept C, const ComplexConcept D )
+	{
+		isChanged = true;
+#	ifdef FPP_USE_AXIOMS
+		Ontology.add ( new TDLAxiomConceptInclusion ( C, D ) );
+#	else
+		getTBox()->addSubsumeAxiom ( C, D );
+#	endif
+	}
 		/// axiom C1 = ... = Cn
-	bool equalConcepts ( void );
-
+	void equalConcepts ( void )
+	{
+		isChanged = true;
+#	ifdef FPP_USE_AXIOMS
+		Ontology.add ( new TDLAxiomConceptEquivalence(NAryQueue.getLastArgList()) );
+#	else
+		getTBox()->processEquivalent(NAryQueue.getLastArgList());
+#	endif
+	}
+		/// axiom C = D
+	void equalConcepts ( const ComplexConcept C, const ComplexConcept D )
+	{
+		openArgList();
+		addArg(C);
+		addArg(D);
+		equalConcepts();
+	}
 		/// axiom C1 != ... != Cn
-	bool processDisjoint ( void );
+	void processDisjoint ( void )
+	{
+		isChanged = true;
+		getTBox()->processDisjoint(NAryQueue.getLastArgList());
+	}
+
 
 	// Role axioms
 
-	// axiom (R [= S)
-	bool impliesRoles ( const ComplexRole R, const ComplexRole S );
+		/// axiom (R [= S)
+	void impliesRoles ( const ComplexRole R, const ComplexRole S )
+	{
+		isChanged = true;
+		getRM()->addRoleParent ( R, getRole ( S, "Role expression expected in impliesRoles()" ) );
+	}
+		/// axiom R1 = R2 = ...
+	void equalRoles ( void )
+	{
+		isChanged = true;
+		getTBox()->processEquivalentR(NAryQueue.getLastArgList());
+	}
+		/// axiom (R = S)
+	void equalRoles ( const ComplexRole R, const ComplexRole S )
+	{
+		openArgList();
+		addArg(R);
+		addArg(S);
+		equalRoles();
+	}
+		/// axiom R1 != R2 != ...
+	void disjointRoles ( void )
+	{
+		isChanged = true;
+		getTBox()->processDisjointR(NAryQueue.getLastArgList());
+	}
+		/// axiom (R != S)
+	void disjointRoles ( const ComplexRole R, const ComplexRole S )
+	{
+		openArgList();
+		addArg(R);
+		addArg(S);
+		disjointRoles();
+	}
 
-	// axiom (R = S)
-	bool equalRoles ( const ComplexRole R, const ComplexRole S );
-		/// axiom R1 = ... = Rn
-	bool equalRoles ( void );
+		/// Domain (R C)
+	void setDomain ( const ComplexRole R, const ComplexConcept C )
+	{
+		isChanged = true;
+		getRole ( R, "Role expression expected in setDomain()" )->setDomain(C);
+	}
+		/// Range (R C)
+	void setRange ( const ComplexRole R, const ComplexConcept C )
+	{
+		isChanged = true;
+		getRole ( R, "Role expression expected in setRange()" )->setRange(C);
+	}
 
-	// axiom (R != S)
-	bool disjointRoles ( const ComplexRole R, const ComplexRole S );
-		/// axiom R1 != ... != Rn
-	bool disjointRoles ( void );
+		/// Transitive (R)
+	void setTransitive ( const ComplexRole R )
+	{
+		if ( !isUniversalRole(R) )
+		{
+			isChanged = true;
+			getRole ( R, "Role expression expected in setTransitive()" )->setBothTransitive();
+		}
+	}
+		/// Reflexive (R)
+	void setReflexive ( const ComplexRole R )
+	{
+		if ( !isUniversalRole(R) )
+		{
+			isChanged = true;
+			getRole ( R, "Role expression expected in setReflexive()" )->setBothReflexive();
+		}
+	}
+		/// Irreflexive (R): Domain(R) = \neg ER.Self
+	void setIrreflexive ( const ComplexRole R )
+	{
+		if ( isUniversalRole(R) )	// KB became inconsistent
+			throw InconsistentKB();
 
-	// Domain (R C)
-	bool setDomain ( const ComplexRole R, const ComplexConcept C );
+		setDomain ( R, Not(SelfReference(clone(R))) );
+	}
+		/// Symmetric (R): R [= R^-
+	void setSymmetric ( const ComplexRole R )
+	{
+		if ( !isUniversalRole(R) )
+			impliesRoles ( R, Inverse(clone(R)) );
+	}
+		/// AntySymmetric (R): disjoint(R,R^-)
+	void setAntiSymmetric ( const ComplexRole R )
+	{
+		if ( isUniversalRole(R) )	// KB became inconsistent
+			throw InconsistentKB();
 
-	// Range (R C)
-	bool setRange ( const ComplexRole R, const ComplexConcept C );
+		disjointRoles ( R, Inverse(clone(R)) );
+	}
+		/// Functional (R)
+	void setFunctional ( const ComplexRole R )
+	{
+		TRole* r = getRole ( R, "Role expression expected in setFunctional()" );
+		if ( !r->isFunctional() )
+		{
+			isChanged = true;
+			r->setFunctional();
+		}
+	}
 
-	// Transitive (R)
-	bool setTransitive ( const ComplexRole R );
-
-	// Reflexive (R)
-	bool setReflexive ( const ComplexRole R );
-
-	// Irreflexive (R)
-	bool setIrreflexive ( const ComplexRole R );
-
-	// Symmetric (R)
-	bool setSymmetric ( const ComplexRole R );
-
-	// AntiSymmetric (R)
-	bool setAntiSymmetric ( const ComplexRole R );
-
-	// Functional (R)
-	bool setFunctional ( const ComplexRole R );
 
 	// Individual axioms
 
-	// axiom I e C
-	bool instanceOf ( const ComplexConcept I, const ComplexConcept C );
-
-	// axiom (related I R J)
-	bool relatedTo ( const ComplexConcept I, const ComplexRole R, const ComplexConcept J );
-
-	// axiom <I,J>:\neg R
-	bool relatedToNot ( const ComplexConcept I, const ComplexRole R, const ComplexConcept J );
-
-	// axiom (value I A V)
-	bool valueOf ( const ComplexConcept I, const ComplexRole A, const ComplexConcept V );
-
-	// axiom <I,V>:\neg A
-	bool valueOfNot ( const ComplexConcept I, const ComplexRole A, const ComplexConcept V );
-
-	// implementation stuff: same individuals
-	bool processSame ( void );
-
-	// implementation stuff: same individuals
-	bool processDifferent ( void );
-
-		/// mark concept expresions from ArgQuery as fairness constraints
-	bool setFairnessConstraint ( void );
+		/// axiom I e C
+	void instanceOf ( const ComplexConcept I, const ComplexConcept C )
+	{
+		isChanged = true;
+		getTBox()->RegisterInstance ( getIndividual ( I, "Individual expected in instanceOf()" ), C );
+	}
+		/// axiom <I,J>:R
+	void relatedTo ( const ComplexConcept I, const ComplexRole R, const ComplexConcept J )
+	{
+		isChanged = true;
+		TIndividual* i = getIndividual ( I, "Individual expected in relatedTo()" );
+		TIndividual* j = getIndividual ( J, "Individual expected in relatedTo()" );
+		if ( !isUniversalRole(R) )	// nothing to do for universal role
+			getTBox()->RegisterIndividualRelation (
+				i, getRole ( R, "Role expression expected in relatedTo()" ), j );
+	}
+		/// axiom <I,J>:\neg R
+	void relatedToNot ( const ComplexConcept I, const ComplexRole R, const ComplexConcept J )
+	{
+		getIndividual ( I, "Individual expected in relatedToNot()" );
+		getIndividual ( J, "Individual expected in relatedToNot()" );
+		if ( isUniversalRole(R) )	// inconsistent ontology
+			throw InconsistentKB();
+		instanceOf ( I, Forall ( R, Not(J) ) );		// change to i:\AR.\neg{j}
+	}
+		/// axiom (value I A V)
+	void valueOf ( const ComplexConcept I, const ComplexRole A, const ComplexConcept V )
+		{ instanceOf ( I, Exists ( A, V ) ); }
+		/// axiom <I,V>:\neg A
+	void valueOfNot ( const ComplexConcept I, const ComplexRole A, const ComplexConcept V )
+		{ instanceOf ( I, Forall ( A, Not(V) ) ); }
+		/// same individuals
+	void processSame ( void )
+	{
+		isChanged = true;
+		getTBox()->processSame(NAryQueue.getLastArgList());
+	}
+		/// different individuals
+	void processDifferent ( void )
+	{
+		isChanged = true;
+		getTBox()->processDifferent(NAryQueue.getLastArgList());
+	}
+		/// let all concept expressions in the ArgQueue to be fairness constraints
+	void setFairnessConstraint ( void )
+	{
+		isChanged = true;
+		getTBox()->setFairnessConstraint(NAryQueue.getLastArgList());
+	}
 
 	//******************************************
 	//* ASK part
@@ -848,252 +960,6 @@ inline ReasoningKernel :: ~ReasoningKernel ( void )
 {
 	releaseKB ();
 	delete pKernelOptions;
-}
-
-//----------------------------------------------------
-//	TELLS interface
-//----------------------------------------------------
-
-	// concept axioms
-
-	// axiom (C [= D)
-inline bool ReasoningKernel :: impliesConcepts ( const ComplexConcept C, const ComplexConcept D )
-{
-	isChanged = true;
-#ifdef FPP_USE_AXIOMS
-	Ontology.add ( new TDLAxiomConceptInclusion ( C, D ) );
-#else
-	getTBox()->addSubsumeAxiom ( C, D );
-#endif
-	return false;
-}
-
-	// axiom (C = D)
-inline bool ReasoningKernel :: equalConcepts ( const ComplexConcept C, const ComplexConcept D )
-{
-	isChanged = true;
-#ifdef FPP_USE_AXIOMS
-	Ontology.add ( new TDLAxiomConceptEquivalence ( C, D ) );
-#else
-	getTBox()->addEqualityAxiom ( C, D );
-#endif
-	return false;
-}
-inline bool ReasoningKernel :: equalConcepts ( void )
-{
-	isChanged = true;
-#ifdef FPP_USE_AXIOMS
-	Ontology.add ( new TDLAxiomConceptEquivalence(NAryQueue.getLastArgList()) );
-#else
-	getTBox()->processEquivalent(NAryQueue.getLastArgList());
-#endif
-	return false;
-}
-
-inline bool ReasoningKernel :: processDisjoint ( void )
-{
-	isChanged = true;
-	getTBox()->processDisjoint(NAryQueue.getLastArgList());
-	return false;
-}
-
-
-
-	// Role axioms
-
-	// axiom (R [= S)
-inline bool ReasoningKernel :: impliesRoles ( const ComplexRole R, const ComplexRole S )
-{
-	isChanged = true;
-	getRM()->addRoleParent ( R, getRole ( S, "Role expression expected in impliesRoles()" ) );
-	return false;
-}
-
-	// axiom R1 = R2 = ...
-inline bool ReasoningKernel :: equalRoles ( void )
-{
-	isChanged = true;
-	getTBox()->processEquivalentR(NAryQueue.getLastArgList());
-	return false;
-}
-	// axiom (R = S)
-inline bool ReasoningKernel :: equalRoles ( const ComplexRole R, const ComplexRole S )
-{
-	openArgList();
-	addArg(R);
-	addArg(S);
-	equalRoles();
-	return false;
-}
-
-	// axiom R1 != R2 != ...
-inline bool ReasoningKernel :: disjointRoles ( void )
-{
-	isChanged = true;
-	getTBox()->processDisjointR(NAryQueue.getLastArgList());
-	return false;
-}
-	// axiom (R != S)
-inline bool ReasoningKernel :: disjointRoles ( const ComplexRole R, const ComplexRole S )
-{
-	openArgList();
-	addArg(R);
-	addArg(S);
-	disjointRoles();
-	return false;
-}
-
-	// Domain (R C)
-inline bool ReasoningKernel :: setDomain ( const ComplexRole R, const ComplexConcept C )
-{
-	isChanged = true;
-	getRole ( R, "Role expression expected in setDomain()" )->setDomain(C);
-	return false;
-}
-
-	// Range (R C)
-inline bool ReasoningKernel :: setRange ( const ComplexRole R, const ComplexConcept C )
-{
-	isChanged = true;
-	getRole ( R, "Role expression expected in setRange()" )->setRange(C);
-	return false;
-}
-
-	// Transitive (R)
-inline bool ReasoningKernel :: setTransitive ( const ComplexRole R )
-{
-	if ( !isUniversalRole(R) )
-	{
-		isChanged = true;
-		getRole ( R, "Role expression expected in setTransitive()" )->setBothTransitive();
-	}
-	return false;
-}
-
-	// Reflexive (R)
-inline bool ReasoningKernel :: setReflexive ( const ComplexRole R )
-{
-	if ( !isUniversalRole(R) )
-	{
-		isChanged = true;
-		getRole ( R, "Role expression expected in setReflexive()" )->setBothReflexive();
-	}
-	return false;
-}
-
-	// Irreflexive (R): Domain(R) = \neg ER.Self
-inline bool ReasoningKernel :: setIrreflexive ( const ComplexRole R )
-{
-	if ( isUniversalRole(R) )	// KB became inconsistent
-		throw InconsistentKB();
-
-	setDomain ( R, Not(SelfReference(clone(R))) );
-	return false;
-}
-
-	// Symmetric (R): R [= R^-
-inline bool ReasoningKernel :: setSymmetric ( const ComplexRole R )
-{
-	if ( !isUniversalRole(R) )
-		impliesRoles ( R, Inverse(clone(R)) );
-	return false;
-}
-
-	// AntySymmetric (R): disjoint(R,R^-)
-inline bool ReasoningKernel :: setAntiSymmetric ( const ComplexRole R )
-{
-	if ( isUniversalRole(R) )	// KB became inconsistent
-		throw InconsistentKB();
-
-	disjointRoles ( R, Inverse(clone(R)) );
-	return false;
-}
-
-	// Functional (R)
-inline bool ReasoningKernel :: setFunctional ( const ComplexRole R )
-{
-	TRole* r = getRole ( R, "Role expression expected in setFunctional()" );
-	if ( !r->isFunctional() )
-	{
-		isChanged = true;
-		r->setFunctional();
-	}
-	return false;
-}
-
-	// Individual axioms
-
-	// axiom I e C
-inline bool ReasoningKernel :: instanceOf ( const ComplexConcept I, const ComplexConcept C )
-{
-	isChanged = true;
-	if ( I->Element().getToken() != INAME )
-		return true;
-	return getTBox()->RegisterInstance ( I->Element().getName(), C );
-}
-
-	// axiom (related I R J)
-inline bool ReasoningKernel :: relatedTo ( const ComplexConcept I, const ComplexRole R, const ComplexConcept J )
-{
-	isChanged = true;
-	if ( I->Element().getToken() != INAME || J->Element().getToken() != INAME )
-		return true;
-	if ( isUniversalRole(R) )	// nothing to do
-		return false;
-	return getTBox()->RegisterIndividualRelation (
-		I->Element().getName(),
-		getRole ( R, "Role expression expected in relatedTo()" ),
-		J->Element().getName() );
-}
-
-	// axiom <I,J>:\neg R
-inline bool ReasoningKernel :: relatedToNot ( const ComplexConcept I, const ComplexRole R, const ComplexConcept J )
-{
-	isChanged = true;
-	if ( I->Element().getToken() != INAME || J->Element().getToken() != INAME )
-		return true;
-	if ( isUniversalRole(R) )	// nothing to do
-		return false;
-	// change to i:\AR.\neg{j}
-	return instanceOf ( I, Forall ( R, Not(J) ) );
-}
-
-	// axiom (value I A V)
-inline bool ReasoningKernel :: valueOf ( const ComplexConcept I, const ComplexRole A, const ComplexConcept V )
-{
-	isChanged = true;
-	return instanceOf ( I, Exists ( A, V ) );
-}
-
-	// axiom <I,V>:\neg A
-inline bool ReasoningKernel :: valueOfNot ( const ComplexConcept I, const ComplexRole A, const ComplexConcept V )
-{
-	isChanged = true;
-	return instanceOf ( I, Forall ( A, Not(V) ) );
-}
-
-	// implementation stuff: same individuals
-inline bool ReasoningKernel :: processSame ( void )
-{
-	isChanged = true;
-	getTBox()->processSame(NAryQueue.getLastArgList());
-	return false;
-}
-
-	// implementation stuff: different individuals
-inline bool ReasoningKernel :: processDifferent ( void )
-{
-	isChanged = true;
-	getTBox()->processDifferent(NAryQueue.getLastArgList());
-	return false;
-}
-
-	/// let all concept expressions in the ArgQueue to be fairness constraints
-inline bool ReasoningKernel :: setFairnessConstraint ( void )
-{
-	isChanged = true;
-	getTBox()->setFairnessConstraint(NAryQueue.getLastArgList());
-	return false;
 }
 
 #endif

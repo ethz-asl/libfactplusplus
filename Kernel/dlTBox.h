@@ -856,17 +856,16 @@ public:
 		return Concepts.setLocked(val);
 	}
 
-	bool RegisterInstance ( TNamedEntry* name, DLTree* Desc )
+	void RegisterInstance ( TNamedEntry* name, DLTree* Desc )
 	{
 		if ( !isIndividual(name) )
-			return true;
-		addSubsumeAxiom ( toConcept(name), Desc );
-		return false;
+			throw EFaCTPlusPlus("Individual expected in instance()");
+		addSubsumeAxiom ( toIndividual(name), Desc );
 	}
-	bool RegisterIndividualRelation ( TNamedEntry* a, TNamedEntry* R, TNamedEntry* b )
+	void RegisterIndividualRelation ( TNamedEntry* a, TNamedEntry* R, TNamedEntry* b )
 	{
 		if ( !isIndividual(a) || !isIndividual(b) )
-			return true;
+			throw EFaCTPlusPlus("Individual expected in related()");
 		RelatedI.push_back ( new
 			TRelated ( toIndividual(a),
 					   toIndividual(b),
@@ -875,7 +874,6 @@ public:
 			TRelated ( toIndividual(b),
 					   toIndividual(a),
 					   static_cast<TRole*>(R)->inverse() ) );
-		return false;
 	}
 
 		/// add general subsumption axiom C [= D

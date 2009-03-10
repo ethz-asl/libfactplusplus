@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2008 by Dmitry Tsarkov
+Copyright (C) 2003-2009 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -205,7 +205,11 @@ void DIGParseHandlers :: startConcept ( DIGTag tag, AttributeList& attributes )
 		if ( parm_name == NULL )
 			throwAttributeAbsence ( "name", tag );
 		x = tryRoleName(name);
-		if ( pKernel->setFunctional(x) )
+		try
+		{
+			pKernel->setFunctional(x);
+		}
+		catch(...)
 		{
 			wasError = true;
 			string reason ( "Feature '" );
@@ -331,10 +335,10 @@ void DIGParseHandlers :: startAxiom ( DIGTag tag, AttributeList& attributes )
 	// macro for error printing
 #ifdef RKG_PRINT_DIG_MESSAGES
 #	define ERROR_IF(action)\
-	if (action) { cerr << "ERROR encountered in " << NamesManager.getName(tag).c_str() << " command\n"; }
+	try {action;} catch(...) { cerr << "ERROR encountered in " << NamesManager.getName(tag).c_str() << " command\n"; }
 #else
 #	define ERROR_IF(action)\
-	if (action) {/*put error message here*/}
+	try {action;} catch(...) {/*put error message here*/}
 #endif
 
 	switch (tag)
@@ -647,10 +651,10 @@ void DIGParseHandlers :: endAxiom ( DIGTag tag )
 	// macro for error printing
 #ifdef RKG_PRINT_DIG_MESSAGES
 #	define ERROR_IF(action)\
-	if (action) { cerr << "ERROR encountered in " << NamesManager.getName(tag).c_str() << " command\n"; }
+	try {action;} catch(...) { cerr << "ERROR encountered in " << NamesManager.getName(tag).c_str() << " command\n"; }
 #else
 #	define ERROR_IF(action)\
-	if (action) {/*put error message here*/}
+	try {action;} catch(...) {/*put error message here*/}
 #endif
 
 	switch (tag)

@@ -43,15 +43,17 @@ void DLLispParser :: parseCommand ( void )
 		DLTree* left = processConceptTree ();
 		DLTree* right = processConceptTree ();
 
-		bool fail;
-
-		if ( t == SUBSUMES )
-			fail = Kernel->impliesConcepts ( left, right );
-		else
-			fail = Kernel->equalConcepts ( left, right );
-
-		if ( fail )
-			parseError ( "Undefined concept name" );
+		try
+		{
+			if ( t == SUBSUMES )
+				Kernel->impliesConcepts ( left, right );
+			else
+				Kernel->equalConcepts ( left, right );
+		}
+		catch ( EFaCTPlusPlus ex )
+		{
+			parseError(ex.what());
+		}
 
 		MustBeM ( RBRACK );
 		return;
@@ -62,22 +64,24 @@ void DLLispParser :: parseCommand ( void )
 		DLTree* left = getRoleExpression(/*allowChain=*/(t == IMPLIES_R));
 		DLTree* right = getRoleExpression(/*allowChain=*/false);
 
-		bool fail;
-
-		if ( t == IMPLIES_R )
-			fail = Kernel->impliesRoles ( left, right );
-		else if ( t == EQUAL_R )
-			fail = Kernel->equalRoles ( left, right );
-		else if ( t == INVERSE )
+		try
 		{
-			right = createInverse(right);
-			fail = Kernel->equalRoles ( left, right );
+			if ( t == IMPLIES_R )
+				Kernel->impliesRoles ( left, right );
+			else if ( t == EQUAL_R )
+				Kernel->equalRoles ( left, right );
+			else if ( t == INVERSE )
+			{
+				right = createInverse(right);
+				Kernel->equalRoles ( left, right );
+			}
+			else
+				Kernel->disjointRoles ( left, right );
 		}
-		else
-			fail = Kernel->disjointRoles ( left, right );
-
-		if ( fail )
-			parseError ( "Undefined role name in role axiom" );
+		catch ( EFaCTPlusPlus ex )
+		{
+			parseError(ex.what());
+		}
 
 		// clean role stuff
 		if ( t != DISJOINT_R )
@@ -100,40 +104,43 @@ void DLLispParser :: parseCommand ( void )
 		 t == ROLEDOMAIN )
 	{
 		DLTree* R = getRoleExpression(/*allowChain=*/false);
-		bool fail;
 
-		switch (t)
+		try
 		{
-		case FUNCTIONAL:
-			fail = Kernel->setFunctional(R);
-			break;
-		case TRANSITIVE:
-			fail = Kernel->setTransitive(R);
-			break;
-		case REFLEXIVE:
-			fail = Kernel->setReflexive(R);
-			break;
-		case IRREFLEXIVE:
-			fail = Kernel->setIrreflexive(R);
-			break;
-		case SYMMETRIC:
-			fail = Kernel->setSymmetric(R);
-			break;
-		case ANTISYMMETRIC:
-			fail = Kernel->setAntiSymmetric(R);
-			break;
-		case ROLERANGE:
-			fail = Kernel->setRange ( R, processConceptTree() );
-			break;
-		case ROLEDOMAIN:
-			fail = Kernel->setDomain ( R, processConceptTree() );
-			break;
-		default:
-			assert (0);
+			switch (t)
+			{
+			case FUNCTIONAL:
+				Kernel->setFunctional(R);
+				break;
+			case TRANSITIVE:
+				Kernel->setTransitive(R);
+				break;
+			case REFLEXIVE:
+				Kernel->setReflexive(R);
+				break;
+			case IRREFLEXIVE:
+				Kernel->setIrreflexive(R);
+				break;
+			case SYMMETRIC:
+				Kernel->setSymmetric(R);
+				break;
+			case ANTISYMMETRIC:
+				Kernel->setAntiSymmetric(R);
+				break;
+			case ROLERANGE:
+				Kernel->setRange ( R, processConceptTree() );
+				break;
+			case ROLEDOMAIN:
+				Kernel->setDomain ( R, processConceptTree() );
+				break;
+			default:
+				assert (0);
+			}
 		}
-
-		if ( fail )
-			parseError ( "Undefined role name in role property command" );
+		catch ( EFaCTPlusPlus ex )
+		{
+			parseError(ex.what());
+		}
 
 		if ( t != ANTISYMMETRIC )
 			delete R;
@@ -149,26 +156,29 @@ void DLLispParser :: parseCommand ( void )
 		 t == SAME )
 	{
 		parseConceptList ( /*singletonsOnly=*/ (t != DISJOINT) && (t != FAIRNESS) );
-		switch (t)
+		try
 		{
-		case DISJOINT:
-			if ( Kernel->processDisjoint () )
-				parseError ( "Singular Disjoint statement" );
-			return;		// already read ')'
-		case FAIRNESS:
-			if ( Kernel->setFairnessConstraint() )
-				parseError ( "Failure in fairness constraint" );
-			return;		// already read ')'
-		case SAME:
-			if ( Kernel->processSame () )
-				parseError ( "Individual names expected in 'same' statement" );
-			return;		// already read ')'
-		case DIFFERENT:
-			if ( Kernel->processDifferent () )
-				parseError ( "Individual names expected in 'different' statement" );
-			return;		// already read ')'
-		default:
-			assert (0);
+			switch (t)
+			{
+			case DISJOINT:
+				Kernel->processDisjoint();
+				return;		// already read ')'
+			case FAIRNESS:
+				Kernel->setFairnessConstraint();
+				return;		// already read ')'
+			case SAME:
+				Kernel->processSame();
+				return;		// already read ')'
+			case DIFFERENT:
+				Kernel->processDifferent();
+				return;		// already read ')'
+			default:
+				assert (0);
+			}
+		}
+		catch ( EFaCTPlusPlus ex )
+		{
+			parseError(ex.what());
 		}
 	}
 
@@ -202,17 +212,20 @@ void DLLispParser :: parseCommand ( void )
 		break;
 
 	case RELATED:			// command is (Related id1 R id2);
-	{
+	try {
 		DLTree* id1 = getSingleton();
 		DLTree* R = getRoleExpression(/*allowChain=*/false);
 		MustBe (ID);	// second indiv.
 		DLTree* id2 = getSingleton();
-		if ( Kernel->relatedTo ( id1, R, id2 ) )
-			parseError ( "Unsupported feature -- relatedTo" );
+		Kernel->relatedTo ( id1, R, id2 );
 		deleteTree(id1);
 		deleteTree(R);	// clear role tree
 		deleteTree(id2);	// pawel.kaplanski@gmail.com
 		break;
+	}
+	catch ( EFaCTPlusPlus ex )
+	{
+		parseError(ex.what());
 	}
 
 	case PROLE:
@@ -226,8 +239,14 @@ void DLLispParser :: parseCommand ( void )
 	case PATTR:
 		Name = getRole();
 
-		if ( Kernel->setFunctional(Name) )
-			parseError ( "Role name already registered" );
+		try
+		{
+			Kernel->setFunctional(Name);
+		}
+		catch ( EFaCTPlusPlus ex )
+		{
+			parseError(ex.what());
+		}
 
 		if ( Current != RBRACK )
 			parseRoleArguments(Name);
@@ -269,8 +288,14 @@ void DLLispParser :: parseRoleArguments ( DLTree* R )
 			while ( Current != RBRACK )
 			{
 				DLTree* S = getRoleExpression(/*allowChain=*/false);
-				if ( Kernel->impliesRoles ( R, S ) )
-					parseError ( "Role name not registered in :parents definition" );
+				try
+				{
+					Kernel->impliesRoles ( R, S );
+				}
+				catch ( EFaCTPlusPlus ex )
+				{
+					parseError(ex.what());
+				}
 				deleteTree(S);
 			}
 			NextLex ();	// skip last RBRACK
@@ -279,8 +304,14 @@ void DLLispParser :: parseRoleArguments ( DLTree* R )
 		{	// followed by NIL or (usually!) T
 			NextLex ();
 
-			if ( Kernel->setTransitive (R) )
-				parseError ( "Role name not registered in :transitive definition" );
+			try
+			{
+				Kernel->setTransitive (R);
+			}
+			catch ( EFaCTPlusPlus ex )
+			{
+				parseError(ex.what());
+			}
 
 			NextLex ();	// skip token
 		}

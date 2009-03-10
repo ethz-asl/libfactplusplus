@@ -721,11 +721,18 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
 //-------------------------------------------------------------
 
 #define PROCESS_QUERY(Action,Name)				\
-	TRACE_JNI(Name);							\
-	bool fail = false;							\
-	try { fail = Action; }						\
-	catch ( std::exception ) { fail = true; }	\
-	if ( fail ) Throw ( env, "FaCT++ Kernel: error during " Name " processing" )
+	do { try { Action; }						\
+	catch ( InconsistentKB )					\
+	{ ThrowICO(env); }							\
+	catch ( EFPPNonSimpleRole nsr )				\
+	{ ThrowNSR ( env, nsr.getRoleName() ); }	\
+	catch ( EFPPCycleInRIA cir )				\
+	{ ThrowRIC ( env, cir.getRoleName() ); }	\
+	catch ( EFaCTPlusPlus fpp )					\
+	{ Throw ( env, fpp.what() ); }				\
+	catch ( std::exception ex )					\
+	{ Throw ( env, ex.what() ); }  } while(0)
+//	Throw ( env, "FaCT++ Kernel: error during " Name " processing" )
 
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus

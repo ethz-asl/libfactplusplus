@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2007 by Dmitry Tsarkov
+Copyright (C) 2003-2009 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -275,7 +275,11 @@ protected:	// methods
 	{
 		DLTree* x = NULL;
 		CatchNameEx(pKernel->ensureDataRoleName(name));
-		if ( pKernel->setFunctional(x) )	// in DIG 1.1 data roles are always functional
+		try
+		{
+			pKernel->setFunctional(x);	// in DIG 1.1 data roles are always functional
+		}
+		catch(...)
 		{
 			throw DIGParserException ( 99, "Internal Error",
 				"Unable to set functional attribute to data role '", name, "'" );
