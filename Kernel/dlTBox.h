@@ -385,12 +385,10 @@ protected:	// methods
 	}
 		/// process a disjoint set [beg,end) in a usual manner
 	template<class Iterator>
-	bool processDisjoint ( Iterator beg, Iterator end )
+	void processDisjoint ( Iterator beg, Iterator end )
 	{
 		for ( Iterator i = beg; i < end; ++i )
-			if ( addSubsumeAxiom ( *i, buildDisjAux ( i+1, end ) ) )
-				return true;
-		return false;
+			addSubsumeAxiom ( *i, buildDisjAux ( i+1, end ) );
 	}
 //-----------------------------------------------------------------------------
 //--		internal DAG building methods
@@ -454,11 +452,7 @@ protected:	// methods
 
 	// for complex Concept operations
 		/// try to absorb GCI C[=D; if not possible, just record this GCI
-	bool processGCI ( DLTree* C, DLTree* D )
-	{
-		Axioms.addAxiom ( C, D );
-		return false;
-	}
+	void processGCI ( DLTree* C, DLTree* D ) { Axioms.addAxiom ( C, D ); }
 
 	// recognize Range/Domain restriction in an axiom and transform it into role R&D.
 	// return true if transformation was performed
@@ -863,7 +857,12 @@ public:
 	}
 
 	bool RegisterInstance ( TNamedEntry* name, DLTree* Desc )
-		{ return !isIndividual(name) || addSubsumeAxiom ( toConcept(name), Desc ); }
+	{
+		if ( !isIndividual(name) )
+			return true;
+		addSubsumeAxiom ( toConcept(name), Desc );
+		return false;
+	}
 	bool RegisterIndividualRelation ( TNamedEntry* a, TNamedEntry* R, TNamedEntry* b )
 	{
 		if ( !isIndividual(a) || !isIndividual(b) )
@@ -880,13 +879,13 @@ public:
 	}
 
 		/// add general subsumption axiom C [= D
-	bool addSubsumeAxiom ( DLTree* left, DLTree* right );
+	void addSubsumeAxiom ( DLTree* C, DLTree* D );
 		/// add axiom CN [= D for concept CN
-	bool addSubsumeAxiom ( TConcept* C, DLTree* D ) { return addSubsumeAxiom ( getTree(C), D ); }
+	void addSubsumeAxiom ( TConcept* C, DLTree* D ) { addSubsumeAxiom ( getTree(C), D ); }
 		/// add an axiom CN [= D for defined CN (CN=E already in base)
-	bool addSubsumeForDefined ( TConcept* C, DLTree* D );
+	void addSubsumeForDefined ( TConcept* C, DLTree* D );
 		/// add an axiom C = D
-	bool addEqualityAxiom ( DLTree* left, DLTree* right );
+	void addEqualityAxiom ( DLTree* left, DLTree* right );
 
 		/// add simple rule RULE to the TBox' rules
 	inline
@@ -905,12 +904,12 @@ public:
 	}
 
 	// external-set methods for set-of-concept-expressions
-	bool processEquivalent ( const ConceptSet& v );
-	bool processDisjoint ( const ConceptSet& v );
+	void processEquivalent ( const ConceptSet& v );
+	void processDisjoint ( const ConceptSet& v );
 	void processEquivalentR ( const ConceptSet& v );
 	void processDisjointR ( const ConceptSet& v );
-	bool processSame ( const ConceptSet& v );
-	bool processDifferent ( const ConceptSet& v );
+	void processSame ( const ConceptSet& v );
+	void processDifferent ( const ConceptSet& v );
 	DLTree* processAnd ( const ConceptSet& v );
 	DLTree* processOr ( const ConceptSet& v );
 	DLTree* processOneOf ( const ConceptSet& v, bool data );
@@ -919,7 +918,7 @@ public:
 		/// @return true if KB contains fairness constraints
 	bool hasFC ( void ) const { return !Fairness.empty(); }
 		/// add concept expression C as a fairness constraint
-	bool setFairnessConstraint ( const ConceptSet& v )
+	void setFairnessConstraint ( const ConceptSet& v )
 	{
 		for ( ConceptSet::const_iterator p = v.begin(), p_end = v.end(); p < p_end; ++p )
 		{
@@ -927,10 +926,8 @@ public:
 			TConcept* fc = getAuxConcept();
 			Fairness.push_back(fc);
 			// make an axiom: C [= FC
-			if ( addSubsumeAxiom ( *p, getTree(fc) ) )
-				return true;
+			addSubsumeAxiom ( *p, getTree(fc) );
 		}
-		return false;
 	}
 
 //-----------------------------------------------------------------------------

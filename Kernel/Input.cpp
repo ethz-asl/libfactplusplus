@@ -23,32 +23,31 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 //-----------------------------------------------------------------------------
 
 // return true if undefined concept found
-bool TBox :: addSubsumeAxiom ( DLTree* left, DLTree* right )
+void TBox :: addSubsumeAxiom ( DLTree* left, DLTree* right )
 {
 	// for C [= C: nothing to do
 	if ( equalTrees ( left,right ) )
 	{
 		deleteTree(left);
 		deleteTree(right);
-		return false;
+		return;
 	}
 
 	// try to apply C [= CN
 	if ( isCN(right) )
 		if ( applyAxiomCToCN ( left, right ) )
-			return false;
+			return;
 
 	// try to apply CN [= C
 	if ( isCN(left) )
 		if ( applyAxiomCNToC ( left, right ) )
-			return false;
+			return;
 
 	// check if an axiom looks like T [= \AR.C
 	if ( axiomToRangeDomain ( left, right ) )
-		return false;
-
-	// general axiom
-	return processGCI ( left, right );
+		;
+	else // general axiom
+		processGCI ( left, right );
 }
 
 /// tries to apply axiom D [= CN; @return true if applicable
@@ -93,6 +92,7 @@ TBox :: applyAxiomCNToC ( DLTree*& CN, DLTree* D )
 		CN = new DLTree(TOP);
 		return false;
 	}
+
 	// BOTTOM [= D: nothing to do
 	if ( C == pBottom )
 		deleteTree(D);
@@ -106,27 +106,30 @@ TBox :: applyAxiomCNToC ( DLTree*& CN, DLTree* D )
 }
 
 /// add an axiom CN [= D for defined CN (CN=E already in base)
-bool
+void
 TBox :: addSubsumeForDefined ( TConcept* C, DLTree* D )
 {
 	// if D is a syntactic sub-class of E, then nothing to do
 	if ( isSubTree ( D, C->Description ) )
 	{
 		deleteTree(D);
-		return false;
+		return;
 	}
 	DLTree* oldDesc = clone(C->Description);
 	// try to see whether C contains a reference to itself at the top level
 	C->removeSelfFromDescription();
 	if ( equalTrees ( oldDesc, C->Description ) )
-		return processGCI ( oldDesc, D );
+	{
+		processGCI ( oldDesc, D );
+		return;
+	}
 
 	// note that we don't know exact semantics of C for now;
 	// we need to split it's definition and work via GCIs
 	C->setPrimitive();	// now we have C [= B
 	C->addDesc(D);		// here C [= (B and D)
 	// all we need is to add (old C's desc) [= C
-	return addSubsumeAxiom ( oldDesc, getTree(C) );
+	addSubsumeAxiom ( oldDesc, getTree(C) );
 }
 
 bool TBox :: axiomToRangeDomain ( DLTree* l, DLTree* r )
@@ -136,8 +139,7 @@ bool TBox :: axiomToRangeDomain ( DLTree* l, DLTree* r )
 	// applicability check for T [= A R.C
 	if ( l->Element() == TOP && r->Element () == FORALL )
 	{
-		TRole* Role = resolveRole(r->Left());
-		Role->setRange(r->Right());
+		resolveRole(r->Left())->setRange(r->Right());
 		// free unused memory
 		delete l;
 		r->SetRight(NULL);
@@ -147,8 +149,7 @@ bool TBox :: axiomToRangeDomain ( DLTree* l, DLTree* r )
 	// applicability check for E R.T [= D
 	if ( l->Element() == NOT && l->Left()->Element() == FORALL && l->Left()->Right()->Element() == BOTTOM )
 	{
-		TRole* Role = resolveRole(l->Left()->Left());
-		Role->setDomain(r);
+		resolveRole(l->Left()->Left())->setDomain(r);
 		deleteTree(l);
 		return true;
 	}
@@ -160,29 +161,26 @@ bool TBox :: axiomToRangeDomain ( DLTree* l, DLTree* r )
 //-----------------------------------------------------------------------------
 
 // return true if undefined concept found
-bool TBox :: addEqualityAxiom ( DLTree* left, DLTree* right )
+void
+TBox :: addEqualityAxiom ( DLTree* left, DLTree* right )
 {
-	assert ( left != NULL && right != NULL );
-
 	// try to make a concept definition LEFT = RIGHT
 	if ( addNonprimitiveDefinition ( left, right ) )
-		return false;
+		return;
 
-	// try to make a concept definition LEFT = RIGHT
+	// try to make a concept definition RIGHT = LEFT
 	if ( addNonprimitiveDefinition ( right, left ) )
-		return false;
+		return;
 
 	if ( switchToNonprimitive ( left, right ) )
-		return false;
+		return;
 
 	if ( switchToNonprimitive ( right, left ) )
-		return false;
+		return;
 
 	/// here either C and D are complex expressions, or definition fails
-	bool ret = addSubsumeAxiom ( clone(left), clone(right) );
-	if ( !ret )
-		ret = addSubsumeAxiom ( right, left );
-	return ret;
+	addSubsumeAxiom ( clone(left), clone(right) );
+	addSubsumeAxiom ( right, left );
 }
 
 /// tries to add LEFT = RIGHT for the concept LEFT; @return true if OK
@@ -238,7 +236,8 @@ TBox :: switchToNonprimitive ( DLTree* left, DLTree* right )
 	if ( alwaysPreferEquals && C->isPrimitive() )	// change C to C=... with additional GCI C[=x
 	{
 		delete left;
-		return !addSubsumeForDefined ( C, makeNonPrimitive(C,right) );
+		addSubsumeForDefined ( C, makeNonPrimitive(C,right) );
+		return true;
 	}
 
 	return false;
@@ -317,10 +316,10 @@ DLTree* TBox :: processRComposition ( const ConceptSet& v )
 //--		N-ary concept axioms
 //-----------------------------------------------------------------------------
 
-bool TBox :: processDisjoint ( const ConceptSet& v )
+void TBox :: processDisjoint ( const ConceptSet& v )
 {
 	if ( v.empty() )
-		return true;
+		return;
 
 	ConceptSet prim, rest;
 
@@ -337,90 +336,67 @@ bool TBox :: processDisjoint ( const ConceptSet& v )
 		DLTree* nrest = buildDisjAux ( rest.begin(), rest.end() );
 
 		for ( ConceptSet::iterator q = prim.begin(), q_end = prim.end(); q < q_end; ++q )
-			if ( addSubsumeAxiom ( clone(*q), clone(nrest) ) )
-				return true;
+			addSubsumeAxiom ( clone(*q), clone(nrest) );
 
 		deleteTree(nrest);
 	}
 
 	// no primitive concepts between DJ elements
-	bool ret = false;
 
 	if ( !rest.empty() )
-		ret |= processDisjoint ( rest.begin(), rest.end() );
+		processDisjoint ( rest.begin(), rest.end() );
 
 	// all non-PC are done; prim is non-empty
 	// FIXME!! do it in more optimal way later
 	if ( !prim.empty() )
-		ret |= processDisjoint ( prim.begin(), prim.end() );
-
-	return ret;
+		processDisjoint ( prim.begin(), prim.end() );
 }
 
-bool TBox :: processEquivalent ( const ConceptSet& v )
+void TBox :: processEquivalent ( const ConceptSet& v )
 {
 	ConceptSet::const_iterator p = v.begin(), p_end = v.end();
 
-	if ( v.size() < 2 )	// nothing to do
-	{
-		for ( ; p < p_end; ++p )
-			deleteTree(*p);
-
-		return false;
-	}
-
 	// FIXME!! rewrite it with the only iterator
-	for ( ConceptSet::const_iterator q = p+1; q != v.end(); ++p, ++q )
-		if ( addEqualityAxiom ( *p, clone(*q) ) )
-			return true;
+	for ( ConceptSet::const_iterator q = p+1; q < p_end; ++p, ++q )
+		addEqualityAxiom ( *p, clone(*q) );
 
 	deleteTree(*p);	// delete the last entry
-	return false;
 }
 
 //-----------------------------------------------------------------------------
 //--		N-ary individual axioms
 //-----------------------------------------------------------------------------
 
-bool TBox :: processDifferent ( const ConceptSet& v )
+void TBox :: processDifferent ( const ConceptSet& v )
 {
 	SingletonVector acc;
 	for ( ConceptSet::const_iterator q = v.begin (); q != v.end(); ++q )
 		if ( isIndividual(*q) )	// only nominals in DIFFERENT command
 			acc.push_back(static_cast<TIndividual*>((*q)->Element().getName()));
 		else
-			return true;
+			throw EFaCTPlusPlus("Only individuals allowed in processDifferent()");
 
 	// register vector of disjoint nominals in proper place
-	if ( acc.size() < 2 )
-		return false;
-
-	Different.push_back(acc);
-	return false;
+	if ( acc.size() > 1 )
+		Different.push_back(acc);
 }
 
-bool TBox :: processSame ( const ConceptSet& v )
+void TBox :: processSame ( const ConceptSet& v )
 {
 	ConceptSet::const_iterator p = v.begin(), p_end = v.end();
 
-	if ( v.size() < 2 )	// nothing to do
-	{
-		for ( ; p < p_end; ++p )
-			delete *p;
-
-		return false;
-	}
-
 	if ( !isIndividual(*p) )	// only nominals in SAME command
-		return true;
+		throw EFaCTPlusPlus("Only individuals allowed in processSame()");
 
 	// FIXME!! rewrite it with the only iterator
 	for ( ConceptSet::const_iterator q = p+1; q < p_end; ++p, ++q )
-		if ( !isIndividual(*q) || addEqualityAxiom ( *p, clone(*q) ) )
-			return true;
+	{
+		if ( !isIndividual(*q) )
+			throw EFaCTPlusPlus("Only individuals allowed in processSame()");
+		addEqualityAxiom ( *p, clone(*q) );
+	}
 
 	delete *p;	// delete the last entry
-	return false;
 }
 
 //-----------------------------------------------------------------------------

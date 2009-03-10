@@ -862,10 +862,10 @@ inline bool ReasoningKernel :: impliesConcepts ( const ComplexConcept C, const C
 	isChanged = true;
 #ifdef FPP_USE_AXIOMS
 	Ontology.add ( new TDLAxiomConceptInclusion ( C, D ) );
-	return false;
 #else
-	return getTBox()->addSubsumeAxiom ( C, D );
+	getTBox()->addSubsumeAxiom ( C, D );
 #endif
+	return false;
 }
 
 	// axiom (C = D)
@@ -874,26 +874,27 @@ inline bool ReasoningKernel :: equalConcepts ( const ComplexConcept C, const Com
 	isChanged = true;
 #ifdef FPP_USE_AXIOMS
 	Ontology.add ( new TDLAxiomConceptEquivalence ( C, D ) );
-	return false;
 #else
-	return getTBox()->addEqualityAxiom ( C, D );
+	getTBox()->addEqualityAxiom ( C, D );
 #endif
+	return false;
 }
 inline bool ReasoningKernel :: equalConcepts ( void )
 {
 	isChanged = true;
 #ifdef FPP_USE_AXIOMS
 	Ontology.add ( new TDLAxiomConceptEquivalence(NAryQueue.getLastArgList()) );
-	return false;
 #else
-	return getTBox()->processEquivalent(NAryQueue.getLastArgList());
+	getTBox()->processEquivalent(NAryQueue.getLastArgList());
 #endif
+	return false;
 }
 
 inline bool ReasoningKernel :: processDisjoint ( void )
 {
 	isChanged = true;
-	return getTBox()->processDisjoint(NAryQueue.getLastArgList());
+	getTBox()->processDisjoint(NAryQueue.getLastArgList());
+	return false;
 }
 
 
@@ -1075,21 +1076,24 @@ inline bool ReasoningKernel :: valueOfNot ( const ComplexConcept I, const Comple
 inline bool ReasoningKernel :: processSame ( void )
 {
 	isChanged = true;
-	return getTBox()->processSame(NAryQueue.getLastArgList());
+	getTBox()->processSame(NAryQueue.getLastArgList());
+	return false;
 }
 
 	// implementation stuff: different individuals
 inline bool ReasoningKernel :: processDifferent ( void )
 {
 	isChanged = true;
-	return getTBox()->processDifferent(NAryQueue.getLastArgList());
+	getTBox()->processDifferent(NAryQueue.getLastArgList());
+	return false;
 }
 
 	/// let all concept expressions in the ArgQueue to be fairness constraints
 inline bool ReasoningKernel :: setFairnessConstraint ( void )
 {
 	isChanged = true;
-	return getTBox()->setFairnessConstraint(NAryQueue.getLastArgList());
+	getTBox()->setFairnessConstraint(NAryQueue.getLastArgList());
+	return false;
 }
 
 #endif
