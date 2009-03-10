@@ -25,22 +25,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 // return true if undefined concept found
 bool TBox :: addSubsumeAxiom ( DLTree* left, DLTree* right )
 {
-	// for C [= TOP: nothing to do
-	if ( right->Element() == TOP )
-	{
-		deleteTree(left);
-		delete right;
-		return false;
-	}
-
-	// for BOTTOM [= C: nothing to do
-	if ( left->Element() == BOTTOM )
-	{
-		deleteTree(right);
-		delete left;
-		return false;
-	}
-
 	// for C [= C: nothing to do
 	if ( equalTrees ( left,right ) )
 	{
@@ -49,77 +33,76 @@ bool TBox :: addSubsumeAxiom ( DLTree* left, DLTree* right )
 		return false;
 	}
 
-	// check the case D [= CN, where CN is defined as D
-	if ( isName(right) )
-	{
-		TConcept* p = resolveSynonym(getCI(right));
-
-		if ( p == NULL )
-			return true;
-
-		// check whether name is a synonym of a constant (mainly for owl:Thing)
-		if ( p == pBottom )
-		{	// C [= BOTTOM: re-run subsumption axiom
-			delete right;
-			return addSubsumeAxiom ( left, new DLTree(BOTTOM) );
-		}
-
-		if ( p == pTop )
-		{	// C [= TOP: nothing to do
-			deleteTree(left);
-			delete right;
+	// try to apply C [= CN
+	if ( isCN(right) )
+		if ( applyAxiomCToCN ( left, right ) )
 			return false;
-		}
 
-		/// check for D [= CN with CN [= D (CN [= D) already defined
-		if ( equalTrees ( p->Description, left ) )
-		{
-			deleteTree ( makeNonPrimitive(p,left) );
-			delete right;
+	// try to apply CN [= C
+	if ( isCN(left) )
+		if ( applyAxiomCNToC ( left, right ) )
 			return false;
-		}
-	}
-
-	// if axiom is A\in smth, add to a appr. concept
-	if ( isName(left) )
-	{
-		TConcept* p = getCI(left);
-		delete left;
-
-		return addSubsumeAxiom ( resolveSynonym(p), right );
-	}
 
 	// check if an axiom looks like T [= \AR.C
 	if ( axiomToRangeDomain ( left, right ) )
 		return false;
 
-	// else -- general axiom
+	// general axiom
 	return processGCI ( left, right );
 }
 
-bool TBox :: addSubsumeAxiom ( TConcept* C, DLTree* D )
+/// tries to apply axiom D [= CN; @return true if applicable
+bool
+TBox :: applyAxiomCToCN ( DLTree* D, DLTree*& CN )
 {
-	if ( C == NULL )	// no such concept
-		return true;
+	TConcept* C = resolveSynonym(getCI(CN));
+	assert ( C != NULL );
 
-	// TOP [= D: re-run subsumption axiom
-	if ( C == pTop )
-		return addSubsumeAxiom ( new DLTree(TOP), D );
-
-	// BOTTOM [= D: nothing to do
+	// check whether name is a synonym of a constant (mainly for owl:Thing)
 	if ( C == pBottom )
 	{
-		deleteTree(D);
+		deleteTree(CN);
+		CN = new DLTree(BOTTOM);
 		return false;
 	}
 
-	if ( C->isPrimitive() )
+	// D [= TOP: nothing to do
+	if ( C == pTop )
+		deleteTree(D);
+	// check for D [= CN with CN [= D already defined
+	// FIXME!! check for C->isPrimitive()
+	else if ( equalTrees ( C->Description, D ) )
+		deleteTree ( makeNonPrimitive(C,D) );
+	else	// n/a
+		return false;
+
+	deleteTree(CN);
+	return true;
+}
+
+/// tries to apply axiom CN [= D; @return true if applicable
+bool
+TBox :: applyAxiomCNToC ( DLTree*& CN, DLTree* D )
+{
+	TConcept* C = resolveSynonym(getCI(CN));
+	assert ( C != NULL );
+	// TOP [= D: n/a
+	if ( C == pTop )
 	{
-		C->addDesc(D);
+		deleteTree(CN);
+		CN = new DLTree(TOP);
 		return false;
 	}
-	else	// defined one
-		return addSubsumeForDefined ( C, D );
+	// BOTTOM [= D: nothing to do
+	if ( C == pBottom )
+		deleteTree(D);
+	else if ( C->isPrimitive() )
+		C->addDesc(D);
+	else	// C is defined
+		addSubsumeForDefined ( C, D );
+
+	deleteTree(CN);
+	return true;
 }
 
 /// add an axiom CN [= D for defined CN (CN=E already in base)

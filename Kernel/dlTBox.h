@@ -443,6 +443,10 @@ protected:	// methods
 //--		internal parser (input) interface
 //-----------------------------------------------------------------------------
 
+		/// tries to apply axiom D [= CN; @return true if applicable
+	bool applyAxiomCToCN ( DLTree* D, DLTree*& CN );
+		/// tries to apply axiom CN [= D; @return true if applicable
+	bool applyAxiomCNToC ( DLTree*& CN, DLTree* D );
 		/// tries to add LEFT = RIGHT for the concept LEFT; @return true if OK
 	bool addNonprimitiveDefinition ( DLTree* left, DLTree* right );
 		/// tries to add LEFT = RIGHT for the concept LEFT [= X; @return true if OK
@@ -878,7 +882,7 @@ public:
 		/// add general subsumption axiom C [= D
 	bool addSubsumeAxiom ( DLTree* left, DLTree* right );
 		/// add axiom CN [= D for concept CN
-	bool addSubsumeAxiom ( TConcept* C, DLTree* D );
+	bool addSubsumeAxiom ( TConcept* C, DLTree* D ) { return addSubsumeAxiom ( getTree(C), D ); }
 		/// add an axiom CN [= D for defined CN (CN=E already in base)
 	bool addSubsumeForDefined ( TConcept* C, DLTree* D );
 		/// add an axiom C = D
