@@ -29,7 +29,7 @@ DLTree* inverseComposition ( DLTree* tree )
 		return new DLTree ( TLexeme ( RNAME, resolveRole(tree)->inverse() ) );
 }
 
-bool RoleMaster :: addRoleParent ( DLTree* tree, TRole* parent )
+void RoleMaster :: addRoleParent ( DLTree* tree, TRole* parent )
 {
 	if ( tree && tree->Element() == RCOMPOSITION )
 	{
@@ -37,10 +37,9 @@ bool RoleMaster :: addRoleParent ( DLTree* tree, TRole* parent )
 		DLTree* inv = inverseComposition(tree);
 		parent->inverse()->addComposition(inv);
 		deleteTree(inv);
-		return false;
 	}
 	else
-		return addRoleParent ( resolveRole(tree), parent );
+		addRoleParent ( resolveRole(tree), parent );
 }
 
 void RoleMaster :: initAncDesc ( void )

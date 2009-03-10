@@ -153,25 +153,25 @@ public:		// interface
 	}
 
 		/// add parent for the input role
-	bool addRoleParent ( TRole* role, TRole* parent ) const
+	void addRoleParent ( TRole* role, TRole* parent ) const
 	{
 		if ( role->isDataRole() != parent->isDataRole() )
-			return true;
+			throw EFaCTPlusPlus("Mixed object and data roles in role subsumption axiom");
 
 		role->addParent(parent);
 		role->Inverse->addParent(parent->Inverse);
-		return false;
 	}
 
 		/// add parent for the input role or role composition
-	bool addRoleParent ( DLTree* role, TRole* parent );
+	void addRoleParent ( DLTree* role, TRole* parent );
 		/// add synonym to existing role
-	bool addRoleSynonym ( TRole* role, TRole* syn )
+	void addRoleSynonym ( TRole* role, TRole* syn )
 	{
-		if ( role == syn )	// nothing to do
-			return false;
-
-		return addRoleParent ( role, syn ) || addRoleParent ( syn, role );
+		if ( role != syn )
+		{
+			addRoleParent ( role, syn );
+			addRoleParent ( syn, role );
+		}
 	}
 
 		/// register a pair of disjoint roles

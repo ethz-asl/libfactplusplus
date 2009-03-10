@@ -904,14 +904,16 @@ inline bool ReasoningKernel :: processDisjoint ( void )
 inline bool ReasoningKernel :: impliesRoles ( const ComplexRole R, const ComplexRole S )
 {
 	isChanged = true;
-	return getRM()->addRoleParent ( R, getRole ( S, "Role expression expected in impliesRoles()" ) );
+	getRM()->addRoleParent ( R, getRole ( S, "Role expression expected in impliesRoles()" ) );
+	return false;
 }
 
 	// axiom R1 = R2 = ...
 inline bool ReasoningKernel :: equalRoles ( void )
 {
 	isChanged = true;
-	return getTBox()->processEquivalentR(NAryQueue.getLastArgList());
+	getTBox()->processEquivalentR(NAryQueue.getLastArgList());
+	return false;
 }
 	// axiom (R = S)
 inline bool ReasoningKernel :: equalRoles ( const ComplexRole R, const ComplexRole S )
@@ -919,14 +921,16 @@ inline bool ReasoningKernel :: equalRoles ( const ComplexRole R, const ComplexRo
 	openArgList();
 	addArg(R);
 	addArg(S);
-	return equalRoles();
+	equalRoles();
+	return false;
 }
 
 	// axiom R1 != R2 != ...
 inline bool ReasoningKernel :: disjointRoles ( void )
 {
 	isChanged = true;
-	return getTBox()->processDisjointR(NAryQueue.getLastArgList());
+	getTBox()->processDisjointR(NAryQueue.getLastArgList());
+	return false;
 }
 	// axiom (R != S)
 inline bool ReasoningKernel :: disjointRoles ( const ComplexRole R, const ComplexRole S )
@@ -934,7 +938,8 @@ inline bool ReasoningKernel :: disjointRoles ( const ComplexRole R, const Comple
 	openArgList();
 	addArg(R);
 	addArg(S);
-	return disjointRoles();
+	disjointRoles();
+	return false;
 }
 
 	// Domain (R C)
@@ -956,41 +961,51 @@ inline bool ReasoningKernel :: setRange ( const ComplexRole R, const ComplexConc
 	// Transitive (R)
 inline bool ReasoningKernel :: setTransitive ( const ComplexRole R )
 {
-	isChanged = true;
-	getRole ( R, "Role expression expected in setTransitive()" )->setBothTransitive();
+	if ( !isUniversalRole(R) )
+	{
+		isChanged = true;
+		getRole ( R, "Role expression expected in setTransitive()" )->setBothTransitive();
+	}
 	return false;
 }
 
 	// Reflexive (R)
 inline bool ReasoningKernel :: setReflexive ( const ComplexRole R )
 {
-	isChanged = true;
-	getRole ( R, "Role expression expected in setReflexive()" )->setBothReflexive();
+	if ( !isUniversalRole(R) )
+	{
+		isChanged = true;
+		getRole ( R, "Role expression expected in setReflexive()" )->setBothReflexive();
+	}
 	return false;
 }
 
 	// Irreflexive (R): Domain(R) = \neg ER.Self
 inline bool ReasoningKernel :: setIrreflexive ( const ComplexRole R )
 {
-	return setDomain ( R, Not(SelfReference(clone(R))) );
+	if ( isUniversalRole(R) )	// KB became inconsistent
+		throw InconsistentKB();
+
+	setDomain ( R, Not(SelfReference(clone(R))) );
+	return false;
 }
 
 	// Symmetric (R): R [= R^-
 inline bool ReasoningKernel :: setSymmetric ( const ComplexRole R )
 {
-	if ( isUniversalRole(R) )	// nothing to do
-		return false;
-
-	return impliesRoles ( R, Inverse(clone(R)) );
+	if ( !isUniversalRole(R) )
+		impliesRoles ( R, Inverse(clone(R)) );
+	return false;
 }
 
 	// AntySymmetric (R): disjoint(R,R^-)
 inline bool ReasoningKernel :: setAntiSymmetric ( const ComplexRole R )
 {
-	if ( isUniversalRole(R) )	// not possible
-		return true;
+	if ( isUniversalRole(R) )	// KB became inconsistent
+		throw InconsistentKB();
 
-	return disjointRoles ( R, Inverse(clone(R)) );
+	disjointRoles ( R, Inverse(clone(R)) );
+	return false;
 }
 
 	// Functional (R)

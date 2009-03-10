@@ -903,8 +903,8 @@ public:
 	// external-set methods for set-of-concept-expressions
 	bool processEquivalent ( const ConceptSet& v );
 	bool processDisjoint ( const ConceptSet& v );
-	bool processEquivalentR ( const ConceptSet& v );
-	bool processDisjointR ( const ConceptSet& v );
+	void processEquivalentR ( const ConceptSet& v );
+	void processDisjointR ( const ConceptSet& v );
 	bool processSame ( const ConceptSet& v );
 	bool processDifferent ( const ConceptSet& v );
 	DLTree* processAnd ( const ConceptSet& v );

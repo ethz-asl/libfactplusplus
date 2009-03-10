@@ -444,7 +444,7 @@ bool TBox :: processSame ( const ConceptSet& v )
 //--		N-ary role axioms
 //-----------------------------------------------------------------------------
 
-bool TBox :: processDisjointR ( const ConceptSet& v )
+void TBox :: processDisjointR ( const ConceptSet& v )
 {
 	if ( v.empty() )
 		throw EFaCTPlusPlus("Empty disjoint role axiom");
@@ -466,22 +466,13 @@ bool TBox :: processDisjointR ( const ConceptSet& v )
 		for ( q = p+1; q != p_end; ++q )
 			RM.addDisjointRoles ( r, resolveRole(*q) );
 	}
-
-	// all OK
-	return false;
 }
 
-bool TBox :: processEquivalentR ( const ConceptSet& v )
+void TBox :: processEquivalentR ( const ConceptSet& v )
 {
-	if ( v.size () < 2 )
-		return false;
-
-	bool ret = false;
-
-	for ( ConceptSet::const_iterator p = v.begin(), p_end = v.end()-1; !ret && p != p_end; ++p )
-		ret |= RM.addRoleSynonym ( resolveRole(*p), resolveRole(*(p+1)) );
-
-	return ret;
+	if ( v.size () > 1 )
+		for ( ConceptSet::const_iterator p = v.begin(), p_end = v.end()-1; p != p_end; ++p )
+			RM.addRoleSynonym ( resolveRole(*p), resolveRole(*(p+1)) );
 }
 
 
