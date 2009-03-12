@@ -465,10 +465,12 @@ public:
 	// Role axioms
 
 		/// axiom (R [= S)
-	void impliesRoles ( const ComplexRole R, const ComplexRole S )
+	void impliesRoles ( ComplexRole R, ComplexRole S )
 	{
 		isChanged = true;
 		getRM()->addRoleParent ( R, getRole ( S, "Role expression expected in impliesRoles()" ) );
+		deleteTree(R);
+		deleteTree(S);
 	}
 		/// axiom R1 = R2 = ...
 	void equalRoles ( void )
@@ -500,38 +502,42 @@ public:
 	}
 
 		/// Domain (R C)
-	void setDomain ( const ComplexRole R, const ComplexConcept C )
+	void setDomain ( ComplexRole R, const ComplexConcept C )
 	{
 		isChanged = true;
 		getRole ( R, "Role expression expected in setDomain()" )->setDomain(C);
+		deleteTree(R);
 	}
 		/// Range (R C)
-	void setRange ( const ComplexRole R, const ComplexConcept C )
+	void setRange ( ComplexRole R, const ComplexConcept C )
 	{
 		isChanged = true;
 		getRole ( R, "Role expression expected in setRange()" )->setRange(C);
+		deleteTree(R);
 	}
 
 		/// Transitive (R)
-	void setTransitive ( const ComplexRole R )
+	void setTransitive ( ComplexRole R )
 	{
 		if ( !isUniversalRole(R) )
 		{
 			isChanged = true;
 			getRole ( R, "Role expression expected in setTransitive()" )->setBothTransitive();
 		}
+		deleteTree(R);
 	}
 		/// Reflexive (R)
-	void setReflexive ( const ComplexRole R )
+	void setReflexive ( ComplexRole R )
 	{
 		if ( !isUniversalRole(R) )
 		{
 			isChanged = true;
 			getRole ( R, "Role expression expected in setReflexive()" )->setBothReflexive();
 		}
+		deleteTree(R);
 	}
 		/// Irreflexive (R): Domain(R) = \neg ER.Self
-	void setIrreflexive ( const ComplexRole R )
+	void setIrreflexive ( ComplexRole R )
 	{
 		if ( isUniversalRole(R) )	// KB became inconsistent
 			throw InconsistentKB();
@@ -539,13 +545,13 @@ public:
 		setDomain ( R, Not(SelfReference(clone(R))) );
 	}
 		/// Symmetric (R): R [= R^-
-	void setSymmetric ( const ComplexRole R )
+	void setSymmetric ( ComplexRole R )
 	{
 		if ( !isUniversalRole(R) )
 			impliesRoles ( R, Inverse(clone(R)) );
 	}
 		/// AntySymmetric (R): disjoint(R,R^-)
-	void setAntiSymmetric ( const ComplexRole R )
+	void setAntiSymmetric ( ComplexRole R )
 	{
 		if ( isUniversalRole(R) )	// KB became inconsistent
 			throw InconsistentKB();
@@ -553,7 +559,7 @@ public:
 		disjointRoles ( R, Inverse(clone(R)) );
 	}
 		/// Functional (R)
-	void setFunctional ( const ComplexRole R )
+	void setFunctional ( ComplexRole R )
 	{
 		TRole* r = getRole ( R, "Role expression expected in setFunctional()" );
 		if ( !r->isFunctional() )
@@ -561,6 +567,7 @@ public:
 			isChanged = true;
 			r->setFunctional();
 		}
+		deleteTree(R);
 	}
 
 

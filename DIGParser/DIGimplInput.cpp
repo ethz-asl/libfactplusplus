@@ -734,8 +734,6 @@ void DIGParseHandlers :: endAxiom ( DIGTag tag )
 		DLTree* R1 = workStack.top();
 		workStack.pop();
 		ERROR_IF ( pKernel->impliesRoles ( R1, R2 ) )
-		deleteTree(R1);
-		deleteTree(R2);
 		return;
 	}
 	case digEqualR:
@@ -749,8 +747,6 @@ void DIGParseHandlers :: endAxiom ( DIGTag tag )
 		DLTree* R1 = workStack.top();
 		workStack.pop();
 		ERROR_IF ( pKernel->equalRoles ( R1, R2 ) );
-		deleteTree(R1);
-		deleteTree(R2);
 		return;
 	}
 	case digDomain:
@@ -764,7 +760,6 @@ void DIGParseHandlers :: endAxiom ( DIGTag tag )
 		DLTree* R = workStack.top();
 		workStack.pop();
 		ERROR_IF ( pKernel->setDomain ( R, C ) );
-		deleteTree(R);
 		return;
 	}
 	case digRange:
@@ -778,7 +773,6 @@ void DIGParseHandlers :: endAxiom ( DIGTag tag )
 		DLTree* R = workStack.top();
 		workStack.pop();
 		ERROR_IF ( pKernel->setRange ( R, C ) );
-		deleteTree(R);
 		return;
 	}
 	case digRangeInt:
@@ -791,7 +785,6 @@ void DIGParseHandlers :: endAxiom ( DIGTag tag )
 		ERROR_IF ( pKernel->setRange ( R, tag == digRangeInt ?
 											pKernel->getDataTypeCenter().getNumberType() :
 											pKernel->getDataTypeCenter().getStringType() ) );
-		deleteTree(R);
 		return;
 	}
 	case digTransitive:
@@ -801,7 +794,6 @@ void DIGParseHandlers :: endAxiom ( DIGTag tag )
 		DLTree* R = workStack.top();
 		workStack.pop();
 		ERROR_IF ( pKernel->setTransitive(R) );
-		deleteTree(R);
 		return;
 	}
 	case digFunctional:
@@ -811,7 +803,6 @@ void DIGParseHandlers :: endAxiom ( DIGTag tag )
 		DLTree* R = workStack.top();
 		workStack.pop();
 		ERROR_IF ( pKernel->setFunctional(R) );
-		deleteTree(R);
 		return;
 	}
 	case digInstanceOf:

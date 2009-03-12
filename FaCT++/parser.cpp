@@ -83,13 +83,6 @@ void DLLispParser :: parseCommand ( void )
 			parseError(ex.what());
 		}
 
-		// clean role stuff
-		if ( t != DISJOINT_R )
-		{
-			deleteTree(left);
-			deleteTree(right);
-		}
-
 		MustBeM ( RBRACK );
 		return;
 	}
@@ -141,9 +134,6 @@ void DLLispParser :: parseCommand ( void )
 		{
 			parseError(ex.what());
 		}
-
-		if ( t != ANTISYMMETRIC )
-			delete R;
 
 		MustBeM ( RBRACK );
 		return;
@@ -232,8 +222,7 @@ void DLLispParser :: parseCommand ( void )
 		Name = getRole();
 		if ( Current != RBRACK )
 			parseRoleArguments(Name);
-		else
-			delete Name;
+		deleteTree(Name);
 		break;
 
 	case PATTR:
@@ -241,7 +230,7 @@ void DLLispParser :: parseCommand ( void )
 
 		try
 		{
-			Kernel->setFunctional(Name);
+			Kernel->setFunctional(clone(Name));
 		}
 		catch ( EFaCTPlusPlus ex )
 		{
@@ -250,8 +239,7 @@ void DLLispParser :: parseCommand ( void )
 
 		if ( Current != RBRACK )
 			parseRoleArguments(Name);
-		else
-			delete Name;
+		deleteTree(Name);
 		break;
 
 	case DATAROLE:		// register data role
@@ -290,13 +278,12 @@ void DLLispParser :: parseRoleArguments ( DLTree* R )
 				DLTree* S = getRoleExpression(/*allowChain=*/false);
 				try
 				{
-					Kernel->impliesRoles ( R, S );
+					Kernel->impliesRoles ( clone(R), S );
 				}
 				catch ( EFaCTPlusPlus ex )
 				{
 					parseError(ex.what());
 				}
-				deleteTree(S);
 			}
 			NextLex ();	// skip last RBRACK
 		}
@@ -306,7 +293,7 @@ void DLLispParser :: parseRoleArguments ( DLTree* R )
 
 			try
 			{
-				Kernel->setTransitive (R);
+				Kernel->setTransitive(clone(R));
 			}
 			catch ( EFaCTPlusPlus ex )
 			{
@@ -317,8 +304,6 @@ void DLLispParser :: parseRoleArguments ( DLTree* R )
 		}
 		else
 			parseError ( "use either :parents or :transitive command in role description" );
-
-	delete R;
 }
 
 DLTree* DLLispParser :: processConceptTree ( void )

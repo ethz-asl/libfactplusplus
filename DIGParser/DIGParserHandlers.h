@@ -277,7 +277,7 @@ protected:	// methods
 		CatchNameEx(pKernel->ensureDataRoleName(name));
 		try
 		{
-			pKernel->setFunctional(x);	// in DIG 1.1 data roles are always functional
+			pKernel->setFunctional(clone(x));	// in DIG 1.1 data roles are always functional
 		}
 		catch(...)
 		{
