@@ -462,9 +462,13 @@ public:
 	void impliesRoles ( ComplexRole R, ComplexRole S )
 	{
 		isChanged = true;
+#	ifdef FPP_USE_AXIOMS
+		Ontology.add ( new TDLAxiomRoleSubsumption ( R, S ) );
+#	else
 		getRM()->addRoleParent ( R, getRole ( S, "Role expression expected in impliesRoles()" ) );
 		deleteTree(R);
 		deleteTree(S);
+#	endif
 	}
 		/// axiom R1 = R2 = ...
 	void equalRoles ( void )
@@ -499,58 +503,86 @@ public:
 	void setDomain ( ComplexRole R, const ComplexConcept C )
 	{
 		isChanged = true;
+#	ifdef FPP_USE_AXIOMS
+		Ontology.add ( new TDLAxiomRoleDomain ( R, C ) );
+#	else
 		getRole ( R, "Role expression expected in setDomain()" )->setDomain(C);
 		deleteTree(R);
+#	endif
 	}
 		/// Range (R C)
 	void setRange ( ComplexRole R, const ComplexConcept C )
 	{
 		isChanged = true;
+#	ifdef FPP_USE_AXIOMS
+		Ontology.add ( new TDLAxiomRoleRange ( R, C ) );
+#	else
 		getRole ( R, "Role expression expected in setRange()" )->setRange(C);
 		deleteTree(R);
+#	endif
 	}
 
 		/// Transitive (R)
 	void setTransitive ( ComplexRole R )
 	{
+#	ifdef FPP_USE_AXIOMS
+		Ontology.add ( new TDLAxiomRoleTransitive(R) );
+#	else
 		if ( !isUniversalRole(R) )
 		{
 			isChanged = true;
 			getRole ( R, "Role expression expected in setTransitive()" )->setBothTransitive();
 		}
 		deleteTree(R);
+#	endif
 	}
 		/// Reflexive (R)
 	void setReflexive ( ComplexRole R )
 	{
+#	ifdef FPP_USE_AXIOMS
+		Ontology.add ( new TDLAxiomRoleReflexive(R) );
+#	else
 		if ( !isUniversalRole(R) )
 		{
 			isChanged = true;
 			getRole ( R, "Role expression expected in setReflexive()" )->setBothReflexive();
 		}
 		deleteTree(R);
+#	endif
 	}
 		/// Irreflexive (R): Domain(R) = \neg ER.Self
 	void setIrreflexive ( ComplexRole R )
 	{
+#	ifdef FPP_USE_AXIOMS
+		Ontology.add ( new TDLAxiomRoleIrreflexive(R) );
+#	else
 		if ( isUniversalRole(R) )	// KB became inconsistent
 			throw EFPPInconsistentKB();
 
 		setDomain ( R, Not(SelfReference(clone(R))) );
+#	endif
 	}
 		/// Symmetric (R): R [= R^-
 	void setSymmetric ( ComplexRole R )
 	{
+#	ifdef FPP_USE_AXIOMS
+		Ontology.add ( new TDLAxiomRoleSymmetric(R) );
+#	else
 		if ( !isUniversalRole(R) )
 			impliesRoles ( R, Inverse(clone(R)) );
+#	endif
 	}
 		/// AntySymmetric (R): disjoint(R,R^-)
 	void setAntiSymmetric ( ComplexRole R )
 	{
+#	ifdef FPP_USE_AXIOMS
+		Ontology.add ( new TDLAxiomRoleAntiSymmetric(R) );
+#	else
 		if ( isUniversalRole(R) )	// KB became inconsistent
 			throw EFPPInconsistentKB();
 
 		disjointRoles ( R, Inverse(clone(R)) );
+#	endif
 	}
 		/// Functional (R)
 	void setFunctional ( ComplexRole R )
