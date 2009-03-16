@@ -17,7 +17,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "Kernel.h"
-#include "comerror.h"
 
 const char* ReasoningKernel :: Version = "1.2.3";
 const char* ReasoningKernel :: ProductName =
@@ -45,7 +44,7 @@ ReasoningKernel :: ReasoningKernel ( void )
 
 	// init option set (fill with options):
 	if ( initOptions () )
-		error ( "Cannot init options" );
+		throw EFaCTPlusPlus("FaCT++ kernel: Cannot init options");
 }
 
 void
