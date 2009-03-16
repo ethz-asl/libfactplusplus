@@ -61,7 +61,7 @@ ReasoningKernel :: processKB ( KBStatus status )
 	if ( getStatus() >= status )
 	{	// nothing to do; but make sure that we are consistent
 		if ( !isKBConsistent() )
-			throw InconsistentKB();
+			throw EFPPInconsistentKB();
 		return;
 	}
 

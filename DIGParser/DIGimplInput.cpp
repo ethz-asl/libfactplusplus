@@ -134,7 +134,7 @@ void DIGParseHandlers :: startCommand ( DIGTag tag, AttributeList& attributes )
 				{
 					classifyCurrentKB();
 				}
-				catch ( InconsistentKB )
+				catch ( EFPPInconsistentKB )
 				{
 					throw DIGParserException ( 900, "Incoherent KB",
 						"KB with URI=\"", KB, "\" is incoherent" );

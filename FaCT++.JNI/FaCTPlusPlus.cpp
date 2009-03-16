@@ -722,7 +722,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
 
 #define PROCESS_QUERY(Action,Name)				\
 	do { try { Action; }						\
-	catch ( InconsistentKB )					\
+	catch ( EFPPInconsistentKB )				\
 	{ ThrowICO(env); }							\
 	catch ( EFPPNonSimpleRole nsr )				\
 	{ ThrowNSR ( env, nsr.getRoleName() ); }	\
@@ -1061,7 +1061,7 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellDi
 
 #define PROCESS_ASK_QUERY(Action,Name)			\
 	do { try { Action; }						\
-	catch ( InconsistentKB )					\
+	catch ( EFPPInconsistentKB )				\
 	{ ThrowICO(env); }							\
 	catch ( EFPPNonSimpleRole nsr )				\
 	{ ThrowNSR ( env, nsr.getRoleName() ); }	\

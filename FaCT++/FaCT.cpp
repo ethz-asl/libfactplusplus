@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2008 by Dmitry Tsarkov
+Copyright (C) 2003-2009 by Dmitry Tsarkov
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -81,7 +81,7 @@ DLTree* getNextName ( TsScanner& sc, ReasoningKernel& Kernel )
 #define TryReasoning(action)			\
 	do {								\
 		try { action; }					\
-		catch ( InconsistentKB ) {}		\
+		catch ( EFPPInconsistentKB ) {}	\
 		catch ( EFPPNonSimpleRole nsr )	\
 		{ std::cerr << "WARNING: KB is incorrect: " 		\
 			<< nsr.what() << ". Query is NOT processed\n";	\

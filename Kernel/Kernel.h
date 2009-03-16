@@ -24,7 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 //#define FPP_USE_AXIOMS
 
-#include "eFaCTPlusPlus.h"
+#include "eFPPInconsistentKB.h"
 #include "tNAryQueue.h"
 #include "dlTBox.h"
 #include "Reasoner.h"
@@ -36,12 +36,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #endif
 
 using namespace std;
-
-class InconsistentKB : public EFaCTPlusPlus
-{
-public:
-	InconsistentKB ( void ) throw() : EFaCTPlusPlus("FaCT++ Kernel: Inconsistent KB") {}
-}; // InconsistentKB
 
 class ReasoningKernel
 {
@@ -540,7 +534,7 @@ public:
 	void setIrreflexive ( ComplexRole R )
 	{
 		if ( isUniversalRole(R) )	// KB became inconsistent
-			throw InconsistentKB();
+			throw EFPPInconsistentKB();
 
 		setDomain ( R, Not(SelfReference(clone(R))) );
 	}
@@ -554,7 +548,7 @@ public:
 	void setAntiSymmetric ( ComplexRole R )
 	{
 		if ( isUniversalRole(R) )	// KB became inconsistent
-			throw InconsistentKB();
+			throw EFPPInconsistentKB();
 
 		disjointRoles ( R, Inverse(clone(R)) );
 	}
@@ -595,7 +589,7 @@ public:
 		getIndividual ( I, "Individual expected in relatedToNot()" );
 		getIndividual ( J, "Individual expected in relatedToNot()" );
 		if ( isUniversalRole(R) )	// inconsistent ontology
-			throw InconsistentKB();
+			throw EFPPInconsistentKB();
 		instanceOf ( I, Forall ( R, Not(J) ) );		// change to i:\AR.\neg{j}
 	}
 		/// axiom (value I A V)
@@ -638,7 +632,7 @@ public:
 	void preprocessKB ( void )
 	{
 		if ( !isKBConsistent() )
-			throw InconsistentKB();
+			throw EFPPInconsistentKB();
 	}
 		/// ensure that KB is classified
 	void classifyKB ( void )
@@ -646,7 +640,7 @@ public:
 		if ( !isKBClassified() )
 			processKB(kbClassified);
 		if ( !isKBConsistent() )
-			throw InconsistentKB();
+			throw EFPPInconsistentKB();
 	}
 		/// ensure that KB is realised
 	void realiseKB ( void )
@@ -654,7 +648,7 @@ public:
 		if ( !isKBRealised() )
 			processKB(kbRealised);
 		if ( !isKBConsistent() )
-			throw InconsistentKB();
+			throw EFPPInconsistentKB();
 	}
 
 	// role info retrieval
