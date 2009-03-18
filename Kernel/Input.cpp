@@ -419,7 +419,6 @@ void TBox :: processDisjointR ( const ConceptSet& v )
 	for ( p = v.begin(); p != p_end; ++p )
 	{
 		TRole* r = resolveRole(*p);
-		deleteTree(*p);
 
 		// FIXME: this could be done more optimal...
 		for ( q = p+1; q != p_end; ++q )

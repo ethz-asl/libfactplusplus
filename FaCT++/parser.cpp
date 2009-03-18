@@ -151,7 +151,7 @@ void DLLispParser :: parseCommand ( void )
 			switch (t)
 			{
 			case DISJOINT:
-				Kernel->processDisjoint();
+				Kernel->disjointConcepts();
 				return;		// already read ')'
 			case FAIRNESS:
 				Kernel->setFairnessConstraint();

@@ -51,84 +51,178 @@ public:
 		kb.setAxiomId(getId());
 		loadInto(kb);
 	}
-
-	// methods to redefine in the derived classes
-
-		/// check the correctness of the axiom
-	virtual bool correct ( void ) const = 0;
 }; // TDLAxiom
 
 //------------------------------------------------------------------
-//	Concept inclusion axiom
+//	n-ary axioms
 //------------------------------------------------------------------
 
-	/// axiom for Sub [= Sup
-class TDLAxiomConceptInclusion: public TDLAxiom
-{
-protected:	// members
-	DLTree* Sub;
-	DLTree* Sup;
-
-protected:	// methods
-		/// load the axiom into the TBox
-	virtual void loadInto ( TBox& kb ) { kb.addSubsumeAxiom ( clone(Sub), clone(Sup) ); }
-
-public:		// interface
-		/// c'tor: create an axiom
-	TDLAxiomConceptInclusion ( DLTree* sub, DLTree* sup ) : TDLAxiom(), Sub(sub), Sup(sup) {}
-		/// d'tor
-	virtual ~TDLAxiomConceptInclusion ( void ) { deleteTree(Sub); deleteTree(Sup); }
-
-	// methods to redefine in the derived classes
-
-		/// check the correctness of the axiom
-	virtual bool correct ( void ) const { return true; }
-}; // TDLAxiomConceptInclusion
-
 //------------------------------------------------------------------
-//	Concept equivalence axiom
+///	general n-argument axiom
 //------------------------------------------------------------------
-class TDLAxiomConceptEquivalence: public TDLAxiom
+class TDLAxiomNAry: public TDLAxiom
 {
 protected:	// types
 		/// base type
-	typedef TBox::ConceptSet ConceptSet;
+	typedef std::vector<DLTree*> ExpressionArray;
 		/// RW iterator over base type
-	typedef ConceptSet::iterator iterator;
-		/// RO iterator over base type
-	typedef ConceptSet::const_iterator const_iterator;
+	typedef ExpressionArray::iterator iterator;
 
 protected:	// members
 		/// set of equivalent concept descriptions
-	ConceptSet Base;
+	ExpressionArray Base;
 
+protected:	// methods
+		/// clear the array if necessary
+	void clear ( void )
+	{
+		for ( iterator p = Base.begin(), p_end = Base.end(); p < p_end; ++p )
+			deleteTree(*p);
+	}
+		/// load the axiom into the TBox
+	virtual void loadInto ( TBox& kb ) = 0;
+
+public:		// interface
+		/// c'tor: create n-ary axiom for n = 2
+	TDLAxiomNAry ( DLTree* C, DLTree* D )
+		: TDLAxiom()
+	{
+		Base.push_back(C);
+		Base.push_back(D);
+	}
+		/// c'tor: create n-ary axiom
+	TDLAxiomNAry ( const ExpressionArray& v )
+		: TDLAxiom()
+		, Base(v)
+		{}
+		/// d'tor
+	virtual ~TDLAxiomNAry ( void ) {}
+}; // TDLAxiomNAry
+
+
+//------------------------------------------------------------------
+///	Concept equivalence axiom
+//------------------------------------------------------------------
+class TDLAxiomEquivalentConcepts: public TDLAxiomNAry
+{
 protected:	// methods
 		/// load the axiom into the TBox
 	virtual void loadInto ( TBox& kb ) { kb.processEquivalent(Base); }
 
 public:		// interface
 		/// c'tor: create an axiom for C = D
-	TDLAxiomConceptEquivalence ( DLTree* C, DLTree* D )
-		: TDLAxiom()
-	{
-		Base.push_back(C);
-		Base.push_back(D);
-	}
+	TDLAxiomEquivalentConcepts ( DLTree* C, DLTree* D ) : TDLAxiomNAry(C,D) {}
 		/// c'tor: create an axiom for C1 = ... = Cn
-	TDLAxiomConceptEquivalence ( const ConceptSet& v )
-		: TDLAxiom()
-	{
-		for ( const_iterator p = v.begin(), p_end = v.end(); p < p_end; ++p )
-			Base.push_back(clone(*p));
-	}
+	TDLAxiomEquivalentConcepts ( const ExpressionArray& v ) : TDLAxiomNAry(v) {}
 		/// d'tor
-	virtual ~TDLAxiomConceptEquivalence ( void ) {}
+	virtual ~TDLAxiomEquivalentConcepts ( void ) {}
+}; // TDLAxiomEquivalentConcepts
 
-	// methods to redefine in the derived classes
+//------------------------------------------------------------------
+///	Concept disjointness axiom
+//------------------------------------------------------------------
+class TDLAxiomDisjointConcepts: public TDLAxiomNAry
+{
+protected:	// methods
+		/// load the axiom into the TBox
+	virtual void loadInto ( TBox& kb ) { kb.processDisjoint(Base); }
 
-		/// check the correctness of the axiom
-	virtual bool correct ( void ) const { return true; }
-}; // TDLAxiomConceptEquivalence
+public:		// interface
+		/// c'tor: create an axiom for C = D
+	TDLAxiomDisjointConcepts ( DLTree* C, DLTree* D ) : TDLAxiomNAry(C,D) {}
+		/// c'tor: create an axiom for C1 = ... = Cn
+	TDLAxiomDisjointConcepts ( const ExpressionArray& v ) : TDLAxiomNAry(v) {}
+		/// d'tor
+	virtual ~TDLAxiomDisjointConcepts ( void ) {}
+}; // TDLAxiomDisjointConcepts
+
+//------------------------------------------------------------------
+///	Role equivalence axiom
+//------------------------------------------------------------------
+class TDLAxiomEquivalentRoles: public TDLAxiomNAry
+{
+protected:	// methods
+		/// load the axiom into the TBox
+	virtual void loadInto ( TBox& kb ) { kb.processEquivalentR(Base); }
+
+public:		// interface
+		/// c'tor: create an axiom for C = D
+	TDLAxiomEquivalentRoles ( DLTree* C, DLTree* D ) : TDLAxiomNAry(C,D) {}
+		/// c'tor: create an axiom for C1 = ... = Cn
+	TDLAxiomEquivalentRoles ( const ExpressionArray& v ) : TDLAxiomNAry(v) {}
+		/// d'tor
+	virtual ~TDLAxiomEquivalentRoles ( void ) { clear(); }
+}; // TDLAxiomEquivalentRoles
+
+//------------------------------------------------------------------
+///	Role disjointness axiom
+//------------------------------------------------------------------
+class TDLAxiomDisjointRoles: public TDLAxiomNAry
+{
+protected:	// methods
+		/// load the axiom into the TBox
+	virtual void loadInto ( TBox& kb ) { kb.processDisjointR(Base); }
+
+public:		// interface
+		/// c'tor: create an axiom for C = D
+	TDLAxiomDisjointRoles ( DLTree* C, DLTree* D ) : TDLAxiomNAry(C,D) {}
+		/// c'tor: create an axiom for C1 = ... = Cn
+	TDLAxiomDisjointRoles ( const ExpressionArray& v ) : TDLAxiomNAry(v) {}
+		/// d'tor
+	virtual ~TDLAxiomDisjointRoles ( void ) { clear(); }
+}; // TDLAxiomDisjointRoles
+
+//------------------------------------------------------------------
+///	Same individuals axiom
+//------------------------------------------------------------------
+class TDLAxiomSameIndividuals: public TDLAxiomNAry
+{
+protected:	// methods
+		/// load the axiom into the TBox
+	virtual void loadInto ( TBox& kb ) { kb.processSame(Base); }
+
+public:		// interface
+		/// c'tor: create an axiom for C = D
+	TDLAxiomSameIndividuals ( DLTree* C, DLTree* D ) : TDLAxiomNAry(C,D) {}
+		/// c'tor: create an axiom for C1 = ... = Cn
+	TDLAxiomSameIndividuals ( const ExpressionArray& v ) : TDLAxiomNAry(v) {}
+		/// d'tor
+	virtual ~TDLAxiomSameIndividuals ( void ) {}
+}; // TDLAxiomSameIndividuals
+
+//------------------------------------------------------------------
+///	Different individuals axiom
+//------------------------------------------------------------------
+class TDLAxiomDifferentIndividuals: public TDLAxiomNAry
+{
+protected:	// methods
+		/// load the axiom into the TBox
+	virtual void loadInto ( TBox& kb ) { kb.processDifferent(Base); }
+
+public:		// interface
+		/// c'tor: create an axiom for C = D
+	TDLAxiomDifferentIndividuals ( DLTree* C, DLTree* D ) : TDLAxiomNAry(C,D) {}
+		/// c'tor: create an axiom for C1 = ... = Cn
+	TDLAxiomDifferentIndividuals ( const ExpressionArray& v ) : TDLAxiomNAry(v) {}
+		/// d'tor
+	virtual ~TDLAxiomDifferentIndividuals ( void ) { clear(); }
+}; // TDLAxiomDifferentIndividuals
+
+//------------------------------------------------------------------
+///	Fairness constraint axiom
+//------------------------------------------------------------------
+class TDLAxiomFairnessConstraint: public TDLAxiomNAry
+{
+protected:	// methods
+		/// load the axiom into the TBox
+	virtual void loadInto ( TBox& kb ) { kb.setFairnessConstraint(Base); }
+
+public:		// interface
+		/// c'tor: create an axiom for C1 = ... = Cn
+	TDLAxiomFairnessConstraint ( const ExpressionArray& v ) : TDLAxiomNAry(v) {}
+		/// d'tor
+	virtual ~TDLAxiomFairnessConstraint ( void ) {}
+}; // TDLAxiomFairnessConstraint
 
 //------------------------------------------------------------------
 //	Role-related axiom
@@ -161,15 +255,6 @@ public:		// interface
 		{}
 		/// d'tor
 	virtual ~TDLAxiomSingleRole ( void ) { deleteTree(Role); }
-
-	// methods to redefine in the derived classes
-
-		/// check the correctness of the axiom
-	virtual bool correct ( void ) const
-	{
-		try { resolveRole(Role); return true; }
-		catch (...) { return false; }
-	}
 }; // TDLAxiomSingleRole
 
 //------------------------------------------------------------------
@@ -193,14 +278,6 @@ public:		// interface
 		{}
 		/// d'tor
 	virtual ~TDLAxiomRoleSubsumption ( void ) { deleteTree(SubRole); }
-
-	// methods to redefine in the derived classes
-
-		/// check the correctness of the axiom
-	virtual bool correct ( void ) const
-	{	// FIXME!! add check for the role/composition here later on
-		return TDLAxiomSingleRole::correct();
-	}
 }; // TDLAxiomRoleSubsumption
 
 //------------------------------------------------------------------
@@ -364,6 +441,31 @@ public:		// interface
 		/// d'tor;
 	virtual ~TDLAxiomRoleAntiSymmetric ( void ) {}
 }; // TDLAxiomRoleAntiSymmetric
+
+
+//------------------------------------------------------------------
+//	Concept/individual axioms
+//------------------------------------------------------------------
+
+//------------------------------------------------------------------
+///	Concept inclusion axiom
+//------------------------------------------------------------------
+class TDLAxiomConceptInclusion: public TDLAxiom
+{
+protected:	// members
+	DLTree* Sub;
+	DLTree* Sup;
+
+protected:	// methods
+		/// load the axiom into the TBox
+	virtual void loadInto ( TBox& kb ) { kb.addSubsumeAxiom ( Sub, Sup ); }
+
+public:		// interface
+		/// c'tor: create an axiom
+	TDLAxiomConceptInclusion ( DLTree* sub, DLTree* sup ) : TDLAxiom(), Sub(sub), Sup(sup) {}
+		/// d'tor
+	virtual ~TDLAxiomConceptInclusion ( void ) {}
+}; // TDLAxiomConceptInclusion
 
 
 #endif

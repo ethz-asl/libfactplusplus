@@ -435,7 +435,7 @@ public:
 	{
 		isChanged = true;
 #	ifdef FPP_USE_AXIOMS
-		Ontology.add ( new TDLAxiomConceptEquivalence(NAryQueue.getLastArgList()) );
+		Ontology.add ( new TDLAxiomEquivalentConcepts(NAryQueue.getLastArgList()) );
 #	else
 		getTBox()->processEquivalent(NAryQueue.getLastArgList());
 #	endif
@@ -449,10 +449,14 @@ public:
 		equalConcepts();
 	}
 		/// axiom C1 != ... != Cn
-	void processDisjoint ( void )
+	void disjointConcepts ( void )
 	{
 		isChanged = true;
+#	ifdef FPP_USE_AXIOMS
+		Ontology.add ( new TDLAxiomDisjointConcepts(NAryQueue.getLastArgList()) );
+#	else
 		getTBox()->processDisjoint(NAryQueue.getLastArgList());
+#	endif
 	}
 
 
@@ -474,7 +478,11 @@ public:
 	void equalRoles ( void )
 	{
 		isChanged = true;
+#	ifdef FPP_USE_AXIOMS
+		Ontology.add ( new TDLAxiomEquivalentRoles(NAryQueue.getLastArgList()) );
+#	else
 		getTBox()->processEquivalentR(NAryQueue.getLastArgList());
+#	endif
 	}
 		/// axiom (R = S)
 	void equalRoles ( const ComplexRole R, const ComplexRole S )
@@ -488,7 +496,11 @@ public:
 	void disjointRoles ( void )
 	{
 		isChanged = true;
+#	ifdef FPP_USE_AXIOMS
+		Ontology.add ( new TDLAxiomDisjointRoles(NAryQueue.getLastArgList()) );
+#	else
 		getTBox()->processDisjointR(NAryQueue.getLastArgList());
+#	endif
 	}
 		/// axiom (R != S)
 	void disjointRoles ( const ComplexRole R, const ComplexRole S )
@@ -634,19 +646,31 @@ public:
 	void processSame ( void )
 	{
 		isChanged = true;
+#	ifdef FPP_USE_AXIOMS
+		Ontology.add ( new TDLAxiomSameIndividuals(NAryQueue.getLastArgList()) );
+#	else
 		getTBox()->processSame(NAryQueue.getLastArgList());
+#	endif
 	}
 		/// different individuals
 	void processDifferent ( void )
 	{
 		isChanged = true;
+#	ifdef FPP_USE_AXIOMS
+		Ontology.add ( new TDLAxiomDifferentIndividuals(NAryQueue.getLastArgList()) );
+#	else
 		getTBox()->processDifferent(NAryQueue.getLastArgList());
+#	endif
 	}
 		/// let all concept expressions in the ArgQueue to be fairness constraints
 	void setFairnessConstraint ( void )
 	{
 		isChanged = true;
+#	ifdef FPP_USE_AXIOMS
+		Ontology.add ( new TDLAxiomFairnessConstraint(NAryQueue.getLastArgList()) );
+#	else
 		getTBox()->setFairnessConstraint(NAryQueue.getLastArgList());
+#	endif
 	}
 
 	//******************************************

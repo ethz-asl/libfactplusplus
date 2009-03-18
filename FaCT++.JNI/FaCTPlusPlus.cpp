@@ -764,7 +764,7 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellEq
 JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellDisjointClasses
   (JNIEnv * env, jobject obj)
 {
-	PROCESS_QUERY ( getK(env,obj)->processDisjoint(), "tellDisjointClasses" );
+	PROCESS_QUERY ( getK(env,obj)->disjointConcepts(), "tellDisjointClasses" );
 }
 
 /*

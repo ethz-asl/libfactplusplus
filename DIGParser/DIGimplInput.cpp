@@ -720,7 +720,7 @@ void DIGParseHandlers :: endAxiom ( DIGTag tag )
 		workStack.pop();
 
 		//FIXME!! try..catch block here
-		ERROR_IF ( pKernel->processDisjoint () );
+		ERROR_IF ( pKernel->disjointConcepts() );
 		return;
 	}
 	case digImpliesR:
