@@ -22,18 +22,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <cassert>
 #include <string>
 
-//#define FPP_USE_AXIOMS
-
 #include "eFPPInconsistentKB.h"
 #include "tNAryQueue.h"
 #include "dlTBox.h"
 #include "Reasoner.h"
 #include "ifOptions.h"
 #include "DLConceptTaxonomy.h"	// for getRelatives()
-
-#ifdef FPP_USE_AXIOMS
-#	include "tOntology.h"
-#endif
+#include "tOntology.h"
 
 using namespace std;
 
@@ -89,10 +84,8 @@ protected:	// members
 	TBox* pTBox;
 		/// set of queues for the n-ary expressions/commands
 	TNAryQueue NAryQueue;
-#ifdef FPP_USE_AXIOMS
 		/// set of axioms
 	TOntology Ontology;
-#endif
 
 	// reasoning cache
 
@@ -107,8 +100,6 @@ protected:	// members
 
 	// internal flags
 
-		/// is TBox changed since the last classification
-	bool isChanged;
 		/// set if TBox throws an exception during preprocessing/classification
 	bool reasoningFailed;
 
@@ -146,7 +137,6 @@ protected:	// methods
 		cachedQuery = NULL;
 		cachedConcept = NULL;
 		cachedVertex = NULL;
-		isChanged = true;
 		reasoningFailed = false;
 	}
 
@@ -318,10 +308,7 @@ public:
 		pTBox = NULL;
 		deleteTree(cachedQuery);
 		cachedQuery = NULL;
-
-#	ifdef FPP_USE_AXIOMS
 		Ontology.clear();
-#	endif
 
 		return false;
 	}
@@ -423,22 +410,12 @@ public:
 		/// axiom C [= D
 	void impliesConcepts ( const ComplexConcept C, const ComplexConcept D )
 	{
-		isChanged = true;
-#	ifdef FPP_USE_AXIOMS
 		Ontology.add ( new TDLAxiomConceptInclusion ( C, D ) );
-#	else
-		getTBox()->addSubsumeAxiom ( C, D );
-#	endif
 	}
 		/// axiom C1 = ... = Cn
 	void equalConcepts ( void )
 	{
-		isChanged = true;
-#	ifdef FPP_USE_AXIOMS
 		Ontology.add ( new TDLAxiomEquivalentConcepts(NAryQueue.getLastArgList()) );
-#	else
-		getTBox()->processEquivalent(NAryQueue.getLastArgList());
-#	endif
 	}
 		/// axiom C = D
 	void equalConcepts ( const ComplexConcept C, const ComplexConcept D )
@@ -451,12 +428,7 @@ public:
 		/// axiom C1 != ... != Cn
 	void disjointConcepts ( void )
 	{
-		isChanged = true;
-#	ifdef FPP_USE_AXIOMS
 		Ontology.add ( new TDLAxiomDisjointConcepts(NAryQueue.getLastArgList()) );
-#	else
-		getTBox()->processDisjoint(NAryQueue.getLastArgList());
-#	endif
 	}
 
 
@@ -465,24 +437,12 @@ public:
 		/// axiom (R [= S)
 	void impliesRoles ( ComplexRole R, ComplexRole S )
 	{
-		isChanged = true;
-#	ifdef FPP_USE_AXIOMS
 		Ontology.add ( new TDLAxiomRoleSubsumption ( R, S ) );
-#	else
-		getRM()->addRoleParent ( R, getRole ( S, "Role expression expected in impliesRoles()" ) );
-		deleteTree(R);
-		deleteTree(S);
-#	endif
 	}
 		/// axiom R1 = R2 = ...
 	void equalRoles ( void )
 	{
-		isChanged = true;
-#	ifdef FPP_USE_AXIOMS
 		Ontology.add ( new TDLAxiomEquivalentRoles(NAryQueue.getLastArgList()) );
-#	else
-		getTBox()->processEquivalentR(NAryQueue.getLastArgList());
-#	endif
 	}
 		/// axiom (R = S)
 	void equalRoles ( const ComplexRole R, const ComplexRole S )
@@ -495,12 +455,7 @@ public:
 		/// axiom R1 != R2 != ...
 	void disjointRoles ( void )
 	{
-		isChanged = true;
-#	ifdef FPP_USE_AXIOMS
 		Ontology.add ( new TDLAxiomDisjointRoles(NAryQueue.getLastArgList()) );
-#	else
-		getTBox()->processDisjointR(NAryQueue.getLastArgList());
-#	endif
 	}
 		/// axiom (R != S)
 	void disjointRoles ( const ComplexRole R, const ComplexRole S )
@@ -514,102 +469,43 @@ public:
 		/// Domain (R C)
 	void setDomain ( ComplexRole R, const ComplexConcept C )
 	{
-		isChanged = true;
-#	ifdef FPP_USE_AXIOMS
 		Ontology.add ( new TDLAxiomRoleDomain ( R, C ) );
-#	else
-		getRole ( R, "Role expression expected in setDomain()" )->setDomain(C);
-		deleteTree(R);
-#	endif
 	}
 		/// Range (R C)
 	void setRange ( ComplexRole R, const ComplexConcept C )
 	{
-		isChanged = true;
-#	ifdef FPP_USE_AXIOMS
 		Ontology.add ( new TDLAxiomRoleRange ( R, C ) );
-#	else
-		getRole ( R, "Role expression expected in setRange()" )->setRange(C);
-		deleteTree(R);
-#	endif
 	}
 
 		/// Transitive (R)
 	void setTransitive ( ComplexRole R )
 	{
-#	ifdef FPP_USE_AXIOMS
 		Ontology.add ( new TDLAxiomRoleTransitive(R) );
-#	else
-		if ( !isUniversalRole(R) )
-		{
-			isChanged = true;
-			getRole ( R, "Role expression expected in setTransitive()" )->setBothTransitive();
-		}
-		deleteTree(R);
-#	endif
 	}
 		/// Reflexive (R)
 	void setReflexive ( ComplexRole R )
 	{
-#	ifdef FPP_USE_AXIOMS
 		Ontology.add ( new TDLAxiomRoleReflexive(R) );
-#	else
-		if ( !isUniversalRole(R) )
-		{
-			isChanged = true;
-			getRole ( R, "Role expression expected in setReflexive()" )->setBothReflexive();
-		}
-		deleteTree(R);
-#	endif
 	}
 		/// Irreflexive (R): Domain(R) = \neg ER.Self
 	void setIrreflexive ( ComplexRole R )
 	{
-#	ifdef FPP_USE_AXIOMS
 		Ontology.add ( new TDLAxiomRoleIrreflexive(R) );
-#	else
-		if ( isUniversalRole(R) )	// KB became inconsistent
-			throw EFPPInconsistentKB();
-
-		setDomain ( R, Not(SelfReference(clone(R))) );
-#	endif
 	}
 		/// Symmetric (R): R [= R^-
 	void setSymmetric ( ComplexRole R )
 	{
-#	ifdef FPP_USE_AXIOMS
 		Ontology.add ( new TDLAxiomRoleSymmetric(R) );
-#	else
-		if ( !isUniversalRole(R) )
-			impliesRoles ( R, Inverse(clone(R)) );
-#	endif
 	}
 		/// AntySymmetric (R): disjoint(R,R^-)
 	void setAntiSymmetric ( ComplexRole R )
 	{
-#	ifdef FPP_USE_AXIOMS
 		Ontology.add ( new TDLAxiomRoleAntiSymmetric(R) );
-#	else
-		if ( isUniversalRole(R) )	// KB became inconsistent
-			throw EFPPInconsistentKB();
-
-		disjointRoles ( R, Inverse(clone(R)) );
-#	endif
 	}
 		/// Functional (R)
 	void setFunctional ( ComplexRole R )
 	{
-#	ifdef FPP_USE_AXIOMS
 		Ontology.add ( new TDLAxiomRoleFunctional(R) );
-#	else
-		TRole* r = getRole ( R, "Role expression expected in setFunctional()" );
-		if ( !r->isFunctional() )
-		{
-			isChanged = true;
-			r->setFunctional();
-		}
-		deleteTree(R);
-#	endif
 	}
 
 
@@ -618,87 +514,42 @@ public:
 		/// axiom I e C
 	void instanceOf ( const ComplexConcept I, const ComplexConcept C )
 	{
-		isChanged = true;
-#	ifdef FPP_USE_AXIOMS
 		Ontology.add ( new TDLAxiomInstanceOf(I,C) );
-#	else
-		getTBox()->RegisterInstance ( getIndividual ( I, "Individual expected in instanceOf()" ), C );
-#	endif
 	}
 		/// axiom <I,J>:R
 	void relatedTo ( const ComplexConcept I, const ComplexRole R, const ComplexConcept J )
 	{
-		isChanged = true;
-#	ifdef FPP_USE_AXIOMS
 		Ontology.add ( new TDLAxiomRelatedTo(I,R,J) );
-#	else
-		TIndividual* i = getIndividual ( I, "Individual expected in relatedTo()" );
-		TIndividual* j = getIndividual ( J, "Individual expected in relatedTo()" );
-		if ( !isUniversalRole(R) )	// nothing to do for universal role
-			getTBox()->RegisterIndividualRelation (
-				i, getRole ( R, "Role expression expected in relatedTo()" ), j );
-#	endif
 	}
 		/// axiom <I,J>:\neg R
 	void relatedToNot ( const ComplexConcept I, const ComplexRole R, const ComplexConcept J )
 	{
-#	ifdef FPP_USE_AXIOMS
 		Ontology.add ( new TDLAxiomRelatedToNot(I,R,J) );
-#	else
-		getIndividual ( I, "Individual expected in relatedToNot()" );
-		getIndividual ( J, "Individual expected in relatedToNot()" );
-		if ( isUniversalRole(R) )	// inconsistent ontology
-			throw EFPPInconsistentKB();
-		instanceOf ( I, Forall ( R, Not(J) ) );		// change to i:\AR.\neg{j}
-#	endif
 	}
 		/// axiom (value I A V)
 	void valueOf ( const ComplexConcept I, const ComplexRole A, const ComplexConcept V )
 	{
-#	ifdef FPP_USE_AXIOMS
 		Ontology.add ( new TDLAxiomValueOf(I,A,V) );
-#	else
-		instanceOf ( I, Exists ( A, V ) );
-#	endif
 	}
 		/// axiom <I,V>:\neg A
 	void valueOfNot ( const ComplexConcept I, const ComplexRole A, const ComplexConcept V )
 	{
-#	ifdef FPP_USE_AXIOMS
 		Ontology.add ( new TDLAxiomValueOfNot(I,A,V) );
-#	else
-		instanceOf ( I, Forall ( A, Not(V) ) );
-#	endif
 	}
 		/// same individuals
 	void processSame ( void )
 	{
-		isChanged = true;
-#	ifdef FPP_USE_AXIOMS
 		Ontology.add ( new TDLAxiomSameIndividuals(NAryQueue.getLastArgList()) );
-#	else
-		getTBox()->processSame(NAryQueue.getLastArgList());
-#	endif
 	}
 		/// different individuals
 	void processDifferent ( void )
 	{
-		isChanged = true;
-#	ifdef FPP_USE_AXIOMS
 		Ontology.add ( new TDLAxiomDifferentIndividuals(NAryQueue.getLastArgList()) );
-#	else
-		getTBox()->processDifferent(NAryQueue.getLastArgList());
-#	endif
 	}
 		/// let all concept expressions in the ArgQueue to be fairness constraints
 	void setFairnessConstraint ( void )
 	{
-		isChanged = true;
-#	ifdef FPP_USE_AXIOMS
 		Ontology.add ( new TDLAxiomFairnessConstraint(NAryQueue.getLastArgList()) );
-#	else
-		getTBox()->setFairnessConstraint(NAryQueue.getLastArgList());
-#	endif
 	}
 
 	//******************************************

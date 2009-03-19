@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2008 by Dmitry Tsarkov
+Copyright (C) 2008-2009 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -36,14 +36,19 @@ protected:	// members
 	TAxiomArray Axioms;
 		/// id to be given to the next axiom
 	unsigned int axiomId;
+		/// index of the 1st unprocessed axiom
+	size_t axiomToProcess;
 
 protected:	// methods
 
 public:		// interface
 		/// empty c'tor
-	TOntology ( void ) : axiomId(0) {}
+	TOntology ( void ) : axiomId(0), axiomToProcess(0) {}
 		/// d'tor
 	~TOntology ( void ) { clear(); }
+
+		/// @return true iff the ontology was changed since its last load
+	bool isChanged ( void ) const { return axiomToProcess != Axioms.size(); }
 
 		/// add given axiom to the ontology
 	void add ( TDLAxiom* p )
@@ -54,8 +59,9 @@ public:		// interface
 		/// load ontology to a given KB
 	void load ( TBox& kb )
 	{
-		for ( iterator p = Axioms.begin(), p_end = Axioms.end(); p < p_end; ++p )
+		for ( iterator p = Axioms.begin()+axiomToProcess, p_end = Axioms.end(); p < p_end; ++p )
 			(*p)->load(kb);
+		axiomToProcess = Axioms.size();
 	}
 		/// clear the ontology
 	void clear ( void )
@@ -63,6 +69,7 @@ public:		// interface
 		for ( iterator p = Axioms.begin(), p_end = Axioms.end(); p < p_end; ++p )
 			delete *p;
 		Axioms.clear();
+		axiomToProcess = 0;
 	}
 }; // TOntology
 

@@ -77,13 +77,8 @@ ReasoningKernel :: processKB ( KBStatus status )
 	// start with loading and preprocessing -- here might be a failures
 	reasoningFailed = true;
 
-#ifdef FPP_USE_AXIOMS
 	// load the axioms from the ontology
 	Ontology.load(*pTBox);
-#endif
-
-	// forbid further changes
-	isChanged = false;
 
 	// do the consistency check
 	pTBox->isConsistent();
@@ -136,7 +131,7 @@ ReasoningKernel :: setUpCache ( DLTree* query, cacheStatus level )
 	}
 
 	// if KB was changed since it was classified -- error (inclremental classification is not supported)
-	if ( isChanged )
+	if ( Ontology.isChanged() )
 	{
 		// invalidate cache
 		cacheLevel = csEmpty;
