@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2007 by Dmitry Tsarkov
+Copyright (C) 2003-2009 by Dmitry Tsarkov
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -74,6 +74,7 @@ protected:	// methods
 	{
 		DLTree* ret = NULL;
 		CatchNameEx(Kernel->getDataTypeCenter().getDataValue(scan.GetName(),type));
+		deleteTree(type);
 		return ret;
 	}
 
