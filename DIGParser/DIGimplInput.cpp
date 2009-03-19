@@ -816,7 +816,6 @@ void DIGParseHandlers :: endAxiom ( DIGTag tag )
 		DLTree* I = workStack.top();
 		workStack.pop();
 		ERROR_IF ( pKernel->instanceOf ( I, C ) );
-		delete I;
 		return;
 	}
 	case digRelated:
@@ -834,9 +833,6 @@ void DIGParseHandlers :: endAxiom ( DIGTag tag )
 		DLTree* I1 = workStack.top();
 		workStack.pop();
 		ERROR_IF ( pKernel->relatedTo ( I1, R, I2 ) );
-		delete I1;
-		deleteTree(R);
-		delete I2;
 		return;
 	}
 	case digValue:
@@ -854,7 +850,6 @@ void DIGParseHandlers :: endAxiom ( DIGTag tag )
 		DLTree* I = workStack.top();
 		workStack.pop();
 		ERROR_IF ( pKernel->valueOf ( I, A, V ) );
-		delete I;
 		return;
 	}
 	default:

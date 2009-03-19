@@ -599,6 +599,9 @@ public:
 		/// Functional (R)
 	void setFunctional ( ComplexRole R )
 	{
+#	ifdef FPP_USE_AXIOMS
+		Ontology.add ( new TDLAxiomRoleFunctional(R) );
+#	else
 		TRole* r = getRole ( R, "Role expression expected in setFunctional()" );
 		if ( !r->isFunctional() )
 		{
@@ -606,6 +609,7 @@ public:
 			r->setFunctional();
 		}
 		deleteTree(R);
+#	endif
 	}
 
 
@@ -615,33 +619,57 @@ public:
 	void instanceOf ( const ComplexConcept I, const ComplexConcept C )
 	{
 		isChanged = true;
+#	ifdef FPP_USE_AXIOMS
+		Ontology.add ( new TDLAxiomInstanceOf(I,C) );
+#	else
 		getTBox()->RegisterInstance ( getIndividual ( I, "Individual expected in instanceOf()" ), C );
+#	endif
 	}
 		/// axiom <I,J>:R
 	void relatedTo ( const ComplexConcept I, const ComplexRole R, const ComplexConcept J )
 	{
 		isChanged = true;
+#	ifdef FPP_USE_AXIOMS
+		Ontology.add ( new TDLAxiomRelatedTo(I,R,J) );
+#	else
 		TIndividual* i = getIndividual ( I, "Individual expected in relatedTo()" );
 		TIndividual* j = getIndividual ( J, "Individual expected in relatedTo()" );
 		if ( !isUniversalRole(R) )	// nothing to do for universal role
 			getTBox()->RegisterIndividualRelation (
 				i, getRole ( R, "Role expression expected in relatedTo()" ), j );
+#	endif
 	}
 		/// axiom <I,J>:\neg R
 	void relatedToNot ( const ComplexConcept I, const ComplexRole R, const ComplexConcept J )
 	{
+#	ifdef FPP_USE_AXIOMS
+		Ontology.add ( new TDLAxiomRelatedToNot(I,R,J) );
+#	else
 		getIndividual ( I, "Individual expected in relatedToNot()" );
 		getIndividual ( J, "Individual expected in relatedToNot()" );
 		if ( isUniversalRole(R) )	// inconsistent ontology
 			throw EFPPInconsistentKB();
 		instanceOf ( I, Forall ( R, Not(J) ) );		// change to i:\AR.\neg{j}
+#	endif
 	}
 		/// axiom (value I A V)
 	void valueOf ( const ComplexConcept I, const ComplexRole A, const ComplexConcept V )
-		{ instanceOf ( I, Exists ( A, V ) ); }
+	{
+#	ifdef FPP_USE_AXIOMS
+		Ontology.add ( new TDLAxiomValueOf(I,A,V) );
+#	else
+		instanceOf ( I, Exists ( A, V ) );
+#	endif
+	}
 		/// axiom <I,V>:\neg A
 	void valueOfNot ( const ComplexConcept I, const ComplexRole A, const ComplexConcept V )
-		{ instanceOf ( I, Forall ( A, Not(V) ) ); }
+	{
+#	ifdef FPP_USE_AXIOMS
+		Ontology.add ( new TDLAxiomValueOfNot(I,A,V) );
+#	else
+		instanceOf ( I, Forall ( A, Not(V) ) );
+#	endif
+	}
 		/// same individuals
 	void processSame ( void )
 	{

@@ -29,6 +29,20 @@ protected:	// members
 	unsigned int id;
 
 protected:	// methods
+		/// get role by the DLTree; throw exception if unable
+	static TRole* getRole ( const DLTree* r, const char* reason )
+	{
+		try { return resolveRole(r); }
+		catch ( EFaCTPlusPlus e ) { throw EFaCTPlusPlus(reason); }
+	}
+		/// get an individual be the DLTree; throw exception if unable
+	static TIndividual* getIndividual ( DLTree* I, const char* reason )
+	{
+		if ( I->Element().getToken() == INAME )
+			return static_cast<TIndividual*>(I->Element().getName());
+		else
+			throw EFaCTPlusPlus(reason);
+	}
 		/// load the axiom into the TBox
 	virtual void loadInto ( TBox& kb ) = 0;
 
@@ -239,13 +253,6 @@ protected:	// members
 protected:	// methods
 		/// load the axiom into the TBox
 	virtual void loadInto ( TBox& kb ) = 0;
-		/// ger role by the DLTree; throw exception if unable
-	TRole* getRole ( const DLTree* r, const char* reason ) const
-	{
-		try { return resolveRole(r); }
-		catch ( EFaCTPlusPlus e ) { throw EFaCTPlusPlus(reason); }
-	}
-
 
 public:		// interface
 		/// c'tor: create an axiom
@@ -442,6 +449,29 @@ public:		// interface
 	virtual ~TDLAxiomRoleAntiSymmetric ( void ) {}
 }; // TDLAxiomRoleAntiSymmetric
 
+//------------------------------------------------------------------
+///	Role functionality axiom
+//------------------------------------------------------------------
+class TDLAxiomRoleFunctional: public TDLAxiomSingleRole
+{
+protected:	// methods
+		/// load the axiom into the TBox
+	virtual void loadInto ( TBox& kb ATTR_UNUSED )
+	{
+		if ( isUniversalRole(Role) )	// KB became inconsistent
+			throw EFPPInconsistentKB();
+		getRole ( Role, "Role expression expected in Roles Functionality axiom" )->setFunctional();
+	}
+
+public:		// interface
+		/// c'tor: create an axiom
+	TDLAxiomRoleFunctional ( DLTree* role )
+		: TDLAxiomSingleRole(role)
+		{}
+		/// d'tor;
+	virtual ~TDLAxiomRoleFunctional ( void ) {}
+}; // TDLAxiomRoleFunctional
+
 
 //------------------------------------------------------------------
 //	Concept/individual axioms
@@ -466,6 +496,156 @@ public:		// interface
 		/// d'tor
 	virtual ~TDLAxiomConceptInclusion ( void ) {}
 }; // TDLAxiomConceptInclusion
+
+//------------------------------------------------------------------
+///	general individual-based axiom
+//------------------------------------------------------------------
+class TDLAxiomIndividual: public TDLAxiom
+{
+protected:	// members
+	DLTree* I;
+
+protected:	// methods
+		/// load the axiom into the TBox
+	virtual void loadInto ( TBox& kb ) = 0;
+
+public:		// interface
+		/// c'tor: create an axiom
+	TDLAxiomIndividual ( DLTree* i ) : TDLAxiom(), I(i) {}
+		/// d'tor
+	virtual ~TDLAxiomIndividual ( void ) { deleteTree(I); }
+}; // TDLAxiomIndividual
+
+//------------------------------------------------------------------
+///	Instance axiom
+//------------------------------------------------------------------
+class TDLAxiomInstanceOf: public TDLAxiomIndividual
+{
+protected:	// members
+	DLTree* C;
+
+protected:	// methods
+		/// load the axiom into the TBox
+	virtual void loadInto ( TBox& kb ) { kb.RegisterInstance ( getIndividual ( I, "Individual expected in Instance axiom" ), C ); }
+
+public:		// interface
+		/// c'tor: create an axiom
+	TDLAxiomInstanceOf ( DLTree* i, DLTree* c ) : TDLAxiomIndividual(i), C(c) {}
+		/// d'tor
+	virtual ~TDLAxiomInstanceOf ( void ) {}
+}; // TDLAxiomInstanceOf
+
+//------------------------------------------------------------------
+///	Related To axiom
+//------------------------------------------------------------------
+class TDLAxiomRelatedTo: public TDLAxiomIndividual
+{
+protected:	// members
+	DLTree* R;
+	DLTree* J;
+
+protected:	// methods
+		/// load the axiom into the TBox
+	virtual void loadInto ( TBox& kb )
+	{
+		if ( !isUniversalRole(R) )	// nothing to do for universal role
+			kb.RegisterIndividualRelation (
+				getIndividual ( I, "Individual expected in Related To axiom" ),
+				getRole ( R, "Role expression expected in Related To axiom" ),
+				getIndividual ( J, "Individual expected in Related To axiom" ) );
+	}
+
+public:		// interface
+		/// c'tor: create an axiom
+	TDLAxiomRelatedTo ( DLTree* i, DLTree* r, DLTree* j ) : TDLAxiomIndividual(i), R(r), J(j) {}
+		/// d'tor
+	virtual ~TDLAxiomRelatedTo ( void ) { deleteTree(R); deleteTree(J); }
+}; // TDLAxiomRelatedTo
+
+//------------------------------------------------------------------
+///	Related To Not axiom
+//------------------------------------------------------------------
+class TDLAxiomRelatedToNot: public TDLAxiomIndividual
+{
+protected:	// members
+	DLTree* R;
+	DLTree* J;
+
+protected:	// methods
+		/// load the axiom into the TBox
+	virtual void loadInto ( TBox& kb )
+	{
+		if ( isUniversalRole(R) )	// inconsistent ontology
+			throw EFPPInconsistentKB();
+		// make sure everything is consistent
+		getIndividual ( J, "Individual expected in Related To Not axiom" );
+		// make an axiom i:AR.\neg{j}
+		kb.RegisterInstance (
+				getIndividual ( I, "Individual expected in Related To Not axiom" ),
+				new DLTree(FORALL,R,new DLTree(NOT,J)) );
+	}
+
+public:		// interface
+		/// c'tor: create an axiom
+	TDLAxiomRelatedToNot ( DLTree* i, DLTree* r, DLTree* j ) : TDLAxiomIndividual(i), R(r), J(j) {}
+		/// d'tor
+	virtual ~TDLAxiomRelatedToNot ( void ) {}
+}; // TDLAxiomRelatedToNot
+
+//------------------------------------------------------------------
+///	Value Of axiom
+//------------------------------------------------------------------
+class TDLAxiomValueOf: public TDLAxiomIndividual
+{
+protected:	// members
+	DLTree* A;
+	DLTree* V;
+
+protected:	// methods
+		/// load the axiom into the TBox
+	virtual void loadInto ( TBox& kb )
+	{
+		if ( isUniversalRole(A) )	// data role can't be universal
+			throw EFPPInconsistentKB();
+		kb.RegisterInstance (
+				getIndividual ( I, "Individual expected in Value Of axiom" ),
+				new DLTree(EXISTS,A,V) );
+	}
+
+public:		// interface
+		/// c'tor: create an axiom
+	TDLAxiomValueOf ( DLTree* i, DLTree* a, DLTree* v ) : TDLAxiomIndividual(i), A(a), V(v) {}
+		/// d'tor
+	virtual ~TDLAxiomValueOf ( void ) {}
+}; // TDLAxiomValueOf
+
+//------------------------------------------------------------------
+///	Related To Not axiom
+//------------------------------------------------------------------
+class TDLAxiomValueOfNot: public TDLAxiomIndividual
+{
+protected:	// members
+	DLTree* A;
+	DLTree* V;
+
+protected:	// methods
+		/// load the axiom into the TBox
+	virtual void loadInto ( TBox& kb )
+	{
+		if ( isUniversalRole(A) )	// data role can't be universal
+			throw EFPPInconsistentKB();
+		// make an axiom i:AR.\neg{j}
+		kb.RegisterInstance (
+				getIndividual ( I, "Individual expected in Related To Not axiom" ),
+				new DLTree(FORALL,A,new DLTree(NOT,V)) );
+	}
+
+public:		// interface
+		/// c'tor: create an axiom
+	TDLAxiomValueOfNot ( DLTree* i, DLTree* a, DLTree* v ) : TDLAxiomIndividual(i), A(a), V(v) {}
+		/// d'tor
+	virtual ~TDLAxiomValueOfNot ( void ) {}
+}; // TDLAxiomValueOfNot
 
 
 #endif

@@ -198,7 +198,6 @@ void DLLispParser :: parseCommand ( void )
 	case INSTANCE:
 		Name = getSingleton();
 		Kernel->instanceOf ( Name, processConceptTree() );
-		delete Name;
 		break;
 
 	case RELATED:			// command is (Related id1 R id2);
@@ -208,9 +207,6 @@ void DLLispParser :: parseCommand ( void )
 		MustBe (ID);	// second indiv.
 		DLTree* id2 = getSingleton();
 		Kernel->relatedTo ( id1, R, id2 );
-		deleteTree(id1);
-		deleteTree(R);	// clear role tree
-		deleteTree(id2);	// pawel.kaplanski@gmail.com
 		break;
 	}
 	catch ( EFaCTPlusPlus ex )
