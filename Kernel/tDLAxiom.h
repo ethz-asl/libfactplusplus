@@ -21,6 +21,67 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "dlTBox.h"
 
+// forward declaration for all axiom classes: necessary for the visitor pattern
+class TDLAxiomEquivalentConcepts;
+class TDLAxiomDisjointConcepts;
+class TDLAxiomEquivalentRoles;
+class TDLAxiomDisjointRoles;
+class TDLAxiomSameIndividuals;
+class TDLAxiomDifferentIndividuals;
+class TDLAxiomFairnessConstraint;
+
+class TDLAxiomRoleSubsumption;
+class TDLAxiomRoleDomain;
+class TDLAxiomRoleRange;
+class TDLAxiomRoleTransitive;
+class TDLAxiomRoleReflexive;
+class TDLAxiomRoleIrreflexive;
+class TDLAxiomRoleSymmetric;
+class TDLAxiomRoleAntiSymmetric;
+class TDLAxiomRoleFunctional;
+
+class TDLAxiomConceptInclusion;
+class TDLAxiomInstanceOf;
+class TDLAxiomRelatedTo;
+class TDLAxiomRelatedToNot;
+class TDLAxiomValueOf;
+class TDLAxiomValueOfNot;
+
+class TOntology;
+
+/// general visitor for DL axioms
+class DLAxiomVisitor
+{
+public:		// visitor interface
+	virtual void visit ( TDLAxiomEquivalentConcepts& axiom ) = 0;
+	virtual void visit ( TDLAxiomDisjointConcepts& axiom ) = 0;
+	virtual void visit ( TDLAxiomEquivalentRoles& axiom ) = 0;
+	virtual void visit ( TDLAxiomDisjointRoles& axiom ) = 0;
+	virtual void visit ( TDLAxiomSameIndividuals& axiom ) = 0;
+	virtual void visit ( TDLAxiomDifferentIndividuals& axiom ) = 0;
+	virtual void visit ( TDLAxiomFairnessConstraint& axiom ) = 0;
+
+	virtual void visit ( TDLAxiomRoleSubsumption& axiom ) = 0;
+	virtual void visit ( TDLAxiomRoleDomain& axiom ) = 0;
+	virtual void visit ( TDLAxiomRoleRange& axiom ) = 0;
+	virtual void visit ( TDLAxiomRoleTransitive& axiom ) = 0;
+	virtual void visit ( TDLAxiomRoleReflexive& axiom ) = 0;
+	virtual void visit ( TDLAxiomRoleIrreflexive& axiom ) = 0;
+	virtual void visit ( TDLAxiomRoleSymmetric& axiom ) = 0;
+	virtual void visit ( TDLAxiomRoleAntiSymmetric& axiom ) = 0;
+	virtual void visit ( TDLAxiomRoleFunctional& axiom ) = 0;
+
+	virtual void visit ( TDLAxiomConceptInclusion& axiom ) = 0;
+	virtual void visit ( TDLAxiomInstanceOf& axiom ) = 0;
+	virtual void visit ( TDLAxiomRelatedTo& axiom ) = 0;
+	virtual void visit ( TDLAxiomRelatedToNot& axiom ) = 0;
+	virtual void visit ( TDLAxiomValueOf& axiom ) = 0;
+	virtual void visit ( TDLAxiomValueOfNot& axiom ) = 0;
+
+	virtual void visitOntology ( class TOntology& ontology ) = 0;
+	virtual ~DLAxiomVisitor ( void ) {}
+}; // DLAxiomVisitor
+
 /// base class for the DL axiom, which include T-, A- and RBox ones
 class TDLAxiom
 {
@@ -65,6 +126,8 @@ public:
 		kb.setAxiomId(getId());
 		loadInto(kb);
 	}
+		/// accept method for the visitor pattern
+	virtual void accept ( DLAxiomVisitor& visitor ) = 0;
 }; // TDLAxiom
 
 //------------------------------------------------------------------
@@ -76,7 +139,7 @@ public:
 //------------------------------------------------------------------
 class TDLAxiomNAry: public TDLAxiom
 {
-protected:	// types
+public:		// types
 		/// base type
 	typedef std::vector<DLTree*> ExpressionArray;
 		/// RW iterator over base type
@@ -111,6 +174,13 @@ public:		// interface
 		{}
 		/// d'tor
 	virtual ~TDLAxiomNAry ( void ) {}
+
+	// access to members
+
+		/// RW begin iterator for array
+	iterator begin ( void ) { return Base.begin(); }
+		/// RW end iterator for array
+	iterator end ( void ) { return Base.end(); }
 }; // TDLAxiomNAry
 
 
@@ -130,6 +200,8 @@ public:		// interface
 	TDLAxiomEquivalentConcepts ( const ExpressionArray& v ) : TDLAxiomNAry(v) {}
 		/// d'tor
 	virtual ~TDLAxiomEquivalentConcepts ( void ) {}
+		/// accept method for the visitor pattern
+	void accept ( DLAxiomVisitor& visitor ) { visitor.visit(*this); }
 }; // TDLAxiomEquivalentConcepts
 
 //------------------------------------------------------------------
@@ -148,6 +220,8 @@ public:		// interface
 	TDLAxiomDisjointConcepts ( const ExpressionArray& v ) : TDLAxiomNAry(v) {}
 		/// d'tor
 	virtual ~TDLAxiomDisjointConcepts ( void ) {}
+		/// accept method for the visitor pattern
+	void accept ( DLAxiomVisitor& visitor ) { visitor.visit(*this); }
 }; // TDLAxiomDisjointConcepts
 
 //------------------------------------------------------------------
@@ -166,6 +240,8 @@ public:		// interface
 	TDLAxiomEquivalentRoles ( const ExpressionArray& v ) : TDLAxiomNAry(v) {}
 		/// d'tor
 	virtual ~TDLAxiomEquivalentRoles ( void ) { clear(); }
+		/// accept method for the visitor pattern
+	void accept ( DLAxiomVisitor& visitor ) { visitor.visit(*this); }
 }; // TDLAxiomEquivalentRoles
 
 //------------------------------------------------------------------
@@ -184,6 +260,8 @@ public:		// interface
 	TDLAxiomDisjointRoles ( const ExpressionArray& v ) : TDLAxiomNAry(v) {}
 		/// d'tor
 	virtual ~TDLAxiomDisjointRoles ( void ) { clear(); }
+		/// accept method for the visitor pattern
+	void accept ( DLAxiomVisitor& visitor ) { visitor.visit(*this); }
 }; // TDLAxiomDisjointRoles
 
 //------------------------------------------------------------------
@@ -202,6 +280,8 @@ public:		// interface
 	TDLAxiomSameIndividuals ( const ExpressionArray& v ) : TDLAxiomNAry(v) {}
 		/// d'tor
 	virtual ~TDLAxiomSameIndividuals ( void ) {}
+		/// accept method for the visitor pattern
+	void accept ( DLAxiomVisitor& visitor ) { visitor.visit(*this); }
 }; // TDLAxiomSameIndividuals
 
 //------------------------------------------------------------------
@@ -220,6 +300,8 @@ public:		// interface
 	TDLAxiomDifferentIndividuals ( const ExpressionArray& v ) : TDLAxiomNAry(v) {}
 		/// d'tor
 	virtual ~TDLAxiomDifferentIndividuals ( void ) { clear(); }
+		/// accept method for the visitor pattern
+	void accept ( DLAxiomVisitor& visitor ) { visitor.visit(*this); }
 }; // TDLAxiomDifferentIndividuals
 
 //------------------------------------------------------------------
@@ -236,6 +318,8 @@ public:		// interface
 	TDLAxiomFairnessConstraint ( const ExpressionArray& v ) : TDLAxiomNAry(v) {}
 		/// d'tor
 	virtual ~TDLAxiomFairnessConstraint ( void ) {}
+		/// accept method for the visitor pattern
+	void accept ( DLAxiomVisitor& visitor ) { visitor.visit(*this); }
 }; // TDLAxiomFairnessConstraint
 
 //------------------------------------------------------------------
@@ -285,6 +369,8 @@ public:		// interface
 		{}
 		/// d'tor
 	virtual ~TDLAxiomRoleSubsumption ( void ) { deleteTree(SubRole); }
+		/// accept method for the visitor pattern
+	void accept ( DLAxiomVisitor& visitor ) { visitor.visit(*this); }
 }; // TDLAxiomRoleSubsumption
 
 //------------------------------------------------------------------
@@ -308,6 +394,8 @@ public:		// interface
 		{}
 		/// d'tor; nothing to do as Domain is consumed
 	virtual ~TDLAxiomRoleDomain ( void ) {}
+		/// accept method for the visitor pattern
+	void accept ( DLAxiomVisitor& visitor ) { visitor.visit(*this); }
 }; // TDLAxiomRoleDomain
 
 //------------------------------------------------------------------
@@ -331,6 +419,8 @@ public:		// interface
 		{}
 		/// d'tor; nothing to do as Domain is consumed
 	virtual ~TDLAxiomRoleRange ( void ) {}
+		/// accept method for the visitor pattern
+	void accept ( DLAxiomVisitor& visitor ) { visitor.visit(*this); }
 }; // TDLAxiomRoleRange
 
 //------------------------------------------------------------------
@@ -353,6 +443,8 @@ public:		// interface
 		{}
 		/// d'tor;
 	virtual ~TDLAxiomRoleTransitive ( void ) {}
+		/// accept method for the visitor pattern
+	void accept ( DLAxiomVisitor& visitor ) { visitor.visit(*this); }
 }; // TDLAxiomRoleTransitive
 
 //------------------------------------------------------------------
@@ -375,6 +467,8 @@ public:		// interface
 		{}
 		/// d'tor;
 	virtual ~TDLAxiomRoleReflexive ( void ) {}
+		/// accept method for the visitor pattern
+	void accept ( DLAxiomVisitor& visitor ) { visitor.visit(*this); }
 }; // TDLAxiomRoleReflexive
 
 //------------------------------------------------------------------
@@ -398,6 +492,8 @@ public:		// interface
 		{}
 		/// d'tor;
 	virtual ~TDLAxiomRoleIrreflexive ( void ) {}
+		/// accept method for the visitor pattern
+	void accept ( DLAxiomVisitor& visitor ) { visitor.visit(*this); }
 }; // TDLAxiomRoleIrreflexive
 
 //------------------------------------------------------------------
@@ -423,6 +519,8 @@ public:		// interface
 		{}
 		/// d'tor;
 	virtual ~TDLAxiomRoleSymmetric ( void ) {}
+		/// accept method for the visitor pattern
+	void accept ( DLAxiomVisitor& visitor ) { visitor.visit(*this); }
 }; // TDLAxiomRoleSymmetric
 
 //------------------------------------------------------------------
@@ -447,6 +545,8 @@ public:		// interface
 		{}
 		/// d'tor;
 	virtual ~TDLAxiomRoleAntiSymmetric ( void ) {}
+		/// accept method for the visitor pattern
+	void accept ( DLAxiomVisitor& visitor ) { visitor.visit(*this); }
 }; // TDLAxiomRoleAntiSymmetric
 
 //------------------------------------------------------------------
@@ -470,6 +570,8 @@ public:		// interface
 		{}
 		/// d'tor;
 	virtual ~TDLAxiomRoleFunctional ( void ) {}
+		/// accept method for the visitor pattern
+	void accept ( DLAxiomVisitor& visitor ) { visitor.visit(*this); }
 }; // TDLAxiomRoleFunctional
 
 
@@ -495,6 +597,8 @@ public:		// interface
 	TDLAxiomConceptInclusion ( DLTree* sub, DLTree* sup ) : TDLAxiom(), Sub(sub), Sup(sup) {}
 		/// d'tor
 	virtual ~TDLAxiomConceptInclusion ( void ) {}
+		/// accept method for the visitor pattern
+	void accept ( DLAxiomVisitor& visitor ) { visitor.visit(*this); }
 }; // TDLAxiomConceptInclusion
 
 //------------------------------------------------------------------
@@ -533,6 +637,8 @@ public:		// interface
 	TDLAxiomInstanceOf ( DLTree* i, DLTree* c ) : TDLAxiomIndividual(i), C(c) {}
 		/// d'tor
 	virtual ~TDLAxiomInstanceOf ( void ) {}
+		/// accept method for the visitor pattern
+	void accept ( DLAxiomVisitor& visitor ) { visitor.visit(*this); }
 }; // TDLAxiomInstanceOf
 
 //------------------------------------------------------------------
@@ -560,6 +666,8 @@ public:		// interface
 	TDLAxiomRelatedTo ( DLTree* i, DLTree* r, DLTree* j ) : TDLAxiomIndividual(i), R(r), J(j) {}
 		/// d'tor
 	virtual ~TDLAxiomRelatedTo ( void ) { deleteTree(R); deleteTree(J); }
+		/// accept method for the visitor pattern
+	void accept ( DLAxiomVisitor& visitor ) { visitor.visit(*this); }
 }; // TDLAxiomRelatedTo
 
 //------------------------------------------------------------------
@@ -590,6 +698,8 @@ public:		// interface
 	TDLAxiomRelatedToNot ( DLTree* i, DLTree* r, DLTree* j ) : TDLAxiomIndividual(i), R(r), J(j) {}
 		/// d'tor
 	virtual ~TDLAxiomRelatedToNot ( void ) {}
+		/// accept method for the visitor pattern
+	void accept ( DLAxiomVisitor& visitor ) { visitor.visit(*this); }
 }; // TDLAxiomRelatedToNot
 
 //------------------------------------------------------------------
@@ -617,6 +727,8 @@ public:		// interface
 	TDLAxiomValueOf ( DLTree* i, DLTree* a, DLTree* v ) : TDLAxiomIndividual(i), A(a), V(v) {}
 		/// d'tor
 	virtual ~TDLAxiomValueOf ( void ) {}
+		/// accept method for the visitor pattern
+	void accept ( DLAxiomVisitor& visitor ) { visitor.visit(*this); }
 }; // TDLAxiomValueOf
 
 //------------------------------------------------------------------
@@ -645,6 +757,8 @@ public:		// interface
 	TDLAxiomValueOfNot ( DLTree* i, DLTree* a, DLTree* v ) : TDLAxiomIndividual(i), A(a), V(v) {}
 		/// d'tor
 	virtual ~TDLAxiomValueOfNot ( void ) {}
+		/// accept method for the visitor pattern
+	void accept ( DLAxiomVisitor& visitor ) { visitor.visit(*this); }
 }; // TDLAxiomValueOfNot
 
 
