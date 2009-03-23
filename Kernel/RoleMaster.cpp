@@ -19,7 +19,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "RoleMaster.h"
 
 // inverse the role composition
-DLTree* inverseComposition ( DLTree* tree )
+DLTree* inverseComposition ( const DLTree* tree )
 {
 	if ( tree->Element() == RCOMPOSITION )
 		return new DLTree ( TLexeme(RCOMPOSITION),
@@ -29,7 +29,7 @@ DLTree* inverseComposition ( DLTree* tree )
 		return new DLTree ( TLexeme ( RNAME, resolveRole(tree)->inverse() ) );
 }
 
-void RoleMaster :: addRoleParent ( DLTree* tree, TRole* parent )
+void RoleMaster :: addRoleParent ( const DLTree* tree, TRole* parent )
 {
 	if ( tree && tree->Element() == RCOMPOSITION )
 	{

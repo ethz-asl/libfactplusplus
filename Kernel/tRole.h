@@ -336,7 +336,7 @@ public:		// interface
 	// automaton construction
 
 		/// add composition to a role
-	void addComposition ( DLTree* tree )
+	void addComposition ( const DLTree* tree )
 	{
 		roleSet RS;
 		fillsComposition ( RS, tree );
@@ -361,7 +361,7 @@ public:		// interface
 		/// init other fields that requires Anc/Desc for all roles
 	void postProcess ( void );
 		/// fills role composition by given TREE
-	void fillsComposition ( roleSet& Composition, DLTree* tree ) const;
+	void fillsComposition ( roleSet& Composition, const DLTree* tree ) const;
 		/// complete role automaton
 	void completeAutomaton ( void );
 		/// check whether role description is consistent

@@ -23,7 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "tRole.h"
 #include "taxVertex.h"
 
-void TRole :: fillsComposition ( roleSet& Composition, DLTree* tree ) const
+void TRole :: fillsComposition ( roleSet& Composition, const DLTree* tree ) const
 {
 	if ( tree->Element() == RCOMPOSITION )
 	{

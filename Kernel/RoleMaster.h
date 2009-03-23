@@ -163,7 +163,7 @@ public:		// interface
 	}
 
 		/// add parent for the input role or role composition
-	void addRoleParent ( DLTree* role, TRole* parent );
+	void addRoleParent ( const DLTree* role, TRole* parent );
 		/// add synonym to existing role
 	void addRoleSynonym ( TRole* role, TRole* syn )
 	{
