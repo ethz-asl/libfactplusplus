@@ -87,7 +87,13 @@ public:		// interface
 	void clear ( void )
 	{
 		for ( iterator p = refs.begin(), p_end = refs.end(); p < p_end; ++p )
+		{
+#		ifdef JNI_TRACING
+			std::cerr << "Deleting (" << (void*)(*p) << ") ";
+			std::cerr << *p << "\n";
+#		endif
 			deleteTree(*p);
+		}
 		refs.clear();
 	}
 }; // RefRecorder
