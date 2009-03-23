@@ -280,7 +280,10 @@ DLTree* TBox :: processOneOf ( const ExpressionArray& v, bool data )
 		else
 		{
 			deleteTree(ret);
-			return NULL;	// sanity check; FIXME!! exception later on
+			if ( data )
+				throw EFaCTPlusPlus("Only data values in DataOneOf()");
+			else
+				throw EFaCTPlusPlus("Only individuals in OneOf()");
 		}
 
 	return ret;
