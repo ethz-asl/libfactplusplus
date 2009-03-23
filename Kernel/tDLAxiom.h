@@ -150,12 +150,6 @@ protected:	// members
 	ExpressionArray Base;
 
 protected:	// methods
-		/// clear the array if necessary
-	void clear ( void )
-	{
-		for ( iterator p = Base.begin(), p_end = Base.end(); p < p_end; ++p )
-			deleteTree(*p);
-	}
 		/// load the axiom into the TBox
 	virtual void loadInto ( TBox& kb ) = 0;
 
@@ -173,7 +167,11 @@ public:		// interface
 		, Base(v)
 		{}
 		/// d'tor
-	virtual ~TDLAxiomNAry ( void ) {}
+	virtual ~TDLAxiomNAry ( void )
+	{
+		for ( iterator p = Base.begin(), p_end = Base.end(); p < p_end; ++p )
+			deleteTree(*p);
+	}
 
 	// access to members
 
@@ -191,7 +189,7 @@ class TDLAxiomEquivalentConcepts: public TDLAxiomNAry
 {
 protected:	// methods
 		/// load the axiom into the TBox
-	virtual void loadInto ( TBox& kb ) { kb.processEquivalent(Base); }
+	virtual void loadInto ( TBox& kb ) { kb.processEquivalentC(begin(),end()); }
 
 public:		// interface
 		/// c'tor: create an axiom for C = D
@@ -211,7 +209,7 @@ class TDLAxiomDisjointConcepts: public TDLAxiomNAry
 {
 protected:	// methods
 		/// load the axiom into the TBox
-	virtual void loadInto ( TBox& kb ) { kb.processDisjoint(Base); }
+	virtual void loadInto ( TBox& kb ) { kb.processDisjointC(begin(),end()); }
 
 public:		// interface
 		/// c'tor: create an axiom for C = D
@@ -231,7 +229,7 @@ class TDLAxiomEquivalentRoles: public TDLAxiomNAry
 {
 protected:	// methods
 		/// load the axiom into the TBox
-	virtual void loadInto ( TBox& kb ) { kb.processEquivalentR(Base); }
+	virtual void loadInto ( TBox& kb ) { kb.processEquivalentR(begin(),end()); }
 
 public:		// interface
 		/// c'tor: create an axiom for C = D
@@ -239,7 +237,7 @@ public:		// interface
 		/// c'tor: create an axiom for C1 = ... = Cn
 	TDLAxiomEquivalentRoles ( const ExpressionArray& v ) : TDLAxiomNAry(v) {}
 		/// d'tor
-	virtual ~TDLAxiomEquivalentRoles ( void ) { clear(); }
+	virtual ~TDLAxiomEquivalentRoles ( void ) {}
 		/// accept method for the visitor pattern
 	void accept ( DLAxiomVisitor& visitor ) { visitor.visit(*this); }
 }; // TDLAxiomEquivalentRoles
@@ -251,7 +249,7 @@ class TDLAxiomDisjointRoles: public TDLAxiomNAry
 {
 protected:	// methods
 		/// load the axiom into the TBox
-	virtual void loadInto ( TBox& kb ) { kb.processDisjointR(Base); }
+	virtual void loadInto ( TBox& kb ) { kb.processDisjointR(begin(),end()); }
 
 public:		// interface
 		/// c'tor: create an axiom for C = D
@@ -259,7 +257,7 @@ public:		// interface
 		/// c'tor: create an axiom for C1 = ... = Cn
 	TDLAxiomDisjointRoles ( const ExpressionArray& v ) : TDLAxiomNAry(v) {}
 		/// d'tor
-	virtual ~TDLAxiomDisjointRoles ( void ) { clear(); }
+	virtual ~TDLAxiomDisjointRoles ( void ) {}
 		/// accept method for the visitor pattern
 	void accept ( DLAxiomVisitor& visitor ) { visitor.visit(*this); }
 }; // TDLAxiomDisjointRoles
@@ -271,7 +269,7 @@ class TDLAxiomSameIndividuals: public TDLAxiomNAry
 {
 protected:	// methods
 		/// load the axiom into the TBox
-	virtual void loadInto ( TBox& kb ) { kb.processSame(Base); }
+	virtual void loadInto ( TBox& kb ) { kb.processSame(begin(),end()); }
 
 public:		// interface
 		/// c'tor: create an axiom for C = D
@@ -291,7 +289,7 @@ class TDLAxiomDifferentIndividuals: public TDLAxiomNAry
 {
 protected:	// methods
 		/// load the axiom into the TBox
-	virtual void loadInto ( TBox& kb ) { kb.processDifferent(Base); }
+	virtual void loadInto ( TBox& kb ) { kb.processDifferent(begin(),end()); }
 
 public:		// interface
 		/// c'tor: create an axiom for C = D
@@ -299,7 +297,7 @@ public:		// interface
 		/// c'tor: create an axiom for C1 = ... = Cn
 	TDLAxiomDifferentIndividuals ( const ExpressionArray& v ) : TDLAxiomNAry(v) {}
 		/// d'tor
-	virtual ~TDLAxiomDifferentIndividuals ( void ) { clear(); }
+	virtual ~TDLAxiomDifferentIndividuals ( void ) {}
 		/// accept method for the visitor pattern
 	void accept ( DLAxiomVisitor& visitor ) { visitor.visit(*this); }
 }; // TDLAxiomDifferentIndividuals
@@ -311,7 +309,7 @@ class TDLAxiomFairnessConstraint: public TDLAxiomNAry
 {
 protected:	// methods
 		/// load the axiom into the TBox
-	virtual void loadInto ( TBox& kb ) { kb.setFairnessConstraint(Base); }
+	virtual void loadInto ( TBox& kb ) { kb.setFairnessConstraint(begin(),end()); }
 
 public:		// interface
 		/// c'tor: create an axiom for C1 = ... = Cn

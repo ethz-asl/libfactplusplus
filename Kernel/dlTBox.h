@@ -59,7 +59,7 @@ class TBox
 
 public:	// interface
 		/// type for DISJOINT-like statements
-	typedef std::vector<DLTree*> ConceptSet;
+	typedef std::vector<DLTree*> ExpressionArray;
 		/// set of concepts together with creation methods
 	typedef TNECollection<TConcept> ConceptCollection;
 		/// vector of CONCEPT-like elements
@@ -141,6 +141,8 @@ protected:	// typedefs
 	typedef IndividualCollection::iterator i_iterator;
 		/// RO individual iterator
 	typedef IndividualCollection::const_iterator i_const_iterator;
+		/// RO ExpressionArray iterator
+	typedef ExpressionArray::const_iterator ea_iterator;
 
 protected:	// members
 	TLabeller relevance;
@@ -902,29 +904,29 @@ public:
 	}
 
 	// external-set methods for set-of-concept-expressions
-	void processEquivalent ( const ConceptSet& v );
-	void processDisjoint ( const ConceptSet& v );
-	void processEquivalentR ( const ConceptSet& v );
-	void processDisjointR ( const ConceptSet& v );
-	void processSame ( const ConceptSet& v );
-	void processDifferent ( const ConceptSet& v );
-	DLTree* processAnd ( const ConceptSet& v );
-	DLTree* processOr ( const ConceptSet& v );
-	DLTree* processOneOf ( const ConceptSet& v, bool data );
-	DLTree* processRComposition ( const ConceptSet& v );
+	void processEquivalentC ( ea_iterator beg, ea_iterator end );
+	void processDisjointC ( ea_iterator beg, ea_iterator end );
+	void processEquivalentR ( ea_iterator beg, ea_iterator end );
+	void processDisjointR ( ea_iterator beg, ea_iterator end );
+	void processSame ( ea_iterator beg, ea_iterator end );
+	void processDifferent ( ea_iterator beg, ea_iterator end );
+	DLTree* processAnd ( const ExpressionArray& v );
+	DLTree* processOr ( const ExpressionArray& v );
+	DLTree* processOneOf ( const ExpressionArray& v, bool data );
+	DLTree* processRComposition ( const ExpressionArray& v );
 
 		/// @return true if KB contains fairness constraints
 	bool hasFC ( void ) const { return !Fairness.empty(); }
 		/// add concept expression C as a fairness constraint
-	void setFairnessConstraint ( const ConceptSet& v )
+	void setFairnessConstraint ( ea_iterator beg, ea_iterator end )
 	{
-		for ( ConceptSet::const_iterator p = v.begin(), p_end = v.end(); p < p_end; ++p )
+		for ( ; beg < end; ++beg )
 		{
 			// build a flag for a FC
 			TConcept* fc = getAuxConcept();
 			Fairness.push_back(fc);
 			// make an axiom: C [= FC
-			addSubsumeAxiom ( *p, getTree(fc) );
+			addSubsumeAxiom ( clone(*beg), getTree(fc) );
 		}
 	}
 

@@ -248,33 +248,33 @@ TBox :: switchToNonprimitive ( DLTree* left, DLTree* right )
 //-----------------------------------------------------------------------------
 
 // return AND (concepts)
-DLTree* TBox :: processAnd ( const ConceptSet& v )
+DLTree* TBox :: processAnd ( const ExpressionArray& v )
 {
 	DLTree* ret = new DLTree(TOP);
 
-	for ( ConceptSet::const_iterator p = v.begin(), p_end = v.end(); p != p_end; ++p )
+	for ( ea_iterator p = v.begin(), p_end = v.end(); p != p_end; ++p )
 		ret = createSNFAnd ( ret, *p );
 
 	return ret;
 }
 
 // return OR (concepts)
-DLTree* TBox :: processOr ( const ConceptSet& v )
+DLTree* TBox :: processOr ( const ExpressionArray& v )
 {
 	DLTree* ret = new DLTree(BOTTOM);
 
-	for ( ConceptSet::const_iterator p = v.begin(), p_end = v.end(); p != p_end; ++p )
+	for ( ea_iterator p = v.begin(), p_end = v.end(); p != p_end; ++p )
 		ret = createSNFOr ( ret, *p );
 
 	return ret;
 }
 
 // return OR (nominals)
-DLTree* TBox :: processOneOf ( const ConceptSet& v, bool data )
+DLTree* TBox :: processOneOf ( const ExpressionArray& v, bool data )
 {
 	DLTree* ret = new DLTree(BOTTOM);
 
-	for ( ConceptSet::const_iterator p = v.begin(), p_end = v.end(); p != p_end; ++p )
+	for ( ea_iterator p = v.begin(), p_end = v.end(); p != p_end; ++p )
 		if ( (data && isDataValue(*p)) || (!data && isIndividual(*p)) )
 			ret = createSNFOr ( ret, *p );
 		else
@@ -291,12 +291,12 @@ DLTree* TBox :: processOneOf ( const ConceptSet& v, bool data )
 //-----------------------------------------------------------------------------
 
 // return Composition (roles)
-DLTree* TBox :: processRComposition ( const ConceptSet& v )
+DLTree* TBox :: processRComposition ( const ExpressionArray& v )
 {
 	if ( v.empty() )
 		throw EFaCTPlusPlus("Empty role composition chain");
 
-	ConceptSet::const_iterator p, p_end = v.end();
+	ea_iterator p, p_end = v.end();
 
 	// check that all id's are correct role names
 	for ( p = v.begin(); p != p_end; ++p )
@@ -316,26 +316,23 @@ DLTree* TBox :: processRComposition ( const ConceptSet& v )
 //--		N-ary concept axioms
 //-----------------------------------------------------------------------------
 
-void TBox :: processDisjoint ( const ConceptSet& v )
+void TBox :: processDisjointC ( ea_iterator beg, ea_iterator end )
 {
-	if ( v.empty() )
-		return;
+	ExpressionArray prim, rest;
 
-	ConceptSet prim, rest;
-
-	for ( ConceptSet::const_iterator p = v.begin(), p_end = v.end(); p < p_end; ++p )
-		if ( isName(*p) &&
-			 static_cast<const TConcept*>((*p)->Element().getName())->isPrimitive() )
-			prim.push_back(*p);
+	for ( ; beg < end; ++beg )
+		if ( isName(*beg) &&
+			 static_cast<const TConcept*>((*beg)->Element().getName())->isPrimitive() )
+			prim.push_back(clone(*beg));
 		else
-			rest.push_back(*p);
+			rest.push_back(clone(*beg));
 
 	// both primitive concept and others are in DISJ statement
 	if ( !prim.empty() && !rest.empty() )
 	{
 		DLTree* nrest = buildDisjAux ( rest.begin(), rest.end() );
 
-		for ( ConceptSet::iterator q = prim.begin(), q_end = prim.end(); q < q_end; ++q )
+		for ( ea_iterator q = prim.begin(), q_end = prim.end(); q < q_end; ++q )
 			addSubsumeAxiom ( clone(*q), clone(nrest) );
 
 		deleteTree(nrest);
@@ -352,27 +349,23 @@ void TBox :: processDisjoint ( const ConceptSet& v )
 		processDisjoint ( prim.begin(), prim.end() );
 }
 
-void TBox :: processEquivalent ( const ConceptSet& v )
+void TBox :: processEquivalentC ( ea_iterator beg, ea_iterator end )
 {
-	ConceptSet::const_iterator p = v.begin(), p_end = v.end();
-
 	// FIXME!! rewrite it with the only iterator
-	for ( ConceptSet::const_iterator q = p+1; q < p_end; ++p, ++q )
-		addEqualityAxiom ( *p, clone(*q) );
-
-	deleteTree(*p);	// delete the last entry
+	for ( ea_iterator q = beg+1; q < end; ++beg, ++q )
+		addEqualityAxiom ( clone(*beg), clone(*q) );
 }
 
 //-----------------------------------------------------------------------------
 //--		N-ary individual axioms
 //-----------------------------------------------------------------------------
 
-void TBox :: processDifferent ( const ConceptSet& v )
+void TBox :: processDifferent ( ea_iterator beg, ea_iterator end )
 {
 	SingletonVector acc;
-	for ( ConceptSet::const_iterator q = v.begin (); q != v.end(); ++q )
-		if ( isIndividual(*q) )	// only nominals in DIFFERENT command
-			acc.push_back(static_cast<TIndividual*>((*q)->Element().getName()));
+	for ( ; beg < end; ++beg )
+		if ( isIndividual(*beg) )	// only nominals in DIFFERENT command
+			acc.push_back(static_cast<TIndividual*>((*beg)->Element().getName()));
 		else
 			throw EFaCTPlusPlus("Only individuals allowed in processDifferent()");
 
@@ -381,56 +374,55 @@ void TBox :: processDifferent ( const ConceptSet& v )
 		Different.push_back(acc);
 }
 
-void TBox :: processSame ( const ConceptSet& v )
+void TBox :: processSame ( ea_iterator beg, ea_iterator end )
 {
-	ConceptSet::const_iterator p = v.begin(), p_end = v.end();
+	if ( beg == end )
+		return;
 
-	if ( !isIndividual(*p) )	// only nominals in SAME command
+	if ( !isIndividual(*beg) )	// only nominals in SAME command
 		throw EFaCTPlusPlus("Only individuals allowed in processSame()");
 
 	// FIXME!! rewrite it with the only iterator
-	for ( ConceptSet::const_iterator q = p+1; q < p_end; ++p, ++q )
+	for ( ea_iterator q = beg+1; q < end; ++beg, ++q )
 	{
 		if ( !isIndividual(*q) )
 			throw EFaCTPlusPlus("Only individuals allowed in processSame()");
-		addEqualityAxiom ( *p, clone(*q) );
+		addEqualityAxiom ( clone(*beg), clone(*q) );
 	}
-
-	delete *p;	// delete the last entry
 }
 
 //-----------------------------------------------------------------------------
 //--		N-ary role axioms
 //-----------------------------------------------------------------------------
 
-void TBox :: processDisjointR ( const ConceptSet& v )
+void TBox :: processDisjointR ( ea_iterator beg, ea_iterator end )
 {
-	if ( v.empty() )
+	if ( beg == end )
 		throw EFaCTPlusPlus("Empty disjoint role axiom");
 
-	ConceptSet::const_iterator p, q, p_end = v.end();
+	ea_iterator p, q;
 
 	// check that all id's are correct role names
-	for ( p = v.begin(); p != p_end; ++p )
+	for ( p = beg; p < end; ++p )
 		if ( isUniversalRole(*p) )
 			throw EFaCTPlusPlus("Universal role in the disjoint roles axiom");
 
 	// make a disjoint roles
-	for ( p = v.begin(); p != p_end; ++p )
+	for ( p = beg; p < end; ++p )
 	{
 		TRole* r = resolveRole(*p);
 
 		// FIXME: this could be done more optimal...
-		for ( q = p+1; q != p_end; ++q )
+		for ( q = p+1; q < end; ++q )
 			RM.addDisjointRoles ( r, resolveRole(*q) );
 	}
 }
 
-void TBox :: processEquivalentR ( const ConceptSet& v )
+void TBox :: processEquivalentR ( ea_iterator beg, ea_iterator end )
 {
-	if ( v.size () > 1 )
-		for ( ConceptSet::const_iterator p = v.begin(), p_end = v.end()-1; p != p_end; ++p )
-			RM.addRoleSynonym ( resolveRole(*p), resolveRole(*(p+1)) );
+	if ( beg != end )
+		for ( ; beg != end-1; ++beg )
+			RM.addRoleSynonym ( resolveRole(*beg), resolveRole(*(beg+1)) );
 }
 
 
