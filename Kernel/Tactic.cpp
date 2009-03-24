@@ -1078,14 +1078,11 @@ tacticUsage DlSatTester :: commonTacticBodyGEusual ( const DLVertex& cur )	// fo
 	assert ( isNegative(curConcept.bp()) && cur.Type() == dtLE );
 #endif
 
-	nGeCalls.inc();
-
 	// check blocking conditions
 	if ( recheckNodeDBlocked() )
-	{
-		nUseless.inc();
 		return utUnusable;
-	}
+
+	nGeCalls.inc();
 
 	// quick clash check: whether there is a clash with the other NR
 	for ( DlCompletionTree::const_label_iterator q = curNode->beginl_cc(); q != curNode->endl_cc(); ++q )
