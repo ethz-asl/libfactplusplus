@@ -1087,6 +1087,12 @@ tacticUsage DlSatTester :: commonTacticBodyGEusual ( const DLVertex& cur )	// fo
 		return utUnusable;
 	}
 
+	// quick clash check: whether there is a clash with the other NR
+	for ( DlCompletionTree::const_label_iterator q = curNode->beginl_cc(); q != curNode->endl_cc(); ++q )
+		if ( isPositive(q->bp())		// need at-most restriction
+			 && isNRClash ( cur, DLHeap[q->bp()], *q ) )
+			return utClash;
+
 	// create N new different edges
 	return createDifferentNeighbours ( cur.getRole(), cur.getC(), curConcept.getDep(), cur.getNumberGE(), BlockableLevel );
 }
