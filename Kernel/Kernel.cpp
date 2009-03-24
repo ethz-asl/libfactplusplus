@@ -17,6 +17,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "Kernel.h"
+#include "tOntologyLoader.h"
 
 const char* ReasoningKernel :: Version = "1.2.3";
 const char* ReasoningKernel :: ProductName =
@@ -78,7 +79,12 @@ ReasoningKernel :: processKB ( KBStatus status )
 	reasoningFailed = true;
 
 	// load the axioms from the ontology
-	Ontology.load(*pTBox);
+	{
+		TOntologyLoader OntologyLoader(*getTBox());
+		OntologyLoader.visitOntology(Ontology);
+		// after loading ontology became processed completely
+		Ontology.setProcessed();
+	}
 
 	// do the consistency check
 	pTBox->isConsistent();

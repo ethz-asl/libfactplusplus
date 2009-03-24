@@ -25,7 +25,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 /// define ontology as a set of axioms
 class TOntology
 {
-protected:	// types
+public:		// types
 		/// base type for the set of axioms
 	typedef std::vector<TDLAxiom*> TAxiomArray;
 		/// RW iterator ovet base type
@@ -39,8 +39,6 @@ protected:	// members
 		/// index of the 1st unprocessed axiom
 	size_t axiomToProcess;
 
-protected:	// methods
-
 public:		// interface
 		/// empty c'tor
 	TOntology ( void ) : axiomId(0), axiomToProcess(0) {}
@@ -49,19 +47,14 @@ public:		// interface
 
 		/// @return true iff the ontology was changed since its last load
 	bool isChanged ( void ) const { return axiomToProcess != Axioms.size(); }
+		/// set the processed marker to the end of the ontology
+	void setProcessed ( void ) { axiomToProcess = Axioms.size(); }
 
 		/// add given axiom to the ontology
 	void add ( TDLAxiom* p )
 	{
 		p->setId(++axiomId);
 		Axioms.push_back(p);
-	}
-		/// load ontology to a given KB
-	void load ( TBox& kb )
-	{
-		for ( iterator p = Axioms.begin()+axiomToProcess, p_end = Axioms.end(); p < p_end; ++p )
-			(*p)->load(kb);
-		axiomToProcess = Axioms.size();
 	}
 		/// clear the ontology
 	void clear ( void )
@@ -71,6 +64,16 @@ public:		// interface
 		Axioms.clear();
 		axiomToProcess = 0;
 	}
+
+	// iterators
+		/// RW begin() for the whole ontology
+	iterator begin ( void ) { return Axioms.begin(); }
+		/// RW end() for the whole ontology
+	iterator end ( void ) { return Axioms.end(); }
+		/// RW begin() for the unprocessed part of the ontology
+	iterator beginUnprocessed ( void ) { return Axioms.begin()+axiomToProcess; }
+		/// RW end() for the processed part of the ontology
+	iterator endProcessed ( void ) { return beginUnprocessed(); }
 }; // TOntology
 
 #endif

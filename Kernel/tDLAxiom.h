@@ -19,7 +19,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef TDLAXIOM_H
 #define TDLAXIOM_H
 
-#include "dlTBox.h"
+#include "dltree.h"
 
 // forward declaration for all axiom classes: necessary for the visitor pattern
 class TDLAxiomEquivalentConcepts;
@@ -89,24 +89,6 @@ protected:	// members
 		/// id of the axiom
 	unsigned int id;
 
-protected:	// methods
-		/// get role by the DLTree; throw exception if unable
-	static TRole* getRole ( const DLTree* r, const char* reason )
-	{
-		try { return resolveRole(r); }
-		catch ( EFaCTPlusPlus e ) { throw EFaCTPlusPlus(reason); }
-	}
-		/// get an individual be the DLTree; throw exception if unable
-	static TIndividual* getIndividual ( DLTree* I, const char* reason )
-	{
-		if ( I->Element().getToken() == INAME )
-			return static_cast<TIndividual*>(I->Element().getName());
-		else
-			throw EFaCTPlusPlus(reason);
-	}
-		/// load the axiom into the TBox
-	virtual void loadInto ( TBox& kb ) = 0;
-
 public:
 		/// empty c'tor
 	TDLAxiom ( void ) {}
@@ -120,12 +102,6 @@ public:
 		/// get the id
 	unsigned int getId ( void ) const { return id; }
 
-		/// load axiom into the KB taking into account its ID
-	void load ( TBox& kb )
-	{
-		kb.setAxiomId(getId());
-		loadInto(kb);
-	}
 		/// accept method for the visitor pattern
 	virtual void accept ( DLAxiomVisitor& visitor ) = 0;
 }; // TDLAxiom
@@ -148,10 +124,6 @@ public:		// types
 protected:	// members
 		/// set of equivalent concept descriptions
 	ExpressionArray Base;
-
-protected:	// methods
-		/// load the axiom into the TBox
-	virtual void loadInto ( TBox& kb ) = 0;
 
 public:		// interface
 		/// c'tor: create n-ary axiom for n = 2
@@ -187,10 +159,6 @@ public:		// interface
 //------------------------------------------------------------------
 class TDLAxiomEquivalentConcepts: public TDLAxiomNAry
 {
-protected:	// methods
-		/// load the axiom into the TBox
-	virtual void loadInto ( TBox& kb ) { kb.processEquivalentC(begin(),end()); }
-
 public:		// interface
 		/// c'tor: create an axiom for C = D
 	TDLAxiomEquivalentConcepts ( DLTree* C, DLTree* D ) : TDLAxiomNAry(C,D) {}
@@ -207,10 +175,6 @@ public:		// interface
 //------------------------------------------------------------------
 class TDLAxiomDisjointConcepts: public TDLAxiomNAry
 {
-protected:	// methods
-		/// load the axiom into the TBox
-	virtual void loadInto ( TBox& kb ) { kb.processDisjointC(begin(),end()); }
-
 public:		// interface
 		/// c'tor: create an axiom for C = D
 	TDLAxiomDisjointConcepts ( DLTree* C, DLTree* D ) : TDLAxiomNAry(C,D) {}
@@ -227,10 +191,6 @@ public:		// interface
 //------------------------------------------------------------------
 class TDLAxiomEquivalentRoles: public TDLAxiomNAry
 {
-protected:	// methods
-		/// load the axiom into the TBox
-	virtual void loadInto ( TBox& kb ) { kb.processEquivalentR(begin(),end()); }
-
 public:		// interface
 		/// c'tor: create an axiom for C = D
 	TDLAxiomEquivalentRoles ( DLTree* C, DLTree* D ) : TDLAxiomNAry(C,D) {}
@@ -247,10 +207,6 @@ public:		// interface
 //------------------------------------------------------------------
 class TDLAxiomDisjointRoles: public TDLAxiomNAry
 {
-protected:	// methods
-		/// load the axiom into the TBox
-	virtual void loadInto ( TBox& kb ) { kb.processDisjointR(begin(),end()); }
-
 public:		// interface
 		/// c'tor: create an axiom for C = D
 	TDLAxiomDisjointRoles ( DLTree* C, DLTree* D ) : TDLAxiomNAry(C,D) {}
@@ -267,10 +223,6 @@ public:		// interface
 //------------------------------------------------------------------
 class TDLAxiomSameIndividuals: public TDLAxiomNAry
 {
-protected:	// methods
-		/// load the axiom into the TBox
-	virtual void loadInto ( TBox& kb ) { kb.processSame(begin(),end()); }
-
 public:		// interface
 		/// c'tor: create an axiom for C = D
 	TDLAxiomSameIndividuals ( DLTree* C, DLTree* D ) : TDLAxiomNAry(C,D) {}
@@ -287,10 +239,6 @@ public:		// interface
 //------------------------------------------------------------------
 class TDLAxiomDifferentIndividuals: public TDLAxiomNAry
 {
-protected:	// methods
-		/// load the axiom into the TBox
-	virtual void loadInto ( TBox& kb ) { kb.processDifferent(begin(),end()); }
-
 public:		// interface
 		/// c'tor: create an axiom for C = D
 	TDLAxiomDifferentIndividuals ( DLTree* C, DLTree* D ) : TDLAxiomNAry(C,D) {}
@@ -307,10 +255,6 @@ public:		// interface
 //------------------------------------------------------------------
 class TDLAxiomFairnessConstraint: public TDLAxiomNAry
 {
-protected:	// methods
-		/// load the axiom into the TBox
-	virtual void loadInto ( TBox& kb ) { kb.setFairnessConstraint(begin(),end()); }
-
 public:		// interface
 		/// c'tor: create an axiom for C1 = ... = Cn
 	TDLAxiomFairnessConstraint ( const ExpressionArray& v ) : TDLAxiomNAry(v) {}
@@ -332,10 +276,6 @@ class TDLAxiomSingleRole: public TDLAxiom
 protected:	// members
 	DLTree* Role;
 
-protected:	// methods
-		/// load the axiom into the TBox
-	virtual void loadInto ( TBox& kb ) = 0;
-
 public:		// interface
 		/// c'tor: create an axiom
 	TDLAxiomSingleRole ( DLTree* role )
@@ -344,6 +284,9 @@ public:		// interface
 		{}
 		/// d'tor
 	virtual ~TDLAxiomSingleRole ( void ) { deleteTree(Role); }
+
+		/// access to role
+	const DLTree* getRole ( void ) const { return Role; }
 }; // TDLAxiomSingleRole
 
 //------------------------------------------------------------------
@@ -353,11 +296,6 @@ class TDLAxiomRoleSubsumption: public TDLAxiomSingleRole
 {
 protected:	// members
 	DLTree* SubRole;
-
-protected:	// methods
-		/// load the axiom into the TBox
-	virtual void loadInto ( TBox& kb )
-		{ kb.getRM()->addRoleParent ( SubRole, getRole ( Role, "Role expression expected in Roles Subsumption axiom" ) ); }
 
 public:		// interface
 		/// c'tor: create an axiom
@@ -369,6 +307,9 @@ public:		// interface
 	virtual ~TDLAxiomRoleSubsumption ( void ) { deleteTree(SubRole); }
 		/// accept method for the visitor pattern
 	void accept ( DLAxiomVisitor& visitor ) { visitor.visit(*this); }
+
+		/// access to role
+	const DLTree* getSubRole ( void ) const { return SubRole; }
 }; // TDLAxiomRoleSubsumption
 
 //------------------------------------------------------------------
@@ -379,11 +320,6 @@ class TDLAxiomRoleDomain: public TDLAxiomSingleRole
 protected:	// members
 	DLTree* Domain;
 
-protected:	// methods
-		/// load the axiom into the TBox
-	virtual void loadInto ( TBox& kb ATTR_UNUSED )
-		{ getRole ( Role, "Role expression expected in Roles Domain axiom" )->setDomain(Domain); }
-
 public:		// interface
 		/// c'tor: create an axiom
 	TDLAxiomRoleDomain ( DLTree* role, DLTree* domain )
@@ -391,9 +327,12 @@ public:		// interface
 		, Domain(domain)
 		{}
 		/// d'tor; nothing to do as Domain is consumed
-	virtual ~TDLAxiomRoleDomain ( void ) {}
+	virtual ~TDLAxiomRoleDomain ( void ) { deleteTree(Domain); }
 		/// accept method for the visitor pattern
 	void accept ( DLAxiomVisitor& visitor ) { visitor.visit(*this); }
+
+		/// access
+	const DLTree* getDomain ( void ) const { return Domain; }
 }; // TDLAxiomRoleDomain
 
 //------------------------------------------------------------------
@@ -404,11 +343,6 @@ class TDLAxiomRoleRange: public TDLAxiomSingleRole
 protected:	// members
 	DLTree* Range;
 
-protected:	// methods
-		/// load the axiom into the TBox
-	virtual void loadInto ( TBox& kb ATTR_UNUSED )
-		{ getRole ( Role, "Role expression expected in Roles Range axiom" )->setRange(Range); }
-
 public:		// interface
 		/// c'tor: create an axiom
 	TDLAxiomRoleRange ( DLTree* role, DLTree* range )
@@ -416,9 +350,12 @@ public:		// interface
 		, Range(range)
 		{}
 		/// d'tor; nothing to do as Domain is consumed
-	virtual ~TDLAxiomRoleRange ( void ) {}
+	virtual ~TDLAxiomRoleRange ( void ) { deleteTree(Range); }
 		/// accept method for the visitor pattern
 	void accept ( DLAxiomVisitor& visitor ) { visitor.visit(*this); }
+
+		/// access
+	const DLTree* getRange ( void ) const { return Range; }
 }; // TDLAxiomRoleRange
 
 //------------------------------------------------------------------
@@ -426,14 +363,6 @@ public:		// interface
 //------------------------------------------------------------------
 class TDLAxiomRoleTransitive: public TDLAxiomSingleRole
 {
-protected:	// methods
-		/// load the axiom into the TBox
-	virtual void loadInto ( TBox& kb ATTR_UNUSED )
-	{
-		if ( !isUniversalRole(Role) )
-			getRole ( Role, "Role expression expected in Roles Transitivity axiom" )->setBothTransitive();
-	}
-
 public:		// interface
 		/// c'tor: create an axiom
 	TDLAxiomRoleTransitive ( DLTree* role )
@@ -450,14 +379,6 @@ public:		// interface
 //------------------------------------------------------------------
 class TDLAxiomRoleReflexive: public TDLAxiomSingleRole
 {
-protected:	// methods
-		/// load the axiom into the TBox
-	virtual void loadInto ( TBox& kb ATTR_UNUSED )
-	{
-		if ( !isUniversalRole(Role) )
-			getRole ( Role, "Role expression expected in Roles Reflexivity axiom" )->setBothReflexive();
-	}
-
 public:		// interface
 		/// c'tor: create an axiom
 	TDLAxiomRoleReflexive ( DLTree* role )
@@ -474,15 +395,6 @@ public:		// interface
 //------------------------------------------------------------------
 class TDLAxiomRoleIrreflexive: public TDLAxiomSingleRole
 {
-protected:	// methods
-		/// load the axiom into the TBox
-	virtual void loadInto ( TBox& kb ATTR_UNUSED )
-	{
-		if ( isUniversalRole(Role) )	// KB became inconsistent
-			throw EFPPInconsistentKB();
-		getRole ( Role, "Role expression expected in Roles Irreflexivity axiom" )->setDomain(new DLTree(NOT,new DLTree(REFLEXIVE,clone(Role))));
-	}
-
 public:		// interface
 		/// c'tor: create an axiom
 	TDLAxiomRoleIrreflexive ( DLTree* role )
@@ -499,17 +411,6 @@ public:		// interface
 //------------------------------------------------------------------
 class TDLAxiomRoleSymmetric: public TDLAxiomSingleRole
 {
-protected:	// methods
-		/// load the axiom into the TBox
-	virtual void loadInto ( TBox& kb )
-	{
-		if ( !isUniversalRole(Role) )
-		{
-			TRole* invR = getRole ( Role, "Role expression expected in Roles Symmetry axiom" )->inverse();
-			kb.getRM()->addRoleParent ( Role, invR );
-		}
-	}
-
 public:		// interface
 		/// c'tor: create an axiom
 	TDLAxiomRoleSymmetric ( DLTree* role )
@@ -526,16 +427,6 @@ public:		// interface
 //------------------------------------------------------------------
 class TDLAxiomRoleAntiSymmetric: public TDLAxiomSingleRole
 {
-protected:	// methods
-		/// load the axiom into the TBox
-	virtual void loadInto ( TBox& kb )
-	{
-		if ( isUniversalRole(Role) )	// KB became inconsistent
-			throw EFPPInconsistentKB();
-		TRole* R = getRole ( Role, "Role expression expected in Roles AntiSymmetry axiom" );
-		kb.getRM()->addDisjointRoles ( R, R->inverse() );
-	}
-
 public:		// interface
 		/// c'tor: create an axiom
 	TDLAxiomRoleAntiSymmetric ( DLTree* role )
@@ -552,15 +443,6 @@ public:		// interface
 //------------------------------------------------------------------
 class TDLAxiomRoleFunctional: public TDLAxiomSingleRole
 {
-protected:	// methods
-		/// load the axiom into the TBox
-	virtual void loadInto ( TBox& kb ATTR_UNUSED )
-	{
-		if ( isUniversalRole(Role) )	// KB became inconsistent
-			throw EFPPInconsistentKB();
-		getRole ( Role, "Role expression expected in Roles Functionality axiom" )->setFunctional();
-	}
-
 public:		// interface
 		/// c'tor: create an axiom
 	TDLAxiomRoleFunctional ( DLTree* role )
@@ -586,17 +468,18 @@ protected:	// members
 	DLTree* Sub;
 	DLTree* Sup;
 
-protected:	// methods
-		/// load the axiom into the TBox
-	virtual void loadInto ( TBox& kb ) { kb.addSubsumeAxiom ( Sub, Sup ); }
-
 public:		// interface
 		/// c'tor: create an axiom
 	TDLAxiomConceptInclusion ( DLTree* sub, DLTree* sup ) : TDLAxiom(), Sub(sub), Sup(sup) {}
 		/// d'tor
-	virtual ~TDLAxiomConceptInclusion ( void ) {}
+	virtual ~TDLAxiomConceptInclusion ( void ) { deleteTree(Sub); deleteTree(Sup); }
 		/// accept method for the visitor pattern
 	void accept ( DLAxiomVisitor& visitor ) { visitor.visit(*this); }
+
+		/// access
+	const DLTree* getSubC ( void ) const { return Sub; }
+		/// access
+	const DLTree* getSupC ( void ) const { return Sup; }
 }; // TDLAxiomConceptInclusion
 
 //------------------------------------------------------------------
@@ -607,15 +490,14 @@ class TDLAxiomIndividual: public TDLAxiom
 protected:	// members
 	DLTree* I;
 
-protected:	// methods
-		/// load the axiom into the TBox
-	virtual void loadInto ( TBox& kb ) = 0;
-
 public:		// interface
 		/// c'tor: create an axiom
 	TDLAxiomIndividual ( DLTree* i ) : TDLAxiom(), I(i) {}
 		/// d'tor
 	virtual ~TDLAxiomIndividual ( void ) { deleteTree(I); }
+
+		/// access
+	const DLTree* getIndividual ( void ) const { return I; }
 }; // TDLAxiomIndividual
 
 //------------------------------------------------------------------
@@ -626,17 +508,16 @@ class TDLAxiomInstanceOf: public TDLAxiomIndividual
 protected:	// members
 	DLTree* C;
 
-protected:	// methods
-		/// load the axiom into the TBox
-	virtual void loadInto ( TBox& kb ) { kb.RegisterInstance ( getIndividual ( I, "Individual expected in Instance axiom" ), C ); }
-
 public:		// interface
 		/// c'tor: create an axiom
 	TDLAxiomInstanceOf ( DLTree* i, DLTree* c ) : TDLAxiomIndividual(i), C(c) {}
 		/// d'tor
-	virtual ~TDLAxiomInstanceOf ( void ) {}
+	virtual ~TDLAxiomInstanceOf ( void ) { deleteTree(C); }
 		/// accept method for the visitor pattern
 	void accept ( DLAxiomVisitor& visitor ) { visitor.visit(*this); }
+
+		/// access
+	const DLTree* getC ( void ) const { return C; }
 }; // TDLAxiomInstanceOf
 
 //------------------------------------------------------------------
@@ -648,17 +529,6 @@ protected:	// members
 	DLTree* R;
 	DLTree* J;
 
-protected:	// methods
-		/// load the axiom into the TBox
-	virtual void loadInto ( TBox& kb )
-	{
-		if ( !isUniversalRole(R) )	// nothing to do for universal role
-			kb.RegisterIndividualRelation (
-				getIndividual ( I, "Individual expected in Related To axiom" ),
-				getRole ( R, "Role expression expected in Related To axiom" ),
-				getIndividual ( J, "Individual expected in Related To axiom" ) );
-	}
-
 public:		// interface
 		/// c'tor: create an axiom
 	TDLAxiomRelatedTo ( DLTree* i, DLTree* r, DLTree* j ) : TDLAxiomIndividual(i), R(r), J(j) {}
@@ -666,6 +536,11 @@ public:		// interface
 	virtual ~TDLAxiomRelatedTo ( void ) { deleteTree(R); deleteTree(J); }
 		/// accept method for the visitor pattern
 	void accept ( DLAxiomVisitor& visitor ) { visitor.visit(*this); }
+
+		/// access
+	const DLTree* getRelation ( void ) const { return R; }
+		/// access
+	const DLTree* getRelatedIndividual ( void ) const { return J; }
 }; // TDLAxiomRelatedTo
 
 //------------------------------------------------------------------
@@ -677,27 +552,18 @@ protected:	// members
 	DLTree* R;
 	DLTree* J;
 
-protected:	// methods
-		/// load the axiom into the TBox
-	virtual void loadInto ( TBox& kb )
-	{
-		if ( isUniversalRole(R) )	// inconsistent ontology
-			throw EFPPInconsistentKB();
-		// make sure everything is consistent
-		getIndividual ( J, "Individual expected in Related To Not axiom" );
-		// make an axiom i:AR.\neg{j}
-		kb.RegisterInstance (
-				getIndividual ( I, "Individual expected in Related To Not axiom" ),
-				new DLTree(FORALL,R,new DLTree(NOT,J)) );
-	}
-
 public:		// interface
 		/// c'tor: create an axiom
 	TDLAxiomRelatedToNot ( DLTree* i, DLTree* r, DLTree* j ) : TDLAxiomIndividual(i), R(r), J(j) {}
 		/// d'tor
-	virtual ~TDLAxiomRelatedToNot ( void ) {}
+	virtual ~TDLAxiomRelatedToNot ( void ) { deleteTree(R); deleteTree(J); }
 		/// accept method for the visitor pattern
 	void accept ( DLAxiomVisitor& visitor ) { visitor.visit(*this); }
+
+		/// access
+	const DLTree* getRelation ( void ) const { return R; }
+		/// access
+	const DLTree* getRelatedIndividual ( void ) const { return J; }
 }; // TDLAxiomRelatedToNot
 
 //------------------------------------------------------------------
@@ -709,24 +575,18 @@ protected:	// members
 	DLTree* A;
 	DLTree* V;
 
-protected:	// methods
-		/// load the axiom into the TBox
-	virtual void loadInto ( TBox& kb )
-	{
-		if ( isUniversalRole(A) )	// data role can't be universal
-			throw EFPPInconsistentKB();
-		kb.RegisterInstance (
-				getIndividual ( I, "Individual expected in Value Of axiom" ),
-				new DLTree(EXISTS,A,V) );
-	}
-
 public:		// interface
 		/// c'tor: create an axiom
 	TDLAxiomValueOf ( DLTree* i, DLTree* a, DLTree* v ) : TDLAxiomIndividual(i), A(a), V(v) {}
 		/// d'tor
-	virtual ~TDLAxiomValueOf ( void ) {}
+	virtual ~TDLAxiomValueOf ( void ) { deleteTree(A); deleteTree(V); }
 		/// accept method for the visitor pattern
 	void accept ( DLAxiomVisitor& visitor ) { visitor.visit(*this); }
+
+		/// access to role
+	const DLTree* getAttribute ( void ) const { return A; }
+		/// access to value
+	const DLTree* getValue ( void ) const { return V; }
 }; // TDLAxiomValueOf
 
 //------------------------------------------------------------------
@@ -738,25 +598,18 @@ protected:	// members
 	DLTree* A;
 	DLTree* V;
 
-protected:	// methods
-		/// load the axiom into the TBox
-	virtual void loadInto ( TBox& kb )
-	{
-		if ( isUniversalRole(A) )	// data role can't be universal
-			throw EFPPInconsistentKB();
-		// make an axiom i:AR.\neg{j}
-		kb.RegisterInstance (
-				getIndividual ( I, "Individual expected in Related To Not axiom" ),
-				new DLTree(FORALL,A,new DLTree(NOT,V)) );
-	}
-
 public:		// interface
 		/// c'tor: create an axiom
 	TDLAxiomValueOfNot ( DLTree* i, DLTree* a, DLTree* v ) : TDLAxiomIndividual(i), A(a), V(v) {}
 		/// d'tor
-	virtual ~TDLAxiomValueOfNot ( void ) {}
+	virtual ~TDLAxiomValueOfNot ( void ) { deleteTree(A); deleteTree(V); }
 		/// accept method for the visitor pattern
 	void accept ( DLAxiomVisitor& visitor ) { visitor.visit(*this); }
+
+		/// access to role
+	const DLTree* getAttribute ( void ) const { return A; }
+		/// access to value
+	const DLTree* getValue ( void ) const { return V; }
 }; // TDLAxiomValueOfNot
 
 
