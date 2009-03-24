@@ -968,13 +968,11 @@ tacticUsage DlSatTester :: commonTacticBodyLE ( const DLVertex& cur )	// for <=n
 
 	// if we are here that it IS first LE call
 
-	// NOTE: this is not necessary if we have *F but not *N
-	if ( !RKG_HIERARCHY_NR_TACTIC )
-		// check if we have a clash with the other NR
-		for ( DlCompletionTree::const_label_iterator q = curNode->beginl_cc(); q != curNode->endl_cc(); ++q )
-			if ( isNegative(q->bp())		// need at-least restriction
-				 && isNRClash ( DLHeap[q->bp()], cur, *q ) )
-				return utClash;
+	// quick inconsistency check: whether there is a clash with the other NR
+	for ( DlCompletionTree::const_label_iterator q = curNode->beginl_cc(); q != curNode->endl_cc(); ++q )
+		if ( isNegative(q->bp())		// need at-least restriction
+			 && isNRClash ( DLHeap[q->bp()], cur, *q ) )
+			return utClash;
 
 	// we need to repeate merge until there will be necessary amount of edges
 	while (1)
