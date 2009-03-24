@@ -1012,7 +1012,9 @@ applyLE:	// skip init, because here we are after restoring
 		// fast check for from->end() and to->end() are in \neq
 		if ( CGraph.nonMergable ( from->getArcEnd(), to->getArcEnd(), dep ) )
 		{
-			if ( C != bpTOP )	// QCR: update dep-set
+			if ( C == bpTOP )	// dep-set is known now
+				setClashSet(dep);
+			else	// QCR: update dep-set wrt C
 			{
 				// here we know that C is in both labels; set a proper clash-set
 				DagTag tag = DLHeap[C].Type();
@@ -1027,6 +1029,7 @@ applyLE:	// skip init, because here we are after restoring
 				assert(test);
 				// both clash-sets are now in common clash-set
 			}
+
 			updateBranchDep();
 			bContext->nextOption();
 			goto applyLE;
