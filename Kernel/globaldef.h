@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2008 by Dmitry Tsarkov
+Copyright (C) 2003-2009 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -56,17 +56,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 // uncomment this to support fairness constraints
 //#define RKG_USE_FAIRNESS
-
-// Flag to choose kind of NR support.
-
-// If 0, then simplistic one is used.  For the >= n R, at most one R-successor is created.  For
-//	both >= n R and <= n R label is scanned to find contradiction between N's w.r.t. the "same" R.
-//	This approach is not applicable for logics with nominals and/or with role hierarchy.
-
-// if 1, then usual one is used.  For >= n R, N different (i.e., they all are in inequality relation)
-//	R-successor are created.  The only clash condition is that <= n.R fails to merge nodes due to
-//	inequality relation and/or label clash between nodes.
-#define RKG_HIERARCHY_NR_TACTIC 1
 
 // uncomment the following line if IR is defined as a list of elements in node label
 #define RKG_IR_IN_NODE_LABEL

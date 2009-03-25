@@ -501,18 +501,8 @@ protected:	// methods
 	tacticUsage commonTacticBodySomeSelf ( const TRole* R );
 		/// expansion rule for \neg\E R{Self}
 	tacticUsage commonTacticBodyIrrefl ( const TRole* R );
-		/// expansion rule for at-least number restriction; applicable for logics without O/H
-	tacticUsage commonTacticBodyGEsimple ( const DLVertex& cur );
-		/// expansion rule for at-least number restriction; applicable for all logics
-	tacticUsage commonTacticBodyGEusual ( const DLVertex& cur );
 		/// expansion rule for at-least number restriction
-	tacticUsage commonTacticBodyGE ( const DLVertex& cur )
-	{
-		if ( RKG_HIERARCHY_NR_TACTIC )
-			return commonTacticBodyGEusual(cur);
-		else
-			return commonTacticBodyGEsimple(cur);
-	}
+	tacticUsage commonTacticBodyGE ( const DLVertex& cur );
 		/// expansion rule for at-most number restriction
 	tacticUsage commonTacticBodyLE ( const DLVertex& cur );
 		/// expansion rule for choose-rule
@@ -623,6 +613,24 @@ protected:	// methods
 	}
 		/// check if ATLEAST and ATMOST restrictions are in clash; setup depset from CUR
 	bool isNRClash ( const DLVertex& atleast, const DLVertex& atmost, const ConceptWDep& reason );
+		/// quick check whether CURNODE has a clash with a given ATMOST restriction
+	bool isQuickClashLE ( const DLVertex& atmost )
+	{
+		for ( DlCompletionTree::const_label_iterator q = curNode->beginl_cc(), q_end = curNode->endl_cc(); q < q_end; ++q )
+			if ( isNegative(q->bp())		// need at-least restriction
+				 && isNRClash ( DLHeap[q->bp()], atmost, *q ) )
+				return true;
+		return false;
+	}
+		/// quick check whether CURNODE has a clash with a given ATLEAST restriction
+	bool isQuickClashGE ( const DLVertex& atleast )
+	{
+		for ( DlCompletionTree::const_label_iterator q = curNode->beginl_cc(), q_end = curNode->endl_cc(); q < q_end; ++q )
+			if ( isPositive(q->bp())		// need at-most restriction
+				 && isNRClash ( atleast, DLHeap[q->bp()], *q ) )
+				return true;
+		return false;
+	}
 
 		/// aux method that fills the dep-set for either C or ~C found in the label; @return whether C was found
 	bool findChooseRuleConcept ( const CWDArray& label, BipolarPointer C, DepSet& Dep )

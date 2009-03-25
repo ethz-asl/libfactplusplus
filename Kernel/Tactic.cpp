@@ -901,12 +901,8 @@ tacticUsage DlSatTester :: commonTacticBodyFunc ( const DLVertex& cur )	// for <
 
 	nFuncCalls.inc();
 
-	if ( !RKG_HIERARCHY_NR_TACTIC )
-		// check if we have a clash with the other NR
-		for ( DlCompletionTree::const_label_iterator q = curNode->beginl_cc(); q != curNode->endl_cc(); ++q )
-			if ( isNegative(q->bp())		// need at-least restriction
-				 && isNRClash ( DLHeap[q->bp()], cur, *q ) )
-				return utClash;
+	if ( isQuickClashLE(cur) )
+		return utClash;
 
 	// locate all R-neighbours of curNode
 	EdgeVector EdgesToMerge;
@@ -968,11 +964,8 @@ tacticUsage DlSatTester :: commonTacticBodyLE ( const DLVertex& cur )	// for <=n
 
 	// if we are here that it IS first LE call
 
-	// quick inconsistency check: whether there is a clash with the other NR
-	for ( DlCompletionTree::const_label_iterator q = curNode->beginl_cc(); q != curNode->endl_cc(); ++q )
-		if ( isNegative(q->bp())		// need at-least restriction
-			 && isNRClash ( DLHeap[q->bp()], cur, *q ) )
-			return utClash;
+	if ( isQuickClashLE(cur) )
+		return utClash;
 
 	// we need to repeate merge until there will be necessary amount of edges
 	while (1)
@@ -1045,37 +1038,7 @@ applyLE:	// skip init, because here we are after restoring
 	}
 }
 
-tacticUsage DlSatTester :: commonTacticBodyGEsimple ( const DLVertex& cur )	// for >=nR.C concepts
-{
-#ifdef ENABLE_CHECKING
-	assert ( isNegative(curConcept.bp()) && cur.Type() == dtLE );
-#endif
-
-	nGeCalls.inc();
-
-	// check if we have a clash with the other NR
-	for ( DlCompletionTree::const_label_iterator q = curNode->beginl_cc(); q != curNode->endl_cc(); ++q )
-		if ( isPositive(q->bp())		// need at-most restriction
-			 && isNRClash ( cur, DLHeap[q->bp()], *q ) )
-			return utClash;
-
-	const TRole* Role = cur.getRole();
-
-	// check if we have an arc with the corresponding role
-
-	// note that only SUCCESSORS are counted here: we have to multiply
-	// the node easily, which is not the case for the predecessor.
-	// TODO: try to found an example here
-	for ( DlCompletionTree::const_edge_iterator
-		  p = curNode->begins(); p != curNode->ends(); ++p )
-		if ( (*p)->isNeighbour(Role) )
-			return utUnusable;	// don't need to inform about this: return type is unique for the action
-
-	// don't find proper arc -- create new one; no Irr check necessary
-	return createNewEdge ( Role, cur.getC(), redoForall|redoFunc|redoAtMost );
-}
-
-tacticUsage DlSatTester :: commonTacticBodyGEusual ( const DLVertex& cur )	// for >=nR.C concepts
+tacticUsage DlSatTester :: commonTacticBodyGE ( const DLVertex& cur )	// for >=nR.C concepts
 {
 #ifdef ENABLE_CHECKING
 	assert ( isNegative(curConcept.bp()) && cur.Type() == dtLE );
@@ -1087,11 +1050,8 @@ tacticUsage DlSatTester :: commonTacticBodyGEusual ( const DLVertex& cur )	// fo
 
 	nGeCalls.inc();
 
-	// quick clash check: whether there is a clash with the other NR
-	for ( DlCompletionTree::const_label_iterator q = curNode->beginl_cc(); q != curNode->endl_cc(); ++q )
-		if ( isPositive(q->bp())		// need at-most restriction
-			 && isNRClash ( cur, DLHeap[q->bp()], *q ) )
-			return utClash;
+	if ( isQuickClashGE(cur) )
+		return utClash;
 
 	// create N new different edges
 	return createDifferentNeighbours ( cur.getRole(), cur.getC(), curConcept.getDep(), cur.getNumberGE(), BlockableLevel );
