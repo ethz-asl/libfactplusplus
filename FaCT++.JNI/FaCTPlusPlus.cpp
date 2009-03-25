@@ -721,7 +721,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
 //-------------------------------------------------------------
 
 #define PROCESS_QUERY(Action,Name)				\
-	do { try { Action; }						\
+	do { try { return Axiom(env,Action); }		\
 	catch ( EFPPInconsistentKB )				\
 	{ ThrowICO(env); }							\
 	catch ( EFPPNonSimpleRole nsr )				\
@@ -731,15 +731,16 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
 	catch ( EFaCTPlusPlus fpp )					\
 	{ Throw ( env, fpp.what() ); }				\
 	catch ( std::exception ex )					\
-	{ Throw ( env, ex.what() ); }  } while(0)
+	{ Throw ( env, ex.what() ); }				\
+		return NULL;  } while(0)
 //	Throw ( env, "FaCT++ Kernel: error during " Name " processing" )
 
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
  * Method:    tellSubClassOf
- * Signature: (Luk/ac/manchester/cs/factplusplus/ClassPointer;Luk/ac/manchester/cs/factplusplus/ClassPointer;)V
+ * Signature: (Luk/ac/manchester/cs/factplusplus/ClassPointer;Luk/ac/manchester/cs/factplusplus/ClassPointer;)Luk/ac/manchester/cs/factplusplus/AxiomPointer;
  */
-JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellSubClassOf
+JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellSubClassOf
   (JNIEnv * env, jobject obj, jobject arg1, jobject arg2)
 {
 	PROCESS_QUERY ( getK(env,obj)->impliesConcepts ( getTree(env,arg1), getTree(env,arg2) ), "tellSubClassOf" );
@@ -748,9 +749,9 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellSu
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
  * Method:    tellEquivalentClass
- * Signature: ()V
+ * Signature: ()Luk/ac/manchester/cs/factplusplus/AxiomPointer;
  */
-JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellEquivalentClass
+JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellEquivalentClass
   (JNIEnv * env, jobject obj)
 {
 	PROCESS_QUERY ( getK(env,obj)->equalConcepts(), "tellEquivalentClasses" );
@@ -759,9 +760,9 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellEq
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
  * Method:    tellDisjointClasses
- * Signature: ()V
+ * Signature: ()Luk/ac/manchester/cs/factplusplus/AxiomPointer;
  */
-JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellDisjointClasses
+JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellDisjointClasses
   (JNIEnv * env, jobject obj)
 {
 	PROCESS_QUERY ( getK(env,obj)->disjointConcepts(), "tellDisjointClasses" );
@@ -770,9 +771,9 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellDi
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
  * Method:    tellSubObjectProperties
- * Signature: (Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;)V
+ * Signature: (Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;)Luk/ac/manchester/cs/factplusplus/AxiomPointer;
  */
-JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellSubObjectProperties
+JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellSubObjectProperties
   (JNIEnv * env, jobject obj, jobject arg1, jobject arg2)
 {
 	PROCESS_QUERY ( getK(env,obj)->impliesRoles ( getROTree(env,arg1), getROTree(env,arg2) ), "tellSubObjectProperties" );
@@ -781,9 +782,9 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellSu
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
  * Method:    tellEquivalentObjectProperties
- * Signature: ()V
+ * Signature: ()Luk/ac/manchester/cs/factplusplus/AxiomPointer;
  */
-JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellEquivalentObjectProperties
+JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellEquivalentObjectProperties
   (JNIEnv * env, jobject obj)
 {
 	PROCESS_QUERY ( getK(env,obj)->equalRoles(), "tellEquivalentObjectProperties" );
@@ -792,9 +793,9 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellEq
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
  * Method:    tellInverseProperties
- * Signature: (Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;)V
+ * Signature: (Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;)Luk/ac/manchester/cs/factplusplus/AxiomPointer;
  */
-JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellInverseProperties
+JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellInverseProperties
   (JNIEnv * env, jobject obj, jobject arg1, jobject arg2)
 {
 	PROCESS_QUERY ( getK(env,obj)->equalRoles ( getROTree(env,arg1), getK(env,obj)->Inverse(getTree(env,arg2)) ), "tellInverseProperties" );
@@ -803,9 +804,9 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellIn
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
  * Method:    tellObjectPropertyRange
- * Signature: (Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;Luk/ac/manchester/cs/factplusplus/ClassPointer;)V
+ * Signature: (Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;Luk/ac/manchester/cs/factplusplus/ClassPointer;)Luk/ac/manchester/cs/factplusplus/AxiomPointer;
  */
-JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellObjectPropertyRange
+JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellObjectPropertyRange
   (JNIEnv * env, jobject obj, jobject arg1, jobject arg2)
 {
 	PROCESS_QUERY ( getK(env,obj)->setRange ( getROTree(env,arg1), getTree(env,arg2) ), "tellObjectPropertyRange" );
@@ -814,9 +815,9 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellOb
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
  * Method:    tellDataPropertyRange
- * Signature: (Luk/ac/manchester/cs/factplusplus/DataPropertyPointer;Luk/ac/manchester/cs/factplusplus/DataTypePointer;)V
+ * Signature: (Luk/ac/manchester/cs/factplusplus/DataPropertyPointer;Luk/ac/manchester/cs/factplusplus/DataTypePointer;)Luk/ac/manchester/cs/factplusplus/AxiomPointer;
  */
-JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellDataPropertyRange
+JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellDataPropertyRange
   (JNIEnv * env, jobject obj, jobject arg1, jobject arg2)
 {
 	PROCESS_QUERY ( getK(env,obj)->setRange ( getROTree(env,arg1), getTree(env,arg2) ), "tellDataPropertyRange" );
@@ -825,9 +826,9 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellDa
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
  * Method:    tellObjectPropertyDomain
- * Signature: (Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;Luk/ac/manchester/cs/factplusplus/ClassPointer;)V
+ * Signature: (Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;Luk/ac/manchester/cs/factplusplus/ClassPointer;)Luk/ac/manchester/cs/factplusplus/AxiomPointer;
  */
-JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellObjectPropertyDomain
+JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellObjectPropertyDomain
   (JNIEnv * env, jobject obj, jobject arg1, jobject arg2)
 {
 	PROCESS_QUERY ( getK(env,obj)->setDomain ( getROTree(env,arg1), getTree(env,arg2) ), "tellObjectPropertyDomain" );
@@ -836,9 +837,9 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellOb
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
  * Method:    tellDataPropertyDomain
- * Signature: (Luk/ac/manchester/cs/factplusplus/DataPropertyPointer;Luk/ac/manchester/cs/factplusplus/ClassPointer;)V
+ * Signature: (Luk/ac/manchester/cs/factplusplus/DataPropertyPointer;Luk/ac/manchester/cs/factplusplus/ClassPointer;)Luk/ac/manchester/cs/factplusplus/AxiomPointer;
  */
-JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellDataPropertyDomain
+JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellDataPropertyDomain
   (JNIEnv * env, jobject obj, jobject arg1, jobject arg2)
 {
 	PROCESS_QUERY ( getK(env,obj)->setDomain ( getROTree(env,arg1), getTree(env,arg2) ), "tellDataPropertyDomain" );
@@ -847,9 +848,9 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellDa
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
  * Method:    tellDisjointObjectProperties
- * Signature: ()V
+ * Signature: ()Luk/ac/manchester/cs/factplusplus/AxiomPointer;
  */
-JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellDisjointObjectProperties
+JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellDisjointObjectProperties
   (JNIEnv * env, jobject obj)
 {
 	PROCESS_QUERY ( getK(env,obj)->disjointRoles(), "tellDisjointObjectProperties" );
@@ -858,9 +859,9 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellDi
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
  * Method:    tellFunctionalObjectProperty
- * Signature: (Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;)V
+ * Signature: (Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;)Luk/ac/manchester/cs/factplusplus/AxiomPointer;
  */
-JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellFunctionalObjectProperty
+JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellFunctionalObjectProperty
   (JNIEnv * env, jobject obj, jobject arg)
 {
 	PROCESS_QUERY ( getK(env,obj)->setFunctional(getROTree(env,arg)), "tellFunctionalObjectProperty" );
@@ -869,9 +870,9 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellFu
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
  * Method:    tellInverseFunctionalObjectProperty
- * Signature: (Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;)V
+ * Signature: (Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;)Luk/ac/manchester/cs/factplusplus/AxiomPointer;
  */
-JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellInverseFunctionalObjectProperty
+JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellInverseFunctionalObjectProperty
   (JNIEnv * env, jobject obj, jobject arg)
 {
 	PROCESS_QUERY ( getK(env,obj)->setFunctional(getK(env,obj)->Inverse(getTree(env,arg))), "tellInverseFunctionalObjectProperty" );
@@ -880,9 +881,9 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellIn
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
  * Method:    tellSymmetricObjectProperty
- * Signature: (Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;)V
+ * Signature: (Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;)Luk/ac/manchester/cs/factplusplus/AxiomPointer;
  */
-JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellSymmetricObjectProperty
+JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellSymmetricObjectProperty
   (JNIEnv * env, jobject obj, jobject arg)
 {
 	PROCESS_QUERY ( getK(env,obj)->setSymmetric(getROTree(env,arg)), "tellSymmetricObjectProperty" );
@@ -891,9 +892,9 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellSy
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
  * Method:    tellAntiSymmetricObjectProperty
- * Signature: (Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;)V
+ * Signature: (Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;)Luk/ac/manchester/cs/factplusplus/AxiomPointer;
  */
-JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellAntiSymmetricObjectProperty
+JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellAntiSymmetricObjectProperty
   (JNIEnv * env, jobject obj, jobject arg)
 {
 	PROCESS_QUERY ( getK(env,obj)->setAntiSymmetric(getROTree(env,arg)), "tellAntiSymmetricObjectProperty" );
@@ -902,9 +903,9 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellAn
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
  * Method:    tellReflexiveObjectProperty
- * Signature: (Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;)V
+ * Signature: (Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;)Luk/ac/manchester/cs/factplusplus/AxiomPointer;
  */
-JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellReflexiveObjectProperty
+JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellReflexiveObjectProperty
   (JNIEnv * env, jobject obj, jobject arg)
 {
 	PROCESS_QUERY ( getK(env,obj)->setReflexive(getROTree(env,arg)), "tellReflexiveObjectProperty" );
@@ -913,9 +914,9 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellRe
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
  * Method:    tellIrreflexiveObjectProperty
- * Signature: (Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;)V
+ * Signature: (Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;)Luk/ac/manchester/cs/factplusplus/AxiomPointer;
  */
-JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellIrreflexiveObjectProperty
+JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellIrreflexiveObjectProperty
   (JNIEnv * env, jobject obj, jobject arg)
 {
 	PROCESS_QUERY ( getK(env,obj)->setIrreflexive(getROTree(env,arg)), "tellIrreflexiveObjectProperty" );
@@ -924,9 +925,9 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellIr
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
  * Method:    tellTransitiveObjectProperty
- * Signature: (Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;)V
+ * Signature: (Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;)Luk/ac/manchester/cs/factplusplus/AxiomPointer;
  */
-JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellTransitiveObjectProperty
+JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellTransitiveObjectProperty
   (JNIEnv * env, jobject obj, jobject arg)
 {
 	PROCESS_QUERY ( getK(env,obj)->setTransitive(getROTree(env,arg)), "tellTransitiveObjectProperty" );
@@ -935,9 +936,9 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellTr
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
  * Method:    tellSubDataProperties
- * Signature: (Luk/ac/manchester/cs/factplusplus/DataPropertyPointer;Luk/ac/manchester/cs/factplusplus/DataPropertyPointer;)V
+ * Signature: (Luk/ac/manchester/cs/factplusplus/DataPropertyPointer;Luk/ac/manchester/cs/factplusplus/DataPropertyPointer;)Luk/ac/manchester/cs/factplusplus/AxiomPointer;
  */
-JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellSubDataProperties
+JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellSubDataProperties
   (JNIEnv * env, jobject obj, jobject arg1, jobject arg2)
 {
 	PROCESS_QUERY ( getK(env,obj)->impliesRoles ( getROTree(env,arg1), getROTree(env,arg2) ), "tellSubDataProperties" );
@@ -946,9 +947,9 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellSu
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
  * Method:    tellEquivalentDataProperties
- * Signature: (Luk/ac/manchester/cs/factplusplus/DataPropertyPointer;Luk/ac/manchester/cs/factplusplus/DataPropertyPointer;)V
+ * Signature: (Luk/ac/manchester/cs/factplusplus/DataPropertyPointer;Luk/ac/manchester/cs/factplusplus/DataPropertyPointer;)Luk/ac/manchester/cs/factplusplus/AxiomPointer;
  */
-JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellEquivalentDataProperties
+JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellEquivalentDataProperties
   (JNIEnv * env, jobject obj)
 {
 	PROCESS_QUERY ( getK(env,obj)->equalRoles(), "tellEquivalentDataProperties" );
@@ -957,9 +958,9 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellEq
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
  * Method:    tellDisjointDataProperties
- * Signature: (Luk/ac/manchester/cs/factplusplus/DataPropertyPointer;Luk/ac/manchester/cs/factplusplus/DataPropertyPointer;)V
+ * Signature: (Luk/ac/manchester/cs/factplusplus/DataPropertyPointer;Luk/ac/manchester/cs/factplusplus/DataPropertyPointer;)Luk/ac/manchester/cs/factplusplus/AxiomPointer;
  */
-JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellDisjointDataProperties
+JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellDisjointDataProperties
   (JNIEnv * env, jobject obj, jobject arg1, jobject arg2)
 {
 	PROCESS_QUERY ( getK(env,obj)->disjointRoles ( getROTree(env,arg1), getROTree(env,arg2) ), "tellDisjointDataProperties" );
@@ -968,9 +969,9 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellDi
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
  * Method:    tellFunctionalDataProperty
- * Signature: (Luk/ac/manchester/cs/factplusplus/DataPropertyPointer;)V
+ * Signature: (Luk/ac/manchester/cs/factplusplus/DataPropertyPointer;)Luk/ac/manchester/cs/factplusplus/AxiomPointer;
  */
-JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellFunctionalDataProperty
+JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellFunctionalDataProperty
   (JNIEnv * env, jobject obj, jobject arg)
 {
 	PROCESS_QUERY ( getK(env,obj)->setFunctional(getROTree(env,arg)), "tellFunctionalDataProperty" );
@@ -979,9 +980,9 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellFu
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
  * Method:    tellIndividualType
- * Signature: (Luk/ac/manchester/cs/factplusplus/IndividualPointer;Luk/ac/manchester/cs/factplusplus/ClassPointer;)V
+ * Signature: (Luk/ac/manchester/cs/factplusplus/IndividualPointer;Luk/ac/manchester/cs/factplusplus/ClassPointer;)Luk/ac/manchester/cs/factplusplus/AxiomPointer;
  */
-JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellIndividualType
+JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellIndividualType
   (JNIEnv * env, jobject obj, jobject arg1, jobject arg2)
 {
 	PROCESS_QUERY ( getK(env,obj)->instanceOf ( getROTree(env,arg1), getTree(env,arg2) ), "tellIndividualType" );
@@ -990,9 +991,9 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellIn
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
  * Method:    tellRelatedIndividuals
- * Signature: (Luk/ac/manchester/cs/factplusplus/IndividualPointer;Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;Luk/ac/manchester/cs/factplusplus/IndividualPointer;)V
+ * Signature: (Luk/ac/manchester/cs/factplusplus/IndividualPointer;Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;Luk/ac/manchester/cs/factplusplus/IndividualPointer;)Luk/ac/manchester/cs/factplusplus/AxiomPointer;
  */
-JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellRelatedIndividuals
+JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellRelatedIndividuals
   (JNIEnv * env, jobject obj, jobject arg1, jobject arg2, jobject arg3)
 {
 	PROCESS_QUERY ( getK(env,obj)->relatedTo ( getROTree(env,arg1), getROTree(env,arg2), getROTree(env,arg3) ), "tellRelatedIndividuals" );
@@ -1001,9 +1002,9 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellRe
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
  * Method:    tellNotRelatedIndividuals
- * Signature: (Luk/ac/manchester/cs/factplusplus/IndividualPointer;Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;Luk/ac/manchester/cs/factplusplus/IndividualPointer;)V
+ * Signature: (Luk/ac/manchester/cs/factplusplus/IndividualPointer;Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;Luk/ac/manchester/cs/factplusplus/IndividualPointer;)Luk/ac/manchester/cs/factplusplus/AxiomPointer;
  */
-JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellNotRelatedIndividuals
+JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellNotRelatedIndividuals
   (JNIEnv * env, jobject obj, jobject arg1, jobject arg2, jobject arg3)
 {
 	PROCESS_QUERY ( getK(env,obj)->relatedToNot ( getROTree(env,arg1), getTree(env,arg2), getTree(env,arg3) ), "tellNotRelatedIndividuals" );
@@ -1012,9 +1013,9 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellNo
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
  * Method:    tellRelatedIndividualValue
- * Signature: (Luk/ac/manchester/cs/factplusplus/IndividualPointer;Luk/ac/manchester/cs/factplusplus/DataPropertyPointer;Luk/ac/manchester/cs/factplusplus/DataValuePointer;)V
+ * Signature: (Luk/ac/manchester/cs/factplusplus/IndividualPointer;Luk/ac/manchester/cs/factplusplus/DataPropertyPointer;Luk/ac/manchester/cs/factplusplus/DataValuePointer;)Luk/ac/manchester/cs/factplusplus/AxiomPointer;
  */
-JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellRelatedIndividualValue
+JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellRelatedIndividualValue
   (JNIEnv * env, jobject obj, jobject arg1, jobject arg2, jobject arg3)
 {
 	PROCESS_QUERY ( getK(env,obj)->valueOf ( getROTree(env,arg1), getTree(env,arg2), getTree(env,arg3) ), "tellRelatedIndividualValue" );
@@ -1023,9 +1024,9 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellRe
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
  * Method:    tellNotRelatedIndividualValue
- * Signature: (Luk/ac/manchester/cs/factplusplus/IndividualPointer;Luk/ac/manchester/cs/factplusplus/DataPropertyPointer;Luk/ac/manchester/cs/factplusplus/DataValuePointer;)V
+ * Signature: (Luk/ac/manchester/cs/factplusplus/IndividualPointer;Luk/ac/manchester/cs/factplusplus/DataPropertyPointer;Luk/ac/manchester/cs/factplusplus/DataValuePointer;)Luk/ac/manchester/cs/factplusplus/AxiomPointer;
  */
-JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellNotRelatedIndividualValue
+JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellNotRelatedIndividualValue
   (JNIEnv * env, jobject obj, jobject arg1, jobject arg2, jobject arg3)
 {
 	PROCESS_QUERY ( getK(env,obj)->valueOfNot ( getROTree(env,arg1), getTree(env,arg2), getTree(env,arg3) ), "tellNotRelatedIndividualValue" );
@@ -1034,9 +1035,9 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellNo
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
  * Method:    tellSameIndividuals
- * Signature: ()V
+ * Signature: ()Luk/ac/manchester/cs/factplusplus/AxiomPointer;
  */
-JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellSameIndividuals
+JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellSameIndividuals
   (JNIEnv * env, jobject obj)
 {
 	PROCESS_QUERY ( getK(env,obj)->processSame(), "tellSameIndividuals" );
@@ -1045,15 +1046,26 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellSa
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
  * Method:    tellDifferentIndividuals
- * Signature: ()V
+ * Signature: ()Luk/ac/manchester/cs/factplusplus/AxiomPointer;
  */
-JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellDifferentIndividuals
+JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellDifferentIndividuals
   (JNIEnv * env, jobject obj)
 {
 	PROCESS_QUERY ( getK(env,obj)->processDifferent(), "tellDifferentIndividuals" );
 }
 
 #undef PROCESS_QUERY
+
+/*
+ * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
+ * Method:    retract
+ * Signature: (Luk/ac/manchester/cs/factplusplus/AxiomPointer;)V
+ */
+JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_retract
+  (JNIEnv * env, jobject obj, jobject axiom)
+{
+	Throw ( env, "FaCT++ Kernel: unsupported operation" );
+}
 
 //-------------------------------------------------------------
 // minimal query language (ASK languages)

@@ -408,149 +408,90 @@ public:
 	// Concept axioms
 
 		/// axiom C [= D
-	void impliesConcepts ( const ComplexConcept C, const ComplexConcept D )
-	{
-		Ontology.add ( new TDLAxiomConceptInclusion ( C, D ) );
-	}
+	TDLAxiom* impliesConcepts ( const ComplexConcept C, const ComplexConcept D )
+		{ return Ontology.add ( new TDLAxiomConceptInclusion ( C, D ) ); }
 		/// axiom C1 = ... = Cn
-	void equalConcepts ( void )
-	{
-		Ontology.add ( new TDLAxiomEquivalentConcepts(NAryQueue.getLastArgList()) );
-	}
+	TDLAxiom* equalConcepts ( void )
+		{ return Ontology.add ( new TDLAxiomEquivalentConcepts(NAryQueue.getLastArgList()) ); }
 		/// axiom C = D
-	void equalConcepts ( const ComplexConcept C, const ComplexConcept D )
-	{
-		openArgList();
-		addArg(C);
-		addArg(D);
-		equalConcepts();
-	}
+	TDLAxiom* equalConcepts ( const ComplexConcept C, const ComplexConcept D )
+		{ return Ontology.add ( new TDLAxiomEquivalentConcepts ( C, D ) ); }
 		/// axiom C1 != ... != Cn
-	void disjointConcepts ( void )
-	{
-		Ontology.add ( new TDLAxiomDisjointConcepts(NAryQueue.getLastArgList()) );
-	}
+	TDLAxiom* disjointConcepts ( void )
+		{ return Ontology.add ( new TDLAxiomDisjointConcepts(NAryQueue.getLastArgList()) ); }
 
 
 	// Role axioms
 
 		/// axiom (R [= S)
-	void impliesRoles ( ComplexRole R, ComplexRole S )
-	{
-		Ontology.add ( new TDLAxiomRoleSubsumption ( R, S ) );
-	}
+	TDLAxiom* impliesRoles ( ComplexRole R, ComplexRole S )
+		{ return Ontology.add ( new TDLAxiomRoleSubsumption ( R, S ) ); }
 		/// axiom R1 = R2 = ...
-	void equalRoles ( void )
-	{
-		Ontology.add ( new TDLAxiomEquivalentRoles(NAryQueue.getLastArgList()) );
-	}
+	TDLAxiom* equalRoles ( void )
+		{ return Ontology.add ( new TDLAxiomEquivalentRoles(NAryQueue.getLastArgList()) ); }
 		/// axiom (R = S)
-	void equalRoles ( const ComplexRole R, const ComplexRole S )
-	{
-		openArgList();
-		addArg(R);
-		addArg(S);
-		equalRoles();
-	}
+	TDLAxiom* equalRoles ( const ComplexRole R, const ComplexRole S )
+		{ return Ontology.add ( new TDLAxiomEquivalentRoles ( R, S ) ); }
 		/// axiom R1 != R2 != ...
-	void disjointRoles ( void )
-	{
-		Ontology.add ( new TDLAxiomDisjointRoles(NAryQueue.getLastArgList()) );
-	}
+	TDLAxiom* disjointRoles ( void )
+		{ return Ontology.add ( new TDLAxiomDisjointRoles(NAryQueue.getLastArgList()) ); }
 		/// axiom (R != S)
-	void disjointRoles ( const ComplexRole R, const ComplexRole S )
-	{
-		openArgList();
-		addArg(R);
-		addArg(S);
-		disjointRoles();
-	}
+	TDLAxiom* disjointRoles ( const ComplexRole R, const ComplexRole S )
+		{ return Ontology.add ( new TDLAxiomDisjointRoles ( R, S ) ); }
 
 		/// Domain (R C)
-	void setDomain ( ComplexRole R, const ComplexConcept C )
-	{
-		Ontology.add ( new TDLAxiomRoleDomain ( R, C ) );
-	}
+	TDLAxiom* setDomain ( ComplexRole R, const ComplexConcept C )
+		{ return Ontology.add ( new TDLAxiomRoleDomain ( R, C ) ); }
 		/// Range (R C)
-	void setRange ( ComplexRole R, const ComplexConcept C )
-	{
-		Ontology.add ( new TDLAxiomRoleRange ( R, C ) );
-	}
+	TDLAxiom* setRange ( ComplexRole R, const ComplexConcept C )
+		{ return Ontology.add ( new TDLAxiomRoleRange ( R, C ) ); }
 
 		/// Transitive (R)
-	void setTransitive ( ComplexRole R )
-	{
-		Ontology.add ( new TDLAxiomRoleTransitive(R) );
-	}
+	TDLAxiom* setTransitive ( ComplexRole R )
+		{ return Ontology.add ( new TDLAxiomRoleTransitive(R) ); }
 		/// Reflexive (R)
-	void setReflexive ( ComplexRole R )
-	{
-		Ontology.add ( new TDLAxiomRoleReflexive(R) );
-	}
+	TDLAxiom* setReflexive ( ComplexRole R )
+		{ return Ontology.add ( new TDLAxiomRoleReflexive(R) ); }
 		/// Irreflexive (R): Domain(R) = \neg ER.Self
-	void setIrreflexive ( ComplexRole R )
-	{
-		Ontology.add ( new TDLAxiomRoleIrreflexive(R) );
-	}
+	TDLAxiom* setIrreflexive ( ComplexRole R )
+		{ return Ontology.add ( new TDLAxiomRoleIrreflexive(R) ); }
 		/// Symmetric (R): R [= R^-
-	void setSymmetric ( ComplexRole R )
-	{
-		Ontology.add ( new TDLAxiomRoleSymmetric(R) );
-	}
+	TDLAxiom* setSymmetric ( ComplexRole R )
+		{ return Ontology.add ( new TDLAxiomRoleSymmetric(R) ); }
 		/// AntySymmetric (R): disjoint(R,R^-)
-	void setAntiSymmetric ( ComplexRole R )
-	{
-		Ontology.add ( new TDLAxiomRoleAntiSymmetric(R) );
-	}
+	TDLAxiom* setAntiSymmetric ( ComplexRole R )
+		{ return Ontology.add ( new TDLAxiomRoleAntiSymmetric(R) ); }
 		/// Functional (R)
-	void setFunctional ( ComplexRole R )
-	{
-		Ontology.add ( new TDLAxiomRoleFunctional(R) );
-	}
+	TDLAxiom* setFunctional ( ComplexRole R )
+		{ return Ontology.add ( new TDLAxiomRoleFunctional(R) ); }
 
 
 	// Individual axioms
 
 		/// axiom I e C
-	void instanceOf ( const ComplexConcept I, const ComplexConcept C )
-	{
-		Ontology.add ( new TDLAxiomInstanceOf(I,C) );
-	}
+	TDLAxiom* instanceOf ( const ComplexConcept I, const ComplexConcept C )
+		{ return Ontology.add ( new TDLAxiomInstanceOf(I,C) ); }
 		/// axiom <I,J>:R
-	void relatedTo ( const ComplexConcept I, const ComplexRole R, const ComplexConcept J )
-	{
-		Ontology.add ( new TDLAxiomRelatedTo(I,R,J) );
-	}
+	TDLAxiom* relatedTo ( const ComplexConcept I, const ComplexRole R, const ComplexConcept J )
+		{ return Ontology.add ( new TDLAxiomRelatedTo(I,R,J) ); }
 		/// axiom <I,J>:\neg R
-	void relatedToNot ( const ComplexConcept I, const ComplexRole R, const ComplexConcept J )
-	{
-		Ontology.add ( new TDLAxiomRelatedToNot(I,R,J) );
-	}
+	TDLAxiom* relatedToNot ( const ComplexConcept I, const ComplexRole R, const ComplexConcept J )
+		{ return Ontology.add ( new TDLAxiomRelatedToNot(I,R,J) ); }
 		/// axiom (value I A V)
-	void valueOf ( const ComplexConcept I, const ComplexRole A, const ComplexConcept V )
-	{
-		Ontology.add ( new TDLAxiomValueOf(I,A,V) );
-	}
+	TDLAxiom* valueOf ( const ComplexConcept I, const ComplexRole A, const ComplexConcept V )
+		{ return Ontology.add ( new TDLAxiomValueOf(I,A,V) ); }
 		/// axiom <I,V>:\neg A
-	void valueOfNot ( const ComplexConcept I, const ComplexRole A, const ComplexConcept V )
-	{
-		Ontology.add ( new TDLAxiomValueOfNot(I,A,V) );
-	}
+	TDLAxiom* valueOfNot ( const ComplexConcept I, const ComplexRole A, const ComplexConcept V )
+		{ return Ontology.add ( new TDLAxiomValueOfNot(I,A,V) ); }
 		/// same individuals
-	void processSame ( void )
-	{
-		Ontology.add ( new TDLAxiomSameIndividuals(NAryQueue.getLastArgList()) );
-	}
+	TDLAxiom* processSame ( void )
+		{ return Ontology.add ( new TDLAxiomSameIndividuals(NAryQueue.getLastArgList()) ); }
 		/// different individuals
-	void processDifferent ( void )
-	{
-		Ontology.add ( new TDLAxiomDifferentIndividuals(NAryQueue.getLastArgList()) );
-	}
+	TDLAxiom* processDifferent ( void )
+		{ return Ontology.add ( new TDLAxiomDifferentIndividuals(NAryQueue.getLastArgList()) ); }
 		/// let all concept expressions in the ArgQueue to be fairness constraints
-	void setFairnessConstraint ( void )
-	{
-		Ontology.add ( new TDLAxiomFairnessConstraint(NAryQueue.getLastArgList()) );
-	}
+	TDLAxiom* setFairnessConstraint ( void )
+		{ return Ontology.add ( new TDLAxiomFairnessConstraint(NAryQueue.getLastArgList()) ); }
 
 	//******************************************
 	//* ASK part

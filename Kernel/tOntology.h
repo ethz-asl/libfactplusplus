@@ -51,10 +51,11 @@ public:		// interface
 	void setProcessed ( void ) { axiomToProcess = Axioms.size(); }
 
 		/// add given axiom to the ontology
-	void add ( TDLAxiom* p )
+	TDLAxiom* add ( TDLAxiom* p )
 	{
 		p->setId(++axiomId);
 		Axioms.push_back(p);
+		return p;
 	}
 		/// clear the ontology
 	void clear ( void )

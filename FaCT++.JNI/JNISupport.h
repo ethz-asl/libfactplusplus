@@ -243,6 +243,12 @@ TDataInterval* getFacet ( JNIEnv * env, jobject obj )
 	return (TDataInterval*)getPointer(env,obj);
 }
 
+inline
+TDLAxiom* getAxiom ( JNIEnv * env, jobject obj )
+{
+	return (TDLAxiom*)getPointer(env,obj);
+}
+
 // check it pointer is a named concept
 template<class T>
 inline
@@ -392,6 +398,11 @@ jobject Facet ( JNIEnv * env, TDataInterval* t )
 	return retObject ( env, t, "Luk/ac/manchester/cs/factplusplus/DataTypeFacet;" );
 }
 
+inline
+jobject Axiom ( JNIEnv * env, TDLAxiom* t )
+{
+	return retObject ( env, t, "Luk/ac/manchester/cs/factplusplus/AxiomPointer;" );
+}
 
 /// create vector of Java objects of class CLASSNAME by given VEC
 inline
