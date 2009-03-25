@@ -386,234 +386,242 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
  * Method:    tellSubClassOf
- * Signature: (Luk/ac/manchester/cs/factplusplus/ClassPointer;Luk/ac/manchester/cs/factplusplus/ClassPointer;)V
+ * Signature: (Luk/ac/manchester/cs/factplusplus/ClassPointer;Luk/ac/manchester/cs/factplusplus/ClassPointer;)Luk/ac/manchester/cs/factplusplus/AxiomPointer;
  */
-JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellSubClassOf
+JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellSubClassOf
   (JNIEnv *, jobject, jobject, jobject);
 
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
  * Method:    tellEquivalentClass
- * Signature: ()V
+ * Signature: ()Luk/ac/manchester/cs/factplusplus/AxiomPointer;
  */
-JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellEquivalentClass
+JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellEquivalentClass
   (JNIEnv *, jobject);
 
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
  * Method:    tellDisjointClasses
- * Signature: ()V
+ * Signature: ()Luk/ac/manchester/cs/factplusplus/AxiomPointer;
  */
-JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellDisjointClasses
+JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellDisjointClasses
   (JNIEnv *, jobject);
 
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
  * Method:    tellSubObjectProperties
- * Signature: (Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;)V
+ * Signature: (Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;)Luk/ac/manchester/cs/factplusplus/AxiomPointer;
  */
-JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellSubObjectProperties
+JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellSubObjectProperties
   (JNIEnv *, jobject, jobject, jobject);
 
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
  * Method:    tellEquivalentObjectProperties
- * Signature: ()V
+ * Signature: ()Luk/ac/manchester/cs/factplusplus/AxiomPointer;
  */
-JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellEquivalentObjectProperties
+JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellEquivalentObjectProperties
   (JNIEnv *, jobject);
 
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
  * Method:    tellInverseProperties
- * Signature: (Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;)V
+ * Signature: (Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;)Luk/ac/manchester/cs/factplusplus/AxiomPointer;
  */
-JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellInverseProperties
+JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellInverseProperties
   (JNIEnv *, jobject, jobject, jobject);
 
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
  * Method:    tellObjectPropertyRange
- * Signature: (Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;Luk/ac/manchester/cs/factplusplus/ClassPointer;)V
+ * Signature: (Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;Luk/ac/manchester/cs/factplusplus/ClassPointer;)Luk/ac/manchester/cs/factplusplus/AxiomPointer;
  */
-JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellObjectPropertyRange
+JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellObjectPropertyRange
   (JNIEnv *, jobject, jobject, jobject);
 
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
  * Method:    tellDataPropertyRange
- * Signature: (Luk/ac/manchester/cs/factplusplus/DataPropertyPointer;Luk/ac/manchester/cs/factplusplus/DataTypeExpressionPointer;)V
+ * Signature: (Luk/ac/manchester/cs/factplusplus/DataPropertyPointer;Luk/ac/manchester/cs/factplusplus/DataTypeExpressionPointer;)Luk/ac/manchester/cs/factplusplus/AxiomPointer;
  */
-JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellDataPropertyRange
+JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellDataPropertyRange
   (JNIEnv *, jobject, jobject, jobject);
 
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
  * Method:    tellObjectPropertyDomain
- * Signature: (Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;Luk/ac/manchester/cs/factplusplus/ClassPointer;)V
+ * Signature: (Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;Luk/ac/manchester/cs/factplusplus/ClassPointer;)Luk/ac/manchester/cs/factplusplus/AxiomPointer;
  */
-JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellObjectPropertyDomain
+JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellObjectPropertyDomain
   (JNIEnv *, jobject, jobject, jobject);
 
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
  * Method:    tellDataPropertyDomain
- * Signature: (Luk/ac/manchester/cs/factplusplus/DataPropertyPointer;Luk/ac/manchester/cs/factplusplus/ClassPointer;)V
+ * Signature: (Luk/ac/manchester/cs/factplusplus/DataPropertyPointer;Luk/ac/manchester/cs/factplusplus/ClassPointer;)Luk/ac/manchester/cs/factplusplus/AxiomPointer;
  */
-JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellDataPropertyDomain
+JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellDataPropertyDomain
   (JNIEnv *, jobject, jobject, jobject);
 
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
  * Method:    tellDisjointObjectProperties
- * Signature: ()V
+ * Signature: ()Luk/ac/manchester/cs/factplusplus/AxiomPointer;
  */
-JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellDisjointObjectProperties
+JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellDisjointObjectProperties
   (JNIEnv *, jobject);
 
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
  * Method:    tellFunctionalObjectProperty
- * Signature: (Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;)V
+ * Signature: (Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;)Luk/ac/manchester/cs/factplusplus/AxiomPointer;
  */
-JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellFunctionalObjectProperty
+JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellFunctionalObjectProperty
   (JNIEnv *, jobject, jobject);
 
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
  * Method:    tellInverseFunctionalObjectProperty
- * Signature: (Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;)V
+ * Signature: (Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;)Luk/ac/manchester/cs/factplusplus/AxiomPointer;
  */
-JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellInverseFunctionalObjectProperty
+JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellInverseFunctionalObjectProperty
   (JNIEnv *, jobject, jobject);
 
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
  * Method:    tellSymmetricObjectProperty
- * Signature: (Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;)V
+ * Signature: (Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;)Luk/ac/manchester/cs/factplusplus/AxiomPointer;
  */
-JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellSymmetricObjectProperty
+JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellSymmetricObjectProperty
   (JNIEnv *, jobject, jobject);
 
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
  * Method:    tellAntiSymmetricObjectProperty
- * Signature: (Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;)V
+ * Signature: (Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;)Luk/ac/manchester/cs/factplusplus/AxiomPointer;
  */
-JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellAntiSymmetricObjectProperty
+JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellAntiSymmetricObjectProperty
   (JNIEnv *, jobject, jobject);
 
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
  * Method:    tellReflexiveObjectProperty
- * Signature: (Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;)V
+ * Signature: (Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;)Luk/ac/manchester/cs/factplusplus/AxiomPointer;
  */
-JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellReflexiveObjectProperty
+JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellReflexiveObjectProperty
   (JNIEnv *, jobject, jobject);
 
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
  * Method:    tellIrreflexiveObjectProperty
- * Signature: (Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;)V
+ * Signature: (Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;)Luk/ac/manchester/cs/factplusplus/AxiomPointer;
  */
-JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellIrreflexiveObjectProperty
+JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellIrreflexiveObjectProperty
   (JNIEnv *, jobject, jobject);
 
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
  * Method:    tellTransitiveObjectProperty
- * Signature: (Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;)V
+ * Signature: (Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;)Luk/ac/manchester/cs/factplusplus/AxiomPointer;
  */
-JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellTransitiveObjectProperty
+JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellTransitiveObjectProperty
   (JNIEnv *, jobject, jobject);
 
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
  * Method:    tellSubDataProperties
- * Signature: (Luk/ac/manchester/cs/factplusplus/DataPropertyPointer;Luk/ac/manchester/cs/factplusplus/DataPropertyPointer;)V
+ * Signature: (Luk/ac/manchester/cs/factplusplus/DataPropertyPointer;Luk/ac/manchester/cs/factplusplus/DataPropertyPointer;)Luk/ac/manchester/cs/factplusplus/AxiomPointer;
  */
-JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellSubDataProperties
+JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellSubDataProperties
   (JNIEnv *, jobject, jobject, jobject);
 
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
  * Method:    tellEquivalentDataProperties
- * Signature: ()V
+ * Signature: ()Luk/ac/manchester/cs/factplusplus/AxiomPointer;
  */
-JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellEquivalentDataProperties
+JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellEquivalentDataProperties
   (JNIEnv *, jobject);
 
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
  * Method:    tellDisjointDataProperties
- * Signature: (Luk/ac/manchester/cs/factplusplus/DataPropertyPointer;Luk/ac/manchester/cs/factplusplus/DataPropertyPointer;)V
+ * Signature: (Luk/ac/manchester/cs/factplusplus/DataPropertyPointer;Luk/ac/manchester/cs/factplusplus/DataPropertyPointer;)Luk/ac/manchester/cs/factplusplus/AxiomPointer;
  */
-JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellDisjointDataProperties
+JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellDisjointDataProperties
   (JNIEnv *, jobject, jobject, jobject);
 
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
  * Method:    tellFunctionalDataProperty
- * Signature: (Luk/ac/manchester/cs/factplusplus/DataPropertyPointer;)V
+ * Signature: (Luk/ac/manchester/cs/factplusplus/DataPropertyPointer;)Luk/ac/manchester/cs/factplusplus/AxiomPointer;
  */
-JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellFunctionalDataProperty
+JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellFunctionalDataProperty
   (JNIEnv *, jobject, jobject);
 
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
  * Method:    tellIndividualType
- * Signature: (Luk/ac/manchester/cs/factplusplus/IndividualPointer;Luk/ac/manchester/cs/factplusplus/ClassPointer;)V
+ * Signature: (Luk/ac/manchester/cs/factplusplus/IndividualPointer;Luk/ac/manchester/cs/factplusplus/ClassPointer;)Luk/ac/manchester/cs/factplusplus/AxiomPointer;
  */
-JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellIndividualType
+JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellIndividualType
   (JNIEnv *, jobject, jobject, jobject);
 
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
  * Method:    tellRelatedIndividuals
- * Signature: (Luk/ac/manchester/cs/factplusplus/IndividualPointer;Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;Luk/ac/manchester/cs/factplusplus/IndividualPointer;)V
+ * Signature: (Luk/ac/manchester/cs/factplusplus/IndividualPointer;Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;Luk/ac/manchester/cs/factplusplus/IndividualPointer;)Luk/ac/manchester/cs/factplusplus/AxiomPointer;
  */
-JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellRelatedIndividuals
+JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellRelatedIndividuals
   (JNIEnv *, jobject, jobject, jobject, jobject);
 
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
  * Method:    tellNotRelatedIndividuals
- * Signature: (Luk/ac/manchester/cs/factplusplus/IndividualPointer;Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;Luk/ac/manchester/cs/factplusplus/IndividualPointer;)V
+ * Signature: (Luk/ac/manchester/cs/factplusplus/IndividualPointer;Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;Luk/ac/manchester/cs/factplusplus/IndividualPointer;)Luk/ac/manchester/cs/factplusplus/AxiomPointer;
  */
-JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellNotRelatedIndividuals
+JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellNotRelatedIndividuals
   (JNIEnv *, jobject, jobject, jobject, jobject);
 
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
  * Method:    tellRelatedIndividualValue
- * Signature: (Luk/ac/manchester/cs/factplusplus/IndividualPointer;Luk/ac/manchester/cs/factplusplus/DataPropertyPointer;Luk/ac/manchester/cs/factplusplus/DataValuePointer;)V
+ * Signature: (Luk/ac/manchester/cs/factplusplus/IndividualPointer;Luk/ac/manchester/cs/factplusplus/DataPropertyPointer;Luk/ac/manchester/cs/factplusplus/DataValuePointer;)Luk/ac/manchester/cs/factplusplus/AxiomPointer;
  */
-JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellRelatedIndividualValue
+JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellRelatedIndividualValue
   (JNIEnv *, jobject, jobject, jobject, jobject);
 
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
  * Method:    tellNotRelatedIndividualValue
- * Signature: (Luk/ac/manchester/cs/factplusplus/IndividualPointer;Luk/ac/manchester/cs/factplusplus/DataPropertyPointer;Luk/ac/manchester/cs/factplusplus/DataValuePointer;)V
+ * Signature: (Luk/ac/manchester/cs/factplusplus/IndividualPointer;Luk/ac/manchester/cs/factplusplus/DataPropertyPointer;Luk/ac/manchester/cs/factplusplus/DataValuePointer;)Luk/ac/manchester/cs/factplusplus/AxiomPointer;
  */
-JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellNotRelatedIndividualValue
+JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellNotRelatedIndividualValue
   (JNIEnv *, jobject, jobject, jobject, jobject);
 
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
  * Method:    tellSameIndividuals
- * Signature: ()V
+ * Signature: ()Luk/ac/manchester/cs/factplusplus/AxiomPointer;
  */
-JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellSameIndividuals
+JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellSameIndividuals
   (JNIEnv *, jobject);
 
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
  * Method:    tellDifferentIndividuals
- * Signature: ()V
+ * Signature: ()Luk/ac/manchester/cs/factplusplus/AxiomPointer;
  */
-JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellDifferentIndividuals
+JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellDifferentIndividuals
   (JNIEnv *, jobject);
+
+/*
+ * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
+ * Method:    retract
+ * Signature: (Luk/ac/manchester/cs/factplusplus/AxiomPointer;)V
+ */
+JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_retract
+  (JNIEnv *, jobject, jobject);
 
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus

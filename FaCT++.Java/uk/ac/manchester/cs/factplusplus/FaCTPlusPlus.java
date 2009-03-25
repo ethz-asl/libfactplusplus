@@ -221,99 +221,106 @@ public class FaCTPlusPlus {
     ///////////////////////////////////////////////////////////////////////////////////////////////
     // Axioms
 
-    public native void tellSubClassOf(ClassPointer c, ClassPointer d) throws FaCTPlusPlusException;
+    public native AxiomPointer tellSubClassOf(ClassPointer c, ClassPointer d) throws FaCTPlusPlusException;
 
     /**
      * Tells an equivalent classes axiom, whose classes are
      * in the last closed arg list.
      */
-    public native void tellEquivalentClass() throws FaCTPlusPlusException;
+    public native AxiomPointer tellEquivalentClass() throws FaCTPlusPlusException;
 
     /**
      * Tells a disjoint classes axiom, whose classes are
      * in the last closed arg list.
      */
-    public native void tellDisjointClasses() throws FaCTPlusPlusException;
+    public native AxiomPointer tellDisjointClasses() throws FaCTPlusPlusException;
 
 
-    public native void tellSubObjectProperties(ObjectPropertyPointer s, ObjectPropertyPointer r) throws FaCTPlusPlusException;
+    public native AxiomPointer tellSubObjectProperties(ObjectPropertyPointer s, ObjectPropertyPointer r) throws FaCTPlusPlusException;
 
     /**
      * Tells an equivalent object properties axiom, whose properties are
      * in the last closed arg list.
      */
-    public native void tellEquivalentObjectProperties() throws FaCTPlusPlusException;
+    public native AxiomPointer tellEquivalentObjectProperties() throws FaCTPlusPlusException;
 
-    public native void tellInverseProperties(ObjectPropertyPointer s, ObjectPropertyPointer r) throws FaCTPlusPlusException;
+    public native AxiomPointer tellInverseProperties(ObjectPropertyPointer s, ObjectPropertyPointer r) throws FaCTPlusPlusException;
 
-    public native void tellObjectPropertyRange(ObjectPropertyPointer s, ClassPointer c) throws FaCTPlusPlusException;
+    public native AxiomPointer tellObjectPropertyRange(ObjectPropertyPointer s, ClassPointer c) throws FaCTPlusPlusException;
 
-    public native void tellDataPropertyRange(DataPropertyPointer s, DataTypeExpressionPointer d) throws FaCTPlusPlusException;
+    public native AxiomPointer tellDataPropertyRange(DataPropertyPointer s, DataTypeExpressionPointer d) throws FaCTPlusPlusException;
 
-    public native void tellObjectPropertyDomain(ObjectPropertyPointer s, ClassPointer c) throws FaCTPlusPlusException;
+    public native AxiomPointer tellObjectPropertyDomain(ObjectPropertyPointer s, ClassPointer c) throws FaCTPlusPlusException;
 
-    public native void tellDataPropertyDomain(DataPropertyPointer s, ClassPointer c) throws FaCTPlusPlusException;
+    public native AxiomPointer tellDataPropertyDomain(DataPropertyPointer s, ClassPointer c) throws FaCTPlusPlusException;
 
     /**
      * Tells a disjoint object properties axiom, whose properties are
      * in the last closed arg list.
      */
-    public native void tellDisjointObjectProperties() throws FaCTPlusPlusException;
+    public native AxiomPointer tellDisjointObjectProperties() throws FaCTPlusPlusException;
 
-    public native void tellFunctionalObjectProperty(ObjectPropertyPointer s) throws FaCTPlusPlusException;
+    public native AxiomPointer tellFunctionalObjectProperty(ObjectPropertyPointer s) throws FaCTPlusPlusException;
 
-    public native void tellInverseFunctionalObjectProperty(ObjectPropertyPointer s) throws FaCTPlusPlusException;
+    public native AxiomPointer tellInverseFunctionalObjectProperty(ObjectPropertyPointer s) throws FaCTPlusPlusException;
 
-    public native void tellSymmetricObjectProperty(ObjectPropertyPointer s) throws FaCTPlusPlusException;
+    public native AxiomPointer tellSymmetricObjectProperty(ObjectPropertyPointer s) throws FaCTPlusPlusException;
 
-    public native void tellAntiSymmetricObjectProperty(ObjectPropertyPointer s) throws FaCTPlusPlusException;
+    public native AxiomPointer tellAntiSymmetricObjectProperty(ObjectPropertyPointer s) throws FaCTPlusPlusException;
 
-    public native void tellReflexiveObjectProperty(ObjectPropertyPointer s) throws FaCTPlusPlusException;
+    public native AxiomPointer tellReflexiveObjectProperty(ObjectPropertyPointer s) throws FaCTPlusPlusException;
 
-    public native void tellIrreflexiveObjectProperty(ObjectPropertyPointer s) throws FaCTPlusPlusException;
+    public native AxiomPointer tellIrreflexiveObjectProperty(ObjectPropertyPointer s) throws FaCTPlusPlusException;
 
-    public native void tellTransitiveObjectProperty(ObjectPropertyPointer s) throws FaCTPlusPlusException;
+    public native AxiomPointer tellTransitiveObjectProperty(ObjectPropertyPointer s) throws FaCTPlusPlusException;
 
 
 
-    public native void tellSubDataProperties(DataPropertyPointer s, DataPropertyPointer r) throws FaCTPlusPlusException;
+    public native AxiomPointer tellSubDataProperties(DataPropertyPointer s, DataPropertyPointer r) throws FaCTPlusPlusException;
 
     /**
      * Tells an equivalent data properties axiom, whose properties are
      * in the last closed arg list.
      */
-    public native void tellEquivalentDataProperties() throws FaCTPlusPlusException;
+    public native AxiomPointer tellEquivalentDataProperties() throws FaCTPlusPlusException;
 
     /**
      * Tells a disjoint data properties axiom, whose properties are
      * in the last closed arg list.
      */
-    public native void tellDisjointDataProperties(DataPropertyPointer s, DataPropertyPointer r) throws FaCTPlusPlusException;
+    public native AxiomPointer tellDisjointDataProperties(DataPropertyPointer s, DataPropertyPointer r) throws FaCTPlusPlusException;
 
-    public native void tellFunctionalDataProperty(DataPropertyPointer s) throws FaCTPlusPlusException;
+    public native AxiomPointer tellFunctionalDataProperty(DataPropertyPointer s) throws FaCTPlusPlusException;
 
 
-    public native void tellIndividualType(IndividualPointer i, ClassPointer c) throws FaCTPlusPlusException;
+    public native AxiomPointer tellIndividualType(IndividualPointer i, ClassPointer c) throws FaCTPlusPlusException;
 
-    public native void tellRelatedIndividuals(IndividualPointer i, ObjectPropertyPointer r, IndividualPointer j) throws FaCTPlusPlusException;
+    public native AxiomPointer tellRelatedIndividuals(IndividualPointer i, ObjectPropertyPointer r, IndividualPointer j) throws FaCTPlusPlusException;
 
-    public native void tellNotRelatedIndividuals(IndividualPointer i, ObjectPropertyPointer r, IndividualPointer j) throws FaCTPlusPlusException;
+    public native AxiomPointer tellNotRelatedIndividuals(IndividualPointer i, ObjectPropertyPointer r, IndividualPointer j) throws FaCTPlusPlusException;
 
-    public native void tellRelatedIndividualValue(IndividualPointer i, DataPropertyPointer r, DataValuePointer dv) throws FaCTPlusPlusException;
+    public native AxiomPointer tellRelatedIndividualValue(IndividualPointer i, DataPropertyPointer r, DataValuePointer dv) throws FaCTPlusPlusException;
 
-    public native void tellNotRelatedIndividualValue(IndividualPointer i, DataPropertyPointer r, DataValuePointer dv) throws FaCTPlusPlusException;
+    public native AxiomPointer tellNotRelatedIndividualValue(IndividualPointer i, DataPropertyPointer r, DataValuePointer dv) throws FaCTPlusPlusException;
 
     /**
      * Tells a same individuals axiom, whose individuals are
      * in the last closed arg list.
      */
-    public native void tellSameIndividuals() throws FaCTPlusPlusException;
+    public native AxiomPointer tellSameIndividuals() throws FaCTPlusPlusException;
 
     /**
      * Tells a different individuals axiom, whose individuals are
      * in the last closed arg list.
      */
-    public native void tellDifferentIndividuals() throws FaCTPlusPlusException;
+    public native AxiomPointer tellDifferentIndividuals() throws FaCTPlusPlusException;
+
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Retract
+
+    public native void retract(AxiomPointer a) throws FaCTPlusPlusException;
 
 
     //////////////////////////////////////////////////////////////////////////////////////////////////
