@@ -16,6 +16,10 @@ GCC_42_OPT = $(GCC_41_OPT)
 # GCC 4.3 optimisation options that are not included in -O3
 GCC_43_OPT = $(GCC_42_OPT) -fmodulo-sched-allow-regmoves -fipa-cp -fvect-cost-model
 
+# define architecture; it will affect file extentions, dynamic flags.
+# now LINUX, WINDOWS(untested), MACOSX are supported
+OS = LINUX
+
 # ALL_DEF is an external defines
 GENERAL_DEFINES = $(GCC_OPT_OPT) $(GCC_43_OPT) $(ALL_DEF)
 
@@ -30,13 +34,45 @@ ifdef INTERNAL_LIBRARY
 override LIBRARY := $(INTERNAL_LIBRARY)
 endif
 
+# tune some parameters depends on OS
+
+EXEEXT = 
+LIBEXT =
+DLLEXT =
+OS_DEF =
+
+# define Linux flags
+
+ifeq ($(OS),LINUX)
+override EXEEXT :=
+override LIBEXT := .a
+override DLLEXT := .so
+override OS_DEF := 
+endif
+
+#define Mc OS X flags 
+ifeq ($(OS),MACOSX)
+override EXEEXT :=
+override LIBEXT := .a
+override DLLEXT := .jnilib
+override OS_DEF := -mmacosx-version-min=10.4
+endif
+
+#define Windows flags (untested)
+ifeq ($(OS),WINDOWS)
+override EXEEXT := .exe
+override LIBEXT := .lib
+override DLLEXT := .dll
+override OS_DEF := 
+endif
+
 # System variables definitions should be expanded immidiately,
 # either user defines those or not
 # (The following lines are written because of their ':=' operator)
 # We can't set default values here: WIs' rules.cvslvk may use +=
 
 override INCLUDES := $(INCLUDES)
-override DEFINES := $(DEFINES) $(GENERAL_DEFINES)
+override DEFINES := $(DEFINES) $(GENERAL_DEFINES) $(OS_DEF)
 override LDFLAGS := $(LDFLAGS)
 
 override BUILD_DIR := obj
@@ -59,13 +95,13 @@ ifdef LIBRARY
 # $(LIBRARY) is library name.
 
 ifeq ($(LTYPE),shared)
-override LIBRARY_NAME := lib$(LIBRARY).so
+override LIBRARY_NAME := lib$(LIBRARY)$(DLLEXT)
 # We support only gcc.
 override CXXFLAGS += -fPIC
 endif
 
 ifeq ($(LTYPE),static)
-override LIBRARY_NAME := lib$(LIBRARY).a
+override LIBRARY_NAME := lib$(LIBRARY)$(LIBEXT)
 endif
 
 endif  # ifdef LIBRARY
@@ -189,8 +225,8 @@ include .deps
 
 override LIB_DEPS_TMP := $(filter -L%, $(LDFLAGS))
 ifneq ($(LIB_DEPS_TMP),)
-vpath lib%.so $(LIB_DEPS_TMP:-L%=%)
-vpath lib%.a $(LIB_DEPS_TMP:-L%=%)
+vpath lib%$(DLLEXT) $(LIB_DEPS_TMP:-L%=%)
+vpath lib%$(LIBEXT) $(LIB_DEPS_TMP:-L%=%)
 endif
 
 # here we have all libraries of which current goal depends
@@ -225,9 +261,21 @@ all: all_subdirs $(LIBRARY_NAME)
 $(LIBRARY_NAME): $(BUILD_DIR) $(BUILD_DIR)/$(LIBRARY_NAME)
 	rm -f $@ && ln -s $(BUILD_DIR)/$@ .
 
+# define shared flags
+SHARED_FLAGS =
+ifeq ($(OS),LINUX)
+override SHARED_FLAGS := -shared -Wl,-h,$(LIBRARY_NAME)
+endif
+ifeq ($(OS),MACOSX)
+override SHARED_FLAGS := -dynamiclib
+endif
+ifeq ($(OS),WINDOWS)
+override SHARED_FLAGS := 
+endif
+
 ifeq ($(LTYPE),shared)
 $(BUILD_DIR)/$(LIBRARY_NAME): $(OBJECTS) $(LIB_DEPS)
-	$(CXX) -shared -Wl,-h,$(LIBRARY_NAME) -o $@ $(OBJECTS) $(LDFLAGS)
+	$(CXX) $(SHARED_FLAGS) -o $@ $(OBJECTS) $(LDFLAGS)
 endif
 
 ifeq ($(LTYPE),static)
