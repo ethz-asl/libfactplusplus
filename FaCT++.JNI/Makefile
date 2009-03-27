@@ -6,6 +6,7 @@
 LIBRARY = FaCTPlusPlusJNI
 LTYPE = shared
 
+INCLUDES = -I/System/Library/Frameworks/JavaVM.framework/Headers
 USE_IL = ../Kernel ../Bdd
 
 SOURCES = \
