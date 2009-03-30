@@ -10,23 +10,23 @@ include Makefile.include
 # Additional targets to build parts of the FaCT++
 
 bdd:
-	cd Bdd && make && cd ..
+	make -C Bdd
 
 kernel: bdd
-	cd Kernel && make && cd ..
+	make -C Kernel
 
 digparser: kernel
-	cd DIGParser && make && cd ..
+	make -C DIGParser
 
 fpp_lisp: kernel
-	cd FaCT++ && make && cd ..
+	make -C FaCT++
 
 fpp_jni: kernel
-	cd FaCT++.JNI && make && cd ..
+	make -C FaCT++.JNI
 
 fpp_dig: digparser
-	cd FaCT++.DIG && make && cd ..
+	make -C FaCT++.DIG
 
 fpp_server: digparser
-	cd FaCT++.Server && make && cd ..
+	make -C FaCT++.Server
 
