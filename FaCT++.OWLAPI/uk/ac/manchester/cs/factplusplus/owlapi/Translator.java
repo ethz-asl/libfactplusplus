@@ -117,6 +117,10 @@ public class Translator implements OWLDescriptionVisitor, OWLEntityVisitor, OWLP
         }
     }
 
+    public FaCTPlusPlus getFaCTPlusPlus(){
+           return faCTPlusPlus;
+    }
+
 
     public void dispose() {
         try {

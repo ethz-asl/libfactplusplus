@@ -288,7 +288,7 @@ public class FaCTPlusPlus {
      * Tells a disjoint data properties axiom, whose properties are
      * in the last closed arg list.
      */
-    public native AxiomPointer tellDisjointDataProperties(DataPropertyPointer s, DataPropertyPointer r) throws FaCTPlusPlusException;
+    public native AxiomPointer tellDisjointDataProperties() throws FaCTPlusPlusException;
 
     public native AxiomPointer tellFunctionalDataProperty(DataPropertyPointer s) throws FaCTPlusPlusException;
 

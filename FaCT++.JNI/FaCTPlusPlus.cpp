@@ -958,12 +958,12 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tel
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
  * Method:    tellDisjointDataProperties
- * Signature: (Luk/ac/manchester/cs/factplusplus/DataPropertyPointer;Luk/ac/manchester/cs/factplusplus/DataPropertyPointer;)Luk/ac/manchester/cs/factplusplus/AxiomPointer;
+ * Signature: ()Luk/ac/manchester/cs/factplusplus/AxiomPointer;
  */
 JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellDisjointDataProperties
-  (JNIEnv * env, jobject obj, jobject arg1, jobject arg2)
+  (JNIEnv * env, jobject obj)
 {
-	PROCESS_QUERY ( getK(env,obj)->disjointRoles ( getTree(env,arg1), getTree(env,arg2) ), "tellDisjointDataProperties" );
+	PROCESS_QUERY ( getK(env,obj)->disjointRoles(), "tellDisjointDataProperties" );
 }
 
 /*

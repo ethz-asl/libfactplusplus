@@ -26,11 +26,21 @@ public class AxiomLoader implements OWLAxiomVisitor {
 
     private Translator translator;
 
+    private AxiomPointer lastAxiom;
 
-    public AxiomLoader(Translator translator, FaCTPlusPlus faCTPlusPlus) {
+
+    public AxiomLoader(Translator translator) {
         this.translator = translator;
-        this.faCTPlusPlus = faCTPlusPlus;
+        this.faCTPlusPlus = translator.getFaCTPlusPlus();
     }
+
+
+    public AxiomPointer load(OWLAxiom ax) {
+        lastAxiom = null;
+        ax.accept(this);
+        return lastAxiom;
+    }
+
 
     ////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -42,7 +52,7 @@ public class AxiomLoader implements OWLAxiomVisitor {
     public void visit(OWLDisjointClassesAxiom owlDisjointClassesAxiom) {
         try {
             translateDescriptionArgList(owlDisjointClassesAxiom.getDescriptions());
-            faCTPlusPlus.tellDisjointClasses();
+            lastAxiom = faCTPlusPlus.tellDisjointClasses();
         }
         catch (Exception e) {
             throw new FaCTPlusPlusRuntimeException(e);
@@ -53,7 +63,7 @@ public class AxiomLoader implements OWLAxiomVisitor {
     public void visit(OWLEquivalentClassesAxiom owlEquivalentClassesAxiom) {
         try {
             translateDescriptionArgList(owlEquivalentClassesAxiom.getDescriptions());
-            faCTPlusPlus.tellEquivalentClass();
+            lastAxiom = faCTPlusPlus.tellEquivalentClass();
         }
         catch (Exception e) {
             throw new FaCTPlusPlusRuntimeException(e);
@@ -63,8 +73,8 @@ public class AxiomLoader implements OWLAxiomVisitor {
 
     public void visit(OWLSubClassAxiom owlSubClassAxiom) {
         try {
-            faCTPlusPlus.tellSubClassOf(translate(owlSubClassAxiom.getSubClass()),
-                                        translate(owlSubClassAxiom.getSuperClass()));
+            lastAxiom = faCTPlusPlus.tellSubClassOf(translate(owlSubClassAxiom.getSubClass()),
+                                                    translate(owlSubClassAxiom.getSuperClass()));
         }
         catch (Exception e) {
             throw new FaCTPlusPlusRuntimeException(e);
@@ -83,7 +93,7 @@ public class AxiomLoader implements OWLAxiomVisitor {
             owlDataPropertyRangeAxiom.getProperty().accept(translator);
             DataPropertyPointer p = translator.getLastDataPropertyPointer();
             owlDataPropertyRangeAxiom.getRange().accept(translator);
-            faCTPlusPlus.tellDataPropertyRange(p, translator.getLastDataTypeExpressionPointer());
+            lastAxiom = faCTPlusPlus.tellDataPropertyRange(p, translator.getLastDataTypeExpressionPointer());
         }
         catch (Exception e) {
             throw new FaCTPlusPlusRuntimeException(e);
@@ -94,7 +104,7 @@ public class AxiomLoader implements OWLAxiomVisitor {
     public void visit(OWLEquivalentObjectPropertiesAxiom axiom) {
         try {
             translateObjectPropertyArgList(axiom.getProperties());
-            faCTPlusPlus.tellEquivalentObjectProperties();
+            lastAxiom = faCTPlusPlus.tellEquivalentObjectProperties();
         }
         catch (Exception e) {
             throw new FaCTPlusPlusRuntimeException(e);
@@ -105,7 +115,7 @@ public class AxiomLoader implements OWLAxiomVisitor {
     public void visit(OWLEquivalentDataPropertiesAxiom axiom) {
         try {
             translateDataPropertyArgList(axiom.getProperties());
-            faCTPlusPlus.tellEquivalentDataProperties();
+            lastAxiom = faCTPlusPlus.tellEquivalentDataProperties();
         }
         catch (Exception e) {
             throw new FaCTPlusPlusRuntimeException(e);
@@ -116,7 +126,7 @@ public class AxiomLoader implements OWLAxiomVisitor {
     public void visit(OWLFunctionalObjectPropertyAxiom axiom) {
         try {
             axiom.getProperty().accept(translator);
-            faCTPlusPlus.tellFunctionalObjectProperty(translator.getLastObjectPropertyPointer());
+            lastAxiom = faCTPlusPlus.tellFunctionalObjectProperty(translator.getLastObjectPropertyPointer());
         }
         catch (Exception e) {
             throw new FaCTPlusPlusRuntimeException(e);
@@ -126,7 +136,7 @@ public class AxiomLoader implements OWLAxiomVisitor {
 
     public void visit(OWLInverseFunctionalObjectPropertyAxiom owlInverseFunctionalPropertyAxiom) {
         try {
-            faCTPlusPlus.tellInverseFunctionalObjectProperty(
+            lastAxiom = faCTPlusPlus.tellInverseFunctionalObjectProperty(
                     translate(owlInverseFunctionalPropertyAxiom.getProperty()));
         }
         catch (Exception e) {
@@ -138,8 +148,8 @@ public class AxiomLoader implements OWLAxiomVisitor {
 
     public void visit(OWLObjectPropertyRangeAxiom owlObjectPropertyRangeAxiom) {
         try {
-            faCTPlusPlus.tellObjectPropertyRange(translate(owlObjectPropertyRangeAxiom.getProperty()),
-                                                 translate(owlObjectPropertyRangeAxiom.getRange()));
+            lastAxiom = faCTPlusPlus.tellObjectPropertyRange(translate(owlObjectPropertyRangeAxiom.getProperty()),
+                                                             translate(owlObjectPropertyRangeAxiom.getRange()));
         }
         catch (Exception e) {
             throw new FaCTPlusPlusRuntimeException(e);
@@ -149,8 +159,8 @@ public class AxiomLoader implements OWLAxiomVisitor {
 
     public void visit(OWLObjectPropertyDomainAxiom owlPropertyDomainAxiom) {
         try {
-            faCTPlusPlus.tellObjectPropertyDomain(translate(owlPropertyDomainAxiom.getProperty()),
-                                                  translate(owlPropertyDomainAxiom.getDomain()));
+            lastAxiom = faCTPlusPlus.tellObjectPropertyDomain(translate(owlPropertyDomainAxiom.getProperty()),
+                                                              translate(owlPropertyDomainAxiom.getDomain()));
         }
         catch (Exception e) {
             throw new FaCTPlusPlusRuntimeException(e);
@@ -160,8 +170,8 @@ public class AxiomLoader implements OWLAxiomVisitor {
 
     public void visit(OWLObjectSubPropertyAxiom owlSubPropertyAxiom) {
         try {
-            faCTPlusPlus.tellSubObjectProperties(translate(owlSubPropertyAxiom.getSubProperty()),
-                                                 translate(owlSubPropertyAxiom.getSuperProperty()));
+            lastAxiom = faCTPlusPlus.tellSubObjectProperties(translate(owlSubPropertyAxiom.getSubProperty()),
+                                                             translate(owlSubPropertyAxiom.getSuperProperty()));
         }
         catch (Exception e) {
             throw new FaCTPlusPlusRuntimeException(e);
@@ -171,7 +181,7 @@ public class AxiomLoader implements OWLAxiomVisitor {
 
     public void visit(OWLSymmetricObjectPropertyAxiom owlSymmetricPropertyAxiom) {
         try {
-            faCTPlusPlus.tellSymmetricObjectProperty(translate(owlSymmetricPropertyAxiom.getProperty()));
+            lastAxiom = faCTPlusPlus.tellSymmetricObjectProperty(translate(owlSymmetricPropertyAxiom.getProperty()));
         }
         catch (Exception e) {
             throw new FaCTPlusPlusRuntimeException(e);
@@ -181,7 +191,7 @@ public class AxiomLoader implements OWLAxiomVisitor {
 
     public void visit(OWLTransitiveObjectPropertyAxiom owlTransitivePropertyAxiom) {
         try {
-            faCTPlusPlus.tellTransitiveObjectProperty(translate(owlTransitivePropertyAxiom.getProperty()));
+            lastAxiom = faCTPlusPlus.tellTransitiveObjectProperty(translate(owlTransitivePropertyAxiom.getProperty()));
         }
         catch (Exception e) {
             throw new FaCTPlusPlusRuntimeException(e);
@@ -191,8 +201,8 @@ public class AxiomLoader implements OWLAxiomVisitor {
 
     public void visit(OWLInverseObjectPropertiesAxiom axiom) {
         try {
-            faCTPlusPlus.tellInverseProperties(translate(axiom.getFirstProperty()),
-                                               translate(axiom.getSecondProperty()));
+            lastAxiom = faCTPlusPlus.tellInverseProperties(translate(axiom.getFirstProperty()),
+                                                           translate(axiom.getSecondProperty()));
         }
         catch (Exception e) {
             throw new FaCTPlusPlusRuntimeException(e);
@@ -209,7 +219,7 @@ public class AxiomLoader implements OWLAxiomVisitor {
     public void visit(OWLDifferentIndividualsAxiom owlDifferentIndividualsAxiom) {
         try {
             translateIndividualArgList(owlDifferentIndividualsAxiom.getIndividuals());
-            faCTPlusPlus.tellDifferentIndividuals();
+            lastAxiom = faCTPlusPlus.tellDifferentIndividuals();
         }
         catch (Exception e) {
             throw new FaCTPlusPlusRuntimeException(e);
@@ -220,7 +230,7 @@ public class AxiomLoader implements OWLAxiomVisitor {
     public void visit(OWLSameIndividualsAxiom owlSameIndividualsAxiom) {
         try {
             translateIndividualArgList(owlSameIndividualsAxiom.getIndividuals());
-            faCTPlusPlus.tellSameIndividuals();
+            lastAxiom = faCTPlusPlus.tellSameIndividuals();
         }
         catch (Exception e) {
             throw new FaCTPlusPlusRuntimeException(e);
@@ -261,7 +271,7 @@ public class AxiomLoader implements OWLAxiomVisitor {
 
 
     private void translateObjectPropertyArgList(Set<? extends OWLObjectPropertyExpression> properties) throws
-                                                                                                       OWLException {
+            OWLException {
         try {
             faCTPlusPlus.initArgList();
             for (OWLObjectPropertyExpression prop : properties) {
@@ -274,8 +284,8 @@ public class AxiomLoader implements OWLAxiomVisitor {
         }
     }
 
-        private void translateDataPropertyArgList(Set<? extends OWLDataPropertyExpression> properties) throws
-                                                                                                       OWLException {
+    private void translateDataPropertyArgList(Set<? extends OWLDataPropertyExpression> properties) throws
+            OWLException {
         try {
             faCTPlusPlus.initArgList();
             for (OWLDataPropertyExpression prop : properties) {
@@ -289,8 +299,8 @@ public class AxiomLoader implements OWLAxiomVisitor {
     }
 
     private ClassPointer translate(OWLDescription description) {
-            description.accept(translator);
-            return translator.getLastClassPointer();
+        description.accept(translator);
+        return translator.getLastClassPointer();
     }
 
     private DataPropertyPointer translate(OWLDataPropertyExpression dataProperty) {
@@ -332,7 +342,7 @@ public class AxiomLoader implements OWLAxiomVisitor {
                 faCTPlusPlus.addArg(operandPointer);
             }
             faCTPlusPlus.closeArgList();
-            faCTPlusPlus.tellDisjointClasses();
+            lastAxiom = faCTPlusPlus.tellDisjointClasses();
             // Union
             operandPointers.clear();
             for (OWLDescription desc : owlDisjointUnionAxiom.getDescriptions()) {
@@ -350,7 +360,7 @@ public class AxiomLoader implements OWLAxiomVisitor {
             faCTPlusPlus.addArg(clsPointer);
             faCTPlusPlus.addArg(unionPointer);
             faCTPlusPlus.closeArgList();
-            faCTPlusPlus.tellEquivalentClass();
+            lastAxiom = faCTPlusPlus.tellEquivalentClass();
         }
         catch (Exception e) {
             throw new FaCTPlusPlusRuntimeException(e);
@@ -370,7 +380,7 @@ public class AxiomLoader implements OWLAxiomVisitor {
                 faCTPlusPlus.addArg(pointer);
             }
             faCTPlusPlus.closeArgList();
-            faCTPlusPlus.tellDisjointObjectProperties();
+            lastAxiom = faCTPlusPlus.tellDisjointObjectProperties();
         }
         catch (Exception e) {
             throw new FaCTPlusPlusRuntimeException(e);
@@ -379,7 +389,22 @@ public class AxiomLoader implements OWLAxiomVisitor {
 
 
     public void visit(OWLDisjointDataPropertiesAxiom owlDisjointDataPropertiesAxiom) {
-
+        try {
+            Set<DataPropertyPointer> pointers = new HashSet<DataPropertyPointer>();
+            for (OWLDataPropertyExpression prop : owlDisjointDataPropertiesAxiom.getProperties()) {
+                prop.accept(translator);
+                pointers.add(translator.getLastDataPropertyPointer());
+            }
+            faCTPlusPlus.initArgList();
+            for (DataPropertyPointer pointer : pointers) {
+                faCTPlusPlus.addArg(pointer);
+            }
+            faCTPlusPlus.closeArgList();
+            lastAxiom = faCTPlusPlus.tellDisjointDataProperties();
+        }
+        catch (Exception e) {
+            throw new FaCTPlusPlusRuntimeException(e);
+        }
     }
 
 
@@ -397,7 +422,7 @@ public class AxiomLoader implements OWLAxiomVisitor {
             ObjectPropertyPointer propertyChainPointer = faCTPlusPlus.getPropertyComposition();
             ObjectPropertyPointer superPropertyPointer = translate(
                     owlObjectPropertyChainSubPropertyAxiom.getSuperProperty());
-            faCTPlusPlus.tellSubObjectProperties(propertyChainPointer, superPropertyPointer);
+            lastAxiom = faCTPlusPlus.tellSubObjectProperties(propertyChainPointer, superPropertyPointer);
         }
         catch (Exception e) {
             throw new FaCTPlusPlusRuntimeException(e);
@@ -408,7 +433,7 @@ public class AxiomLoader implements OWLAxiomVisitor {
     public void visit(OWLReflexiveObjectPropertyAxiom axiom) {
         try {
             axiom.getProperty().accept(translator);
-            faCTPlusPlus.tellReflexiveObjectProperty(translator.getLastObjectPropertyPointer());
+            lastAxiom = faCTPlusPlus.tellReflexiveObjectProperty(translator.getLastObjectPropertyPointer());
         }
         catch (Exception e) {
             throw new FaCTPlusPlusRuntimeException(e);
@@ -419,7 +444,7 @@ public class AxiomLoader implements OWLAxiomVisitor {
     public void visit(OWLIrreflexiveObjectPropertyAxiom axiom) {
         try {
             axiom.getProperty().accept(translator);
-            faCTPlusPlus.tellIrreflexiveObjectProperty(translator.getLastObjectPropertyPointer());
+            lastAxiom = faCTPlusPlus.tellIrreflexiveObjectProperty(translator.getLastObjectPropertyPointer());
         }
         catch (Exception e) {
             throw new FaCTPlusPlusRuntimeException(e);
@@ -430,7 +455,7 @@ public class AxiomLoader implements OWLAxiomVisitor {
     public void visit(OWLAntiSymmetricObjectPropertyAxiom axiom) {
         try {
             axiom.getProperty().accept(translator);
-            faCTPlusPlus.tellAntiSymmetricObjectProperty(translator.getLastObjectPropertyPointer());
+            lastAxiom = faCTPlusPlus.tellAntiSymmetricObjectProperty(translator.getLastObjectPropertyPointer());
         }
         catch (Exception e) {
             throw new FaCTPlusPlusRuntimeException(e);
@@ -446,7 +471,7 @@ public class AxiomLoader implements OWLAxiomVisitor {
             ObjectPropertyPointer property = translator.getLastObjectPropertyPointer();
             owlObjectValueNotAxiom.getObject().accept(translator);
             IndividualPointer object = translator.getLastIndividualPointer();
-            faCTPlusPlus.tellNotRelatedIndividuals(subject, property, object);
+            lastAxiom = faCTPlusPlus.tellNotRelatedIndividuals(subject, property, object);
         }
         catch (Exception e) {
             throw new FaCTPlusPlusRuntimeException(e);
@@ -455,6 +480,15 @@ public class AxiomLoader implements OWLAxiomVisitor {
 
 
     public void visit(OWLNegativeDataPropertyAssertionAxiom owlDataValueNotAxiom) {
+        try {
+            IndividualPointer subject = translator.translate(owlDataValueNotAxiom.getSubject());
+            DataPropertyPointer property = translator.translate(owlDataValueNotAxiom.getProperty());
+            DataValuePointer object = translator.translate(owlDataValueNotAxiom.getObject());
+            lastAxiom = faCTPlusPlus.tellNotRelatedIndividualValue(subject, property, object);
+        }
+        catch (Exception e) {
+            throw new FaCTPlusPlusRuntimeException(e);
+        }
     }
 
 
@@ -463,7 +497,69 @@ public class AxiomLoader implements OWLAxiomVisitor {
             axiom.getProperty().accept(translator);
             DataPropertyPointer p = translator.getLastDataPropertyPointer();
             axiom.getDomain().accept(translator);
-            faCTPlusPlus.tellDataPropertyDomain(p, translator.getLastClassPointer());
+            lastAxiom = faCTPlusPlus.tellDataPropertyDomain(p, translator.getLastClassPointer());
+        }
+        catch (Exception e) {
+            throw new FaCTPlusPlusRuntimeException(e);
+        }
+    }
+
+
+    public void visit(OWLObjectPropertyAssertionAxiom axiom) {
+        try {
+            IndividualPointer subj = translator.translate(axiom.getSubject());
+            axiom.getProperty().accept(translator);
+            ObjectPropertyPointer prop = translator.getLastObjectPropertyPointer();
+            IndividualPointer obj = translator.translate(axiom.getObject());
+            lastAxiom = faCTPlusPlus.tellRelatedIndividuals(subj, prop, obj);
+        }
+        catch (Exception e) {
+            throw new FaCTPlusPlusRuntimeException(e);
+        }
+    }
+
+
+    public void visit(OWLFunctionalDataPropertyAxiom axiom) {
+        try {
+            lastAxiom = faCTPlusPlus.tellFunctionalDataProperty(translate(axiom.getProperty()));
+        }
+        catch (Exception e) {
+            throw new FaCTPlusPlusRuntimeException(e);
+        }
+    }
+
+
+    public void visit(OWLClassAssertionAxiom axiom) {
+        try {
+            IndividualPointer indPointer = translator.translate(axiom.getIndividual());
+            ClassPointer cp = translator.translate(axiom.getDescription());
+            lastAxiom = faCTPlusPlus.tellIndividualType(indPointer, cp);
+        }
+        catch (Exception e) {
+            throw new FaCTPlusPlusRuntimeException(e);
+        }
+    }
+
+
+    public void visit(OWLDataPropertyAssertionAxiom axiom) {
+        try {
+            IndividualPointer subj = translator.translate(axiom.getSubject());
+            axiom.getProperty().accept(translator);
+            DataPropertyPointer prop = translator.getLastDataPropertyPointer();
+            DataValuePointer obj = translator.translate(axiom.getObject());
+            lastAxiom = faCTPlusPlus.tellRelatedIndividualValue(subj, prop, obj);
+        }
+        catch (Exception e) {
+            throw new FaCTPlusPlusRuntimeException(e);
+        }
+    }
+
+
+    public void visit(OWLDataSubPropertyAxiom axiom) {
+        try {
+            DataPropertyPointer sub = translator.translate(axiom.getSubProperty());
+            DataPropertyPointer sup = translator.translate(axiom.getSuperProperty());
+            lastAxiom = faCTPlusPlus.tellSubDataProperties(sub, sup);
         }
         catch (Exception e) {
             throw new FaCTPlusPlusRuntimeException(e);
@@ -481,84 +577,24 @@ public class AxiomLoader implements OWLAxiomVisitor {
     }
 
 
-    public void visit(OWLObjectPropertyAssertionAxiom axiom) {
-        try {
-            IndividualPointer subj = translator.translate(axiom.getSubject());
-            axiom.getProperty().accept(translator);
-            ObjectPropertyPointer prop = translator.getLastObjectPropertyPointer();
-            IndividualPointer obj = translator.translate(axiom.getObject());
-            faCTPlusPlus.tellRelatedIndividuals(subj, prop, obj);
-        }
-        catch (Exception e) {
-            throw new FaCTPlusPlusRuntimeException(e);
-        }
-    }
-
-
     public void visit(OWLDeclarationAxiom axiom) {
         // Skip
     }
 
 
     public void visit(OWLEntityAnnotationAxiom axiom) {
-    }
-
-
-    public void visit(OWLFunctionalDataPropertyAxiom axiom) {
-        try {
-            faCTPlusPlus.tellFunctionalDataProperty(translate(axiom.getProperty()));
-        }
-        catch (Exception e) {
-            throw new FaCTPlusPlusRuntimeException(e);
-        }
-    }
-
-
-    public void visit(OWLClassAssertionAxiom axiom) {
-        try {
-            IndividualPointer indPointer = translator.translate(axiom.getIndividual());
-            ClassPointer cp = translator.translate(axiom.getDescription());
-            faCTPlusPlus.tellIndividualType(indPointer, cp);
-        }
-        catch (Exception e) {
-            throw new FaCTPlusPlusRuntimeException(e);
-        }
-    }
-
-
-    public void visit(OWLDataPropertyAssertionAxiom axiom) {
-        try {
-            IndividualPointer subj = translator.translate(axiom.getSubject());
-            axiom.getProperty().accept(translator);
-            DataPropertyPointer prop = translator.getLastDataPropertyPointer();
-            DataValuePointer obj = translator.translate(axiom.getObject());
-            faCTPlusPlus.tellRelatedIndividualValue(subj, prop, obj);
-        }
-        catch (Exception e) {
-            throw new FaCTPlusPlusRuntimeException(e);
-        }
-    }
-
-
-
-
-
-    public void visit(OWLDataSubPropertyAxiom axiom) {
-        try {
-            DataPropertyPointer sub = translator.translate(axiom.getSubProperty());
-            DataPropertyPointer sup = translator.translate(axiom.getSuperProperty());
-            faCTPlusPlus.tellSubDataProperties(sub, sup);
-        }
-        catch (Exception e) {
-            throw new FaCTPlusPlusRuntimeException(e);
+        for (OWLEntity entity : axiom.getReferencedEntities()){
+            entity.accept(translator);
         }
     }
 
 
     public void visit(SWRLRule rule) {
+        // Skip
     }
 
 
     public void visit(OWLOntologyAnnotationAxiom axiom) {
+        // Skip
     }
 }

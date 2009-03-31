@@ -31,9 +31,20 @@ public class TranslatorUtils extends OWLObjectVisitorAdapter {
     private OWLOntologyManager mngr;
 
 
+    /**
+     * @deprecated use <code>TranslatorUtils(OWLOntologyManager mngr, Translator translator)</code>
+     * @param mngr
+     * @param faCTPlusPlus ignored - this is taken from the translator
+     * @param translator
+     */
     public TranslatorUtils(OWLOntologyManager mngr, FaCTPlusPlus faCTPlusPlus, Translator translator) {
+        this(mngr, translator);
+    }
+
+
+    public TranslatorUtils(OWLOntologyManager mngr, Translator translator) {
         this.mngr = mngr;
-        this.faCTPlusPlus = faCTPlusPlus;
+        this.faCTPlusPlus = translator.getFaCTPlusPlus();
         this.translator = translator;
     }
 
