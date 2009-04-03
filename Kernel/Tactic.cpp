@@ -138,7 +138,7 @@ tacticUsage DlSatTester :: commonTacticBody ( const DLVertex& cur )
 			return commonTacticBodyGE(cur);
 
 		// <= vertex
-		if ( cur.isFunctional() )
+		if ( isFunctionalVertex(cur) )
 			return commonTacticBodyFunc(cur);
 		else
 			return commonTacticBodyLE(cur);
@@ -532,7 +532,7 @@ tacticUsage DlSatTester :: commonTacticBodySome ( const DLVertex& cur )	// for E
 		const ConceptWDep& C = *pc;
 		const DLVertex& ver = DLHeap[C.bp()];
 
-		if ( isPositive(C.bp()) && ver.isFunctional() && *ver.getRole() >= *rName )	// FIXME!!! think later
+		if ( isPositive(C.bp()) && isFunctionalVertex(ver) && *ver.getRole() >= *rName )	// FIXME!!! think later
 		{
 			if ( rFunc )	// second functional restriction
 			{	// is more generic role...
@@ -837,7 +837,7 @@ tacticUsage DlSatTester :: applyUniversalNR ( DlCompletionTree* Node,
 			break;
 
 		case dtLE:
-			if ( v.isFunctional() )
+			if ( isFunctionalVertex(v) )
 			{
 				if ( (flags & redoFunc) && (*vR >= *R) )
 				{
@@ -892,7 +892,7 @@ DlSatTester :: initHeadOfNewEdge ( DlCompletionTree* node, const TRole* R, const
 tacticUsage DlSatTester :: commonTacticBodyFunc ( const DLVertex& cur )	// for <=1 R concepts
 {
 #ifdef ENABLE_CHECKING
-	assert ( isPositive(curConcept.bp()) && cur.isFunctional() );
+	assert ( isPositive(curConcept.bp()) && isFunctionalVertex(cur) );
 #endif
 
 	// check whether we need to apply NN rule first

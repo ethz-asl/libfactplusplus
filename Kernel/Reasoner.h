@@ -604,6 +604,8 @@ protected:	// methods
 	tacticUsage createDifferentNeighbours ( const TRole* R, BipolarPointer C, const DepSet& dep,
 											unsigned int n, CTNominalLevel level );
 
+		/// check whether a node represents a functional one
+	static bool isFunctionalVertex ( const DLVertex& v ) { return ( v.Type() == dtLE && v.getNumberLE() == 1 && v.getC() == bpTOP ); }
 		/// check if ATLEAST and ATMOST entries are in clash. Both vertex MUST have dtLE type.
 	bool checkNRclash ( const DLVertex& atleast, const DLVertex& atmost ) const
 	{	// >= n R.C clash with <= m S.D iff...

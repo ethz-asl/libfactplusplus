@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2008 by Dmitry Tsarkov
+Copyright (C) 2003-2009 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -363,8 +363,6 @@ public:		// interface
 			   (n == v.n) &&
 			   (Child == v.Child);
 	}
-		/// return TRUE iff CE is functional restriction for some role ( in the form (<= 1 R [TOP]))
-	bool isFunctional ( void ) const { return ( Type() == dtLE && getNumberLE() == 1 && getC() == bpTOP ); }
 		/// return C for concepts/quantifiers/NR verteces
 	BipolarPointer getC ( void ) const { return C; }
 		/// return N for the (<= n R) vertex
