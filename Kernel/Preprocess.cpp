@@ -98,6 +98,11 @@ void TBox :: Preprocess ( void )
 
 	// no more axiom transformations allowed
 
+	// create DAG (concept normalisation etc)
+	BEGIN_PASS("Build DAG");
+	buildDAG();
+	END_PASS();
+
 	// fills classification tag (strictly after told cycles)
 	BEGIN_PASS("Detect classification tags");
 	fillsClassificationTag();
@@ -106,11 +111,6 @@ void TBox :: Preprocess ( void )
 	// set up TS depth
 	BEGIN_PASS("Calculate told subsumer depth");
 	calculateTSDepth();
-	END_PASS();
-
-	// create DAG (concept normalisation etc)
-	BEGIN_PASS("Build DAG");
-	buildDAG();
 	END_PASS();
 
 	// create related roles' cache for individuals
