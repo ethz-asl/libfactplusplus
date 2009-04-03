@@ -113,16 +113,6 @@ void TBox :: Preprocess ( void )
 	buildDAG();
 	END_PASS();
 
-	// builds Roles range and domain
-	BEGIN_PASS("Build DAG for domain and range for all roles");
-	initRangeDomain();
-	END_PASS();
-
-	// builds Roles functional labels
-	BEGIN_PASS("Build DAG for functional roles");
-	initFunctionalRoles();
-	END_PASS();
-
 	// create related roles' cache for individuals
 	// placement: after related are processed and all synonyms are detected
 	BEGIN_PASS("Build related roles cache");
@@ -414,35 +404,6 @@ TBox :: performPrecompletion ( void )
 		std::cerr << "\nPrecompletion failed";	// do nothing for now
 	else
 		std::cerr << "\nPrecompletion succeed";	// do nothing for now
-}
-
-void TBox :: initFunctionalRoles ( void )
-{
-	for ( RoleMaster::iterator p = RM.begin(), p_end = RM.end(); p < p_end; ++p )
-		if ( !(*p)->isSynonym() && (*p)->isTopFunc() )
-			DLHeap.initFunctionalRole(*p);
-}
-
-void TBox :: initRangeDomain ( void )
-{
-	RoleMaster::iterator p, p_end = RM.end();
-	for ( p = RM.begin(); p < p_end; ++p )
-		if ( !(*p)->isSynonym() )
-		{
-#		ifdef RKG_UPDATE_RND_FROM_SUPERROLES
-			// add R&D from super-roles (do it AFTER axioms are transformed into R&D)
-			(*p)->collectDomainFromSupers();
-#		endif
-
-			DLTree* dom = (*p)->getTDomain();
-			if ( dom )
-			{
-				(*p)->setBPDomain(tree2dag(dom));
-				GCIs.setRnD();
-			}
-			else
-				(*p)->setBPDomain(bpTOP);
-		}
 }
 
 /// determine all sorts in KB (make job only for SORTED_REASONING)

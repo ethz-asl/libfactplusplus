@@ -41,6 +41,12 @@ void TBox :: buildDAG ( void )
 	T_G = tree2dag(GCI);
 	deleteTree(GCI);
 
+	// builds Roles range and domain
+	initRangeDomain();
+
+	// builds Roles functional labels
+	initFunctionalRoles();
+
 	// check the type of the ontology
 	if ( nNominalReferences > 0 )
 	{
@@ -48,6 +54,35 @@ void TBox :: buildDAG ( void )
 		if ( nInd > 100 && nNominalReferences > nInd )
 			isLikeWINE = true;
 	}
+}
+
+void TBox :: initFunctionalRoles ( void )
+{
+	for ( RoleMaster::iterator p = RM.begin(), p_end = RM.end(); p < p_end; ++p )
+		if ( !(*p)->isSynonym() && (*p)->isTopFunc() )
+			DLHeap.initFunctionalRole(*p);
+}
+
+void TBox :: initRangeDomain ( void )
+{
+	RoleMaster::iterator p, p_end = RM.end();
+	for ( p = RM.begin(); p < p_end; ++p )
+		if ( !(*p)->isSynonym() )
+		{
+#		ifdef RKG_UPDATE_RND_FROM_SUPERROLES
+			// add R&D from super-roles (do it AFTER axioms are transformed into R&D)
+			(*p)->collectDomainFromSupers();
+#		endif
+
+			DLTree* dom = (*p)->getTDomain();
+			if ( dom )
+			{
+				(*p)->setBPDomain(tree2dag(dom));
+				GCIs.setRnD();
+			}
+			else
+				(*p)->setBPDomain(bpTOP);
+		}
 }
 
 /// register data expression in the DAG
