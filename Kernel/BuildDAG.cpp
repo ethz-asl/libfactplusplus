@@ -47,7 +47,7 @@ void TBox :: buildDAG ( void )
 	// builds functional labels for roles
 	for ( RoleMaster::iterator p = RM.begin(), p_end = RM.end(); p < p_end; ++p )
 		if ( !(*p)->isSynonym() && (*p)->isTopFunc() )
-			(*p)->setFunctional ( DLHeap.add ( new DLVertex ( dtLE, 1, r, bpTOP ) ) );
+			(*p)->setFunctional ( DLHeap.add ( new DLVertex ( dtLE, 1, *p, bpTOP ) ) );
 
 	// check the type of the ontology
 	if ( nNominalReferences > 0 )
