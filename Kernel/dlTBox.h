@@ -503,8 +503,6 @@ protected:	// methods
 
 		/// init Range and Domain for all roles; sets hasGCI if R&D was found
 	void initRangeDomain ( void );
-		/// init functional roles with functional entries
-	void initFunctionalRoles ( void );
 
 		/// build related roles cache for given individual
 	void buildRelatedRoles ( TIndividual* i ) const

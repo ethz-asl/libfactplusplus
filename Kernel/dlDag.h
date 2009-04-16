@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2008 by Dmitry Tsarkov
+Copyright (C) 2003-2009 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -182,9 +182,6 @@ public:		// interface
 		/// check if given index points to the last DAG entry
 	bool isLast ( BipolarPointer p ) const { return (getValue(p) == Heap.size()-1); }
 
-		/// init role's functional entry
-	void initFunctionalRole ( TRole* r );
-
 	// access methods
 
 		/// whether to use cache for nodes
@@ -322,13 +319,6 @@ DLDag :: add ( DLVertex* v )
 	++nCacheHits;
 	delete v;
 	return ret;
-}
-
-/// init role's functional entry
-inline void
-DLDag :: initFunctionalRole ( TRole* r )
-{
-	r->setFunctional ( add ( new DLVertex ( dtLE, 1, r, bpTOP ) ) );
 }
 
 #endif

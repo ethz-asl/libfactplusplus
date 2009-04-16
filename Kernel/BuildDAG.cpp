@@ -44,8 +44,10 @@ void TBox :: buildDAG ( void )
 	// builds Roles range and domain
 	initRangeDomain();
 
-	// builds Roles functional labels
-	initFunctionalRoles();
+	// builds functional labels for roles
+	for ( RoleMaster::iterator p = RM.begin(), p_end = RM.end(); p < p_end; ++p )
+		if ( !(*p)->isSynonym() && (*p)->isTopFunc() )
+			(*p)->setFunctional ( DLHeap.add ( new DLVertex ( dtLE, 1, r, bpTOP ) ) );
 
 	// check the type of the ontology
 	if ( nNominalReferences > 0 )
@@ -54,13 +56,6 @@ void TBox :: buildDAG ( void )
 		if ( nInd > 100 && nNominalReferences > nInd )
 			isLikeWINE = true;
 	}
-}
-
-void TBox :: initFunctionalRoles ( void )
-{
-	for ( RoleMaster::iterator p = RM.begin(), p_end = RM.end(); p < p_end; ++p )
-		if ( !(*p)->isSynonym() && (*p)->isTopFunc() )
-			DLHeap.initFunctionalRole(*p);
 }
 
 void TBox :: initRangeDomain ( void )
