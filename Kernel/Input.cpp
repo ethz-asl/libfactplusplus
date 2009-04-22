@@ -69,8 +69,9 @@ TBox :: applyAxiomCToCN ( DLTree* D, DLTree*& CN )
 	if ( C == pTop )
 		deleteTree(D);
 	// check for D [= CN with CN [= D already defined
+	// don't do this for D is a DN and C is an individual as cycle detection will do it better
 	// FIXME!! check for C->isPrimitive()
-	else if ( equalTrees ( C->Description, D ) )
+	else if ( equalTrees ( C->Description, D ) && !( C->isSingleton() && isName(D) ) )
 		deleteTree ( makeNonPrimitive(C,D) );
 	else	// n/a
 		return false;
