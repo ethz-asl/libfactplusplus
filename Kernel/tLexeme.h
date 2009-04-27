@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2004 by Dmitry Tsarkov
+Copyright (C) 2003-2009 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -55,7 +55,7 @@ public:		// interface
 		/// get Token of given Lexeme
 	Token getToken ( void ) const { return token; }
 		/// get name pointer of given lexeme
-	TNamedEntry* getName ( void ) const { return value.pName; }
+	TNamedEntry* getNE ( void ) const { return value.pName; }
 		/// get data value of given lexeme
 	unsigned int getData ( void ) const { return value.data; }
 

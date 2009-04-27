@@ -268,7 +268,7 @@ std::ostream& operator << ( std::ostream& o, const DLTree *form )
 		break;
 	case NAME:
 	case DATAEXPR:	// FIXME!! later on -- print restrictions
-		o << ' ' << lex.getName()->getName();
+		o << ' ' << lex.getNE()->getName();
 		break;
 
 	case NOT:

@@ -167,7 +167,7 @@ replaceSynonymsFromTree ( DLTree* desc )
 	if ( isName(desc) )
 	{
 		TLexeme& cur = desc->Element();	// not const
-		ClassifiableEntry* entry = static_cast<ClassifiableEntry*>(cur.getName());
+		ClassifiableEntry* entry = static_cast<ClassifiableEntry*>(cur.getNE());
 
 		if ( entry->isSynonym() )
 		{

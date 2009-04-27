@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2007 by Dmitry Tsarkov
+Copyright (C) 2007-2009 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -69,13 +69,13 @@ Precompletor :: runPrecompletion ( void ) throw(PCException)
 			return true;
 		case CNAME:		// expand
 			addToDoEntry ( cur.Ind,
-						   static_cast<const TConcept*>(cur.Expr->Element().getName())->Description );
+						   static_cast<const TConcept*>(cur.Expr->Element().getNE())->Description );
 			break;
 		case AND:
 			processTree ( cur.Ind, cur.Expr );
 			break;
 		case FORALL:
-			processForall ( cur.Ind, static_cast<const TRole*>(cur.Expr->Left()->Element().getName()),
+			processForall ( cur.Ind, static_cast<const TRole*>(cur.Expr->Left()->Element().getNE()),
 									 cur.Expr->Right() );
 			break;
 		case NOT:

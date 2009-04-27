@@ -303,9 +303,9 @@ protected:	// methods
 			return NULL;
 
 		if ( name->Element().getToken() == CNAME )
-			return toConcept(name->Element().getName());
+			return toConcept(name->Element().getNE());
 		else
-			return toIndividual(name->Element().getName());
+			return toIndividual(name->Element().getNE());
 	}
 
 //-----------------------------------------------------------------------------
@@ -813,12 +813,12 @@ public:
 	bool isIndividual ( const TNamedEntry* name ) const { return Individuals.isRegistered(name); }
 		/// @return true iff given DLTree represents a registered individual
 	bool isIndividual ( const DLTree* entry ) const
-		{ return (entry->Element().getToken() == INAME && isIndividual(entry->Element().getName())); }
+		{ return (entry->Element().getToken() == INAME && isIndividual(entry->Element().getNE())); }
 		/// @return true iff given DLTree represents a data value
 	static bool isDataValue ( const DLTree* entry )
 	{
 		return entry->Element().getToken() == DATAEXPR &&
-			static_cast<const TDataEntry*>(entry->Element().getName())->isDataValue();
+			static_cast<const TDataEntry*>(entry->Element().getNE())->isDataValue();
 	}
 
 		/// get a DL tree by a given concept-like C

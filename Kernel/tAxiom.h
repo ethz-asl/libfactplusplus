@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2008 by Dmitry Tsarkov
+Copyright (C) 2003-2009 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -84,10 +84,10 @@ protected:	// methods
 
 		/// build an RW concept from a given [C|I]NAME-rooted DLTree
 	static TConcept* getConcept ( DLTree* p )
-		{ return static_cast<TConcept*>(p->Element().getName()); }
+		{ return static_cast<TConcept*>(p->Element().getNE()); }
 		/// build an RO concept from a given [C|I]NAME-rooted DLTree
 	static const TConcept* getConcept ( const DLTree* p )
-		{ return static_cast<const TConcept*>(p->Element().getName()); }
+		{ return static_cast<const TConcept*>(p->Element().getNE()); }
 
 		/// check whether P is in the form C for non-primitive C
 	static bool isPosNP ( const DLTree* p )

@@ -326,7 +326,7 @@ void TBox :: processDisjointC ( ea_iterator beg, ea_iterator end )
 
 	for ( ; beg < end; ++beg )
 		if ( isName(*beg) &&
-			 static_cast<const TConcept*>((*beg)->Element().getName())->isPrimitive() )
+			 static_cast<const TConcept*>((*beg)->Element().getNE())->isPrimitive() )
 			prim.push_back(clone(*beg));
 		else
 			rest.push_back(clone(*beg));
@@ -369,7 +369,7 @@ void TBox :: processDifferent ( ea_iterator beg, ea_iterator end )
 	SingletonVector acc;
 	for ( ; beg < end; ++beg )
 		if ( isIndividual(*beg) )	// only nominals in DIFFERENT command
-			acc.push_back(static_cast<TIndividual*>((*beg)->Element().getName()));
+			acc.push_back(static_cast<TIndividual*>((*beg)->Element().getNE()));
 		else
 			throw EFaCTPlusPlus("Only individuals allowed in processDifferent()");
 

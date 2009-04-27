@@ -83,7 +83,7 @@ protected:	// methods
 		/// get DLTree by a given TDE
 	static DLTree* wrap ( const TDataEntry* t ) { return new DLTree(TLexeme(DATAEXPR,const_cast<TDataEntry*>(t))); }
 		/// get TDE by a given DLTree
-	static TDataEntry* unwrap ( const DLTree* t ) { return static_cast<TDataEntry*>(t->Element().getName()); }
+	static TDataEntry* unwrap ( const DLTree* t ) { return static_cast<TDataEntry*>(t->Element().getNE()); }
 
 		/// return registered facet of the type, defined by SAMPLE;
 	TDataInterval* getFacet ( const DLTree* sample ) const

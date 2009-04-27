@@ -263,7 +263,7 @@ jlong getId ( DLTree* p )
 	{
 	case TOP:		return 1;
 	case BOTTOM:	return -1;
-	case NAME:		return (jlong)p->Element().getName();
+	case NAME:		return (jlong)p->Element().getNE();
 	default:		return 0;
 	}
 }

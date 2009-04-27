@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2008 by Dmitry Tsarkov
+Copyright (C) 2003-2009 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -219,7 +219,7 @@ void dumpCExpression ( dumpInterface* dump, const DLTree* C )
 		return dump->dumpBottom();
 	case CNAME:
 	case INAME:
-		return dump->dumpConcept(static_cast<TConcept*>(C->Element().getName()));
+		return dump->dumpConcept(static_cast<TConcept*>(C->Element().getNE()));
 	case NOT:
 		dump->startOp(diNot);
 		dumpCExpression ( dump, C->Left() );
@@ -260,7 +260,7 @@ void dumpRExpression ( dumpInterface* dump, const DLTree* R )
 	switch ( R->Element().getToken() )
 	{
 	case RNAME:
-		return dump->dumpRole(static_cast<TRole*>(R->Element().getName()));
+		return dump->dumpRole(static_cast<TRole*>(R->Element().getNE()));
 	case NOT:
 	case INV:
 		dump->startOp(diInv);

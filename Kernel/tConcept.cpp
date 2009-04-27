@@ -112,7 +112,7 @@ TConcept :: replaceWithConst ( DLTree* t ) const
 	{
 	case NAME:	// if ID contains synonym of P
 	{
-		const ClassifiableEntry* name = static_cast<const ClassifiableEntry*>(t->Element().getName());
+		const ClassifiableEntry* name = static_cast<const ClassifiableEntry*>(t->Element().getNE());
 		if ( resolveSynonym(name) == this )
 		{
 			delete t;	// replace it for TOP
@@ -155,7 +155,7 @@ bool TConcept :: initToldSubsumers ( const DLTree* desc )
 	case TOP:	// the 1st node
 		return true;
 	case NAME:	// it is a concept ID
-		return addToldSubsumer(static_cast<TConcept*>(desc->Element().getName()));
+		return addToldSubsumer(static_cast<TConcept*>(desc->Element().getNE()));
 	case AND:	// add TS from BOTH parts of AND
 		return initToldSubsumers(desc->Left()) & initToldSubsumers(desc->Right());
 	case NOT:	// Domains from \ER.C and (>= n R.C) are told concepts

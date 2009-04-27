@@ -39,7 +39,7 @@ protected:	// methods
 	{
 		if ( !kb.isIndividual(I) )
 			throw EFaCTPlusPlus(reason);
-		return static_cast<TIndividual*>(I->Element().getName());
+		return static_cast<TIndividual*>(I->Element().getNE());
 	}
 
 public:		// visitor interface
