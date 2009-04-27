@@ -81,13 +81,7 @@ public:		// interface
 	// add/remove elements
 
 		/// check if name is registered in given collection
-	bool isRegistered ( const TNamedEntry* name ) const
-	{
-		int id = name->getId();
-		return  id > 0 &&						// defined entry
-				size_t(id) < Base.size() &&		// ID does fit collection
-				Base[id] == name;				// ID is an index of given name
-	}
+	bool isRegistered ( const TNamedEntry* name ) const { return NameSet.get(name->getName()) != NULL; }
 		/// get entry by NAME from the collection; register it if necessary
 	T* get ( const std::string& name ) throw(EFPPCantRegName)
 	{
