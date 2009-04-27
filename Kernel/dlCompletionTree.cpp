@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2008 by Dmitry Tsarkov
+Copyright (C) 2003-2009 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -21,86 +21,88 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 DLDag* DlCompletionTree :: pDLHeap = NULL;
 
 /// check if transitive R-successor of the NODE labelled with C
-bool
+const DlCompletionTree*
 DlCompletionTree :: isTSuccLabelled ( const TRole* R, BipolarPointer C ) const
 {
 	if ( isLabelledBy(C) )
-		return true;
+		return this;
 	// don't check nominal nodes (prevent cycles)
 	if ( isNominalNode() )
-		return false;
+		return NULL;
 
 	// check all other successors
+	const DlCompletionTree* ret = NULL;
 	for ( const_edge_iterator p = begins(), p_end = ends(); p < p_end; ++p )
 		if ( (*p)->isNeighbour(R) &&
 			 !(*p)->isReflexiveEdge() &&	// prevent cycles
-			 (*p)->getArcEnd()->isTSuccLabelled(R,C) )
-			return true;
+			 (ret = (*p)->getArcEnd()->isTSuccLabelled(R,C)) != NULL )
+			return ret;
 
 	// not happens
-	return false;
+	return NULL;
 }
 
 /// check if transitive R-predcessor of the NODE labelled with C; skip FROM node
-bool
+const DlCompletionTree*
 DlCompletionTree :: isTPredLabelled ( const TRole* R, BipolarPointer C, const DlCompletionTree* from ) const
 {
 	if ( isLabelledBy(C) )
-		return true;
+		return this;
 	// don't check nominal nodes (prevent cycles)
 	if ( isNominalNode() )
-		return false;
+		return NULL;
 
 	// check all other successors
-	const_edge_iterator p, p_end;
-	for ( p = begins(), p_end = ends(); p < p_end; ++p )
+	const DlCompletionTree* ret = NULL;
+	for ( const_edge_iterator p = begins(), p_end = ends(); p < p_end; ++p )
 		if ( (*p)->isNeighbour(R) && (*p)->getArcEnd() != from &&
-			 (*p)->getArcEnd()->isTSuccLabelled(R,C) )
-			return true;
+			 (ret = (*p)->getArcEnd()->isTSuccLabelled(R,C)) != NULL )
+			return ret;
 
 	// check predecessor
 	if ( hasParent() && isParentArcLabelled(R) )
 		return getParentNode()->isTPredLabelled ( R, C, this );
 	else
-		return false;
+		return NULL;
 }
 
-bool
+const DlCompletionTree*
 DlCompletionTree :: isNSomeApplicable ( const TRole* R, BipolarPointer C ) const
 {
 	DlCompletionTree::const_edge_iterator
 		p, p_end = endp(), s_end = ends();
 	for ( p = begins(); p < s_end; ++p )
 		if ( (*p)->isNeighbour(R) && (*p)->getArcEnd()->isLabelledBy(C) )
-			return true;	// already contained such a label
+			return (*p)->getArcEnd();	// already contained such a label
 
 //	if ( !sessionHasInverseRoles )
 //		return false;
 
 	for ( p = beginp(); p < p_end; ++p )
 		if ( (*p)->isNeighbour(R) && (*p)->getArcEnd()->isLabelledBy(C) )
-			return true;	// already contained such a label
+			return (*p)->getArcEnd();	// already contained such a label
 
-	return false;
+	return NULL;
 }
 
-bool
+const DlCompletionTree*
 DlCompletionTree :: isTSomeApplicable ( const TRole* R, BipolarPointer C ) const
 {
+	const DlCompletionTree* ret = NULL;
 	DlCompletionTree::const_edge_iterator
 		p, p_end = endp(), s_end = ends();
 	for ( p = begins(); p < s_end; ++p )
-		if ( (*p)->isNeighbour(R) && (*p)->getArcEnd()->isTSuccLabelled(R,C) )
-			return true;	// already contained such a label
+		if ( (*p)->isNeighbour(R) && (ret = (*p)->getArcEnd()->isTSuccLabelled(R,C)) != NULL )
+			return ret;	// already contained such a label
 
 //	if ( !sessionHasInverseRoles )
 //		return false;
 
 	for ( p = beginp(); p < p_end; ++p )
-		if ( (*p)->isNeighbour(R) && (*p)->getArcEnd()->isTPredLabelled(R,C,this) )
-			return true;	// already contained such a label
+		if ( (*p)->isNeighbour(R) && (ret = (*p)->getArcEnd()->isTPredLabelled(R,C,this)) != NULL )
+			return ret;	// already contained such a label
 
-	return false;
+	return NULL;
 }
 
 #ifdef RKG_IR_IN_NODE_LABEL

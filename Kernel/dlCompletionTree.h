@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2008 by Dmitry Tsarkov
+Copyright (C) 2003-2009 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -262,13 +262,13 @@ protected:	// methods
 	//----------------------------------------------
 
 		/// check if SOME rule is applicable for transitive R
-	bool isTSomeApplicable ( const TRole* R, BipolarPointer C ) const;
+	const DlCompletionTree* isTSomeApplicable ( const TRole* R, BipolarPointer C ) const;
 		/// check if SOME rule is applicable for non-transitive R
-	bool isNSomeApplicable ( const TRole* R, BipolarPointer C ) const;
+	const DlCompletionTree* isNSomeApplicable ( const TRole* R, BipolarPointer C ) const;
 		/// check if transitive R-successor labelled with C
-	bool isTSuccLabelled ( const TRole* R, BipolarPointer C ) const;
+	const DlCompletionTree* isTSuccLabelled ( const TRole* R, BipolarPointer C ) const;
 		/// check if transitive R-predecessor labelled with C; skip FROM node
-	bool isTPredLabelled ( const TRole* R, BipolarPointer C, const DlCompletionTree* from ) const;
+	const DlCompletionTree* isTPredLabelled ( const TRole* R, BipolarPointer C, const DlCompletionTree* from ) const;
 
 	//----------------------------------------------
 	//	checking edge labelling
@@ -425,7 +425,7 @@ public:		// methods
 	//----------------------------------------------
 
 		/// check if SOME rule is applicable; includes transitive SOME support
-	bool isSomeApplicable ( const TRole* R, BipolarPointer C ) const
+	const DlCompletionTree* isSomeApplicable ( const TRole* R, BipolarPointer C ) const
 		{ return R->isTransitive() ? isTSomeApplicable(R,C) : isNSomeApplicable(R,C); }
 
 	//----------------------------------------------
