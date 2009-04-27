@@ -569,11 +569,14 @@ public:		// methods
 	//	checking edge labelling
 	//----------------------------------------------
 
-		/// check if parent arc is labelled by R; works well only for blockable nodes
+		/// check if parent arc is labelled by R; works only for blockable nodes
 	bool isParentArcLabelled ( const TRole* R ) const
 	{
-		for ( const_edge_iterator p = beginp(); p != endp(); ++p )
-			if ( (*p)->isNeighbour(R) )
+		const_edge_iterator p = beginp(), p_end = endp();
+		const DlCompletionTree* parent = (*p)->getArcEnd();
+		for ( ; p < p_end; ++p )
+			// make sure that the checking edge lead to parent (and not, e.g., a loop edge)
+			if ( (*p)->getArcEnd() == parent && (*p)->isNeighbour(R) )
 				return true;
 		return false;
 	}
