@@ -588,15 +588,6 @@ protected:	// methods
 	bool planOrProcessing ( const DLVertex& cur );
 		/// aux method for disjunction processing
 	tacticUsage processOrEntry ( void );
-		/// process semantic branching for the OR entry within [BEG,END) with given dep-set
-	template<class Iterator>
-	void processSemanticBranching ( Iterator beg, Iterator end, const DepSet& dep )
-	{
-		if ( useSemanticBranching )
-			for ( Iterator p = beg; p != end; ++p )
-				if ( addToDoEntry ( curNode, inverse(*p), dep, "sb" ) != utDone )
-					assert (0);	// Both Exists and Clash are errors
-	}
 
 	// support for (qualified) number restrictions
 

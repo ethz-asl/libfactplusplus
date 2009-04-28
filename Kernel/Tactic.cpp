@@ -166,8 +166,8 @@ tacticUsage DlSatTester :: commonTacticBodyId ( const DLVertex& cur )
 #endif
 
 	// get either body(p) or inverse(body(p)), depends on sign of current ID
-	BipolarPointer p = isPositive(curConcept.bp()) ? cur.getC() : inverse(cur.getC());
-	switchResult ( ret, addToDoEntry ( curNode, p, curConcept.getDep() ) );
+	BipolarPointer C = isPositive(curConcept.bp()) ? cur.getC() : inverse(cur.getC());
+	switchResult ( ret, addToDoEntry ( curNode, C, curConcept.getDep() ) );
 
 	return ret;
 }
@@ -257,13 +257,13 @@ tacticUsage DlSatTester :: commonTacticBodyAnd ( const DLVertex& cur )
 
 	nAndCalls.inc();
 
-	register const DepSet& curDep = curConcept.getDep ();
+	const DepSet& dep = curConcept.getDep();
 	tacticUsage ret = utUnusable;
 
 	// FIXME!! I don't know why, but performance is usually BETTER if using r-iters.
 	// It's their only usage, so after investigation they can be dropped
 	for ( DLVertex::const_reverse_iterator q = cur.rbegin(); q != cur.rend(); ++q )
-		switchResult ( ret, addToDoEntry ( curNode, *q, curDep ) );
+		switchResult ( ret, addToDoEntry ( curNode, *q, dep ) );
 
 	return ret;
 }
@@ -330,8 +330,9 @@ bool DlSatTester :: planOrProcessing ( const DLVertex& cur )
 
 tacticUsage DlSatTester :: processOrEntry ( void )
 {
-	BranchingContext::or_iterator beg = bContext->orBeg(), end = bContext->orCur();
-	BipolarPointer C = *end;
+	// save the context here as after save() it would be lost
+	BranchingContext::or_iterator p = bContext->orBeg(), p_end = bContext->orCur();
+	BipolarPointer C = *p_end;
 	const char* reason = NULL;
 	DepSet dep;
 
@@ -353,7 +354,10 @@ tacticUsage DlSatTester :: processOrEntry ( void )
 	}
 
 	// if semantic branching is in use -- add previous entries to the label
-	processSemanticBranching ( beg, end, dep );
+	if ( useSemanticBranching )
+		for ( ; p < p_end; ++p )
+			if ( addToDoEntry ( curNode, inverse(*p), dep, "sb" ) != utDone )
+				assert (0);	// Both Exists and Clash are errors
 
 	// add new entry to current node; we know the result would be DONE
 	return
@@ -474,48 +478,48 @@ tacticUsage DlSatTester :: commonTacticBodySome ( const DLVertex& cur )	// for E
 	assert ( isNegative(curConcept.bp()) && cur.Type() == dtForall );
 #endif
 
-	register const DepSet& curDep = curConcept.getDep ();
-	const TRole* rName = cur.getRole();				// role name for Some
-	BipolarPointer cToAdd = inverse(cur.getC());	// concept to be add to the Some
+	const DepSet& dep = curConcept.getDep();
+	const TRole* R = cur.getRole();
+	BipolarPointer C = inverse(cur.getC());
 
 	tacticUsage ret = utUnusable;
 
 	// check if we already have R-neighbour labelled with C
-	if ( isUsed(cToAdd) )
+	if ( isUsed(C) )
 	{
-		const DlCompletionTree* where = curNode->isSomeApplicable ( rName, cToAdd );
+		const DlCompletionTree* where = curNode->isSomeApplicable ( R, C );
 		if ( where != NULL )
 		{
 			if ( LLM.isWritable(llGTA) )
-				LL << " E(" << rName->getName() << "," << where->getId() << "," << cToAdd << ")";
+				LL << " E(" << R->getName() << "," << where->getId() << "," << C << ")";
 
 			return utUnusable;
 		}
 	}
 
 	// check for the case \ER.{o}
-	if ( tBox.testHasNominals() && isPositive(cToAdd) )
+	if ( tBox.testHasNominals() && isPositive(C) )
 	{
-		const DLVertex& nom = DLHeap[cToAdd];
+		const DLVertex& nom = DLHeap[C];
 		if ( nom.Type() == dtPSingleton || nom.Type() == dtNSingleton )
-			return commonTacticBodyValue ( rName, static_cast<const TIndividual*>(nom.getConcept()) );
+			return commonTacticBodyValue ( R, static_cast<const TIndividual*>(nom.getConcept()) );
 	}
 
 	nSomeCalls.inc();
 
 	// check if we have functional role
-	if ( rName->isFunctional() )
-		for ( TRole::iterator r = rName->begin_topfunc(); r != rName->end_topfunc(); ++r )
-			switch ( tryAddConcept ( curNode->label().getLabel(dtLE), (*r)->getFunctional(), curDep ) )
+	if ( R->isFunctional() )
+		for ( TRole::iterator r = R->begin_topfunc(); r != R->end_topfunc(); ++r )
+			switch ( tryAddConcept ( curNode->label().getLabel(dtLE), (*r)->getFunctional(), dep ) )
 			{
 			case acrClash:	// addition leads to clash
 				return utClash;
 			case acrDone:	// should be add to a label
 			{
 				// we are changing current Node => save it
-				updateLevel ( curNode, curDep );
+				updateLevel ( curNode, dep );
 
-				ConceptWDep rFuncRestriction ( (*r)->getFunctional(), curDep );
+				ConceptWDep rFuncRestriction ( (*r)->getFunctional(), dep );
 				// NOTE! not added into TODO (because will be checked right now)
 				CGraph.addConceptToNode ( curNode, rFuncRestriction, dtLE );
 				setUsed(rFuncRestriction.bp());
@@ -532,32 +536,23 @@ tacticUsage DlSatTester :: commonTacticBodySome ( const DLVertex& cur )	// for E
 
 
 	bool rFunc = false;				// flag is true if we have functional restriction with this Role name
-	const TRole* rfRole = rName;	// most general functional super-role of given one
+	const TRole* RF = R;			// most general functional super-role of given one
 	ConceptWDep rFuncRestriction;	// role's functional restriction w/dep
 
 	// set up rFunc; rfRole contains more generic functional superrole of rName
 	for ( DlCompletionTree::const_label_iterator pc = curNode->beginl_cc(); pc != curNode->endl_cc(); ++pc )
 	{	// found such vertex (<=1 R)
-		const ConceptWDep& C = *pc;
-		const DLVertex& ver = DLHeap[C.bp()];
+		const ConceptWDep& LC = *pc;
+		const DLVertex& ver = DLHeap[LC.bp()];
 
-		if ( isPositive(C.bp()) && isFunctionalVertex(ver) && *ver.getRole() >= *rName )	// FIXME!!! think later
-		{
-			if ( rFunc )	// second functional restriction
-			{	// is more generic role...
-				if ( *ver.getRole() >= *rfRole )
-				{	// setup roles
-					rfRole = ver.getRole();
-					rFuncRestriction = C;
-				}
-			}
-			else	// 1st functional role found
+		if ( isPositive(LC.bp()) && isFunctionalVertex(ver) && *ver.getRole() >= *R )
+			if ( !rFunc ||	// 1st functional restriction found or another one...
+				 *ver.getRole() >= *RF )	// ... with more generic role
 			{
 				rFunc = true;
-				rfRole = ver.getRole();
-				rFuncRestriction = C;
+				RF = ver.getRole();
+				rFuncRestriction = LC;
 			}
-		}
 	}
 
 	if ( rFunc )	// functional role found => add new concept to existing node
@@ -569,14 +564,14 @@ tacticUsage DlSatTester :: commonTacticBodySome ( const DLVertex& cur )	// for E
 		// check if we have an (R)-successor or (R-)-predecessor
 		DlCompletionTree::const_edge_iterator pr;
 		for ( pr = curNode->beginp(); !functionalArc && pr != curNode->endp(); ++pr )
-			if ( (*pr)->isNeighbour ( rfRole, newDep ) )
+			if ( (*pr)->isNeighbour ( RF, newDep ) )
 			{
 				functionalArc = *pr;
 				linkToParent = true;
 			}
 
 		for ( pr = curNode->begins(); !functionalArc && pr != curNode->ends(); ++pr )
-			if ( (*pr)->isNeighbour ( rfRole, newDep ) )
+			if ( (*pr)->isNeighbour ( RF, newDep ) )
 				functionalArc = *pr;
 
 		// perform actions if such arc was found
@@ -588,21 +583,21 @@ tacticUsage DlSatTester :: commonTacticBodySome ( const DLVertex& cur )	// for E
 			DlCompletionTree* succ = functionalArc->getArcEnd();
 
 			// add current dependences (from processed entry)
-			newDep.add(curDep);
+			newDep.add(dep);
 
 			// check if merging will lead to clash because of disjoint roles
-			if ( rName->isDisjoint() &&
-				 checkDisjointRoleClash ( curNode, succ, rName, newDep ) == utClash )
+			if ( R->isDisjoint() &&
+				 checkDisjointRoleClash ( curNode, succ, R, newDep ) == utClash )
 				return utClash;
 
 			// add current role label (to both arc and its reverse)
-			functionalArc = CGraph.addRoleLabel ( curNode, succ, linkToParent, rName, newDep );
+			functionalArc = CGraph.addRoleLabel ( curNode, succ, linkToParent, R, newDep );
 
 			// adds concept to the end of arc
-			switchResult ( ret, addToDoEntry ( succ, cToAdd, newDep ) );
+			switchResult ( ret, addToDoEntry ( succ, C, newDep ) );
 
 			// if new role label was added -- check AR.C in both sides of functionalArc
-			if ( rfRole != rName )
+			if ( RF != R )
 			{
 				switchResult ( ret, applyUniversalNR ( curNode, functionalArc, newDep, redoForall ) );
 				// if new role label was added to a functionalArc, some functional restrictions
@@ -621,13 +616,13 @@ tacticUsage DlSatTester :: commonTacticBodySome ( const DLVertex& cur )	// for E
 
 	// there no such neighbour - create new successor
 	// all FUNCs are already checked; no (new) irreflexivity possible
-	return createNewEdge ( cur.getRole(), cToAdd, redoForall|redoAtMost );
+	return createNewEdge ( cur.getRole(), C, redoForall|redoAtMost );
 }
 
 /// expansion rule for existential quantifier in the form ER {o}
 tacticUsage DlSatTester :: commonTacticBodyValue ( const TRole* R, const TIndividual* nom )
 {
-	DepSet curDep = curConcept.getDep();
+	DepSet dep(curConcept.getDep());
 
 	// check blocking conditions
 	if ( recheckNodeDBlocked() )
@@ -638,10 +633,10 @@ tacticUsage DlSatTester :: commonTacticBodyValue ( const TRole* R, const TIndivi
 	assert ( nom->node != NULL );
 
 	// if node for NOM was purged due to merge -- find proper one
-	DlCompletionTree* realNode = nom->node->resolvePBlocker(curDep);
+	DlCompletionTree* realNode = nom->node->resolvePBlocker(dep);
 
 	// check if merging will lead to clash because of disjoint roles
-	if ( R->isDisjoint() && checkDisjointRoleClash ( curNode, realNode, R, curDep ) == utClash )
+	if ( R->isDisjoint() && checkDisjointRoleClash ( curNode, realNode, R, dep ) == utClash )
 		return utClash;
 
 	// here we are sure that there is a nominal connected to a root node
@@ -649,11 +644,11 @@ tacticUsage DlSatTester :: commonTacticBodyValue ( const TRole* R, const TIndivi
 
 	// create new edge between curNode and the given nominal node
 	DlCompletionTreeArc* edge =
-		CGraph.addRoleLabel ( curNode, realNode, /*linkToParent=*/false, R, curDep );
+		CGraph.addRoleLabel ( curNode, realNode, /*linkToParent=*/false, R, dep );
 
 	// add all necessary concepts to both ends of the edge
 	return
-		setupEdge ( edge, curDep, redoForall|redoFunc|redoAtMost|redoIrr ) == utClash
+		setupEdge ( edge, dep, redoForall|redoFunc|redoAtMost|redoIrr ) == utClash
 			? utClash
 			: utDone;
 }
@@ -662,9 +657,9 @@ tacticUsage DlSatTester :: commonTacticBodyValue ( const TRole* R, const TIndivi
 //	Support for SOME processing
 //-------------------------------------------------------------------------------
 
-tacticUsage DlSatTester :: createNewEdge ( const TRole* Role, BipolarPointer Concept, unsigned int flags )
+tacticUsage DlSatTester :: createNewEdge ( const TRole* R, BipolarPointer C, unsigned int flags )
 {
-	const DepSet& curDep = curConcept.getDep();
+	const DepSet& dep = curConcept.getDep();
 
 	// check blocking conditions
 	if ( recheckNodeDBlocked() )
@@ -673,24 +668,24 @@ tacticUsage DlSatTester :: createNewEdge ( const TRole* Role, BipolarPointer Con
 		return utUnusable;
 	}
 
-	DlCompletionTreeArc* pA = createOneNeighbour ( Role, curDep );
+	DlCompletionTreeArc* pA = createOneNeighbour ( R, dep );
 
 	// add necessary label
-	if ( initNewNode ( pA->getArcEnd(), curDep, Concept ) == utClash ||
-		 setupEdge ( pA, curDep, flags ) == utClash )
+	if ( initNewNode ( pA->getArcEnd(), dep, C ) == utClash ||
+		 setupEdge ( pA, dep, flags ) == utClash )
 		return utClash;
 	else
 		return utDone;
 }
 
 /// create new ROLE-neighbour to curNode; return edge to it
-DlCompletionTreeArc* DlSatTester :: createOneNeighbour ( const TRole* Role, const DepSet& dep, CTNominalLevel level )
+DlCompletionTreeArc* DlSatTester :: createOneNeighbour ( const TRole* R, const DepSet& dep, CTNominalLevel level )
 {
 	// check whether is called from NN-rule
 	bool forNN = level != BlockableLevel;
 
 	// create a proper neighbour
-	DlCompletionTreeArc* pA = CGraph.createNeighbour ( curNode, /*isUpLink=*/forNN, Role, dep );
+	DlCompletionTreeArc* pA = CGraph.createNeighbour ( curNode, /*isUpLink=*/forNN, R, dep );
 	DlCompletionTree* node = pA->getArcEnd();
 
 	// set nominal node's level if necessary
@@ -698,13 +693,13 @@ DlCompletionTreeArc* DlSatTester :: createOneNeighbour ( const TRole* Role, cons
 		node->setNominalLevel(level);
 
 	// check whether created node is data node
-	if ( Role->isDataRole() )
+	if ( R->isDataRole() )
 		node->setDataNode();
 
 	// log newly created node
 	CHECK_LL_RETURN_VALUE(llGTA,pA);
 
-	if ( Role->isDataRole() )
+	if ( R->isDataRole() )
 		LL << " DN(";
 	else
 		LL << " cn(";
@@ -773,7 +768,7 @@ DlSatTester :: applyAllGeneratingRules ( DlCompletionTree* node )
 }
 
 tacticUsage
-DlSatTester :: setupEdge ( DlCompletionTreeArc* pA, const DepSet& curDep, unsigned int flags )
+DlSatTester :: setupEdge ( DlCompletionTreeArc* pA, const DepSet& dep, unsigned int flags )
 {
 	tacticUsage ret = utUnusable;
 
@@ -781,15 +776,15 @@ DlSatTester :: setupEdge ( DlCompletionTreeArc* pA, const DepSet& curDep, unsign
 	DlCompletionTree* from = pA->getReverse()->getArcEnd();
 
 	// adds Range and Domain
-	switchResult ( ret, initHeadOfNewEdge ( from, pA->getRole(), curDep, "RD" ) );
-	switchResult ( ret, initHeadOfNewEdge ( child, pA->getReverse()->getRole(), curDep, "RR" ) );
+	switchResult ( ret, initHeadOfNewEdge ( from, pA->getRole(), dep, "RD" ) );
+	switchResult ( ret, initHeadOfNewEdge ( child, pA->getReverse()->getRole(), dep, "RR" ) );
 
 	// check if we have any AR.X concepts in current node
-	switchResult ( ret, applyUniversalNR ( from, pA, curDep, flags ) );
+	switchResult ( ret, applyUniversalNR ( from, pA, dep, flags ) );
 
 	// for nominal children and loops -- just apply things for the inverces
 	if ( child->isNominalNode() || child == from )
-		switchResult ( ret, applyUniversalNR ( child, pA->getReverse(), curDep, flags ) );
+		switchResult ( ret, applyUniversalNR ( child, pA->getReverse(), dep, flags ) );
 	else
 	{
 		if ( child->isDataNode() )

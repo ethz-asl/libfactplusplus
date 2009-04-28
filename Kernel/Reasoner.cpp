@@ -684,7 +684,8 @@ DlSatTester :: prepareCascadedCache ( BipolarPointer p )
 	case dtForall:
 	case dtLE:
 	{
-		if ( v.getRole()->isDataRole() )	// skip data-related stuff
+		const TRole* R = v.getRole();
+		if ( R->isDataRole() )	// skip data-related stuff
 			break;
 		BipolarPointer x = pos ? v.getC() : inverse(v.getC());
 
@@ -698,7 +699,7 @@ DlSatTester :: prepareCascadedCache ( BipolarPointer p )
 		}
 
 		// build cache for the Range(R) if necessary
-		x = v.getRole()->getBPRange();
+		x = R->getBPRange();
 		if ( x != bpTOP )
 		{
 			inProcess.insert(x);
