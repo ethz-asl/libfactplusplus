@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2006 by Dmitry Tsarkov
+Copyright (C) 2003-2009 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -77,6 +77,8 @@ protected:	// members
 	std::ostream& o;
 		/// indentation level
 	unsigned int indent;
+		/// print every axiom on a single line (need for sorting, for example)
+	bool oneliner;
 
 protected:	// methods
 		/// write necessary amount of TABs
@@ -88,9 +90,17 @@ protected:	// methods
 
 public:		// interface
 		/// the only c'tor -- empty
-	dumpInterface ( std::ostream& oo ) : o(oo), indent(0) {}
+	dumpInterface ( std::ostream& oo ) : o(oo), indent(0), oneliner(false) {}
 		/// empty d'tor
 	virtual ~dumpInterface ( void ) {}
+
+		/// set ONELINER flag; @return previous value
+	bool useIndentation ( bool val )
+	{
+		bool ret = oneliner;
+		oneliner = val;
+		return ret;
+	}
 
 	// global prologue/epilogue
 	virtual void prologue ( void ) {}
@@ -121,6 +131,8 @@ public:		// interface
 
 inline void dumpInterface :: skipIndent ( void )
 {
+	if ( oneliner )
+		return;
 	o << "\n";
 	for ( int i = indent-1; i >= 0; --i )
 		o << "  ";
