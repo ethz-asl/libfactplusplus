@@ -31,12 +31,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "dumpDIG.h"
 #include "logging.h"
 
-TBox :: TBox ( const ifOptionSet* Options )
+TBox :: TBox ( const ifOptionSet* Options, const DataTypeCenter& dtCenter )
 	: DLHeap(Options)
 	, stdReasoner(NULL)
 	, nomReasoner(NULL)
 	, pMonitor(NULL)
 	, pTax (NULL)
+	, DTCenter(dtCenter)
 	, pOptions (Options)
 	, Status(kbLoading)
 	, curFeature(NULL)

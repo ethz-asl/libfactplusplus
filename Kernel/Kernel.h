@@ -82,6 +82,8 @@ protected:	// types
 protected:	// members
 		/// local TBox (to be created)
 	TBox* pTBox;
+		/// DataType center
+	DataTypeCenter DTCenter;
 		/// set of queues for the n-ary expressions/commands
 	TNAryQueue NAryQueue;
 		/// set of axioms
@@ -252,9 +254,9 @@ public:	// general staff
 	//******************************************
 
 		/// get RW access to a DT center
-	DataTypeCenter& getDataTypeCenter ( void ) { return getTBox()->getDataTypeCenter(); }
+	DataTypeCenter& getDataTypeCenter ( void ) { return DTCenter; }
 		/// get RO access to a DT center
-	const DataTypeCenter& getDataTypeCenter ( void ) const { return getTBox()->getDataTypeCenter(); }
+	const DataTypeCenter& getDataTypeCenter ( void ) const { return DTCenter; }
 
 	////////////////////////////////////////////
 	//  ensure* declarations
@@ -297,7 +299,7 @@ public:
 		if ( pTBox != NULL )
 			return true;
 
-		pTBox = new TBox ( getOptions () );
+		pTBox = new TBox ( getOptions(), DTCenter );
 		initCacheAndFlags();
 		return false;
 	}

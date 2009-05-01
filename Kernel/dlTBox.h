@@ -156,11 +156,11 @@ protected:	// members
 		/// progress monitor
 	TProgressMonitor* pMonitor;
 
-	/// taxonomy structure of a TBox
+		/// taxonomy structure of a TBox
 	DLConceptTaxonomy* pTax;
-		/// DataType center
-	DataTypeCenter DTCenter;
-	/// set of reasoning options
+		/// DataType center: reference to a Kernel' one
+	const DataTypeCenter& DTCenter;
+		/// set of reasoning options
 	const ifOptionSet* pOptions;
 		/// status of the KB
 	KBStatus Status;
@@ -790,9 +790,9 @@ protected:	// methods
 	void dumpAllRoles ( dumpInterface* dump ) const;
 
 public:
-	/// C'tor
-	TBox ( const ifOptionSet* Options );
-	/// D'tor
+		/// C'tor
+	TBox ( const ifOptionSet* Options, const DataTypeCenter& dtCenter );
+		/// D'tor
 	~TBox ( void );
 
 		/// get RW access to used Role Master
@@ -851,7 +851,6 @@ public:
 	bool setForbidUndefinedNames ( bool val )
 	{
 		RM.setUndefinedNames(!val);
-		DTCenter.setLocked(val);
 		Individuals.setLocked(val);
 		return Concepts.setLocked(val);
 	}
@@ -978,8 +977,6 @@ public:
 	/// get (READ-ONLY) access to internal Taxonomy of concepts
 	const DLConceptTaxonomy* getTaxonomy ( void ) const { return pTax; }
 
-		/// get (RW) access to the DataType center
-	DataTypeCenter& getDataTypeCenter ( void ) { return DTCenter; }
 		/// get (RO) access to the DataType center
 	const DataTypeCenter& getDataTypeCenter ( void ) const { return DTCenter; }
 
