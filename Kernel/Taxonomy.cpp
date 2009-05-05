@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2008 by Dmitry Tsarkov
+Copyright (C) 2003-2009 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -127,19 +127,13 @@ void Taxonomy :: generalTwoPhaseClassification ( void )
 
 bool Taxonomy :: classifySynonym ( void )
 {
-	assert ( curEntry != NULL );
+	const ClassifiableEntry* syn = resolveSynonym(curEntry);
 
-	const ClassifiableEntry* syn = curEntry->getSynonym ();
-
-	if ( syn == NULL )
+	if ( syn == curEntry )
 		return false;	// not a synonym
 
 	// I'm sure that there is impossible to have synonym here, but let's check
 	assert ( willInsertIntoTaxonomy );
-
-	// ensure that we found a real representative
-	while ( syn->isSynonym() )
-		syn = syn->getSynonym();
 
 	// update synonym vertex:
 	assert ( syn->getTaxVertex() != NULL );
