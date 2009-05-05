@@ -54,6 +54,10 @@ DlCompletionGraph :: isBlockedBy ( const DlCompletionTree* node, const DlComplet
 	assert ( !node->isNominalNode() );
 	assert ( !blocker->isNominalNode() );
 
+	// blocked node can't be blocked itself
+	if ( blocker->isBlocked() )
+		return false;
+
 	// easy check: Init is not in the label if a blocker
 	if ( !blocker->canBlockInit(node) )
 		return false;
