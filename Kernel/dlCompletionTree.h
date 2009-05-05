@@ -501,6 +501,8 @@ public:		// methods
 	bool isPBlocked ( void ) const { return Blocker != NULL && pBlocked && !dBlocked; }
 		/// check if node is blocked (d/i)
 	bool isBlocked ( void ) const { return Blocker != NULL && !pBlocked; }
+		/// check the legality of the direct block
+	bool isIllegallyDBlocked ( void ) const { return isDBlocked() && Blocker->isBlocked(); }
 		/// get node to which current one was merged
 	const DlCompletionTree* resolvePBlocker ( void ) const
 	{

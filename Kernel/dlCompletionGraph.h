@@ -332,9 +332,24 @@ public:		// interface
 		/// retest every d-blocked node in the CG. Use it after the CG was build
 	void retestCGBlockedStatus ( void )
 	{
-		for ( iterator p = begin(), p_end = end(); p < p_end; ++p )
-			if ( (*p)->isDBlocked() )
-				updateDBlockedStatus(*p);
+		bool repeat;
+		iterator p, p_beg = begin(), p_end = end();
+		do
+		{
+			for ( p = p_beg; p < p_end; ++p )
+				if ( (*p)->isDBlocked() )
+					updateDBlockedStatus(*p);
+
+			// we need to repeat the thing if something became unblocked and then blocked again,
+			// in case one of the blockers became blocked itself; see tModal3 for such an example
+			repeat = false;
+			for ( p = p_beg; p < p_end; ++p )
+				if ( (*p)->isIllegallyDBlocked() )
+				{
+					repeat = true;
+					break;
+				}
+		} while ( repeat );
 	}
 
 	// fairness support
