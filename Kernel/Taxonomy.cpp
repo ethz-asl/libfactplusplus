@@ -260,6 +260,10 @@ bool Taxonomy :: checkToldSubsumers ( void )
 #ifdef TMP_PRINT_TAXONOMY_INFO
 	++level;
 #endif
+		// prepare told subsumers for the top of the stack
+	buildToldSubsumers(waitStack.top());
+
+		// check that all the TS are classified (if necessary)
 	ClassifiableEntry::const_iterator
 		p = waitStack.top()->told_begin(),
 		p_end = waitStack.top()->told_end();

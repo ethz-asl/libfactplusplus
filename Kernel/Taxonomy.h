@@ -144,6 +144,8 @@ protected:	// methods
 
 		/// check if told subsumer P have to be classified during current session
 	virtual bool needToldClassification ( ClassifiableEntry* p ATTR_UNUSED ) const { return true; }
+		/// prepare told subsumers for given entry if necessary
+	virtual void buildToldSubsumers ( ClassifiableEntry* p ATTR_UNUSED ) {}
 		/// ensure that all TS of top entries are classified. @return true if cycle detected.
 	bool checkToldSubsumers ( void );
 		/// classify top entry in the stack

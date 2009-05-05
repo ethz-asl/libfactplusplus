@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2008 by Dmitry Tsarkov
+Copyright (C) 2003-2009 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -109,6 +109,8 @@ protected:	// methods
 			return false;
 		return true;
 	}
+		/// prepare told subsumers for given entry if necessary
+	virtual void buildToldSubsumers ( ClassifiableEntry* p ATTR_UNUSED ) {}
 		/// check if no classification needed (synonym, orphan, unsatisfiable)
 	virtual bool immediatelyClassified ( void );
 
