@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2006 by Dmitry Tsarkov
+Copyright (C) 2003-2009 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -75,41 +75,6 @@ bool TaxonomyVertex :: removeLink ( bool upDirection, TaxonomyVertex* p )
 
 	// no such verteces
 	return false;
-}
-
-TaxonomyVertex* TaxonomyVertex :: incorporateSynonym ( bool moveToExisting )
-{
-	// try to find Vertex such that Vertex\in Up and Vertex\in Down
-	for ( iterator q = begin(true), q_end = end(true); q < q_end; ++q )
-		for ( iterator r = begin(false), r_end = end(false); r < r_end; ++r )
-			if ( *q == *r )	// found such vertex
-			{
-				TaxonomyVertex* v = *r;
-				assert ( v != NULL );
-
-				if ( moveToExisting )	// usual behaviour
-				{
-					v->addSynonym(sample);
-					for ( syn_iterator p = begin_syn(), p_end = end_syn(); p < p_end; ++p )
-						v->addSynonym (*p);
-
-					if ( LLM.isWritable(llTaxInsert) )
-						LL << "\nTAX:set " << getPrimer()->getName() << " equal " << v->getPrimer()->getName();
-				}
-				else
-				{
-					synonyms.clear();	// delete FaCT++.Concept
-					synonyms.push_back(v->getPrimer());
-
-					for ( syn_iterator p = v->begin_syn(), p_end = v->end_syn(); p < p_end; ++p )
-						synonyms.push_back(*p);
-				}
-
-				return v;
-			}
-
-	// no such vertex
-	return NULL;
 }
 
 void TaxonomyVertex :: incorporate ( void )

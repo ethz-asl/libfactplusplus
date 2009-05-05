@@ -76,18 +76,30 @@ void Taxonomy :: performClassification ( ClassifiableEntry* p )
 	generalTwoPhaseClassification();
 
 	// create new vertex
+	TaxonomyVertex* v = Current->isSynonymNode();
 	if ( willInsertIntoTaxonomy )
-		insertEntry ();
-	else	// check if node is synonym of existing one and copy EXISTING info to Current
 	{
-		TaxonomyVertex* v = Current->incorporateSynonym(false);
+		// check if current concept is synonym to someone
 		if ( v != NULL )
 		{
-//			delete Current;
-//			deleteCurrent = false;
-//			Current = v;
+			Current->copyToNode(v);
+
+			if ( LLM.isWritable(llTaxInsert) )
+				LL << "\nTAX:set " << Current->getPrimer()->getName() << " equal " << v->getPrimer()->getName();
+
+			delete Current;
 		}
+		else	// just incorporate it as a special entry and save into Graph
+		{
+			Current->incorporate();
+			Graph.push_back(Current);
+		}
+
+		Current = NULL;
 	}
+	else	// check if node is synonym of existing one and copy EXISTING info to Current
+		if ( v != NULL )
+			Current->copyFromNode(v);
 
 	// clear all labels
 	clearLabels();
@@ -198,24 +210,6 @@ void Taxonomy :: setToldSubsumers ( void )
 
 		(*p)->getTaxVertex()->propagateValueUp(true);
 	}
-}
-
-void Taxonomy :: insertEntry ( void )
-{
-	assert ( Current != NULL );
-
-	// check if current concept is synonym to someone
-	if ( Current->incorporateSynonym () )
-	{
-		delete Current;
-	}
-	else	// just incorporate it as a special entry and save into Graph
-	{
-		Current->incorporate ();
-		Graph.push_back ( Current );
-	}
-
-	Current = NULL;
 }
 
 //-----------------------------------------------------------------

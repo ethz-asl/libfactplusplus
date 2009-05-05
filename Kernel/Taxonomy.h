@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2008 by Dmitry Tsarkov
+Copyright (C) 2003-2009 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -72,7 +72,7 @@ private:	// no copy
 	Taxonomy& operator = ( const Taxonomy& );
 
 protected:	// methods
-	/// initialise aux entry with given concept p
+		/// initialise aux entry with given concept p
 	void setCurrentEntry ( const ClassifiableEntry* p )
 	{
 		if ( deleteCurrent )
@@ -97,9 +97,6 @@ protected:	// methods
 	void setToldSubsumers ( void );
 		/// add non-redundant candidates for the current entry
 	void setNonRedundantCandidates ( void );
-
-	/// insert Current entry into Graph, correcting all links
-	void insertEntry ( void );
 
 	//-----------------------------------------------------------------
 	//--	Tunable methods (depending on taxonomy type)

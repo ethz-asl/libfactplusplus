@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2008 by Dmitry Tsarkov
+Copyright (C) 2003-2009 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -27,7 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 class TaxonomyVertex
 {
-public:
+public:		// typedefs
 	// typedefs for vertex structure
 	typedef std::vector <TaxonomyVertex*> TaxonomyLink;
 	typedef std::vector <const ClassifiableEntry*> EqualNames;
@@ -37,21 +37,16 @@ public:
 	typedef TaxonomyLink::const_iterator const_iterator;
 	typedef EqualNames::const_iterator syn_iterator;
 
-private:
-	/// immediate parents and children
+private:	// members
+		/// immediate parents and children
 	TaxonomyLink Links[2];
-protected:
+
+protected:	// members
 		/// entry corresponding to current tax vertex
 	const ClassifiableEntry* sample;
 		/// synonyms of the sample entry
 	EqualNames synonyms;
 
-	/// indirect access to Links (non-const version)
-	TaxonomyLink& neigh ( bool upDirection ) { return Links[!upDirection]; }
-	/// indirect access to Links (const version)
-	const TaxonomyLink& neigh ( bool upDirection ) const { return Links[!upDirection]; }
-
-protected:	// members
 		/// labellers for marking taxonomy
 	static TLabeller checkLab, valuedLab;
 
@@ -61,16 +56,22 @@ protected:	// members
 	TLabeller::LabType theChecked;
 		/// flag if given vertex has value; connected with valuedLab
 	TLabeller::LabType theValued;
-		/// satisfiability value of a valued vertex
-	bool checkValue;
 		/// number of common parents of a node
 	unsigned int common;
+		/// satisfiability value of a valued vertex
+	bool checkValue;
 
 private:	// no copy
 		/// no copy c'tor
 	TaxonomyVertex ( const TaxonomyVertex& );
 		/// no assignment
 	TaxonomyVertex& operator = ( const TaxonomyVertex& );
+
+protected:	// methods
+		/// indirect RW access to Links
+	TaxonomyLink& neigh ( bool upDirection ) { return Links[!upDirection]; }
+		/// indirect RO access to Links
+	const TaxonomyLink& neigh ( bool upDirection ) const { return Links[!upDirection]; }
 
 public:		// flags interface
 
@@ -177,15 +178,37 @@ public:
 	const_iterator begin ( bool upDirection ) const { return neigh(upDirection).begin(); }
 	const_iterator end ( bool upDirection ) const { return neigh(upDirection).end(); }
 
+		/// copy node information (label) into the given one
+	void copyToNode ( TaxonomyVertex* v )
+	{
+		v->addSynonym(sample);
+		for ( syn_iterator p = begin_syn(), p_end = end_syn(); p < p_end; ++p )
+			v->addSynonym (*p);
+	}
+		/// copy node information (label) from the given one
+	void copyFromNode ( TaxonomyVertex* v )
+	{
+		assert(synonyms.empty());
+		// don't use addSynonym() here as it change the TaxVertex from the entries
+		synonyms.push_back(v->getPrimer());
+		for ( syn_iterator p = v->begin_syn(), p_end = v->end_syn(); p < p_end; ++p )
+			synonyms.push_back(*p);
+	}
+
 	/** Adds vertex to existing graph. For every Up, Down such that (Up->Down)
 		creates couple of links (Up->this), (this->Down). Don't work with synonyms!!!
 	*/
 	void incorporate ( void );
-	/** Check if vertex has a synonym (ie Up[i]==Down[j]) and moves all
-		synonym concepts to a one defined by given flag.
-		@return pointer to synonym if could find one; @return NULL otherwise
-	*/
-	TaxonomyVertex* incorporateSynonym ( bool moveToExisting = true );
+		/// @return v if node represents a synonym (v=Up[i]==Down[j]); @return NULL otherwise
+	TaxonomyVertex* isSynonymNode ( void )
+	{
+		// try to find Vertex such that Vertex\in Up and Vertex\in Down
+		for ( iterator q = begin(true), q_end = end(true); q < q_end; ++q )
+			for ( iterator r = begin(false), r_end = end(false); r < r_end; ++r )
+				if ( *q == *r )	// found such vertex
+					return *q;
+		return NULL;
+	}
 		/// Remove link P from neighbours (given by flag). @return true if such link was removed
 	bool removeLink ( bool upDirection, TaxonomyVertex* p );
 		/// remove latest link (usually to the BOTTOM node)
