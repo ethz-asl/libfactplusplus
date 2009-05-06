@@ -1150,17 +1150,28 @@ tacticUsage DlSatTester :: mergeLabels ( const CGLabel& from, DlCompletionTree* 
 	tacticUsage ret = utUnusable;
 	CGLabel::const_iterator p, p_end;
 	CGLabel& lab(to->label());
+	// arrays for simple- and complex concepts in the merged-to vector
+	CWDArray& sc(lab.getLabel(dtPConcept));
+	CWDArray& cc(lab.getLabel(dtForall));
+
+	// due to merging, all the concepts in the TO label
+	// should be updated to the new dep-set DEP
+	for ( p = sc.begin(), p_end = sc.end(); p < p_end; ++p )
+		CGraph.saveRareCond ( sc.updateDepSet ( p->bp(), dep ) );
+	for ( p = cc.begin(), p_end = cc.end(); p < p_end; ++p )
+		CGraph.saveRareCond ( cc.updateDepSet ( p->bp(), dep ) );
 
 	// if the concept is already exists in the node label --
 	// we still need to update it with a new dep-set (due to merging)
+	// note that DEP is already there
 	for ( p = from.begin_sc(), p_end = from.end_sc(); p < p_end; ++p )
-		if ( findConcept ( lab.getLabel(dtPConcept), p->bp() ) )
-			CGraph.saveRareCond ( to->label().getLabel(dtPConcept).updateDepSet ( p->bp(), dep+p->getDep() ) );
+		if ( findConcept ( sc, p->bp() ) )
+			CGraph.saveRareCond ( sc.updateDepSet ( p->bp(), p->getDep() ) );
 		else
 			switchResult ( ret, insertToDoEntry ( to, p->bp(), dep+p->getDep(), DLHeap[p->bp()].Type(), "M" ) );
 	for ( p = from.begin_cc(), p_end = from.end_cc(); p < p_end; ++p )
-		if ( findConcept ( lab.getLabel(dtForall), p->bp() ) )
-			CGraph.saveRareCond ( to->label().getLabel(dtForall).updateDepSet ( p->bp(), dep+p->getDep() ) );
+		if ( findConcept ( cc, p->bp() ) )
+			CGraph.saveRareCond ( cc.updateDepSet ( p->bp(), p->getDep() ) );
 		else
 			switchResult ( ret, insertToDoEntry ( to, p->bp(), dep+p->getDep(), DLHeap[p->bp()].Type(), "M" ) );
 
