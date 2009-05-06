@@ -143,8 +143,6 @@ protected:	// methods
 		DlCompletionTreeArc* edge,
 		bool isUpLink, const DepSet& dep );
 
-		/// save rarely appeared info
-	void saveRare ( TRestorer* p ) { RareStack.push ( branchingLevel, p ); }
 		/// invalidate EDGE, save restoring info
 	void invalidateEdge ( DlCompletionTreeArc* edge ) { saveRareCond(edge->save()); }
 
@@ -385,7 +383,7 @@ public:		// interface
 	size_t maxSize ( void ) const { return NodeBase.size(); }
 
 		/// save rarely appeared info if P is non-NULL
-	void saveRareCond ( TRestorer* p ) { if (p) saveRare(p); }
+	void saveRareCond ( TRestorer* p ) { if (p) RareStack.push(p); }
 
 	//----------------------------------------------
 	// role/node

@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2008 by Dmitry Tsarkov
+Copyright (C) 2003-2009 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -141,7 +141,7 @@ DlCompletionGraph :: purgeNode ( DlCompletionTree* p, const DlCompletionTree* ro
 	if ( p->isPBlocked() )
 		return;
 
-	saveRare ( p->setPBlocked ( root, dep ) );
+	saveRareCond ( p->setPBlocked ( root, dep ) );
 
 	// update successors
 	for ( DlCompletionTree::const_edge_iterator q = p->begins(); q != p->ends(); ++q )
@@ -165,6 +165,7 @@ void DlCompletionGraph :: save ( void )
 	SaveState* s = Stack.push();
 	s->nNodes = endUsed;
 	s->sNodes = SavedNodes.size();
+	RareStack.incLevel();
 	++branchingLevel;
 }
 

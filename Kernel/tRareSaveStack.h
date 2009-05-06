@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2007 by Dmitry Tsarkov
+Copyright (C) 2003-2009 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -55,23 +55,28 @@ protected:	// typedefs
 protected:	// members
 		/// heap of saved objects
 	baseType Base;
+		/// current level
+	unsigned int curLevel;
 
 public:		// interface
 		/// empty c'tor: stack will most likely be empty
-	TRareSaveStack ( void ) {}
+	TRareSaveStack ( void ) : curLevel(1) {}
 		/// d'tor
 	~TRareSaveStack ( void ) { clear(); }
 
 	// stack operations
 
+		/// inclrement current level
+	void incLevel ( void ) { ++curLevel; }
 		/// check that stack is empty
 	bool empty ( void ) const { return Base.empty(); }
 		/// add a new object to the stack
-	void push ( unsigned int level, TRestorer* p )
-		{ Base.push_back ( new RestoreElement ( level, p ) ); }
+	void push ( TRestorer* p )
+		{ Base.push_back ( new RestoreElement ( curLevel, p ) ); }
 		/// get all object from the top of the stack with levels >= LEVEL
 	void restore ( unsigned int level )
 	{
+		curLevel = level;
 		while ( !Base.empty() )
 		{
 			RestoreElement* cur = Base.back();
@@ -90,6 +95,7 @@ public:		// interface
 		for ( iterator p = Base.begin(), p_end = Base.end(); p < p_end; ++p )
 			delete *p;
 		Base.clear();
+		curLevel = 1;
 	}
 }; // TRareSaveStack
 
