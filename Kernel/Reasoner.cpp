@@ -480,7 +480,7 @@ DlSatTester :: consistentNominalCloud ( void )
 	else	// perform a normal reasoning
 		result = runSat();
 
-	if ( result && tryLevel == 1 )
+	if ( result && noBranchingOps() )
 	{	// all nominal cloud is classified w/o branching -- make a barrier
 		if ( LLM.isWritable(llSRState) )
 			LL << "InitNominalReasoner[";

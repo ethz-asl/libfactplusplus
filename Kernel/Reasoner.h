@@ -761,6 +761,8 @@ protected:	// methods
 	unsigned int getCurLevel ( void ) const { return tryLevel; }
 		/// set new branching level (never use tryLevel directly)
 	void setCurLevel ( unsigned int level ) { tryLevel = level; }
+		/// @return true if no branching ops were applied during reasoners; FIXME!! doesn't work properly with a nominal cloud
+	bool noBranchingOps ( void ) const { return tryLevel == 1; }
 		/// Get save/restore level based on either current- or DS level
 	unsigned int getSaveRestoreLevel ( const DepSet& ds ATTR_UNUSED ) const
 	{
@@ -981,7 +983,7 @@ inline bool DlSatTester :: backJumpedRestore ( void )
 
 inline bool DlSatTester :: straightforwardRestore ( void )
 {
-	if ( tryLevel == 1 )	// no non-deterministic choices was made
+	if ( noBranchingOps() )	// no non-deterministic choices was made
 		return true;		// ... the concept is unsatisfiable
 	else
 	{	// restoring the state
