@@ -62,8 +62,6 @@ protected:	// types
 	}; // SaveState
 
 private:	// constants
-		/// initial value of branching level
-	static const unsigned int initBranchingLevel = 1;
 		/// initial value of IR level
 	static const unsigned int initIRLevel = 0;
 
@@ -248,7 +246,7 @@ public:		// interface
 		, pReasoner(p)
 		, nodeId(0)
 		, endUsed(0)
-		, branchingLevel(initBranchingLevel)
+		, branchingLevel(InitBranchingLevelValue)
 		, IRLevel(initIRLevel)
 	{
 		initNodeArray ( NodeBase.begin(), NodeBase.end() );
@@ -372,7 +370,7 @@ public:		// interface
 	{
 		CTEdgeHeap.clear();
 		endUsed = 0;
-		branchingLevel = initBranchingLevel;
+		branchingLevel = InitBranchingLevelValue;
 		IRLevel = initIRLevel;
 		RareStack.clear();
 		Stack.clear();

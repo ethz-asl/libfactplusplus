@@ -33,7 +33,7 @@ DlSatTester :: DlSatTester ( TBox& tbox, const ifOptionSet* Options )
 	, DTReasoner(tbox.DLHeap)
 	, GCIs(tbox.GCIs)
 	, bContext(NULL)
-	, tryLevel(1)
+	, tryLevel(InitBranchingLevelValue)
 	, curNode(NULL)
 	, dagSize(0)
 {
@@ -112,7 +112,7 @@ DlSatTester :: prepareReasoner ( void )
 
 		curNode = NULL;
 		bContext = NULL;
-		tryLevel = 1;
+		tryLevel = InitBranchingLevelValue;
 	}
 
 	// clear last session information

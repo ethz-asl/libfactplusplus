@@ -762,7 +762,7 @@ protected:	// methods
 		/// set new branching level (never use tryLevel directly)
 	void setCurLevel ( unsigned int level ) { tryLevel = level; }
 		/// @return true if no branching ops were applied during reasoners; FIXME!! doesn't work properly with a nominal cloud
-	bool noBranchingOps ( void ) const { return tryLevel == 1; }
+	bool noBranchingOps ( void ) const { return tryLevel == InitBranchingLevelValue; }
 		/// Get save/restore level based on either current- or DS level
 	unsigned int getSaveRestoreLevel ( const DepSet& ds ATTR_UNUSED ) const
 	{

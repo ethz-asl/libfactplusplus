@@ -21,6 +21,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <vector>
 
+#include "globaldef.h"
 #include "tRestorer.h"
 
 /**
@@ -60,7 +61,7 @@ protected:	// members
 
 public:		// interface
 		/// empty c'tor: stack will most likely be empty
-	TRareSaveStack ( void ) : curLevel(1) {}
+	TRareSaveStack ( void ) : curLevel(InitBranchingLevelValue) {}
 		/// d'tor
 	~TRareSaveStack ( void ) { clear(); }
 
@@ -95,7 +96,7 @@ public:		// interface
 		for ( iterator p = Base.begin(), p_end = Base.end(); p < p_end; ++p )
 			delete *p;
 		Base.clear();
-		curLevel = 1;
+		curLevel = InitBranchingLevelValue;
 	}
 }; // TRareSaveStack
 

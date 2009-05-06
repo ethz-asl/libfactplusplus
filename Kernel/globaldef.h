@@ -60,4 +60,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 // uncomment the following line if IR is defined as a list of elements in node label
 #define RKG_IR_IN_NODE_LABEL
 
+// this value is used in classes Reasoner, CGraph and RareSaveStack
+const unsigned int InitBranchingLevelValue = 1;
+
 #endif
