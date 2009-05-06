@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2008 by Dmitry Tsarkov
+Copyright (C) 2003-2009 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -178,7 +178,9 @@ modelCacheState modelCacheIan :: isMergableIan ( const modelCacheIan* q ) const
 		return correctInvalid ( Deterministic && q->Deterministic );
 	else if ( sets_intersect ( existsRoles, q->forallRoles ) ||
 			  sets_intersect ( q->existsRoles, forallRoles ) ||
+#		ifdef RKG_USE_SIMPLE_RULES
 			  sets_intersect ( extraConcepts, q->extraConcepts ) ||	// we don't know exactly how they interacts
+#		endif
 			  sets_intersect ( funcRoles, q->funcRoles ) )
 		return csFailed;
 	else	// could be merged
@@ -236,7 +238,9 @@ modelCacheState modelCacheIan :: merge ( const modelCacheInterface* p )
 		// merge all sets:
 		posConcepts.insert ( q->posConcepts.begin (), q->posConcepts.end () );
 		negConcepts.insert ( q->negConcepts.begin (), q->negConcepts.end () );
+#	ifdef RKG_USE_SIMPLE_RULES
 		extraConcepts.insert ( q->extraConcepts.begin (), q->extraConcepts.end () );
+#	endif
 		existsRoles.insert ( q->existsRoles.begin (), q->existsRoles.end () );
 		forallRoles.insert ( q->forallRoles.begin (), q->forallRoles.end () );
 		funcRoles.insert ( q->funcRoles.begin (), q->funcRoles.end () );
@@ -261,8 +265,10 @@ void modelCacheIan :: logCacheEntry ( unsigned int level ) const
 	logCacheSet ( posConcepts );
 	LL << ", negConcepts = ";
 	logCacheSet ( negConcepts );
+#ifdef RKG_USE_SIMPLE_RULES
 	LL << ", extraConcepts = ";
 	logCacheSet ( extraConcepts );
+#endif
 	LL << ", existsRoles = ";
 	logCacheSet ( existsRoles );
 	LL << ", forallRoles = ";

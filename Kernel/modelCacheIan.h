@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2008 by Dmitry Tsarkov
+Copyright (C) 2003-2009 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -47,8 +47,10 @@ protected:	// members
 	conceptSet posConcepts;
 		/// named concepts that appears negatively in a root node of a cache
 	conceptSet negConcepts;
+#ifdef RKG_USE_SIMPLE_RULES
 		/// extra concepts that are (partial) Simple Rule applications
 	conceptSet extraConcepts;
+#endif
 		/// role names that are labels of the outgoing edges from the root node
 	roleSet existsRoles;
 		/// role names that appears in the \A restrictions in the root node
@@ -125,6 +127,9 @@ public:
 		: modelCacheInterface(m.hasNominalNode)
 		, posConcepts(m.posConcepts)
 		, negConcepts(m.negConcepts)
+#	ifdef RKG_USE_SIMPLE_RULES
+		, extraConcepts(m.extraConcepts)
+#	endif
 		, existsRoles(m.existsRoles)
 		, forallRoles(m.forallRoles)
 		, funcRoles(m.funcRoles)
