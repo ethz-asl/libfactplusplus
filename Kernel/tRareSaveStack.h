@@ -78,17 +78,19 @@ public:		// interface
 	void restore ( unsigned int level )
 	{
 		curLevel = level;
-		while ( !Base.empty() )
+		unsigned int n = Base.size();
+		while ( n > 0 )
 		{
-			RestoreElement* cur = Base.back();
+			RestoreElement* cur = Base[n-1];
 			if ( cur->level <= level )
 				break;
 
 			// need to restore: restore last element, remove it from stack
 			cur->p->restore();
 			delete cur;
-			Base.resize(Base.size()-1);
+			--n;
 		}
+		Base.resize(n);
 	}
 		/// clear stack
 	void clear ( void )
