@@ -430,8 +430,6 @@ protected:	// methods
 	void registerNominalCache ( TIndividual* p ) const
 		{ DLHeap.setCache ( p->pName, createModelCache(p->node->resolvePBlocker()) ); }
 
-		/// generate necessary clash level if node's caching lead to clash
-	void generateCacheClashLevel ( DlCompletionTree* node, modelCacheInterface* cache = NULL );
 		/// check whether given NODE can be cached
 	bool canBeCached ( DlCompletionTree* node );
 		/// perform caching of the node (it is known that caching is possible)

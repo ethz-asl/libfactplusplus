@@ -358,16 +358,39 @@ DlSatTester :: doCacheNode ( DlCompletionTree* node )
 
 	// It's unsafe to have a cache that touchs nominal here; set flagNominals to prevent it
 	modelCacheIan* cache = new modelCacheIan(true);
+	DepSet dep;
 
 	for ( p = node->beginl_sc(); p != node->endl_sc(); ++p )
+	{
+		dep.add(p->getDep());
 		// try to merge cache of a node label element with accumulator
-		if ( cache->merge(DLHeap.getCache(p->bp())) != csValid )
-			return cache; // caching of node fails
+		switch ( cache->merge(DLHeap.getCache(p->bp())) )
+		{
+		case csValid:	// continue
+			break;
+		case csInvalid:	// clash: set the clash-set
+			setClashSet(dep);
+		// fall through
+		default:		// caching of node fails
+			return cache;
+		}
+	}
 
 	for ( p = node->beginl_cc(); p != node->endl_cc(); ++p )
+	{
+		dep.add(p->getDep());
 		// try to merge cache of a node label element with accumulator
-		if ( cache->merge(DLHeap.getCache(p->bp())) != csValid )
-			return cache; // caching of node fails
+		switch ( cache->merge(DLHeap.getCache(p->bp())) )
+		{
+		case csValid:	// continue
+			break;
+		case csInvalid:	// clash: set the clash-set
+			setClashSet(dep);
+		// fall through
+		default:		// caching of node fails
+			return cache;
+		}
+	}
 
 	// all concepts in label are mergable; now try to add input arc
 	if ( node->hasParent() )
@@ -395,7 +418,6 @@ DlSatTester :: reportNodeCached ( modelCacheIan* cache, DlCompletionTree* node )
 		return utDone;
 	case csInvalid:
 		nCachedUnsat.inc();
-		generateCacheClashLevel(node);
 		return utClash;
 	case csFailed:
 	case csUnknown:
@@ -420,22 +442,6 @@ tacticUsage DlSatTester :: correctCachedEntry ( DlCompletionTree* n )
 		redoNodeLabel ( n, "ce" );
 
 	return ret;
-}
-
-void DlSatTester :: generateCacheClashLevel ( DlCompletionTree* node,
-											  modelCacheInterface* cache ATTR_UNUSED )
-{
-	// set clash level by merging together all dep-sets of a node label
-	//FIXME!! this could be done better
-	DepSet cur;
-	DlCompletionTree::const_label_iterator p;
-
-	for ( p = node->beginl_sc(); p != node->endl_sc(); ++p )
-		cur.add(p->getDep());
-	for ( p = node->beginl_cc(); p != node->endl_cc(); ++p )
-		cur.add(p->getDep());
-
-	setClashSet(cur);
 }
 
 //-----------------------------------------------------------------------------
