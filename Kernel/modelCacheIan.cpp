@@ -19,7 +19,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "modelCacheIan.h"
 #include "logging.h"
 
-void modelCacheIan :: processConcept ( const DLVertex& cur, BipolarPointer bp )
+void modelCacheIan :: processConcept ( const DLVertex& cur, BipolarPointer bp, bool det )
 {
 		switch ( cur.Type() )
 		{
@@ -35,9 +35,9 @@ void modelCacheIan :: processConcept ( const DLVertex& cur, BipolarPointer bp )
 		case dtNSingleton:
 		case dtPSingleton:
 			if ( isNegative (bp) )
-				negConcepts.insert (inverse(bp));
+				(det ? negDConcepts : negNConcepts).insert(inverse(bp));
 			else
-				posConcepts.insert (bp);
+				(det ? posDConcepts : posNConcepts).insert(bp);
 
 			break;
 
@@ -84,10 +84,7 @@ void modelCacheIan :: processEdgeInterval ( e_iterator start, e_iterator end )
 {
 	for ( e_iterator q = start; q != end; ++q )
 		if ( !(*q)->isIBlocked() )
-		{
 			addExistsRole ( (*q)->getRole() );
-			updateDet((*q)->getDep());
-		}
 }
 
 /// adds role (and all its super-roles) to exists- and funcRoles
@@ -165,23 +162,52 @@ modelCacheState modelCacheIan :: isMergableSingleton ( const modelCacheSingleton
 	BipolarPointer Singleton = p->getValue();
 
 	// check for the clash
-	if ( ( isPositive (Singleton) && set_contains ( negConcepts, Singleton ) ) ||
-		 ( isNegative (Singleton) && set_contains ( posConcepts, inverse(Singleton) ) ) )
-		return correctInvalid(Deterministic);
+	if ( isPositive (Singleton) )
+	{
+		// deterministic clash
+		if ( set_contains ( negDConcepts, Singleton ) )
+			return csInvalid;
+		// non-det clash
+		else if ( set_contains ( negNConcepts, Singleton ) )
+			return csFailed;
+	}
 	else
-		return csValid;
+	{
+		Singleton = inverse(Singleton);
+		// deterministic clash
+		if ( set_contains ( posDConcepts, Singleton ) )
+			return csInvalid;
+		// non-det clash
+		else if ( set_contains ( posNConcepts, Singleton ) )
+			return csFailed;
+	}
+
+	return csValid;
 }
 
 modelCacheState modelCacheIan :: isMergableIan ( const modelCacheIan* q ) const
 {
-	if ( sets_intersect ( posConcepts, q->negConcepts ) || sets_intersect ( q->posConcepts, negConcepts ) )
-		return correctInvalid ( Deterministic && q->Deterministic );
-	else if ( sets_intersect ( existsRoles, q->forallRoles ) ||
-			  sets_intersect ( q->existsRoles, forallRoles ) ||
+	if ( sets_intersect ( posDConcepts, q->negDConcepts )
+		 || sets_intersect ( q->posDConcepts, negDConcepts )
+#	ifdef RKG_USE_SIMPLE_RULES
+		 || sets_intersect ( extraDConcepts, q->extraDConcepts )
+#	endif
+		)
+		return csInvalid;
+	else if (  sets_intersect ( posDConcepts, q->negNConcepts )
+			|| sets_intersect ( posNConcepts, q->negDConcepts )
+			|| sets_intersect ( posNConcepts, q->negNConcepts )
+  			|| sets_intersect ( q->posDConcepts, negNConcepts )
+  			|| sets_intersect ( q->posNConcepts, negDConcepts )
+  			|| sets_intersect ( q->posNConcepts, negNConcepts )
 #		ifdef RKG_USE_SIMPLE_RULES
-			  sets_intersect ( extraConcepts, q->extraConcepts ) ||	// we don't know exactly how they interacts
+			|| sets_intersect ( extraDConcepts, q->extraNConcepts )
+			|| sets_intersect ( extraNConcepts, q->extraDConcepts )
+			|| sets_intersect ( extraNConcepts, q->extraNConcepts )
 #		endif
-			  sets_intersect ( funcRoles, q->funcRoles ) )
+			|| sets_intersect ( existsRoles, q->forallRoles )
+			|| sets_intersect ( q->existsRoles, forallRoles )
+			|| sets_intersect ( funcRoles, q->funcRoles ) )
 		return csFailed;
 	else	// could be merged
 		return csValid;
@@ -211,17 +237,21 @@ modelCacheState modelCacheIan :: merge ( const modelCacheInterface* p )
 		// check for the clash
 		if ( isNegative(Singleton) )
 		{
-			if ( set_contains ( posConcepts, inverse(Singleton) ) )
+			if ( set_contains ( posDConcepts, inverse(Singleton) ) )
 				newState = csInvalid;
+			else if ( set_contains ( posNConcepts, inverse(Singleton) ) )
+				newState = csFailed;
 			else
-				negConcepts.insert(inverse(Singleton));
+				negDConcepts.insert(inverse(Singleton));
 		}
 		else if ( isPositive(Singleton) )
 		{
-			if ( set_contains ( negConcepts, Singleton ) )
+			if ( set_contains ( negDConcepts, Singleton ) )
 				newState = csInvalid;
+			else if ( set_contains ( negNConcepts, Singleton ) )
+				newState = csFailed;
 			else
-				posConcepts.insert(Singleton);
+				posDConcepts.insert(Singleton);
 		}
 		else	// wrong cache
 			newState = csFailed;
@@ -236,17 +266,17 @@ modelCacheState modelCacheIan :: merge ( const modelCacheInterface* p )
 		curState = isMergableIan(q);
 
 		// merge all sets:
-		posConcepts.insert ( q->posConcepts.begin (), q->posConcepts.end () );
-		negConcepts.insert ( q->negConcepts.begin (), q->negConcepts.end () );
+		posDConcepts.insert ( q->posDConcepts.begin(), q->posDConcepts.end() );
+		posNConcepts.insert ( q->posNConcepts.begin(), q->posNConcepts.end() );
+		negDConcepts.insert ( q->negDConcepts.begin(), q->negDConcepts.end() );
+		negNConcepts.insert ( q->negNConcepts.begin(), q->negNConcepts.end() );
 #	ifdef RKG_USE_SIMPLE_RULES
-		extraConcepts.insert ( q->extraConcepts.begin (), q->extraConcepts.end () );
+		extraDConcepts.insert ( q->extraDConcepts.begin(), q->extraDConcepts.end() );
+		extraNConcepts.insert ( q->extraNConcepts.begin(), q->extraNConcepts.end() );
 #	endif
 		existsRoles.insert ( q->existsRoles.begin (), q->existsRoles.end () );
 		forallRoles.insert ( q->forallRoles.begin (), q->forallRoles.end () );
 		funcRoles.insert ( q->funcRoles.begin (), q->funcRoles.end () );
-
-		// change flags
-		Deterministic &= q->Deterministic;
 		break;
 	}
 	default:
@@ -261,13 +291,19 @@ modelCacheState modelCacheIan :: merge ( const modelCacheInterface* p )
 void modelCacheIan :: logCacheEntry ( unsigned int level ) const
 {
 	CHECK_LL_RETURN(level);
-	LL << "\nIan cache: det(" << Deterministic << "), posConcepts = ";
-	logCacheSet ( posConcepts );
-	LL << ", negConcepts = ";
-	logCacheSet ( negConcepts );
+	LL << "\nIan cache: posDConcepts = ";
+	logCacheSet ( posDConcepts );
+	LL << ", posNConcepts = ";
+	logCacheSet ( posNConcepts );
+	LL << ", negDConcepts = ";
+	logCacheSet ( negDConcepts );
+	LL << ", negNConcepts = ";
+	logCacheSet ( negNConcepts );
 #ifdef RKG_USE_SIMPLE_RULES
-	LL << ", extraConcepts = ";
-	logCacheSet ( extraConcepts );
+	LL << ", extraDConcepts = ";
+	logCacheSet ( extraDConcepts );
+	LL << ", extraNConcepts = ";
+	logCacheSet ( extraNConcepts );
 #endif
 	LL << ", existsRoles = ";
 	logCacheSet ( existsRoles );
