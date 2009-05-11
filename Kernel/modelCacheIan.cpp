@@ -160,6 +160,7 @@ sets_intersect ( const std::set<T>& s1, const std::set<T>& s2 )
 modelCacheState modelCacheIan :: isMergableSingleton ( const modelCacheSingleton* p ) const
 {
 	BipolarPointer Singleton = p->getValue();
+	assert ( isValid(Singleton) );
 
 	// check for the clash
 	if ( isPositive (Singleton) )
@@ -232,6 +233,7 @@ modelCacheState modelCacheIan :: merge ( const modelCacheInterface* p )
 	case mctSingleton:	// adds Singleton
 	{
 		BipolarPointer Singleton = static_cast<const modelCacheSingleton*>(p)->getValue();
+		assert ( isValid(Singleton) );
 		modelCacheState newState = csValid;
 
 		// check for the clash
@@ -244,7 +246,7 @@ modelCacheState modelCacheIan :: merge ( const modelCacheInterface* p )
 			else
 				negDConcepts.insert(inverse(Singleton));
 		}
-		else if ( isPositive(Singleton) )
+		else
 		{
 			if ( set_contains ( negDConcepts, Singleton ) )
 				newState = csInvalid;
@@ -253,8 +255,6 @@ modelCacheState modelCacheIan :: merge ( const modelCacheInterface* p )
 			else
 				posDConcepts.insert(Singleton);
 		}
-		else	// wrong cache
-			newState = csFailed;
 
 		curState = mergeStatus ( getState(), newState );
 		break;
