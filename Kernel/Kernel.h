@@ -407,6 +407,11 @@ public:
 	//	TELLS interface
 	//----------------------------------------------------
 
+	// Declaration axioms
+
+		/// axiom declare(x)
+	TDLAxiom* declare ( const ComplexConcept C ) { return Ontology.add(new TDLAxiomDeclaration(C)); }
+
 	// Concept axioms
 
 		/// axiom C [= D

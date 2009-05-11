@@ -22,6 +22,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "dltree.h"
 
 // forward declaration for all axiom classes: necessary for the visitor pattern
+class TDLAxiomDeclaration;
+
 class TDLAxiomEquivalentConcepts;
 class TDLAxiomDisjointConcepts;
 class TDLAxiomEquivalentRoles;
@@ -53,6 +55,8 @@ class TOntology;
 class DLAxiomVisitor
 {
 public:		// visitor interface
+	virtual void visit ( TDLAxiomDeclaration& axiom ) = 0;
+
 	virtual void visit ( TDLAxiomEquivalentConcepts& axiom ) = 0;
 	virtual void visit ( TDLAxiomDisjointConcepts& axiom ) = 0;
 	virtual void visit ( TDLAxiomEquivalentRoles& axiom ) = 0;
@@ -105,6 +109,26 @@ public:
 		/// accept method for the visitor pattern
 	virtual void accept ( DLAxiomVisitor& visitor ) = 0;
 }; // TDLAxiom
+
+//------------------------------------------------------------------
+///	general declaration axiom
+//------------------------------------------------------------------
+class TDLAxiomDeclaration: public TDLAxiom
+{
+protected:	// members
+	DLTree* D;
+
+public:		// interface
+		/// c'tor: create an axiom
+	TDLAxiomDeclaration ( DLTree* d ) : TDLAxiom(), D(d) {}
+		/// d'tor
+	virtual ~TDLAxiomDeclaration ( void ) { deleteTree(D); }
+
+		/// access
+	DLTree* getDeclaration ( void ) { return D; }
+		/// accept method for the visitor pattern
+	void accept ( DLAxiomVisitor& visitor ) { visitor.visit(*this); }
+}; // TDLAxiomIndividual
 
 //------------------------------------------------------------------
 //	n-ary axioms

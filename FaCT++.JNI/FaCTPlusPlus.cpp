@@ -721,7 +721,8 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
 //-------------------------------------------------------------
 
 #define PROCESS_QUERY(Action,Name)				\
-	do { try { return Axiom(env,Action); }		\
+	do { TRACE_JNI(Name);						\
+	try { return Axiom(env,Action); }			\
 	catch ( EFPPInconsistentKB )				\
 	{ ThrowICO(env); }							\
 	catch ( EFPPNonSimpleRole nsr )				\
@@ -734,6 +735,50 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
 	{ Throw ( env, ex.what() ); }				\
 		return NULL;  } while(0)
 //	Throw ( env, "FaCT++ Kernel: error during " Name " processing" )
+
+/*
+ * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
+ * Method:    tellClassDeclaration
+ * Signature: (Luk/ac/manchester/cs/factplusplus/ClassPointer;)Luk/ac/manchester/cs/factplusplus/AxiomPointer;
+ */
+JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellClassDeclaration
+  (JNIEnv * env, jobject obj, jobject arg)
+{
+	PROCESS_QUERY ( getK(env,obj)->declare(getTree(env,arg)), "tellClassDeclaration" );
+}
+
+/*
+ * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
+ * Method:    tellObjectPropertyDeclaration
+ * Signature: (Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;)Luk/ac/manchester/cs/factplusplus/AxiomPointer;
+ */
+JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellObjectPropertyDeclaration
+  (JNIEnv * env, jobject obj, jobject arg)
+{
+	PROCESS_QUERY ( getK(env,obj)->declare(getTree(env,arg)), "tellObjectPropertyDeclaration" );
+}
+
+/*
+ * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
+ * Method:    tellDataPropertyDeclaration
+ * Signature: (Luk/ac/manchester/cs/factplusplus/DataPropertyPointer;)Luk/ac/manchester/cs/factplusplus/AxiomPointer;
+ */
+JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellDataPropertyDeclaration
+  (JNIEnv * env, jobject obj, jobject arg)
+{
+	PROCESS_QUERY ( getK(env,obj)->declare(getTree(env,arg)), "tellDataPropertyDeclaration" );
+}
+
+/*
+ * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
+ * Method:    tellIndividualDeclaration
+ * Signature: (Luk/ac/manchester/cs/factplusplus/IndividualPointer;)Luk/ac/manchester/cs/factplusplus/AxiomPointer;
+ */
+JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellIndividualDeclaration
+  (JNIEnv * env, jobject obj, jobject arg)
+{
+	PROCESS_QUERY ( getK(env,obj)->declare(getTree(env,arg)), "tellIndividualDeclaration" );
+}
 
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
@@ -1739,6 +1784,28 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_setPro
 {
 	TRACE_JNI("setProgressMonitor");
 	getK(env,obj)->setProgressMonitor ( new JNIProgressMonitor ( env, monitor ) );
+}
+
+/*
+ * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
+ * Method:    startChanges
+ * Signature: ()V
+ */
+JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_startChanges
+  (JNIEnv * env ATTR_UNUSED, jobject obj ATTR_UNUSED)
+{
+	TRACE_JNI("startChanges");
+}
+
+/*
+ * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
+ * Method:    endChanges
+ * Signature: ()V
+ */
+JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_endChanges
+  (JNIEnv * env ATTR_UNUSED, jobject obj ATTR_UNUSED)
+{
+	TRACE_JNI("endChanges");
 }
 
 #undef PROCESS_ASK_QUERY

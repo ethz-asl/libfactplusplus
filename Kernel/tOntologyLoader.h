@@ -43,6 +43,9 @@ protected:	// methods
 	}
 
 public:		// visitor interface
+		/// nothing to do in case of declaration
+	virtual void visit ( TDLAxiomDeclaration& axiom ATTR_UNUSED ) {}
+
 	virtual void visit ( TDLAxiomEquivalentConcepts& axiom ) { kb.processEquivalentC(axiom.begin(),axiom.end()); }
 	virtual void visit ( TDLAxiomDisjointConcepts& axiom ) { kb.processDisjointC(axiom.begin(),axiom.end()); }
 	virtual void visit ( TDLAxiomEquivalentRoles& axiom ) { kb.processEquivalentR(axiom.begin(),axiom.end()); }
