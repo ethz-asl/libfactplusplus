@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2008 by Dmitry Tsarkov
+Copyright (C) 2003-2009 by Dmitry Tsarkov
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -172,10 +172,10 @@ Token TsScanner :: getExpressionKeyword ( void ) const
 	if ( isKeyword ("all") )
 		return FORALL;
 
-	if ( isKeyword ("at-least") || isKeyword ("atleast") )
+	if ( isKeyword("min") || isKeyword("at-least") || isKeyword("atleast") )
 		return GE;
 
-	if ( isKeyword ("at-most") || isKeyword ("atmost") )
+	if ( isKeyword("max") || isKeyword("at-most") || isKeyword("atmost") )
 		return LE;
 
 	if ( isKeyword ("one-of") )
@@ -204,12 +204,6 @@ Token TsScanner :: getExpressionKeyword ( void ) const
 
 	if ( isKeyword("le") )
 		return DTLE;
-
-	if ( isKeyword("between") )
-		return BETWEEN;
-
-	if ( isKeyword("in-range") )
-		return INRANGE;
 
 	if ( isKeyword("d-one-of") )
 		return DONEOF;

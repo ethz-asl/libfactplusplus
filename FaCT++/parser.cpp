@@ -368,27 +368,6 @@ DLTree* DLLispParser :: processComplexConceptTree ( void )
 			Kernel->getDataTypeCenter().getMaxInclusiveFacet(left) );
 		return right;
 
-	case BETWEEN:	// = (x,y)
-		left = processConceptTree();	// read x
-		right = Kernel->getDataTypeCenter().getDataExpr(left);
-		Kernel->getDataTypeCenter().applyFacet ( right,
-			Kernel->getDataTypeCenter().getMinExclusiveFacet(left) );
-		left = processConceptTree();	// read y
-		MustBeM(RBRACK);
-		Kernel->getDataTypeCenter().applyFacet ( right,
-			Kernel->getDataTypeCenter().getMaxExclusiveFacet(left) );
-		return right;
-	case INRANGE:	// = [x,y]
-		left = processConceptTree();	// read x
-		right = Kernel->getDataTypeCenter().getDataExpr(left);
-		Kernel->getDataTypeCenter().applyFacet ( right,
-			Kernel->getDataTypeCenter().getMinInclusiveFacet(left) );
-		left = processConceptTree();	// read y
-		MustBeM(RBRACK);
-		Kernel->getDataTypeCenter().applyFacet ( right,
-			Kernel->getDataTypeCenter().getMaxInclusiveFacet(left) );
-		return right;
-
 	case GE:
 	case LE:
 		// hack: id here is a number restriction
