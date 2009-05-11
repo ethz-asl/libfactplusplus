@@ -34,6 +34,7 @@ DlSatTester :: DlSatTester ( TBox& tbox, const ifOptionSet* Options )
 	, GCIs(tbox.GCIs)
 	, bContext(NULL)
 	, tryLevel(InitBranchingLevelValue)
+	, nonDetShift(0)
 	, curNode(NULL)
 	, dagSize(0)
 {
@@ -493,6 +494,7 @@ DlSatTester :: consistentNominalCloud ( void )
 		curNode = NULL;
 		initBC(btBarrier);
 		save();
+		nonDetShift = 1;	// the barrier doesn't introduce branching itself
 		if ( LLM.isWritable(llSRState) )
 			LL << "] utDone";
 	}

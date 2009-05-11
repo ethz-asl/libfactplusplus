@@ -275,6 +275,8 @@ protected:	// members
 	BranchingContext* bContext;
 		/// index of last non-det situation
 	unsigned int tryLevel;
+		/// shift in order to determine the 1st non-det application
+	unsigned int nonDetShift;
 
 	// statistic elements
 
@@ -760,7 +762,7 @@ protected:	// methods
 		/// set new branching level (never use tryLevel directly)
 	void setCurLevel ( unsigned int level ) { tryLevel = level; }
 		/// @return true if no branching ops were applied during reasoners; FIXME!! doesn't work properly with a nominal cloud
-	bool noBranchingOps ( void ) const { return tryLevel == InitBranchingLevelValue; }
+	bool noBranchingOps ( void ) const { return tryLevel == InitBranchingLevelValue + nonDetShift; }
 		/// Get save/restore level based on either current- or DS level
 	unsigned int getSaveRestoreLevel ( const DepSet& ds ATTR_UNUSED ) const
 	{
