@@ -152,24 +152,6 @@ inline DLTree* createSNFwR ( Token T, unsigned int n, DLTree* R, DLTree* C )
 	}
 }
 
-	/// create new complex (non-ID) formula from already-SNF
-inline DLTree* rebuildSNF ( const TLexeme& lex, DLTree* C1, DLTree* C2 )
-{
-	switch(lex.getToken())
-	{
-	case NOT:
-		return createSNFNot(C1);
-	case AND:
-		return createSNFAnd ( C1, C2 );
-	case FORALL:
-		return createSNFForall ( C1, C2 );
-	case LE:
-		return createSNFLE ( lex.getData(), C1, C2 );
-	default:
-		assert(0);
-	}
-}
-
 // prints formula
 
 extern const char* TokenName ( Token t );

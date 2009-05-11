@@ -58,8 +58,9 @@ enum Token {
 
 	// more precise ID's discretion
 	CNAME,	// name of a concept
-	RNAME,	// name of a role
 	INAME,	// name of a singleton
+	RNAME,	// name of a role
+	DNAME,	// name of a data role
 
 	// FaCT commands
 	// definitions
@@ -115,6 +116,6 @@ enum Token {
 // some multi-case defines
 
 // any name (like ID)
-#define NAME CNAME: case INAME: case RNAME
+#define NAME CNAME: case INAME: case RNAME: case DNAME
 
 #endif
