@@ -221,6 +221,15 @@ public class FaCTPlusPlus {
     ///////////////////////////////////////////////////////////////////////////////////////////////
     // Axioms
 
+    public native AxiomPointer tellClassDeclaration(ClassPointer c) throws FaCTPlusPlusException;
+
+    public native AxiomPointer tellObjectPropertyDeclaration(ObjectPropertyPointer op) throws FaCTPlusPlusException;
+
+    public native AxiomPointer tellDataPropertyDeclaration(DataPropertyPointer dp) throws FaCTPlusPlusException;
+
+    public native AxiomPointer tellIndividualDeclaration(IndividualPointer ip) throws FaCTPlusPlusException;
+
+
     public native AxiomPointer tellSubClassOf(ClassPointer c, ClassPointer d) throws FaCTPlusPlusException;
 
     /**
@@ -452,4 +461,9 @@ public class FaCTPlusPlus {
     public native void closeArgList() throws FaCTPlusPlusException;
 
     public native void setProgressMonitor(FaCTPlusPlusProgressMonitor progressMonitor) throws FaCTPlusPlusException;
+
+    public native void startChanges();
+
+    public native void endChanges();    
+
 }

@@ -28,7 +28,6 @@ public class AxiomLoader implements OWLAxiomVisitor {
 
     private AxiomPointer lastAxiom;
 
-
     public AxiomLoader(Translator translator) {
         this.translator = translator;
         this.faCTPlusPlus = translator.getFaCTPlusPlus();
@@ -575,10 +574,62 @@ public class AxiomLoader implements OWLAxiomVisitor {
     public void visit(OWLAxiomAnnotationAxiom axiom) {
         // Skip
     }
+    
+
+    private OWLEntityVisitor declarationVisitor = new OWLEntityVisitor(){
+
+        public void visit(OWLClass owlClass) {
+            try {
+                ClassPointer cls = translator.translate(owlClass);
+                lastAxiom = faCTPlusPlus.tellClassDeclaration(cls);
+            }
+            catch (Exception e) {
+                throw new FaCTPlusPlusRuntimeException(e);
+            }
+        }
+
+
+        public void visit(OWLObjectProperty owlObjectProperty) {
+            try {
+                ObjectPropertyPointer op = translator.translate(owlObjectProperty);
+                lastAxiom = faCTPlusPlus.tellObjectPropertyDeclaration(op);
+            }
+            catch (Exception e) {
+                throw new FaCTPlusPlusRuntimeException(e);
+            }
+        }
+
+
+        public void visit(OWLDataProperty owlDataProperty) {
+            try {
+                DataPropertyPointer op = translator.translate(owlDataProperty);
+                lastAxiom = faCTPlusPlus.tellDataPropertyDeclaration(op);                
+            }
+            catch (Exception e) {
+                throw new FaCTPlusPlusRuntimeException(e);
+            }
+        }
+
+
+        public void visit(OWLIndividual individual) {
+            try {
+                IndividualPointer op = translator.translate(individual);
+                lastAxiom = faCTPlusPlus.tellIndividualDeclaration(op);
+            }
+            catch (Exception e) {
+                throw new FaCTPlusPlusRuntimeException(e);
+            }
+        }
+
+
+        public void visit(OWLDataType owlDataType) {
+            // todo
+        }
+    };
 
 
     public void visit(OWLDeclarationAxiom axiom) {
-        // Skip
+        axiom.getEntity().accept(declarationVisitor);
     }
 
 

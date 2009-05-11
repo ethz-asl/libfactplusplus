@@ -79,27 +79,27 @@ public class OntologyLoader {
 
 
     public void loadOntologies(Set<OWLOntology> ontologies) throws FaCTPlusPlusException {
-        try {
+//        try {
             for (OWLOntology ont : ontologies) {
                 // make sure entities that do not occur in logical axioms are still understood by FaCT++
-                for (OWLClass cls : ont.getReferencedClasses()) {
-                    translator.translate(cls);
-                }
-                for (OWLObjectProperty prop : ont.getReferencedObjectProperties()) {
-                    translator.translate(prop);
-                }
-                for (OWLDataProperty prop : ont.getReferencedDataProperties()) {
-                    translator.translate(prop);
-                }
-                for (OWLIndividual ind : ont.getReferencedIndividuals()) {
-                    translator.translate(ind);
-                }
+//                for (OWLClass cls : ont.getReferencedClasses()) {
+//                    translator.translate(cls);
+//                }
+//                for (OWLObjectProperty prop : ont.getReferencedObjectProperties()) {
+//                    translator.translate(prop);
+//                }
+//                for (OWLDataProperty prop : ont.getReferencedDataProperties()) {
+//                    translator.translate(prop);
+//                }
+//                for (OWLIndividual ind : ont.getReferencedIndividuals()) {
+//                    translator.translate(ind);
+//                }
                 loadAxioms(ont.getAxioms());
             }
-        }
-        catch (OWLException e) {
-            throw new FaCTPlusPlusRuntimeException(e);
-        }
+//        }
+//        catch (OWLException e) {
+//            throw new FaCTPlusPlusRuntimeException(e);
+//        }
     }
 
 
@@ -140,8 +140,10 @@ public class OntologyLoader {
 
     
     public void applyChanges(List<OWLOntologyChange> changes) throws OWLException {
+        translator.getFaCTPlusPlus().startChanges();
         for (OWLOntologyChange change : changes){
             change.accept(changeVisitor);
         }
+        translator.getFaCTPlusPlus().endChanges();
     }
 }

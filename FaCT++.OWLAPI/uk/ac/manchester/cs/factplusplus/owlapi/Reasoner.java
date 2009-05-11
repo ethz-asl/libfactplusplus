@@ -368,6 +368,7 @@ public class Reasoner extends MonitorableOWLReasonerAdapter implements FaCTPlusP
 
     public void realise() throws OWLReasonerException {
         try {
+            autoSynchronise();
             faCTPlusPlus.realise();
         }
         catch (FaCTPlusPlusException e) {
@@ -384,6 +385,7 @@ public class Reasoner extends MonitorableOWLReasonerAdapter implements FaCTPlusP
      */
     public boolean isConsistent(OWLOntology ontology) throws OWLReasonerException {
         try {
+            autoSynchronise();
             return faCTPlusPlus.isKBConsistent();
         }
         catch (Exception e) {
