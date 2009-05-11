@@ -742,7 +742,9 @@ public:
 	void getDirectInstances ( const ComplexConcept C, Actor& actor )
 	{
 		realiseKB();	// ensure KB is ready to answer the query
-		getChildren ( C, actor );
+		setUpCache ( C, csClassified );
+		cachedVertex->getRelativesInfo</*needCurrent=*/true, /*onlyDirect=*/true,
+									   /*upDirection=*/false>(actor);
 	}
 
 		/// apply actor::apply() to all instances of given [complex] C
@@ -750,7 +752,9 @@ public:
 	void getInstances ( const ComplexConcept C, Actor& actor )
 	{	// FIXME!! check for Racer's/IS approach
 		realiseKB();	// ensure KB is ready to answer the query
-		getDescendants ( C, actor );
+		setUpCache ( C, csClassified );
+		cachedVertex->getRelativesInfo</*needCurrent=*/true, /*onlyDirect=*/false,
+									   /*upDirection=*/false>(actor);
 	}
 
 		/// apply actor::apply() to all direct concept parents of an individual I
