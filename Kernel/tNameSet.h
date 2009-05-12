@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2008 by Dmitry Tsarkov
+Copyright (C) 2003-2009 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -19,9 +19,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef _TNAMESET_H
 #define _TNAMESET_H
 
+#include <string>
 #include <map>
-
-#include "tNamedEntry.h"
 
 /// base class for creating Named Entries; template parameter should be derived from TNamedEntry
 template<class T>

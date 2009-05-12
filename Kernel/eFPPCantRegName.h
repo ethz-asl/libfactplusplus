@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2006-2008 by Dmitry Tsarkov
+Copyright (C) 2006-2009 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -18,6 +18,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #ifndef _EFPPCANTREGNAME_H
 #define _EFPPCANTREGNAME_H
+
+#include <string>
 
 #include "eFaCTPlusPlus.h"
 
