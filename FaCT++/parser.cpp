@@ -183,7 +183,7 @@ void DLLispParser :: parseCommand ( void )
 		if ( Current != RBRACK )
 			Kernel->impliesConcepts ( Name, processConceptTree() );
 		else
-			delete Name;
+			Kernel->declare(Name);
 		break;
 
 	case CONCEPT:
@@ -192,7 +192,7 @@ void DLLispParser :: parseCommand ( void )
 		break;
 
 	case DEFINDIVIDUAL:		// just register singleton
-		delete getSingleton();
+		Kernel->declare(getSingleton());
 		break;
 
 	case INSTANCE:
@@ -218,7 +218,8 @@ void DLLispParser :: parseCommand ( void )
 		Name = getRole();
 		if ( Current != RBRACK )
 			parseRoleArguments(Name);
-		deleteTree(Name);
+		else
+			Kernel->declare(Name);
 		break;
 
 	case PATTR:
@@ -233,13 +234,14 @@ void DLLispParser :: parseCommand ( void )
 			parseError(ex.what());
 		}
 
-		if ( Current != RBRACK )
+		if ( Current == RBRACK )
+			Kernel->declare(Name);
+		else
 			parseRoleArguments(Name);
-		deleteTree(Name);
 		break;
 
 	case DATAROLE:		// register data role
-		delete getDataRole();
+		Kernel->declare(getDataRole());
 		break;
 
 	default:
@@ -300,6 +302,9 @@ void DLLispParser :: parseRoleArguments ( DLTree* R )
 		}
 		else
 			parseError ( "use either :parents or :transitive command in role description" );
+
+	// R is not needed anymore
+	deleteTree(R);
 }
 
 DLTree* DLLispParser :: processConceptTree ( void )
