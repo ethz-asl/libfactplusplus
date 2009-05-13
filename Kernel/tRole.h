@@ -400,6 +400,7 @@ resolveRoleHelper ( const DLTree* t )
 	switch ( t->Element().getToken() )
 	{
 	case RNAME:	// role name
+	case DNAME:	// data role name
 		return static_cast<TRole*>(t->Element().getNE());
 	case INV:	// inversion
 		return resolveRoleHelper(t->Left())->inverse();

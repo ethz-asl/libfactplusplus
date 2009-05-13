@@ -260,6 +260,7 @@ void dumpRExpression ( dumpInterface* dump, const DLTree* R )
 	switch ( R->Element().getToken() )
 	{
 	case RNAME:
+	case DNAME:
 		return dump->dumpRole(static_cast<TRole*>(R->Element().getNE()));
 	case NOT:
 	case INV:

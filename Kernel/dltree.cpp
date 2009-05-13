@@ -41,6 +41,7 @@ DLTree* createInverse ( DLTree* R )
 	}
 	case RNAME:	// role name
 		return new DLTree ( INV, R );
+	// NOTE!! data roles can have no inverses
 	default:	// error
 		return NULL;
 	}
@@ -234,6 +235,7 @@ const char* TokenName ( Token t )
 	case CNAME:		return "cname";
 	case INAME:		return "iname";
 	case RNAME:		return "rname";
+	case DNAME:		return "dname";
 	case DATAEXPR:	return "dataexpr";
 	case CONCEPT:	return "concept";
 	case PCONCEPT:	return "primconcept";
