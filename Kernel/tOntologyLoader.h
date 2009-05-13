@@ -41,37 +41,95 @@ protected:	// methods
 			throw EFaCTPlusPlus(reason);
 		return static_cast<TIndividual*>(I->Element().getNE());
 	}
+		/// ensure that the concept expression E has its named entities linked to the KB ones
+	void ensureNames ( const DLTree* E )
+	{
+		isSNF(E);
+	}
+		/// ensure names in the [begin,end) interval
+	template<class Iterator>
+	void ensureNames ( Iterator begin, Iterator end )
+	{
+		for ( ; begin != end; ++begin )
+			ensureNames(*begin);
+	}
 
 public:		// visitor interface
-		/// nothing to do in case of declaration
-	virtual void visit ( TDLAxiomDeclaration& axiom ATTR_UNUSED ) {}
+	virtual void visit ( TDLAxiomDeclaration& axiom ) { ensureNames(axiom.getDeclaration()); }
 
-	virtual void visit ( TDLAxiomEquivalentConcepts& axiom ) { kb.processEquivalentC(axiom.begin(),axiom.end()); }
-	virtual void visit ( TDLAxiomDisjointConcepts& axiom ) { kb.processDisjointC(axiom.begin(),axiom.end()); }
-	virtual void visit ( TDLAxiomEquivalentRoles& axiom ) { kb.processEquivalentR(axiom.begin(),axiom.end()); }
-	virtual void visit ( TDLAxiomDisjointRoles& axiom ) { kb.processDisjointR(axiom.begin(),axiom.end()); }
-	virtual void visit ( TDLAxiomSameIndividuals& axiom ) { kb.processSame(axiom.begin(),axiom.end()); }
-	virtual void visit ( TDLAxiomDifferentIndividuals& axiom ) { kb.processDifferent(axiom.begin(),axiom.end()); }
-	virtual void visit ( TDLAxiomFairnessConstraint& axiom ) { kb.setFairnessConstraint(axiom.begin(),axiom.end()); }
+	// n-ary axioms
+
+	virtual void visit ( TDLAxiomEquivalentConcepts& axiom )
+	{
+		ensureNames(axiom.begin(),axiom.end());
+		kb.processEquivalentC(axiom.begin(),axiom.end());
+	}
+	virtual void visit ( TDLAxiomDisjointConcepts& axiom )
+	{
+		ensureNames(axiom.begin(),axiom.end());
+		kb.processDisjointC(axiom.begin(),axiom.end());
+	}
+	virtual void visit ( TDLAxiomEquivalentRoles& axiom )
+	{
+		ensureNames(axiom.begin(),axiom.end());
+		kb.processEquivalentR(axiom.begin(),axiom.end());
+	}
+	virtual void visit ( TDLAxiomDisjointRoles& axiom )
+	{
+		ensureNames(axiom.begin(),axiom.end());
+		kb.processDisjointR(axiom.begin(),axiom.end());
+	}
+	virtual void visit ( TDLAxiomSameIndividuals& axiom )
+	{
+		ensureNames(axiom.begin(),axiom.end());
+		kb.processSame(axiom.begin(),axiom.end());
+	}
+	virtual void visit ( TDLAxiomDifferentIndividuals& axiom )
+	{
+		ensureNames(axiom.begin(),axiom.end());
+		kb.processDifferent(axiom.begin(),axiom.end());
+	}
+	virtual void visit ( TDLAxiomFairnessConstraint& axiom )
+	{
+		ensureNames(axiom.begin(),axiom.end());
+		kb.setFairnessConstraint(axiom.begin(),axiom.end());
+	}
+
+	// role axioms
 
 	virtual void visit ( TDLAxiomRoleSubsumption& axiom )
-		{ kb.getRM()->addRoleParent ( axiom.getSubRole(), getRole ( axiom.getRole(), "Role expression expected in Roles Subsumption axiom" ) ); }
+	{
+		ensureNames(axiom.getRole());
+		ensureNames(axiom.getSubRole());
+		kb.getRM()->addRoleParent ( axiom.getSubRole(), getRole ( axiom.getRole(), "Role expression expected in Roles Subsumption axiom" ) );
+	}
 	virtual void visit ( TDLAxiomRoleDomain& axiom )
-		{ getRole ( axiom.getRole(), "Role expression expected in Role Domain axiom" )->setDomain(clone(axiom.getDomain())); }
+	{
+		ensureNames(axiom.getRole());
+		ensureNames(axiom.getDomain());
+		getRole ( axiom.getRole(), "Role expression expected in Role Domain axiom" )->setDomain(clone(axiom.getDomain()));
+	}
 	virtual void visit ( TDLAxiomRoleRange& axiom )
-		{ getRole ( axiom.getRole(), "Role expression expected in Role Range axiom" )->setRange(clone(axiom.getRange())); }
+	{
+		ensureNames(axiom.getRole());
+		ensureNames(axiom.getRange());
+		getRole ( axiom.getRole(), "Role expression expected in Role Range axiom" )->setRange(clone(axiom.getRange()));
+	}
 	virtual void visit ( TDLAxiomRoleTransitive& axiom )
 	{
+		ensureNames(axiom.getRole());
 		if ( !isUniversalRole(axiom.getRole()) )	// universal role always transitive
 			getRole ( axiom.getRole(), "Role expression expected in Role Transitivity axiom" )->setBothTransitive();
 	}
 	virtual void visit ( TDLAxiomRoleReflexive& axiom )
 	{
+		ensureNames(axiom.getRole());
 		if ( !isUniversalRole(axiom.getRole()) )	// universal role always reflexive
 			getRole ( axiom.getRole(), "Role expression expected in Role Reflexivity axiom" )->setBothReflexive();
 	}
 	virtual void visit ( TDLAxiomRoleIrreflexive& axiom )
 	{
+		ensureNames(axiom.getRole());
 		if ( isUniversalRole(axiom.getRole()) )	// KB became inconsistent
 			throw EFPPInconsistentKB();
 		getRole ( axiom.getRole(), "Role expression expected in Role Irreflexivity axiom" )
@@ -79,6 +137,7 @@ public:		// visitor interface
 	}
 	virtual void visit ( TDLAxiomRoleSymmetric& axiom )
 	{
+		ensureNames(axiom.getRole());
 		if ( !isUniversalRole(axiom.getRole()) )
 		{
 			TRole* invR = getRole ( axiom.getRole(), "Role expression expected in Role Symmetry axiom" )->inverse();
@@ -87,6 +146,7 @@ public:		// visitor interface
 	}
 	virtual void visit ( TDLAxiomRoleAntiSymmetric& axiom )
 	{
+		ensureNames(axiom.getRole());
 		if ( isUniversalRole(axiom.getRole()) )	// KB became inconsistent
 			throw EFPPInconsistentKB();
 		TRole* R = getRole ( axiom.getRole(), "Role expression expected in Role AntiSymmetry axiom" );
@@ -94,16 +154,31 @@ public:		// visitor interface
 	}
 	virtual void visit ( TDLAxiomRoleFunctional& axiom )
 	{
+		ensureNames(axiom.getRole());
 		if ( isUniversalRole(axiom.getRole()) )	// KB became inconsistent
 			throw EFPPInconsistentKB();
 		getRole ( axiom.getRole(), "Role expression expected in Role Functionality axiom" )->setFunctional();
 	}
 
-	virtual void visit ( TDLAxiomConceptInclusion& axiom ) { kb.addSubsumeAxiom ( clone(axiom.getSubC()), clone(axiom.getSupC()) ); }
+	// concept/individual axioms
+
+	virtual void visit ( TDLAxiomConceptInclusion& axiom )
+	{
+		ensureNames(axiom.getSubC());
+		ensureNames(axiom.getSupC());
+		kb.addSubsumeAxiom ( clone(axiom.getSubC()), clone(axiom.getSupC()) );
+	}
 	virtual void visit ( TDLAxiomInstanceOf& axiom )
-		{ kb.RegisterInstance ( getIndividual ( axiom.getIndividual(), "Individual expected in Instance axiom" ), clone(axiom.getC()) ); }
+	{
+		ensureNames(axiom.getIndividual());
+		ensureNames(axiom.getC());
+		kb.RegisterInstance ( getIndividual ( axiom.getIndividual(), "Individual expected in Instance axiom" ), clone(axiom.getC()) );
+	}
 	virtual void visit ( TDLAxiomRelatedTo& axiom )
 	{
+		ensureNames(axiom.getIndividual());
+		ensureNames(axiom.getRelation());
+		ensureNames(axiom.getRelatedIndividual());
 		if ( !isUniversalRole(axiom.getRelation()) )	// nothing to do for universal role
 			kb.RegisterIndividualRelation (
 				getIndividual ( axiom.getIndividual(), "Individual expected in Related To axiom" ),
@@ -112,6 +187,9 @@ public:		// visitor interface
 	}
 	virtual void visit ( TDLAxiomRelatedToNot& axiom )
 	{
+		ensureNames(axiom.getIndividual());
+		ensureNames(axiom.getRelation());
+		ensureNames(axiom.getRelatedIndividual());
 		if ( isUniversalRole(axiom.getRelation()) )	// inconsistent ontology
 			throw EFPPInconsistentKB();
 		// make sure everything is consistent
@@ -123,6 +201,9 @@ public:		// visitor interface
 	}
 	virtual void visit ( TDLAxiomValueOf& axiom )
 	{
+		ensureNames(axiom.getIndividual());
+		ensureNames(axiom.getAttribute());
+		// FIXME!! think about ensuring the value
 		if ( isUniversalRole(axiom.getAttribute()) )	// data role can't be universal
 			throw EFPPInconsistentKB();
 		// make an axiom i:EA.V
@@ -132,6 +213,9 @@ public:		// visitor interface
 	}
 	virtual void visit ( TDLAxiomValueOfNot& axiom )
 	{
+		ensureNames(axiom.getIndividual());
+		ensureNames(axiom.getAttribute());
+		// FIXME!! think about ensuring the value
 		if ( isUniversalRole(axiom.getAttribute()) )	// data role can't be universal
 			throw EFPPInconsistentKB();
 		// make an axiom i:AA.\neg V
