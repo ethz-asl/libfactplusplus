@@ -276,7 +276,7 @@ DLTree* TBox :: processOneOf ( const ExpressionArray& v, bool data )
 	DLTree* ret = new DLTree(BOTTOM);
 
 	for ( ea_iterator p = v.begin(), p_end = v.end(); p != p_end; ++p )
-		if ( (data && isDataValue(*p)) || (!data && isIndividual(*p)) )
+		if ( (data && isDataValue(*p)) || (!data && (*p)->Element().getToken() == INAME) )
 			ret = createSNFOr ( ret, *p );
 		else
 		{
