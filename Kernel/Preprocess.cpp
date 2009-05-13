@@ -177,7 +177,7 @@ replaceSynonymsFromTree ( DLTree* desc )
 			if ( entry->getId() == -1 )
 				cur = !strcmp(entry->getName(), "TOP") ? TOP : BOTTOM;
 			else
-				cur = TLexeme ( static_cast<TConcept*>(entry)->isSingleton() ? INAME : CNAME, entry );
+				cur = TLexeme ( static_cast<TConcept*>(entry)->isSingleton() ? INAME : CNAME, new TTreeNamedEntry(entry) );
 			return true;
 		}
 		else

@@ -20,7 +20,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #define _TLEXEME_H
 
 #include "grammar.h"
-#include "tNamedEntry.h"
+#include "tTreeNamedEntry.h"
 
 /// Lexeme (smallest lexical element) in a syntax tree
 class TLexeme
@@ -31,13 +31,13 @@ private:	// members
 		/// pointer to information (for names)
 	union
 	{
-		TNamedEntry* pName;
+		TTreeNamedEntry* pName;
 		unsigned int data;
 	} value;
 
 public:		// interface
 		/// default c'tor for pointers
-	TLexeme ( Token tok = BAD_LEX, TNamedEntry* p = NULL ) : token(tok) { value.pName = p; }
+	TLexeme ( Token tok = BAD_LEX, TTreeNamedEntry* p = NULL ) : token(tok) { value.pName = p; }
 		/// default c'tor for numbers
 	TLexeme ( Token tok, unsigned int val ) : token(tok) { value.data = val; }
 		/// Copy c'tor
@@ -55,9 +55,14 @@ public:		// interface
 		/// get Token of given Lexeme
 	Token getToken ( void ) const { return token; }
 		/// get name pointer of given lexeme
-	TNamedEntry* getNE ( void ) const { return value.pName; }
+	TNamedEntry* getNE ( void ) const { return value.pName->getImpl(); }
+		/// get name pointer of given lexeme
+	const char* getName ( void ) const { return value.pName->getName(); }
 		/// get data value of given lexeme
 	unsigned int getData ( void ) const { return value.data; }
+
+		/// set name implementation for given lexeme
+	void setNE ( TNamedEntry* p ) { value.pName->setImpl(p); }
 
 	// comparison
 

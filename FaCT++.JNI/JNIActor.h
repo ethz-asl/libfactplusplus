@@ -116,7 +116,7 @@ public:
 	static DLTree* buildTree ( ClassifiableEntry* p )
 	{
 		if ( p->getId () >= 0 )
-			return new DLTree(TLexeme(CNAME,p));
+			return new DLTree(TLexeme(CNAME,new TTreeNamedEntry(p)));
 
 		// top or bottom
 		std::string name(p->getName());
@@ -139,7 +139,7 @@ public:
 		{ return static_cast<const TConcept*>(p)->isSingleton(); }
 	static bool needPlain ( void ) { return true; }
 	static DLTree* buildTree ( ClassifiableEntry* p )
-		{ return new DLTree(TLexeme(INAME,p)); }
+		{ return new DLTree(TLexeme(INAME,new TTreeNamedEntry(p))); }
 }; // IndividualPolicy
 
 /// policy for object properties
@@ -150,7 +150,7 @@ public:
 	static bool applicable ( const ClassifiableEntry* p ) { return p->getId() > 0; }
 	static bool needPlain ( void ) { return false; }
 	static DLTree* buildTree ( ClassifiableEntry* p )
-		{ return new DLTree(TLexeme(RNAME,p)); }
+		{ return new DLTree(TLexeme(RNAME,new TTreeNamedEntry(p))); }
 }; // ObjectPropertyPolicy
 
 /// policy for data properties
@@ -161,7 +161,7 @@ public:
 	static bool applicable ( const ClassifiableEntry* p ) { return p->getId() > 0; }
 	static bool needPlain ( void ) { return false; }
 	static DLTree* buildTree ( ClassifiableEntry* p )
-		{ return new DLTree(TLexeme(RNAME,p)); }
+		{ return new DLTree(TLexeme(DNAME,new TTreeNamedEntry(p))); }
 }; // DataPropertyPolicy
 
 #endif

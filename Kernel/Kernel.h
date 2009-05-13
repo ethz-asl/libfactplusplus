@@ -82,6 +82,12 @@ protected:	// types
 protected:	// members
 		/// local TBox (to be created)
 	TBox* pTBox;
+		/// NameSets for the named entities
+	TNameSet<TTreeNamedEntry>
+		Concepts,
+		ORoles,
+		DRoles,
+		Individuals;
 		/// DataType center
 	DataTypeCenter DTCenter;
 		/// set of queues for the n-ary expressions/commands
@@ -266,16 +272,21 @@ public:	// general staff
 
 		/// register NAME as a concept
 	ComplexConcept ensureConceptName ( const std::string& name ) throw(EFPPCantRegName)
-		{ return new DLTree ( TLexeme ( CNAME, getTBox()->getConcept(name) ) ); }
+		{ return new DLTree ( TLexeme ( CNAME, Concepts.insert(name) ) ); }
 		/// register NAME as an individual
 	ComplexConcept ensureSingletonName ( const std::string& name ) throw(EFPPCantRegName)
-		{ return new DLTree ( TLexeme ( INAME, getTBox()->getIndividual(name) ) ); }
-		/// register NAME as a role (object property)
-	ComplexRole ensureRoleName ( const std::string& name ) throw(EFPPCantRegName)
-		{ return new DLTree ( TLexeme ( RNAME, getRM()->ensureRoleName(name,/*isDataRole=*/false) ) ); }
+		{ return new DLTree ( TLexeme ( INAME, Individuals.insert(name) ) ); }
 		/// register NAME as a data role (data property)
 	ComplexRole ensureDataRoleName ( const std::string& name ) throw(EFPPCantRegName)
-		{ return new DLTree ( TLexeme ( RNAME, getRM()->ensureRoleName(name,/*isDataRole=*/true) ) ); }
+		{ return new DLTree ( TLexeme ( DNAME, DRoles.insert(name) ) ); }
+		/// register NAME as a role (object property)
+	ComplexRole ensureRoleName ( const std::string& name ) throw(EFPPCantRegName)
+	{
+		// kludge for LISP interface
+		if ( DRoles.get(name) != NULL )
+			return ensureDataRoleName(name);
+		return new DLTree ( TLexeme ( RNAME, ORoles.insert(name) ) );
+	}
 
 public:
 	//******************************************
@@ -311,6 +322,10 @@ public:
 		deleteTree(cachedQuery);
 		cachedQuery = NULL;
 		Ontology.clear();
+		Concepts.clear();
+		Individuals.clear();
+		ORoles.clear();
+		DRoles.clear();
 
 		return false;
 	}

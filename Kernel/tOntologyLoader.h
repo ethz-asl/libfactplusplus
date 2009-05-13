@@ -44,7 +44,31 @@ protected:	// methods
 		/// ensure that the concept expression E has its named entities linked to the KB ones
 	void ensureNames ( const DLTree* E )
 	{
-		isSNF(E);
+		if ( E == NULL )
+			return;
+		switch ( E->Element().getToken() )
+		{
+		case CNAME:
+			if ( E->Element().getNE() == NULL )
+				const_cast<DLTree*>(E)->Element().setNE(kb.getConcept(E->Element().getName()));
+			break;
+		case INAME:
+			if ( E->Element().getNE() == NULL )
+				const_cast<DLTree*>(E)->Element().setNE(kb.getIndividual(E->Element().getName()));
+			break;
+		case RNAME:
+			if ( E->Element().getNE() == NULL )
+				const_cast<DLTree*>(E)->Element().setNE ( kb.getRM()->ensureRoleName ( E->Element().getName(), /*isDataRole=*/false ) );
+			break;
+		case DNAME:
+			if ( E->Element().getNE() == NULL )
+				const_cast<DLTree*>(E)->Element().setNE ( kb.getRM()->ensureRoleName ( E->Element().getName(), /*isDataRole=*/true ) );
+			break;
+		default:
+			ensureNames(E->Left());
+			ensureNames(E->Right());
+			break;
+		};
 	}
 		/// ensure names in the [begin,end) interval
 	template<class Iterator>

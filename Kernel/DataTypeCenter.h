@@ -81,7 +81,7 @@ protected:	// methods
 	// DLTree wrapping interface
 
 		/// get DLTree by a given TDE
-	static DLTree* wrap ( const TDataEntry* t ) { return new DLTree(TLexeme(DATAEXPR,const_cast<TDataEntry*>(t))); }
+	static DLTree* wrap ( const TDataEntry* t ) { return new DLTree(TLexeme(DATAEXPR,new TTreeNamedEntry(const_cast<TDataEntry*>(t)))); }
 		/// get TDE by a given DLTree
 	static TDataEntry* unwrap ( const DLTree* t ) { return static_cast<TDataEntry*>(t->Element().getNE()); }
 

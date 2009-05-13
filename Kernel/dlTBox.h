@@ -830,7 +830,7 @@ public:
 			return new DLTree(TOP);
 		if ( C == pBottom )
 			return new DLTree(BOTTOM);
-		return new DLTree ( TLexeme ( isIndividual(C) ? INAME : CNAME, C ) );
+		return new DLTree ( TLexeme ( isIndividual(C) ? INAME : CNAME, new TTreeNamedEntry(C) ) );
 	}
 
 	// n-ary absorption support

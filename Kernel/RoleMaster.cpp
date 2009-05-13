@@ -26,7 +26,7 @@ DLTree* inverseComposition ( const DLTree* tree )
 							inverseComposition(tree->Right()),
 							inverseComposition(tree->Left()) );
 	else
-		return new DLTree ( TLexeme ( RNAME, resolveRole(tree)->inverse() ) );
+		return new DLTree ( TLexeme ( RNAME, new TTreeNamedEntry(resolveRole(tree)->inverse()) ) );
 }
 
 void RoleMaster :: addRoleParent ( const DLTree* tree, TRole* parent )
