@@ -186,6 +186,7 @@ protected:	// methods
 		/// get individual by a DLTree
 	TIndividual* getIndividual ( const ComplexConcept i, const char* reason )
 	{
+		checkDefined(i);
 		if ( !getTBox()->isIndividual(i) )
 			throw EFaCTPlusPlus(reason);
 		return static_cast<TIndividual*>(getTBox()->getCI(i));
@@ -193,6 +194,7 @@ protected:	// methods
 		/// get role by the DLTree
 	TRole* getRole ( const ComplexRole r, const char* reason ) const
 	{
+		checkDefined(r);
 		try { return resolveRole(r); }
 		catch ( EFaCTPlusPlus e ) { throw EFaCTPlusPlus(reason); }
 	}
@@ -289,7 +291,7 @@ public:	// general staff
 	}
 
 		/// check whether every named entry of E is defined in the KB
-	void checkDefined ( DLTree* E ) throw(EFPPCantRegName)
+	static void checkDefined ( const DLTree* E ) throw(EFPPCantRegName)
 	{
 		if ( E == NULL )
 			return;
@@ -585,6 +587,7 @@ public:
 	bool isFunctional ( const ComplexRole R )
 	{
 		preprocessKB();	// ensure KB is ready to answer the query
+		checkDefined(R);
 		if ( isUniversalRole(R) )
 			return false;	// universal role is not functional
 
@@ -634,6 +637,7 @@ public:
 	bool isSatisfiable ( const ComplexConcept C )
 	{
 		preprocessKB();	// ensure KB is ready to answer the query
+		checkDefined(C);
 		if ( isCN(C) )
 			return getTBox()->isSatisfiable(getTBox()->getCI(C));
 
@@ -644,6 +648,8 @@ public:
 	bool isSubsumedBy ( const ComplexConcept C, const ComplexConcept D )
 	{
 		preprocessKB();	// ensure KB is ready to answer the query
+		checkDefined(C);
+		checkDefined(D);
 		if ( isCN(C) && isCN(D) )
 			return getTBox()->isSubHolds ( getTBox()->getCI(C), getTBox()->getCI(D) );
 
