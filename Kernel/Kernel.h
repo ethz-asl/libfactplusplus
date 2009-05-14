@@ -271,21 +271,51 @@ public:	// general staff
 	// ensure that given names are of the apropriate types
 
 		/// register NAME as a concept
-	ComplexConcept ensureConceptName ( const std::string& name ) throw(EFPPCantRegName)
+	ComplexConcept ensureConceptName ( const std::string& name )
 		{ return new DLTree ( TLexeme ( CNAME, Concepts.insert(name) ) ); }
 		/// register NAME as an individual
-	ComplexConcept ensureSingletonName ( const std::string& name ) throw(EFPPCantRegName)
+	ComplexConcept ensureSingletonName ( const std::string& name )
 		{ return new DLTree ( TLexeme ( INAME, Individuals.insert(name) ) ); }
 		/// register NAME as a data role (data property)
-	ComplexRole ensureDataRoleName ( const std::string& name ) throw(EFPPCantRegName)
+	ComplexRole ensureDataRoleName ( const std::string& name )
 		{ return new DLTree ( TLexeme ( DNAME, DRoles.insert(name) ) ); }
 		/// register NAME as a role (object property)
-	ComplexRole ensureRoleName ( const std::string& name ) throw(EFPPCantRegName)
+	ComplexRole ensureRoleName ( const std::string& name )
 	{
 		// kludge for LISP interface
 		if ( DRoles.get(name) != NULL )
 			return ensureDataRoleName(name);
 		return new DLTree ( TLexeme ( RNAME, ORoles.insert(name) ) );
+	}
+
+		/// check whether every named entry of E is defined in the KB
+	void checkDefined ( DLTree* E ) throw(EFPPCantRegName)
+	{
+		if ( E == NULL )
+			return;
+		switch ( E->Element().getToken() )
+		{
+		case CNAME:
+			if ( E->Element().getNE() == NULL )
+				throw EFPPCantRegName ( E->Element().getName(), "concept" );
+			break;
+		case INAME:
+			if ( E->Element().getNE() == NULL )
+				throw EFPPCantRegName ( E->Element().getName(), "individual" );
+			break;
+		case RNAME:
+			if ( E->Element().getNE() == NULL )
+				throw EFPPCantRegName ( E->Element().getName(), "role" );
+			break;
+		case DNAME:
+			if ( E->Element().getNE() == NULL )
+				throw EFPPCantRegName ( E->Element().getName(), "data role" );
+			break;
+		default:
+			checkDefined(E->Left());
+			checkDefined(E->Right());
+			break;
+		};
 	}
 
 public:

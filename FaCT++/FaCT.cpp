@@ -68,7 +68,9 @@ DLTree* getNextName ( TsScanner& sc, ReasoningKernel& Kernel )
 			return new DLTree(t);
 		try
 		{
-			return Kernel.ensureConceptName(sc.GetName());
+			DLTree* ret = Kernel.ensureConceptName(sc.GetName());
+			Kernel.checkDefined(ret);
+			return ret;
 		}
 		catch ( EFPPCantRegName )
 		{
