@@ -57,36 +57,25 @@ class TBox
 	friend class ReasoningKernel;
 	friend class TAxiom;	// FIXME!! while TConcept can't get rid of told cycles
 
-public:	// interface
-		/// type for DISJOINT-like statements
-	typedef std::vector<DLTree*> ExpressionArray;
-		/// set of concepts together with creation methods
-	typedef TNECollection<TConcept> ConceptCollection;
+public:		// type interface
 		/// vector of CONCEPT-like elements
 	typedef std::vector<TConcept*> ConceptVector;
 		/// vector of SINGLETON-like elements
 	typedef std::vector<TIndividual*> SingletonVector;
+
+protected:	// types
+		/// type for DISJOINT-like statements
+	typedef std::vector<DLTree*> ExpressionArray;
+		/// set of concepts together with creation methods
+	typedef TNECollection<TConcept> ConceptCollection;
+		/// collection of individuals
+	typedef TNECollection<TIndividual> IndividualCollection;
 		/// type for the array of Related elements
 	typedef std::vector<TRelated*> RelatedCollection;
 		/// type for a collection of DIFFERENT individuals
 	typedef std::vector<SingletonVector> DifferentIndividuals;
 		/// return type for a set of names
 	typedef std::vector<TNamedEntry*> NamesVector;
-
-protected:	// types
-		/// collection of individuals
-	class IndividualCollection: public TNECollection<TIndividual>
-	{
-	protected:	// methods
-			/// virtual method for additional tuning of newly created element
-		virtual void registerNew ( TIndividual* p ATTR_UNUSED ) {}
-
-	public:		// interface
-			/// c'tor: clear 0-th element
-		IndividualCollection ( void ) : TNECollection<TIndividual>("individual") {}
-			/// empty d'tor: all elements will be deleted in other place
-		virtual ~IndividualCollection ( void ) {}
-	}; // IndividualCollection
 
 		/// class for simple rules like Ch :- Cb1, Cbi, CbN; all C are primitive named concepts
 	class TSimpleRule

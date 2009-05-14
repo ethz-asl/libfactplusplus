@@ -43,6 +43,7 @@ TBox :: TBox ( const ifOptionSet* Options, const DataTypeCenter& dtCenter )
 	, curFeature(NULL)
 	, defConcept (NULL)
 	, Concepts("concept")
+	, Individuals("individual")
 	, Axioms(*this)
 	, T_G(bpTOP)	// initialise GCA's concept with Top
 	, Fairness(NULL)
