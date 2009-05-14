@@ -99,8 +99,8 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_clearK
   (JNIEnv * env, jobject obj)
 {
 	TRACE_JNI("clearKernel");
-	getK(env,obj)->clearKB();
 	curKernel->pRefRecorder->clear();
+	getK(env,obj)->clearKB();
 }
 
 

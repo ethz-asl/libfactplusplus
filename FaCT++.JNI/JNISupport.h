@@ -115,8 +115,8 @@ public:		// interface
 		/// d'tor
 	~MMKernel ( void )
 	{
-		delete pKernel;
 		delete pRefRecorder;
+		delete pKernel;
 	}
 }; // MMKernel
 
