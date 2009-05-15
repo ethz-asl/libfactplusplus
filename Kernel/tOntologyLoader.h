@@ -256,10 +256,11 @@ public:		// interface
 	virtual void visitOntology ( TOntology& ontology )
 	{
 		for ( TOntology::iterator p = ontology.beginUnprocessed(), p_end = ontology.end(); p < p_end; ++p )
-		{
-			kb.setAxiomId((*p)->getId());
-			(*p)->accept(*this);
-		}
+			if ( (*p)->isUsed() )
+			{
+				kb.setAxiomId((*p)->getId());
+				(*p)->accept(*this);
+			}
 	}
 }; // TOntologyLoader
 

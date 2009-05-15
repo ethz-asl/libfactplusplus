@@ -92,10 +92,12 @@ class TDLAxiom
 protected:	// members
 		/// id of the axiom
 	unsigned int id;
+		/// flag to show whether it is used (to support retraction)
+	bool used;
 
 public:
 		/// empty c'tor
-	TDLAxiom ( void ) {}
+	TDLAxiom ( void ) : used(true) {}
 		/// empty d'tor
 	virtual ~TDLAxiom ( void ) {}
 
@@ -105,6 +107,13 @@ public:
 	void setId ( unsigned int Id ) { id = Id; }
 		/// get the id
 	unsigned int getId ( void ) const { return id; }
+
+	// used management
+
+		/// set the used flag
+	void setUsed ( bool Used ) { used = Used; }
+		/// get the value of the used flag
+	bool isUsed ( void ) const { return used; }
 
 		/// accept method for the visitor pattern
 	virtual void accept ( DLAxiomVisitor& visitor ) = 0;

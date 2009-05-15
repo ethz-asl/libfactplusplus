@@ -1109,7 +1109,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tel
 JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_retract
   (JNIEnv * env, jobject obj, jobject axiom)
 {
-	Throw ( env, "FaCT++ Kernel: unsupported operation" );
+	getK(env,obj)->retract(getAxiom(env,axiom));
 }
 
 //-------------------------------------------------------------
