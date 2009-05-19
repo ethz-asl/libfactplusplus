@@ -487,6 +487,11 @@ tacticUsage DlSatTester :: commonTacticBodySome ( const DLVertex& cur )	// for E
 	// check if we already have R-neighbour labelled with C
 	if ( isSomeExists ( R, C ) )
 		return utUnusable;
+	// try to check the case (some R (or C D)), where C is in the label of an R-neighbour
+	if ( isNegative(C) && DLHeap[C].Type() == dtAnd )
+		for ( DLVertex::const_iterator q = DLHeap[C].begin(), q_end = DLHeap[C].end(); q < q_end; ++q )
+			if ( isSomeExists ( R, inverse(*q) ) )
+				return utUnusable;
 
 	// check for the case \ER.{o}
 	if ( tBox.testHasNominals() && isPositive(C) )
