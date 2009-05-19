@@ -485,17 +485,8 @@ tacticUsage DlSatTester :: commonTacticBodySome ( const DLVertex& cur )	// for E
 	tacticUsage ret = utUnusable;
 
 	// check if we already have R-neighbour labelled with C
-	if ( isUsed(C) )
-	{
-		const DlCompletionTree* where = curNode->isSomeApplicable ( R, C );
-		if ( where != NULL )
-		{
-			if ( LLM.isWritable(llGTA) )
-				LL << " E(" << R->getName() << "," << where->getId() << "," << C << ")";
-
-			return utUnusable;
-		}
-	}
+	if ( isSomeExists ( R, C ) )
+		return utUnusable;
 
 	// check for the case \ER.{o}
 	if ( tBox.testHasNominals() && isPositive(C) )

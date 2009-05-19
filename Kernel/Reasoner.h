@@ -551,6 +551,19 @@ protected:	// methods
 		/// adds T_G to the given node. returns result of addition
 	tacticUsage addTG ( DlCompletionTree* Node, const DepSet& d );
 
+	// support for existential-like rules
+
+		/// @return true iff there is R-neighbour labelled with C
+	bool isSomeExists ( const TRole* R, BipolarPointer C ) const
+	{
+		if ( !isUsed(C) )
+			return false;
+		const DlCompletionTree* where = curNode->isSomeApplicable ( R, C );
+		if ( where != NULL )
+			if ( LLM.isWritable(llGTA) )
+				LL << " E(" << R->getName() << "," << where->getId() << "," << C << ")";
+		return where != NULL;
+	}
 		/// aux method for setting up new edge PA
 	tacticUsage setupEdge ( DlCompletionTreeArc* pA, const DepSet& curDep, unsigned int flags );
 		/// aux method for creating new edge from curNode with given ROLE edge label and CONCEPT at the final label
