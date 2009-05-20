@@ -60,6 +60,8 @@ public:		// interface
 	const char* getName ( void ) const { return value.pName->getName(); }
 		/// get data value of given lexeme
 	unsigned int getData ( void ) const { return value.data; }
+		/// get TNE pointer
+	const TTreeNamedEntry* getPName ( void ) const { return value.pName; }
 
 		/// set name implementation for given lexeme
 	void setNE ( TNamedEntry* p ) { value.pName->setImpl(p); }
