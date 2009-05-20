@@ -77,7 +77,7 @@ public:		// interface
 	void add ( DLTree* p )
 	{
 #	ifdef JNI_TRACING
-		std::cerr << "Registering (" << (void*)p << ") " << p << "\n";
+		std::cerr << "Registering (" << (void*)p << ")" << p << "\n";
 #	endif
 		refs.push_back(p);
 	}
@@ -89,8 +89,7 @@ public:		// interface
 		for ( iterator p = refs.begin(), p_end = refs.end(); p < p_end; ++p )
 		{
 #		ifdef JNI_TRACING
-			std::cerr << "Deleting (" << (void*)(*p) << ") ";
-			std::cerr << *p << "\n";
+			std::cerr << "Deleting (" << (void*)(*p) << ")" << *p << "\n";
 #		endif
 			deleteTree(*p);
 		}
@@ -263,7 +262,11 @@ jlong getId ( DLTree* p )
 	{
 	case TOP:		return 1;
 	case BOTTOM:	return -1;
-	case NAME:		return (jlong)p->Element().getNE();
+	case NAME:
+#	ifdef JNI_TRACING
+		std::cerr << "ID for " << TokenName(p->Element().getToken()) << p << ": " << (jlong)p->Element().getNE() << "\n";
+#	endif
+		return (jlong)p->Element().getNE();
 	default:		return 0;
 	}
 }

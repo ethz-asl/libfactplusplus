@@ -1109,6 +1109,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tel
 JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_retract
   (JNIEnv * env, jobject obj, jobject axiom)
 {
+	TRACE_JNI("retract");
 	getK(env,obj)->retract(getAxiom(env,axiom));
 }
 
