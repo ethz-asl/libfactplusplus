@@ -42,7 +42,12 @@ template<class T>
 class TNameSet
 {
 protected:	// types
+		/// base type
 	typedef std::map <std::string, T*> NameTree;
+		/// RW iterator
+	typedef typename NameTree::iterator iterator;
+		/// RO iterator
+	typedef typename NameTree::const_iterator const_iterator;
 
 protected:	// members
 		/// Base holding all names
@@ -65,62 +70,45 @@ public:		// interface
 	virtual ~TNameSet ( void ) { clear(); delete Creator; }
 
 		/// return pointer to existing id or NULL if no such id defined
-	T* get ( const std::string& id ) const;
-		/// unconditionally add new element with name ID to the set; return new element
-	T* add ( const std::string& id );
-		/// Insert id to a nameset (if necessary); @return pointer to id structure created by external creator
-	T* insert ( const std::string& id );
-		/// remove given entry from the set
-	void remove ( const std::string& id );
-		/// clear name set
-	void clear ( void );
-}; // TNameSet
-
-template<class T>
-void TNameSet<T> :: clear ( void )
-{
-	for ( typename NameTree::iterator p = Base.begin(); p != Base.end(); ++p )
-		delete p->second;
-
-	Base.clear();
-}
-
-template<class T>
-T* TNameSet<T> :: insert ( const std::string& id )
-{
-	T* pne = get(id);
-
-	if ( pne == NULL )	// no such Id
-		pne = add(id);
-
-	return pne;
-}
-
-template<class T>
-T* TNameSet<T> :: add ( const std::string& id )
-{
-	T* pne = Creator->makeEntry(id);
-	Base[id] = pne;
-	return pne;
-}
-
-template<class T>
-T* TNameSet<T> :: get ( const std::string& id ) const
-{
-	typename NameTree::const_iterator p = Base.find(id);
-	return p == Base.end() ? NULL : p->second;
-}
-
-template<class T>
-void TNameSet<T> :: remove ( const std::string& id )
-{
-	typename NameTree::iterator p = Base.find(id);
-
-	if ( p != Base.end () )	// founs such Id
+	T* get ( const std::string& id ) const
 	{
-		delete p->second;
-		Base.erase(p);
+		const_iterator p = Base.find(id);
+		return p == Base.end() ? NULL : p->second;
 	}
-}
+		/// unconditionally add new element with name ID to the set; return new element
+	T* add ( const std::string& id )
+	{
+		T* pne = Creator->makeEntry(id);
+		Base[id] = pne;
+		return pne;
+	}
+		/// Insert id to a nameset (if necessary); @return pointer to id structure created by external creator
+	T* insert ( const std::string& id )
+	{
+		T* pne = get(id);
+		if ( pne == NULL )	// no such Id
+			pne = add(id);
+		return pne;
+	}
+		/// remove given entry from the set
+	void remove ( const std::string& id )
+	{
+		iterator p = Base.find(id);
+
+		if ( p != Base.end () )	// founs such Id
+		{
+			delete p->second;
+			Base.erase(p);
+		}
+	}
+		/// clear name set
+	void clear ( void )
+	{
+		for ( iterator p = Base.begin(); p != Base.end(); ++p )
+			delete p->second;
+
+		Base.clear();
+	}
+}; // TNameSet
 
 #endif

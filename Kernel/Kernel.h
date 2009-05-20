@@ -78,12 +78,21 @@ private:
 protected:	// types
 		/// enumeration for the cache
 	enum cacheStatus { csEmpty, csSat, csClassified };
+		/// set of TreeNE
+	class TreeNESet: public TNameSet<TTreeNamedEntry>
+	{
+	public:
+			/// empty c'tor
+		TreeNESet ( void ) {}
+			/// empty d'tor
+		~TreeNESet ( void ) {}
+	}; // TreeNESet
 
 protected:	// members
 		/// local TBox (to be created)
 	TBox* pTBox;
 		/// NameSets for the named entities
-	TNameSet<TTreeNamedEntry>
+	TreeNESet
 		Concepts,
 		ORoles,
 		DRoles,
