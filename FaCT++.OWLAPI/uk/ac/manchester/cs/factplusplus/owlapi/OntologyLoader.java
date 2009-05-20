@@ -1,14 +1,13 @@
 package uk.ac.manchester.cs.factplusplus.owlapi;
 
 import org.semanticweb.owl.model.*;
-import uk.ac.manchester.cs.factplusplus.FaCTPlusPlus;
 import uk.ac.manchester.cs.factplusplus.AxiomPointer;
 import uk.ac.manchester.cs.factplusplus.FaCTPlusPlusException;
 
-import java.util.Set;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.HashMap;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -79,27 +78,9 @@ public class OntologyLoader {
 
 
     public void loadOntologies(Set<OWLOntology> ontologies) throws FaCTPlusPlusException {
-//        try {
-            for (OWLOntology ont : ontologies) {
-                // make sure entities that do not occur in logical axioms are still understood by FaCT++
-//                for (OWLClass cls : ont.getReferencedClasses()) {
-//                    translator.translate(cls);
-//                }
-//                for (OWLObjectProperty prop : ont.getReferencedObjectProperties()) {
-//                    translator.translate(prop);
-//                }
-//                for (OWLDataProperty prop : ont.getReferencedDataProperties()) {
-//                    translator.translate(prop);
-//                }
-//                for (OWLIndividual ind : ont.getReferencedIndividuals()) {
-//                    translator.translate(ind);
-//                }
-                loadAxioms(ont.getAxioms());
-            }
-//        }
-//        catch (OWLException e) {
-//            throw new FaCTPlusPlusRuntimeException(e);
-//        }
+        for (OWLOntology ont : ontologies) {
+            loadAxioms(ont.getAxioms());
+        }
     }
 
 
@@ -112,7 +93,7 @@ public class OntologyLoader {
 
     public void loadAxiom(OWLAxiom axiom) throws FaCTPlusPlusException {
         boolean added = false;
-        if (axiom.isLogicalAxiom()) {
+        if (axiom.isLogicalAxiom() || axiom instanceof OWLDeclarationAxiom) {
             if (filter.passes(axiom)) {
                 axiom2PtrMap.put(axiom, axiomLoader.load(axiom));
                 added = true;
@@ -133,12 +114,14 @@ public class OntologyLoader {
         if (ptr != null){
             translator.getFaCTPlusPlus().retract(ptr);
             axiom2PtrMap.remove(axiom);
+            // @@TODO what about entities that FaCT++ still knows about but are no longer known by the model
         }
-
-        // @@TODO what about entities that FaCT++ still knows about but are no longer known by the model
+        else{
+            throw new FaCTPlusPlusException("Axiom (" + axiom + ") not known in the reasoner");
+        }
     }
 
-    
+
     public void applyChanges(List<OWLOntologyChange> changes) throws OWLException {
         translator.getFaCTPlusPlus().startChanges();
         for (OWLOntologyChange change : changes){

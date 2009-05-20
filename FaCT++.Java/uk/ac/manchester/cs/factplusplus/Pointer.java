@@ -28,6 +28,10 @@ public class Pointer {
     }
 
     public boolean equals(Object obj) {
+        if (!(obj instanceof Pointer)){
+            return false;
+        }
+
         if(id != 0) {
             return ((Pointer) obj).id == id;
         }
@@ -35,7 +39,6 @@ public class Pointer {
             return ((Pointer) obj).node == node;
         }
     }
-
 
     public String toString() {
         return "[" + id + ", " + node + "]";

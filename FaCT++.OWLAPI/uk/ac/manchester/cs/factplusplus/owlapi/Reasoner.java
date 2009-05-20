@@ -25,6 +25,8 @@ public class Reasoner extends MonitorableOWLReasonerAdapter implements FaCTPlusP
 
     private FaCTPlusPlusReasonerException lastException;
 
+    private OntologyLoader loader;
+
     public enum State{
         EMPTY,
         UNCLASSIFIED_IN_SYNC,
@@ -74,7 +76,7 @@ public class Reasoner extends MonitorableOWLReasonerAdapter implements FaCTPlusP
      * If true, only changes since the last classify are told to the kernel
      * If false, the kernel is completely refreshed on a classify
      */
-    private boolean incremental = false;
+    private boolean incremental = true;
 
 
     /**
@@ -99,6 +101,8 @@ public class Reasoner extends MonitorableOWLReasonerAdapter implements FaCTPlusP
         // objects and OWLAPI objects
         translator = new Translator(owlOntologyManager, faCTPlusPlus);
 
+        loader = new OntologyLoader(getOWLOntologyManager(), translator);
+        
         translatorUtils = new TranslatorUtils(owlOntologyManager, translator);
     }
 
@@ -188,8 +192,6 @@ public class Reasoner extends MonitorableOWLReasonerAdapter implements FaCTPlusP
         try {
             faCTPlusPlus.setProgressMonitor(this);
 
-            OntologyLoader loader = new OntologyLoader(getOWLOntologyManager(), translator);
-
             loader.loadOntologies(getLoadedOntologies());
 
             state = State.UNCLASSIFIED_IN_SYNC;
@@ -205,7 +207,6 @@ public class Reasoner extends MonitorableOWLReasonerAdapter implements FaCTPlusP
         try {
             if (incremental){
                 if (!changes.isEmpty()){
-                    OntologyLoader loader = new OntologyLoader(getOWLOntologyManager(), translator);
                     loader.applyChanges(changes);
                     changes.clear();
                     state = State.UNCLASSIFIED_IN_SYNC;
