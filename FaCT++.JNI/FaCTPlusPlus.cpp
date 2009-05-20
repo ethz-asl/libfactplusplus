@@ -146,7 +146,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
 	jobject ret = (jobject)0;
 	try
 	{
-		ret = Class ( env, getK(env,obj)->ensureConceptName(name()) );
+		ret = Class ( env, getCName(env,obj,name()) );
 	}
 	catch (EFPPCantRegName)
 	{
@@ -168,7 +168,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
 	jobject ret = (jobject)0;
 	try
 	{
-		ret = ObjectProperty ( env, getK(env,obj)->ensureRoleName(name()) );
+		ret = ObjectProperty ( env, getOName(env,obj,name()) );
 	}
 	catch (EFPPCantRegName)
 	{
@@ -190,7 +190,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
 	jobject ret = (jobject)0;
 	try
 	{
-		ret = DataProperty ( env, getK(env,obj)->ensureDataRoleName(name()) );
+		ret = DataProperty ( env, getDName(env,obj,name()) );
 	}
 	catch (EFPPCantRegName)
 	{
@@ -212,7 +212,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
 	jobject ret = (jobject)0;
 	try
 	{
-		ret = Individual ( env, getK(env,obj)->ensureSingletonName(name()) );
+		ret = Individual ( env, getIName(env,obj,name()) );
 	}
 	catch (EFPPCantRegName)
 	{
@@ -1242,7 +1242,7 @@ JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlu
 {
 	TRACE_JNI("askSubClasses");
 	TRACE_ARG(env,obj,arg);
-	JTaxonomyActor<ClassPolicy> actor(env);
+	JTaxonomyActor<ClassPolicy> actor(env,obj);
 	DLTree* p = getROTree(env,arg);
 	PROCESS_ASK_QUERY ( direct ? getK(env,obj)->getChildren(p,actor) : getK(env,obj)->getDescendants(p,actor),"askSubClasses");
 	return actor.getElements();
@@ -1258,7 +1258,7 @@ JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlu
 {
 	TRACE_JNI("askSuperClasses");
 	TRACE_ARG(env,obj,arg);
-	JTaxonomyActor<ClassPolicy> actor(env);
+	JTaxonomyActor<ClassPolicy> actor(env,obj);
 	DLTree* p = getROTree(env,arg);
 	PROCESS_ASK_QUERY ( direct ? getK(env,obj)->getParents(p,actor) : getK(env,obj)->getAncestors(p,actor),"askSuperClasses");
 	return actor.getElements();
@@ -1274,7 +1274,7 @@ JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlu
 {
 	TRACE_JNI("askEquivalentClasses");
 	TRACE_ARG(env,obj,arg);
-	JTaxonomyActor<ClassPolicy> actor(env);
+	JTaxonomyActor<ClassPolicy> actor(env,obj);
 	PROCESS_ASK_QUERY (
 		getK(env,obj)->getEquivalents ( getROTree(env,arg), actor ),"askEquivalentClasses");
 	return actor.getSynonyms();
@@ -1290,7 +1290,7 @@ JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlu
 {
 	TRACE_JNI("askSuperObjectProperties");
 	TRACE_ARG(env,obj,arg);
-	JTaxonomyActor<ObjectPropertyPolicy> actor(env);
+	JTaxonomyActor<ObjectPropertyPolicy> actor(env,obj);
 	DLTree* p = getROTree(env,arg);
 	PROCESS_ASK_QUERY ( direct ? getK(env,obj)->getRParents(p,actor) : getK(env,obj)->getRAncestors(p,actor),"askSuperObjectProperties");
 	return actor.getElements();
@@ -1306,7 +1306,7 @@ JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlu
 {
 	TRACE_JNI("askSubObjectProperties");
 	TRACE_ARG(env,obj,arg);
-	JTaxonomyActor<ObjectPropertyPolicy> actor(env);
+	JTaxonomyActor<ObjectPropertyPolicy> actor(env,obj);
 	DLTree* p = getROTree(env,arg);
 	PROCESS_ASK_QUERY ( direct ? getK(env,obj)->getRChildren(p,actor) : getK(env,obj)->getRDescendants(p,actor),"askSubObjectProperties");
 	return actor.getElements();
@@ -1322,7 +1322,7 @@ JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlu
 {
 	TRACE_JNI("askEquivalentObjectProperties");
 	TRACE_ARG(env,obj,arg);
-	JTaxonomyActor<ObjectPropertyPolicy> actor(env);
+	JTaxonomyActor<ObjectPropertyPolicy> actor(env,obj);
 	PROCESS_ASK_QUERY ( getK(env,obj)->getREquivalents ( getROTree(env,arg), actor ),"askEquivalentObjectProperties");
 	return actor.getSynonyms();
 }
@@ -1337,7 +1337,7 @@ JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlu
 {
 	TRACE_JNI("askObjectPropertyDomain");
 	TRACE_ARG(env,obj,arg);
-	JTaxonomyActor<ClassPolicy> actor(env);
+	JTaxonomyActor<ClassPolicy> actor(env,obj);
 	PROCESS_ASK_QUERY ( getK(env,obj)->getRoleDomain ( getROTree(env,arg), actor ),"askObjectPropertyDomain");
 	return actor.getElements();
 }
@@ -1352,7 +1352,7 @@ JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlu
 {
 	TRACE_JNI("askObjectPropertyRange");
 	TRACE_ARG(env,obj,arg);
-	JTaxonomyActor<ClassPolicy> actor(env);
+	JTaxonomyActor<ClassPolicy> actor(env,obj);
 	PROCESS_ASK_QUERY ( getK(env,obj)->getRoleRange ( getROTree(env,arg), actor ),"askObjectPropertyRange");
 	return actor.getElements();
 }
@@ -1467,7 +1467,7 @@ JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlu
 {
 	TRACE_JNI("askSuperDataProperties");
 	TRACE_ARG(env,obj,arg);
-	JTaxonomyActor<DataPropertyPolicy> actor(env);
+	JTaxonomyActor<DataPropertyPolicy> actor(env,obj);
 	DLTree* p = getROTree(env,arg);
 	PROCESS_ASK_QUERY ( direct ? getK(env,obj)->getRParents(p,actor) : getK(env,obj)->getRAncestors(p,actor),"askSuperDataProperties");
 	return actor.getElements();
@@ -1483,7 +1483,7 @@ JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlu
 {
 	TRACE_JNI("askSubDataProperties");
 	TRACE_ARG(env,obj,arg);
-	JTaxonomyActor<DataPropertyPolicy> actor(env);
+	JTaxonomyActor<DataPropertyPolicy> actor(env,obj);
 	DLTree* p = getROTree(env,arg);
 	PROCESS_ASK_QUERY ( direct ? getK(env,obj)->getRChildren(p,actor) : getK(env,obj)->getRDescendants(p,actor),"askSubDataProperties");
 	return actor.getElements();
@@ -1499,7 +1499,7 @@ JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlu
 {
 	TRACE_JNI("askEquivalentDataProperties");
 	TRACE_ARG(env,obj,arg);
-	JTaxonomyActor<DataPropertyPolicy> actor(env);
+	JTaxonomyActor<DataPropertyPolicy> actor(env,obj);
 	PROCESS_ASK_QUERY ( getK(env,obj)->getREquivalents ( getROTree(env,arg), actor ),"askEquivalentDataProperties");
 	return actor.getSynonyms();
 }
@@ -1514,7 +1514,7 @@ JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlu
 {
 	TRACE_JNI("askDataPropertyDomain");
 	TRACE_ARG(env,obj,arg);
-	JTaxonomyActor<ClassPolicy> actor(env);
+	JTaxonomyActor<ClassPolicy> actor(env,obj);
 	PROCESS_ASK_QUERY ( getK(env,obj)->getRoleDomain ( getROTree(env,arg), actor ),"askDataPropertyDomain");
 	return actor.getElements();
 }
@@ -1558,7 +1558,7 @@ JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlu
 {
 	TRACE_JNI("askIndividualTypes");
 	TRACE_ARG(env,obj,arg);
-	JTaxonomyActor<ClassPolicy> actor(env);
+	JTaxonomyActor<ClassPolicy> actor(env,obj);
 	DLTree* p = getROTree(env,arg);
 	PROCESS_ASK_QUERY ( direct ? getK(env,obj)->getDirectTypes(p,actor) : getK(env,obj)->getTypes(p,actor),"askIndividualTypes");
 	return actor.getElements();
@@ -1578,7 +1578,7 @@ JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlu
 	PROCESS_ASK_QUERY ( getK(env,obj)->getRelatedRoles ( getROTree(env,arg), Rs, /*data=*/false, /*needI=*/false ),"askObjectProperties");
 	vector<DLTree*> acc;
 	for ( ReasoningKernel::NamesVector::const_iterator p = Rs.begin(), p_end = Rs.end(); p < p_end; ++p )
-		acc.push_back(new DLTree(TLexeme(RNAME,new TTreeNamedEntry(*p))));
+		acc.push_back(getOName(env,obj,(*p)->getName()));
 	return buildArray ( env, acc, cnObjectPropertyPointer() );
 }
 
@@ -1597,7 +1597,7 @@ JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlu
 	PROCESS_ASK_QUERY ( getK(env,obj)->getRoleFillers ( getROTree(env,arg1), getROTree(env,arg2), Js ),"askRelatedIndividuals");
 	vector<DLTree*> acc;
 	for ( ReasoningKernel::NamesVector::const_iterator p = Js.begin(), p_end = Js.end(); p < p_end; ++p )
-		acc.push_back(new DLTree(TLexeme(INAME,new TTreeNamedEntry(*p))));
+		acc.push_back(getIName(env,obj,(*p)->getName()));
 	return buildArray ( env, acc, cnIndividualPointer() );
 }
 
@@ -1615,9 +1615,8 @@ JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlu
 	PROCESS_ASK_QUERY ( getK(env,obj)->getRelatedRoles ( getROTree(env,arg), Rs, /*data=*/true, /*needI=*/false ),"askDataProperties");
 	vector<DLTree*> acc;
 	for ( ReasoningKernel::NamesVector::const_iterator p = Rs.begin(), p_end = Rs.end(); p < p_end; ++p )
-		acc.push_back(new DLTree(TLexeme(DNAME,new TTreeNamedEntry(*p))));
+		acc.push_back(getDName(env,obj,(*p)->getName()));
 	return buildArray ( env, acc, cnDataPropertyPointer() );
-	return NULL;
 }
 
 /*
@@ -1697,7 +1696,7 @@ JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlu
 {
 	TRACE_JNI("askInstances");
 	TRACE_ARG(env,obj,arg);
-	JTaxonomyActor<IndividualPolicy> actor(env);
+	JTaxonomyActor<IndividualPolicy> actor(env,obj);
 	DLTree* p = getROTree(env,arg);
 	PROCESS_ASK_QUERY ( direct ? getK(env,obj)->getDirectInstances(p,actor) : getK(env,obj)->getInstances(p,actor),"askInstances");
 	return actor.getElements();
@@ -1713,7 +1712,7 @@ JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlu
 {
 	TRACE_JNI("askSameAs");
 	TRACE_ARG(env,obj,arg);
-	JTaxonomyActor<IndividualPolicy> actor(env);
+	JTaxonomyActor<IndividualPolicy> actor(env,obj);
 	PROCESS_ASK_QUERY ( getK(env,obj)->getSameAs ( getROTree(env,arg), actor ),"askSameAs");
 	return actor.getSynonyms();
 }

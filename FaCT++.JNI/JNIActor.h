@@ -36,6 +36,8 @@ protected:	// types
 protected:	// members
 		/// JNI environment
 	JNIEnv* env;
+		/// Kernel (need for names)
+	ReasoningKernel* K;
 		/// 2D array to return
 	SetOfNodes acc;
 		/// 1D array to return
@@ -53,12 +55,12 @@ protected:	// methods
 		if ( p->isSystem() )
 			return;
 		if ( AccessPolicy::applicable(p) )
-			syn.push_back(AccessPolicy::buildTree(const_cast<ClassifiableEntry*>(p)));
+			syn.push_back(AccessPolicy::buildTree(K,p));
 	}
 
 public:		// interface
 		/// c'tor
-	JTaxonomyActor ( JNIEnv* e ) : env(e) {}
+	JTaxonomyActor ( JNIEnv* e, jobject obj ) : env(e), K(getK(env,obj)) {}
 		/// d'tor
 	~JTaxonomyActor ( void ) {}
 
@@ -113,10 +115,10 @@ public:
 	static bool applicable ( const ClassifiableEntry* p )
 		{ return !static_cast<const TConcept*>(p)->isSingleton(); }
 	static bool needPlain ( void ) { return false; }
-	static DLTree* buildTree ( ClassifiableEntry* p )
+	static DLTree* buildTree ( ReasoningKernel* K, const ClassifiableEntry* p )
 	{
 		if ( p->getId () >= 0 )
-			return new DLTree(TLexeme(CNAME,new TTreeNamedEntry(p)));
+			return getCName ( K, p->getName() );
 
 		// top or bottom
 		std::string name(p->getName());
@@ -138,8 +140,8 @@ public:
 	static bool applicable ( const ClassifiableEntry* p )
 		{ return static_cast<const TConcept*>(p)->isSingleton(); }
 	static bool needPlain ( void ) { return true; }
-	static DLTree* buildTree ( ClassifiableEntry* p )
-		{ return new DLTree(TLexeme(INAME,new TTreeNamedEntry(p))); }
+	static DLTree* buildTree ( ReasoningKernel* K, const ClassifiableEntry* p )
+		{ return getIName ( K, p->getName() ); }
 }; // IndividualPolicy
 
 /// policy for object properties
@@ -149,8 +151,8 @@ public:
 	static const char* getClassName ( void ) { return cnObjectPropertyPointer(); }
 	static bool applicable ( const ClassifiableEntry* p ) { return p->getId() > 0; }
 	static bool needPlain ( void ) { return false; }
-	static DLTree* buildTree ( ClassifiableEntry* p )
-		{ return new DLTree(TLexeme(RNAME,new TTreeNamedEntry(p))); }
+	static DLTree* buildTree ( ReasoningKernel* K, const ClassifiableEntry* p )
+		{ return getOName ( K, p->getName() ); }
 }; // ObjectPropertyPolicy
 
 /// policy for data properties
@@ -160,8 +162,8 @@ public:
 	static const char* getClassName ( void ) { return cnDataPropertyPointer(); }
 	static bool applicable ( const ClassifiableEntry* p ) { return p->getId() > 0; }
 	static bool needPlain ( void ) { return false; }
-	static DLTree* buildTree ( ClassifiableEntry* p )
-		{ return new DLTree(TLexeme(DNAME,new TTreeNamedEntry(p))); }
+	static DLTree* buildTree ( ReasoningKernel* K, const ClassifiableEntry* p )
+		{ return getDName ( K, p->getName() ); }
 }; // DataPropertyPolicy
 
 #endif

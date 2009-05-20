@@ -199,6 +199,33 @@ ReasoningKernel* getK ( JNIEnv * env, jobject obj )
 	return curKernel->pKernel;
 }
 
+// get trees for the names in the unified way
+
+/// get tree for the class name by the kernel and the name
+inline 
+DLTree* getCName ( ReasoningKernel* K, const std::string& name ) { return K->ensureConceptName(name); }
+/// get tree for the class name by the env:obj and the name
+inline 
+DLTree* getCName ( JNIEnv * env, jobject obj, const std::string& name ) { return getK(env,obj)->ensureConceptName(name); }
+/// get tree for the individual name by the kernel and the name
+inline 
+DLTree* getIName ( ReasoningKernel* K, const std::string& name ) { return K->ensureSingletonName(name); }
+/// get tree for the individual name by the env:obj and the name
+inline 
+DLTree* getIName ( JNIEnv * env, jobject obj, const std::string& name ) { return getK(env,obj)->ensureSingletonName(name); }
+/// get tree for the object property name by the kernel and the name
+inline 
+DLTree* getOName ( ReasoningKernel* K, const std::string& name ) { return K->ensureRoleName(name); }
+/// get tree for the object property name by the env:obj and the name
+inline 
+DLTree* getOName ( JNIEnv * env, jobject obj, const std::string& name ) { return getK(env,obj)->ensureRoleName(name); }
+/// get tree for the data property name by the kernel and the name
+inline 
+DLTree* getDName ( ReasoningKernel* K, const std::string& name ) { return K->ensureDataRoleName(name); }
+/// get tree for the data property name by the env:obj and the name
+inline 
+DLTree* getDName ( JNIEnv * env, jobject obj, const std::string& name ) { return getK(env,obj)->ensureDataRoleName(name); }
+
 // helper for getTree which extracts a JLONG from a given object
 inline
 jlong getPointer ( JNIEnv * env, jobject obj )
