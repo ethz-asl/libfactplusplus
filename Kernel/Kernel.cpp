@@ -48,6 +48,12 @@ ReasoningKernel :: ReasoningKernel ( void )
 		throw EFaCTPlusPlus("FaCT++ kernel: Cannot init options");
 }
 
+bool
+ReasoningKernel :: tryIncremental ( void )
+{
+	return true;
+}
+
 void
 ReasoningKernel :: processKB ( KBStatus status )
 {

@@ -86,6 +86,13 @@ protected:	// types
 		TreeNESet ( void ) {}
 			/// empty d'tor
 		~TreeNESet ( void ) {}
+
+			/// clear labels in the name set
+		void clearLabels ( void )
+		{
+			for ( iterator p = Base.begin(); p != Base.end(); ++p )
+				p->second->setImpl(NULL);
+		}
 	}; // TreeNESet
 
 protected:	// members
@@ -591,6 +598,26 @@ public:
 			processKB(kbRealised);
 		if ( !isKBConsistent() )
 			throw EFPPInconsistentKB();
+	}
+		/// try to perform the incremental reasoning on the changed ontology
+	bool tryIncremental ( void );
+		/// force the re-classification of the changed ontology
+	void forceReclassify ( void )
+	{
+		delete pTBox;
+		pTBox = NULL;
+		newKB();
+		Concepts.clearLabels();
+		Individuals.clearLabels();
+		ORoles.clearLabels();
+		DRoles.clearLabels();
+		realiseKB();
+	}
+		/// re-classification of the changed ontology
+	void reclassify ( void )
+	{
+		if ( tryIncremental() )
+			forceReclassify();
 	}
 
 	// role info retrieval

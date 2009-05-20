@@ -255,7 +255,7 @@ public:		// interface
 		/// load ontology to a given KB
 	virtual void visitOntology ( TOntology& ontology )
 	{
-		for ( TOntology::iterator p = ontology.beginUnprocessed(), p_end = ontology.end(); p < p_end; ++p )
+		for ( TOntology::iterator p = ontology.begin(), p_end = ontology.end(); p < p_end; ++p )
 			if ( (*p)->isUsed() )
 			{
 				kb.setAxiomId((*p)->getId());
