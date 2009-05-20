@@ -143,6 +143,8 @@ void testSub ( const std::string& names1, const std::string& names2, ReasoningKe
 //**********************  Main function  ************************************
 int main ( int argc, char *argv[] )
 {
+	try{
+
 	totalTimer. Start ();
 
 	// define [more-or-less] global Kernel
@@ -250,5 +252,11 @@ int main ( int argc, char *argv[] )
 	OutTime (std::cout);
 	OutTime (Out);
 
+	}
+	catch ( EFaCTPlusPlus e )
+	{
+		std::cerr << "\n" << e.what() << "\n";
+		exit(1);
+	}
 	return 0;
 }

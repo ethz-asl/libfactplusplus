@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2008 by Dmitry Tsarkov
+Copyright (C) 2008-2009 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -381,7 +381,7 @@ void
 TNECollection<T> :: Load ( istream& i )
 {
 	// sanity check: Load shall be done for the empty collection and only once
-	assert ( size() == 0 );
+	fpp_assert ( size() == 0 );
 
 	unsigned int collSize, maxLength;
 	collSize = loadUInt(i);
@@ -514,7 +514,7 @@ void
 RoleMaster :: Load ( istream& i )
 {
 	// sanity check: Load shall be done for the empty collection and only once
-	assert ( size() == 0 );
+	fpp_assert ( size() == 0 );
 
 	unsigned int RMSize, maxLength, DataRole;
 	RMSize = loadUInt(i);
@@ -704,7 +704,7 @@ DLVertex :: Save ( ostream& o ) const
 	case dtBad:
 	case dtTop:		// can't be S/L
 	default:
-		assert(0);
+		fpp_unreachable();
 		break;
 
 	case dtAnd:
@@ -759,7 +759,7 @@ DLVertex :: Load ( istream& i )
 	case dtBad:
 	case dtTop:		// can't be S/L
 	default:
-		assert(0);
+		fpp_unreachable();
 		break;
 
 	case dtAnd:

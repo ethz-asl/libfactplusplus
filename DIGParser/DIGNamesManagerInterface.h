@@ -19,10 +19,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef _DIGNAMESMANAGERINTERFACE_H
 #define _DIGNAMESMANAGERINTERFACE_H
 
-#include <cassert>
 #include <string>
 #include <map>
 #include <vector>
+
+#include "fpp_assert.h"
 
 /// constants for all names appearing in DIG interface
 enum DIGTag
@@ -161,8 +162,8 @@ protected:	// methods
 		/// add pair "name:tag" to Base; set up index as well
 	void addName ( DIGTag tag, const std::string& name )
 	{
-		assert ( tag > dig_First && tag < dig_Last );	// range control
-		assert ( Index[tag] == "" );	// each tag should be activated only once
+		fpp_assert ( tag > dig_First && tag < dig_Last );	// range control
+		fpp_assert ( Index[tag] == "" );	// each tag should be activated only once
 		Base[name] = tag;
 		Index[tag] = name;
 	}
@@ -189,7 +190,7 @@ public:	// interface
 		/// get DIG command name according to given tag
 	const std::string& getName ( DIGTag tag ) const
 	{
-		assert ( tag > dig_First && tag < dig_Last );	// range control
+		fpp_assert ( tag > dig_First && tag < dig_Last );	// range control
 		return Index[tag];
 	}
 }; // DIGNamesManagerInterface

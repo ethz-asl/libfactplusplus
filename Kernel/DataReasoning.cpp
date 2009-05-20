@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2005-2008 by Dmitry Tsarkov
+Copyright (C) 2005-2009 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -46,7 +46,7 @@ bool DataTypeReasoner :: addDataEntry ( BipolarPointer p, const DepSet& dep )
 	case dtAnd:		// processed by general reasoning
 		return false;
 	default:
-		assert(false);
+		fpp_unreachable();
 		return true;
 	}
 }

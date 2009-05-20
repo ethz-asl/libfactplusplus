@@ -31,7 +31,7 @@ do {\
 	case utClash: return utClash;\
 	case utUnusable: break;\
 	case utDone: ret = utDone; break;\
-	default: assert (0);\
+	default: fpp_unreachable();\
 	}\
 } while (0)\
 
@@ -52,7 +52,7 @@ do {\
 tacticUsage DlSatTester :: commonTactic ( void )
 {
 #ifdef ENABLE_CHECKING
-	assert ( curConcept.bp() != bpINVALID );
+	fpp_assert ( curConcept.bp() != bpINVALID );
 #endif
 
 	// check if Node is cached and we tries to expand existing result
@@ -92,7 +92,7 @@ tacticUsage DlSatTester :: commonTacticBody ( const DLVertex& cur )
 	switch ( cur.Type() )
 	{
 	case dtTop:
-		assert(0);		// can't appear here; addToDoEntry deals with constants
+		fpp_unreachable();		// can't appear here; addToDoEntry deals with constants
 		return utDone;
 
 	case dtDataType:	// data things are checked by data inferer
@@ -144,7 +144,7 @@ tacticUsage DlSatTester :: commonTacticBody ( const DLVertex& cur )
 			return commonTacticBodyLE(cur);
 
 	default:
-		assert(0);
+		fpp_unreachable();
 		return utUnusable;
 	}
 }
@@ -152,7 +152,7 @@ tacticUsage DlSatTester :: commonTacticBody ( const DLVertex& cur )
 tacticUsage DlSatTester :: commonTacticBodyId ( const DLVertex& cur )
 {
 #ifdef ENABLE_CHECKING
-	assert ( isCNameTag(cur.Type()) );	// safety check
+	fpp_assert ( isCNameTag(cur.Type()) );	// safety check
 #endif
 
 	nIdCalls.inc();
@@ -218,19 +218,19 @@ DlSatTester :: applyExtraRules ( const TConcept* C )
 tacticUsage DlSatTester :: commonTacticBodySingleton ( const DLVertex& cur )
 {
 #ifdef ENABLE_CHECKING
-	assert ( cur.Type() == dtPSingleton || cur.Type() == dtNSingleton );	// safety check
+	fpp_assert ( cur.Type() == dtPSingleton || cur.Type() == dtNSingleton );	// safety check
 #endif
 
 	nSingletonCalls.inc();
 
 	// can use this rule only in the Nominal reasoner
-	assert ( hasNominals() );
+	fpp_assert ( hasNominals() );
 
 	// if the test REALLY uses nominals, remember this
 	encounterNominal = true;
 
 	const TIndividual* C = static_cast<const TIndividual*>(cur.getConcept());
-	assert ( C->node != NULL );
+	fpp_assert ( C->node != NULL );
 
 	// if node for C was purged due to merge -- find proper one
 	DepSet dep = curConcept.getDep();
@@ -252,7 +252,7 @@ tacticUsage DlSatTester :: commonTacticBodySingleton ( const DLVertex& cur )
 tacticUsage DlSatTester :: commonTacticBodyAnd ( const DLVertex& cur )
 {
 #ifdef ENABLE_CHECKING
-	assert ( isPositive(curConcept.bp()) && ( cur.Type() == dtAnd || cur.Type() == dtCollection ) );	// safety check
+	fpp_assert ( isPositive(curConcept.bp()) && ( cur.Type() == dtAnd || cur.Type() == dtCollection ) );	// safety check
 #endif
 
 	nAndCalls.inc();
@@ -271,7 +271,7 @@ tacticUsage DlSatTester :: commonTacticBodyAnd ( const DLVertex& cur )
 tacticUsage DlSatTester :: commonTacticBodyOr ( const DLVertex& cur )	// for C \or D concepts
 {
 #ifdef ENABLE_CHECKING
-	assert ( isNegative(curConcept.bp()) && cur.Type() == dtAnd );	// safety check
+	fpp_assert ( isNegative(curConcept.bp()) && cur.Type() == dtAnd );	// safety check
 #endif
 
 	nOrCalls.inc();
@@ -322,7 +322,7 @@ bool DlSatTester :: planOrProcessing ( const DLVertex& cur )
 			indexVec.push_back(inverse(*q));
 			continue;
 		default:		// safety check
-			assert (0);
+			fpp_unreachable();
 		}
 
 	return false;
@@ -357,7 +357,7 @@ tacticUsage DlSatTester :: processOrEntry ( void )
 	if ( useSemanticBranching )
 		for ( ; p < p_end; ++p )
 			if ( addToDoEntry ( curNode, inverse(*p), dep, "sb" ) != utDone )
-				assert (0);	// Both Exists and Clash are errors
+				fpp_unreachable();	// Both Exists and Clash are errors
 
 	// add new entry to current node; we know the result would be DONE
 	return
@@ -475,7 +475,7 @@ tacticUsage DlSatTester :: applySimpleAutomaton ( const DlCompletionTreeArc* edg
 tacticUsage DlSatTester :: commonTacticBodySome ( const DLVertex& cur )	// for ER.C concepts
 {
 #ifdef ENABLE_CHECKING
-	assert ( isNegative(curConcept.bp()) && cur.Type() == dtForall );
+	fpp_assert ( isNegative(curConcept.bp()) && cur.Type() == dtForall );
 #endif
 
 	const DepSet& dep = curConcept.getDep();
@@ -527,7 +527,7 @@ tacticUsage DlSatTester :: commonTacticBodySome ( const DLVertex& cur )	// for E
 			case acrExist:	// already exists
 				break;
 			default:		// safety check
-				assert (0);
+				fpp_unreachable();
 			}
 
 
@@ -626,7 +626,7 @@ tacticUsage DlSatTester :: commonTacticBodyValue ( const TRole* R, const TIndivi
 
 	nSomeCalls.inc();
 
-	assert ( nom->node != NULL );
+	fpp_assert ( nom->node != NULL );
 
 	// if node for NOM was purged due to merge -- find proper one
 	DlCompletionTree* realNode = nom->node->resolvePBlocker(dep);
@@ -892,7 +892,7 @@ DlSatTester :: initHeadOfNewEdge ( DlCompletionTree* node, const TRole* R, const
 tacticUsage DlSatTester :: commonTacticBodyFunc ( const DLVertex& cur )	// for <=1 R concepts
 {
 #ifdef ENABLE_CHECKING
-	assert ( isPositive(curConcept.bp()) && isFunctionalVertex(cur) );
+	fpp_assert ( isPositive(curConcept.bp()) && isFunctionalVertex(cur) );
 #endif
 
 	// check whether we need to apply NN rule first
@@ -934,7 +934,7 @@ tacticUsage DlSatTester :: commonTacticBodyFunc ( const DLVertex& cur )	// for <
 tacticUsage DlSatTester :: commonTacticBodyLE ( const DLVertex& cur )	// for <=nR.C concepts
 {
 #ifdef ENABLE_CHECKING
-	assert ( isPositive(curConcept.bp()) && ( cur.Type() == dtLE ) );
+	fpp_assert ( isPositive(curConcept.bp()) && ( cur.Type() == dtLE ) );
 #endif
 
 	nLeCalls.inc();
@@ -948,7 +948,7 @@ tacticUsage DlSatTester :: commonTacticBodyLE ( const DLVertex& cur )	// for <=n
 		case btChoose:	break;			// clash in choose-rule: redo all
 		case btNN:		goto applyNN;	// clash in NN-rule: skip choose-rule
 		case btLE:		goto applyLE;	// clash in LE-rule: skip all the rest
-		default:		assert(0);		// no way to reach here
+		default:	fpp_unreachable();	// no way to reach here
 		}
 
 	// check if we have Qualified NR
@@ -1015,11 +1015,11 @@ applyLE:	// skip init, because here we are after restoring
 
 				// here dep contains the clash-set
 				test = findConcept(from->getArcEnd()->label().getLabel(tag), C, dep );
-				assert(test);
+				fpp_assert(test);
 				dep = getClashSet();	// save new dep-set
 
 				test = findConcept(to->getArcEnd()->label().getLabel(tag), C, dep );
-				assert(test);
+				fpp_assert(test);
 				// both clash-sets are now in common clash-set
 			}
 
@@ -1041,7 +1041,7 @@ applyLE:	// skip init, because here we are after restoring
 tacticUsage DlSatTester :: commonTacticBodyGE ( const DLVertex& cur )	// for >=nR.C concepts
 {
 #ifdef ENABLE_CHECKING
-	assert ( isNegative(curConcept.bp()) && cur.Type() == dtLE );
+	fpp_assert ( isNegative(curConcept.bp()) && cur.Type() == dtLE );
 #endif
 
 	// check blocking conditions
@@ -1177,13 +1177,13 @@ tacticUsage DlSatTester :: mergeLabels ( const CGLabel& from, DlCompletionTree* 
 tacticUsage DlSatTester :: Merge ( DlCompletionTree* from, DlCompletionTree* to, const DepSet& depF )
 {
 	// if node is already purged -- nothing to do
-	assert ( !from->isPBlocked() );
+	fpp_assert ( !from->isPBlocked() );
 
 	// prevent node to be merged to itself
-	assert ( from != to );
+	fpp_assert ( from != to );
 
 	// never merge nominal node to blockable one
-	assert ( to->getNominalLevel() <= from->getNominalLevel() );
+	fpp_assert ( to->getNominalLevel() <= from->getNominalLevel() );
 
 	if ( LLM.isWritable(llGTA) )
 		LL << " m(" << from->getId() << "->" << to->getId() << ")";

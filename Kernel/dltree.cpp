@@ -16,10 +16,10 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#include "dltree.h"
-
-#include <cassert>
 #include <iostream>
+
+#include "dltree.h"
+#include "fpp_assert.h"
 
 	/// create inverse of role R
 DLTree* createInverse ( DLTree* R )
@@ -250,7 +250,7 @@ const char* TokenName ( Token t )
 	case REFLEXIVE: return "self-ref";
 	default:
 		std::cerr << "token " << t << "has no name";
-					assert ( 0 );
+					fpp_unreachable();
 					return NULL;
 	};
 }

@@ -44,7 +44,7 @@ bool TAxiom :: simplify ( void )
 
 DLTree* TAxiom :: createAnAxiom ( void )
 {
-	assert ( !Disjuncts.empty() );	// could not create an axiom from empty absorption set
+	fpp_assert ( !Disjuncts.empty() );	// could not create an axiom from empty absorption set
 
 	const_iterator p = begin();
 
@@ -54,7 +54,7 @@ DLTree* TAxiom :: createAnAxiom ( void )
 	for ( ++p; p != end(); ++p )
 		Or = createSNFAnd ( *p, Or );
 
-	assert ( isSNF (Or) );	// safety check for G
+	fpp_assert ( isSNF(Or) );	// safety check for G
 
 	inUse = true;
 	return createSNFNot(Or);

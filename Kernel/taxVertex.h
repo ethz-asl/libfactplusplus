@@ -188,7 +188,7 @@ public:
 		/// copy node information (label) from the given one
 	void copyFromNode ( TaxonomyVertex* v )
 	{
-		assert(synonyms.empty());
+		fpp_assert(synonyms.empty());
 		// don't use addSynonym() here as it change the TaxVertex from the entries
 		synonyms.push_back(v->getPrimer());
 		for ( syn_iterator p = v->begin_syn(), p_end = v->end_syn(); p < p_end; ++p )

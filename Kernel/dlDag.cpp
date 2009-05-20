@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2008 by Dmitry Tsarkov
+Copyright (C) 2003-2009 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -46,7 +46,7 @@ DLDag :: ~DLDag ( void )
 void
 DLDag :: removeAfter ( size_t n )
 {
-	assert ( n < size() );
+	fpp_assert ( n < size() );
 	for ( HeapType::iterator p = Heap.begin()+n, p_end = Heap.end(); p < p_end; ++p )
 	{
 		// make sure data elements can be reused
@@ -65,7 +65,7 @@ DLDag :: removeAfter ( size_t n )
 
 void DLDag :: readConfig ( const ifOptionSet* Options )
 {
-	assert ( Options != NULL );	// safety check
+	fpp_assert ( Options != NULL );	// safety check
 
 	orSortSat = Options->getText ( "orSortSat" ).c_str();
 	orSortSub = Options->getText ( "orSortSub" ).c_str();
@@ -79,7 +79,7 @@ void
 DLDag :: setOrderDefaults ( const char* defSat, const char* defSub )
 {
 	// defaults should be correct
-	assert ( isCorrectOption(defSat) && isCorrectOption(defSub) );
+	fpp_assert ( isCorrectOption(defSat) && isCorrectOption(defSub) );
 
 	if ( LLM.isWritable(llAlways) )
 		LL << "orSortSat: initial=" << orSortSat << ", default=" << defSat;
@@ -154,7 +154,7 @@ DLDag :: gatherStatistic ( void )
 bool DLDag :: less ( BipolarPointer p1, BipolarPointer p2 ) const
 {
 #	ifdef ENABLE_CHECKING
-		assert ( isValid(p1) && isValid(p2) );
+		fpp_assert ( isValid(p1) && isValid(p2) );
 #	endif
 
 	// idea: any positive entry should go first

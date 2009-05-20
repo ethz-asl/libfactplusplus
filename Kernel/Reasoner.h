@@ -216,7 +216,7 @@ protected:	// classes
 			case btBarrier:	// nothing to do
 				break;
 			default:	// safety
-				assert(0);
+				fpp_unreachable();
 			}
 		}
 
@@ -526,7 +526,7 @@ protected:	// methods
 	{
 		if ( !p->hasExtraRules() )
 			return utUnusable;
-		assert ( p->isPrimitive() );
+		fpp_assert ( p->isPrimitive() );
 		return applyExtraRules(p);
 	}
 
@@ -654,7 +654,7 @@ protected:	// methods
 			return false;
 		}
 		else
-			assert(0);
+			fpp_unreachable();
 	}
 		/// aux method which fills EdgesToMerge with *different* ROLE-neighbours of curNode
 	void findNeighbours ( EdgeVector& EdgesToMerge, const TRole* Role, BipolarPointer C, DepSet& Dep );
@@ -867,7 +867,7 @@ public:
 		/// init TODO list priority for classification
 	void initToDoPriorities ( const ifOptionSet* OptionSet )
 	{
-		assert ( OptionSet != NULL );
+		fpp_assert ( OptionSet != NULL );
 
 		if ( TODO.initPriorities ( OptionSet, "IAOEFLG" ) )
 			error ( "Wrong priority option given. Execution stopped." );
@@ -1016,7 +1016,7 @@ inline bool DlSatTester :: tunedRestore ( void )
 inline tacticUsage DlSatTester :: commonTacticBodyAll ( const DLVertex& cur )
 {
 #ifdef ENABLE_CHECKING
-	assert ( isPositive(curConcept.bp()) && cur.Type() == dtForall );
+	fpp_assert ( isPositive(curConcept.bp()) && cur.Type() == dtForall );
 #endif
 
 	// can't skip singleton models for complex roles due to empty transitions
@@ -1053,7 +1053,7 @@ TBox :: initReasoner ( void )
 {
 	if ( stdReasoner == NULL )	// 1st action
 	{
-		assert ( nomReasoner == NULL );
+		fpp_assert ( nomReasoner == NULL );
 
 		GCIs.setReflexive(RM.hasReflexiveRoles());
 

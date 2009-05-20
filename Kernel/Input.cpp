@@ -55,7 +55,7 @@ bool
 TBox :: applyAxiomCToCN ( DLTree* D, DLTree*& CN )
 {
 	TConcept* C = resolveSynonym(getCI(CN));
-	assert ( C != NULL );
+	fpp_assert ( C != NULL );
 
 	// check whether name is a synonym of a constant (mainly for owl:Thing)
 	if ( C == pBottom )
@@ -85,7 +85,7 @@ bool
 TBox :: applyAxiomCNToC ( DLTree*& CN, DLTree* D )
 {
 	TConcept* C = resolveSynonym(getCI(CN));
-	assert ( C != NULL );
+	fpp_assert ( C != NULL );
 	// TOP [= D: n/a
 	if ( C == pTop )
 	{

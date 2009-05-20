@@ -225,7 +225,7 @@ protected:	// methods
 	bool B2 ( const DLVertex& v, BipolarPointer C ) const
 	{
 #	ifdef ENABLE_CHECKING
-		assert ( hasParent() );	// safety
+		fpp_assert ( hasParent() );	// safety
 #	endif
 
 		if ( v.getRole()->isSimple() )
@@ -525,7 +525,7 @@ public:		// methods
 		/// check whether the loop between a DBlocked NODE and it's parent blocked contains C
 	bool isLoopLabelled ( BipolarPointer c )
 	{
-		assert ( isDBlocked() );
+		fpp_assert ( isDBlocked() );
 		if ( Blocker->isLabelledBy(c) )
 			return true;
 		for ( DlCompletionTree* p = getParentNode(); p->hasParent() && p != Blocker; p = p->getParentNode() )
@@ -628,7 +628,7 @@ public:		// methods
 		/// restore node from the topmost entry
 	void restore ( void )
 	{
-		assert ( !saves.empty() );
+		fpp_assert ( !saves.empty() );
 		restore (saves.pop());
 	}
 		/// check if node needs to be restored

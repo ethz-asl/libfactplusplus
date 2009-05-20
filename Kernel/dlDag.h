@@ -19,11 +19,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef _DLDAG_H
 #define _DLDAG_H
 
-#include <cassert>
 #include <vector>
 #include <cstring>	// strlen
 
 #include "globaldef.h"	// for statistic printed
+#include "fpp_assert.h"
 #include "dlVertex.h"
 #include "dlVHash.h"
 #include "ifOptions.h"
@@ -122,7 +122,7 @@ protected:	// methods
 		case dtUAll:
 		case dtForall:	return indexAll;
 		case dtLE:		return indexLE;
-		default:		assert(0);	// no such index
+		default:		fpp_unreachable();	// no such index
 		}
 	}
 		/// update index corresponding to DLVertex's tag
@@ -193,8 +193,8 @@ public:		// interface
 	DLVertex& operator [] ( BipolarPointer i )
 	{
 #	ifdef ENABLE_CHECKING
-		assert ( isValid(i) );
-		assert ( getValue(i) < size() );
+		fpp_assert ( isValid(i) );
+		fpp_assert ( getValue(i) < size() );
 #	endif
 		return *Heap[getValue(i)];
 	}
@@ -202,8 +202,8 @@ public:		// interface
 	const DLVertex& operator [] ( BipolarPointer i ) const
 	{
 #	ifdef ENABLE_CHECKING
-		assert ( isValid(i) );
-		assert ( getValue(i) < size() );
+		fpp_assert ( isValid(i) );
+		fpp_assert ( getValue(i) < size() );
 #	endif
 		return *Heap[getValue(i)];
 	}
@@ -255,7 +255,7 @@ public:		// interface
 		/// check if two BPs are of the same sort
 	bool haveSameSort ( unsigned int p, unsigned int q )
 	{
-		assert ( p > 0 && q > 0 );	// sanity check
+		fpp_assert ( p > 0 && q > 0 );	// sanity check
 
 		// everything has the same label as TOP
 		if ( p == 1 || q == 1 )

@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2006 by Dmitry Tsarkov
+Copyright (C) 2003-2009 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -20,6 +20,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #define _TSAVESTACK_H
 
 #include "growingArrayP.h"
+#include "fpp_assert.h"
 
 /**
  *	Template stack for Saving/Restoring internal state of template parameter.
@@ -47,14 +48,14 @@ public:		// interface
 		/// get an object from a fixed depth
 	T* pop ( unsigned int depth )
 	{
-		assert ( this->last >= depth );
+		fpp_assert ( this->last >= depth );
 		this->last = depth;
 		return pop();
 	}
 		/// get an object from a fixed depth
 	T* top ( unsigned int depth )
 	{
-		assert ( this->last >= depth );
+		fpp_assert ( this->last >= depth );
 		this->last = depth;
 		return this->Base[depth-1];
 	}

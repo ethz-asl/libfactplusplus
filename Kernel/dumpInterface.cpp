@@ -133,7 +133,7 @@ void TBox :: dumpRole ( dumpInterface* dump, const TRole* p ) const
 
 void TBox :: dumpExpression ( dumpInterface* dump, BipolarPointer p ) const
 {
-	assert ( isValid (p) );
+	fpp_assert ( isValid(p) );
 
 	if ( p == bpTOP )
 		return dump->dumpTop();
@@ -187,7 +187,7 @@ void TBox :: dumpExpression ( dumpInterface* dump, BipolarPointer p ) const
 
 	default:
 		std::cerr << "Error dumping vertex of type " << v.getTagName() << "(" << v.Type () << ")";
-		assert (0);
+		fpp_unreachable();
 		return;	// invalid value
 	}
 }
@@ -197,7 +197,7 @@ void TBox :: dumpAllRoles ( dumpInterface* dump ) const
 	for ( RoleMaster::const_iterator p = RM.begin(); p != RM.end(); ++p )
 		if ( isRelevant(*p) )
 		{
-			assert ( !(*p)->isSynonym() );
+			fpp_assert ( !(*p)->isSynonym() );
 			dumpRole ( dump, *p );
 		}
 }
@@ -248,7 +248,7 @@ void dumpCExpression ( dumpInterface* dump, const DLTree* C )
 		dumpCExpression ( dump, C->Right() );
 		return dump->finishOp(tag);
 	default:
-		assert(0);
+		fpp_unreachable();
 	}
 }
 	// dump given role expression
@@ -268,6 +268,6 @@ void dumpRExpression ( dumpInterface* dump, const DLTree* R )
 		dumpRExpression ( dump, R->Left() );
 		return dump->finishOp(diInv);
 	default:
-		assert(0);
+		fpp_unreachable();
 	}
 }

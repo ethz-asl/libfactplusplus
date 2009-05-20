@@ -307,7 +307,7 @@ template<>
 inline
 void registerPointer ( DLTree* p )
 {
-	assert(curKernel != NULL );
+	fpp_assert ( curKernel != NULL );
 	curKernel->pRefRecorder->add(p);
 }
 

@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2004 by Dmitry Tsarkov
+Copyright (C) 2003-2009 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -19,7 +19,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef _TLABELLER_H
 #define _TLABELLER_H
 
-#include <cassert>
+#include "fpp_assert.h"
 #include "tCounter.h"
 
 /** define class that implements support for labelling entries with
@@ -60,7 +60,7 @@ public:		// interface
 	void newLab ( void )
 	{
 		counter.inc();
-		assert ( counter.val() != 0 );
+		fpp_assert ( counter.val() != 0 );
 	}
 
 	// operations with Labels

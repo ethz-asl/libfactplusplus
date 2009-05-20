@@ -124,7 +124,7 @@ protected:	// methods
 		/// init root node
 	void initRoot ( void )
 	{
-		assert ( endUsed == 0 );
+		fpp_assert ( endUsed == 0 );
 		getNewNode();
 	}
 		/// create edge between nodes with given label and creation level; @return from->to arc
@@ -323,7 +323,7 @@ public:		// interface
 			node->clearAffected();
 		else
 			detectBlockedStatus(node);
-		assert ( !node->isAffected() );
+		fpp_assert ( !node->isAffected() );
 	}
 		/// retest every d-blocked node in the CG. Use it after the CG was build
 	void retestCGBlockedStatus ( void )
@@ -412,7 +412,7 @@ public:		// interface
 		const DepSet& dep )	// dep-set of the arc label
 	{
 #	ifdef RKG_IMPROVE_SAVE_RESTORE_DEPSET
-		assert ( branchingLevel == r.getDep().level()+1 );
+		fpp_assert ( branchingLevel == r.getDep().level()+1 );
 #	endif
 		return createEdge ( from, getNewNode(), isUpLink, r, dep );
 	}

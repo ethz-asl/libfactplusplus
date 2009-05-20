@@ -240,8 +240,8 @@ public:
 /// init ancestors and descendants using Taxonomy
 void TRole :: initADbyTaxonomy ( unsigned int nRoles )
 {
-	assert ( isClassified() );	// safety check
-	assert ( Ancestor.empty() && Descendant.empty() );
+	fpp_assert ( isClassified() );	// safety check
+	fpp_assert ( Ancestor.empty() && Descendant.empty() );
 
 	// Note that Top/Bottom are not connected to taxonomy yet.
 
@@ -276,7 +276,7 @@ void TRole :: postProcess ( void )
 // valid only after initAncDesc call
 void TRole :: initSimple ( void )
 {
-	assert ( !isSynonym() );
+	fpp_assert ( !isSynonym() );
 
 	setSimple(false);
 

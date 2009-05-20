@@ -58,7 +58,7 @@ void Taxonomy :: print ( std::ostream& o ) const
 
 void Taxonomy :: performClassification ( ClassifiableEntry* p )
 {
-	assert ( p != NULL );
+	fpp_assert ( p != NULL );
 
 	++nEntries;
 
@@ -145,10 +145,10 @@ bool Taxonomy :: classifySynonym ( void )
 		return false;	// not a synonym
 
 	// I'm sure that there is impossible to have synonym here, but let's check
-	assert ( willInsertIntoTaxonomy );
+	fpp_assert ( willInsertIntoTaxonomy );
 
 	// update synonym vertex:
-	assert ( syn->getTaxVertex() != NULL );
+	fpp_assert ( syn->getTaxVertex() != NULL );
 	syn->getTaxVertex()->addSynonym(curEntry);
 
 	// clean up Current entry
@@ -229,7 +229,7 @@ static void printHeader ( void )
 
 void Taxonomy :: classifyEntry ( ClassifiableEntry* p )
 {
-	assert ( waitStack.empty () );	// safety check
+	fpp_assert ( waitStack.empty() );	// safety check
 
 	// don't classify artificial concepts
 	if ( p->isNonClassifiable() )
@@ -254,7 +254,7 @@ void Taxonomy :: classifyEntry ( ClassifiableEntry* p )
 
 bool Taxonomy :: checkToldSubsumers ( void )
 {
-	assert ( !waitStack.empty () );	// safety check
+	fpp_assert ( !waitStack.empty() );	// safety check
 	bool ret = true;
 
 #ifdef TMP_PRINT_TAXONOMY_INFO
@@ -270,7 +270,7 @@ bool Taxonomy :: checkToldSubsumers ( void )
 	for ( ; p < p_end; ++p )
 	{
 		ClassifiableEntry* r = *p;
-		assert ( r != NULL );
+		fpp_assert ( r != NULL );
 
 #ifdef TMP_PRINT_TAXONOMY_INFO
 		printHeader();
@@ -307,11 +307,11 @@ bool Taxonomy :: checkToldSubsumers ( void )
 
 void Taxonomy :: classifyTop ( void )
 {
-	assert ( !waitStack.empty () );	// safety check
+	fpp_assert ( !waitStack.empty() );	// safety check
 
 	// load last concept
 	ClassifiableEntry* p = waitStack.top ();
-	assert ( p != NULL );
+	fpp_assert ( p != NULL );
 #ifdef TMP_PRINT_TAXONOMY_INFO
 	std::cout << "\nTrying classify" << (p->isCompletelyDefined()? " CD " : " " ) << p->getName() << "... ";
 #endif
@@ -325,7 +325,7 @@ void Taxonomy :: classifyTop ( void )
 
 void Taxonomy :: classifyCycle ( void )
 {
-	assert ( !waitStack.empty () );	// safety check
+	fpp_assert ( !waitStack.empty() );	// safety check
 
 	// classify the top element
 	ClassifiableEntry* p = waitStack.top ();
@@ -351,5 +351,5 @@ void Taxonomy :: classifyCycle ( void )
 	std::cerr << "\n";
 
 	//FIXME!! still thinking it is not correct. So..
-	assert (0);
+	fpp_unreachable();
 }

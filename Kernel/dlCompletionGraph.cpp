@@ -171,7 +171,7 @@ void DlCompletionGraph :: save ( void )
 
 void DlCompletionGraph :: restore ( unsigned int level )
 {
-	assert ( level > 0 );
+	fpp_assert ( level > 0 );
 	branchingLevel = level;
 	RareStack.restore(level);
 	SaveState* s = Stack.pop(level);

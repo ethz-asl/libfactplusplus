@@ -57,7 +57,7 @@ ReasoningKernel :: tryIncremental ( void )
 void
 ReasoningKernel :: processKB ( KBStatus status )
 {
-	assert ( status >= kbCChecked );
+	fpp_assert ( status >= kbCChecked );
 
 	// check whether reasoning was failed
 	if ( reasoningFailed )
@@ -78,7 +78,7 @@ ReasoningKernel :: processKB ( KBStatus status )
 	case kbCChecked:	goto Classify;	// do classification
 	case kbClassified:	goto Realise;	// do realisation
 	default:	// nothing should be here
-		assert(0);
+		fpp_unreachable();
 	}
 
 	// start with loading and preprocessing -- here might be a failures
@@ -134,7 +134,7 @@ ReasoningKernel :: setUpCache ( DLTree* query, cacheStatus level )
 			return;
 		else
 		{	// concept was defined but not classified yet
-			assert ( level == csClassified && cacheLevel != csClassified );
+			fpp_assert ( level == csClassified && cacheLevel != csClassified );
 			if ( cacheLevel == csEmpty )
 				goto needSetup;
 			else
@@ -198,7 +198,7 @@ needClassify:	// classification only needed for complex expression
 		classifyKB();
 		getTBox()->classifyTempConcept();
 		// cached concept now have to be classified
-		assert ( cachedConcept->isClassified() );
+		fpp_assert ( cachedConcept->isClassified() );
 		cachedVertex = cachedConcept->getTaxVertex();
 	}
 }
@@ -210,7 +210,7 @@ needClassify:	// classification only needed for complex expression
 bool ReasoningKernel :: initOptions ( void )
 {
 	// register all possible options used in FaCT++ Kernel
-	assert ( pKernelOptions == NULL );
+	fpp_assert ( pKernelOptions == NULL );
 	pKernelOptions = new ifOptionSet;
 
 	// options for TBox

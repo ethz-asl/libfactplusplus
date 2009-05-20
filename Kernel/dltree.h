@@ -21,8 +21,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <vector>
 #include <iostream>
-#include <cassert>
 
+#include "fpp_assert.h"
 #include "tLexeme.h"
 #include "tsttree.h"
 
@@ -126,7 +126,7 @@ inline DLTree* createSNFLE ( unsigned int n, DLTree* R, DLTree* C )
 	/// create and-like formula (C\and D or C\or D)
 inline DLTree* createSNFwC ( Token T, DLTree* C, DLTree* D )
 {
-	assert ( T == AND || T == OR );
+	fpp_assert ( T == AND || T == OR );
 
 	if ( T == AND )
 		return createSNFAnd ( C, D );
@@ -147,7 +147,7 @@ inline DLTree* createSNFwR ( Token T, unsigned int n, DLTree* R, DLTree* C )
 	case FORALL:
 		return createSNFForall ( R, C );
 	default:
-		assert (0);
+		fpp_unreachable();
 		return NULL;
 	}
 }

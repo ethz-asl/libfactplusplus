@@ -51,8 +51,8 @@ void clearBlockingStat ( void )
 bool
 DlCompletionGraph :: isBlockedBy ( const DlCompletionTree* node, const DlCompletionTree* blocker ) const
 {
-	assert ( !node->isNominalNode() );
-	assert ( !blocker->isNominalNode() );
+	fpp_assert ( !node->isNominalNode() );
+	fpp_assert ( !blocker->isNominalNode() );
 
 	// blocked node can't be blocked itself
 	if ( blocker->isBlocked() )
@@ -109,7 +109,7 @@ bool DlCompletionTree :: isABlockedBy ( const DlCompletionTree* p ) const
 {
 	// current = w; p = w'; parent = v
 #ifdef ENABLE_CHECKING
-	assert ( hasParent () );	// there exists v
+	fpp_assert ( hasParent() );	// there exists v
 #endif
 
 	// B3,B4
@@ -146,7 +146,7 @@ bool DlCompletionTree :: isCBlockedBy ( const DlCompletionTree* p ) const
 {
 	// current = w; p = w'; parent = v
 #ifdef ENABLE_CHECKING
-	assert ( hasParent () );	// there exists v
+	fpp_assert ( hasParent() );	// there exists v
 #endif
 
 	// B5
@@ -254,7 +254,7 @@ bool DlCompletionTree :: B2 ( const RoleAutomaton& A, BipolarPointer C, RAState 
 bool DlCompletionTree :: B3 ( const DlCompletionTree* p, unsigned int n, const TRole* S, BipolarPointer C ) const
 {
 #ifdef ENABLE_CHECKING
-	assert ( hasParent () );	// safety check
+	fpp_assert ( hasParent() );	// safety check
 #endif
 	TRY_B(3);
 
@@ -289,7 +289,7 @@ bool DlCompletionTree :: B3 ( const DlCompletionTree* p, unsigned int n, const T
 bool DlCompletionTree :: B4 ( const DlCompletionTree* p, unsigned int m, const TRole* T, BipolarPointer E ) const
 {
 #ifdef ENABLE_CHECKING
-	assert ( hasParent () );	// safety check
+	fpp_assert ( hasParent() );	// safety check
 #endif
 	TRY_B(4);
 
@@ -315,7 +315,7 @@ bool DlCompletionTree :: B4 ( const DlCompletionTree* p, unsigned int m, const T
 bool DlCompletionTree :: B5 ( const TRole* T, BipolarPointer E ) const
 {
 #ifdef ENABLE_CHECKING
-	assert ( hasParent () );	// safety check
+	fpp_assert ( hasParent() );	// safety check
 #endif
 	TRY_B(5);
 
@@ -335,7 +335,7 @@ bool DlCompletionTree :: B5 ( const TRole* T, BipolarPointer E ) const
 bool DlCompletionTree :: B6 ( const TRole* U, BipolarPointer F ) const
 {
 #ifdef ENABLE_CHECKING
-	assert ( hasParent () );	// safety check
+	fpp_assert ( hasParent() );	// safety check
 #endif
 	TRY_B(6);
 

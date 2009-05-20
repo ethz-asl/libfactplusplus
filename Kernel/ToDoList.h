@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2008 by Dmitry Tsarkov
+Copyright (C) 2003-2009 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -19,9 +19,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef __TODOLIST_H
 #define __TODOLIST_H
 
-#include <cassert>
-
 #include "globaldef.h"
+#include "fpp_assert.h"
 #include "PriorityMatrix.h"
 
 /// the entry of TODO table
@@ -320,7 +319,7 @@ public:
 		/// save current state using internal stack
 	void save ( void ) { saveState(SaveStack.push()); }
 		/// restore state using internal stack
-	void restore ( void ) { assert ( !SaveStack.empty() ); restoreState(SaveStack.pop()); }
+	void restore ( void ) { fpp_assert ( !SaveStack.empty() ); restoreState(SaveStack.pop()); }
 		/// restore state to the given level using internal stack
 	void restore ( unsigned int level ) { restoreState(SaveStack.pop(level)); }
 }; // ToDoList
@@ -328,7 +327,7 @@ public:
 inline const ToDoEntry* ToDoList :: getNextEntry ( void )
 {
 #ifdef ENABLE_CHECKING
-	assert ( !empty () );	// safety check
+	fpp_assert ( !empty () );	// safety check
 #endif
 
 	// decrease amount of elements-to-process

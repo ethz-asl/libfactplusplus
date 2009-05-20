@@ -21,10 +21,9 @@ Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 //  Scanner implementation for FaCT++ program
 //
 //-------------------------------------------------------------------------
-#include "scanner.h"
-
 #include <cctype>		// isalnum
-#include <cassert>
+
+#include "scanner.h"
 
 // main methods
 bool TsScanner :: isLegalIdChar ( char c ) const	//id=[_a..z0-9[].]
@@ -59,9 +58,9 @@ void TsScanner :: FillBuffer ( register char c )
 void TsScanner :: FillNameBuffer ( register char c )
 {
 	register unsigned int i = 0;
-	assert ( c == '|' );
+	const char stop = c;
 
-	for ( ; i < MaxIDLength && ( ( c = NextChar () ) != '|' ); LexBuff [i++] = c )
+	for ( ; i < MaxIDLength && ( ( c = NextChar () ) != stop ); LexBuff [i++] = c )
 		(void)NULL;
 
 	LexBuff [i] = 0;
@@ -69,7 +68,7 @@ void TsScanner :: FillNameBuffer ( register char c )
 	if ( i == MaxIDLength )
 	{
 		std::cerr << "Identifier was restricted to " << LexBuff << std::endl;
-		for ( ; ( c = NextChar () ) != '|'; )
+		for ( ; ( c = NextChar () ) != stop; )
 			(void)NULL;
 	}
 }

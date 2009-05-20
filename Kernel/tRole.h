@@ -126,8 +126,8 @@ protected:	// methods
 		/// get an automaton by a (possibly synonymical) role
 	const RoleAutomaton& completeAutomatonByRole ( TRole* R ) const
 	{
-		assert ( !R->isSynonym() );	// no synonyms here
-		assert ( R != this );		// no case ...*S*... [= S
+		fpp_assert ( !R->isSynonym() );	// no synonyms here
+		fpp_assert ( R != this );		// no case ...*S*... [= S
 		R->completeAutomaton();
 		return R->getAutomaton();
 	}
@@ -185,11 +185,11 @@ public:		// interface
 	// inverse of the role
 
 		/// get inverse of given role (non-const version)
-	TRole* inverse ( void ) { assert (Inverse != NULL); return resolveSynonym(Inverse); }
+	TRole* inverse ( void ) { fpp_assert (Inverse != NULL); return resolveSynonym(Inverse); }
 		/// get inverse of given role (const version)
-	const TRole* inverse ( void ) const { assert (Inverse != NULL); return resolveSynonym(Inverse); }
+	const TRole* inverse ( void ) const { fpp_assert (Inverse != NULL); return resolveSynonym(Inverse); }
 		/// set inverse to given role
-	void setInverse ( TRole* p ) { assert (Inverse == NULL); Inverse = p; }
+	void setInverse ( TRole* p ) { fpp_assert (Inverse == NULL); Inverse = p; }
 
 	// different flags
 
@@ -328,7 +328,7 @@ public:		// interface
 		/// fills BITMAP with the role's ancestors
 	void addAncestorsToBitMap ( RoleBitMap& bitmap ) const
 	{
-		assert ( !bitmap.empty() );	// use only after the size is known
+		fpp_assert ( !bitmap.empty() );	// use only after the size is known
 		for ( iterator p = begin_anc(); p != end_anc(); ++p )
 			bitmap[(*p)->getIndex()] = true;
 	}

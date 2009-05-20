@@ -312,14 +312,14 @@ protected:	// methods
 	TDataEntry* getDataEntryByBP ( BipolarPointer bp )
 	{
 		TDataEntry* p = static_cast<TDataEntry*>(DLHeap[bp].getConcept());
-		assert ( p != NULL );
+		fpp_assert ( p != NULL );
 		return p;
 	}
 		/// get concept by it's BP (const version)
 	const TDataEntry* getDataEntryByBP ( BipolarPointer bp ) const
 	{
 		const TDataEntry* p = static_cast<const TDataEntry*>(DLHeap[bp].getConcept());
-		assert ( p != NULL );
+		fpp_assert ( p != NULL );
 		return p;
 	}
 
@@ -583,7 +583,7 @@ protected:	// methods
 		/// get RW reasoner wrt nominal case
 	DlSatTester* getReasoner ( void )
 	{
-		assert ( curFeature != NULL );
+		fpp_assert ( curFeature != NULL );
 		if ( curFeature->hasSingletons() )
 			return nomReasoner;
 		else

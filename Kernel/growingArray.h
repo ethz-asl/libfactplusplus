@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2004 by Dmitry Tsarkov
+Copyright (C) 2003-2009 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -20,7 +20,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #define _GROWINGARRAY_H
 
 #include <vector>
-#include <cassert>
+
+#include "fpp_assert.h"
 
 /// implementation of an array which groves but not shrinkes
 template <class C>
@@ -79,8 +80,8 @@ public:		// interface
 	C& operator [] ( unsigned int i )
 	{
 #	ifdef ENABLE_CHECKING
-		assert ( i < last );
-		assert ( last <= Body.size() );
+		fpp_assert ( i < last );
+		fpp_assert ( last <= Body.size() );
 #	endif
 		return Body[i];
 	}
@@ -89,8 +90,8 @@ public:		// interface
 	const C& operator [] ( unsigned int i ) const
 	{
 #	ifdef ENABLE_CHECKING
-		assert ( i < last );
-		assert ( last <= Body.size() );
+		fpp_assert ( i < last );
+		fpp_assert ( last <= Body.size() );
 #	endif
 		return Body[i];
 	}

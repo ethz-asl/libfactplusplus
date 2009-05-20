@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2008 by Dmitry Tsarkov
+Copyright (C) 2003-2009 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -19,9 +19,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef _TAXNAMENTRY_H
 #define _TAXNAMENTRY_H
 
-#include <cassert>
 #include <vector>
 
+#include "fpp_assert.h"
 #include "tNamedEntry.h"
 #include "globaldef.h"
 
@@ -122,7 +122,7 @@ public:		// interface
 		/// add entry's synonym
 	void setSynonym ( ClassifiableEntry* syn )
 	{
-		assert ( pSynonym == NULL );	// do it only once
+		fpp_assert ( pSynonym == NULL );	// do it only once
 		pSynonym = syn;
 		canonicaliseSynonym();
 	}

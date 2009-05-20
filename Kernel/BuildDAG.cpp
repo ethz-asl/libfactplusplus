@@ -120,7 +120,7 @@ void TBox :: addConceptToHeap ( TConcept* pConcept )
 	if ( pConcept->Description != NULL )	// complex concept
 		desc = tree2dag(pConcept->Description);
 	else			// only primivive concepts here
-		assert ( pConcept->isPrimitive() );
+		fpp_assert ( pConcept->isPrimitive() );
 
 	// update concept's entry
 	pConcept->pBody = desc;
@@ -164,8 +164,8 @@ BipolarPointer TBox :: tree2dag ( const DLTree* t )
 		return atmost2dag ( cur.getData(), resolveRole(t->Left()), tree2dag(t->Right()) );
 
 	default:
-		assert ( isSNF(t) );	// safety check
-		assert (0);				// extra safety check ;)
+		fpp_assert ( isSNF(t) );	// safety check
+		fpp_unreachable();			// extra safety check ;)
 		return bpINVALID;
 	}
 }

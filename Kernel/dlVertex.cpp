@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2008 by Dmitry Tsarkov
+Copyright (C) 2003-2009 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -319,7 +319,7 @@ DLVertex :: Print ( std::ostream& o ) const
 
 	default:
 		std::cerr << "Error printing vertex of type " << getTagName() << "(" << Type() << ")";
-		assert (0);
+		fpp_unreachable();
 	}
 
 	// print operands of the concept constructor

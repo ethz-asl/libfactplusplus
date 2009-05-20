@@ -240,7 +240,7 @@ void TBox :: transformToldCycles ( void )
 
 TConcept* TBox :: checkToldCycle ( TConcept* p )
 {
-	assert ( p != NULL );	// safety check
+	fpp_assert ( p != NULL );	// safety check
 
 		// searchable stack for the told subsumers
 	static std::set<TConcept*> sStack;
@@ -379,7 +379,7 @@ TBox :: getSPForConcept ( TConcept* p )
 			return transformSingletonWithSP(i);
 	}
 	// will always found the entry
-	assert(0);
+	fpp_unreachable();
 }
 
 /// make P and all its non-singleton parents synonyms to its singleton parent

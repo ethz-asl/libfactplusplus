@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2005-2008 by Dmitry Tsarkov
+Copyright (C) 2005-2009 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -20,8 +20,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #define _DATATYPECOMPARATOR_H
 
 #include <string>
-#include <cassert>
 #include <ostream>
+
+#include "fpp_assert.h"
 
 class TDataEntry;
 
@@ -124,13 +125,13 @@ public:
 		/// check whether 2 DT entries with the same TYPE are equal
 	bool operator == ( const ComparableDT& other ) const
 	{
-		assert ( vType == other.vType );	// sanity check
+		fpp_assert ( vType == other.vType );	// sanity check
 		switch ( vType )
 		{
 		case INT:	return getLongIntValue() == other.getLongIntValue();
 		case STR:	return getStringValue() == other.getStringValue();
 		case FLOAT:	return getFloatValue() == other.getFloatValue();
-		default:	assert(0); return false;
+		default:	fpp_unreachable(); return false;
 		}
 	}
 		/// check whether 2 DT entries with the same TYPE are NOT equal
@@ -139,13 +140,13 @@ public:
 		/// check whether 2 DT entries with the same TYPE are in '<' relation
 	bool operator < ( const ComparableDT& other ) const
 	{
-		assert ( vType == other.vType );	// sanity check
+		fpp_assert ( vType == other.vType );	// sanity check
 		switch ( vType )
 		{
 		case INT:	return getLongIntValue() < other.getLongIntValue();
 		case STR:	return getStringValue() < other.getStringValue();
 		case FLOAT:	return getFloatValue() < other.getFloatValue();
-		default:	assert(0); return false;
+		default:	fpp_unreachable(); return false;
 		}
 	}
 		/// check whether 2 DT entries with the same TYPE are in '>' relation
@@ -162,7 +163,7 @@ std::ostream& operator << ( std::ostream& o, const ComparableDT& cdt )
 	case ComparableDT::INT:	o << cdt.getLongIntValue(); break;
 	case ComparableDT::STR:	o << cdt.getStringValue().c_str(); break;
 	case ComparableDT::FLOAT:	o << cdt.getFloatValue(); break;
-	default:	assert(0);
+	default:	fpp_unreachable();
 	}
 	return o;
 }

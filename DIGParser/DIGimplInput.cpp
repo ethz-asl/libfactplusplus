@@ -31,7 +31,7 @@ using namespace xercesc;
 /// start of command (getId, tells, asks)
 void DIGParseHandlers :: startCommand ( DIGTag tag, AttributeList& attributes )
 {
-	assert ( tag >= dig_General_Begin && tag < dig_General_End );	// safety check
+	fpp_assert ( tag >= dig_General_Begin && tag < dig_General_End );	// safety check
 
 	// clear current KB
 	if ( tag == digClearKB )
@@ -156,7 +156,7 @@ void DIGParseHandlers :: startCommand ( DIGTag tag, AttributeList& attributes )
 /// start of concept expression (id, and, or)
 void DIGParseHandlers :: startConcept ( DIGTag tag, AttributeList& attributes )
 {
-	assert ( tag >= dig_CName_Begin && tag < dig_CName_End );	// safety check
+	fpp_assert ( tag >= dig_CName_Begin && tag < dig_CName_End );	// safety check
 	// set up name for the named stuff
 	const XMLCh* parm_name = attributes.getValue ( "name" );
 	const XMLCh* parm_num = attributes.getValue ( "num" );
@@ -315,14 +315,14 @@ void DIGParseHandlers :: startConcept ( DIGTag tag, AttributeList& attributes )
 		// throw (Unsupported)
 		return;
 	default:	// safety
-		assert (0);
+		fpp_unreachable();
 	}
 }
 
 /// start of axiom (implies, defconcept)
 void DIGParseHandlers :: startAxiom ( DIGTag tag, AttributeList& attributes )
 {
-	assert ( tag >= dig_Axioms_Begin && tag < dig_Axioms_End );	// safety check
+	fpp_assert ( tag >= dig_Axioms_Begin && tag < dig_Axioms_End );	// safety check
 	// set up name for the named stuff
 	const XMLCh* parm = attributes.getValue ( "name" );
 	DLTree* x;
@@ -395,7 +395,7 @@ void DIGParseHandlers :: startAxiom ( DIGTag tag, AttributeList& attributes )
 		return;	// nothing to do here. everything will be done by endElement
 
 	default:
-		assert(0);	// safety check
+		fpp_unreachable();	// safety check
 	}
 #undef ERROR_IF
 }
@@ -403,7 +403,7 @@ void DIGParseHandlers :: startAxiom ( DIGTag tag, AttributeList& attributes )
 /// end of command (getId, tells, asks)
 void DIGParseHandlers :: endCommand ( DIGTag tag )
 {
-	assert ( tag >= dig_General_Begin && tag < dig_General_End );	// safety check
+	fpp_assert ( tag >= dig_General_Begin && tag < dig_General_End );	// safety check
 
 	if ( tag == digTells )		// tells query -- return OK
 		*o << "\n<ok/>";
@@ -412,7 +412,7 @@ void DIGParseHandlers :: endCommand ( DIGTag tag )
 /// end of concept expression (id, and, or)
 void DIGParseHandlers :: endConcept ( DIGTag tag )
 {
-	assert ( tag >= dig_CName_Begin && tag < dig_CName_End );	// safety check
+	fpp_assert ( tag >= dig_CName_Begin && tag < dig_CName_End );	// safety check
 
 	switch (tag)
 	{
@@ -468,7 +468,7 @@ void DIGParseHandlers :: endConcept ( DIGTag tag )
 			throwArgumentAbsence ( "number", tag );
 		DLTree* pN = workStack.top();	// n
 		workStack.pop();
-		assert ( pN->Element() == NUM );
+		fpp_assert ( pN->Element() == NUM );
 		unsigned int n = pN->Element().getData();
 
 		// create \?e n R.C
@@ -572,7 +572,7 @@ void DIGParseHandlers :: endConcept ( DIGTag tag )
 			throwArgumentAbsence ( "role", "data expression", tag );
 		DLTree* N = workStack.top();
 		// FIXME: throw exception
-		assert ( N->Element().getToken() == DATAEXPR );
+		fpp_assert ( N->Element().getToken() == DATAEXPR );
 		workStack.pop();
 		DLTree* expr = pKernel->getDataTypeCenter().getDataExpr(N);
 
@@ -627,7 +627,7 @@ void DIGParseHandlers :: endConcept ( DIGTag tag )
 			throwArgumentAbsence ( "role", "data expression", tag );
 		DLTree* ps = workStack.top();
 		// FIXME: throw exception
-		assert ( ps->Element().getToken() == DATAEXPR );
+		fpp_assert ( ps->Element().getToken() == DATAEXPR );
 		workStack.pop();
 		workStack.push ( pKernel->Exists ( A, ps ) );
 
@@ -639,14 +639,14 @@ void DIGParseHandlers :: endConcept ( DIGTag tag )
 		return;
 
 	default:
-		assert (0);		// safety check
+		fpp_unreachable();		// safety check
 	}
 }
 
 /// end of axiom (implies, defconcept)
 void DIGParseHandlers :: endAxiom ( DIGTag tag )
 {
-	assert ( tag >= dig_Axioms_Begin && tag < dig_Axioms_End );	// safety check
+	fpp_assert ( tag >= dig_Axioms_Begin && tag < dig_Axioms_End );	// safety check
 
 	// macro for error printing
 #ifdef RKG_PRINT_DIG_MESSAGES
@@ -853,7 +853,7 @@ void DIGParseHandlers :: endAxiom ( DIGTag tag )
 		return;
 	}
 	default:
-		assert (0);	// safety check
+		fpp_unreachable();	// safety check
 	}
 #undef ERROR_IF
 }

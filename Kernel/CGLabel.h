@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2006-2008 by Dmitry Tsarkov
+Copyright (C) 2006-2009 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -123,7 +123,7 @@ public:		// interface
 			if ( *p == bp )
 				return getCCOffset(p);
 		// BP should appear in the label
-		assert(0);
+		fpp_unreachable();
 		return 0;
 	}
 
@@ -192,7 +192,7 @@ inline bool
 CGLabel :: contains ( BipolarPointer p ) const
 {
 #ifdef ENABLE_CHECKING
-	assert ( isCorrect(p) );	// sanity checking
+	fpp_assert ( isCorrect(p) );	// sanity checking
 #endif
 	switch(p)
 	{

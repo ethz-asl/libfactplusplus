@@ -33,7 +33,7 @@ void TaxonomyVertex :: propagateValueUp ( const bool value )
 	// if taxonomy class already checked -- do nothing
 	if ( isValued() )
 	{
-		assert ( getValue() == value );
+		fpp_assert ( getValue() == value );
 		return;
 	}
 
@@ -122,7 +122,7 @@ void TaxonomyVertex :: incorporate ( void )
 
 void TaxonomyVertex :: printSynonyms ( std::ostream& o ) const
 {
-	assert ( sample != NULL );
+	fpp_assert ( sample != NULL );
 
 	if ( synonyms.empty() )
 		o << '"' << sample->getName() << '"';

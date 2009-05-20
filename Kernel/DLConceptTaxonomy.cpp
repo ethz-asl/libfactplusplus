@@ -35,8 +35,8 @@ using namespace std;
 
 bool DLConceptTaxonomy :: testSub ( const TConcept* p, const TConcept* q )
 {
-	assert ( p != NULL );
-	assert ( q != NULL );
+	fpp_assert ( p != NULL );
+	fpp_assert ( q != NULL );
 
 	// FIXME!! check this later on when REAL nominals appears
 	if ( q->isSingleton() )
@@ -272,7 +272,7 @@ void TBox :: createTaxonomy ( bool needIndividual )
 		return;	// FIXME!! now we don't perform staged reasoning, so everything is done
 /*
 	{
-		assert ( needIndividual );
+		fpp_assert ( needIndividual );
 		pTax->deFinalise();
 	}
 */

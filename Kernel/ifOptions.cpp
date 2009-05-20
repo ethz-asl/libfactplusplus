@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2004 by Dmitry Tsarkov
+Copyright (C) 2003-2009 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -55,7 +55,7 @@ void ifOption :: printConfString ( std::ostream& o ) const
 	else if ( type == iotText )
 		o << "text";
 	else	// safety check
-		assert (0);
+		fpp_unreachable();
 
 	// description, default, name
 	o << " ---\n;---\n;* " << optionDescription.c_str () << "\n;* Default value: '"
@@ -69,7 +69,7 @@ void ifOption :: printConfString ( std::ostream& o ) const
 	else if ( type == iotText )
 		o << getText().c_str ();
 	else	// safety check
-		assert (0);
+		fpp_unreachable();
 
 	o << "\n";
 }

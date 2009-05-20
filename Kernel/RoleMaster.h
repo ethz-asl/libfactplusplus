@@ -72,8 +72,8 @@ protected:	// methods
 		/// register TRole and it's inverse in RoleBox
 	void registerRole ( TRole* r, bool isDataRole )
 	{
-		assert ( r != NULL && r->Inverse == NULL );	// sanity check
-		assert ( r->getId() == 0 );	// only call it for the new roles
+		fpp_assert ( r != NULL && r->Inverse == NULL );	// sanity check
+		fpp_assert ( r->getId() == 0 );	// only call it for the new roles
 
 		if ( isDataRole )
 			r->setDataRole();

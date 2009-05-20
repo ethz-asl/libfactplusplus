@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2005-2008 by Dmitry Tsarkov
+Copyright (C) 2005-2009 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -26,7 +26,7 @@ unsigned long nRelevantBCalls;
 
 void TBox :: setRelevant ( BipolarPointer p )
 {
-	assert ( isValid(p) );
+	fpp_assert ( isValid(p) );
 
 	if ( p == bpTOP || p == bpBOTTOM )
 		return;
@@ -73,7 +73,7 @@ void TBox :: setRelevant ( BipolarPointer p )
 
 	default:
 		std::cerr << "Error setting relevant vertex of type " << v.getTagName() << "(" << v.Type () << ")";
-		assert (0);
+		fpp_unreachable();
 	}
 }
 

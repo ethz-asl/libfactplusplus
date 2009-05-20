@@ -195,7 +195,7 @@ void TBox :: prepareReasoning ( void )
 		// set up relevance info
 		markAllRelevant();
 		std::ofstream of ( "tbox" );
-		assert ( of.good() );
+		fpp_assert ( of.good() );
 		dumpLisp lDump(of);
 		dump(&lDump);
 		clearRelevanceInfo();
@@ -247,7 +247,7 @@ TBox :: buildSimpleCache ( void )
 bool
 TBox :: isSatisfiable ( const TConcept* pConcept )
 {
-	assert ( pConcept != NULL );
+	fpp_assert ( pConcept != NULL );
 
 	// check whether we already does the test
 	const modelCacheInterface* cache = DLHeap.getCache(pConcept->pName);
@@ -288,7 +288,7 @@ TBox :: isSatisfiable ( const TConcept* pConcept )
 bool
 TBox :: isSubHolds ( const TConcept* pConcept, const TConcept* qConcept )
 {
-	assert ( pConcept != NULL && qConcept != NULL );
+	fpp_assert ( pConcept != NULL && qConcept != NULL );
 
 	// logging the startpoint
 	if ( LLM.isWritable(llBegSat) )
@@ -321,7 +321,7 @@ TBox :: isSubHolds ( const TConcept* pConcept, const TConcept* qConcept )
 // load init values from config file
 void TBox :: readConfig ( const ifOptionSet* Options )
 {
-	assert ( Options != NULL );	// safety check
+	fpp_assert ( Options != NULL );	// safety check
 
 // define a macro for registering boolean option
 #	define addBoolOption(name)				\
@@ -361,7 +361,7 @@ TConcept* TBox :: createTempConcept ( const DLTree* desc )
 	}
 
 //	std::cerr << "Create new temp concept with description =" << desc << "\n";
-	assert ( defConcept != NULL );
+	fpp_assert ( defConcept != NULL );
 
 	// create description
 	deleteTree ( makeNonPrimitive ( defConcept, clone(desc) ) );
@@ -388,14 +388,14 @@ TConcept* TBox :: createTempConcept ( const DLTree* desc )
 /// remove concept from TBox by given EXTERNAL id. @return true in case of failure. WARNING!! tested only for TempConcept!!!
 bool TBox :: removeConcept ( TConcept* p )
 {
-	assert ( p == defConcept);
+	fpp_assert ( p == defConcept);
 
 	// clear DAG and name indeces (if necessary)
 	if ( isCorrect (p->pName) )
 		DLHeap.removeAfter(p->pName);
 
 	if ( Concepts.Remove(p) )
-		assert(0);	// can't remove non-last concept
+		fpp_unreachable();	// can't remove non-last concept
 
 	return false;
 }
@@ -406,7 +406,7 @@ bool TBox :: classifyTempConcept ( void )
 	// prepare told subsumers for classification; as it is non-primitive, it is not CD
 	defConcept->initToldSubsumers();
 
-	assert ( pTax != NULL );
+	fpp_assert ( pTax != NULL );
 
 	// setup taxonomy behaviour flags
 	pTax->setCompletelyDefined ( false );	// non-primitive concept
@@ -432,7 +432,7 @@ TBox :: writeReasoningResult ( std::ostream& o, float time ) const
 	stdReasoner->writeTotalStatistic(o);
 
 	// we know here whether KB is consistent
-	assert ( getStatus() >= kbCChecked );
+	fpp_assert ( getStatus() >= kbCChecked );
 	if ( Consistent )
 		o << "Required";
 	else
@@ -457,7 +457,7 @@ TBox :: writeReasoningResult ( std::ostream& o, float time ) const
 
 void TBox :: PrintDagEntry ( std::ostream& o, BipolarPointer p ) const
 {
-	assert ( isValid (p) );
+	fpp_assert ( isValid (p) );
 
 	// primitive ones -- check first
 	if ( p == bpTOP )
@@ -522,7 +522,7 @@ void TBox :: PrintDagEntry ( std::ostream& o, BipolarPointer p ) const
 
 	default:	// invalid value
 		std::cerr << "Error printing vertex of type " << v.getTagName() << "(" << v.Type () << ")";
-		assert (0);
+		fpp_unreachable();
 		return;
 	}
 }

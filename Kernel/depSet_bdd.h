@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2008 by Dmitry Tsarkov
+Copyright (C) 2003-2009 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -19,8 +19,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef _DEPSET_BDD_H
 #define _DEPSET_BDD_H
 
-#include <cassert>
-
+#include "fpp_assert.h"
 #include "bdd.h"
 
 /**
@@ -77,7 +76,7 @@ protected:	// methods
 	void invariant ( void ) const
 	{
 #	ifdef ENABLE_CHECKING
-		assert ( (lev==0) == (dep==bddtrue) );
+		fpp_assert ( (lev==0) == (dep==bddtrue) );
 #	endif
 	}
 
@@ -137,11 +136,11 @@ public:		// interface
 		/// Restricts current dep-set with given level
 	void restrict ( unsigned int level )
 	{
-		assert(level);	// should not restrict to 0 (=empty dep-set)
+		fpp_assert(level);	// should not restrict to 0 (=empty dep-set)
 		invariant();
 		if ( level > lev )
 			return;
-//		assert ( level == lev );	// this is not true if OR's priority is lowest
+//		fpp_assert ( level == lev );	// this is not true if OR's priority is lowest
 
 		// create an aux bdd
 		bdd aux = dep;
@@ -153,7 +152,7 @@ public:		// interface
 			// remove next var from the set
 			int var = bdd_var(aux);
 #		ifdef ENABLE_CHECKING
-			assert ( var >= 0 );
+			fpp_assert ( var >= 0 );
 #		endif
 			aux = bdd_exist ( aux, bdd_ithvar(var) );
 			if ( level > (unsigned)var )

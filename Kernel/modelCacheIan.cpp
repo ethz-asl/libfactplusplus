@@ -27,7 +27,7 @@ void modelCacheIan :: processConcept ( const DLVertex& cur, BipolarPointer bp, b
 		case dtDataType:	// data entries can not be cached
 		case dtDataValue:
 		case dtDataExpr:
-			assert (0);
+			fpp_unreachable();
 			break;
 
 		case dtNConcept:	// add concepts to Concepts
@@ -160,7 +160,7 @@ sets_intersect ( const std::set<T>& s1, const std::set<T>& s2 )
 modelCacheState modelCacheIan :: isMergableSingleton ( const modelCacheSingleton* p ) const
 {
 	BipolarPointer Singleton = p->getValue();
-	assert ( isValid(Singleton) );
+	fpp_assert ( isValid(Singleton) );
 
 	// check for the clash
 	if ( isPositive (Singleton) )
@@ -216,7 +216,7 @@ modelCacheState modelCacheIan :: isMergableIan ( const modelCacheIan* q ) const
 
 modelCacheState modelCacheIan :: merge ( const modelCacheInterface* p )
 {
-	assert ( p != NULL );
+	fpp_assert ( p != NULL );
 
 	// check for nominal clash
 	if ( hasNominalClash(p) )
@@ -233,7 +233,7 @@ modelCacheState modelCacheIan :: merge ( const modelCacheInterface* p )
 	case mctSingleton:	// adds Singleton
 	{
 		BipolarPointer Singleton = static_cast<const modelCacheSingleton*>(p)->getValue();
-		assert ( isValid(Singleton) );
+		fpp_assert ( isValid(Singleton) );
 		modelCacheState newState = csValid;
 
 		// check for the clash
@@ -280,7 +280,7 @@ modelCacheState modelCacheIan :: merge ( const modelCacheInterface* p )
 		break;
 	}
 	default:
-		assert (0);
+		fpp_unreachable();
 	}
 
 	updateNominalStatus(p);

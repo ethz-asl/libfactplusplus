@@ -19,9 +19,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef _KERNEL_H
 #define _KERNEL_H
 
-#include <cassert>
 #include <string>
 
+#include "fpp_assert.h"
 #include "eFPPInconsistentKB.h"
 #include "tNAryQueue.h"
 #include "dlTBox.h"
@@ -412,7 +412,7 @@ public:
 		/// simple concept expression
 	ComplexConcept SimpleExpression ( Token t, ComplexConcept C, ComplexConcept D ) const
 	{
-		assert ( t == AND || t == OR );
+		fpp_assert ( t == AND || t == OR );
 		if ( t == AND )
 			return And ( C, D );
 		else
@@ -448,7 +448,7 @@ public:
 		case FORALL:
 			return Forall ( R, C );
 		default:
-			assert (0);
+			fpp_unreachable();
 			return NULL;
 		}
 	}

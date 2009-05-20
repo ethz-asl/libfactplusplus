@@ -39,7 +39,7 @@ void TConcept :: clear ( void )
 
 void TConcept :: addDesc ( DLTree* Desc )
 {
-	assert (!isNonPrimitive());	// safety check
+	fpp_assert (!isNonPrimitive());	// safety check
 
 	// FIXME!! check about reverse order
 	Description = createSNFAnd ( Desc, Description );
@@ -82,7 +82,7 @@ CTTag TConcept :: determineClassTag ( void )
 			hasNP = true;
 			break;
 		default:
-			assert(0);
+			fpp_unreachable();
 		}
 
 	// there are non-primitive TS

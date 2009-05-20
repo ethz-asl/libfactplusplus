@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2005-2008 by Dmitry Tsarkov
+Copyright (C) 2005-2009 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -267,7 +267,7 @@ protected:	// methods
 	DataTypeAppearance* getDTAbyType ( const TDataEntry* dataType )
 	{
 #	ifdef ENABLE_CHECKING
-		assert ( Map.find(dataType) != Map.end() );
+		fpp_assert ( Map.find(dataType) != Map.end() );
 #	endif
 		return Types[Map[dataType]];
 	}
@@ -275,7 +275,7 @@ protected:	// methods
 	DataTypeAppearance* getDTAbyValue ( const TDataEntry* dataValue )
 	{
 #	ifdef ENABLE_CHECKING
-		assert ( !dataValue->isBasicDataType() );
+		fpp_assert ( !dataValue->isBasicDataType() );
 #	endif
 		return getDTAbyType(dataValue->getType());
 	}

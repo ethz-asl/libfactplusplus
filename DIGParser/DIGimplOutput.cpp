@@ -193,7 +193,7 @@ public:
 /// start of ask element (allNames, satisfy)
 void DIGParseHandlers :: startAsk ( DIGTag tag, AttributeList& attributes )
 {
-	assert ( tag >= dig_Ask_Begin && tag < dig_Ask_End );	// safety check
+	fpp_assert ( tag >= dig_Ask_Begin && tag < dig_Ask_End );	// safety check
 
 	// set up id of the ask
 	const XMLCh* parm = attributes.getValue ( "id" );
@@ -211,7 +211,7 @@ void DIGParseHandlers :: startAsk ( DIGTag tag, AttributeList& attributes )
 /// end of ask element (allNames, satisfy)
 void DIGParseHandlers :: endAsk ( DIGTag tag )
 {
-	assert ( tag >= dig_Ask_Begin && tag < dig_Ask_End );	// safety check
+	fpp_assert ( tag >= dig_Ask_Begin && tag < dig_Ask_End );	// safety check
 
 #define ERROR_400														\
 	do {																\
@@ -506,7 +506,7 @@ void DIGParseHandlers :: endAsk ( DIGTag tag )
 	}
 
 	default:
-		assert (0);	// safety check
+		fpp_unreachable();	// safety check
 	}
 
 	*o << "\n";

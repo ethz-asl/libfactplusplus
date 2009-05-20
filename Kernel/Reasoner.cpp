@@ -65,7 +65,7 @@ DlSatTester :: DlSatTester ( TBox& tbox, const ifOptionSet* Options )
 // load init values from config file
 void DlSatTester :: readConfig ( const ifOptionSet* Options )
 {
-	assert ( Options != NULL );	// safety check
+	fpp_assert ( Options != NULL );	// safety check
 
 // define a macro for registering boolean option
 #	define addBoolOption(name)				\
@@ -124,10 +124,10 @@ addConceptResult
 DlSatTester :: checkAddedConcept ( const CWDArray& lab, BipolarPointer p, const DepSet& dep )
 {
 #ifdef ENABLE_CHECKING
-	assert ( isCorrect(p) );	// sanity checking
+	fpp_assert ( isCorrect(p) );	// sanity checking
 	// constants are not allowed here
-	assert ( p != bpTOP );
-	assert ( p != bpBOTTOM );
+	fpp_assert ( p != bpTOP );
+	fpp_assert ( p != bpBOTTOM );
 #endif
 
 	nLookups.inc();
@@ -155,10 +155,10 @@ bool
 DlSatTester :: findConcept ( const CWDArray& lab, BipolarPointer p )
 {
 #ifdef ENABLE_CHECKING
-	assert ( isCorrect(p) );	// sanity checking
+	fpp_assert ( isCorrect(p) );	// sanity checking
 	// constants are not allowed here
-	assert ( p != bpTOP );
-	assert ( p != bpBOTTOM );
+	fpp_assert ( p != bpTOP );
+	fpp_assert ( p != bpBOTTOM );
 #endif
 
 	nLookups.inc();
@@ -170,10 +170,10 @@ bool
 DlSatTester :: findConcept ( const CWDArray& lab, BipolarPointer p, const DepSet& dep )
 {
 #ifdef ENABLE_CHECKING
-	assert ( isCorrect(p) );	// sanity checking
+	fpp_assert ( isCorrect(p) );	// sanity checking
 	// constants are not allowed here
-	assert ( p != bpTOP );
-	assert ( p != bpBOTTOM );
+	fpp_assert ( p != bpTOP );
+	fpp_assert ( p != bpBOTTOM );
 #endif
 
 	nLookups.inc();
@@ -259,7 +259,7 @@ tacticUsage DlSatTester :: addToDoEntry ( DlCompletionTree* n, BipolarPointer c,
 	case acrDone:	// try was done
 		return insertToDoEntry ( n, c, dep, tag, reason );
 	default:	// safety check
-		assert (0);
+		fpp_unreachable();
 	}
 }
 
@@ -427,13 +427,13 @@ DlSatTester :: reportNodeCached ( modelCacheIan* cache, DlCompletionTree* node )
 			LL << " cf(c)";
 		return utUnusable;
 	default:
-		assert(0);
+		fpp_unreachable();
 	}
 }
 
 tacticUsage DlSatTester :: correctCachedEntry ( DlCompletionTree* n )
 {
-	assert ( n->isCached() );	// safety check
+	fpp_assert ( n->isCached() );	// safety check
 
 	// FIXME!! check if it is possible to leave node cached in more efficient way
 	tacticUsage ret = tryCacheNode(n);
@@ -453,7 +453,7 @@ tacticUsage DlSatTester :: correctCachedEntry ( DlCompletionTree* n )
 bool
 DlSatTester :: hasDataClash ( const DlCompletionTree* Node )
 {
-	assert ( Node && Node->isDataNode() );	// safety check
+	fpp_assert ( Node && Node->isDataNode() );	// safety check
 
 	DTReasoner.clear();
 
@@ -619,7 +619,7 @@ bool DlSatTester :: applyReflexiveRoles ( DlCompletionTree* node, const DepSet& 
 
 const modelCacheInterface* DlSatTester :: fillsCache ( BipolarPointer p )
 {
-	assert ( isValid(p) );	// safety check
+	fpp_assert ( isValid(p) );	// safety check
 
 	const modelCacheInterface* cache;
 
@@ -723,7 +723,7 @@ DlSatTester :: prepareCascadedCache ( BipolarPointer p )
 		break;
 
 	default:
-		assert(0);
+		fpp_unreachable();
 	}
 }
 
@@ -794,7 +794,7 @@ bool DlSatTester :: checkSatisfiability ( void )
 			}
 
 			const ToDoEntry* curTDE = TODO.getNextEntry ();
-			assert ( curTDE != NULL );
+			fpp_assert ( curTDE != NULL );
 
 			// setup current context
 			curNode = curTDE->Node;
@@ -876,8 +876,8 @@ void DlSatTester :: save ( void )
 
 void DlSatTester :: restore ( unsigned int newTryLevel )
 {
-	assert ( !Stack.empty () );
-	assert ( newTryLevel > 0 );
+	fpp_assert ( !Stack.empty () );
+	fpp_assert ( newTryLevel > 0 );
 
 	// skip all intermediate restorings
 	setCurLevel(newTryLevel);
@@ -941,7 +941,7 @@ void DlSatTester :: logFinishEntry ( tacticUsage res ) const
 		LL << "utClash" << getClashSet();
 		break;
 	default:	// safety check
-		assert (0);
+		fpp_unreachable();
 	}
 #ifdef __DEBUG_FLUSH_LL
 	LL.flush ();

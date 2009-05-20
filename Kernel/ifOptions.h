@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2004 by Dmitry Tsarkov
+Copyright (C) 2003-2009 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -23,10 +23,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 |* Interface for the options management for the FaCT++  *|
 \********************************************************/
 
-#include <cassert>
 #include <string>
 #include <map>
 #include <iostream>
+
+#include "fpp_assert.h"
 
 class Configuration;
 
@@ -80,11 +81,11 @@ public:		// interface
 
 	// access methods
 		/// get value of a Boolean option
-	bool getBool ( void ) const { assert ( type == iotBool ); return bValue; }
+	bool getBool ( void ) const { fpp_assert ( type == iotBool ); return bValue; }
 		/// get value of an integer option
-	int getInt ( void ) const { assert ( type == iotInt ); return iValue; }
+	int getInt ( void ) const { fpp_assert ( type == iotInt ); return iValue; }
 		/// get value of a string option
-	const std::string& getText ( void ) const { assert ( type == iotText ); return tValue; }
+	const std::string& getText ( void ) const { fpp_assert ( type == iotText ); return tValue; }
 
 		/// output in the form of config file
 	void printConfString ( std::ostream& o ) const;
@@ -147,21 +148,21 @@ public:		// interface
 	bool getBool ( const std::string& optionName ) const
 	{
 		const ifOption* p = locateOption ( optionName );
-		assert ( p != NULL );
+		fpp_assert ( p != NULL );
 		return p->getBool ();
 	}
 		/// get integral value of given option
 	int getInt ( const std::string& optionName ) const
 	{
 		const ifOption* p = locateOption ( optionName );
-		assert ( p != NULL );
+		fpp_assert ( p != NULL );
 		return p->getInt ();
 	}
 		/// get string value of given option
 	const std::string& getText ( const std::string& optionName ) const
 	{
 		const ifOption* p = locateOption ( optionName );
-		assert ( p != NULL );
+		fpp_assert ( p != NULL );
 		return p->getText ();
 	}
 

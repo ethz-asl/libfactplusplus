@@ -127,7 +127,7 @@ void DLLispParser :: parseCommand ( void )
 				Kernel->setDomain ( R, processConceptTree() );
 				break;
 			default:
-				assert (0);
+				fpp_unreachable();
 			}
 		}
 		catch ( EFaCTPlusPlus ex )
@@ -163,7 +163,7 @@ void DLLispParser :: parseCommand ( void )
 				Kernel->processDifferent();
 				return;		// already read ')'
 			default:
-				assert (0);
+				fpp_unreachable();
 			}
 		}
 		catch ( EFaCTPlusPlus ex )
