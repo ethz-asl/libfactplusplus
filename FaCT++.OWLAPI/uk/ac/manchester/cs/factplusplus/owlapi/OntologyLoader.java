@@ -24,6 +24,8 @@ public class OntologyLoader {
 
     private static final Logger logger = Logger.getLogger(OntologyLoader.class.getName());
 
+    private OWLOntologyManager mngr;
+
     private Translator translator;
 
     private AxiomLoader axiomLoader;
@@ -60,6 +62,7 @@ public class OntologyLoader {
 
 
     public OntologyLoader(OWLOntologyManager owlOntologyManager, Translator translator) {
+        this.mngr = owlOntologyManager;
         this.translator = translator;
         this.axiomLoader = new AxiomLoader(translator);
         this.filter = new FaCTPlusPlusAxiomFilter();
@@ -92,24 +95,26 @@ public class OntologyLoader {
 
 
     public void loadAxiom(OWLAxiom axiom) throws FaCTPlusPlusException {
-        boolean added = false;
-        if (axiom.isLogicalAxiom() || axiom instanceof OWLDeclarationAxiom) {
-            if (filter.passes(axiom)) {
-                axiom2PtrMap.put(axiom, axiomLoader.load(axiom));
-                added = true;
+        if (filter.passes(axiom)) {
+            final AxiomPointer axiomPointer = axiomLoader.load(axiom);
+
+            if (axiomPointer != null){
+                // @@TODO only add to map if incremental
+                axiom2PtrMap.put(axiom, axiomPointer);
             }
-            else {
-                logger.info("WARNING! Ignoring axiom: " + axiom + " [" + filter.getReason() + "]");
+            else{
+                throw new FaCTPlusPlusException("Failed to load axiom: " + axiom);
             }
         }
-
-        if (!added){
-            // TODO translate entities in case they don't participate in any logical axioms?
+        else {
+            logger.info("WARNING! Ignoring axiom: " + axiom + " [" + filter.getReason() + "]");
         }
     }
 
 
     public void retractAxiom(OWLAxiom axiom) throws FaCTPlusPlusException {
+        // @@TODO if not incremental, throw an exception
+
         AxiomPointer ptr = axiom2PtrMap.get(axiom);
         if (ptr != null){
             translator.getFaCTPlusPlus().retract(ptr);
@@ -123,6 +128,8 @@ public class OntologyLoader {
 
 
     public void applyChanges(List<OWLOntologyChange> changes) throws OWLException {
+        // @@TODO if not incremental, throw an exception
+
         translator.getFaCTPlusPlus().startChanges();
         for (OWLOntologyChange change : changes){
             change.accept(changeVisitor);

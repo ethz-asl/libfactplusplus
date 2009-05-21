@@ -102,7 +102,7 @@ public class Reasoner extends MonitorableOWLReasonerAdapter implements FaCTPlusP
         translator = new Translator(owlOntologyManager, faCTPlusPlus);
 
         loader = new OntologyLoader(getOWLOntologyManager(), translator);
-        
+
         translatorUtils = new TranslatorUtils(owlOntologyManager, translator);
     }
 
@@ -274,12 +274,10 @@ public class Reasoner extends MonitorableOWLReasonerAdapter implements FaCTPlusP
             if (getLoadedOntologies().contains(change.getOntology())) {
                 if (change.isAxiomChange()) {
                     OWLAxiomChange axiomChange = (OWLAxiomChange) change;
-                    if (axiomChange.getAxiom().isLogicalAxiom() || axiomChange.getAxiom() instanceof OWLDeclarationAxiom) {
-                        if (filteredChanges == null) {
-                            filteredChanges = new ArrayList<OWLOntologyChange>();
-                        }
-                        filteredChanges.add(axiomChange);
+                    if (filteredChanges == null) {
+                        filteredChanges = new ArrayList<OWLOntologyChange>();
                     }
+                    filteredChanges.add(axiomChange);
                 }
             }
         }

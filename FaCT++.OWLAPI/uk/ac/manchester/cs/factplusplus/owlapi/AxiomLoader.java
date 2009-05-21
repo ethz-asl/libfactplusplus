@@ -28,9 +28,13 @@ public class AxiomLoader implements OWLAxiomVisitor {
 
     private AxiomPointer lastAxiom;
 
+    private OWLDataFactory df;
+
+
     public AxiomLoader(Translator translator) {
         this.translator = translator;
         this.faCTPlusPlus = translator.getFaCTPlusPlus();
+        this.df = translator.getOWLOntologyManager().getOWLDataFactory();
     }
 
 
@@ -634,9 +638,10 @@ public class AxiomLoader implements OWLAxiomVisitor {
 
 
     public void visit(OWLEntityAnnotationAxiom axiom) {
-        for (OWLEntity entity : axiom.getReferencedEntities()){
-            entity.accept(translator);
-        }
+        // Convert every entity annotation into a declaration axiom on the subject
+        // This helps us keep track of how many references to the entity exist
+        OWLDeclarationAxiom decl = df.getOWLDeclarationAxiom(axiom.getSubject());
+        decl.accept(this);
     }
 
 

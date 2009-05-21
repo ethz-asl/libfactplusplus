@@ -27,25 +27,6 @@ public class Translator implements OWLDescriptionVisitor, OWLEntityVisitor, OWLP
 
     private OWLOntologyManager owlOntologyManager;
 
-
-    public Translator(OWLOntologyManager owlOntologyManager, FaCTPlusPlus faCTPlusPlus) {
-        this.owlOntologyManager = owlOntologyManager;
-        this.faCTPlusPlus = faCTPlusPlus;
-        classPointerMap = new HashMap<ClassPointer, OWLClass>();
-        owlClass2ClassPointerMap = new HashMap<OWLClass, ClassPointer>();
-        objectPropertyPointerMap = new HashMap<ObjectPropertyPointer, OWLObjectProperty>();
-        owlObjectProperty2ObjectPropertyPointerMap = new HashMap<OWLObjectProperty, ObjectPropertyPointer>();
-        dataPropertyPointerMap = new HashMap<DataPropertyPointer, OWLDataProperty>();
-        owlDataProperty2DataPropertyPointerMap = new HashMap<OWLDataProperty, DataPropertyPointer>();
-        individualPointerMap = new HashMap<IndividualPointer, OWLIndividual>();
-        owlIndividual2IndividualPointerMap = new HashMap<OWLIndividual, IndividualPointer>();
-        dataValuePointerMap = new HashMap<DataValuePointer, OWLConstant>();
-        owlConstant2DataValuePointerMap = new HashMap<OWLConstant, DataValuePointer>();
-        dataTypeExpressionPointerMap = new HashMap<DataTypeExpressionPointer, OWLDataRange>();
-        owlDataRange2DataTypeExpressionPointerMap = new HashMap<OWLDataRange, DataTypeExpressionPointer>();
-    }
-
-
     private ClassPointer lastClassPointer;
 
     private ObjectPropertyPointer lastObjectPropertyPointer;
@@ -85,6 +66,25 @@ public class Translator implements OWLDescriptionVisitor, OWLEntityVisitor, OWLP
 
     private Map<OWLDataRange, DataTypeExpressionPointer> owlDataRange2DataTypeExpressionPointerMap;
 
+
+    public Translator(OWLOntologyManager owlOntologyManager, FaCTPlusPlus faCTPlusPlus) {
+        this.owlOntologyManager = owlOntologyManager;
+        this.faCTPlusPlus = faCTPlusPlus;
+        classPointerMap = new HashMap<ClassPointer, OWLClass>();
+        owlClass2ClassPointerMap = new HashMap<OWLClass, ClassPointer>();
+        objectPropertyPointerMap = new HashMap<ObjectPropertyPointer, OWLObjectProperty>();
+        owlObjectProperty2ObjectPropertyPointerMap = new HashMap<OWLObjectProperty, ObjectPropertyPointer>();
+        dataPropertyPointerMap = new HashMap<DataPropertyPointer, OWLDataProperty>();
+        owlDataProperty2DataPropertyPointerMap = new HashMap<OWLDataProperty, DataPropertyPointer>();
+        individualPointerMap = new HashMap<IndividualPointer, OWLIndividual>();
+        owlIndividual2IndividualPointerMap = new HashMap<OWLIndividual, IndividualPointer>();
+        dataValuePointerMap = new HashMap<DataValuePointer, OWLConstant>();
+        owlConstant2DataValuePointerMap = new HashMap<OWLConstant, DataValuePointer>();
+        dataTypeExpressionPointerMap = new HashMap<DataTypeExpressionPointer, OWLDataRange>();
+        owlDataRange2DataTypeExpressionPointerMap = new HashMap<OWLDataRange, DataTypeExpressionPointer>();
+    }
+
+
     /**
      * Resets the translator by clearing out the various mappings
      * of OWLAPI objects to FaCT++ pointer objects.
@@ -122,6 +122,11 @@ public class Translator implements OWLDescriptionVisitor, OWLEntityVisitor, OWLP
     }
 
 
+    public OWLOntologyManager getOWLOntologyManager(){
+        return owlOntologyManager;
+    }
+
+    
     public void dispose() {
         try {
             reset();
