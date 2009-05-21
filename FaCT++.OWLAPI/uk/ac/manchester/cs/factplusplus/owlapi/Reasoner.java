@@ -262,6 +262,34 @@ public class Reasoner extends MonitorableOWLReasonerAdapter implements FaCTPlusP
 
 
     /**
+     * Overloaded to make sure declarations are passed to FaCT++ (as they are not considered logical axioms by the OWL API)
+     * @param changes changes to the ontologies
+     * @throws OWLException
+     */
+    public void ontologiesChanged(List<? extends OWLOntologyChange> changes) throws OWLException {
+        List<OWLOntologyChange> filteredChanges = null;
+        // Filter the changes so that we get the changes that only apply to the ontologies that we
+        // know about and the changes which aren't addition/removal of annotation axioms
+        for (OWLOntologyChange change : changes) {
+            if (getLoadedOntologies().contains(change.getOntology())) {
+                if (change.isAxiomChange()) {
+                    OWLAxiomChange axiomChange = (OWLAxiomChange) change;
+                    if (axiomChange.getAxiom().isLogicalAxiom() || axiomChange.getAxiom() instanceof OWLDeclarationAxiom) {
+                        if (filteredChanges == null) {
+                            filteredChanges = new ArrayList<OWLOntologyChange>();
+                        }
+                        filteredChanges.add(axiomChange);
+                    }
+                }
+            }
+        }
+        if (filteredChanges != null) {
+            handleOntologyChanges(filteredChanges);
+        }
+    }
+
+
+    /**
      * Called when the set of ontologies loaded has changed
      * Just resync in this case
      * @throws OWLReasonerException
