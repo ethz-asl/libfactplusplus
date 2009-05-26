@@ -157,7 +157,7 @@ public:		// visitor interface
 		if ( isUniversalRole(axiom.getRole()) )	// KB became inconsistent
 			throw EFPPInconsistentKB();
 		getRole ( axiom.getRole(), "Role expression expected in Role Irreflexivity axiom" )
-			->setDomain(new DLTree(NOT,new DLTree(REFLEXIVE,clone(axiom.getRole()))));
+			->setDomain(createSNFNot(new DLTree(REFLEXIVE,clone(axiom.getRole()))));
 	}
 	virtual void visit ( TDLAxiomRoleSymmetric& axiom )
 	{
@@ -221,7 +221,7 @@ public:		// visitor interface
 		// make an axiom i:AR.\neg{j}
 		kb.RegisterInstance (
 				getIndividual ( axiom.getIndividual(), "Individual expected in Related To Not axiom" ),
-				new DLTree(FORALL,clone(axiom.getRelation()),new DLTree(NOT,clone(axiom.getRelatedIndividual()))) );
+				createSNFForall ( clone(axiom.getRelation()), createSNFNot(clone(axiom.getRelatedIndividual())) ) );
 	}
 	virtual void visit ( TDLAxiomValueOf& axiom )
 	{
@@ -233,7 +233,7 @@ public:		// visitor interface
 		// make an axiom i:EA.V
 		kb.RegisterInstance (
 				getIndividual ( axiom.getIndividual(), "Individual expected in Value Of axiom" ),
-				new DLTree(EXISTS,clone(axiom.getAttribute()),clone(axiom.getValue())) );
+				createSNFExists ( clone(axiom.getAttribute()), clone(axiom.getValue())) );
 	}
 	virtual void visit ( TDLAxiomValueOfNot& axiom )
 	{
@@ -245,7 +245,7 @@ public:		// visitor interface
 		// make an axiom i:AA.\neg V
 		kb.RegisterInstance (
 				getIndividual ( axiom.getIndividual(), "Individual expected in Value Of Not axiom" ),
-				new DLTree(FORALL,clone(axiom.getAttribute()),new DLTree(NOT,clone(axiom.getValue()))) );
+				createSNFForall ( clone(axiom.getAttribute()), createSNFNot(clone(axiom.getValue()))) );
 	}
 
 public:		// interface
