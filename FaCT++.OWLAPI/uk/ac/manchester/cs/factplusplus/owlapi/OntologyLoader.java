@@ -106,7 +106,7 @@ public class OntologyLoader {
                 throw new FaCTPlusPlusException("Failed to load axiom: " + axiom);
             }
         }
-        else {
+        else if (filter.getReason().length() > 0){
             logger.info("WARNING! Ignoring axiom: " + axiom + " [" + filter.getReason() + "]");
         }
     }
