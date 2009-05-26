@@ -272,7 +272,7 @@ public class Reasoner extends MonitorableOWLReasonerAdapter implements FaCTPlusP
         // know about and the changes which aren't addition/removal of annotation axioms
         for (OWLOntologyChange change : changes) {
             if (getLoadedOntologies().contains(change.getOntology())) {
-                if (change.isAxiomChange() && !(change instanceof OWLImportsDeclaration)) {
+                if (change.isAxiomChange()) {
                     OWLAxiomChange axiomChange = (OWLAxiomChange) change;
                     if (filteredChanges == null) {
                         filteredChanges = new ArrayList<OWLOntologyChange>();

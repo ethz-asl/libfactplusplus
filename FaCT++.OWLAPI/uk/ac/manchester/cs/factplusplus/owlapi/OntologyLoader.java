@@ -115,14 +115,16 @@ public class OntologyLoader {
     public void retractAxiom(OWLAxiom axiom) throws FaCTPlusPlusException {
         // @@TODO if not incremental, throw an exception
 
-        AxiomPointer ptr = axiom2PtrMap.get(axiom);
-        if (ptr != null){
-            translator.getFaCTPlusPlus().retract(ptr);
-            axiom2PtrMap.remove(axiom);
-            // @@TODO what about entities that FaCT++ still knows about but are no longer known by the model
-        }
-        else{
-            throw new FaCTPlusPlusException("Axiom (" + axiom + ") not known in the reasoner");
+        if (filter.passes(axiom)) {
+            AxiomPointer ptr = axiom2PtrMap.get(axiom);
+            if (ptr != null){
+                translator.getFaCTPlusPlus().retract(ptr);
+                axiom2PtrMap.remove(axiom);
+                // @@TODO what about entities that FaCT++ still knows about but are no longer known by the model
+            }
+            else{
+                throw new FaCTPlusPlusException("Axiom (" + axiom + ") not known in the reasoner");
+            }
         }
     }
 

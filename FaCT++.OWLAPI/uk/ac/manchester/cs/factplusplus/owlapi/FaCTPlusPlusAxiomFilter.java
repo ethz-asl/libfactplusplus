@@ -118,11 +118,13 @@ public class FaCTPlusPlusAxiomFilter implements OWLAxiomFilter, OWLAxiomVisitor,
 
 
     public void visit(OWLImportsDeclaration axiom) {
+        passes = false;
 
     }
 
 
     public void visit(OWLAxiomAnnotationAxiom axiom) {
+        passes = false;
     }
 
 
@@ -367,6 +369,7 @@ public class FaCTPlusPlusAxiomFilter implements OWLAxiomFilter, OWLAxiomVisitor,
 
 
     public void visit(OWLOntologyAnnotationAxiom axiom) {
+        passes = false;
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////
