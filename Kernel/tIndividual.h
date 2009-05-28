@@ -80,8 +80,6 @@ public:		// members
 
 		/// index for axioms <this,C>:R
 	RelatedSet RelatedIndex;
-		/// index for the roles used in <this,C>:R
-	std::vector<bool> RelatedRoleMap;
 		/// map for the related individuals: Map[R]={i:R(this,i)}
 	TRelatedMap* pRelatedMap;
 

@@ -206,23 +206,6 @@ public:		// interface
 		/// put all reflexive roles to a RR array
 	void fillReflexiveRoles ( roleSet& RR ) const;
 
-		/// get new bit-map big enough to keep all the roles from the RM
-	RoleBitMap newBitMap ( void ) const { return RoleBitMap(Roles.size(),false); }
-		/// @return a bitmap which corresponds role names that appears within [BEGIN,END) interval of the TRelated
-	template<class Iterator>
-	RoleBitMap buildRelatedRoles ( Iterator begin, Iterator end ) const;
-		/// fills Rs with the role names that are in RBM and corresponds to DATA and NEEDI
-	void getRelatedRoles ( const RoleBitMap& rbm, std::vector<TNamedEntry*>& Rs, bool data, bool needI ) const
-	{
-		Rs.clear();
-		for ( unsigned int i = firstRoleIndex(); i < Roles.size(); ++i )
-		{
-			TRole* R = Roles[i];
-			if ( R->isDataRole() == data && ( R->getId() > 0 || needI ) && rbm[i] )
-				Rs.push_back(Roles[i]);
-		}
-	}
-
 	// output interface
 
 	void Print ( std::ostream& o ) const
@@ -260,26 +243,6 @@ RoleMaster :: fillReflexiveRoles ( roleSet& RR ) const
 	for  ( const_iterator p = begin(); p != end(); ++p )
 		if ( !(*p)->isSynonym() && (*p)->isReflexive() )
 			RR.push_back(*p);
-}
-
-template<class Iterator> RoleMaster::RoleBitMap
-RoleMaster :: buildRelatedRoles ( Iterator begin, Iterator end ) const
-{
-	size_t i;
-	RoleBitMap local = newBitMap();
-
-	// fill roles with just named roles from the array
-	for ( ; begin < end; ++begin )
-		local[(*begin)->R->getIndex()] = true;
-	// add all the ancestors of the role to the bitmap
-	for ( i = firstRoleIndex(); i < Roles.size(); ++i )
-		if ( local[i] )
-			Roles[i]->addAncestorsToBitMap(local);
-	// add synonyms to the map
-	for ( i = firstRoleIndex(); i < Roles.size(); ++i )
-		if ( Roles[i]->isSynonym() && local[resolveSynonym(Roles[i])->getIndex()] )
-			local[i] = true;
-	return local;
 }
 
 #endif

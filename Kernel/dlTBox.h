@@ -493,17 +493,6 @@ protected:	// methods
 		/// init Range and Domain for all roles; sets hasGCI if R&D was found
 	void initRangeDomain ( void );
 
-		/// build related roles cache for given individual
-	void buildRelatedRoles ( TIndividual* i ) const
-		{ i->RelatedRoleMap = RM.buildRelatedRoles ( i->RelatedIndex.begin(), i->RelatedIndex.end() ); }
-		/// build related roles cache for every individual
-	void buildRelatedRoles ( void ) const
-	{
-		for ( i_const_iterator pi = i_begin(); pi != i_end(); ++pi )
-			if ( !(*pi)->isSynonym() )
-				buildRelatedRoles(*pi);
-	}
-
 		/// set told TOP concept whether necessary
 	void initToldSubsumers ( void )
 	{
@@ -1070,18 +1059,8 @@ public:
 		/// load the KB from given stream wrt STATUS
 	void Load ( std::istream& o, KBStatus status );
 
-		/// implement related-based query; @return in Rs all R s.t. (I,x):R
-	void getRelatedRoles ( TIndividual* I, NamesVector& Rs, bool data, bool needI ) const
-	{
-		TIndividual* i = resolveSynonym(I);
-		RM.getRelatedRoles ( i->RelatedRoleMap, Rs, data, needI );
-	}
-		/// implement DIG-like roleFillers query; @return in Js all J st (I,J):R
-	void getRoleFillers ( TIndividual* I, TRole* R, NamesVector& Js ) const;
 		/// implement DIG-like RelatedIndividuals query; @return Is and Js st (I,J):R
 	void getRelatedIndividuals ( TRole* R, NamesVector& Is, NamesVector& Js ) const;
-		/// implement related-based query; @return true iff (I,J):R
-	bool isRelated ( TIndividual* I, TRole* R, TIndividual* J ) const;
 		/// implement absorbedPrimitiveConceptDefinitions DIG extension
 	void absorbedPrimitiveConceptDefinitions ( std::ostream& o ) const;
 		/// implement unabsorbed DIG extension

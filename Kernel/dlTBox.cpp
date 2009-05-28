@@ -557,24 +557,6 @@ void TBox :: PrintConcept ( std::ostream& o, const TConcept* p ) const
 //--		DIG interface extension
 //-----------------------------------------------------------------------------
 
-	/// implement DIG-like roleFillers query; @return in Js all J st (I,J):R
-void
-TBox :: getRoleFillers ( TIndividual* i, TRole* r, NamesVector& Js ) const
-{
-	Js.clear();
-	TIndividual* I = resolveSynonym(i);
-	TRole* R = resolveSynonym(r);
-
-	// for all related triples in which I participates,
-	// check if triple is labelled by a sub-role of R
-	TIndividual::RelatedSet::const_iterator p, p_end;
-	for ( p = I->RelatedIndex.begin(), p_end = I->RelatedIndex.end(); p < p_end; ++p )
-	{
-		const TRelated& rel = **p;
-		if ( *R >= *rel.getRole() )
-			Js.push_back(rel.b);
-	}
-}
 	/// implement DIG-like RelatedIndividuals query; @return Is and Js st (I,J):R
 void
 TBox :: getRelatedIndividuals ( TRole* r, NamesVector& Is, NamesVector& Js ) const
@@ -594,25 +576,6 @@ TBox :: getRelatedIndividuals ( TRole* r, NamesVector& Is, NamesVector& Js ) con
 			Js.push_back(rel.b);
 		}
 	}
-}
-
-	/// implement related-based query; @return true iff (I,J):R
-bool
-TBox :: isRelated ( TIndividual* i, TRole* r, TIndividual* j ) const
-{
-	TIndividual* I = resolveSynonym(i);
-	TRole* R = resolveSynonym(r);
-	TIndividual* J = resolveSynonym(j);
-	if ( !I->RelatedRoleMap[R->getIndex()] )
-		return false;
-	TIndividual::RelatedSet::const_iterator p, p_end;
-	for ( p = I->RelatedIndex.begin(), p_end = I->RelatedIndex.end(); p < p_end; ++p )
-	{
-		const TRelated& rel = **p;
-		if ( *R >= *rel.getRole() && J == rel.b )
-			return true;
-	}
-	return false;
 }
 
 void TBox :: absorbedPrimitiveConceptDefinitions ( std::ostream& o ) const
