@@ -592,9 +592,14 @@ tacticUsage DlSatTester :: commonTacticBodySome ( const DLVertex& cur )	// for E
 			// adds concept to the end of arc
 			switchResult ( ret, addToDoEntry ( succ, C, newDep ) );
 
-			// if new role label was added -- check AR.C in both sides of functionalArc
+			// if new role label was added...
 			if ( RF != R )
 			{
+				// add Range and Domain of a new role; this includes functional, so remove it from the latter
+				switchResult ( ret, initHeadOfNewEdge ( curNode, R, newDep, "RD" ) );
+				switchResult ( ret, initHeadOfNewEdge ( succ, R->inverse(), newDep, "RR" ) );
+
+				// check AR.C in both sides of functionalArc
 				switchResult ( ret, applyUniversalNR ( curNode, functionalArc, newDep, redoForall ) );
 				// if new role label was added to a functionalArc, some functional restrictions
 				// in the SUCC node might became applicable. See bFunctional1x test
