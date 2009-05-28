@@ -24,7 +24,7 @@ const char* ReasoningKernel :: ProductName =
 	"FaCT++.Kernel: Reasoner for the SROIQ(D) Description Logic\n";
 const char* ReasoningKernel :: Copyright =
 	"Copyright (C) Dmitry V. Tsarkov, 2002-2009. ";
-const char* ReasoningKernel :: ReleaseDate = "(22 May 2009)";
+const char* ReasoningKernel :: ReleaseDate = "(29 May 2009)";
 
 // print the FaCT++ information only once
 static bool KernelFirstRun = true;
