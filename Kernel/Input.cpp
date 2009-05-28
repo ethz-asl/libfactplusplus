@@ -23,31 +23,31 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 //-----------------------------------------------------------------------------
 
 // return true if undefined concept found
-void TBox :: addSubsumeAxiom ( DLTree* left, DLTree* right )
+void TBox :: addSubsumeAxiom ( DLTree* sub, DLTree* sup )
 {
 	// for C [= C: nothing to do
-	if ( equalTrees ( left,right ) )
+	if ( equalTrees ( sub, sup ) )
 	{
-		deleteTree(left);
-		deleteTree(right);
+		deleteTree(sub);
+		deleteTree(sup);
 		return;
 	}
 
 	// try to apply C [= CN
-	if ( isCN(right) )
-		if ( applyAxiomCToCN ( left, right ) )
+	if ( isCN(sup) )
+		if ( applyAxiomCToCN ( sub, sup ) )
 			return;
 
 	// try to apply CN [= C
-	if ( isCN(left) )
-		if ( applyAxiomCNToC ( left, right ) )
+	if ( isCN(sub) )
+		if ( applyAxiomCNToC ( sub, sup ) )
 			return;
 
 	// check if an axiom looks like T [= \AR.C
-	if ( axiomToRangeDomain ( left, right ) )
+	if ( axiomToRangeDomain ( sub, sup ) )
 		;
 	else // general axiom
-		processGCI ( left, right );
+		processGCI ( sub, sup );
 }
 
 /// tries to apply axiom D [= CN; @return true if applicable
@@ -133,25 +133,25 @@ TBox :: addSubsumeForDefined ( TConcept* C, DLTree* D )
 	addSubsumeAxiom ( oldDesc, getTree(C) );
 }
 
-bool TBox :: axiomToRangeDomain ( DLTree* l, DLTree* r )
+bool TBox :: axiomToRangeDomain ( DLTree* sub, DLTree* sup )
 {
 	if ( !useRangeDomain )
 		return false;
-	// applicability check for T [= A R.C
-	if ( l->Element() == TOP && r->Element () == FORALL )
+	// applicability check for T [= A sup.C
+	if ( sub->Element() == TOP && sup->Element () == FORALL )
 	{
-		resolveRole(r->Left())->setRange(r->Right());
+		resolveRole(sup->Left())->setRange(sup->Right());
 		// free unused memory
-		delete l;
-		r->SetRight(NULL);
-		deleteTree(r);
+		delete sub;
+		sup->SetRight(NULL);
+		deleteTree(sup);
 		return true;
 	}
-	// applicability check for E R.T [= D
-	if ( l->Element() == NOT && l->Left()->Element() == FORALL && l->Left()->Right()->Element() == BOTTOM )
+	// applicability check for E sup.T [= D
+	if ( sub->Element() == NOT && sub->Left()->Element() == FORALL && sub->Left()->Right()->Element() == BOTTOM )
 	{
-		resolveRole(l->Left()->Left())->setDomain(r);
-		deleteTree(l);
+		resolveRole(sub->Left()->Left())->setDomain(sup);
+		deleteTree(sub);
 		return true;
 	}
 	return false;
@@ -231,6 +231,11 @@ TBox :: switchToNonprimitive ( DLTree* left, DLTree* right )
 
 	// not a named concept
 	if ( C == NULL || C == pTop || C == pBottom )
+		return false;
+
+	// make sure that we avoid making an individual equals to smth-else
+	TConcept* D = resolveSynonym(getCI(right));
+	if ( C->isSingleton() && D && !D->isSingleton() )
 		return false;
 
 	// check whether we process C=D where C is defined as C[=E
