@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2008 by Dmitry Tsarkov
+Copyright (C) 2003-2009 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -24,6 +24,47 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 class DlCompletionTree;
 class TRelated;
 
+class TIndividual;
+
+/// class to map roles to set of individuals
+class TRelatedMap
+{
+public:		// interface types
+		/// vector of individuals
+	typedef std::vector<const TIndividual*> CIVec;
+
+protected:	// types
+		/// base class
+	typedef std::map<const TRole*,CIVec> BaseType;
+
+protected:	// members
+		/// base that contains all info
+	BaseType Base;
+
+public:		// interface
+		/// empty c'tor
+	TRelatedMap ( void ) {}
+		/// empty d'tor
+	~TRelatedMap ( void ) {}
+
+	// access
+
+		/// check whether role is in map
+	bool hasRole ( const TRole* R ) const { return Base.find(R) != Base.end(); }
+		/// get array related to role
+	CIVec getRelated ( const TRole* R ) const
+	{
+		fpp_assert ( hasRole(R) );
+		return Base.find(R)->second;
+	}
+		/// add related wrt role
+	void setRelated ( const TRole* R, const CIVec& v )
+	{
+		fpp_assert ( !hasRole(R) );
+		Base[R] = v;
+	}
+}; // TRelatedMap
+
 /// class to represent individuals
 class TIndividual: public TConcept
 {
@@ -41,6 +82,8 @@ public:		// members
 	RelatedSet RelatedIndex;
 		/// index for the roles used in <this,C>:R
 	std::vector<bool> RelatedRoleMap;
+		/// map for the related individuals: Map[R]={i:R(this,i)}
+	TRelatedMap* pRelatedMap;
 
 	// precompletion support
 
@@ -60,10 +103,11 @@ public:		// interface
 	explicit TIndividual ( const std::string& name )
 		: TConcept(name)
 		, node(NULL)
+		, pRelatedMap(NULL)
 		, PCConcept(NULL)
 		{}
 		/// empty d'tor
-	virtual ~TIndividual ( void ) { delete PCConcept; }
+	virtual ~TIndividual ( void ) { delete pRelatedMap; delete PCConcept; }
 
 		/// check whether a concept is indeed a singleton
 	virtual bool isSingleton ( void ) const { return true; }
@@ -103,6 +147,15 @@ public:		// interface
 		/// add all the related elements from the given P
 	void addRelated ( TIndividual* p )
 		{ RelatedIndex.insert ( RelatedIndex.end(), p->RelatedIndex.begin(), p->RelatedIndex.end() ); }
+
+	// related map access
+
+		/// get RM
+	const TRelatedMap* getRelatedMap ( void ) const { return pRelatedMap; }
+		/// set RM
+	void setRelatedMap ( TRelatedMap* map ) { pRelatedMap = map; }
+		/// clear RM
+	void clearRelatedMap ( void ) { delete pRelatedMap; pRelatedMap = NULL; }
 
 	// precompletion interface
 

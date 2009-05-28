@@ -64,6 +64,9 @@ public:	// types interface
 	// IndividualSet is just set of pos. names
 	typedef ConceptNameSet IndividualSet;
 
+		/// typedef for intermediate instance related type
+	typedef TRelatedMap::CIVec CIVec;
+
 private:
 	ifOptionSet* pKernelOptions;
 
@@ -162,6 +165,17 @@ protected:	// methods
 		cachedConcept = NULL;
 		cachedVertex = NULL;
 		reasoningFailed = false;
+	}
+
+		/// build and set a cache for an individual I
+	const TRelatedMap* buildRelatedCache ( TIndividual* I );
+		/// get related cache for an individual I
+	const TRelatedMap* getRelatedCache ( TIndividual* I )
+	{
+		const TRelatedMap* ret = I->getRelatedMap();
+		if ( ret == NULL )
+			ret = buildRelatedCache(I);
+		return ret;
 	}
 
 	// get access to internal structures
@@ -884,22 +898,9 @@ public:
 		return isSubsumedBy ( I, C );
 	}
 		/// @return in Rs all (DATA)-roles R s.t. (I,x):R; add inverses if NEEDI is true
-	void getRelatedRoles ( const ComplexConcept I, NamesVector& Rs, bool data, bool needI )
-	{
-		realiseKB();	// ensure KB is ready to answer the query
-		getTBox()->getRelatedRoles (
-			getIndividual ( I, "individual name expected in the getRelatedRoles()" ),
-			Rs, data, needI );
-	}
+	void getRelatedRoles ( const ComplexConcept I, NamesVector& Rs, bool data, bool needI );
 		/// set RESULT into set of J's such that R(I,J)
-	void getRoleFillers ( const ComplexConcept I, const ComplexRole R, IndividualSet& Result )
-	{
-		realiseKB();	// ensure KB is ready to answer the query
-		getTBox()->getRoleFillers (
-			getIndividual ( I, "Individual name expected in the getRoleFillers()" ),
-			getRole ( R, "Role expression expected in the getRoleFillers()" ),
-			Result );
-	}
+	void getRoleFillers ( const ComplexConcept I, const ComplexRole R, IndividualSet& Result );
 		/// set RESULT into set of (I,J)'s such that R(I,J)
 	void getRelatedIndividuals ( const ComplexRole R, IndividualSet& Is, IndividualSet& Js )
 	{
@@ -909,16 +910,7 @@ public:
 			Is, Js );
 	}
 		/// set RESULT into set of J's such that R(I,J)
-	bool isRelated ( const ComplexConcept I, const ComplexRole R, const ComplexConcept J )
-	{
-		realiseKB();	// ensure KB is ready to answer the query
-		TIndividual* i = getIndividual ( I, "Individual name expected in the isRelated()" );
-		TRole* r = getRole ( R, "Role expression expected in the isRelated()" );
-		if ( r->isDataRole() )
-			return false;	// FIXME!! not implemented
-		else
-			return getTBox()->isRelated ( i, r, getIndividual ( J, "Individual name expected in the isRelated()" ) );
-	}
+	bool isRelated ( const ComplexConcept I, const ComplexRole R, const ComplexConcept J );
 	// ???
 	// ??? getToldValues ( const IndividualName I, const RoleName A );	// FIXME!! unsupported
 

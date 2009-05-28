@@ -203,6 +203,109 @@ needClassify:	// classification only needed for complex expression
 	}
 }
 
+// related individuals implementation
+class RIActor
+{
+protected:
+	ReasoningKernel::CIVec acc;
+
+		/// process single entry in a vertex label
+	bool tryEntry ( const ClassifiableEntry* p )
+	{
+		// check the applicability
+		if ( p->isSystem() || !static_cast<const TConcept*>(p)->isSingleton() )
+			return false;
+
+		// print the concept
+		acc.push_back(static_cast<const TIndividual*>(p));
+		return true;
+	}
+
+public:
+	RIActor ( void ) {}
+	~RIActor ( void ) {}
+
+	bool apply ( const TaxonomyVertex& v )
+	{
+		bool ret = tryEntry(v.getPrimer());
+
+		for ( TaxonomyVertex::syn_iterator p = v.begin_syn(), p_end = v.end_syn(); p != p_end; ++p )
+			ret |= tryEntry(*p);
+
+		return ret;
+	}
+	const ReasoningKernel::CIVec& getAcc ( void ) const { return acc; }
+}; // RIActor
+
+const TRelatedMap*
+ReasoningKernel :: buildRelatedCache ( TIndividual* i )
+{
+	fpp_assert ( i->getRelatedMap() == NULL );
+	TRelatedMap* map = new TRelatedMap();
+
+	// fill the map with role-related thing
+	for ( RoleMaster::iterator p = getRM()->begin(), p_end = getRM()->end(); p < p_end; ++p )
+	{
+		TRole* R = *p;
+		RIActor actor;
+		// ask for instances of \exists R^-.{i}
+		// FIXME!! work as we know data/object roles here
+		DLTree* invR = (R->getId() > 0) ? Inverse(ensureRoleName(R->getName())) : ensureRoleName(R->inverse()->getName());
+		DLTree* query = Exists ( invR, ensureSingletonName(i->getName()) );
+		getInstances ( query, actor );
+		deleteTree(query);
+		map->setRelated ( R, actor.getAcc() );
+	}
+
+	i->setRelatedMap(map);
+	return map;
+}
+
+/// @return in Rs all (DATA)-roles R s.t. (I,x):R; add inverses if NEEDI is true
+void
+ReasoningKernel :: getRelatedRoles ( const ComplexConcept I, NamesVector& Rs, bool data, bool needI )
+{
+	realiseKB();	// ensure KB is ready to answer the query
+	const TRelatedMap* map = getRelatedCache(getIndividual ( I, "individual name expected in the getRelatedRoles()" ));
+
+	Rs.clear();
+	for ( RoleMaster::iterator p = getRM()->begin(), p_end = getRM()->end(); p < p_end; ++p )
+	{
+		TRole* R = *p;
+		if ( R->isDataRole() == data && ( R->getId() > 0 || needI ) && !map->getRelated(R).empty() )
+			Rs.push_back(R);
+	}
+}
+
+void
+ReasoningKernel :: getRoleFillers ( const ComplexConcept I, const ComplexRole R, IndividualSet& Result )
+{
+	realiseKB();	// ensure KB is ready to answer the query
+	CIVec vec = getRelatedCache(getIndividual ( I, "Individual name expected in the getRoleFillers()" ))
+		->getRelated(getRole ( R, "Role expression expected in the getRoleFillers()" ));
+	for ( CIVec::iterator p = vec.begin(), p_end = vec.end(); p < p_end; ++p )
+		Result.push_back(const_cast<TIndividual*>(*p));
+}
+
+/// set RESULT into set of J's such that R(I,J)
+bool
+ReasoningKernel :: isRelated ( const ComplexConcept I, const ComplexRole R, const ComplexConcept J )
+{
+	realiseKB();	// ensure KB is ready to answer the query
+	TIndividual* i = getIndividual ( I, "Individual name expected in the isRelated()" );
+	TRole* r = getRole ( R, "Role expression expected in the isRelated()" );
+	if ( r->isDataRole() )
+		return false;	// FIXME!! not implemented
+
+	TIndividual* j = getIndividual ( J, "Individual name expected in the isRelated()" );
+	CIVec vec = getRelatedCache(i)->getRelated(r);
+	for ( CIVec::iterator p = vec.begin(), p_end = vec.end(); p < p_end; ++p )
+		if ( j == (*p) )
+			return true;
+
+	return false;
+}
+
 //******************************************
 //* Initialization
 //******************************************
