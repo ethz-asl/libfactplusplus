@@ -248,15 +248,17 @@ ReasoningKernel :: buildRelatedCache ( TIndividual* i )
 	{
 		TRole* R = *p;
 		RIActor actor;
-		// ask for instances of \exists R^-.{i}
-		// FIXME!! work as we know data/object roles here
-		DLTree* invR = (R->getId() > 0) ? Inverse(ensureRoleName(R->getName())) : ensureRoleName(R->inverse()->getName());
-		DLTree* query = Exists ( invR, ensureSingletonName(i->getName()) );
-		getInstances ( query, actor );
-		deleteTree(query);
+		if ( !R->isDataRole() && !R->inverse()->isDataRole() )
+		{
+			// ask for instances of \exists R^-.{i}
+			// FIXME!! work as we know data/object roles here
+			DLTree* invR = (R->getId() > 0) ? Inverse(ensureRoleName(R->getName())) : ensureRoleName(R->inverse()->getName());
+			DLTree* query = Exists ( invR, ensureSingletonName(i->getName()) );
+			getInstances ( query, actor );
+			deleteTree(query);
+		}
 		map->setRelated ( R, actor.getAcc() );
 	}
-
 	i->setRelatedMap(map);
 	return map;
 }
