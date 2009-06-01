@@ -625,6 +625,7 @@ public:
 		Individuals.clearLabels();
 		ORoles.clearLabels();
 		DRoles.clearLabels();
+		DTCenter.clearTypes();
 		realiseKB();
 	}
 		/// re-classification of the changed ontology
