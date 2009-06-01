@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2005-2008 by Dmitry Tsarkov
+Copyright (C) 2005-2009 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -57,6 +57,14 @@ public:		// interface
 			delete *p;
 
 		delete Type;
+	}
+
+		/// clear the BPs for all the entries
+	void clearType ( void )
+	{
+		for ( iterator p = begin(); p != end(); ++p )
+			(*p)->setBP(bpINVALID);
+		Type->setBP(bpINVALID);
 	}
 
 	// access to the type

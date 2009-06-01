@@ -175,6 +175,8 @@ public:		// interface
 
 	// reasoning interface
 
+		/// clear IR of types
+	void clearTypes ( void );
 		/// init DT reasoner
 	void initDataTypeReasoner ( DataTypeReasoner& DTReasoner ) const;
 		/// lock/unlock types for additional elements
