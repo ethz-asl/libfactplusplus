@@ -32,6 +32,32 @@ protected:	// internal typedefs
 	typedef TaxonomyVertex::TaxonomyLink TaxonomyLink;
 		/// type for taxonomy internal representation
 	typedef TaxonomyLink SetOfVertex;
+		/// set of the TS
+	typedef ClassifiableEntry::linkSet ToldSet;
+		/// TS RW iterator
+	typedef ToldSet::iterator ts_iterator;
+
+		/// class to represent the TS's
+	class ToldSubsumers
+	{
+	public:		// members
+			/// TS for sure
+		ToldSet tsSure;
+			/// probable TS
+		ToldSet tsProbable;
+	public:		// interface
+			/// c'tor
+		ToldSubsumers ( ts_iterator b, ts_iterator e ) : tsSure(b,e) {}
+			/// c'tor
+		ToldSubsumers ( ts_iterator bs, ts_iterator es, ts_iterator bp, ts_iterator ep ) : tsSure(bs,es), tsProbable(bp,ep) {}
+			/// d'tor
+		~ToldSubsumers ( void ) {}
+
+		// iterators
+
+		ts_iterator begin ( void ) { return tsSure.begin(); }
+		ts_iterator end ( void ) { return tsSure.end(); }
+	}; // ToldSubsumers
 
 public:		// typedefs
 		/// iterator on the set of vertex
@@ -62,8 +88,10 @@ protected:	// members
 		/// number of completely-defined entries
 	unsigned long nCDEntries;
 
-	/// stack for Taxonomy creating (if necessary)
+		/// stack for Taxonomy creation
 	SearchableStack <ClassifiableEntry*> waitStack;
+		/// told subsumers corresponding to a given entry
+	SearchableStack <ToldSubsumers*> tsStack;
 
 private:	// no copy
 		/// no copy c'tor
@@ -80,6 +108,13 @@ protected:	// methods
 
 		Current = new TaxonomyVertex (p);
 		curEntry = p;
+	}
+		/// remove top entry
+	void removeTop ( void )
+	{
+		waitStack.pop();
+		delete tsStack.top();
+		tsStack.pop();
 	}
 
 	//-----------------------------------------------------------------
@@ -145,13 +180,20 @@ protected:	// methods
 		/// check if told subsumer P have to be classified during current session
 	virtual bool needToldClassification ( ClassifiableEntry* p ATTR_UNUSED ) const { return true; }
 		/// prepare told subsumers for given entry if necessary
-	virtual void buildToldSubsumers ( ClassifiableEntry* p ATTR_UNUSED ) {}
+	virtual void buildToldSubsumers ( ClassifiableEntry* p )
+	{
+		ToldSubsumers* ts = new ToldSubsumers(p->told_begin(), p->told_end());
+		tsStack.push(ts);
+	}
 		/// ensure that all TS of top entries are classified. @return true if cycle detected.
 	bool checkToldSubsumers ( void );
 		/// classify top entry in the stack
 	void classifyTop ( void );
 		/// deal with a TS cycle.
 	void classifyCycle ( void );
+
+	ts_iterator told_begin ( void ) { return tsStack.top()->begin(); }
+	ts_iterator told_end ( void ) { return tsStack.top()->end(); }
 
 		/// check if it is necessary to log taxonomy action
 	virtual bool needLogging ( void ) const { return false; }

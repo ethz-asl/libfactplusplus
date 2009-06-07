@@ -110,7 +110,7 @@ protected:	// methods
 		return true;
 	}
 		/// prepare told subsumers for given entry if necessary
-	virtual void buildToldSubsumers ( ClassifiableEntry* p ATTR_UNUSED ) {}
+//	virtual void buildToldSubsumers ( ClassifiableEntry* p ATTR_UNUSED ) {}
 		/// check if no classification needed (synonym, orphan, unsatisfiable)
 	virtual bool immediatelyClassified ( void );
 

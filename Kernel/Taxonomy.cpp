@@ -169,7 +169,7 @@ void Taxonomy :: setNonRedundantCandidates ( void )
 	}
 
 	// test if some "told subsumer" is not an immediate TS (ie, not a border element)
-	for ( ClassifiableEntry::const_iterator p = curEntry->told_begin(), p_end = curEntry->told_end(); p < p_end; ++p )
+	for ( ts_iterator p = told_begin(), p_end = told_end(); p < p_end; ++p )
 	{
 		TaxonomyVertex* par = (*p)->getTaxVertex();
 		bool stillParent = true;
@@ -200,7 +200,7 @@ void Taxonomy :: setToldSubsumers ( void )
 	if ( LLM.isWritable(llTSList) && needLogging() && curEntry->hasToldSubsumers() )
 		LL << "\nTAX: told subsumers";
 
-	for ( ClassifiableEntry::const_iterator p = curEntry->told_begin(), p_end = curEntry->told_end(); p < p_end; ++p )
+	for ( ts_iterator p = told_begin(), p_end = told_end(); p < p_end; ++p )
 	{
 		if ( !(*p)->isClassified() )	// non-primitive/non-classifiable concept
 			continue;	// safety check
@@ -264,10 +264,7 @@ bool Taxonomy :: checkToldSubsumers ( void )
 	buildToldSubsumers(waitStack.top());
 
 		// check that all the TS are classified (if necessary)
-	ClassifiableEntry::const_iterator
-		p = waitStack.top()->told_begin(),
-		p_end = waitStack.top()->told_end();
-	for ( ; p < p_end; ++p )
+	for ( ts_iterator p = told_begin(), p_end = told_end(); p < p_end; ++p )
 	{
 		ClassifiableEntry* r = *p;
 		fpp_assert ( r != NULL );
@@ -320,7 +317,7 @@ void Taxonomy :: classifyTop ( void )
 #ifdef TMP_PRINT_TAXONOMY_INFO
 	std::cout << "done";
 #endif
-	waitStack.pop ();
+	removeTop();
 }
 
 void Taxonomy :: classifyCycle ( void )
@@ -342,7 +339,7 @@ void Taxonomy :: classifyCycle ( void )
 
 		// add the concept to the same class
 		waitStack.top()->setTaxVertex ( p->getTaxVertex() );
-		waitStack.pop ();
+		removeTop();
 
 		// indicate progress
 		//pTaxProgress->incIndicator (); -- // FIXME!! later
