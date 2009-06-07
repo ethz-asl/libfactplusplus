@@ -261,7 +261,7 @@ bool Taxonomy :: checkToldSubsumers ( void )
 	++level;
 #endif
 		// prepare told subsumers for the top of the stack
-	buildToldSubsumers(waitStack.top());
+	tsStack.push(buildToldSubsumers(waitStack.top()));
 
 		// check that all the TS are classified (if necessary)
 	for ( ts_iterator p = told_begin(), p_end = told_end(); p < p_end; ++p )
