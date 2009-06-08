@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2004 by Dmitry Tsarkov
+Copyright (C) 2003-2009 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -57,7 +57,7 @@ public:
   const_iterator end() const { return Base.end(); }
 
 	/***********  stack operations  **************/
-	void push ( T& val ) { Base.push_back(val); }
+	void push ( const T& val ) { Base.push_back(val); }
 	reference top ( void ) { return Base.back(); }
 	const_reference top ( void ) const { return Base.back(); }
 	void pop ( void ) { Base.pop_back(); }
