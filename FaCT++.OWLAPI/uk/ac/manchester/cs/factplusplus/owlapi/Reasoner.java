@@ -23,7 +23,7 @@ public class Reasoner extends MonitorableOWLReasonerAdapter implements FaCTPlusP
 
     private static final Logger logger = Logger.getLogger(Reasoner.class.getName());
 
-    private FaCTPlusPlusReasonerException lastException;
+    private Exception lastException;
 
     private OntologyLoader loader;
 
@@ -197,7 +197,7 @@ public class Reasoner extends MonitorableOWLReasonerAdapter implements FaCTPlusP
             state = State.UNCLASSIFIED_IN_SYNC;
         }
         catch (Exception e) {
-            lastException = new FaCTPlusPlusReasonerException(e);
+            lastException = e;
             state = State.FAIL;
         }
     }
@@ -218,7 +218,7 @@ public class Reasoner extends MonitorableOWLReasonerAdapter implements FaCTPlusP
             }
         }
         catch (Exception e) {
-            lastException = new FaCTPlusPlusReasonerException(e);
+            lastException = e;
             state = State.FAIL;
         }
     }
@@ -230,7 +230,7 @@ public class Reasoner extends MonitorableOWLReasonerAdapter implements FaCTPlusP
             state = State.CLASSIFIED_IN_SYNC;
         }
         catch (Exception e) {
-            lastException = new FaCTPlusPlusReasonerException(e);
+            lastException = e;
             state = State.FAIL;
         }
     }
@@ -247,7 +247,7 @@ public class Reasoner extends MonitorableOWLReasonerAdapter implements FaCTPlusP
             state = State.EMPTY;
         }
         catch (Exception e) {
-            lastException = new FaCTPlusPlusReasonerException(e);
+            lastException = e;
             state = State.FAIL;
         }
     }
@@ -256,7 +256,7 @@ public class Reasoner extends MonitorableOWLReasonerAdapter implements FaCTPlusP
     protected void ontologiesCleared() throws OWLReasonerException {
         clear();
         if (state == State.FAIL && lastException != null){
-            throw lastException;
+            throw new FaCTPlusPlusReasonerException(lastException);
         }
     }
 
@@ -295,14 +295,15 @@ public class Reasoner extends MonitorableOWLReasonerAdapter implements FaCTPlusP
     protected void ontologiesChanged() throws OWLReasonerException {
         clear();
         if (state == State.FAIL && lastException != null){
-            throw lastException;
+            throw new FaCTPlusPlusReasonerException(lastException);
         }
     }
 
 
     protected void handleOntologyChanges(List<OWLOntologyChange> changes) throws OWLReasonerException {
         switch (state){
-            case FAIL: throw lastException;
+            case FAIL:
+                throw new FaCTPlusPlusReasonerException(lastException);
 
             case UNCLASSIFIED_DIRTY: // fallthrough
             case UNCLASSIFIED_IN_SYNC:
@@ -323,9 +324,10 @@ public class Reasoner extends MonitorableOWLReasonerAdapter implements FaCTPlusP
     }
 
 
-    private void autoSynchronise() throws OWLReasonerException {
+    private void autoSynchronise() throws Exception {
         switch(state){
-            case FAIL: throw lastException;
+            case FAIL:
+                throw lastException;
             case EMPTY:
                 if (autoSync){
                     load();
@@ -398,7 +400,7 @@ public class Reasoner extends MonitorableOWLReasonerAdapter implements FaCTPlusP
             autoSynchronise();
             faCTPlusPlus.realise();
         }
-        catch (FaCTPlusPlusException e) {
+        catch (Exception e) {
             throw new FaCTPlusPlusReasonerException(e);
         }
     }
@@ -531,8 +533,7 @@ public class Reasoner extends MonitorableOWLReasonerAdapter implements FaCTPlusP
     }
 
 
-    public boolean isInstanceOf(OWLIndividual owlIndividual, OWLDescription owlDescription) throws
-            OWLReasonerException {
+    public boolean isInstanceOf(OWLIndividual owlIndividual, OWLDescription owlDescription) throws OWLReasonerException {
         try {
             autoSynchronise();
             translatorUtils.checkParams(owlIndividual, owlDescription);
@@ -551,13 +552,17 @@ public class Reasoner extends MonitorableOWLReasonerAdapter implements FaCTPlusP
      * @return A set of classes which are inconsistent.
      */
     public Set<OWLClass> getInconsistentClasses() throws OWLReasonerException {
-        autoSynchronise();
-        return getEquivalentClasses(getOWLDataFactory().getOWLNothing());
+        try {
+            autoSynchronise();
+            return getEquivalentClasses(getOWLDataFactory().getOWLNothing());
+        }
+        catch (Exception e) {
+            throw new FaCTPlusPlusReasonerException(e);
+        }
     }
 
 
-    public Set<OWLIndividual> getIndividuals(OWLDescription owlDescription, boolean direct) throws
-            OWLReasonerException {
+    public Set<OWLIndividual> getIndividuals(OWLDescription owlDescription, boolean direct) throws OWLReasonerException {
         try {
             autoSynchronise();
             translatorUtils.checkParams(owlDescription);
@@ -604,8 +609,7 @@ public class Reasoner extends MonitorableOWLReasonerAdapter implements FaCTPlusP
     }
 
 
-    public Map<OWLDataProperty, Set<OWLConstant>> getDataPropertyRelationships(OWLIndividual individual) throws
-            OWLReasonerException {
+    public Map<OWLDataProperty, Set<OWLConstant>> getDataPropertyRelationships(OWLIndividual individual) throws OWLReasonerException {
         try {
             autoSynchronise();
             translatorUtils.checkParams(individual);
@@ -626,8 +630,7 @@ public class Reasoner extends MonitorableOWLReasonerAdapter implements FaCTPlusP
     }
 
 
-    public Set<OWLIndividual> getRelatedIndividuals(OWLIndividual subject, OWLObjectPropertyExpression property) throws
-            OWLReasonerException {
+    public Set<OWLIndividual> getRelatedIndividuals(OWLIndividual subject, OWLObjectPropertyExpression property) throws OWLReasonerException {
         try {
             autoSynchronise();
             translatorUtils.checkParams(subject, property);
