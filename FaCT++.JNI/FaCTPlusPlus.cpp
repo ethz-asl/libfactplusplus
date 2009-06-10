@@ -1806,7 +1806,7 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_endCha
   (JNIEnv * env ATTR_UNUSED, jobject obj ATTR_UNUSED)
 {
 	TRACE_JNI("endChanges");
-	getK(env,obj)->reclassify();
+	PROCESS_ASK_QUERY ( getK(env,obj)->reclassify(), "endChanges" );
 }
 
 #undef PROCESS_ASK_QUERY
