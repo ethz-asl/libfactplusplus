@@ -600,7 +600,10 @@ tacticUsage DlSatTester :: commonTacticBodySome ( const DLVertex& cur )	// for E
 				switchResult ( ret, initHeadOfNewEdge ( succ, R->inverse(), newDep, "RR" ) );
 
 				// check AR.C in both sides of functionalArc
-				switchResult ( ret, applyUniversalNR ( curNode, functionalArc, newDep, redoForall ) );
+				// FIXME!! for simplicity, check the functionality here (see bEx017). It seems
+				// only necessary when R has several functional super-roles, so the condition
+				// can be simplified
+				switchResult ( ret, applyUniversalNR ( curNode, functionalArc, newDep, redoForall | redoFunc ) );
 				// if new role label was added to a functionalArc, some functional restrictions
 				// in the SUCC node might became applicable. See bFunctional1x test
 				switchResult ( ret, applyUniversalNR ( succ, functionalArc->getReverse(), newDep,
