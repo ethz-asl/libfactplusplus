@@ -80,6 +80,11 @@ public class OntologyLoader {
     }
 
 
+    public void clear(){
+        axiom2PtrMap.clear();
+    }
+    
+
     public void loadOntologies(Set<OWLOntology> ontologies) throws FaCTPlusPlusException {
         for (OWLOntology ont : ontologies) {
             loadAxioms(ont.getAxioms());

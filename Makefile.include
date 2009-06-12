@@ -18,10 +18,10 @@ GCC_43_OPT = $(GCC_42_OPT) -fmodulo-sched-allow-regmoves -fipa-cp -fvect-cost-mo
 
 # define architecture; it will affect file extentions, dynamic flags.
 # now LINUX, WINDOWS(untested), MACOSX are supported
-OS = LINUX
+OS = MACOSX
 
 # ALL_DEF is an external defines
-GENERAL_DEFINES = $(GCC_OPT_OPT) $(GCC_43_OPT) $(ALL_DEF)
+GENERAL_DEFINES = $(GCC_OPT_OPT) $(GCC_40_OPT) $(ALL_DEF)
 
 #---------------------------------------------------------
 # please do not change following lines

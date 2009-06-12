@@ -241,6 +241,7 @@ public class Reasoner extends MonitorableOWLReasonerAdapter implements FaCTPlusP
             getReasoner().clearKernel();
             // Reset the translator, because the pointer mappings that it holds
             // are no longer valid
+            loader.clear();
             translator.reset();
             changes.clear();
 
@@ -303,8 +304,7 @@ public class Reasoner extends MonitorableOWLReasonerAdapter implements FaCTPlusP
     protected void handleOntologyChanges(List<OWLOntologyChange> changes) throws OWLReasonerException {
         switch (state){
             case FAIL:
-                throw new FaCTPlusPlusReasonerException(lastException);
-
+//                throw new FaCTPlusPlusReasonerException(lastException);
             case UNCLASSIFIED_DIRTY: // fallthrough
             case UNCLASSIFIED_IN_SYNC:
                 if (incremental){
