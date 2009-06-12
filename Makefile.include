@@ -18,10 +18,10 @@ GCC_43_OPT = $(GCC_42_OPT) -fmodulo-sched-allow-regmoves -fipa-cp -fvect-cost-mo
 
 # define architecture; it will affect file extentions, dynamic flags.
 # now LINUX, WINDOWS(untested), MACOSX are supported
-OS = MACOSX
+OS = LINUX
 
 # ALL_DEF is an external defines
-GENERAL_DEFINES = $(GCC_OPT_OPT) $(GCC_40_OPT) $(ALL_DEF)
+GENERAL_DEFINES = $(GCC_OPT_OPT) $(GCC_43_OPT) $(ALL_DEF)
 
 #---------------------------------------------------------
 # please do not change following lines
@@ -72,7 +72,7 @@ endif
 # We can't set default values here: WIs' rules.cvslvk may use +=
 
 override INCLUDES := $(INCLUDES)
-override DEFINES := $(DEFINES) $(GENERAL_DEFINES) $(OS_DEF)
+override DEFINES := $(DEFINES) $(GENERAL_DEFINES)
 override LDFLAGS := $(LDFLAGS)
 
 override BUILD_DIR := obj
@@ -84,8 +84,8 @@ $(BUILD_DIR):
 # Linker defaults to C compiler if all $(SOURCES) are .c files, and to
 # C++ compiler otherwise
 
-override CC := gcc$(GCC_SUFFIX)
-override CXX := g++$(GCC_SUFFIX)
+override CC := gcc$(GCC_SUFFIX) $(OS_DEF)
+override CXX := g++$(GCC_SUFFIX) $(OS_DEF)
 
 # Library building tools
 
