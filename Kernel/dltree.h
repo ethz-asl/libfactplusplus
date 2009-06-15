@@ -81,6 +81,37 @@ inline bool isFunctionalExpr ( const DLTree* t, const std::string& RName )
 		   t->Element().getData() == 1 && t->Right()->Element().getToken() == TOP;
 }
 
+	// check if DL Tree represents negated ONE-OF constructor
+inline bool isNegOneOf ( const DLTree* t )
+{
+	if ( t == NULL )
+		return false;
+	switch (t->Element().getToken())
+	{
+	case AND:
+		return isNegOneOf(t->Left()) && isNegOneOf(t->Right());
+	case NOT:
+		return t->Left()->Element().getToken() == INAME;
+	default:
+		return false;
+	}
+}
+	// check if DL Tree represents ONE-OF constructor
+inline bool isOneOf ( const DLTree* t )
+{
+	if ( t == NULL )
+		return false;
+	switch (t->Element().getToken())
+	{
+	case INAME:
+		return true;
+	case NOT:
+		return isNegOneOf(t->Left());
+	default:
+		return false;
+	}
+}
+
 // create SNF from given parts
 
 	/// create inverse of role R
