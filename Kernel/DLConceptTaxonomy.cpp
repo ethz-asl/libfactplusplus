@@ -164,13 +164,8 @@ bool DLConceptTaxonomy :: testSubsumption ( bool upDirection, TaxonomyVertex* cu
 	const TConcept* testC = static_cast<const TConcept*>(cur->getPrimer());
 	if ( upDirection )
 		return testSub ( testC, curConcept() );
-	else	// top-down phase: if C is NATS and neither C no CUR are non-prim -- return false
-			//FIXME!! need more thinking (see bio1/rtms1 test cases in _BUGS_)
-		if ( 0 && useCompletelyDefined && testC->isNaTS()
-			&& !testC->isNonPrimitive() && !curConcept()->isNonPrimitive() )
-			return false;
-		else
-			return testSub ( curConcept(), testC );
+	else
+		return testSub ( curConcept(), testC );
 }
 
 bool DLConceptTaxonomy :: propagateUp ( void )

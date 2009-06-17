@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2008 by Dmitry Tsarkov
+Copyright (C) 2003-2009 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -123,8 +123,6 @@ public:		// methods
 		, pBody (bpINVALID)
 	{
 		setPrimitive();
-		// not a told subsumer by default; this would be change during TS construction.
-		setNaTS(true);
 	}
 		/// d'tor
 	virtual ~TConcept ( void ) { deleteTree(Description); }
@@ -205,7 +203,6 @@ public:		// methods
 		if ( p != this )
 		{
 			addParentIfNew(p);
-			p->setNaTS(false);	// p is a told subsumer (for current concept)
 			if ( p->isSingleton() || p->isHasSP() )
 				setHasSP();		// this has singleton parent
 		}
