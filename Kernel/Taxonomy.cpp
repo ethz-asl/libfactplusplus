@@ -197,7 +197,7 @@ void Taxonomy :: setNonRedundantCandidates ( void )
 
 void Taxonomy :: setToldSubsumers ( void )
 {
-	if ( LLM.isWritable(llTSList) && needLogging() && curEntry->hasToldSubsumers() )
+	if ( LLM.isWritable(llTSList) && needLogging() && !ksStack.top()->s_empty() )
 		LL << "\nTAX: told subsumers";
 
 	for ( ss_iterator p = told_begin(), p_end = told_end(); p < p_end; ++p )

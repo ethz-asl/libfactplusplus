@@ -221,19 +221,7 @@ inline bool DLConceptTaxonomy :: immediatelyClassified ( void )
 
 inline void DLConceptTaxonomy :: setupTopDown ( void )
 {
-	switch ( curConcept()->getClassTag() )
-	{
-	case cttOrphan:	// nothing to do for orphans
-//		if ( hasGCI )	// will classify completely
-			break;
-
-		setParentTop();
-		return;
-
-	default:
-		setToldSubsumers();
-		break;
-	}
+	setToldSubsumers();
 	if ( !needTopDown() )
 	{
 		++nCDEntries;
@@ -243,13 +231,6 @@ inline void DLConceptTaxonomy :: setupTopDown ( void )
 
 inline bool DLConceptTaxonomy :: needTopDown ( void ) const
 {
-	switch ( curConcept()->getClassTag() )
-	{
-	case cttOrphan:	// in precense of GCIs [like (some R.T) for Domain(R)=C] we can't omit orphan's
-//		return hasGCI;
-	default:
-		break;
-	}
 	return !(useCompletelyDefined && curEntry->isCompletelyDefined ());
 }
 
