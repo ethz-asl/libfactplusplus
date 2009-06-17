@@ -33,30 +33,61 @@ protected:	// internal typedefs
 		/// type for taxonomy internal representation
 	typedef TaxonomyLink SetOfVertex;
 		/// set of the TS
-	typedef ClassifiableEntry::linkSet ToldSet;
+	typedef ClassifiableEntry::linkSet SubsumerSet;
 		/// TS RW iterator
-	typedef ToldSet::iterator ts_iterator;
+	typedef SubsumerSet::iterator ss_iterator;
 
-		/// class to represent the TS's
-	class ToldSubsumers
+		/// abstract class to represent the known subsumers of a concept
+	class KnownSubsumers
 	{
-	public:		// members
-			/// TS for sure
-		ToldSet tsSure;
-			/// probable TS
-		ToldSet tsProbable;
 	public:		// interface
-			/// c'tor
-		ToldSubsumers ( ts_iterator b, ts_iterator e ) : tsSure(b,e) {}
-			/// c'tor
-		ToldSubsumers ( ts_iterator bs, ts_iterator es, ts_iterator bp, ts_iterator ep ) : tsSure(bs,es), tsProbable(bp,ep) {}
-			/// d'tor
-		~ToldSubsumers ( void ) {}
+			/// empty c'tor
+		KnownSubsumers ( void ) {}
+			/// empty  d'tor
+		virtual ~KnownSubsumers ( void ) {}
 
 		// iterators
 
-		ts_iterator begin ( void ) { return tsSure.begin(); }
-		ts_iterator end ( void ) { return tsSure.end(); }
+			/// begin of the Sure subsumers interval
+		virtual ss_iterator s_begin ( void ) = 0;
+			/// end of the Sure subsumers interval
+		virtual ss_iterator s_end ( void ) = 0;
+			/// begin of the Possible subsumers interval
+		virtual ss_iterator p_begin ( void ) = 0;
+			/// end of the Possible subsumers interval
+		virtual ss_iterator p_end ( void ) = 0;
+
+		// flags
+
+			/// whether there are no sure subsumers
+		bool s_empty ( void ) { return s_begin() == s_end(); }
+			/// whether there are no possible subsumers
+		bool p_empty ( void ) { return p_begin() == p_end(); }
+	}; // KnownSubsumers
+
+		/// class to represent the TS's
+	class ToldSubsumers: public KnownSubsumers
+	{
+	protected:		// members
+			/// two iterators for the TS of a concept
+		ss_iterator beg, end;
+
+	public:		// interface
+			/// c'tor
+		ToldSubsumers ( ss_iterator b, ss_iterator e ) : beg(b), end(e) {}
+			/// d'tor
+		virtual ~ToldSubsumers ( void ) {}
+
+		// iterators
+
+			/// begin of the Sure subsumers interval
+		virtual ss_iterator s_begin ( void ) { return beg; }
+			/// end of the Sure subsumers interval
+		virtual ss_iterator s_end ( void ) { return end; }
+			/// begin of the Possible subsumers interval
+		virtual ss_iterator p_begin ( void ) { return end; }
+			/// end of the Possible subsumers interval
+		virtual ss_iterator p_end ( void ) { return end; }
 	}; // ToldSubsumers
 
 public:		// typedefs
@@ -91,7 +122,7 @@ protected:	// members
 		/// stack for Taxonomy creation
 	SearchableStack <ClassifiableEntry*> waitStack;
 		/// told subsumers corresponding to a given entry
-	SearchableStack <ToldSubsumers*> tsStack;
+	SearchableStack <KnownSubsumers*> ksStack;
 
 private:	// no copy
 		/// no copy c'tor
@@ -113,8 +144,8 @@ protected:	// methods
 	void removeTop ( void )
 	{
 		waitStack.pop();
-		delete tsStack.top();
-		tsStack.pop();
+		delete ksStack.top();
+		ksStack.pop();
 	}
 
 	//-----------------------------------------------------------------
@@ -180,7 +211,7 @@ protected:	// methods
 		/// check if told subsumer P have to be classified during current session
 	virtual bool needToldClassification ( ClassifiableEntry* p ATTR_UNUSED ) const { return true; }
 		/// prepare told subsumers for given entry if necessary
-	virtual ToldSubsumers* buildToldSubsumers ( ClassifiableEntry* p )
+	virtual KnownSubsumers* buildToldSubsumers ( ClassifiableEntry* p )
 		{ return new ToldSubsumers(p->told_begin(), p->told_end()); }
 		/// ensure that all TS of top entries are classified. @return true if cycle detected.
 	bool checkToldSubsumers ( void );
@@ -189,8 +220,8 @@ protected:	// methods
 		/// deal with a TS cycle.
 	void classifyCycle ( void );
 
-	ts_iterator told_begin ( void ) { return tsStack.top()->begin(); }
-	ts_iterator told_end ( void ) { return tsStack.top()->end(); }
+	ss_iterator told_begin ( void ) { return ksStack.top()->s_begin(); }
+	ss_iterator told_end ( void ) { return ksStack.top()->s_end(); }
 
 		/// check if it is necessary to log taxonomy action
 	virtual bool needLogging ( void ) const { return false; }

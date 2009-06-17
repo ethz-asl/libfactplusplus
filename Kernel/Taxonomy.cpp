@@ -169,7 +169,7 @@ void Taxonomy :: setNonRedundantCandidates ( void )
 	}
 
 	// test if some "told subsumer" is not an immediate TS (ie, not a border element)
-	for ( ts_iterator p = told_begin(), p_end = told_end(); p < p_end; ++p )
+	for ( ss_iterator p = told_begin(), p_end = told_end(); p < p_end; ++p )
 	{
 		TaxonomyVertex* par = (*p)->getTaxVertex();
 		bool stillParent = true;
@@ -200,7 +200,7 @@ void Taxonomy :: setToldSubsumers ( void )
 	if ( LLM.isWritable(llTSList) && needLogging() && curEntry->hasToldSubsumers() )
 		LL << "\nTAX: told subsumers";
 
-	for ( ts_iterator p = told_begin(), p_end = told_end(); p < p_end; ++p )
+	for ( ss_iterator p = told_begin(), p_end = told_end(); p < p_end; ++p )
 	{
 		if ( !(*p)->isClassified() )	// non-primitive/non-classifiable concept
 			continue;	// safety check
@@ -261,10 +261,10 @@ bool Taxonomy :: checkToldSubsumers ( void )
 	++level;
 #endif
 		// prepare told subsumers for the top of the stack
-	tsStack.push(buildToldSubsumers(waitStack.top()));
+	ksStack.push(buildToldSubsumers(waitStack.top()));
 
 		// check that all the TS are classified (if necessary)
-	for ( ts_iterator p = told_begin(), p_end = told_end(); p < p_end; ++p )
+	for ( ss_iterator p = told_begin(), p_end = told_end(); p < p_end; ++p )
 	{
 		ClassifiableEntry* r = *p;
 		fpp_assert ( r != NULL );
