@@ -182,18 +182,6 @@ public:		// interface
 		}
 		o << "}";
 	}
-
-	friend depSet_bdd operator + ( const depSet_bdd& ds1, const depSet_bdd& ds2 );
 }; // depSet_bdd
-
-template <class O>
-inline O& operator << ( O& o, const depSet_bdd& s )
-{ s.Print(o); return o; }
-
-inline depSet_bdd operator + ( const depSet_bdd& ds1, const depSet_bdd& ds2 )
-{
-	depSet_bdd ret(ds1);
-	return ret += ds2;
-}
 
 #endif

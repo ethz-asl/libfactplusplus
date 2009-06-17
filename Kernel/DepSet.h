@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2006 by Dmitry Tsarkov
+Copyright (C) 2003-2009 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -21,7 +21,18 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "depSet_bdd.h"
 
-// define type for sependency set
+// define type for dependency set
 typedef depSet_bdd DepSet;
+
+// common operations with the dep-set
+template <class O>
+inline O& operator << ( O& o, const DepSet& s )
+{ s.Print(o); return o; }
+
+inline DepSet operator + ( const DepSet& ds1, const DepSet& ds2 )
+{
+	DepSet ret(ds1);
+	return ret += ds2;
+}
 
 #endif
