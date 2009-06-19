@@ -20,7 +20,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <sstream>
 #include "dltree.h"
-#include "comerror.h"
 #include "cppi.h"
 
 #include "globaldef.h"
@@ -338,7 +337,7 @@ void TBox :: readConfig ( const ifOptionSet* Options )
 
 	if ( Axioms.initAbsorptionFlags(Options->getText("absorptionFlags"))
 		 || !Axioms.isAbsorptionFlagsCorrect(useRangeDomain) )
-		error ( "Incorrect absorption flags given" );
+		throw EFaCTPlusPlus ( "Incorrect absorption flags given" );
 
 	verboseOutput = false;
 #undef addBoolOption

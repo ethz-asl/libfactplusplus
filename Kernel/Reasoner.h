@@ -20,7 +20,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #define _REASONER_H
 
 #include "globaldef.h"
-#include "comerror.h"
 #include "tBranchingContext.h"
 #include "dlCompletionGraph.h"
 #include "dlTBox.h"
@@ -766,8 +765,7 @@ public:
 	{
 		fpp_assert ( OptionSet != NULL );
 
-		if ( TODO.initPriorities ( OptionSet, "IAOEFLG" ) )
-			error ( "Wrong priority option given. Execution stopped." );
+		TODO.initPriorities ( OptionSet, "IAOEFLG" );
 	}
 		/// set blocking method for a session
 	void setBlockingMethod ( bool hasInverse, bool hasQCR ) { CGraph.setBlockingMethod ( hasInverse, hasQCR ); }

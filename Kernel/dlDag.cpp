@@ -18,7 +18,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "dlDag.h"
 
-#include "comerror.h"
 #include "logging.h"
 #include "tDataEntry.h"
 
@@ -71,7 +70,7 @@ void DLDag :: readConfig ( const ifOptionSet* Options )
 	orSortSub = Options->getText ( "orSortSub" ).c_str();
 
 	if ( !isCorrectOption(orSortSat) || !isCorrectOption(orSortSub) )
-		error ( "DAG: wrong OR sorting options" );
+		throw EFaCTPlusPlus ( "DAG: wrong OR sorting options" );
 }
 
 /// set defaults of OR orderings

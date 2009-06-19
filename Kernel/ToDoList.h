@@ -271,9 +271,9 @@ public:
 
 	// initialisation and global methods
 
-		/// init priorities via Options. @return true if couldn't.
-	bool initPriorities ( const ifOptionSet* Options, const char* optionName )
-		{ return Matrix.initPriorities ( Options->getText(optionName), optionName ); }
+		/// init priorities via Options
+	void initPriorities ( const ifOptionSet* Options, const char* optionName )
+		{ Matrix.initPriorities ( Options->getText(optionName), optionName ); }
 
 		/// clear TODO table
 	void clear ( void )

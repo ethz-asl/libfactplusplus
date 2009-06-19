@@ -23,7 +23,6 @@ Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 
 #include "procTimer.h"
 #include "parser.h"
-#include "comerror.h"
 #include "configure.h"
 #include "logging.h"
 
@@ -36,6 +35,12 @@ inline void Usage ( void )
 {
 	std::cerr << "\nUsage:\tFaCT++ <Conf file>  or\n\tFaCT++ -get-default-options\n\n";
 	exit (1);
+}
+
+inline void error ( const char* mes )
+{
+	std::cerr << mes << "\n";
+	exit(2);
 }
 
 inline void OutTime ( std::ostream& o )

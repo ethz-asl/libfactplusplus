@@ -19,6 +19,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef _PRIORITYMATRIX_H
 #define _PRIORITYMATRIX_H
 
+#include "eFaCTPlusPlus.h"
 #include "dlVertex.h"	// DagTag
 #include "logging.h"
 
@@ -47,17 +48,17 @@ public:		// interface
 		/// empty d'tor
 	~ToDoPriorMatrix ( void ) {}
 
-		/// init priorities via given string OPTIONS. @return true if couldn't.
-	bool initPriorities ( const std::string& options, const char* optionName );
+		/// init priorities via given string OPTIONS
+	void initPriorities ( const std::string& options, const char* optionName );
 		/// get an index corresponding given Op, Sign and NominalNode
 	unsigned int getIndex ( DagTag Op, bool Sign, bool NominalNode ) const;
 }; // ToDoPriorMatrix
 
-inline bool ToDoPriorMatrix :: initPriorities ( const std::string& options, const char* optionName )
+inline void ToDoPriorMatrix :: initPriorities ( const std::string& options, const char* optionName )
 {
 	// check for correctness
 	if ( options.size () < 7 )
-		return true;
+		throw EFaCTPlusPlus ( "ToDo List option string should have length 7" );
 
 	// init values by symbols loaded
 	iAnd	= options[1] - '0';
@@ -74,14 +75,11 @@ inline bool ToDoPriorMatrix :: initPriorities ( const std::string& options, cons
 		 iForall >= nRegularOps ||
 		 iGE >= nRegularOps ||
 		 iLE >= nRegularOps )
-		return true;
+		throw EFaCTPlusPlus ( "ToDo List option out of range" );
 
 	// inform about used rules order
 	if ( LLM.isWritable(llAlways) )
 		LL << "\nInit " << optionName << " = " << iAnd << iOr << iExists << iForall << iLE << iGE;
-
-	// all was inited OK
-	return false;
 }
 
 inline unsigned int ToDoPriorMatrix :: getIndex ( DagTag Op, bool Sign, bool NominalNode ) const
