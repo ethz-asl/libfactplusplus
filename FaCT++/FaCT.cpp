@@ -76,6 +76,7 @@ DLTree* getNextName ( TsScanner& sc, ReasoningKernel& Kernel )
 		{
 			ret = Kernel.ensureConceptName(sc.GetName());
 			Kernel.checkDefined(ret);
+			return ret;
 		}
 		catch ( EFPPCantRegName )
 		{
@@ -83,14 +84,13 @@ DLTree* getNextName ( TsScanner& sc, ReasoningKernel& Kernel )
 			{
 				ret = Kernel.ensureSingletonName(sc.GetName());
 				Kernel.checkDefined(ret);
+				return ret;
 			}
 			catch ( EFPPCantRegName )
 			{
 				std::cout << "Query name " << sc.GetName() << " is undefined in TBox\n";
 			}
 		}
-
-		return ret;
 	}
 }
 
