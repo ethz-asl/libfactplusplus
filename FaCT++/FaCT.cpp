@@ -71,16 +71,26 @@ DLTree* getNextName ( TsScanner& sc, ReasoningKernel& Kernel )
 
 		if ( t != ID )
 			return new DLTree(t);
+		DLTree* ret;
 		try
 		{
-			DLTree* ret = Kernel.ensureConceptName(sc.GetName());
+			ret = Kernel.ensureConceptName(sc.GetName());
 			Kernel.checkDefined(ret);
-			return ret;
 		}
 		catch ( EFPPCantRegName )
 		{
-			std::cout << "Query name " << sc.GetName() << " is undefined in TBox\n";
+			try
+			{
+				ret = Kernel.ensureSingletonName(sc.GetName());
+				Kernel.checkDefined(ret);
+			}
+			catch ( EFPPCantRegName )
+			{
+				std::cout << "Query name " << sc.GetName() << " is undefined in TBox\n";
+			}
 		}
+
+		return ret;
 	}
 }
 
