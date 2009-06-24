@@ -913,9 +913,8 @@ tacticUsage DlSatTester :: commonTacticBodyFunc ( const DLVertex& cur )	// for <
 		return utClash;
 
 	// locate all R-neighbours of curNode
-	EdgeVector EdgesToMerge;
 	DepSet dummy;	// not used
-	findNeighbours ( EdgesToMerge, cur.getRole(), bpTOP, dummy );
+	findNeighbours ( cur.getRole(), bpTOP, dummy );
 
 	// check if we have nodes to merge
 	if ( EdgesToMerge.size() < 2 )
@@ -980,18 +979,18 @@ tacticUsage DlSatTester :: commonTacticBodyLE ( const DLVertex& cur )	// for <=n
 	{
 		if ( isFirstBranchCall() )
 		{
+			DepSet dep;
+			// check the amount of neighbours we have
+			findNeighbours ( cur.getRole(), C, dep );
+
+			// if the number of R-neighbours satisfies condition -- nothing to do
+			if ( EdgesToMerge.size() <= cur.getNumberLE() )
+				return ret;
+
 			// init context
 			initBC(btLE);
-
-			// check the amount of neighbours we have
-			findNeighbours ( bContext->EdgesToMerge, cur.getRole(), C, bContext->branchDep );
-
-			// if the number of R-heighs satisfies condition -- nothing to do
-			if ( bContext->notApplicableLE(cur.getNumberLE()) )
-			{
-				determiniseBranchingOp();
-				return ret;
-			}
+			bContext->EdgesToMerge.swap(EdgesToMerge);
+			bContext->branchDep += dep;
 
 			// setup mergeCandIndex
 			bContext->resetMCI();
@@ -1276,7 +1275,7 @@ bool isNewEdge ( const DlCompletionTree* node, Iterator begin, Iterator end )
 	return true;
 }
 
-void DlSatTester :: findNeighbours ( EdgeVector& EdgesToMerge, const TRole* Role, BipolarPointer C, DepSet& Dep )
+void DlSatTester :: findNeighbours ( const TRole* Role, BipolarPointer C, DepSet& Dep )
 {
 	EdgesToMerge.clear();
 

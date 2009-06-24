@@ -119,8 +119,6 @@ public:		// interface
 	bool noMoreLEOptions ( void ) const { return mergeCandIndex <= branchIndex; }
 		/// check if the NN has no option to process
 	bool noMoreNNOptions ( unsigned int n ) const { return branchIndex > n; }
-		/// check if the LE is not applicable
-	bool notApplicableLE ( unsigned int n ) const { return EdgesToMerge.size() <= n; }
 		/// 1st element of OrIndex
 	or_iterator orBeg ( void ) const { return applicableOrEntries.begin(); }
 		/// current element of OrIndex

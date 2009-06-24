@@ -226,6 +226,8 @@ protected:	// members
 		/// size of the DAG with some extra space
 	size_t dagSize;
 
+		/// temporary array used in <= operations
+	EdgeVector EdgesToMerge;
 		/// contains clash set if clash is encountered in a node label
 	DepSet clashSet;
 
@@ -553,7 +555,7 @@ protected:	// methods
 			fpp_unreachable();
 	}
 		/// aux method which fills EdgesToMerge with *different* ROLE-neighbours of curNode
-	void findNeighbours ( EdgeVector& EdgesToMerge, const TRole* Role, BipolarPointer C, DepSet& Dep );
+	void findNeighbours ( const TRole* Role, BipolarPointer C, DepSet& Dep );
 		/// aux method that checks whether clash occurs during the merge of labels
 	bool checkMergeClash ( const CGLabel& from, const CGLabel& to, const DepSet& dep, unsigned int nodeId );
 		/// aux method that merge FROM label to the TO node with an appropriadte dep-set
