@@ -226,6 +226,8 @@ protected:	// members
 		/// size of the DAG with some extra space
 	size_t dagSize;
 
+		/// temporary array used in OR operation
+	BranchingContext::OrIndex OrConceptsToTest;
 		/// temporary array used in <= operations
 	EdgeVector EdgesToMerge;
 		/// contains clash set if clash is encountered in a node label
@@ -496,7 +498,7 @@ protected:	// methods
 	// support for disjunction
 
 		/// Aux method for locating OR node characteristics; @return true if node is labelled by one of DJs
-	bool planOrProcessing ( const DLVertex& cur );
+	bool planOrProcessing ( const DLVertex& cur, DepSet& dep );
 		/// aux method for disjunction processing
 	tacticUsage processOrEntry ( void );
 

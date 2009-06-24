@@ -278,48 +278,56 @@ tacticUsage DlSatTester :: commonTacticBodyOr ( const DLVertex& cur )	// for C \
 
 	if ( isFirstBranchCall() )	// check the structure of OR operation (number of applicable concepts)
 	{
-		initBC(btOr);
-		if ( planOrProcessing(cur) )
+		DepSet dep;
+		if ( planOrProcessing ( cur, dep ) )
 		{	// found existing component
 			if ( LLM.isWritable(llGTA) )
-				LL << " E(" << *bContext->orBeg() << ")";
-
-			// we create extra (useless) BC; now we shall get rid of it
-			determiniseBranchingOp();
+				LL << " E(" << OrConceptsToTest.back() << ")";
 			return utUnusable;
 		}
-		if ( bContext->applicableOrEntries.empty() )
+		if ( OrConceptsToTest.empty() )
 		{	// no more applicable concepts:
-			// set global dep-set using accumulated deps in branchDep
-			setClashSet(getBranchDep());
+			// set global dep-set using accumulated deps
+			setClashSet(dep);
 			return utClash;
 		}
+			// not a branching: just add a single concept
+		if ( OrConceptsToTest.size() == 1 )
+		{
+			BipolarPointer C = OrConceptsToTest.back();
+			return insertToDoEntry ( curNode, C, dep, DLHeap[C].Type(), "bcp" );
+		}
+
+		// more than one alternative: use branching context
+		initBC(btOr);
+		bContext->applicableOrEntries.swap(OrConceptsToTest);
+		bContext->branchDep = dep;
 	}
 
 	// now it is OR case with 1 or more applicable concepts
 	return processOrEntry();
 }
 
-bool DlSatTester :: planOrProcessing ( const DLVertex& cur )
+bool DlSatTester :: planOrProcessing ( const DLVertex& cur, DepSet& dep )
 {
-	BranchingContext::OrIndex& indexVec = bContext->applicableOrEntries;
-	indexVec.clear();
+	OrConceptsToTest.clear();
+	dep = curConcept.getDep();
 
 	// check all OR components for the clash
 	const CGLabel& lab = curNode->label();
-	const DepSet dep;
+	const DepSet dummy;
 	for ( DLVertex::const_iterator q = cur.begin(), q_end = cur.end(); q < q_end; ++q )
-		switch ( tryAddConcept ( lab.getLabel(DLHeap[*q].Type()), inverse(*q), dep ) )
+		switch ( tryAddConcept ( lab.getLabel(DLHeap[*q].Type()), inverse(*q), dummy ) )
 		{
 		case acrClash:	// clash found -- OK
-			updateBranchDep();
+			dep.add(getClashSet());
 			continue;
 		case acrExist:	// already have such concept -- save it to the 1st position
-			indexVec.resize(1);
-			indexVec[0] = inverse(*q);
+			OrConceptsToTest.resize(1);
+			OrConceptsToTest[0] = inverse(*q);
 			return true;
 		case acrDone:
-			indexVec.push_back(inverse(*q));
+			OrConceptsToTest.push_back(inverse(*q));
 			continue;
 		default:		// safety check
 			fpp_unreachable();
