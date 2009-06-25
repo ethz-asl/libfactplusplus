@@ -99,8 +99,14 @@ DlSatTester :: prepareReasoner ( void )
 			LL << "\nInitNominalReasoner:";
 
 		restore(1);
-		// here a branching op should be expanded. Make a barrier
-		bContext->init(bContext->tag);
+
+		// check whether branching op is not a barrier...
+		if ( bContext->tag != btBarrier )
+		{	// replace it with a barrier
+			Stack.pop();
+			initBC(btBarrier);
+		}
+		// save the barrier (also remember the entry to be produced)
 		save();
 	}
 	else
