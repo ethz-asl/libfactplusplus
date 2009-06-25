@@ -136,6 +136,65 @@ protected:	// types
 		/// possible flags of re-checking ALL-like expressions in new nodes
 	enum { redoForall = 1, redoFunc = 2, redoAtMost = 4, redoIrr = 8 };
 
+protected:	// classes
+		/// stack to keep BranchingContext
+	class BCStack: public TSaveStack<BranchingContext>
+	{
+	protected:	// members
+			/// pool for general contexts
+		DeletelessAllocator<BranchingContext> PoolBC;
+			/// single entry for the barrier (good for nominal reasoner)
+		BranchingContext* BCBarrier;
+
+	protected:	// methods
+			/// specialise new method as the one doing nothing
+		virtual BranchingContext* createNew ( void ) { return NULL; }
+			/// get BC corresponding to a tag
+		BranchingContext* getBC ( BranchingTag tag )
+		{
+			switch ( tag )
+			{
+			case btBarrier: return BCBarrier;
+			default:	// choose-rule; any other branching rule
+				return PoolBC.get();
+			}
+		}
+
+	public:		// interface
+			/// empty c'tor 
+			// FIXME!! we'll lost the default 8 elements made by the c'tor of growingArrayP
+		BCStack ( void ) : BCBarrier(new BranchingContext) {}
+			/// empty d'tor
+		virtual ~BCStack ( void )
+		{
+			// all the members will be deleted in the resp. pools
+			for ( iterator p = this->Base.begin(), p_end = this->Base.end(); p < p_end; ++p )
+				*p = NULL;
+			delete BCBarrier;
+		}
+
+			/// push method to use
+		BranchingContext* push ( BranchingTag tag )
+		{
+			BranchingContext* p = getBC(tag);
+			p->init(tag);
+			TSaveStack<BranchingContext>::push();
+			this->Base[this->last-1] = p;
+			return p;
+		}
+			/// clear all the pools
+		void clearPools ( void )
+		{
+			PoolBC.clear();
+		}
+			/// clear the stack and pools
+		virtual void clear ( void )
+		{
+			clearPools();
+			TSaveStack<BranchingContext>::clear();
+		}
+	}; // BCStack
+
 protected:	// members
 		/// host TBox
 	TBox& tBox;
@@ -166,7 +225,7 @@ protected:	// members
 	// save/restore option
 
 		/// stack for the local reasoner's state
-	TSaveStack<BranchingContext> Stack;
+	BCStack Stack;
 		/// context from the restored branching rule
 	BranchingContext* bContext;
 		/// index of last non-det situation
@@ -488,9 +547,8 @@ protected:	// methods
 		/// init branching context with given rule type
 	void initBC ( BranchingTag tag )
 	{
-		bContext = Stack.push();
+		bContext = Stack.push(tag);
 		bContext->branchDep = curConcept.getDep();
-		bContext->init(tag);
 	}
 		/// clear branching context
 	void clearBC ( void ) { bContext = NULL; }

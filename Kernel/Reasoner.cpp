@@ -108,6 +108,8 @@ DlSatTester :: prepareReasoner ( void )
 		}
 		// save the barrier (also remember the entry to be produced)
 		save();
+		// free the memory used in the pools before
+		Stack.clearPools();
 	}
 	else
 	{
