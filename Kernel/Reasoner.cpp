@@ -101,7 +101,7 @@ DlSatTester :: prepareReasoner ( void )
 		restore(1);
 
 		// check whether branching op is not a barrier...
-		if ( bContext->tag != btBarrier )
+		if ( dynamic_cast<BCBarrier*>(bContext) == NULL )
 		{	// replace it with a barrier
 			Stack.pop();
 			initBC(btBarrier);

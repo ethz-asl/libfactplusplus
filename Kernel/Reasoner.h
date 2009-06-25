@@ -137,14 +137,20 @@ protected:	// types
 	enum { redoForall = 1, redoFunc = 2, redoAtMost = 4, redoIrr = 8 };
 
 protected:	// classes
-		/// stack to keep BranchingContext
+	/// stack to keep BContext
 	class BCStack: public TSaveStack<BranchingContext>
 	{
 	protected:	// members
-			/// pool for general contexts
-		DeletelessAllocator<BranchingContext> PoolBC;
+			/// pool for OR contexts
+		DeletelessAllocator<BCOr> PoolOr;
+			/// pool for NN contexts
+		DeletelessAllocator<BCNN> PoolNN;
+			/// pool for LE contexts
+		DeletelessAllocator<BCLE> PoolLE;
+			/// pool for Choose contexts
+		DeletelessAllocator<BCChoose> PoolCh;
 			/// single entry for the barrier (good for nominal reasoner)
-		BranchingContext* BCBarrier;
+		BCBarrier* bcBarrier;
 
 	protected:	// methods
 			/// specialise new method as the one doing nothing
@@ -154,30 +160,34 @@ protected:	// classes
 		{
 			switch ( tag )
 			{
-			case btBarrier: return BCBarrier;
-			default:	// choose-rule; any other branching rule
-				return PoolBC.get();
+			case btOr: return PoolOr.get();
+			case btNN: return PoolNN.get();
+			case btLE: return PoolLE.get();
+			case btChoose: return PoolCh.get();
+			case btBarrier: return bcBarrier;
+			default:	// protection from the new rules
+				fpp_unreachable();
 			}
 		}
 
 	public:		// interface
-			/// empty c'tor 
+			/// empty c'tor
 			// FIXME!! we'll lost the default 8 elements made by the c'tor of growingArrayP
-		BCStack ( void ) : BCBarrier(new BranchingContext) {}
+		BCStack ( void ) : bcBarrier(new BCBarrier) {}
 			/// empty d'tor
 		virtual ~BCStack ( void )
 		{
 			// all the members will be deleted in the resp. pools
 			for ( iterator p = this->Base.begin(), p_end = this->Base.end(); p < p_end; ++p )
 				*p = NULL;
-			delete BCBarrier;
+			delete bcBarrier;
 		}
 
 			/// push method to use
 		BranchingContext* push ( BranchingTag tag )
 		{
 			BranchingContext* p = getBC(tag);
-			p->init(tag);
+			p->init();
 			TSaveStack<BranchingContext>::push();
 			this->Base[this->last-1] = p;
 			return p;
@@ -185,7 +195,10 @@ protected:	// classes
 			/// clear all the pools
 		void clearPools ( void )
 		{
-			PoolBC.clear();
+			PoolOr.clear();
+			PoolNN.clear();
+			PoolLE.clear();
+			PoolCh.clear();
 		}
 			/// clear the stack and pools
 		virtual void clear ( void )
@@ -286,7 +299,7 @@ protected:	// members
 	size_t dagSize;
 
 		/// temporary array used in OR operation
-	BranchingContext::OrIndex OrConceptsToTest;
+	BCOr::OrIndex OrConceptsToTest;
 		/// temporary array used in <= operations
 	EdgeVector EdgesToMerge;
 		/// contains clash set if clash is encountered in a node label

@@ -300,8 +300,8 @@ tacticUsage DlSatTester :: commonTacticBodyOr ( const DLVertex& cur )	// for C \
 
 		// more than one alternative: use branching context
 		initBC(btOr);
-		bContext->applicableOrEntries.swap(OrConceptsToTest);
 		bContext->branchDep = dep;
+		static_cast<BCOr*>(bContext)->applicableOrEntries.swap(OrConceptsToTest);
 	}
 
 	// now it is OR case with 1 or more applicable concepts
@@ -339,12 +339,13 @@ bool DlSatTester :: planOrProcessing ( const DLVertex& cur, DepSet& dep )
 tacticUsage DlSatTester :: processOrEntry ( void )
 {
 	// save the context here as after save() it would be lost
-	BranchingContext::or_iterator p = bContext->orBeg(), p_end = bContext->orCur();
+	const BCOr* bcOr = static_cast<BCOr*>(bContext);
+	BCOr::or_iterator p = bcOr->orBeg(), p_end = bcOr->orCur();
 	BipolarPointer C = *p_end;
 	const char* reason = NULL;
 	DepSet dep;
 
-	if ( bContext->isLastOrEntry() )
+	if ( bcOr->isLastOrEntry() )
 	{
 		// cumulative dep-set will be used
 		prepareBranchDep();
@@ -957,14 +958,22 @@ tacticUsage DlSatTester :: commonTacticBodyLE ( const DLVertex& cur )	// for <=n
 
 	tacticUsage ret = utUnusable;
 
+	BCLE* bcLE = NULL;
+
 	if ( !isFirstBranchCall() )
-		switch ( bContext->tag )
-		{
-		case btChoose:	break;			// clash in choose-rule: redo all
-		case btNN:		goto applyNN;	// clash in NN-rule: skip choose-rule
-		case btLE:		goto applyLE;	// clash in LE-rule: skip all the rest
-		default:	fpp_unreachable();	// no way to reach here
-		}
+	{
+		if ( dynamic_cast<BCChoose*>(bContext) != NULL )
+			goto applyCh;	// clash in choose-rule: redo all
+		if ( dynamic_cast<BCNN*>(bContext) != NULL )
+			goto applyNN;	// clash in NN-rule: skip choose-rule
+		if ( dynamic_cast<BCLE*>(bContext) != NULL )
+			goto applyLE;	// clash in LE-rule: skip all the rest
+
+		// only these three cases can be here
+		fpp_unreachable();
+	}
+
+applyCh:
 
 	// check if we have Qualified NR
 	if ( C != bpTOP )
@@ -973,7 +982,7 @@ tacticUsage DlSatTester :: commonTacticBodyLE ( const DLVertex& cur )	// for <=n
 	// check whether we need to apply NN rule first
 	if ( isNNApplicable ( cur.getRole(), C ) )
 	{
-	applyNN:
+applyNN:
 		return commonTacticBodyNN(cur);	// after application <=-rule would be checked again
 	}
 
@@ -997,24 +1006,28 @@ tacticUsage DlSatTester :: commonTacticBodyLE ( const DLVertex& cur )	// for <=n
 
 			// init context
 			initBC(btLE);
-			bContext->EdgesToMerge.swap(EdgesToMerge);
 			bContext->branchDep += dep;
 
-			// setup mergeCandIndex
-			bContext->resetMCI();
+			// setup BCLE
+			bcLE = static_cast<BCLE*>(bContext);
+
+			bcLE->EdgesToMerge.swap(EdgesToMerge);
+			bcLE->resetMCI();
 		}
 
 applyLE:	// skip init, because here we are after restoring
 
-		if ( bContext->noMoreLEOptions() )
+		bcLE = static_cast<BCLE*>(bContext);
+
+		if ( bcLE->noMoreLEOptions() )
 		{	// set global clashset to cummulative one from previous branch failures
 			useBranchDep();
 			return utClash;
 		}
 
 		// get from- and to-arcs using corresponding indexes in Edges
-		DlCompletionTreeArc* from = bContext->getFrom();
-		DlCompletionTreeArc* to = bContext->getTo();
+		DlCompletionTreeArc* from = bcLE->getFrom();
+		DlCompletionTreeArc* to = bcLE->getTo();
 
 		DepSet dep;	// empty dep-set
 		// fast check for from->end() and to->end() are in \neq
@@ -1368,15 +1381,17 @@ tacticUsage DlSatTester :: commonTacticBodyNN ( const DLVertex& cur )	// NN-rule
 	if ( isFirstBranchCall() )
 		initBC(btNN);
 
+	const BCNN* bcNN = static_cast<BCNN*>(bContext);
+
 	// check whether we did all possible tries
-	if ( bContext->noMoreNNOptions(cur.getNumberLE()) )
+	if ( bcNN->noMoreNNOptions(cur.getNumberLE()) )
 	{	// set global clashset to cummulative one from previous branch failures
 		useBranchDep();
 		return utClash;
 	}
 
 	// take next NN number; save it as SAVE() will reset it to 0
-	unsigned int NN = bContext->branchIndex;
+	unsigned int NN = bcNN->branchIndex;
 
 	tacticUsage ret = utDone;	// we WILL create several entries
 
