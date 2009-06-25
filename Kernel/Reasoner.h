@@ -155,19 +155,13 @@ protected:	// classes
 	protected:	// methods
 			/// specialise new method as the one doing nothing
 		virtual BranchingContext* createNew ( void ) { return NULL; }
-			/// get BC corresponding to a tag
-		BranchingContext* getBC ( BranchingTag tag )
+			/// push method to use
+		BranchingContext* push ( BranchingContext* p )
 		{
-			switch ( tag )
-			{
-			case btOr: return PoolOr.get();
-			case btNN: return PoolNN.get();
-			case btLE: return PoolLE.get();
-			case btChoose: return PoolCh.get();
-			case btBarrier: return bcBarrier;
-			default:	// protection from the new rules
-				fpp_unreachable();
-			}
+			p->init();
+			TSaveStack<BranchingContext>::push();
+			this->Base[this->last-1] = p;
+			return p;
 		}
 
 	public:		// interface
@@ -183,15 +177,19 @@ protected:	// classes
 			delete bcBarrier;
 		}
 
-			/// push method to use
-		BranchingContext* push ( BranchingTag tag )
-		{
-			BranchingContext* p = getBC(tag);
-			p->init();
-			TSaveStack<BranchingContext>::push();
-			this->Base[this->last-1] = p;
-			return p;
-		}
+		// push methods
+
+			/// get BC for Or-rule
+		BranchingContext* pushOr ( void ) { return push(PoolOr.get()); }
+			/// get BC for NN-rule
+		BranchingContext* pushNN ( void ) { return push(PoolNN.get()); }
+			/// get BC for LE-rule
+		BranchingContext* pushLE ( void ) { return push(PoolLE.get()); }
+			/// get BC for Choose-rule
+		BranchingContext* pushCh ( void ) { return push(PoolCh.get()); }
+			/// get BC for the barrier
+		BranchingContext* pushBarrier ( void ) { return push(bcBarrier); }
+
 			/// clear all the pools
 		void clearPools ( void )
 		{
@@ -558,13 +556,28 @@ protected:	// methods
 		/// check if branching rule was called for the 1st time
 	bool isFirstBranchCall ( void ) const { return bContext == NULL; }
 		/// init branching context with given rule type
-	void initBC ( BranchingTag tag )
+	void initBC ( void )
 	{
-		bContext = Stack.push(tag);
+		// save reasoning context
+		bContext->curNode = curNode;
+		bContext->curConcept = curConcept;
 		bContext->branchDep = curConcept.getDep();
+		bContext->pUsedIndex = pUsed.size();
+		bContext->nUsedIndex = nUsed.size();
 	}
 		/// clear branching context
 	void clearBC ( void ) { bContext = NULL; }
+
+		/// create BC for Or rule
+	void createBCOr ( void ) { bContext = Stack.pushOr(); initBC(); }
+		/// create BC for NN-rule
+	void createBCNN ( void ) { bContext = Stack.pushNN(); initBC(); }
+		/// create BC for LE-rule
+	void createBCLE ( void ) { bContext = Stack.pushLE(); initBC(); }
+		/// create BC for Choose-rule
+	void createBCCh ( void ) { bContext = Stack.pushCh(); initBC(); }
+		/// create BC for the barrier
+	void createBCBarrier ( void ) { bContext = Stack.pushBarrier(); initBC(); }
 
 	// support for disjunction
 
@@ -737,8 +750,6 @@ protected:	// methods
 
 	// save/restore methods
 
-		/// save local state to current branching context
-	void saveBC ( void );
 		/// restore local state from current branching context
 	void restoreBC ( void );
 		/// use this method in ALL dependency stuff (never use tryLevel directly)

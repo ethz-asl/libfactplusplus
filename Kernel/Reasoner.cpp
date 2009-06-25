@@ -104,7 +104,7 @@ DlSatTester :: prepareReasoner ( void )
 		if ( dynamic_cast<BCBarrier*>(bContext) == NULL )
 		{	// replace it with a barrier
 			Stack.pop();
-			initBC(btBarrier);
+			createBCBarrier();
 		}
 		// save the barrier (also remember the entry to be produced)
 		save();
@@ -500,7 +500,7 @@ DlSatTester :: consistentNominalCloud ( void )
 		if ( LLM.isWritable(llSRState) )
 			LL << "InitNominalReasoner[";
 		curNode = NULL;
-		initBC(btBarrier);
+		createBCBarrier();
 		save();
 		nonDetShift = 1;	// the barrier doesn't introduce branching itself
 		if ( LLM.isWritable(llSRState) )
@@ -832,15 +832,6 @@ bool DlSatTester :: checkSatisfiability ( void )
   *
   ******************************************************************************/
 
-	/// save local state to BContext
-void DlSatTester :: saveBC ( void )
-{
-	// save reasoning context
-	bContext->curNode = curNode;
-	bContext->curConcept = curConcept;
-	bContext->pUsedIndex = pUsed.size();
-	bContext->nUsedIndex = nUsed.size();
-}
 	/// restore local state from BContext
 void DlSatTester :: restoreBC ( void )
 {
@@ -857,9 +848,6 @@ void DlSatTester :: restoreBC ( void )
 
 void DlSatTester :: save ( void )
 {
-	// save local vars
-	saveBC();
-
 	// save tree
 	CGraph.save();
 

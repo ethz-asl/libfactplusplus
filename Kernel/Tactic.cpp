@@ -299,7 +299,7 @@ tacticUsage DlSatTester :: commonTacticBodyOr ( const DLVertex& cur )	// for C \
 		}
 
 		// more than one alternative: use branching context
-		initBC(btOr);
+		createBCOr();
 		bContext->branchDep = dep;
 		static_cast<BCOr*>(bContext)->applicableOrEntries.swap(OrConceptsToTest);
 	}
@@ -1005,7 +1005,7 @@ applyNN:
 				return ret;
 
 			// init context
-			initBC(btLE);
+			createBCLE();
 			bContext->branchDep += dep;
 
 			// setup BCLE
@@ -1354,7 +1354,7 @@ tacticUsage DlSatTester :: applyChooseRule ( DlCompletionTree* node, BipolarPoin
 	// now node will be labelled with ~C or C
 	if ( isFirstBranchCall() )
 	{
-		initBC(btChoose);
+		createBCCh();
 		// save current state
 		save();
 
@@ -1379,7 +1379,7 @@ tacticUsage DlSatTester :: commonTacticBodyNN ( const DLVertex& cur )	// NN-rule
 	nNNCalls.inc();
 
 	if ( isFirstBranchCall() )
-		initBC(btNN);
+		createBCNN();
 
 	const BCNN* bcNN = static_cast<BCNN*>(bContext);
 

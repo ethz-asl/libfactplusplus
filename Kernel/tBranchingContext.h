@@ -21,16 +21,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "dlCompletionTree.h"
 
-/// reason of the branching
-enum BranchingTag
-{
-	btOr,		// branching because of disjunction
-	btLE,		// brunching because of <=-rule application
-	btChoose,	// branching because of choose-rule
-	btNN,		// brunching because of NN-rule
-	btBarrier,	// not a real branching, just to remember a state
-};
-
 	/// class for saving branching context of a Reasoner
 class BranchingContext
 {
