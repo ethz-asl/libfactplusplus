@@ -40,7 +40,8 @@ enum Token {
 	NOT,
 	INV,
 	RCOMPOSITION,	// role composition
-	PROJECTION,		// role projection
+	PROJINTO,		// role projection into
+	PROJFROM,		// role projection from
 
 	TOP,
 	BOTTOM,

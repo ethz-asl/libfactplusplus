@@ -490,11 +490,19 @@ DLTree* DLLispParser :: getRoleExpression ( bool allowComplex )
 		goto end;
 	}
 
-	if ( keyword == PROJECTION )	// role projection operator, parse simple role and concept
+	if ( keyword == PROJINTO )	// role projection operator, parse simple role and concept
 	{
 		NextLex();	// skip PROJECTION
 		ret = getRoleExpression(/*allowComplex=*/false);
-		ret = Kernel->Project ( ret, processConceptTree() );
+		ret = Kernel->ProjectInto ( ret, processConceptTree() );
+		goto end;
+	}
+
+	if ( keyword == PROJFROM )	// role projection operator, parse simple role and concept
+	{
+		NextLex();	// skip PROJECTION
+		ret = getRoleExpression(/*allowComplex=*/false);
+		ret = Kernel->ProjectFrom ( ret, processConceptTree() );
 		goto end;
 	}
 

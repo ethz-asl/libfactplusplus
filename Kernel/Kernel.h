@@ -479,8 +479,10 @@ public:
 	ComplexRole Compose ( ComplexRole R, ComplexRole S ) const { return new DLTree ( TLexeme(RCOMPOSITION), R, S ); }
 		/// @return R1*...*Rn
 	ComplexRole Compose ( void ) { return getTBox()->processRComposition(NAryQueue.getLastArgList()); }
-		/// @return R|C
-	ComplexRole Project ( ComplexRole R, ComplexConcept C ) const { return new DLTree ( TLexeme(PROJECTION), R, C ); }
+		/// @return project R into C
+	ComplexRole ProjectInto ( ComplexRole R, ComplexConcept C ) const { return new DLTree ( TLexeme(PROJINTO), R, C ); }
+		/// @return project R from C
+	ComplexRole ProjectFrom ( ComplexRole R, ComplexConcept C ) const { return new DLTree ( TLexeme(PROJFROM), R, C ); }
 
 	//----------------------------------------------------
 	//	TELLS interface

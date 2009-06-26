@@ -40,7 +40,9 @@ void RoleMaster :: addRoleParent ( const DLTree* tree, TRole* parent )
 		parent->inverse()->addComposition(inv);
 		deleteTree(inv);
 	}
-	else if ( tree->Element() == PROJECTION )
+	else if ( tree->Element() == PROJINTO )
+		;	// nothing to do for now
+	else if ( tree->Element() == PROJFROM )
 		;	// nothing to do for now
 	else
 		addRoleParent ( resolveRole(tree), parent );
