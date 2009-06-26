@@ -80,8 +80,8 @@ protected:	// methods
 
 #undef CatchNameEx
 
-		/// get role expression, ie role, role's inverse or (if ALLOWCHAIN) role chain;
-	DLTree* getRoleExpression ( bool allowChain );
+		/// get role expression, ie role, role's inverse or (if allowComplex) complex role expression
+	DLTree* getRoleExpression ( bool allowComplex );
 		/// parse simple DL command
 	void parseCommand ( void );
 		/// parse role arguments if defprimrole command

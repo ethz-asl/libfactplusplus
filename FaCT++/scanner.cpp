@@ -165,6 +165,9 @@ Token TsScanner :: getExpressionKeyword ( void ) const
 	if ( isKeyword ("inv") || isKeyword ("inverse") )
 		return INV;
 
+	if ( isKeyword ("compose") )
+		return RCOMPOSITION;
+
 	if ( isKeyword ("some") )
 		return EXISTS;
 
