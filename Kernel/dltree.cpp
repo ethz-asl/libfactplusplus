@@ -248,6 +248,7 @@ const char* TokenName ( Token t )
 	case GE:	return "at-least";
 	case LE:	return "at-most";
 	case REFLEXIVE: return "self-ref";
+	case PROJECTION: return "project";
 	default:
 		std::cerr << "token " << t << "has no name";
 					fpp_unreachable();
@@ -283,6 +284,7 @@ std::ostream& operator << ( std::ostream& o, const DLTree *form )
 	case OR:
 	case EXISTS:
 	case FORALL:
+	case PROJECTION:
 		o << " (" << TokenName (lex.getToken()) << form->Left() << form->Right() << ')';
 		break;
 

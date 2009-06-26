@@ -168,6 +168,9 @@ Token TsScanner :: getExpressionKeyword ( void ) const
 	if ( isKeyword ("compose") )
 		return RCOMPOSITION;
 
+	if ( isKeyword ("project") )
+		return PROJECTION;
+
 	if ( isKeyword ("some") )
 		return EXISTS;
 

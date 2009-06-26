@@ -31,13 +31,17 @@ DLTree* inverseComposition ( const DLTree* tree )
 
 void RoleMaster :: addRoleParent ( const DLTree* tree, TRole* parent )
 {
-	if ( tree && tree->Element() == RCOMPOSITION )
+	if ( !tree )	// nothing to do
+		return;
+	if ( tree->Element() == RCOMPOSITION )
 	{
 		parent->addComposition(tree);
 		DLTree* inv = inverseComposition(tree);
 		parent->inverse()->addComposition(inv);
 		deleteTree(inv);
 	}
+	else if ( tree->Element() == PROJECTION )
+		;	// nothing to do for now
 	else
 		addRoleParent ( resolveRole(tree), parent );
 }
