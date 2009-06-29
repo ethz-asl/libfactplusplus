@@ -28,15 +28,15 @@ struct ToDoEntry
 {
 		/// node to include concept
 	DlCompletionTree* Node;
-		/// index of included concept in Node's label
+		/// offset of included concept in Node's label
 		// (it's not possible to use pointers because
 		// std::vector invalidates them)
-	int index;
+	unsigned int offset;
 
 		/// empty C'tor
-	ToDoEntry ( void ) : Node (NULL), index (0) {}	// for initialisation
+	ToDoEntry ( void ) : Node(NULL), offset(0) {}	// for initialisation
 		/// C'tor (init values)
-	ToDoEntry ( DlCompletionTree* n, int i ) : Node(n), index(i) {}
+	ToDoEntry ( DlCompletionTree* n, unsigned int off ) : Node(n), offset(off) {}
 }; // ToDoEntry
 
 /// All-in-one version of arrayToDoTable
@@ -80,7 +80,7 @@ protected:	// classes
 		~arrayQueue ( void ) {}
 
 			/// add entry to a queue
-		void add ( const ToDoEntry& e ) { Wait.add(e); }
+		void add ( DlCompletionTree* node, unsigned int offset ) { Wait.add(ToDoEntry(node,offset)); }
 			/// clear queue
 		void clear ( void ) { sPointer = 0; Wait.clear(); }
 			/// check if queue empty
@@ -142,19 +142,20 @@ protected:	// classes
 		~queueQueue ( void ) {}
 
 			/// add entry to a queue
-		void add ( const ToDoEntry& e )
+		void add ( DlCompletionTree* Node, unsigned int offset )
 		{
 			if ( empty() ||	// no problems with empty queue and if no priority clashes
-				 Wait[Wait.size()-1].Node->getNominalLevel() <= e.Node->getNominalLevel() )
+				 Wait[Wait.size()-1].Node->getNominalLevel() <= Node->getNominalLevel() )
 			{
-				Wait.add(e);
+				Wait.add(ToDoEntry(Node,offset));
 				return;
 			}
 
 			// here we need to put e on the proper place
 			unsigned int n = Wait.size();
+			ToDoEntry e(Node,offset);
 			Wait.add(e);	// will be rewritten
-			while ( n > sPointer && Wait[n-1].Node->getNominalLevel() > e.Node->getNominalLevel() )
+			while ( n > sPointer && Wait[n-1].Node->getNominalLevel() > Node->getNominalLevel() )
 			{
 				Wait[n] = Wait[n-1];
 				--n;
@@ -300,11 +301,11 @@ public:
 		case nRegularOps:	// unused entry
 			return;
 		case iId:			// ID
-			queueID.add(ToDoEntry(node,offset)); break;
+			queueID.add(node,offset); break;
 		case iNN:			// NN
-			queueNN.add(ToDoEntry(node,offset)); break;
+			queueNN.add(node,offset); break;
 		default:			// regular queue
-			Wait[index].add(ToDoEntry(node,offset)); break;
+			Wait[index].add(node,offset); break;
 		}
 		++noe;
 	}

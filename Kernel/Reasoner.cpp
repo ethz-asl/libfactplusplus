@@ -806,7 +806,7 @@ bool DlSatTester :: checkSatisfiability ( void )
 
 			// setup current context
 			curNode = curTDE->Node;
-			curConcept = curNode->label().getConcept(curTDE->index);
+			curConcept = curNode->label().getConcept(curTDE->offset);
 		}
 
 		if ( ++loop == 1000 )
