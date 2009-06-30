@@ -143,6 +143,10 @@ tacticUsage DlSatTester :: commonTacticBody ( const DLVertex& cur )
 		else
 			return commonTacticBodyLE(cur);
 
+	case dtProj:
+		fpp_assert ( isPositive (curConcept.bp()) );
+		return commonTacticBodyProj ( cur.getRole(), cur.getC(), cur.getProjRole() );
+
 	default:
 		fpp_unreachable();
 		return utUnusable;
@@ -795,7 +799,7 @@ DlSatTester :: setupEdge ( DlCompletionTreeArc* pA, const DepSet& dep, unsigned 
 	// check if we have any AR.X concepts in current node
 	switchResult ( ret, applyUniversalNR ( from, pA, dep, flags ) );
 
-	// for nominal children and loops -- just apply things for the inverces
+	// for nominal children and loops -- just apply things for the inverses
 	if ( child->isNominalNode() || child == from )
 		switchResult ( ret, applyUniversalNR ( child, pA->getReverse(), dep, flags ) );
 	else
@@ -1488,3 +1492,75 @@ tacticUsage DlSatTester :: commonTacticBodyIrrefl ( const TRole* R )
 
 	return utDone;
 }
+
+//-------------------------------------------------------------------------------
+//	Support for projection R\C -> P
+//-------------------------------------------------------------------------------
+
+tacticUsage DlSatTester :: commonTacticBodyProj ( const TRole* R, BipolarPointer C, const TRole* ProjR )
+{
+	// find an R-edge, try to apply projection-rule to it
+	DlCompletionTree::const_edge_iterator p, p_end;
+	tacticUsage ret = utUnusable;
+
+	// if ~C is in the label of curNode, do nothing
+	if ( curNode->isLabelledBy(inverse(C)) )
+		return utUnusable;
+
+	for ( p = curNode->beginp(), p_end = curNode->endp(); p != p_end; ++p )
+		if ( (*p)->isNeighbour(R) )
+			switchResult ( ret, checkProjection ( *p, C, ProjR, /*isUpLink=*/true ) );
+
+	for ( p = curNode->begins(), p_end = curNode->ends(); p != p_end; ++p )
+		if ( (*p)->isNeighbour(R) )
+			switchResult ( ret, checkProjection ( *p, C, ProjR, /*isUpLink=*/false ) );
+
+	return ret;
+}
+
+tacticUsage DlSatTester :: checkProjection ( DlCompletionTreeArc* pA, BipolarPointer C, const TRole* ProjR, bool isUpLink )
+{
+	// nothing to do if pA is labelled by ProjR as well
+	if ( pA->isNeighbour(ProjR) )
+		return utUnusable;
+	// if ~C is in the label of curNode, do nothing
+	if ( curNode->isLabelledBy(inverse(C)) )
+		return utUnusable;
+
+	// neither C nor ~C are in the label: make a choice
+	tacticUsage ret = utUnusable;
+
+	DepSet dep(curConcept.getDep());
+	dep.add(pA->getDep());
+
+	if ( !curNode->isLabelledBy(C) )
+	{
+		if ( isFirstBranchCall() )
+		{
+			createBCCh();
+			// save current state
+			save();
+
+			return addToDoEntry ( curNode, inverse(C), getCurDepSet(), "cr0" );
+		}
+		else
+		{
+			prepareBranchDep();
+			dep.add(getBranchDep());
+			determiniseBranchingOp();
+			switchResult ( ret, addToDoEntry ( curNode, C, dep, "cr1" ) );
+		}
+	}
+	// here C is in the label of curNode: add ProjR to the edge if necessary
+	DlCompletionTree* child = pA->getArcEnd();
+	pA = CGraph.addRoleLabel ( curNode, child, isUpLink, ProjR, dep );
+	int flags = redoForall|redoFunc|redoAtMost|redoIrr;
+	switchResult ( ret, setupEdge ( pA, dep, flags ) );
+	// we don't know whether this is up link or not;
+	// anyway, the expansion goes late, so we need to reapply universals on the other end
+	if ( !child->isDataNode() )
+		switchResult ( ret, applyUniversalNR ( child, pA->getReverse(), dep, flags ) );
+
+	return ret;
+}
+

@@ -481,6 +481,8 @@ protected:	// methods
 	tacticUsage commonTacticBodyFunc ( const DLVertex& cur );
 		/// expansion rule for at-most restriction in nominal node (NN-rule)
 	tacticUsage commonTacticBodyNN ( const DLVertex& cur );
+		/// expansion rule for auxilliary projection-construction
+	tacticUsage commonTacticBodyProj ( const TRole* R, BipolarPointer C, const TRole* ProjR );
 
 	// support for inapplicable tactics
 
@@ -693,6 +695,11 @@ protected:	// methods
 									   const RoleAutomaton& A,
 									   BipolarPointer C, const DepSet& dep,
 									   const char* reason = NULL );
+
+	// support for the projection
+
+		/// apply projection to given edge if necessary
+	tacticUsage checkProjection ( DlCompletionTreeArc* pA, BipolarPointer C, const TRole* ProjR, bool isUpLink );
 
 	// datatype staff
 

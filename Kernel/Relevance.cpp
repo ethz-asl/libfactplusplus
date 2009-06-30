@@ -61,6 +61,10 @@ void TBox :: setRelevant ( BipolarPointer p )
 		setRelevant (v.getC());
 		break;
 
+	case dtProj:	// no need to set (inverse) roles as it doesn't really matter
+		setRelevant(v.getC());
+		break;
+
 	case dtIrr:
 		setRelevant(const_cast<TRole*>(v.getRole()));
 		break;

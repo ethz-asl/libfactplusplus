@@ -64,6 +64,12 @@ void DLDag :: mergeSorts ( DLVertex& v )
 		v.merge(const_cast<TRole*>(v.getRole())->getDomainLabel());	// domain(role)=cur
 		merge ( const_cast<TRole*>(v.getRole())->getRangeLabel(), v.getC() );
 		break;
+	case dtProj:	// projection: equate R&D of R and ProjR, and D(R) with C
+		v.merge(const_cast<TRole*>(v.getRole())->getDomainLabel());
+		v.merge(const_cast<TRole*>(v.getProjRole())->getDomainLabel());
+		merge ( const_cast<TRole*>(v.getRole())->getDomainLabel(), v.getC() );
+		const_cast<TRole*>(v.getRole())->getRangeLabel().merge(const_cast<TRole*>(v.getProjRole())->getRangeLabel());
+		break;
 	case dtIrr:	// equate R&D for role
 		v.merge(const_cast<TRole*>(v.getRole())->getDomainLabel());
 		v.merge(const_cast<TRole*>(v.getRole())->getRangeLabel());

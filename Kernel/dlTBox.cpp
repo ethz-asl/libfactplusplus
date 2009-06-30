@@ -519,6 +519,12 @@ void TBox :: PrintDagEntry ( std::ostream& o, BipolarPointer p ) const
 		o << ")";
 		return;
 
+	case dtProj:
+		o << " (" << v.getTagName() << ' ' << v.getRole()->getName() << ' ';
+		PrintDagEntry ( o, v.getC() );
+		o << " => " << v.getProjRole()->getName() << ")";
+		return;
+
 	default:	// invalid value
 		std::cerr << "Error printing vertex of type " << v.getTagName() << "(" << v.Type () << ")";
 		fpp_unreachable();

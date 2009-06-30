@@ -41,9 +41,29 @@ void RoleMaster :: addRoleParent ( const DLTree* tree, TRole* parent )
 		deleteTree(inv);
 	}
 	else if ( tree->Element() == PROJINTO )
-		;	// nothing to do for now
+	{
+		// here -R->C became -PARENT->
+		// encode this as PROJFROM(R-,PROJINTO(PARENT-,C)),
+		// added to the range of R
+		TRole* R = resolveRole(tree->Left());
+		// can't do anything ATM for the data roles
+		if ( R->isDataRole() )
+			throw EFaCTPlusPlus("Projection into not implemented for the data role");
+		DLTree* C = clone(tree->Right());
+		DLTree* InvP = new DLTree ( TLexeme ( RNAME, new TTreeNamedEntry(parent->inverse()) ) );
+		DLTree* InvR = new DLTree ( TLexeme ( RNAME, new TTreeNamedEntry(R->inverse()) ) );
+		R->setRange ( new DLTree ( PROJFROM, InvR, new DLTree ( PROJINTO, InvP, C ) ) );
+	}
 	else if ( tree->Element() == PROJFROM )
-		;	// nothing to do for now
+	{
+		// here C-R-> became -PARENT->
+		// encode this as PROJFROM(R,PROJINTO(PARENT,C)),
+		// added to the domain of R
+		TRole* R = resolveRole(tree->Left());
+		DLTree* C = clone(tree->Right());
+		DLTree* P = new DLTree ( TLexeme ( RNAME, new TTreeNamedEntry(parent) ) );
+		R->setDomain ( new DLTree ( PROJFROM, clone(tree->Left()), new DLTree ( PROJINTO, P, C ) ) );
+	}
 	else
 		addRoleParent ( resolveRole(tree), parent );
 }

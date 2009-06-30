@@ -94,6 +94,9 @@ inline unsigned int ToDoPriorMatrix :: getIndex ( DagTag Op, bool Sign, bool Nom
 	case dtIrr:		// process local (ir-)reflexivity as a FORALL
 		return (Sign?iForall:iExists);
 
+	case dtProj:	// it should be the lowest priority but now just OR's one
+		return iOr;
+
 	case dtLE:
 		return (Sign?(NominalNode?iNN:iLE):iGE);
 

@@ -96,6 +96,10 @@ DLVertex :: gatherStat ( const DLDag& dag, bool pos )
 		for ( const_iterator q = begin(), q_end = end(); q < q_end; ++q )
 			const_cast<DLDag&>(dag)[*q].gatherStat ( dag, pos == isPositive(*q) );	// FIXME!! think later on
 		break;
+	case dtProj:
+		if ( !pos )		// ~Proj -- nothing to do
+			break;
+		// fallthrough
 	case dtName:
 	case dtForall:
 	case dtUAll:
@@ -162,6 +166,10 @@ void DLVertex :: initStat ( const DLDag& dag, bool pos )
 			++g;	// >= is generating
 		else if ( getNumberLE() != 1 )
 			++b;	// <= is branching
+		break;
+	case dtProj:
+		if ( pos )
+			++b;	// projection sometimes involves branching
 		break;
 	default:
 		break;
@@ -268,6 +276,7 @@ const char* DLVertex :: getTagName ( void ) const
 	case dtLE:		return "at-most";
 	case dtUAll:	return "all U";
 	case dtIrr:		return "irreflexive";
+	case dtProj:	return "projection";
 	default:		return "UNKNOWN";
 	};
 }
@@ -315,6 +324,10 @@ DLVertex :: Print ( std::ostream& o ) const
 
 	case dtIrr:
 		o << ' ' << getRole()->getName();
+		return;
+
+	case dtProj:
+		o << ' ' << getRole()->getName() << ", " << getC() << " => " << getProjRole()->getName();
 		return;
 
 	default:

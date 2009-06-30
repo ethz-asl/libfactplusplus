@@ -163,6 +163,9 @@ BipolarPointer TBox :: tree2dag ( const DLTree* t )
 	case LE:
 		return atmost2dag ( cur.getData(), resolveRole(t->Left()), tree2dag(t->Right()) );
 
+	case PROJFROM:	// note: no PROJINTO as already unified
+		return DLHeap.directAdd ( new DLVertex ( resolveRole(t->Left()), tree2dag(t->Right()->Right()), resolveRole(t->Right()->Left()) ) );
+
 	default:
 		fpp_assert ( isSNF(t) );	// safety check
 		fpp_unreachable();			// extra safety check ;)

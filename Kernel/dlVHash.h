@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2006-2008 by Dmitry Tsarkov
+Copyright (C) 2006-2009 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -46,6 +46,8 @@ protected:	// methods
 		BipolarPointer sum = 0;
 		if ( v.getRole() != NULL )
 			sum += v.getRole()->getId();
+		if ( v.getProjRole() != NULL )
+			sum += v.getProjRole()->getId();
 		sum += v.getC();
 		sum += v.getNumberLE();
 		for ( DLVertex::const_iterator p = v.begin(), p_end = v.end(); p < p_end; ++p )

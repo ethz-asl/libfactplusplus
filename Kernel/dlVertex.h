@@ -32,6 +32,19 @@ class TRole;
 class TNamedEntry;
 
 /// different Concept Expression tags
+/*
+ * The one who changing this should always check:
+ *	- Additional fields in the class DLVertex
+ *		=> operator ==
+ *		=> hash functions
+ *	- DLVertex methods *Stat(), getTagName(), Print()
+ *	- tree2dag()
+ *	- mergeSorts(v)
+ *	- setRelevant()
+ *	- PrintDagEntry()
+ *	- ToDoPriorMatrix::getIndex()
+ *	- commonTacticBody()
+ */
 enum DagTag {
 	// illegal entry
 	dtBad = 0,
@@ -43,6 +56,7 @@ enum DagTag {
 	dtLE,
 	dtUAll,		// \dall U.C
 	dtIrr,		// \neg\exists R.Self
+	dtProj,		// aux vertex with Projection FROM the current node
 
 	// ID's
 	dtPConcept,	// primitive concept
@@ -312,6 +326,8 @@ protected:	// members
 	TNamedEntry* Concept;
 		/// pointer to role (for E\A, NR)
 	const TRole* Role;
+		/// projection role (used for projection op only)
+	const TRole* ProjRole;
 		/// C if available
 	BipolarPointer C;
 		/// n if available
@@ -323,6 +339,7 @@ public:		// interface
 		: DLVertexTagDFS(op)
 		, Concept(NULL)
 		, Role(NULL)
+		, ProjRole(NULL)
 		, C(bpINVALID)
 		, n(0)
 		{}
@@ -331,6 +348,7 @@ public:		// interface
 		: DLVertexTagDFS(op)
 		, Concept(NULL)
 		, Role(R)
+		, ProjRole(NULL)
 		, C(bpINVALID)
 		, n(0)
 		{}
@@ -339,6 +357,7 @@ public:		// interface
 		: DLVertexTagDFS(op)
 		, Concept(NULL)
 		, Role(NULL)
+		, ProjRole(NULL)
 		, C(c)
 		, n(0)
 		{}
@@ -347,8 +366,18 @@ public:		// interface
 		: DLVertexTagDFS(op)
 		, Concept(NULL)
 		, Role(R)
+		, ProjRole(NULL)
 		, C(c)
 		, n(m)
+		{}
+		/// c'tor for ProjFrom R C ProjR
+	DLVertex ( const TRole* R, BipolarPointer c, const TRole* ProjR )
+		: DLVertexTagDFS(dtProj)
+		, Concept(NULL)
+		, Role(R)
+		, ProjRole(ProjR)
+		, C(c)
+		, n(0)
 		{}
 		/// d'tor (empty)
 	virtual ~DLVertex ( void ) {}
@@ -358,6 +387,7 @@ public:		// interface
 	{
 		return (Type() == v.Type()) &&
 			   (Role == v.Role) &&
+			   (ProjRole == v.ProjRole) &&
 			   (C == v.C) &&
 			   (n == v.n) &&
 			   (Child == v.Child);
@@ -383,6 +413,8 @@ public:		// interface
 
 		/// return pointer to Role for the Role-like verteces
 	const TRole* getRole ( void ) const { return Role; }
+		/// return pointer to Projection Role for the Projection verteces
+	const TRole* getProjRole ( void ) const { return ProjRole; }
 		/// get (RW) TConcept for concept-like fields
 	TNamedEntry* getConcept ( void ) { return Concept; }
 		/// get (RO) TConcept for concept-like fields
@@ -439,6 +471,7 @@ DLVertex :: omitStat ( bool pos ) const
 	case dtPConcept:
 	case dtPSingleton:
 	case dtCollection:
+	case dtProj:
 		return !pos;
 	default:
 		return false;
