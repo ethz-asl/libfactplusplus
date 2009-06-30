@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2008 by Dmitry Tsarkov
+Copyright (C) 2003-2009 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -47,6 +47,8 @@ protected:	// members
 	DepSet depSet;
 		/// pointer to reverse arc
 	DlCompletionTreeArc* Reverse;
+		/// true if the arc going from a child to a parent
+	bool upLink;
 
 private:	// no copy
 		/// init an arc with R as a label and NODE on given LEVEL; use it inside MAKEARCS only
@@ -98,7 +100,7 @@ protected:	// methods
 
 public:		// interface
 		/// empty c'tor
-	DlCompletionTreeArc ( void ) {}
+	DlCompletionTreeArc ( void ) : upLink(false) {}
 		/// d'tor
 	~DlCompletionTreeArc ( void ) {}
 
@@ -106,6 +108,11 @@ public:		// interface
 	const TRole* getRole ( void ) const { return Role; }
 		/// get dep-set of the edge
 	const DepSet& getDep ( void ) const { return depSet; }
+
+		/// set the up-link field
+	void setUpLink ( bool val ) { upLink = val; }
+		/// @return true if the arc is the up-link one
+	bool isUpLink ( void ) const { return upLink; }
 
 		/// get (RW) access to the end of arc
 	DlCompletionTree* getArcEnd ( void ) const { return Node; }

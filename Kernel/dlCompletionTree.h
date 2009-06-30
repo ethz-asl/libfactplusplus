@@ -347,9 +347,17 @@ public:		// methods
 	~DlCompletionTree ( void ) { saves.clear(); }
 
 		/// add given arc as a parent
-	void addParent ( DlCompletionTreeArc* parent ) { Parent.push_back(parent); }
+	void addParent ( DlCompletionTreeArc* parent )
+	{
+		parent->setUpLink(true);
+		Parent.push_back(parent);
+	}
 		/// add given arc as a child
-	void addChild ( DlCompletionTreeArc* child ) { Son.push_back(child); }
+	void addChild ( DlCompletionTreeArc* child )
+	{
+		child->setUpLink(false);
+		Son.push_back(child);
+	}
 
 		/// get Node's id
 	unsigned int getId ( void ) const { return id; }

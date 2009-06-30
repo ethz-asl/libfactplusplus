@@ -800,7 +800,7 @@ DlSatTester :: setupEdge ( DlCompletionTreeArc* pA, const DepSet& dep, unsigned 
 	switchResult ( ret, applyUniversalNR ( from, pA, dep, flags ) );
 
 	// for nominal children and loops -- just apply things for the inverses
-	if ( child->isNominalNode() || child == from )
+	if ( pA->isUpLink() || child->isNominalNode() || child == from )
 		switchResult ( ret, applyUniversalNR ( child, pA->getReverse(), dep, flags ) );
 	else
 	{
@@ -1556,10 +1556,6 @@ tacticUsage DlSatTester :: checkProjection ( DlCompletionTreeArc* pA, BipolarPoi
 	pA = CGraph.addRoleLabel ( curNode, child, isUpLink, ProjR, dep );
 	int flags = redoForall|redoFunc|redoAtMost|redoIrr;
 	switchResult ( ret, setupEdge ( pA, dep, flags ) );
-	// we don't know whether this is up link or not;
-	// anyway, the expansion goes late, so we need to reapply universals on the other end
-	if ( !child->isDataNode() )
-		switchResult ( ret, applyUniversalNR ( child, pA->getReverse(), dep, flags ) );
 
 	return ret;
 }
