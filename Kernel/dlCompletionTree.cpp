@@ -30,8 +30,9 @@ DlCompletionTree :: isTSuccLabelled ( const TRole* R, BipolarPointer C ) const
 
 	// check all other successors
 	const DlCompletionTree* ret = NULL;
-	for ( const_edge_iterator p = begins(), p_end = ends(); p < p_end; ++p )
-		if ( (*p)->isNeighbour(R) &&
+	for ( const_edge_iterator p = begin(), p_end = end(); p < p_end; ++p )
+		if ( !(*p)->isUpLink() &&
+			 (*p)->isNeighbour(R) &&
 			 !(*p)->isReflexiveEdge() &&	// prevent cycles
 			 (ret = (*p)->getArcEnd()->isTSuccLabelled(R,C)) != NULL )
 			return ret;
@@ -52,8 +53,8 @@ DlCompletionTree :: isTPredLabelled ( const TRole* R, BipolarPointer C, const Dl
 
 	// check all other successors
 	const DlCompletionTree* ret = NULL;
-	for ( const_edge_iterator p = begins(), p_end = ends(); p < p_end; ++p )
-		if ( (*p)->isNeighbour(R) && (*p)->getArcEnd() != from &&
+	for ( const_edge_iterator p = begin(), p_end = end(); p < p_end; ++p )
+		if ( !(*p)->isUpLink() && (*p)->isNeighbour(R) && (*p)->getArcEnd() != from &&
 			 (ret = (*p)->getArcEnd()->isTSuccLabelled(R,C)) != NULL )
 			return ret;
 
@@ -67,16 +68,7 @@ DlCompletionTree :: isTPredLabelled ( const TRole* R, BipolarPointer C, const Dl
 const DlCompletionTree*
 DlCompletionTree :: isNSomeApplicable ( const TRole* R, BipolarPointer C ) const
 {
-	DlCompletionTree::const_edge_iterator
-		p, p_end = endp(), s_end = ends();
-	for ( p = begins(); p < s_end; ++p )
-		if ( (*p)->isNeighbour(R) && (*p)->getArcEnd()->isLabelledBy(C) )
-			return (*p)->getArcEnd();	// already contained such a label
-
-//	if ( !sessionHasInverseRoles )
-//		return false;
-
-	for ( p = beginp(); p < p_end; ++p )
+	for ( DlCompletionTree::const_edge_iterator p = begin(), p_end = end(); p < p_end; ++p )
 		if ( (*p)->isNeighbour(R) && (*p)->getArcEnd()->isLabelledBy(C) )
 			return (*p)->getArcEnd();	// already contained such a label
 
@@ -87,18 +79,18 @@ const DlCompletionTree*
 DlCompletionTree :: isTSomeApplicable ( const TRole* R, BipolarPointer C ) const
 {
 	const DlCompletionTree* ret = NULL;
-	DlCompletionTree::const_edge_iterator
-		p, p_end = endp(), s_end = ends();
-	for ( p = begins(); p < s_end; ++p )
-		if ( (*p)->isNeighbour(R) && (ret = (*p)->getArcEnd()->isTSuccLabelled(R,C)) != NULL )
-			return ret;	// already contained such a label
 
-//	if ( !sessionHasInverseRoles )
-//		return false;
+	for ( DlCompletionTree::const_edge_iterator p = begin(), p_end = end(); p < p_end; ++p )
+		if ( (*p)->isNeighbour(R) )
+		{
+			if ( (*p)->isUpLink() )
+				ret = (*p)->getArcEnd()->isTPredLabelled(R,C,this);
+			else
+				ret = (*p)->getArcEnd()->isTSuccLabelled(R,C);
 
-	for ( p = beginp(); p < p_end; ++p )
-		if ( (*p)->isNeighbour(R) && (ret = (*p)->getArcEnd()->isTPredLabelled(R,C,this)) != NULL )
-			return ret;	// already contained such a label
+			if ( ret )
+				return ret;	// already contained such a label
+		}
 
 	return NULL;
 }
@@ -160,8 +152,7 @@ TRestorer* DlCompletionTree :: updateIR ( const DlCompletionTree* node, const De
 void DlCompletionTree :: save ( SaveState* nss ) const
 {
 	nss->curLevel = curLevel;
-	nss->nPars = Parent.size();
-	nss->nSons = Son.size();
+	nss->nNeighbours = Neighbour.size();
 	Label.save(nss->lab);
 
 	logSRNode("SaveNode");
@@ -182,16 +173,14 @@ void DlCompletionTree :: restore ( SaveState* nss )
 	// label restore
 	Label.restore ( nss->lab, curLevel );
 
-	// remove new parents
-	Parent.resize ( nss->nPars );
-	// remove new sons
+	// remove new neighbours
 #ifndef __DYNAMIC_NODE_RESTORE
-	Son.resize ( nss->nSons );
+	Neighbour.resize(nss->nNeighbours);
 #else
-	for ( int j = Son.size()-1; j >= 0; --j )
-		if ( Son[j]->Node->creLevel <= curLevel )
+	for ( int j = Neighbour.size()-1; j >= 0; --j )
+		if ( Neighbour[j]->Node->creLevel <= curLevel )
 		{
-			Son.resize(j+1);
+			Neighbour.resize(j+1);
 			break;
 		}
 #endif

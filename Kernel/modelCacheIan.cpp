@@ -79,14 +79,6 @@ modelCacheIan :: processAutomaton ( const DLVertex& cur )
 			forallRoles.insert(*r);
 }
 
-/// process CT edges in given interval; return true iff no edges with deps were found
-void modelCacheIan :: processEdgeInterval ( e_iterator start, e_iterator end )
-{
-	for ( e_iterator q = start; q != end; ++q )
-		if ( !(*q)->isIBlocked() )
-			addExistsRole ( (*q)->getRole() );
-}
-
 /// adds role (and all its super-roles) to exists- and funcRoles
 void modelCacheIan :: addExistsRole ( const TRole* R )
 {

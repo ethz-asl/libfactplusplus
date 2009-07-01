@@ -58,10 +58,8 @@ protected:	// internal classes
 		CGLabel::SaveState lab;
 			/// curLevel of the Node structure
 		unsigned int curLevel;
-			/// amount of parents
-		unsigned int nPars;
-			/// amount of children
-		unsigned int nSons;
+			/// amount of neighbours
+		size_t nNeighbours;
 
 	private:	// protection from copying
 			/// no assignment
@@ -74,8 +72,7 @@ protected:	// internal classes
 		SaveState ( const SaveState& node )
 			: lab (node.lab)
 			, curLevel (node.curLevel)
-			, nPars (node.nPars)
-			, nSons (node.nSons)
+			, nNeighbours(node.nNeighbours)
 			{}
 			/// empty d'tor
 		~SaveState ( void ) {}
@@ -148,10 +145,8 @@ protected:	// members
 		/// inequality relation information respecting current node
 	IRInfo IR;
 #endif
-		/// Parents information
-	ArcCollection Parent;
-		/// Children information
-	ArcCollection Son;
+		/// Neighbours information
+	ArcCollection Neighbour;
 		/// pointer to last saved node
 	TSaveList<SaveState> saves;
 		/// ID of node (used in print)
@@ -243,8 +238,8 @@ protected:	// methods
 		/// check if all parent arcs are blocked
 	bool isParentArcIBlocked ( void ) const
 	{
-		for ( const_edge_iterator p = beginp(); p != endp(); ++p )
-			if ( !(*p)->isIBlocked() )
+		for ( const_edge_iterator p = begin(); p != end(); ++p )
+			if ( (*p)->isUpLink() && !(*p)->isIBlocked() )
 				return false;
 		return true;
 	}
@@ -261,22 +256,6 @@ protected:	// methods
 	const DlCompletionTree* isTSuccLabelled ( const TRole* R, BipolarPointer C ) const;
 		/// check if transitive R-predecessor labelled with C; skip FROM node
 	const DlCompletionTree* isTPredLabelled ( const TRole* R, BipolarPointer C, const DlCompletionTree* from ) const;
-
-	//----------------------------------------------
-	//	checking edge labelling
-	//----------------------------------------------
-
-		/// @return an edge from BEG to END ending in P and labelled by R; @return NULL if no such edge found
-	template<class Iterator>
-	DlCompletionTreeArc* getEdgeLabelled ( Iterator beg, Iterator end,
-										   const TRole* R, const DlCompletionTree* p ) const
-	{
-		for ( ; beg != end; ++beg )
-			if ( (*beg)->getArcEnd() == p && (*beg)->isNeighbour(R) )
-				return *beg;
-		return NULL;
-	}
-
 
 	//----------------------------------------------
 	// inequality relation methods
@@ -303,7 +282,7 @@ protected:	// methods
 	{
 #	if defined(RKG_CHECK_BACKJUMPING)
 		if ( LLM.isWritable(llSRInfo) )
-			LL << " " << action << "(" << id << "[" << Parent.size() << "," << Son.size() << "]," << curLevel << ")";
+			LL << " " << action << "(" << id << "[" << Neighbour.size() << "]," << curLevel << ")";
 #		undef RKG_CHECK_BACKJUMPING		// it is the only user
 #	endif
 	}
@@ -339,7 +318,7 @@ public:		// methods
 	~DlCompletionTree ( void ) { saves.clear(); }
 
 		/// add given arc P as a neighbour
-	void addNeighbour ( DlCompletionTreeArc* p ) { ( p->isUpLink() ? Parent : Son ).push_back(p); }
+	void addNeighbour ( DlCompletionTreeArc* p ) { Neighbour.push_back(p); }
 
 		/// get Node's id
 	unsigned int getId ( void ) const { return id; }
@@ -386,29 +365,19 @@ public:		// methods
 	// children/parent access interface
 	//----------------------------------------------
 
+	// neighbour iterators
+	const_edge_iterator begin ( void ) const { return Neighbour.begin(); }
+	const_edge_iterator end ( void ) const { return Neighbour.end(); }
+	edge_iterator begin ( void ) { return Neighbour.begin(); }
+	edge_iterator end ( void ) { return Neighbour.end(); }
+
 		/// return true if node is a non-root; works for reflexive roles
 	bool hasParent ( void ) const
 	{
-		if ( Parent.empty() )
+		if ( Neighbour.empty() )
 			return false;
-		// root nodes with reflexive roles will have first upcoming edge to itself;
-		// every non-root node will have first upcoming edge pointed to a parent
-		return (*beginp())->getArcEnd() != this;
+		return (*begin())->isUpLink();
 	}
-		/// return true if node has any children (including itself in case of reflexive roles)
-	bool hasChildren ( void ) const { return !Son.empty(); }
-
-	// parent iterators
-	const_edge_iterator beginp ( void ) const { return Parent.begin(); }
-	const_edge_iterator endp ( void ) const { return Parent.end(); }
-	edge_iterator beginp ( void ) { return Parent.begin(); }
-	edge_iterator endp ( void ) { return Parent.end(); }
-
-	// children iterators
-	const_edge_iterator begins ( void ) const { return Son.begin(); }
-	const_edge_iterator ends ( void ) const { return Son.end (); }
-	edge_iterator begins ( void ) { return Son.begin(); }
-	edge_iterator ends ( void ) { return Son.end (); }
 
 	//----------------------------------------------
 	// Transitive SOME support interface
@@ -459,9 +428,9 @@ public:		// methods
 	// every non-root node will have first upcoming edge pointed to a parent
 
 		/// return RO pointer to the parent node; WARNING: correct only for nodes with hasParent()==TRUE
-	const DlCompletionTree* getParentNode ( void ) const { return (*beginp())->getArcEnd(); }
+	const DlCompletionTree* getParentNode ( void ) const { return (*begin())->getArcEnd(); }
 		/// return RW pointer to the parent node; WARNING: correct only for nodes with hasParent()==TRUE
-	DlCompletionTree* getParentNode ( void ) { return (*beginp())->getArcEnd(); }
+	DlCompletionTree* getParentNode ( void ) { return (*begin())->getArcEnd(); }
 
 	//----------------------------------------------
 	// managing AFFECTED flag
@@ -476,8 +445,9 @@ public:		// methods
 		if ( isAffected() || isNominalNode() || isPBlocked() )
 			return;
 		affected = true;
-		for ( const_edge_iterator q = begins(); q != ends(); ++q )
-			(*q)->getArcEnd()->setAffected();
+		for ( const_edge_iterator q = begin(), q_end = end(); q < q_end; ++q )
+			if ( !(*q)->isUpLink() )
+				(*q)->getArcEnd()->setAffected();
 	}
 		/// clear affected flag
 	void clearAffected ( void ) { affected = false; }
@@ -562,26 +532,16 @@ public:		// methods
 	//	checking edge labelling
 	//----------------------------------------------
 
-		/// check if parent arc is labelled by R; works only for blockable nodes
-	bool isParentArcLabelled ( const TRole* R ) const
+		/// check if edge to NODE is labelled by R; return NULL if does not
+	DlCompletionTreeArc* getEdgeLabelled ( const TRole* R, const DlCompletionTree* node ) const
 	{
-		const_edge_iterator p = beginp(), p_end = endp();
-		const DlCompletionTree* parent = (*p)->getArcEnd();
-		for ( ; p < p_end; ++p )
-			// make sure that the checking edge lead to parent (and not, e.g., a loop edge)
-			if ( (*p)->getArcEnd() == parent && (*p)->isNeighbour(R) )
-				return true;
-		return false;
+		for ( const_edge_iterator p = begin(), p_end = end(); p < p_end; ++p )
+			if ( (*p)->getArcEnd() == node && (*p)->isNeighbour(R) )
+				return *p;
+		return NULL;
 	}
-		/// check if parent edge to P is labelled by R; return NULL if does not
-	DlCompletionTreeArc* getParentEdgeLabelled ( const TRole* R, const DlCompletionTree* p ) const
-		{ return getEdgeLabelled ( beginp(), endp(), R, p ); }
-		/// check if successor edge to P is labelled by R; return NULL if does not
-	DlCompletionTreeArc* getChildEdgeLabelled ( const TRole* R, const DlCompletionTree* p ) const
-		{ return getEdgeLabelled ( begins(), ends(), R, p ); }
-		/// check if edge to P given by ISPARENT is labelled by R; return NULL if does not
-	DlCompletionTreeArc* getEdgeLabelled ( const TRole* R, const DlCompletionTree* p, bool isParent ) const
-		{ return isParent ? getParentEdgeLabelled ( R, p ) : getChildEdgeLabelled ( R, p ); }
+		/// check if parent arc is labelled by R; works only for blockable nodes
+	bool isParentArcLabelled ( const TRole* R ) const { return getEdgeLabelled ( R, getParentNode() ) != NULL; }
 
 	//----------------------------------------------
 	// inequality relation interface
@@ -657,8 +617,7 @@ inline void DlCompletionTree :: init ( unsigned int level )
 #ifdef RKG_IR_IN_NODE_LABEL
 	IR.clear();
 #endif
-	Parent.clear();
-	Son.clear();
+	Neighbour.clear();
 	Blocker = NULL;
 	pDep.clear();
 }

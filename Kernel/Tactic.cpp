@@ -406,12 +406,9 @@ tacticUsage DlSatTester :: commonTacticBodyAllComplex ( const DLVertex& cur )
 
 	// check whether automaton applicable to any edges
 	nAllCalls.inc();
-	DlCompletionTree::const_edge_iterator p;
 
-	// check all parents and all sons
-	for ( p = curNode->beginp(); p != curNode->endp(); ++p )
-		switchResult ( ret, applyAutomaton ( (*p), A, state, C, dep ) );
-	for ( p = curNode->begins(); p != curNode->ends(); ++p )
+	// check all neighbours
+	for ( DlCompletionTree::const_edge_iterator p = curNode->begin(), p_end = curNode->end(); p < p_end; ++p )
 		switchResult ( ret, applyAutomaton ( (*p), A, state, C, dep ) );
 
 	return ret;
@@ -427,12 +424,9 @@ tacticUsage DlSatTester :: commonTacticBodyAllSimple ( const DLVertex& cur )
 
 	// check whether automaton applicable to any edges
 	nAllCalls.inc();
-	DlCompletionTree::const_edge_iterator p;
 
-	// check all parents and all sons
-	for ( p = curNode->beginp(); p != curNode->endp(); ++p )
-		switchResult ( ret, applySimpleAutomaton ( (*p), A, C, dep ) );
-	for ( p = curNode->begins(); p != curNode->ends(); ++p )
+	// check all neighbours
+	for ( DlCompletionTree::const_edge_iterator p = curNode->begin(), p_end = curNode->end(); p < p_end; ++p )
 		switchResult ( ret, applySimpleAutomaton ( (*p), A, C, dep ) );
 
 	return ret;
@@ -568,18 +562,9 @@ tacticUsage DlSatTester :: commonTacticBodySome ( const DLVertex& cur )	// for E
 	{
 		const DlCompletionTreeArc* functionalArc = NULL;
 		DepSet newDep;
-		bool linkToParent = false;
 
 		// check if we have an (R)-successor or (R-)-predecessor
-		DlCompletionTree::const_edge_iterator pr;
-		for ( pr = curNode->beginp(); !functionalArc && pr != curNode->endp(); ++pr )
-			if ( (*pr)->isNeighbour ( RF, newDep ) )
-			{
-				functionalArc = *pr;
-				linkToParent = true;
-			}
-
-		for ( pr = curNode->begins(); !functionalArc && pr != curNode->ends(); ++pr )
+		for ( DlCompletionTree::const_edge_iterator pr = curNode->begin(), pr_end = curNode->end(); !functionalArc && pr < pr_end ; ++pr )
 			if ( (*pr)->isNeighbour ( RF, newDep ) )
 				functionalArc = *pr;
 
@@ -600,7 +585,7 @@ tacticUsage DlSatTester :: commonTacticBodySome ( const DLVertex& cur )	// for E
 				return utClash;
 
 			// add current role label (to both arc and its reverse)
-			functionalArc = CGraph.addRoleLabel ( curNode, succ, linkToParent, R, newDep );
+			functionalArc = CGraph.addRoleLabel ( curNode, succ, functionalArc->isUpLink(), R, newDep );
 
 			// adds concept to the end of arc
 			switchResult ( ret, addToDoEntry ( succ, C, newDep ) );
@@ -1269,13 +1254,8 @@ tacticUsage
 DlSatTester :: checkDisjointRoleClash ( DlCompletionTree* from, DlCompletionTree* to,
 										const TRole* R, const DepSet& dep )
 {
-	DlCompletionTree::const_edge_iterator p, p_end;
-
 	// try to check whether link from->to labelled with something disjoint with R
-	for ( p = from->beginp(), p_end = from->endp(); p != p_end; ++p )
-		if ( checkDisjointRoleClash ( *p, to, R, dep ) )
-			return utClash;
-	for ( p = from->begins(), p_end = from->ends(); p != p_end; ++p )
+	for ( DlCompletionTree::const_edge_iterator p = from->begin(), p_end = from->end(); p != p_end; ++p )
 		if ( checkDisjointRoleClash ( *p, to, R, dep ) )
 			return utClash;
 	return utDone;
@@ -1303,17 +1283,9 @@ bool isNewEdge ( const DlCompletionTree* node, Iterator begin, Iterator end )
 void DlSatTester :: findNeighbours ( const TRole* Role, BipolarPointer C, DepSet& Dep )
 {
 	EdgesToMerge.clear();
-
-	DlCompletionTree::const_edge_iterator p;
 	DagTag tag = DLHeap[C].Type();
 
-	for ( p = curNode->beginp(); p != curNode->endp(); ++p )
-		if ( (*p)->isNeighbour(Role)
-			 && isNewEdge ( (*p)->getArcEnd(), EdgesToMerge.begin(), EdgesToMerge.end() )
-			 && findChooseRuleConcept ( (*p)->getArcEnd()->label().getLabel(tag), C, Dep ) )
-			EdgesToMerge.push_back(*p);
-
-	for ( p = curNode->begins(); p != curNode->ends(); ++p )
+	for ( DlCompletionTree::const_edge_iterator p = curNode->begin(), p_end = curNode->end(); p < p_end; ++p )
 		if ( (*p)->isNeighbour(Role)
 			 && isNewEdge ( (*p)->getArcEnd(), EdgesToMerge.begin(), EdgesToMerge.end() )
 			 && findChooseRuleConcept ( (*p)->getArcEnd()->label().getLabel(tag), C, Dep ) )
@@ -1332,13 +1304,8 @@ tacticUsage DlSatTester :: commonTacticBodyChoose ( const TRole* R, BipolarPoint
 	tacticUsage ret = utUnusable;
 	DlCompletionTree::edge_iterator p;
 
-	// apply choose-rule for every R-predecessor
-	for ( p = curNode->beginp(); p != curNode->endp(); ++p )
-		if ( (*p)->isNeighbour(R) )
-			switchResult ( ret, applyChooseRule ( (*p)->getArcEnd(), C ) );
-
-	// apply choose-rule for every R-succecessor
-	for ( p = curNode->begins(); p != curNode->ends(); ++p )
+	// apply choose-rule for every R-neighbour
+	for ( DlCompletionTree::const_edge_iterator p = curNode->begin(), p_end = curNode->end(); p < p_end; ++p )
 		if ( (*p)->isNeighbour(R) )
 			switchResult ( ret, applyChooseRule ( (*p)->getArcEnd(), C ) );
 
@@ -1429,16 +1396,16 @@ bool DlSatTester :: isNNApplicable ( const TRole* r, BipolarPointer C ) const
 	unsigned int level = curNode->getNominalLevel()+1;
 
 	// check for the real applicability of the NN-rule here
-	DlCompletionTree::const_edge_iterator p, p_end = curNode->endp(), q;
-	for ( p = curNode->beginp(); p != p_end; ++p )
+	DlCompletionTree::const_edge_iterator p, p_end = curNode->end(), q;
+	for ( p = curNode->begin(); p != p_end; ++p )
 	{
 		const DlCompletionTree* suspect = (*p)->getArcEnd();
 
-		if ( suspect->isBlockableNode() && (*p)->isNeighbour(r) && suspect->isLabelledBy(C) )
+		if ( (*p)->isUpLink() && suspect->isBlockableNode() && (*p)->isNeighbour(r) && suspect->isLabelledBy(C) )
 		{
 			// have to fire NN-rule. Check whether we did this earlier
-			for ( q = curNode->beginp(); q != p_end; ++q )
-				if ( (*q)->getArcEnd()->isNominalNode(level) && (*q)->isNeighbour(r)
+			for ( q = curNode->begin(); q != p_end; ++q )
+				if ( (*q)->isUpLink() && (*q)->getArcEnd()->isNominalNode(level) && (*q)->isNeighbour(r)
 					 && (*q)->getArcEnd()->isLabelledBy(C) )
 					return false;	// we already created at least one edge based on that rule
 
@@ -1465,11 +1432,7 @@ tacticUsage DlSatTester :: commonTacticBodySomeSelf ( const TRole* R )
 		return utUnusable;
 
 	// nothing to do if R-loop already exists
-	DlCompletionTree::const_edge_iterator p, p_end;
-	for ( p = curNode->beginp(), p_end = curNode->endp(); p != p_end; ++p )
-		if ( (*p)->getArcEnd() == curNode && (*p)->isNeighbour(R) )
-			return utUnusable;
-	for ( p = curNode->begins(), p_end = curNode->ends(); p != p_end; ++p )
+	for ( DlCompletionTree::const_edge_iterator p = curNode->begin(), p_end = curNode->end(); p < p_end; ++p )
 		if ( (*p)->getArcEnd() == curNode && (*p)->isNeighbour(R) )
 			return utUnusable;
 
@@ -1481,12 +1444,8 @@ tacticUsage DlSatTester :: commonTacticBodySomeSelf ( const TRole* R )
 
 tacticUsage DlSatTester :: commonTacticBodyIrrefl ( const TRole* R )
 {
-	DlCompletionTree::const_edge_iterator p, p_end;
 	// return clash if R-loop is found
-	for ( p = curNode->beginp(), p_end = curNode->endp(); p != p_end; ++p )
-		if ( checkIrreflexivity ( *p, R, curConcept.getDep() ) == utClash )
-			return utClash;
-	for ( p = curNode->begins(), p_end = curNode->ends(); p != p_end; ++p )
+	for ( DlCompletionTree::const_edge_iterator p = curNode->begin(), p_end = curNode->end(); p < p_end; ++p )
 		if ( checkIrreflexivity ( *p, R, curConcept.getDep() ) == utClash )
 			return utClash;
 
@@ -1507,13 +1466,9 @@ tacticUsage DlSatTester :: commonTacticBodyProj ( const TRole* R, BipolarPointer
 	if ( curNode->isLabelledBy(inverse(C)) )
 		return utUnusable;
 
-	for ( p = curNode->beginp(), p_end = curNode->endp(); p != p_end; ++p )
+	for ( DlCompletionTree::const_edge_iterator p = curNode->begin(), p_end = curNode->end(); p < p_end; ++p )
 		if ( (*p)->isNeighbour(R) )
-			switchResult ( ret, checkProjection ( *p, C, ProjR, /*isUpLink=*/true ) );
-
-	for ( p = curNode->begins(), p_end = curNode->ends(); p != p_end; ++p )
-		if ( (*p)->isNeighbour(R) )
-			switchResult ( ret, checkProjection ( *p, C, ProjR, /*isUpLink=*/false ) );
+			switchResult ( ret, checkProjection ( *p, C, ProjR, (*p)->isUpLink() ) );
 
 	return ret;
 }

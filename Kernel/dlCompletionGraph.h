@@ -189,8 +189,8 @@ protected:	// methods
 		/// unblock all the children of the node
 	void unblockNodeChildren ( DlCompletionTree* node )
 	{
-		for ( DlCompletionTree::const_edge_iterator q = node->begins(), q_end = node->ends(); q < q_end; ++q )
-			if ( !(*q)->isIBlocked() && !(*q)->isReflexiveEdge() )	// all of them are i-blocked
+		for ( DlCompletionTree::const_edge_iterator q = node->begin(), q_end = node->end(); q < q_end; ++q )
+			if ( !(*q)->isUpLink() && !(*q)->isIBlocked() && !(*q)->isReflexiveEdge() )	// all of them are i-blocked
 				unblockNode ( (*q)->getArcEnd(), false );
 	}
 		/// mark node unblocked; unblock all the hierarchy
@@ -224,8 +224,8 @@ protected:	// methods
 		/// propagate i-blocked status to all children of NODE
 	void propagateIBlockedStatus ( DlCompletionTree* node, const DlCompletionTree* blocker )
 	{
-		for ( DlCompletionTree::const_edge_iterator q = node->begins(), q_end = node->ends(); q < q_end; ++q )
-			if ( !(*q)->isIBlocked() )
+		for ( DlCompletionTree::const_edge_iterator q = node->begin(), q_end = node->end(); q < q_end; ++q )
+			if ( !(*q)->isUpLink() && !(*q)->isIBlocked() )
 				setNodeIBlocked ( (*q)->getArcEnd(), blocker );
 	}
 		/// @return true iff node might became unblocked
@@ -395,7 +395,7 @@ public:		// interface
 		const DepSet& rDep )	// dep-set of the arc label
 	{
 		// check if GCraph already has FROM->TO edge labelled with RNAME
-		DlCompletionTreeArc* ret = from->getEdgeLabelled ( rName, to, isUpLink );
+		DlCompletionTreeArc* ret = from->getEdgeLabelled ( rName, to );
 		if ( ret == NULL )
 			ret = createEdge ( from, to, isUpLink, rName, rDep );
 		else

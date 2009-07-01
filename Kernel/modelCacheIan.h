@@ -86,8 +86,6 @@ protected:	// methods
 	}
 		/// adds role (and all its super-roles) to exists- and funcRoles
 	void addExistsRole ( const TRole* r );
-		/// process CT edges in given interval; set Deterministic accordingly
-	void processEdgeInterval ( e_iterator start, e_iterator end );
 
 		/// implementation of merging with Singleton cache type
 	modelCacheState isMergableSingleton ( const modelCacheSingleton* p ) const;
@@ -143,10 +141,9 @@ public:
 		/// init existRoles from arcs; can be used to create pseudo-cache with deps of CT edges
 	void initRolesFromArcs ( const DlCompletionTree* pCT )
 	{
-			// add all roles from parents (with all superroles) to [exists/func]Roles
-		processEdgeInterval ( pCT->beginp(), pCT->endp() );
-			// add all roles from children (with all superroles) to [exists/func]Roles
-		processEdgeInterval ( pCT->begins(), pCT->ends() );
+		for ( e_iterator q = pCT->begin(), q_end = pCT->end(); q < q_end; ++q )
+			if ( !(*q)->isIBlocked() )
+				addExistsRole ( (*q)->getRole() );
 
 		curState = csValid;
 	}

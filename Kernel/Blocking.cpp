@@ -210,7 +210,7 @@ bool DlCompletionTree :: B2 ( const RoleAutomaton& A, BipolarPointer C ) const
 	RATransition* trans = *A.begin(0);
 	TRY_B(2);
 
-	for ( const_edge_iterator p = beginp(), p_end = endp(); p < p_end; ++p )
+	for ( const_edge_iterator p = begin(), p_end = end(); p < p_end; ++p )
 		if ( !(*p)->isIBlocked() && (*p)->getArcEnd() == parent && trans->applicable((*p)->getRole()) )
 		{
 			if ( !parLab.contains(C) )
@@ -230,16 +230,16 @@ bool DlCompletionTree :: B2 ( const RoleAutomaton& A, BipolarPointer C, RAState 
 {
 	const DlCompletionTree* parent = getParentNode();
 	const CGLabel& parLab = parent->label();
-	RoleAutomaton::const_trans_iterator q, end = A.end(n);
+	RoleAutomaton::const_trans_iterator q, q_end = A.end(n);
 	TRY_B(2);
 
-	for ( const_edge_iterator p = beginp(), p_end = endp(); p < p_end; ++p )
+	for ( const_edge_iterator p = begin(), p_end = end(); p < p_end; ++p )
 	{
 		if ( (*p)->isIBlocked() || (*p)->getArcEnd() != parent )
 			continue;
 		const TRole* R = (*p)->getRole();
 
-		for ( q = A.begin(n); q != end; ++q )
+		for ( q = A.begin(n); q != q_end; ++q )
 			if ( (*q)->applicable(R) )
 				if ( !parLab.containsCC(C-n+(*q)->final()) )
 				{
@@ -273,8 +273,8 @@ bool DlCompletionTree :: B3 ( const DlCompletionTree* p, unsigned int n, const T
 	else
 	{	// ...and <=n-1 S-succ. z with C\in L(z)
 		register unsigned int m = 0;
-		for ( const_edge_iterator q = p->begins(), q_end = p->ends(); q < q_end; ++q )
-			if ( (*q)->isNeighbour(S) && (*q)->getArcEnd()->isLabelledBy(C) )
+		for ( const_edge_iterator q = p->begin(), q_end = p->end(); q < q_end; ++q )
+			if ( !(*q)->isUpLink() && (*q)->isNeighbour(S) && (*q)->getArcEnd()->isLabelledBy(C) )
 				++m;
 
 		ret = ( m < n );
@@ -302,8 +302,8 @@ bool DlCompletionTree :: B4 ( const DlCompletionTree* p, unsigned int m, const T
 	// a) w' has at least m T-succ z with E\in L(z)
 	// check all sons
 	register unsigned int n = 0;
-	for ( const_edge_iterator q = p->begins(), q_end = p->ends(); q < q_end; ++q )
-		if ( (*q)->isNeighbour(T) && (*q)->getArcEnd()->isLabelledBy(E) )
+	for ( const_edge_iterator q = p->begin(), q_end = p->end(); q < q_end; ++q )
+		if ( !(*q)->isUpLink() && (*q)->isNeighbour(T) && (*q)->getArcEnd()->isLabelledBy(E) )
 			if ( ++n >= m )		// check if node has enough successors
 				return true;
 
