@@ -29,28 +29,27 @@ DlCompletionGraph :: createEdge (
 	// create 2 arcs between FROM and TO
 	DlCompletionTreeArc* forward = CTEdgeHeap.get();
 	forward->init ( roleName, dep, to );
+	forward->setUpLink(isUpLink);
 	DlCompletionTreeArc* backward = CTEdgeHeap.get();
 	backward->init ( roleName->inverse(), dep, from );
+	backward->setUpLink(!isUpLink);
+	// set the reverse link
+	forward->setReverse(backward);
 
 	// connect them to nodes
 	saveNode ( from, branchingLevel );
 	saveNode ( to, branchingLevel );
-	// set the reverse link
-	forward->setReverse(backward);
-
-	if ( isUpLink )
+	// add the edges as corresponding neighbours
+	from->addNeighbour(forward);
+	to->addNeighbour(backward);
+	if ( LLM.isWritable(llGTA) )
 	{
-		from->addParent(forward);
-		to->addChild(backward);
-		if ( LLM.isWritable(llGTA) )
-			LL << " ce(" << to->getId() << "<-" << from->getId() << "," << roleName->getName() << ")";
-	}
-	else	// goes to child
-	{
-		from->addChild(forward);
-		to->addParent(backward);
-		if ( LLM.isWritable(llGTA) )
-			LL << " ce(" << from->getId() << "->" << to->getId() << "," << roleName->getName() << ")";
+		LL << " ce(";
+		if ( isUpLink )
+			LL << to->getId() << "<-" << from->getId();
+		else
+			LL << from->getId() << "->" << to->getId();
+		LL << "," << roleName->getName() << ")";
 	}
 
 	return forward;
