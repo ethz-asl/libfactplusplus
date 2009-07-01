@@ -179,7 +179,7 @@ public class FaCTPlusPlusRenderer implements OWLObjectVisitor {
 
 
     public void visit(OWLObjectPropertyRangeAxiom axiom) {
-        write("range ");
+        write("range");
         write(axiom.getProperty());
         write(axiom.getRange());
     }
@@ -312,7 +312,7 @@ public class FaCTPlusPlusRenderer implements OWLObjectVisitor {
 
 
     public void visit(OWLObjectPropertyChainSubPropertyAxiom axiom) {
-        write("implies_r (");
+        write("implies_r (compose ");
         for (OWLObjectPropertyExpression prop : axiom.getPropertyChain()) {
             write(prop);
         }
