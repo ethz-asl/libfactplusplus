@@ -1008,16 +1008,10 @@ inline tacticUsage DlSatTester :: commonTacticBodyAll ( const DLVertex& cur )
 #endif
 
 	// can't skip singleton models for complex roles due to empty transitions
-	if ( !cur.getRole()->isSimple() )
-		return commonTacticBodyAllComplex(cur);
-
-	// ... but can for simple roles
-	if ( curNode->hasChildren() || curNode->hasParent() )
+	if ( cur.getRole()->isSimple() )
 		return commonTacticBodyAllSimple(cur);
-
-	// if no children/parents => nothing to do
-	nUseless.inc();
-	return utUnusable;
+	else
+		return commonTacticBodyAllComplex(cur);
 }
 
 //-----------------------------------------------------------------------------
