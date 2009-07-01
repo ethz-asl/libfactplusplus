@@ -18,8 +18,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "dlCompletionTree.h"
 
-DLDag* DlCompletionTree :: pDLHeap = NULL;
-
 /// check if transitive R-successor of the NODE labelled with C
 const DlCompletionTree*
 DlCompletionTree :: isTSuccLabelled ( const TRole* R, BipolarPointer C ) const

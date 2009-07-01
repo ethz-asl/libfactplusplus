@@ -141,14 +141,6 @@ public:		// type interface
 	typedef growingArray<ConceptWDep> IRInfo;
 #endif
 
-protected:	// global vars
-		/// DAG of operands
-	static DLDag* pDLHeap;
-
-public:		// static interface
-		/// init static context for DL trees
-	static void initContext ( DLDag* pDag ) { pDLHeap = pDag; }
-
 protected:	// members
 		/// label of a node
 	CGLabel Label;
@@ -207,11 +199,11 @@ protected:	// methods
 	// sub-methods for optimal blocking
 
 		/// check B1 and B2 from optimal blocking for given blocker candidate
-	bool isCommonlyBlockedBy ( const DlCompletionTree* p ) const;
+	bool isCommonlyBlockedBy ( const DLDag& dag, const DlCompletionTree* p ) const;
 		/// check B3 and B4 from optimal blocking for given blocker candidate
-	bool isABlockedBy ( const DlCompletionTree* p ) const;
+	bool isABlockedBy ( const DLDag& dag, const DlCompletionTree* p ) const;
 		/// check B5 and B6 from optimal blocking for given blocker candidate
-	bool isCBlockedBy ( const DlCompletionTree* p ) const;
+	bool isCBlockedBy ( const DLDag& dag, const DlCompletionTree* p ) const;
 
 	// checking the blocking conditions for optimized blocking
 
@@ -458,9 +450,10 @@ public:		// methods
 		/// check blocking condition for SH logic
 	bool isBlockedBy_SH ( const DlCompletionTree* p ) const { return B1(p); }
 		/// check blocking condition for SHI logic
-	bool isBlockedBy_SHI ( const DlCompletionTree* p ) const { return isCommonlyBlockedBy(p); }
+	bool isBlockedBy_SHI ( const DLDag& dag, const DlCompletionTree* p ) const { return isCommonlyBlockedBy ( dag, p ); }
 		/// check blocking condition for SHIQ logic using optimised blocking
-	bool isBlockedBy_SHIQ ( const DlCompletionTree* p ) const { return isCommonlyBlockedBy(p) && ( isCBlockedBy(p) || isABlockedBy(p) ); }
+	bool isBlockedBy_SHIQ ( const DLDag& dag, const DlCompletionTree* p ) const
+		{ return isCommonlyBlockedBy ( dag, p ) && ( isCBlockedBy ( dag, p ) || isABlockedBy ( dag, p ) ); }
 
 	// WARNING!! works only for blockable nodes
 	// every non-root node will have first upcoming edge pointed to a parent

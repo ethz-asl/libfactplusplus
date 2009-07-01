@@ -65,10 +65,11 @@ DlCompletionGraph :: isBlockedBy ( const DlCompletionTree* node, const DlComplet
 	bool ret;
 	if ( sessionHasInverseRoles )	// subset blocking
 	{
+		const DLDag& dag = pReasoner->getDAG();
 		if ( sessionHasNumberRestrictions )	// I+F -- optimised blocking
-			ret = node->isBlockedBy_SHIQ(blocker);
+			ret = node->isBlockedBy_SHIQ ( dag, blocker );
 		else								// just I -- equality blocking
-			ret = node->isBlockedBy_SHI(blocker);
+			ret = node->isBlockedBy_SHI ( dag, blocker );
 	}
 	else
 		ret = node->isBlockedBy_SH(blocker);
@@ -84,7 +85,7 @@ DlCompletionGraph :: isBlockedBy ( const DlCompletionTree* node, const DlComplet
 
 // Blocked-by implementation
 
-bool DlCompletionTree :: isCommonlyBlockedBy ( const DlCompletionTree* p ) const
+bool DlCompletionTree :: isCommonlyBlockedBy ( const DLDag& dag, const DlCompletionTree* p ) const
 {
 	// common B1:
 	if ( !B1(p) )
@@ -93,7 +94,7 @@ bool DlCompletionTree :: isCommonlyBlockedBy ( const DlCompletionTree* p ) const
 	for ( const_label_iterator q = p->beginl_cc(), q_end = p->endl_cc(); q < q_end; ++q )
 	{
 		BipolarPointer bp = q->bp();
-		const DLVertex& v = (*pDLHeap)[bp];
+		const DLVertex& v = dag[bp];
 
 		if ( v.Type() == dtForall && isPositive(bp) )
 		{	// (all S C) \in L(w')
@@ -105,7 +106,7 @@ bool DlCompletionTree :: isCommonlyBlockedBy ( const DlCompletionTree* p ) const
 	return true;
 }
 
-bool DlCompletionTree :: isABlockedBy ( const DlCompletionTree* p ) const
+bool DlCompletionTree :: isABlockedBy ( const DLDag& dag, const DlCompletionTree* p ) const
 {
 	// current = w; p = w'; parent = v
 #ifdef ENABLE_CHECKING
@@ -116,7 +117,7 @@ bool DlCompletionTree :: isABlockedBy ( const DlCompletionTree* p ) const
 	for ( const_label_iterator q = p->beginl_cc(), q_end = p->endl_cc(); q < q_end; ++q )
 	{
 		BipolarPointer bp = q->bp();
-		const DLVertex& v = (*pDLHeap)[bp];
+		const DLVertex& v = dag[bp];
 
 		if ( v.Type() == dtForall && isNegative(bp) )
 		{	// (some T E) \in L(w')
@@ -142,7 +143,7 @@ bool DlCompletionTree :: isABlockedBy ( const DlCompletionTree* p ) const
 	return true;
 }
 
-bool DlCompletionTree :: isCBlockedBy ( const DlCompletionTree* p ) const
+bool DlCompletionTree :: isCBlockedBy ( const DLDag& dag, const DlCompletionTree* p ) const
 {
 	// current = w; p = w'; parent = v
 #ifdef ENABLE_CHECKING
@@ -154,7 +155,7 @@ bool DlCompletionTree :: isCBlockedBy ( const DlCompletionTree* p ) const
 	for ( q = p->beginl_cc(), q_end = p->endl_cc(); q < q_end; ++q )
 	{
 		BipolarPointer bp = q->bp();
-		const DLVertex& v = (*pDLHeap)[bp];
+		const DLVertex& v = dag[bp];
 
 		if ( v.Type() == dtLE && isPositive(bp) )
 		{	// (<= n T E) \in L(w')
@@ -168,7 +169,7 @@ bool DlCompletionTree :: isCBlockedBy ( const DlCompletionTree* p ) const
 	for ( q = par->beginl_cc(), q_end = par->endl_cc(); q < q_end; ++q )
 	{
 		BipolarPointer bp = q->bp();
-		const DLVertex& v = (*pDLHeap)[bp];
+		const DLVertex& v = dag[bp];
 
 		if ( v.Type() == dtLE && isNegative(bp) )
 		{	// (>= m U F) \in L(v)

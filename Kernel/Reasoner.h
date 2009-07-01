@@ -842,6 +842,9 @@ public:		// blocking support
 			redoNodeLabel ( node, "ubi" );
 	}
 
+		/// get access to the DAG associated with it (necessary for the blocking support)
+	const DLDag& getDAG ( void ) const { return tBox.DLHeap; }
+
 public:
 		/// c'tor
 	DlSatTester ( TBox& tbox, const ifOptionSet* Options );

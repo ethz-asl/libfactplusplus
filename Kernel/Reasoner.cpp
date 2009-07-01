@@ -50,7 +50,7 @@ DlSatTester :: DlSatTester ( TBox& tbox, const ifOptionSet* Options )
 	}
 
 	// init static part of CTree
-	CGraph.initContext ( &tbox.DLHeap, useLazyBlocking, useAnywhereBlocking );
+	CGraph.initContext ( useLazyBlocking, useAnywhereBlocking );
 	// init datatype reasoner
 	tBox.getDataTypeCenter().initDataTypeReasoner(DTReasoner);
 	// init set of reflexive roles

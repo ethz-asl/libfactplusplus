@@ -263,9 +263,8 @@ public:		// interface
 	// flag setting
 
 		/// set flags for blocking
-	void initContext ( DLDag* pDag, bool useLB, bool useAB )
+	void initContext ( bool useLB, bool useAB )
 	{
-		DlCompletionTree::initContext(pDag);
 		useLazyBlocking = useLB;
 		useAnywhereBlocking = useAB;
 	}
