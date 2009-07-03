@@ -1002,14 +1002,7 @@ public:
 		/// check if a concept C is satisfiable
 	bool isSatisfiable ( const TConcept* C );
 		/// check that 2 individuals are the same
-	bool isSameIndividuals ( const TIndividual* a, const TIndividual* b )
-	{
-		if ( !isIndividual(a) || !isIndividual(b) )
-			throw EFaCTPlusPlus("Individuals are expected in the isSameIndividuals() query");
-		if ( a->node == NULL || b->node == NULL )
-			throw EFaCTPlusPlus("isSameIndividuals() query with non-realised ontology");
-		return a->node->resolvePBlocker() == b->node->resolvePBlocker();
-	}
+	bool isSameIndividuals ( const TIndividual* a, const TIndividual* b );
 
 		/// fills cache entry for given concept; set up SAT flag to a concept
 	const modelCacheInterface* initCache ( TConcept* pConcept );

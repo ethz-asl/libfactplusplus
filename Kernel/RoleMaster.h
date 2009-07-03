@@ -22,8 +22,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "globaldef.h"
 #include "tNameSet.h"
 #include "eFPPCantRegName.h"
-#include "dltree.h"
-#include "dlCompletionTree.h"
 #include "tRole.h"
 #include "Taxonomy.h"
 
