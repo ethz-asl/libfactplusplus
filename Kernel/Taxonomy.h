@@ -32,9 +32,9 @@ protected:	// internal typedefs
 	typedef TaxonomyVertex::TaxonomyLink TaxonomyLink;
 		/// type for taxonomy internal representation
 	typedef TaxonomyLink SetOfVertex;
-		/// set of the TS
+		/// set of the subsumers
 	typedef ClassifiableEntry::linkSet SubsumerSet;
-		/// TS RW iterator
+		/// SS RW iterator
 	typedef SubsumerSet::iterator ss_iterator;
 
 		/// abstract class to represent the known subsumers of a concept
