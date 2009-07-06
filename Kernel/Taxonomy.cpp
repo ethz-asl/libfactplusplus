@@ -214,7 +214,7 @@ void Taxonomy :: setToldSubsumers ( void )
 	if ( !ksStack.top()->p_empty() && LLM.isWritable(llTSList) && needLogging() )
 	{
 		LL << " and possibly ";
-	
+
 		for ( ss_iterator q = ksStack.top()->p_begin(), q_end = ksStack.top()->p_end(); q < q_end; ++q )
 			LL << " '" << (*q)->getName() << "'";
 	}

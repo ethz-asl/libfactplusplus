@@ -103,8 +103,9 @@ void DLConceptTaxonomy :: print ( std::ostream& o ) const
 
 	o << nPositives << " (" << (unsigned long)(nPositives*100/n) << "%) successfull\n";
 	o << "Besides that " << nCachedPositive << " successfull and " << nCachedNegative
-	  << " unsuccessfull subsumption tests were cached\nSorted reasoning deals with "
-	  << nSortedNegative << " non-subsumptions\n";
+	  << " unsuccessfull subsumption tests were cached\n";
+	if ( nSortedNegative )
+		o << "Sorted reasoning deals with " << nSortedNegative << " non-subsumptions\n";
 	o << "There were made " << nSearchCalls << " search calls\nThere were made " << nSubCalls
 	  << " Sub calls, of which " << nNonTrivialSubCalls << " non-trivial\n";
 	o << "Current efficiency (wrt Brute-force) is " << nEntries*(nEntries-1)/n << "\n";
