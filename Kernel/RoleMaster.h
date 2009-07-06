@@ -175,6 +175,9 @@ public:		// interface
 		/// register a pair of disjoint roles
 	void addDisjointRoles ( TRole* R, TRole* S )
 	{
+		// object- and data roles are always disjoint
+		if ( R->isDataRole() != S->isDataRole() )
+			return;
 		DJRolesA.push_back(R);
 		DJRolesB.push_back(S);
 	}
