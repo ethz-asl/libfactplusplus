@@ -209,11 +209,11 @@ public:		// interface
 
 	// output interface
 
-	void Print ( std::ostream& o ) const
+	void Print ( std::ostream& o, const char* type ) const
 	{
 		if ( size() == 0 )
 			return;
-		o << "Roles (" << size() << "):\n";
+		o << type << " Roles (" << size() << "):\n";
 		for ( const_iterator p = begin(); p != end(); ++p )
 			(*p)->Print(o);
 	}

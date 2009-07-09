@@ -97,15 +97,18 @@ void DLDag :: mergeSorts ( DLVertex& v )
 }
 
 /// build the sort system for given TBox
-void DLDag :: determineSorts ( RoleMaster& RM )
+void DLDag :: determineSorts ( RoleMaster& ORM, RoleMaster& DRM )
 {
 	sortArraySize = Heap.size();
 
-	RoleMaster::iterator p, p_end = RM.end();
+	RoleMaster::iterator p, p_end;
 	HeapType::iterator i, i_end = Heap.end();
 
 	// init roles R&D sorts
-	for ( p = RM.begin(); p < p_end; ++p )
+	for ( p = ORM.begin(), p_end = ORM.end(); p < p_end; ++p )
+		if ( !(*p)->isSynonym() )
+			mergeSorts(*p);
+	for ( p = DRM.begin(), p_end = DRM.end(); p < p_end; ++p )
 		if ( !(*p)->isSynonym() )
 			mergeSorts(*p);
 
@@ -121,7 +124,15 @@ void DLDag :: determineSorts ( RoleMaster& RM )
 			++sum;
 	}
 
-	for ( p = RM.begin(); p < p_end; ++p )
+	for ( p = ORM.begin(), p_end = ORM.end(); p < p_end; ++p )
+		if ( !(*p)->isSynonym() )
+		{
+			mergableLabel& lab = const_cast<TRole*>(*p)->getDomainLabel();
+			lab.resolve();
+			if ( lab.isSample() )
+				++sum;
+		}
+	for ( p = DRM.begin(), p_end = DRM.end(); p < p_end; ++p )
 		if ( !(*p)->isSynonym() )
 		{
 			mergableLabel& lab = const_cast<TRole*>(*p)->getDomainLabel();

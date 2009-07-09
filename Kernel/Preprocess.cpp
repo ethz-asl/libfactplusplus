@@ -43,13 +43,16 @@ void TBox :: Preprocess ( void )
 
 	// builds role hierarchy
 	BEGIN_PASS("Build role hierarchy");
-	RM.initAncDesc();
+	ORM.initAncDesc();
+	DRM.initAncDesc();
 	END_PASS();
 
 	if ( verboseOutput )
 	{
-		std::ofstream roles("Taxonomy.Roles");
-		RM.getTaxonomy()->print(roles);
+		std::ofstream oroles("Taxonomy.ORoles");
+		ORM.getTaxonomy()->print(oroles);
+		std::ofstream droles("Taxonomy.DRoles");
+		DRM.getTaxonomy()->print(droles);
 	}
 
 	// all concept descriptions contains synonyms. Remove them now
@@ -188,9 +191,12 @@ replaceSynonymsFromTree ( DLTree* desc )
 void TBox :: replaceAllSynonyms ( void )
 {
 	// replace synonyms in role's domain
-	for ( RoleMaster::iterator pr = RM.begin(), pr_end = RM.end(); pr < pr_end; ++pr )
-		if ( !(*pr)->isSynonym() )
-			replaceSynonymsFromTree ( (*pr)->getTDomain() );
+	for ( RoleMaster::iterator r = ORM.begin(), r_end = ORM.end(); r < r_end; ++r )
+		if ( !(*r)->isSynonym() )
+			replaceSynonymsFromTree ( (*r)->getTDomain() );
+	for ( RoleMaster::iterator dr = DRM.begin(), dr_end = DRM.end(); dr < dr_end; ++dr )
+		if ( !(*dr)->isSynonym() )
+			replaceSynonymsFromTree ( (*dr)->getTDomain() );
 
 	for ( c_iterator pc = c_begin(); pc != c_end(); ++pc )
 		if ( replaceSynonymsFromTree ( (*pc)->Description ) )
@@ -418,7 +424,7 @@ void TBox :: determineSorts ( void )
 	}
 
 	// create sorts for concept and/or roles
-	DLHeap.determineSorts(RM);
+	DLHeap.determineSorts ( ORM, DRM );
 #endif // RKG_USE_SORTED_REASONING
 }
 

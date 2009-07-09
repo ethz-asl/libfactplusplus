@@ -140,7 +140,7 @@ TBox :: replaceForall ( DLTree* R, DLTree* C )
 	// cache init
 	static RCCache* pCache;
 	if ( pCache == NULL )
-		pCache = new RCCache((RM.end()-RM.begin())/2);
+		pCache = new RCCache((ORM.end()-ORM.begin())/2);
 
 	// check whether we already did this before for given R,C
 	const TRole* r = resolveRole(R);

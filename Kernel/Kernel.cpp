@@ -244,7 +244,7 @@ ReasoningKernel :: buildRelatedCache ( TIndividual* i )
 	TRelatedMap* map = new TRelatedMap();
 
 	// fill the map with role-related thing
-	for ( RoleMaster::iterator p = getRM()->begin(), p_end = getRM()->end(); p < p_end; ++p )
+	for ( RoleMaster::iterator p = getORM()->begin(), p_end = getORM()->end(); p < p_end; ++p )
 	{
 		TRole* R = *p;
 		RIActor actor;
@@ -271,7 +271,8 @@ ReasoningKernel :: getRelatedRoles ( const ComplexConcept I, NamesVector& Rs, bo
 	const TRelatedMap* map = getRelatedCache(getIndividual ( I, "individual name expected in the getRelatedRoles()" ));
 
 	Rs.clear();
-	for ( RoleMaster::iterator p = getRM()->begin(), p_end = getRM()->end(); p < p_end; ++p )
+	RoleMaster* RM = data ? getDRM() : getORM();
+	for ( RoleMaster::iterator p = RM->begin(), p_end = RM->end(); p < p_end; ++p )
 	{
 		TRole* R = *p;
 		if ( R->isDataRole() == data && ( R->getId() > 0 || needI ) && !map->getRelated(R).empty() )

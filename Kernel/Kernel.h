@@ -191,10 +191,14 @@ protected:	// methods
 		/// get RO access to TBox
 	const TBox* getTBox ( void ) const { checkTBox(); return pTBox; }
 
-		/// get RW access to RoleMaster from TBox
-	RoleMaster* getRM ( void ) { return getTBox()->getRM(); }
-		/// get RO access to RoleMaster from TBox
-	const RoleMaster* getRM ( void ) const { return getTBox()->getRM(); }
+		/// get RW access to Object RoleMaster from TBox
+	RoleMaster* getORM ( void ) { return getTBox()->getORM(); }
+		/// get RO access to Object RoleMaster from TBox
+	const RoleMaster* getORM ( void ) const { return getTBox()->getORM(); }
+		/// get RW access to Data RoleMaster from TBox
+	RoleMaster* getDRM ( void ) { return getTBox()->getDRM(); }
+		/// get RO access to Data RoleMaster from TBox
+	const RoleMaster* getDRM ( void ) const { return getTBox()->getDRM(); }
 
 		/// get access to the concept hierarchy
 	const Taxonomy* getCTaxonomy ( void ) const
@@ -203,12 +207,19 @@ protected:	// methods
 			throw EFaCTPlusPlus("No access to concept taxonomy: ontology not classified");
 		return getTBox()->getTaxonomy();
 	}
-		/// get access to the role hierarchy
-	const Taxonomy* getRTaxonomy ( void ) const
+		/// get access to the object role hierarchy
+	const Taxonomy* getORTaxonomy ( void ) const
 	{
 		if ( !isKBPreprocessed() )
-			throw EFaCTPlusPlus("No access to role taxonomy: ontology not preprocessed");
-		return getRM()->getTaxonomy();
+			throw EFaCTPlusPlus("No access to the object role taxonomy: ontology not preprocessed");
+		return getORM()->getTaxonomy();
+	}
+		/// get access to the data role hierarchy
+	const Taxonomy* getDRTaxonomy ( void ) const
+	{
+		if ( !isKBPreprocessed() )
+			throw EFaCTPlusPlus("No access to the data role taxonomy: ontology not preprocessed");
+		return getDRM()->getTaxonomy();
 	}
 
 	// transformation methods
@@ -671,12 +682,21 @@ public:
 		p->getRelativesInfo</*needCurrent=*/true, /*onlyDirect=*/false, /*upDirection=*/false>(actor);
 	}
 
-	// apply actor.apply() to all rolenames
+	// apply actor.apply() to all object rolenames
 	template<class Actor>
-	void getAllRoles ( Actor& actor )
+	void getAllORoles ( Actor& actor )
 	{
 		preprocessKB();	// ensure KB is ready to answer the query
-		TaxonomyVertex* p = getRTaxonomy()->getBottom();	// need for successful compilation
+		TaxonomyVertex* p = getORTaxonomy()->getBottom();	// need for successful compilation
+		p->getRelativesInfo</*needCurrent=*/false, /*onlyDirect=*/false, /*upDirection=*/true>(actor);
+	}
+
+	// apply actor.apply() to all object rolenames
+	template<class Actor>
+	void getAllDRoles ( Actor& actor )
+	{
+		preprocessKB();	// ensure KB is ready to answer the query
+		TaxonomyVertex* p = getDRTaxonomy()->getBottom();	// need for successful compilation
 		p->getRelativesInfo</*needCurrent=*/false, /*onlyDirect=*/false, /*upDirection=*/true>(actor);
 	}
 

@@ -54,7 +54,7 @@ DlSatTester :: DlSatTester ( TBox& tbox, const ifOptionSet* Options )
 	// init datatype reasoner
 	tBox.getDataTypeCenter().initDataTypeReasoner(DTReasoner);
 	// init set of reflexive roles
-	tbox.getRM()->fillReflexiveRoles(ReflexiveRoles);
+	tbox.getORM()->fillReflexiveRoles(ReflexiveRoles);
 	GCIs.setReflexive(!ReflexiveRoles.empty());
 	// init blocking statistics
 	clearBlockingStat();

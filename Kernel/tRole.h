@@ -305,7 +305,7 @@ public:		// interface
 		/// two roles are the same iff thy are synonyms of the same role
 	bool operator == ( const TRole& r ) const { return this == &r; }
 		/// check if role is a strict sub-role of R
-	bool operator < ( const TRole& r ) const { return AncMap[r.getIndex()]; }
+	bool operator < ( const TRole& r ) const { return (isDataRole() == r.isDataRole()) && AncMap[r.getIndex()]; }
 		/// check if role is a non-strict sub-role of R
 	bool operator <= ( const TRole& r ) const { return (*this == r) || (*this < r); }
 		/// check if role is a strict super-role of R

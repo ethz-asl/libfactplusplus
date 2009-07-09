@@ -416,6 +416,8 @@ void TBox :: processDisjointR ( ea_iterator beg, ea_iterator end )
 		if ( isUniversalRole(*p) )
 			throw EFaCTPlusPlus("Universal role in the disjoint roles axiom");
 
+	RoleMaster* RM = getRM(resolveRole(*beg));
+
 	// make a disjoint roles
 	for ( p = beg; p < end; ++p )
 	{
@@ -423,15 +425,18 @@ void TBox :: processDisjointR ( ea_iterator beg, ea_iterator end )
 
 		// FIXME: this could be done more optimal...
 		for ( q = p+1; q < end; ++q )
-			RM.addDisjointRoles ( r, resolveRole(*q) );
+			RM->addDisjointRoles ( r, resolveRole(*q) );
 	}
 }
 
 void TBox :: processEquivalentR ( ea_iterator beg, ea_iterator end )
 {
 	if ( beg != end )
+	{
+		RoleMaster& RM = resolveRole(*beg)->isDataRole() ? DRM : ORM;
 		for ( ; beg != end-1; ++beg )
 			RM.addRoleSynonym ( resolveRole(*beg), resolveRole(*(beg+1)) );
+	}
 }
 
 

@@ -300,14 +300,16 @@ TBox :: Save ( ostream& o ) const
 {
 	tvMap.clear();
 	neMap.clear();
-	o << "\nR";
-	RM.Save(o);
 	neMap.add(pBottom);
 	neMap.add(pTop);
 	o << "\nC";
 	Concepts.Save(o);
 	o << "\nI";
 	Individuals.Save(o);
+	o << "\nOR";
+	ORM.Save(o);
+	o << "\nDR";
+	DRM.Save(o);
 	o << "\nD";
 	DLHeap.Save(o);
 	if ( Status > kbCChecked )
@@ -324,14 +326,18 @@ TBox :: Load ( istream& i, KBStatus status )
 	string KB;
 	tvMap.clear();
 	neMap.clear();
-	expectChar(i,'R');
-	RM.Load(i);
 	neMap.add(pBottom);
 	neMap.add(pTop);
 	expectChar(i,'C');
 	Concepts.Load(i);
 	expectChar(i,'I');
 	Individuals.Load(i);
+	expectChar(i,'O');
+	expectChar(i,'R');
+	ORM.Load(i);
+	expectChar(i,'D');
+	expectChar(i,'R');
+	DRM.Load(i);
 	expectChar(i,'D');
 	DLHeap.Load(i);
 	if ( Status > kbCChecked )

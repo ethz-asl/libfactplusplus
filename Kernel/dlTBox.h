@@ -176,7 +176,11 @@ protected:	// members
 	ConceptCollection Concepts;
 		/// all named individuals/nominals
 	IndividualCollection Individuals;
-	RoleMaster RM;
+		/// "normal" (object) roles
+	RoleMaster ORM;
+		/// data roles
+	RoleMaster DRM;
+		/// set of GCIs
 	TAxiomSet Axioms;
 		/// given individual-individual relations
 	RelatedCollection RelatedI;
@@ -490,8 +494,8 @@ protected:	// methods
 		/// Remove DLTree* from TConcept after DAG is constructed
 	void RemoveExtraDescriptions ( void );
 
-		/// init Range and Domain for all roles; sets hasGCI if R&D was found
-	void initRangeDomain ( void );
+		/// init Range and Domain for all roles of RM; sets hasGCI if R&D was found
+	void initRangeDomain ( RoleMaster& RM );
 
 		/// set told TOP concept whether necessary
 	void initToldSubsumers ( void )
@@ -610,7 +614,6 @@ protected:	// methods
 //-----------------------------------------------------------------------------
 
 	void PrintDagEntry ( std::ostream& o, BipolarPointer p ) const;
-	void PrintRoles ( std::ostream& o ) const;
 		/// print one concept-like entry
 	void PrintConcept ( std::ostream& o, const TConcept* p ) const;
 		/// print all registered concepts
@@ -774,9 +777,17 @@ public:
 	~TBox ( void );
 
 		/// get RW access to used Role Master
-	RoleMaster* getRM ( void ) { return &RM; }
+	RoleMaster* getORM ( void ) { return &ORM; }
 		/// get RO access to used Role Master
-	const RoleMaster* getRM ( void ) const { return &RM; }
+	const RoleMaster* getORM ( void ) const { return &ORM; }
+		/// get RW access to used DataRole Master
+	RoleMaster* getDRM ( void ) { return &DRM; }
+		/// get RO access to used DataRole Master
+	const RoleMaster* getDRM ( void ) const { return &DRM; }
+		/// get RW access to the RoleMaster depending of the R
+	RoleMaster* getRM ( const TRole* R ) { return R->isDataRole() ? getDRM() : getORM(); }
+		/// get RO access to the RoleMaster depending of the R
+	const RoleMaster* getRM ( const TRole* R ) const { return R->isDataRole() ? getDRM() : getORM(); }
 
 //-----------------------------------------------------------------------------
 //--		public parser ensure* interface
@@ -828,7 +839,8 @@ public:
 		/// set the flag that forbid usage of undefined names for concepts/roles; @return old value
 	bool setForbidUndefinedNames ( bool val )
 	{
-		RM.setUndefinedNames(!val);
+		ORM.setUndefinedNames(!val);
+		DRM.setUndefinedNames(!val);
 		Individuals.setLocked(val);
 		return Concepts.setLocked(val);
 	}
@@ -1032,7 +1044,8 @@ public:
 	void Print ( std::ostream& o ) const
 	{
 		DLHeap.PrintStat(o);
-		RM.Print(o);
+		ORM.Print ( o, "Object" );
+		DRM.Print ( o, "Data" );
 		PrintConcepts(o);
 		PrintIndividuals(o);
 		PrintSimpleRules(o);

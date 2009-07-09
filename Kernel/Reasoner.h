@@ -1040,7 +1040,7 @@ TBox :: initReasoner ( void )
 	{
 		fpp_assert ( nomReasoner == NULL );
 
-		GCIs.setReflexive(RM.hasReflexiveRoles());
+		GCIs.setReflexive(ORM.hasReflexiveRoles());
 
 		stdReasoner = new DlSatTester ( *this, pOptions );
 		if ( NCFeatures.hasSingletons() )

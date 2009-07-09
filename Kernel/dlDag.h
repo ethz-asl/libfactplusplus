@@ -245,7 +245,7 @@ public:		// interface
 			(*this)[p].merge(ml);
 	}
 		/// build the sort system for given TBox
-	void determineSorts ( RoleMaster& RM );
+	void determineSorts ( RoleMaster& ORM, RoleMaster& DRM );
 		/// update sorts for <a,b>:R construction
 	void updateSorts ( BipolarPointer a, TRole* R, BipolarPointer b )
 	{

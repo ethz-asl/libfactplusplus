@@ -58,11 +58,11 @@ protected:	// methods
 			break;
 		case RNAME:
 			if ( E->Element().getNE() == NULL )
-				const_cast<DLTree*>(E)->Element().setNE ( kb.getRM()->ensureRoleName ( E->Element().getName(), /*isDataRole=*/false ) );
+				const_cast<DLTree*>(E)->Element().setNE ( kb.getORM()->ensureRoleName ( E->Element().getName(), /*isDataRole=*/false ) );
 			break;
 		case DNAME:
 			if ( E->Element().getNE() == NULL )
-				const_cast<DLTree*>(E)->Element().setNE ( kb.getRM()->ensureRoleName ( E->Element().getName(), /*isDataRole=*/true ) );
+				const_cast<DLTree*>(E)->Element().setNE ( kb.getDRM()->ensureRoleName ( E->Element().getName(), /*isDataRole=*/true ) );
 			break;
 		default:
 			ensureNames(E->Left());
@@ -125,7 +125,8 @@ public:		// visitor interface
 	{
 		ensureNames(axiom.getRole());
 		ensureNames(axiom.getSubRole());
-		kb.getRM()->addRoleParent ( axiom.getSubRole(), getRole ( axiom.getRole(), "Role expression expected in Roles Subsumption axiom" ) );
+		TRole* R = getRole ( axiom.getRole(), "Role expression expected in Roles Subsumption axiom" );
+		kb.getRM(R)->addRoleParent ( axiom.getSubRole(), R );
 	}
 	virtual void visit ( TDLAxiomRoleDomain& axiom )
 	{
@@ -165,7 +166,7 @@ public:		// visitor interface
 		if ( !isUniversalRole(axiom.getRole()) )
 		{
 			TRole* invR = getRole ( axiom.getRole(), "Role expression expected in Role Symmetry axiom" )->inverse();
-			kb.getRM()->addRoleParent ( axiom.getRole(), invR );
+			kb.getRM(invR)->addRoleParent ( axiom.getRole(), invR );
 		}
 	}
 	virtual void visit ( TDLAxiomRoleAntiSymmetric& axiom )
@@ -174,7 +175,7 @@ public:		// visitor interface
 		if ( isUniversalRole(axiom.getRole()) )	// KB became inconsistent
 			throw EFPPInconsistentKB();
 		TRole* R = getRole ( axiom.getRole(), "Role expression expected in Role AntiSymmetry axiom" );
-		kb.getRM()->addDisjointRoles ( R, R->inverse() );
+		kb.getRM(R)->addDisjointRoles ( R, R->inverse() );
 	}
 	virtual void visit ( TDLAxiomRoleFunctional& axiom )
 	{

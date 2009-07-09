@@ -42,10 +42,14 @@ void TBox :: buildDAG ( void )
 	deleteTree(GCI);
 
 	// builds Roles range and domain
-	initRangeDomain();
+	initRangeDomain(ORM);
+	initRangeDomain(DRM);
 
 	// builds functional labels for roles
-	for ( RoleMaster::iterator p = RM.begin(), p_end = RM.end(); p < p_end; ++p )
+	for ( RoleMaster::iterator p = ORM.begin(), p_end = ORM.end(); p < p_end; ++p )
+		if ( !(*p)->isSynonym() && (*p)->isTopFunc() )
+			(*p)->setFunctional ( DLHeap.add ( new DLVertex ( dtLE, 1, *p, bpTOP ) ) );
+	for ( RoleMaster::iterator p = DRM.begin(), p_end = DRM.end(); p < p_end; ++p )
 		if ( !(*p)->isSynonym() && (*p)->isTopFunc() )
 			(*p)->setFunctional ( DLHeap.add ( new DLVertex ( dtLE, 1, *p, bpTOP ) ) );
 
@@ -58,7 +62,7 @@ void TBox :: buildDAG ( void )
 	}
 }
 
-void TBox :: initRangeDomain ( void )
+void TBox :: initRangeDomain ( RoleMaster& RM )
 {
 	RoleMaster::iterator p, p_end = RM.end();
 	for ( p = RM.begin(); p < p_end; ++p )

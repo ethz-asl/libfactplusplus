@@ -194,7 +194,14 @@ void TBox :: dumpExpression ( dumpInterface* dump, BipolarPointer p ) const
 
 void TBox :: dumpAllRoles ( dumpInterface* dump ) const
 {
-	for ( RoleMaster::const_iterator p = RM.begin(); p != RM.end(); ++p )
+	RoleMaster::const_iterator p;
+	for ( p = ORM.begin(); p != ORM.end(); ++p )
+		if ( isRelevant(*p) )
+		{
+			fpp_assert ( !(*p)->isSynonym() );
+			dumpRole ( dump, *p );
+		}
+	for ( p = DRM.begin(); p != DRM.end(); ++p )
 		if ( isRelevant(*p) )
 		{
 			fpp_assert ( !(*p)->isSynonym() );

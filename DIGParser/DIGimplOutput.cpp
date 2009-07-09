@@ -250,7 +250,7 @@ void DIGParseHandlers :: endAsk ( DIGTag tag )
 	case digAllRoleNames:
 	{
 		RoleActor actor ( *o, curId.c_str() );
-		ASK_QUERY(pKernel->getAllRoles(actor));
+		ASK_QUERY(pKernel->getAllORoles(actor) ; pKernel->getAllDRoles(actor));
 		return;
 	}
 	case digAllIndividuals:
