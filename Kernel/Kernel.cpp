@@ -244,21 +244,32 @@ ReasoningKernel :: buildRelatedCache ( TIndividual* i )
 	TRelatedMap* map = new TRelatedMap();
 
 	// fill the map with role-related thing
-	for ( RoleMaster::iterator p = getORM()->begin(), p_end = getORM()->end(); p < p_end; ++p )
-	{
-		TRole* R = *p;
-		RIActor actor;
-		if ( !R->isDataRole() && !R->inverse()->isDataRole() )
+	RoleMaster::iterator p, p_end = getORM()->end();
+	for ( p = getORM()->begin(); p < p_end; ++p )
+		if ( !(*p)->isSynonym() )
 		{
+			TRole* R = *p;
+			RIActor actor;
+
 			// ask for instances of \exists R^-.{i}
-			// FIXME!! work as we know data/object roles here
 			DLTree* invR = (R->getId() > 0) ? Inverse(ensureRoleName(R->getName())) : ensureRoleName(R->inverse()->getName());
 			DLTree* query = Exists ( invR, ensureSingletonName(i->getName()) );
 			getInstances ( query, actor );
 			deleteTree(query);
+			map->setRelated ( R, actor.getAcc() );
 		}
-		map->setRelated ( R, actor.getAcc() );
+
+	for ( p = getORM()->begin(); p < p_end; ++p )
+		if ( (*p)->isSynonym() )
+			map->setRelated ( *p, map->getRelated(resolveSynonym(*p)) );
+
+	// FIXME!! put fake entries for data roles
+	for ( p = getDRM()->begin(), p_end = getDRM()->end(); p < p_end; ++p )
+	{
+		RIActor actor;
+		map->setRelated ( *p, actor.getAcc() );
 	}
+
 	i->setRelatedMap(map);
 	return map;
 }
@@ -275,7 +286,7 @@ ReasoningKernel :: getRelatedRoles ( const ComplexConcept I, NamesVector& Rs, bo
 	for ( RoleMaster::iterator p = RM->begin(), p_end = RM->end(); p < p_end; ++p )
 	{
 		TRole* R = *p;
-		if ( R->isDataRole() == data && ( R->getId() > 0 || needI ) && !map->getRelated(R).empty() )
+		if ( ( R->getId() > 0 || needI ) && !map->getRelated(R).empty() )
 			Rs.push_back(R);
 	}
 }
