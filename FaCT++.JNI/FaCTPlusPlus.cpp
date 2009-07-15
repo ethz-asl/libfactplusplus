@@ -75,6 +75,11 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_initKe
 	// create new kernel and save it in an FaCTPlusPlus object
 	env->SetLongField ( obj, fid, (jlong)(curKernel=new MMKernel()) );
 	TRACE_JNI("initKernel");
+
+#ifdef _USE_LOGGING
+	// initialize LeveLogger
+//	LLM.initLogger ( 20, "reasoning.log" );
+#endif
 }
 
 /*
