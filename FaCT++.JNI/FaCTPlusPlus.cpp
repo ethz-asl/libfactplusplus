@@ -471,6 +471,32 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
 
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
+ * Method:    getDataIntersectionOf
+ * Signature: ()Luk/ac/manchester/cs/factplusplus/DataTypeExpressionPointer;
+ */
+JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_getDataIntersectionOf
+  (JNIEnv * env, jobject obj)
+{
+    TRACE_JNI("getDataIntersectionOf");
+    Throw ( env, "FaCT++ Kernel: unsupported operation" );
+    return NULL;
+}
+
+/*
+ * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
+ * Method:    getDataUnionOf
+ * Signature: ()Luk/ac/manchester/cs/factplusplus/DataTypeExpressionPointer;
+ */
+JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_getDataUnionOf
+  (JNIEnv * env, jobject obj)
+{
+    TRACE_JNI("getDataUnionOf");
+    Throw ( env, "FaCT++ Kernel: unsupported operation" );
+    return NULL;
+}
+
+/*
+ * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
  * Method:    getDataValue
  * Signature: (Ljava/lang/String;Luk/ac/manchester/cs/factplusplus/DataTypePointer;)Luk/ac/manchester/cs/factplusplus/DataValuePointer;
  */
@@ -698,6 +724,34 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
 
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
+ * Method:    getDataPropertyKey
+ * Signature: ()Luk/ac/manchester/cs/factplusplus/DataPropertyPointer;
+ */
+JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_getDataPropertyKey
+  (JNIEnv * env, jobject obj)
+{
+    TRACE_JNI("getDataPropertyKey");
+    Throw ( env, "FaCT++ Kernel: unsupported operation" );
+    return NULL;
+}
+
+
+/*
+ * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
+ * Method:    getObjectPropertyKey
+ * Signature: ()Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;
+ */
+JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_getObjectPropertyKey
+  (JNIEnv * env, jobject obj)
+{
+    TRACE_JNI("getObjectPropertyKey");
+    Throw ( env, "FaCT++ Kernel: unsupported operation" );
+    return NULL;
+}
+
+
+/*
+ * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
  * Method:    getOneOf
  * Signature: ()Luk/ac/manchester/cs/factplusplus/ClassPointer;
  */
@@ -785,6 +839,19 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tel
 	PROCESS_QUERY ( getK(env,obj)->declare(getTree(env,arg)), "tellIndividualDeclaration" );
 }
 
+
+/*
+ * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
+ * Method:    tellDatatypeDeclaration
+ * Signature: (Luk/ac/manchester/cs/factplusplus/DataTypePointer;)Luk/ac/manchester/cs/factplusplus/AxiomPointer;
+ */
+JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellDatatypeDeclaration
+  (JNIEnv * env, jobject obj, jobject arg)
+{
+	PROCESS_QUERY ( getK(env,obj)->declare(getTree(env,arg)), "tellDatatypeDeclaration" );
+}
+
+  
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
  * Method:    tellSubClassOf
@@ -817,6 +884,21 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tel
 {
 	PROCESS_QUERY ( getK(env,obj)->disjointConcepts(), "tellDisjointClasses" );
 }
+
+
+/*
+ * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
+ * Method:    tellHasKey
+ * Signature: (Luk/ac/manchester/cs/factplusplus/ClassPointer;Luk/ac/manchester/cs/factplusplus/DataPropertyPointer;Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;)Luk/ac/manchester/cs/factplusplus/AxiomPointer;
+ */
+JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellHasKey
+  (JNIEnv * env, jobject obj, jobject cls, jobject dataprops, jobject objectprops)
+{
+    TRACE_JNI("tellHasKey");
+    Throw ( env, "FaCT++ Kernel: unsupported operation" );
+    return NULL;
+}
+
 
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus

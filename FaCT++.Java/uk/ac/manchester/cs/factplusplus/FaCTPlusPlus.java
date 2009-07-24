@@ -156,6 +156,20 @@ public class FaCTPlusPlus {
 
     public native DataTypeExpressionPointer getNot(DataTypeExpressionPointer d) throws FaCTPlusPlusException;
 
+
+    /**
+     * Gets a data intersection using previously added arguments
+     * (initArgList, addArg, closeArgList)
+     */
+    public native DataTypeExpressionPointer getDataIntersectionOf() throws FaCTPlusPlusException;
+
+    /**
+     * Gets a data union using previously added arguments
+     * (initArgList, addArg, closeArgList)
+     */
+    public native DataTypeExpressionPointer getDataUnionOf() throws FaCTPlusPlusException;
+
+
     public native DataValuePointer getDataValue(String literal, DataTypePointer type) throws FaCTPlusPlusException;
 
 
@@ -184,23 +198,25 @@ public class FaCTPlusPlus {
 
     public native ClassPointer getObjectValue(ObjectPropertyPointer r, IndividualPointer i) throws FaCTPlusPlusException;
 
-    public native ClassPointer getDataSome(DataPropertyPointer r, DataTypeExpressionPointer d) throws FaCTPlusPlusException;
-
-    public native ClassPointer getDataAll(DataPropertyPointer r, DataTypeExpressionPointer d) throws FaCTPlusPlusException;
-
-    public native ClassPointer getDataValue(DataPropertyPointer r, DataValuePointer d) throws FaCTPlusPlusException;
-
     public native ClassPointer getObjectAtLeast(int num, ObjectPropertyPointer r, ClassPointer c) throws FaCTPlusPlusException;
 
     public native ClassPointer getObjectExact(int num, ObjectPropertyPointer r, ClassPointer c) throws FaCTPlusPlusException;
 
     public native ClassPointer getObjectAtMost(int num, ObjectPropertyPointer r, ClassPointer c) throws FaCTPlusPlusException;
 
+
+    public native ClassPointer getDataSome(DataPropertyPointer r, DataTypeExpressionPointer d) throws FaCTPlusPlusException;
+
+    public native ClassPointer getDataAll(DataPropertyPointer r, DataTypeExpressionPointer d) throws FaCTPlusPlusException;
+
+    public native ClassPointer getDataValue(DataPropertyPointer r, DataValuePointer d) throws FaCTPlusPlusException;
+
     public native ClassPointer getDataAtLeast(int num, DataPropertyPointer r, DataTypeExpressionPointer d) throws FaCTPlusPlusException;
 
     public native ClassPointer getDataExact(int num, DataPropertyPointer r, DataTypeExpressionPointer d) throws FaCTPlusPlusException;
 
     public native ClassPointer getDataAtMost(int num, DataPropertyPointer r, DataTypeExpressionPointer d) throws FaCTPlusPlusException;
+
 
     public native ObjectPropertyPointer getInverseProperty(ObjectPropertyPointer r) throws FaCTPlusPlusException;
 
@@ -209,6 +225,19 @@ public class FaCTPlusPlus {
      * closed arg list.
      */
     public native ObjectPropertyPointer getPropertyComposition() throws FaCTPlusPlusException;
+
+
+    /**
+     * Gets a data key whose properties are in the last
+     * closed arg list.
+     */
+    public native DataPropertyPointer getDataPropertyKey() throws FaCTPlusPlusException;
+
+    /**
+     * Gets an object key whose properties are in the last
+     * closed arg list.
+     */
+    public native ObjectPropertyPointer getObjectPropertyKey() throws FaCTPlusPlusException;
 
     /**
      * Gets an enumeration whose individuals are in the last
@@ -229,6 +258,8 @@ public class FaCTPlusPlus {
 
     public native AxiomPointer tellIndividualDeclaration(IndividualPointer ip) throws FaCTPlusPlusException;
 
+    public native AxiomPointer tellDatatypeDeclaration(DataTypePointer dp) throws FaCTPlusPlusException;
+
 
     public native AxiomPointer tellSubClassOf(ClassPointer c, ClassPointer d) throws FaCTPlusPlusException;
 
@@ -243,6 +274,8 @@ public class FaCTPlusPlus {
      * in the last closed arg list.
      */
     public native AxiomPointer tellDisjointClasses() throws FaCTPlusPlusException;
+
+    public native AxiomPointer tellHasKey(ClassPointer cls, DataPropertyPointer dataKey, ObjectPropertyPointer objectKey) throws FaCTPlusPlusException;
 
 
     public native AxiomPointer tellSubObjectProperties(ObjectPropertyPointer s, ObjectPropertyPointer r) throws FaCTPlusPlusException;
@@ -464,6 +497,5 @@ public class FaCTPlusPlus {
 
     public native void startChanges();
 
-    public native void endChanges();    
-
+    public native void endChanges();
 }
