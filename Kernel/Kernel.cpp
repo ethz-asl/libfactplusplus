@@ -86,6 +86,25 @@ ReasoningKernel :: processKB ( KBStatus status )
 
 	// load the axioms from the ontology
 	{
+#	if 1
+		DLTree* M = ensureConceptName("http://www.co-ode.org/roberts/family-tree.owl#Man");
+		DLTree* W = ensureConceptName("http://www.co-ode.org/roberts/family-tree.owl#Woman");
+		DLTree* hasParent = ensureRoleName("http://www.co-ode.org/roberts/family-tree.owl#hasParent");
+		DLTree* sonOf = ensureRoleName("http://www.co-ode.org/roberts/family-tree.owl#isSonOf");
+		DLTree* daughterOf = ensureRoleName("http://www.co-ode.org/roberts/family-tree.owl#isDaughterOf");
+		DLTree* siblingOf = ensureRoleName("http://www.co-ode.org/roberts/family-tree.owl#isSiblingOf");
+		DLTree* brotherOf = ensureRoleName("http://www.co-ode.org/roberts/family-tree.owl#isBrotherOf");
+		DLTree* sisterOf = ensureRoleName("http://www.co-ode.org/roberts/family-tree.owl#isSisterOf");
+
+		// Man | hasParent -> sonOf
+//		impliesRoles ( ProjectFrom ( clone(hasParent), clone(M) ), sonOf );
+		// Woman | hasParent -> daughterOf
+//		impliesRoles ( ProjectFrom ( hasParent, clone(W) ), daughterOf );
+		// Man | siblingOf -> brotherOf
+		impliesRoles ( ProjectFrom ( clone(siblingOf), M ), brotherOf );
+		// Woman | hasParent -> sisterOf
+//		impliesRoles ( ProjectFrom ( siblingOf, W ), sisterOf );
+#	endif
 		TOntologyLoader OntologyLoader(*getTBox());
 		OntologyLoader.visitOntology(Ontology);
 		// after loading ontology became processed completely
@@ -251,6 +270,7 @@ ReasoningKernel :: buildRelatedCache ( TIndividual* i )
 			TRole* R = *p;
 			RIActor actor;
 
+			std::cout << "Filling instances for " << R->getName() << "\n";
 			// ask for instances of \exists R^-.{i}
 			DLTree* invR = (R->getId() > 0) ? Inverse(ensureRoleName(R->getName())) : ensureRoleName(R->inverse()->getName());
 			DLTree* query = Exists ( invR, ensureSingletonName(i->getName()) );
