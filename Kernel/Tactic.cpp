@@ -1468,12 +1468,12 @@ tacticUsage DlSatTester :: commonTacticBodyProj ( const TRole* R, BipolarPointer
 
 	for ( DlCompletionTree::const_edge_iterator p = curNode->begin(), p_end = curNode->end(); p < p_end; ++p )
 		if ( (*p)->isNeighbour(R) )
-			switchResult ( ret, checkProjection ( *p, C, ProjR, (*p)->isUpLink() ) );
+			switchResult ( ret, checkProjection ( *p, C, ProjR ) );
 
 	return ret;
 }
 
-tacticUsage DlSatTester :: checkProjection ( DlCompletionTreeArc* pA, BipolarPointer C, const TRole* ProjR, bool isUpLink )
+tacticUsage DlSatTester :: checkProjection ( DlCompletionTreeArc* pA, BipolarPointer C, const TRole* ProjR )
 {
 	// nothing to do if pA is labelled by ProjR as well
 	if ( pA->isNeighbour(ProjR) )
@@ -1508,7 +1508,7 @@ tacticUsage DlSatTester :: checkProjection ( DlCompletionTreeArc* pA, BipolarPoi
 	}
 	// here C is in the label of curNode: add ProjR to the edge if necessary
 	DlCompletionTree* child = pA->getArcEnd();
-	pA = CGraph.addRoleLabel ( curNode, child, isUpLink, ProjR, dep );
+	pA = CGraph.addRoleLabel ( curNode, child, pA->isUpLink(), ProjR, dep );
 	int flags = redoForall|redoFunc|redoAtMost|redoIrr;
 	switchResult ( ret, setupEdge ( pA, dep, flags ) );
 

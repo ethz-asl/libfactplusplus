@@ -699,7 +699,7 @@ protected:	// methods
 	// support for the projection
 
 		/// apply projection to given edge if necessary
-	tacticUsage checkProjection ( DlCompletionTreeArc* pA, BipolarPointer C, const TRole* ProjR, bool isUpLink );
+	tacticUsage checkProjection ( DlCompletionTreeArc* pA, BipolarPointer C, const TRole* ProjR );
 
 	// datatype staff
 
