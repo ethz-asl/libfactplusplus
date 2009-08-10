@@ -1459,16 +1459,21 @@ tacticUsage DlSatTester :: commonTacticBodyIrrefl ( const TRole* R )
 tacticUsage DlSatTester :: commonTacticBodyProj ( const TRole* R, BipolarPointer C, const TRole* ProjR )
 {
 	// find an R-edge, try to apply projection-rule to it
-	DlCompletionTree::const_edge_iterator p, p_end;
 	tacticUsage ret = utUnusable;
 
 	// if ~C is in the label of curNode, do nothing
 	if ( curNode->isLabelledBy(inverse(C)) )
 		return utUnusable;
 
-	for ( DlCompletionTree::const_edge_iterator p = curNode->begin(), p_end = curNode->end(); p < p_end; ++p )
+	// FIXME!! checkProjection() might change curNode's edge vector and thusly invalidate iterators
+	DlCompletionTree::const_edge_iterator p = curNode->begin(), p_end = curNode->end();
+	
+	for ( int i = 0, n = p_end - p; i < n; ++i )
+	{
+		p = curNode->begin() + i;
 		if ( (*p)->isNeighbour(R) )
 			switchResult ( ret, checkProjection ( *p, C, ProjR ) );
+	}
 
 	return ret;
 }
