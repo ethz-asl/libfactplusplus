@@ -1,0 +1,71 @@
+<?xml version = "1.0" encoding = "utf-8"?>
+<project name = "factpp" default = "compile" basedir = "..">
+
+    <property name = "src.dir" value = "${factpp.dir}/src"/>
+
+    <!-- =================================================================== -->
+    <!-- Classpath declaration - used in the "compile" target -->
+    <!-- =================================================================== -->
+    <path id = "local.classpath">    
+        <path refid="osgi.libs"/>
+        <pathelement path="${commonlibs.jar}"/>
+        <path refid="commonlibs.classpath"/>
+        <pathelement path="${core.jar}"/>
+        <path refid="core.classpath"/>
+        <pathelement path="${owleditor.jar}"/>
+        <path refid="owlapi.classpath"/>
+        <path refid="factpp.classpath"/>
+    </path>
+
+    <!-- =================================================================== -->
+    <!-- INIT -->
+    <!-- =================================================================== -->
+    <target name = "init">
+        <echo message="---------------Building the Fact++ Plugin -------------"/>
+        <tstamp/>
+        <mkdir dir = "${factpp.classes}"/>
+    </target>  
+
+    <!-- =================================================================== -->
+    <!-- COMPILE -->
+    <!-- =================================================================== -->
+    <target name = "compile" depends = "init">    
+            <javac srcdir = "${src.dir}" destdir = "${factpp.classes}" 
+                   debug="${debug}" source = "${source}" 
+                   includeAntRuntime = "${includeAntRuntime}">
+                <classpath refid = "local.classpath"/>
+            </javac>
+    </target>
+    
+    <!-- =================================================================== -->
+    <!-- BND -->
+    <!-- =================================================================== -->
+    <target name = "bnd"/>
+
+    <target name="copy.resources" depends="init">
+		<copy todir="${factpp.classes}" file="${factpp.dir}/plugin.xml"/>
+		  <copy todir="${factpp.classes}/lib">
+			<fileset dir="${factpp.dir}/lib"/>
+		  </copy>
+    </target>
+
+    <!-- ===================================================================================== -->
+    <!-- SRC.BUNDLE - create a bundle with sources for developers -->
+    <!-- ===================================================================================== -->
+    <target name="src.bundle" depends="copy.resources,compile">
+		<zip destfile="${factpp.classes}/${factpp.name}src.zip">
+			<fileset dir="${src.dir}"/>
+		  </zip>
+		  <antcall target="bundle"/>
+    </target>
+
+    <!-- ===================================================================================== -->
+    <!-- BUNDLE - create the distribution JAR file that goes in the OSGi "plugins" directory -->
+    <!-- ===================================================================================== -->
+    <target name = "bundle" depends = "compile,copy.resources">
+		<jar basedir = "${factpp.classes}" destfile = "${factpp.jar}" manifest = "${factpp.dir}/META-INF/MANIFEST.MF"/>
+    </target>
+
+    <target name = "junit"/>
+        
+</project>
