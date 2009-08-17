@@ -478,8 +478,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
   (JNIEnv * env, jobject obj)
 {
     TRACE_JNI("getDataIntersectionOf");
-    Throw ( env, "FaCT++ Kernel: unsupported operation" );
-    return NULL;
+	return DataTypeExpression ( env, getK(env,obj)->And() );
 }
 
 /*
@@ -491,8 +490,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
   (JNIEnv * env, jobject obj)
 {
     TRACE_JNI("getDataUnionOf");
-    Throw ( env, "FaCT++ Kernel: unsupported operation" );
-    return NULL;
+	return DataTypeExpression ( env, getK(env,obj)->Or() );
 }
 
 /*
@@ -848,7 +846,9 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tel
 JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellDatatypeDeclaration
   (JNIEnv * env, jobject obj, jobject arg)
 {
-	PROCESS_QUERY ( getK(env,obj)->declare(getTree(env,arg)), "tellDatatypeDeclaration" );
+    TRACE_JNI("tellDatatypeDeclaration");
+    Throw ( env, "FaCT++ Kernel: unsupported operation" );
+    return NULL;
 }
 
   
