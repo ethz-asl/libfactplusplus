@@ -251,7 +251,6 @@ ReasoningKernel :: buildRelatedCache ( TIndividual* i )
 			TRole* R = *p;
 			RIActor actor;
 
-			std::cout << "Filling instances for " << R->getName() << "\n";
 			// ask for instances of \exists R^-.{i}
 			DLTree* invR = (R->getId() > 0) ? Inverse(ensureRoleName(R->getName())) : ensureRoleName(R->inverse()->getName());
 			DLTree* query = Exists ( invR, ensureSingletonName(i->getName()) );
