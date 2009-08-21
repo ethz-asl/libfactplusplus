@@ -455,6 +455,15 @@ bool ReasoningKernel :: initOptions ( void )
 		) )
 		return true;
 
+	// register "testTimeout" option -- 21/08/09
+	if ( pKernelOptions->RegisterOption (
+		"testTimeout",
+		"Option 'testTimeout' sets timeout for a single reasoning test in seconds.",
+		ifOption::iotInt,
+		"0"
+		) )
+		return true;
+
 	// options for Blocking
 
 	// register "useLazyBlocking" option -- 08-03-04

@@ -869,6 +869,8 @@ public:
 	}
 		/// set blocking method for a session
 	void setBlockingMethod ( bool hasInverse, bool hasQCR ) { CGraph.setBlockingMethod ( hasInverse, hasQCR ); }
+		/// set SAT test timeout
+	void setTestTimeout ( unsigned int nSec ) { testTimeout = nSec; }
 
 		/// return [singleton] cache for given concept implementation
 	const modelCacheInterface* createModelCache ( BipolarPointer p ) const
