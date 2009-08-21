@@ -232,6 +232,8 @@ protected:	// members
 	TsProcTimer satTimer;
 		/// timer for the SUB tests (ie, general subsumption)
 	TsProcTimer subTimer;
+		/// timer for a single test; use it as a timeout checker
+	TsProcTimer testTimer;
 
 	// save/restore option
 

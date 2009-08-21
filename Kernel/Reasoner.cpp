@@ -522,14 +522,14 @@ DlSatTester :: consistentNominalCloud ( void )
 
 bool DlSatTester :: runSat ( void )
 {
-	// for time calculation
-	TsProcTimer pt;
-	pt.Start ();
+	testTimer.Start();
 	bool result = checkSatisfiability ();
-	pt.Stop ();
+	testTimer.Stop();
 
 	if ( LLM.isWritable(llSatTime) )
-		LL << "\nChecking time was " << pt << " seconds";
+		LL << "\nChecking time was " << testTimer << " seconds";
+
+	testTimer.Reset();
 
 	finaliseStatistic();
 
