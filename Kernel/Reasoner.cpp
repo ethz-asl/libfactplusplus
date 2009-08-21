@@ -18,6 +18,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "Reasoner.h"
 #include "logging.h"
+#include "eFPPTimeout.h"
 
 // comment the line out for printing tree info before save and after restoring
 //#define __DEBUG_SAVE_RESTORE
@@ -32,6 +33,7 @@ DlSatTester :: DlSatTester ( TBox& tbox, const ifOptionSet* Options )
 	, CGraph(1,this)
 	, DTReasoner(tbox.DLHeap)
 	, GCIs(tbox.GCIs)
+	, testTimeout(0)
 	, bContext(NULL)
 	, tryLevel(InitBranchingLevelValue)
 	, nonDetShift(0)
@@ -809,11 +811,13 @@ bool DlSatTester :: checkSatisfiability ( void )
 			curConcept = curNode->label().getConcept(curTDE->offset);
 		}
 
-		if ( ++loop == 1000 )
+		if ( ++loop == 5000 )
 		{
 			loop = 0;
 			if ( tBox.isCancelled() )
 				return false;
+			if ( testTimeout && (float)testTimer > testTimeout )
+				throw EFPPTimeout();
 		}
 		// here curNode/curConcept are set
 		if ( commonTactic() == utClash )	// clash found

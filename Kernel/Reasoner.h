@@ -234,6 +234,8 @@ protected:	// members
 	TsProcTimer subTimer;
 		/// timer for a single test; use it as a timeout checker
 	TsProcTimer testTimer;
+		/// SAT test timeout in seconds (if non-zero)
+	unsigned int testTimeout;
 
 	// save/restore option
 
