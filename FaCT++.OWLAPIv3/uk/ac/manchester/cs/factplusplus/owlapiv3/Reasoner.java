@@ -989,6 +989,7 @@ public class Reasoner extends MonitorableOWLReasonerAdapter implements FaCTPlusP
 /////////////////////////////   Monitor   //////////////////////////////////////
 
     private int count;
+    private long size;
 
 
     public OWLEntity getCurrentEntity() {
@@ -998,14 +999,14 @@ public class Reasoner extends MonitorableOWLReasonerAdapter implements FaCTPlusP
 
     public void setClassificationStarted(int classCount) {
         count = 0;
-        getProgressMonitor().setSize(classCount);
+        size = classCount;
         getProgressMonitor().setStarted();
     }
 
 
     public void setCurrentClass(String className) {
         count++;
-        getProgressMonitor().setProgress(count);
+        getProgressMonitor().setProgress(className, count, size);
     }
 
 
