@@ -87,6 +87,11 @@ public class FaCTPlusPlus {
      */
     public native ClassPointer getNamedClass(String name) throws FaCTPlusPlusException;
 
+
+    public native ObjectPropertyPointer getTopObjectProperty() throws FaCTPlusPlusException;
+
+    public native ObjectPropertyPointer getBottomObjectProperty() throws FaCTPlusPlusException;
+
     /**
      * Gets a pointer to an object property.
      * @param name The name of the property.
@@ -95,6 +100,11 @@ public class FaCTPlusPlus {
      */
     public native ObjectPropertyPointer getObjectProperty(String name) throws FaCTPlusPlusException;
 
+
+    public native DataPropertyPointer getTopDataProperty() throws FaCTPlusPlusException;
+
+    public native DataPropertyPointer getBottomDataProperty() throws FaCTPlusPlusException;
+    
     public native DataPropertyPointer getDataProperty(String name) throws FaCTPlusPlusException;
 
     public native IndividualPointer getIndividual(String name) throws FaCTPlusPlusException;
@@ -387,6 +397,8 @@ public class FaCTPlusPlus {
 
 
 
+    public native boolean isObjectPropertyEmpty(ObjectPropertyPointer r) throws FaCTPlusPlusException;
+
     public native ObjectPropertyPointer [][] askSuperObjectProperties(ObjectPropertyPointer r, boolean direct) throws FaCTPlusPlusException;
 
     public native ObjectPropertyPointer [][] askSubObjectProperties(ObjectPropertyPointer r, boolean direct) throws FaCTPlusPlusException;
@@ -411,6 +423,9 @@ public class FaCTPlusPlus {
 
     public native boolean isObjectPropertyIrreflexive(ObjectPropertyPointer r) throws FaCTPlusPlusException;
 
+
+
+    public native boolean isDataPropertyEmpty(DataPropertyPointer r) throws FaCTPlusPlusException;
 
     public native DataPropertyPointer [][] askSuperDataProperties(DataPropertyPointer r, boolean direct) throws FaCTPlusPlusException;
 
