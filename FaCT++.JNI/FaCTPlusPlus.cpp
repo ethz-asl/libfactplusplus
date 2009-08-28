@@ -162,6 +162,32 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
 
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
+ * Method:    getTopObjectProperty
+ * Signature: ()Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;
+ */
+JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_getTopObjectProperty
+  (JNIEnv * env, jobject obj)
+{
+	TRACE_JNI("getTopObjectProperty");
+	Throw ( env, "FaCT++ Kernel: unsupported operation" );
+	return NULL;
+}
+
+/*
+ * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
+ * Method:    getBottomObjectProperty
+ * Signature: ()Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;
+ */
+JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_getBottomObjectProperty
+  (JNIEnv * env, jobject obj)
+{
+	TRACE_JNI("getBottomObjectProperty");
+	Throw ( env, "FaCT++ Kernel: unsupported operation" );
+	return NULL;
+}
+
+/*
+ * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
  * Method:    getObjectProperty
  * Signature: (Ljava/lang/String;)Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;
  */
@@ -180,6 +206,32 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
 		Throw ( env, "FaCT++ Kernel: Can not register new object property name" );
 	}
 	return ret;
+}
+
+/*
+ * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
+ * Method:    getTopDataProperty
+ * Signature: ()Luk/ac/manchester/cs/factplusplus/DataPropertyPointer;
+ */
+JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_getTopDataProperty
+  (JNIEnv * env, jobject obj)
+{
+	TRACE_JNI("getTopDataProperty");
+	Throw ( env, "FaCT++ Kernel: unsupported operation" );
+	return NULL;
+}
+
+/*
+ * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
+ * Method:    getBottomDataProperty
+ * Signature: ()Luk/ac/manchester/cs/factplusplus/DataPropertyPointer;
+ */
+JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_getBottomDataProperty
+  (JNIEnv * env, jobject obj)
+{
+	TRACE_JNI("getBottomDataProperty");
+	Throw ( env, "FaCT++ Kernel: unsupported operation" );
+	return NULL;
 }
 
 /*
@@ -1368,6 +1420,20 @@ JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlu
 
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
+ * Method:    isObjectPropertyEmpty
+ * Signature: (Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;)Z
+ */
+JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_isObjectPropertyEmpty
+  (JNIEnv * env, jobject obj, jobject arg)
+{
+	TRACE_JNI("isObjectPropertyEmpty");
+	TRACE_ARG(env,obj,arg);
+	Throw ( env, "FaCT++ Kernel: unsupported operation" );
+	return false;
+}
+
+/*
+ * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
  * Method:    askSuperObjectProperties
  * Signature: (Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;Z)[[Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;
  */
@@ -1538,6 +1604,20 @@ JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_is
   (JNIEnv * env, jobject obj, jobject arg)
 {
 	TRACE_JNI("isObjectPropertyIrreflexive");
+	TRACE_ARG(env,obj,arg);
+	Throw ( env, "FaCT++ Kernel: unsupported operation" );
+	return false;
+}
+
+/*
+ * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
+ * Method:    isDataPropertyEmpty
+ * Signature: (Luk/ac/manchester/cs/factplusplus/DataPropertyPointer;)Z
+ */
+JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_isDataPropertyEmpty
+  (JNIEnv * env, jobject obj, jobject arg)
+{
+	TRACE_JNI("isDataPropertyEmpty");
 	TRACE_ARG(env,obj,arg);
 	Throw ( env, "FaCT++ Kernel: unsupported operation" );
 	return false;
