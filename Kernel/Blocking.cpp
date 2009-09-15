@@ -395,9 +395,12 @@ void DlCompletionGraph :: findDAncestorBlocker ( DlCompletionTree* node )
 {
 	register const DlCompletionTree* p = node;
 
-	while ( p->hasParent() && p->isBlockableNode() )
+	while ( p->hasParent() )
 	{
 		p = p->getParentNode();
+
+		if ( !p->isBlockableNode() )
+			return;
 
 		if ( isBlockedBy ( node, p ) )
 		{
