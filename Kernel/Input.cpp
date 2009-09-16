@@ -305,14 +305,7 @@ DLTree* TBox :: processRComposition ( const ExpressionArray& v )
 	if ( v.empty() )
 		throw EFaCTPlusPlus("Empty role composition chain");
 
-	ea_iterator p, p_end = v.end();
-
-	// check that all id's are correct role names
-	for ( p = v.begin(); p != p_end; ++p )
-		if ( isUniversalRole(*p) )
-			throw EFaCTPlusPlus("Universal role can not be used in role composition chain");
-
-	p = v.begin();
+	ea_iterator p = v.begin(), p_end = v.end();
 	DLTree* ret = *p;
 
 	while ( ++p < p_end )

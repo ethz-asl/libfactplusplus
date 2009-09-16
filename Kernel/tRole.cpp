@@ -367,6 +367,13 @@ TRole :: preprocessComposition ( roleSet& RS ) throw(EFPPCycleInRIA)
 	{
 		TRole* R = resolveSynonym(*p);
 
+		if ( R->isTop() )	// universal role in composition
+			throw EFaCTPlusPlus("Universal role can not be used in role composition chain");
+		if ( R->isBottom() )	// empty role in composition -- nothing to do
+		{
+			RS.clear();
+			return;
+		}
 		if ( R == this )	// found R in composition
 		{
 			if ( i != 0 && i != last )		// R in the middle of the composition
