@@ -143,9 +143,6 @@ Token TsScanner :: getNameKeyword ( void ) const
 	if ( isKeyword ("*BOTTOM*") || isKeyword ("BOTTOM") )
 		return BOTTOM;
 
-	if ( isKeyword("*UROLE*") )
-		return UROLE;
-
 	// not a keyword just an ID
 	return ID;
 }

@@ -483,7 +483,7 @@ public:
 	// role-related expressions
 
 		/// @return universal role
-	ComplexRole UniversalRole ( void ) const { return new DLTree(UROLE); }
+//	ComplexRole UniversalRole ( void ) const { return new DLTree(UROLE); }
 		/// @return R^-
 	ComplexRole Inverse ( ComplexRole R ) const { return createInverse(R); }
 		/// @return R*S

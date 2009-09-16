@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2008 by Dmitry Tsarkov
+Copyright (C) 2003-2009 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -59,6 +59,13 @@ public:		// interface
 
 		/// register a System flag
 	FPP_ADD_FLAG(System,0x1);
+
+	// hierarchy interface
+
+		/// register a Top-of-the-hierarchy flag
+	FPP_ADD_FLAG(Top,0x1000);
+		/// register a Bottom-of-the-hierarchy flag
+	FPP_ADD_FLAG(Bottom,0x2000);
 
 	virtual void Print ( std::ostream& o ) const { o << getName (); }
 

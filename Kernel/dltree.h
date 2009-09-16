@@ -69,11 +69,26 @@ inline bool isName ( const DLTree* t )
 	}
 }
 
+	// check if DL tree is a (data)role name
+inline bool isRName ( const DLTree* t )
+{
+	if ( t == NULL )
+		return false;
+	switch (t->Element().getToken())
+	{
+	case RNAME:
+	case DNAME:
+		return true;
+	default:
+		return false;
+	}
+}
+
 	// check if DL tree is a concept-like name
 inline bool isCN ( const DLTree* t ) { return isConst(t) || isName(t); }
 
 	/// check whether T is U-Role
-inline bool isUniversalRole ( const DLTree* t ) { return t && t->Element().getToken() == UROLE; }
+inline bool isUniversalRole ( const DLTree* t ) { return isRName(t) && t->Element().getNE()->isTop(); }
 	/// check whether T is an expression in the form (atmost 1 RNAME)
 inline bool isFunctionalExpr ( const DLTree* t, const std::string& RName )
 {

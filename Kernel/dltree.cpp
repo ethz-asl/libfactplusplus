@@ -30,8 +30,6 @@ DLTree* createInverse ( DLTree* R )
 
 	switch ( R->Element().getToken() )
 	{
-	case UROLE:	// U- = U
-		return R;
 	case INV:	// R-- = R
 	{
 		DLTree* p = R;
@@ -231,7 +229,6 @@ const char* TokenName ( Token t )
 	{
 	case TOP:		return "*TOP*";
 	case BOTTOM:	return "*BOTTOM*";
-	case UROLE:		return "*UROLE*";
 	case CNAME:		return "cname";
 	case INAME:		return "iname";
 	case RNAME:		return "rname";
@@ -267,7 +264,6 @@ std::ostream& operator << ( std::ostream& o, const DLTree *form )
 	{
 	case TOP:
 	case BOTTOM:
-	case UROLE:
 		o << ' ' << TokenName(lex.getToken());
 		break;
 	case NAME:

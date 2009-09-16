@@ -45,7 +45,6 @@ enum Token {
 
 	TOP,
 	BOTTOM,
-	UROLE,	// universal role
 	EXISTS,
 	FORALL,
 	GE,
