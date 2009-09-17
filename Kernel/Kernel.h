@@ -319,16 +319,18 @@ public:	// general staff
 		/// register NAME as an individual
 	ComplexConcept ensureSingletonName ( const std::string& name )
 		{ return new DLTree ( TLexeme ( INAME, Individuals.insert(name) ) ); }
+		/// register NAME as a role (object property)
+	ComplexRole ensureObjectRoleName ( const std::string& name )
+		{ return new DLTree ( TLexeme ( RNAME, ORoles.insert(name) ) ); }
 		/// register NAME as a data role (data property)
 	ComplexRole ensureDataRoleName ( const std::string& name )
 		{ return new DLTree ( TLexeme ( DNAME, DRoles.insert(name) ) ); }
-		/// register NAME as a role (object property)
+		/// register NAME as a role if it is not a data property (kludge for LISP interface)
 	ComplexRole ensureRoleName ( const std::string& name )
 	{
-		// kludge for LISP interface
 		if ( DRoles.get(name) != NULL )
 			return ensureDataRoleName(name);
-		return new DLTree ( TLexeme ( RNAME, ORoles.insert(name) ) );
+		return ensureObjectRoleName(name);
 	}
 
 		/// check whether every named entry of E is defined in the KB

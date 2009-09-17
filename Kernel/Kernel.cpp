@@ -252,7 +252,7 @@ ReasoningKernel :: buildRelatedCache ( TIndividual* i )
 			RIActor actor;
 
 			// ask for instances of \exists R^-.{i}
-			DLTree* invR = (R->getId() > 0) ? Inverse(ensureRoleName(R->getName())) : ensureRoleName(R->inverse()->getName());
+			DLTree* invR = (R->getId() > 0) ? Inverse(ensureObjectRoleName(R->getName())) : ensureObjectRoleName(R->inverse()->getName());
 			DLTree* query = Exists ( invR, ensureSingletonName(i->getName()) );
 			getInstances ( query, actor );
 			deleteTree(query);

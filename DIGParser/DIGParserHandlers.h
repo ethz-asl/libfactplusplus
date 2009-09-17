@@ -267,7 +267,7 @@ protected:	// methods
 	DLTree* tryRoleName ( const std::string& name )
 	{
 		DLTree* x = NULL;
-		CatchNameEx(pKernel->ensureRoleName(name));
+		CatchNameEx(pKernel->ensureObjectRoleName(name));
 		return x;
 	}
 		/// return role by given name; throw exception if unable
