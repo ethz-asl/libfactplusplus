@@ -86,7 +86,7 @@ tacticUsage DlSatTester :: commonTacticBody ( const DLVertex& cur )
 #ifdef RKG_PRINT_DAG_USAGE
 	const_cast<DLVertex&>(cur).incUsage(isPositive(curConcept.bp()));
 #endif
-	nTacticCalls.inc();
+	incStat(nTacticCalls);
 
 	// call proper tactic
 	switch ( cur.Type() )
@@ -97,7 +97,7 @@ tacticUsage DlSatTester :: commonTacticBody ( const DLVertex& cur )
 
 	case dtDataType:	// data things are checked by data inferer
 	case dtDataValue:
-		nUseless.inc();
+		incStat(nUseless);
 		return utUnusable;
 
 	case dtPSingleton:
@@ -159,7 +159,7 @@ tacticUsage DlSatTester :: commonTacticBodyId ( const DLVertex& cur )
 	fpp_assert ( isCNameTag(cur.Type()) );	// safety check
 #endif
 
-	nIdCalls.inc();
+	incStat(nIdCalls);
 
 	tacticUsage ret = utUnusable;
 
@@ -208,10 +208,10 @@ DlSatTester :: applyExtraRules ( const TConcept* C )
 	for ( TConcept::er_iterator p = C->er_begin(), p_end=C->er_end(); p < p_end; ++p )
 	{
 		const TBox::TSimpleRule* rule = tBox.getSimpleRule(*p);
-		nSRuleAdd.inc();
+		incStat(nSRuleAdd);
 		if ( rule->applicable(*this) )	// apply the rule's head
 		{
-			nSRuleFire.inc();
+			incStat(nSRuleFire);
 			switchResult ( ret, addToDoEntry ( curNode, rule->bpHead, getClashSet() ) );
 		}
 	}
@@ -225,7 +225,7 @@ tacticUsage DlSatTester :: commonTacticBodySingleton ( const DLVertex& cur )
 	fpp_assert ( cur.Type() == dtPSingleton || cur.Type() == dtNSingleton );	// safety check
 #endif
 
-	nSingletonCalls.inc();
+	incStat(nSingletonCalls);
 
 	// can use this rule only in the Nominal reasoner
 	fpp_assert ( hasNominals() );
@@ -259,7 +259,7 @@ tacticUsage DlSatTester :: commonTacticBodyAnd ( const DLVertex& cur )
 	fpp_assert ( isPositive(curConcept.bp()) && ( cur.Type() == dtAnd || cur.Type() == dtCollection ) );	// safety check
 #endif
 
-	nAndCalls.inc();
+	incStat(nAndCalls);
 
 	const DepSet& dep = curConcept.getDep();
 	tacticUsage ret = utUnusable;
@@ -278,7 +278,7 @@ tacticUsage DlSatTester :: commonTacticBodyOr ( const DLVertex& cur )	// for C \
 	fpp_assert ( isNegative(curConcept.bp()) && cur.Type() == dtAnd );	// safety check
 #endif
 
-	nOrCalls.inc();
+	incStat(nOrCalls);
 
 	if ( isFirstBranchCall() )	// check the structure of OR operation (number of applicable concepts)
 	{
@@ -405,7 +405,7 @@ tacticUsage DlSatTester :: commonTacticBodyAllComplex ( const DLVertex& cur )
 		switchResult ( ret, addToDoEntry ( curNode, cur.getC(), dep ) );
 
 	// check whether automaton applicable to any edges
-	nAllCalls.inc();
+	incStat(nAllCalls);
 
 	// check all neighbours
 	for ( DlCompletionTree::const_edge_iterator p = curNode->begin(), p_end = curNode->end(); p < p_end; ++p )
@@ -423,7 +423,7 @@ tacticUsage DlSatTester :: commonTacticBodyAllSimple ( const DLVertex& cur )
 	BipolarPointer C = cur.getC();
 
 	// check whether automaton applicable to any edges
-	nAllCalls.inc();
+	incStat(nAllCalls);
 
 	// check all neighbours
 	for ( DlCompletionTree::const_edge_iterator p = curNode->begin(), p_end = curNode->end(); p < p_end; ++p )
@@ -508,7 +508,7 @@ tacticUsage DlSatTester :: commonTacticBodySome ( const DLVertex& cur )	// for E
 			return commonTacticBodyValue ( R, static_cast<const TIndividual*>(nom.getConcept()) );
 	}
 
-	nSomeCalls.inc();
+	incStat(nSomeCalls);
 
 	// check if we have functional role
 	if ( R->isFunctional() )
@@ -630,7 +630,7 @@ tacticUsage DlSatTester :: commonTacticBodyValue ( const TRole* R, const TIndivi
 	if ( recheckNodeDBlocked() )
 		return utUnusable;
 
-	nSomeCalls.inc();
+	incStat(nSomeCalls);
 
 	fpp_assert ( nom->node != NULL );
 
@@ -666,7 +666,7 @@ tacticUsage DlSatTester :: createNewEdge ( const TRole* R, BipolarPointer C, uns
 	// check blocking conditions
 	if ( recheckNodeDBlocked() )
 	{
-		nUseless.inc();
+		incStat(nUseless);
 		return utUnusable;
 	}
 
@@ -905,7 +905,7 @@ tacticUsage DlSatTester :: commonTacticBodyFunc ( const DLVertex& cur )	// for <
 	if ( isNNApplicable ( cur.getRole(), bpTOP ) )
 		return commonTacticBodyNN(cur);	// after application func-rule would be checked again
 
-	nFuncCalls.inc();
+	incStat(nFuncCalls);
 
 	if ( isQuickClashLE(cur) )
 		return utClash;
@@ -942,7 +942,7 @@ tacticUsage DlSatTester :: commonTacticBodyLE ( const DLVertex& cur )	// for <=n
 	fpp_assert ( isPositive(curConcept.bp()) && ( cur.Type() == dtLE ) );
 #endif
 
-	nLeCalls.inc();
+	incStat(nLeCalls);
 	BipolarPointer C = cur.getC();
 
 	tacticUsage ret = utUnusable;
@@ -1065,7 +1065,7 @@ tacticUsage DlSatTester :: commonTacticBodyGE ( const DLVertex& cur )	// for >=n
 	if ( recheckNodeDBlocked() )
 		return utUnusable;
 
-	nGeCalls.inc();
+	incStat(nGeCalls);
 
 	if ( isQuickClashGE(cur) )
 		return utClash;
@@ -1205,7 +1205,7 @@ tacticUsage DlSatTester :: Merge ( DlCompletionTree* from, DlCompletionTree* to,
 	if ( LLM.isWritable(llGTA) )
 		LL << " m(" << from->getId() << "->" << to->getId() << ")";
 
-	nMergeCalls.inc();
+	incStat(nMergeCalls);
 
 	// can't merge 2 nodes which are in inequality relation
 	DepSet dep(depF);
@@ -1347,7 +1347,7 @@ tacticUsage DlSatTester :: applyChooseRule ( DlCompletionTree* node, BipolarPoin
 tacticUsage DlSatTester :: commonTacticBodyNN ( const DLVertex& cur )	// NN-rule
 {
 	// here we KNOW that NN-rule is applicable, so skip some tests
-	nNNCalls.inc();
+	incStat(nNNCalls);
 
 	if ( isFirstBranchCall() )
 		createBCNN();

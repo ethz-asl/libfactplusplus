@@ -25,7 +25,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 // comment the line out for flushing LL after dumping significant piece of info
 //#define __DEBUG_FLUSH_LL
 
+#ifdef USE_REASONING_STATISTICS
 AccumulatedStatistic* AccumulatedStatistic::root = NULL;
+#endif
 
 DlSatTester :: DlSatTester ( TBox& tbox, const ifOptionSet* Options )
 	: tBox(tbox)
@@ -143,8 +145,8 @@ DlSatTester :: checkAddedConcept ( const CWDArray& lab, BipolarPointer p, const 
 	fpp_assert ( p != bpBOTTOM );
 #endif
 
-	nLookups.inc();
-	nLookups.inc();
+	incStat(nLookups);
+	incStat(nLookups);
 
 	const BipolarPointer inv_p = inverse(p);
 
@@ -174,7 +176,7 @@ DlSatTester :: findConcept ( const CWDArray& lab, BipolarPointer p )
 	fpp_assert ( p != bpBOTTOM );
 #endif
 
-	nLookups.inc();
+	incStat(nLookups);
 
 	return std::find ( lab.begin(), lab.end(), p ) != lab.end();
 }
@@ -189,7 +191,7 @@ DlSatTester :: findConcept ( const CWDArray& lab, BipolarPointer p, const DepSet
 	fpp_assert ( p != bpBOTTOM );
 #endif
 
-	nLookups.inc();
+	incStat(nLookups);
 
 	for ( const_label_iterator i = lab.begin(), i_end = lab.end(); i < i_end; ++i )
 	if ( i->bp() == p )
@@ -249,7 +251,7 @@ tacticUsage DlSatTester :: addToDoEntry ( DlCompletionTree* n, BipolarPointer c,
 		if ( isNegative(c) )	// nothing to do
 			return utUnusable;
 		// setup and run and()
-		nTacticCalls.inc();		// to balance nAndCalls later
+		incStat(nTacticCalls);		// to balance nAndCalls later
 		DlCompletionTree* oldNode = curNode;
 		ConceptWDep oldConcept = curConcept;
 		curNode = n;
@@ -321,14 +323,14 @@ DlSatTester :: canBeCached ( DlCompletionTree* node )
 	if ( node->isNominalNode() )
 		return false;
 
-	nCacheTry.inc();
+	incStat(nCacheTry);
 
 	// check applicability of the caching
 	for ( p = node->beginl_sc(); p != node->endl_sc(); ++p )
 	{
 		if ( DLHeap.getCache(p->bp()) == NULL )
 		{
-			nCacheFailedNoCache.inc();
+			incStat(nCacheFailedNoCache);
 			if ( LLM.isWritable(llGTA) )
 				LL << " cf(" << p->bp() << ")";
 			return false;
@@ -342,7 +344,7 @@ DlSatTester :: canBeCached ( DlCompletionTree* node )
 	{
 		if ( DLHeap.getCache(p->bp()) == NULL )
 		{
-			nCacheFailedNoCache.inc();
+			incStat(nCacheFailedNoCache);
 			if ( LLM.isWritable(llGTA) )
 				LL << " cf(" << p->bp() << ")";
 			return false;
@@ -355,7 +357,7 @@ DlSatTester :: canBeCached ( DlCompletionTree* node )
 	// it's useless to cache shallow nodes
 	if ( shallow && size != 0 )
 	{
-		nCacheFailedShallow.inc();
+		incStat(nCacheFailedShallow);
 		if ( LLM.isWritable(llGTA) )
 			LL << " cf(s)";
 		return false;
@@ -426,16 +428,16 @@ DlSatTester :: reportNodeCached ( modelCacheIan* cache, DlCompletionTree* node )
 	switch ( status )
 	{
 	case csValid:
-		nCachedSat.inc();
+		incStat(nCachedSat);
 		if ( LLM.isWritable(llGTA) )
 			LL << " cached(" << node->getId() << ")";
 		return utDone;
 	case csInvalid:
-		nCachedUnsat.inc();
+		incStat(nCachedUnsat);
 		return utClash;
 	case csFailed:
 	case csUnknown:
-		nCacheFailed.inc();
+		incStat(nCacheFailed);
 		if ( LLM.isWritable(llGTA) )
 			LL << " cf(c)";
 		return utUnusable;
@@ -547,6 +549,7 @@ bool DlSatTester :: runSat ( void )
 void
 DlSatTester :: finaliseStatistic ( void )
 {
+#ifdef USE_REASONING_STATISTICS
 	// add the integer stat values
 	nNodeSaves.set(CGraph.getNNodeSaves());
 	nNodeRestores.set(CGraph.getNNodeRestores());
@@ -557,6 +560,7 @@ DlSatTester :: finaliseStatistic ( void )
 
 	// merge local statistics with the global one
 	AccumulatedStatistic::accumulateAll();
+#endif
 
 	// clear global statistics
 	CGraph.clearStatistics();
@@ -868,7 +872,7 @@ void DlSatTester :: save ( void )
 	// init BC
 	clearBC();
 
-	nStateSaves.inc();
+	incStat(nStateSaves);
 
 	if ( LLM.isWritable(llSRState) )
 		LL << " ss(" << getCurLevel()-1 << ")";
@@ -895,7 +899,7 @@ void DlSatTester :: restore ( unsigned int newTryLevel )
 	// restore TODO list
 	TODO.restore(getCurLevel());
 
-	nStateRestores.inc();
+	incStat(nStateRestores);
 
 	if ( LLM.isWritable(llSRState) )
 		LL << " sr(" << getCurLevel() << ")";
@@ -953,6 +957,7 @@ void DlSatTester :: logFinishEntry ( tacticUsage res ) const
 
 void DlSatTester :: logStatisticData ( std::ostream& o, bool needLocal ) const
 {
+#ifdef USE_REASONING_STATISTICS
 	nTacticCalls.Print	( o, needLocal, "\nThere were made ", " tactic operations, of which:" );
 	nIdCalls.Print		( o, needLocal, "\n    CN   operations: ", "" );
 	nSingletonCalls.Print(o, needLocal, "\n           including ", " singleton ones" );
@@ -986,6 +991,7 @@ void DlSatTester :: logStatisticData ( std::ostream& o, bool needLocal ) const
 	nCacheFailed.Print			( o, needLocal, "\n                ", " fails due to cache merge failure" );
 	nCachedSat.Print			( o, needLocal, "\n                ", " cached satisfiable nodes" );
 	nCachedUnsat.Print			( o, needLocal, "\n                ", " cached unsatisfiable nodes" );
+#endif
 
 	if ( !needLocal )
 		o << "\nThe maximal graph size is " << CGraph.maxSize() << " nodes";

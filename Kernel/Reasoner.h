@@ -35,6 +35,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 // Enum for usage the Tactics to a ToDoEntry
 enum tacticUsage { utUnusable, utClash, utDone };
 
+#ifdef _USE_LOGGING	// don't gather statistics w/o logging
+#	define USE_REASONING_STATISTICS
+#endif
+
+#ifdef USE_REASONING_STATISTICS
 /// class for gathering statistic both for session and totally
 class AccumulatedStatistic
 {
@@ -52,10 +57,8 @@ public:		// static methods
 		/// accumulate all registered statistic elements
 	static void accumulateAll ( void )
 	{
-#	ifndef RELEASE	// don't gather statistic for the release versions
 		for ( AccumulatedStatistic* cur = root; cur; cur = cur->next )
 			cur->accumulate();
-#	endif
 	}
 
 protected:	// members
@@ -97,16 +100,12 @@ public:		// interface
 		/// increment local value
 	void inc ( void )
 	{
-#	ifndef RELEASE	// don't gather statistic for the release versions
 		++local;
-#	endif
 	}
 		/// set local value to particular N
 	void set ( unsigned int n )
 	{
-#	ifndef RELEASE	// don't gather statistic for the release versions
 		local = n;
-#	endif
 	}
 		/// add local value to a global one
 	void accumulate ( void ) { total += local; local = 0; }
@@ -119,6 +118,7 @@ public:		// interface
 			o << prefix << get(needLocal) << suffix;
 	}
 }; // AccumulatedStatistic
+#endif
 
 class DlSatTester
 {
@@ -250,6 +250,7 @@ protected:	// members
 
 	// statistic elements
 
+#ifdef USE_REASONING_STATISTICS
 	AccumulatedStatistic
 		nTacticCalls,
 		nUseless,
@@ -286,6 +287,7 @@ protected:	// members
 		nCacheFailed,
 		nCachedSat,
 		nCachedUnsat;
+#endif
 
 	// current values
 
@@ -330,6 +332,13 @@ private:	// no copy
 	DlSatTester& operator = ( const DlSatTester& );
 
 protected:	// methods
+
+		/// increment statistic counter
+#ifdef USE_REASONING_STATISTICS
+#	define incStat(stat) stat.inc()
+#else
+#	define incStat(stat)
+#endif
 
 	/// resets all session flags
 	void resetSessionFlags ( void );
@@ -902,8 +911,10 @@ public:
 
 	void writeTotalStatistic ( std::ostream& o )
 	{
+#	ifdef USE_REASONING_STATISTICS
 		AccumulatedStatistic::accumulateAll();	// ensure that the last reasoning results are in
 		logStatisticData ( o, /*needLocal=*/false );
+#	endif
 		printBlockingStat (o);
 		clearBlockingStat();
 		o << "\n";
