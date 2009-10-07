@@ -522,7 +522,7 @@ DlSatTester :: consistentNominalCloud ( void )
 
 	// ABox is consistent -> create cache for every nominal in KB
 	for ( SingletonVector::iterator p = Nominals.begin(); p != Nominals.end(); ++p )
-		registerNominalCache(*p);
+		updateClassifiedSingleton(*p);
 
 	return true;
 }

@@ -442,6 +442,11 @@ protected:	// methods
 	bool initNominalCloud ( void );
 		/// make an R-edge between related nominals
 	bool initRelatedNominals ( const TRelated* rel );
+		/// use classification information for the nominal P
+	void updateClassifiedSingleton ( TIndividual* p )
+	{
+		registerNominalCache(p);
+	}
 
 		/// check satisfiability of task which is set-up
 	bool runSat ( void );
