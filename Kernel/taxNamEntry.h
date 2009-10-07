@@ -51,10 +51,6 @@ private:	// no copy
 		/// no assignment
 	ClassifiableEntry& operator = ( const ClassifiableEntry& );
 
-protected:	// methods
-		/// add told subsumer if doesn't already recorded
-	void addParentIfNew ( ClassifiableEntry* parent );
-
 public:		// interface
 		/// C'tor
 	ClassifiableEntry ( const std::string& name )
@@ -96,6 +92,9 @@ public:		// interface
 	bool hasToldSubsumers ( void ) const { return !toldSubsumers.empty(); }
 		/// add told subsumer of entry (duplications possible)
 	void addParent ( ClassifiableEntry* parent ) { toldSubsumers.push_back (parent); }
+		/// add told subsumer if doesn't already recorded
+	void addParentIfNew ( ClassifiableEntry* parent );
+
 		/// add all parents (with duplicates) from the range to current node
 	template<class Iterator>
 	void addParents ( Iterator begin, Iterator end )
