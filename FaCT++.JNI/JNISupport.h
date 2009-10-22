@@ -21,6 +21,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <jni.h>
 
+#ifdef JNI_TRACING
+#	define REF_RECORDER_TRACING
+#endif
+
+#include "tRefRecorder.h"
+
 //-------------------------------------------------------------
 // class names for different Java classes corresponding to FaCT++ structures
 //-------------------------------------------------------------
@@ -54,62 +60,19 @@ public:
 	const char* operator() ( void ) const { return buf; }
 }; // JString
 
-/// record Tree pointers and delete them when became useless (to reduce memory leaks)
-class RefRecorder
-{
-protected:	// types
-		/// main repository type
-	typedef std::vector<DLTree*> RefVector;
-		/// iterator
-	typedef RefVector::iterator iterator;
-
-protected:	// members
-		/// repository of references
-	RefVector refs;
-
-public:		// interface
-		/// empty c'tor
-	RefRecorder ( void ) {}
-		/// d'tor
-	~RefRecorder ( void ) { clear(); }
-
-		/// add reference to a repository
-	void add ( DLTree* p )
-	{
-#	ifdef JNI_TRACING
-		std::cerr << "Registering (" << (void*)p << ")" << p << "\n";
-#	endif
-		refs.push_back(p);
-	}
-		/// check whether P is in the repository
-	bool in ( DLTree* p ) const { return std::find ( refs.begin(), refs.end(), p ) != refs.end(); }
-		/// clear repository, free all memory
-	void clear ( void )
-	{
-		for ( iterator p = refs.begin(), p_end = refs.end(); p < p_end; ++p )
-		{
-#		ifdef JNI_TRACING
-			std::cerr << "Deleting (" << (void*)(*p) << ")" << *p << "\n";
-#		endif
-			deleteTree(*p);
-		}
-		refs.clear();
-	}
-}; // RefRecorder
-
 /// kernel with a memory management component
 class MMKernel
 {
 public:		// members
 	ReasoningKernel* pKernel;
-	RefRecorder* pRefRecorder;
+	TRefRecorder* pRefRecorder;
 public:		// interface
 		/// c'tor
 	MMKernel ( void )
 	{
 		pKernel = new ReasoningKernel();
 		pKernel->newKB();
-		pRefRecorder = new RefRecorder();
+		pRefRecorder = new TRefRecorder();
 	}
 		/// d'tor
 	~MMKernel ( void )
