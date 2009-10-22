@@ -740,7 +740,12 @@ public:
 	}
 		/// @return true iff C is disjoint with D
 	bool isDisjoint ( const ComplexConcept C, const ComplexConcept D )
-		{ return !isSubsumedBy ( C, D ) && !isSubsumedBy ( D, C ); }
+	{
+		ComplexConcept Probe = And ( clone(C), clone(D) );
+		bool ret = isSatisfiable(Probe);
+		deleteTree(Probe);
+		return !ret;
+	}
 		/// @return true iff C is equivalent to D
 	bool isEquivalent ( const ComplexConcept C, const ComplexConcept D )
 		{ return isSubsumedBy ( C, D ) && isSubsumedBy ( D, C ); }
