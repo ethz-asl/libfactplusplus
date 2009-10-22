@@ -34,51 +34,42 @@ protected:	// methods
 		/// error by given exception
 	void errorByException ( const EFPPCantRegName& ex ) const { parseError(ex.what()); }
 
-/// macro for the get* methods
-#define CatchNameEx(action)						\
-		do {									\
-			try { ret = action; NextLex(); }	\
-			catch (EFPPCantRegName ex) { errorByException(ex); }	\
-		} while(0)
-
 		/// @return concept-like Id of just scanned name
 	DLTree* getConcept ( void )
 	{
-		DLTree* ret = NULL;
-		CatchNameEx(Kernel->ensureConceptName(scan.GetName()));
+		DLTree* ret = Kernel->Concept(scan.GetName());
+		NextLex();
 		return ret;
 	}
 		/// @return singleton Id of just scanned name
 	DLTree* getSingleton ( void )
 	{
-		DLTree* ret = NULL;
-		CatchNameEx(Kernel->ensureSingletonName(scan.GetName()));
+		DLTree* ret = Kernel->Individual(scan.GetName());
+		NextLex();
 		return ret;
 	}
 		/// @return role-like Id of just scanned name
 	DLTree* getRole ( void )
 	{
-		DLTree* ret = NULL;
-		CatchNameEx(Kernel->ensureRoleName(scan.GetName()));
+		DLTree* ret = Kernel->Role(scan.GetName());
+		NextLex();
 		return ret;
 	}
 		/// @return role-like Id of just scanned name
 	DLTree* getDataRole ( void )
 	{
-		DLTree* ret = NULL;
-		CatchNameEx(Kernel->ensureDataRoleName(scan.GetName()));
+		DLTree* ret = Kernel->DataRole(scan.GetName());
+		NextLex();
 		return ret;
 	}
 		/// @return datavalue of a data type TYPE with an Id of a just scanned name
 	DLTree* getDTValue ( DLTree* type )
 	{
-		DLTree* ret = NULL;
-		CatchNameEx(Kernel->getDataTypeCenter().getDataValue(scan.GetName(),type));
+		DLTree* ret = Kernel->getDataTypeCenter().getDataValue(scan.GetName(),type);
+		NextLex();
 		deleteTree(type);
 		return ret;
 	}
-
-#undef CatchNameEx
 
 		/// get role expression, ie role, role's inverse or (if allowComplex) complex role expression
 	DLTree* getRoleExpression ( bool allowComplex );

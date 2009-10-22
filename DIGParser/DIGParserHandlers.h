@@ -241,40 +241,25 @@ protected:	// methods
 		return ret;
 	}
 
-/// macro for the ensure* methods
-#define CatchNameEx(action)				\
-		do {							\
-			try { x = action; }			\
-			catch (EFPPCantRegName ex)	\
-			{ throw DIGParserException ( 99, "Undefined name", ex.what() ); }	\
-		} while(0)
-
 		/// return concept by given name; throw exception if unable
 	DLTree* tryConceptName ( const std::string& name )
 	{
-		DLTree* x = NULL;
-		CatchNameEx(pKernel->ensureConceptName(name));
-		return x;
+		return pKernel->Concept(name);
 	}
 		/// return individual by given name; throw exception if unable
 	DLTree* tryIndividualName ( const std::string& name )
 	{
-		DLTree* x = NULL;
-		CatchNameEx(pKernel->ensureSingletonName(name));
-		return x;
+		return pKernel->Individual(name);
 	}
 		/// return role by given name; throw exception if unable
 	DLTree* tryRoleName ( const std::string& name )
 	{
-		DLTree* x = NULL;
-		CatchNameEx(pKernel->ensureObjectRoleName(name));
-		return x;
+		return pKernel->ObjectRole(name);
 	}
 		/// return role by given name; throw exception if unable
 	DLTree* tryDataRoleName ( const std::string& name )
 	{
-		DLTree* x = NULL;
-		CatchNameEx(pKernel->ensureDataRoleName(name));
+		DLTree* x = pKernel->DataRole(name);
 		try
 		{
 			pKernel->setFunctional(clone(x));	// in DIG 1.1 data roles are always functional
@@ -289,12 +274,8 @@ protected:	// methods
 		/// return data value of a type TYPE by given name; throw exception if unable
 	DLTree* tryDataValue ( const std::string& name, DLTree* type )
 	{
-		DLTree* x = NULL;
-		CatchNameEx(pKernel->getDataTypeCenter().getDataValue(name,type));
-		return x;
+		return pKernel->getDataTypeCenter().getDataValue(name,type);
 	}
-
-#undef CatchNameEx
 
 		/// output supported DIG fragment to local stream
 	void outputSupportedLanguage ( void );

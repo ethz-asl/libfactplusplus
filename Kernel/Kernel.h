@@ -140,6 +140,9 @@ protected:	// methods
 
 	// register all necessary options in local option set
 	bool initOptions ( void );
+		/// register the pointer that is go outside the kernel
+		// do nothing for now
+	DLTree* regPointer ( DLTree* arg ATTR_UNUSED ) { return arg; }
 
 		/// get status of the KB
 	KBStatus getStatus ( void ) const
@@ -307,32 +310,6 @@ public:	// general staff
 		/// get RO access to a DT center
 	const DataTypeCenter& getDataTypeCenter ( void ) const { return DTCenter; }
 
-	////////////////////////////////////////////
-	//  ensure* declarations
-	////////////////////////////////////////////
-
-	// ensure that given names are of the apropriate types
-
-		/// register NAME as a concept
-	ComplexConcept ensureConceptName ( const std::string& name )
-		{ return new DLTree ( TLexeme ( CNAME, Concepts.insert(name) ) ); }
-		/// register NAME as an individual
-	ComplexConcept ensureSingletonName ( const std::string& name )
-		{ return new DLTree ( TLexeme ( INAME, Individuals.insert(name) ) ); }
-		/// register NAME as a role (object property)
-	ComplexRole ensureObjectRoleName ( const std::string& name )
-		{ return new DLTree ( TLexeme ( RNAME, ORoles.insert(name) ) ); }
-		/// register NAME as a data role (data property)
-	ComplexRole ensureDataRoleName ( const std::string& name )
-		{ return new DLTree ( TLexeme ( DNAME, DRoles.insert(name) ) ); }
-		/// register NAME as a role if it is not a data property (kludge for LISP interface)
-	ComplexRole ensureRoleName ( const std::string& name )
-	{
-		if ( DRoles.get(name) != NULL )
-			return ensureDataRoleName(name);
-		return ensureObjectRoleName(name);
-	}
-
 		/// check whether every named entry of E is defined in the KB
 	static void checkDefined ( const DLTree* E ) throw(EFPPCantRegName)
 	{
@@ -364,17 +341,6 @@ public:	// general staff
 	}
 
 public:
-	//******************************************
-	//*****  interface (DIG 1.0 for now)  ******
-	//******************************************
-
-	// all methods returns true if error was there
-
-	//******************************************
-	//* Identification report
-	//******************************************
-//	bool getIdentification ( ostream& o ) const;
-
 	//******************************************
 	//* KB Management
 	//******************************************
@@ -412,32 +378,56 @@ public:
 		return releaseKB () || newKB ();
 	}
 
-	//******************************************
-	//* Concept/Role expressions. DL syntax, not DIG/OWL
-	//******************************************
-
-		/// @return TOP
-	ComplexConcept Top ( void ) const { return new DLTree(TOP); }
-		/// @return BOTTOM
-	ComplexConcept Bottom ( void ) const { return new DLTree(BOTTOM); }
-		/// @return ~C
-	ComplexConcept Not ( ComplexConcept C ) const { return createSNFNot(C); }
-		/// @return C/\D
-	ComplexConcept And ( ComplexConcept C, ComplexConcept D ) const { return createSNFAnd ( C, D ); }
-		/// @return C1/\.../\Cn
-	ComplexConcept And ( void ) { return getTBox()->processAnd(NAryQueue.getLastArgList()); }
-		/// @return C\/D
-	ComplexConcept Or ( ComplexConcept C, ComplexConcept D ) const { return createSNFOr ( C, D ); }
-		/// @return C1\/...\/Cn
-	ComplexConcept Or ( void ) { return getTBox()->processOr(NAryQueue.getLastArgList()); }
+	//-------------------------------------------------------------------
+	//--	DL expressions. DL syntax, not DIG/OWL
+	//-------------------------------------------------------------------
 
 		/// start new argument list for n-ary concept expressions/axioms
 	void openArgList ( void ) { NAryQueue.openArgList(); }
 		/// add an element C to the most recent open argument list
 	void addArg ( const ComplexConcept C ) { NAryQueue.addArg(C); }
 
+	//-------------------------------------------------------------------
+	//--	Concept expressions
+	//-------------------------------------------------------------------
+
+		/// @return TOP
+	ComplexConcept Top ( void ) { return regPointer ( new DLTree(TOP) ); }
+		/// @return BOTTOM
+	ComplexConcept Bottom ( void ) { return regPointer ( new DLTree(BOTTOM) ); }
+		/// @return concept corresponding to NAME
+	ComplexConcept Concept ( const std::string& name ) { return regPointer ( new DLTree ( TLexeme ( CNAME, Concepts.insert(name) ) ) ); }
+		/// @return ~C
+	ComplexConcept Not ( ComplexConcept C ) { return regPointer(createSNFNot(C)); }
+		/// @return C/\D
+	ComplexConcept And ( ComplexConcept C, ComplexConcept D ) { return regPointer ( createSNFAnd ( C, D ) ); }
+		/// @return C1/\.../\Cn
+	ComplexConcept And ( void ) { return regPointer(getTBox()->processAnd(NAryQueue.getLastArgList())); }
+		/// @return C\/D
+	ComplexConcept Or ( ComplexConcept C, ComplexConcept D ) { return regPointer ( createSNFOr ( C, D ) ); }
+		/// @return C1\/...\/Cn
+	ComplexConcept Or ( void ) { return regPointer(getTBox()->processOr(NAryQueue.getLastArgList())); }
+		/// @return \E R.C
+	ComplexConcept Exists ( ComplexRole R, ComplexConcept C ) { return regPointer ( createSNFExists ( R, C ) ); }
+		/// @return \A R.C
+	ComplexConcept Forall ( ComplexRole R, ComplexConcept C ) { return regPointer ( createSNFForall ( R, C ) ); }
+		/// @return \E R.I for individual/data value I
+	ComplexConcept Value ( ComplexRole R, ComplexConcept I ) { return regPointer ( createSNFExists ( R, I ) ); }
+		/// @return <= n R.C
+	ComplexConcept MaxCardinality ( unsigned int n, ComplexRole R, ComplexConcept C ) { return regPointer ( createSNFLE ( n, R, C ) ); }
+		/// @return >= n R.C
+	ComplexConcept MinCardinality ( unsigned int n, ComplexRole R, ComplexConcept C ) { return regPointer ( createSNFGE ( n, R, C ) ); }
+		/// @return = n R.C
+	ComplexConcept Cardinality ( unsigned int n, ComplexRole R, ComplexConcept C )
+	{
+		ComplexConcept temp = MinCardinality ( n, clone(R), clone(C) );
+		return And ( temp, MaxCardinality ( n, R, C ) );
+	}
+		/// @return \E R.Self
+	ComplexConcept SelfReference ( ComplexRole R ) { return regPointer ( new DLTree ( REFLEXIVE, R ) ); }
+
 		/// simple concept expression
-	ComplexConcept SimpleExpression ( Token t, ComplexConcept C, ComplexConcept D ) const
+	ComplexConcept SimpleExpression ( Token t, ComplexConcept C, ComplexConcept D )
 	{
 		fpp_assert ( t == AND || t == OR );
 		if ( t == AND )
@@ -445,24 +435,8 @@ public:
 		else
 			return Or ( C, D );
 	}
-		/// @return \E R.C
-	ComplexConcept Exists ( ComplexRole R, ComplexConcept C ) const { return createSNFExists ( R, C ); }
-		/// @return \A R.C
-	ComplexConcept Forall ( ComplexRole R, ComplexConcept C ) const { return createSNFForall ( R, C ); }
-		/// @return \E R.I for individual/data value I
-	ComplexConcept Value ( ComplexRole R, ComplexConcept I ) const { return createSNFExists ( R, I ); }
-		/// @return <= n R.C
-	ComplexConcept MaxCardinality ( unsigned int n, ComplexRole R, ComplexConcept C ) const { return createSNFLE ( n, R, C ); }
-		/// @return >= n R.C
-	ComplexConcept MinCardinality ( unsigned int n, ComplexRole R, ComplexConcept C ) const { return createSNFGE ( n, R, C ); }
-		/// @return = n R.C
-	ComplexConcept Cardinality ( unsigned int n, ComplexRole R, ComplexConcept C ) const
-	{
-		ComplexConcept temp = MinCardinality ( n, clone(R), clone(C) );
-		return And ( temp, MaxCardinality ( n, R, C ) );
-	}
 		/// complex concept expression
-	ComplexConcept ComplexExpression ( Token t, unsigned int n, ComplexRole R, ComplexConcept C ) const
+	ComplexConcept ComplexExpression ( Token t, unsigned int n, ComplexRole R, ComplexConcept C )
 	{
 		switch(t)
 		{
@@ -479,23 +453,36 @@ public:
 			return NULL;
 		}
 	}
-		/// @return \E R.Self
-	ComplexConcept SelfReference ( ComplexRole R ) const { return new DLTree ( REFLEXIVE, R ); }
 
-	// role-related expressions
+	//-------------------------------------------------------------------
+	//--	(Data)Role expressions
+	//-------------------------------------------------------------------
 
+		/// @return object role corresponding to NAME
+	ComplexRole ObjectRole ( const std::string& name ) { return regPointer ( new DLTree ( TLexeme ( RNAME, ORoles.insert(name) ) ) ); }
+		/// @return data role corresponding to NAME
+	ComplexRole DataRole ( const std::string& name ) { return regPointer ( new DLTree ( TLexeme ( DNAME, DRoles.insert(name) ) ) ); }
+		/// register NAME as a role if it is not a data property (kludge for LISP interface)
+	ComplexRole Role ( const std::string& name ) { return DRoles.get(name) ? DataRole(name) : ObjectRole(name); }
 		/// @return universal role
 //	ComplexRole UniversalRole ( void ) const { return new DLTree(UROLE); }
 		/// @return R^-
-	ComplexRole Inverse ( ComplexRole R ) const { return createInverse(R); }
+	ComplexRole Inverse ( ComplexRole R ) { return regPointer(createInverse(R)); }
 		/// @return R*S
-	ComplexRole Compose ( ComplexRole R, ComplexRole S ) const { return new DLTree ( TLexeme(RCOMPOSITION), R, S ); }
+	ComplexRole Compose ( ComplexRole R, ComplexRole S ) { return regPointer ( new DLTree ( TLexeme(RCOMPOSITION), R, S ) ); }
 		/// @return R1*...*Rn
-	ComplexRole Compose ( void ) { return getTBox()->processRComposition(NAryQueue.getLastArgList()); }
+	ComplexRole Compose ( void ) { return regPointer(getTBox()->processRComposition(NAryQueue.getLastArgList())); }
 		/// @return project R into C
-	ComplexRole ProjectInto ( ComplexRole R, ComplexConcept C ) const { return new DLTree ( TLexeme(PROJINTO), R, C ); }
+	ComplexRole ProjectInto ( ComplexRole R, ComplexConcept C ) { return regPointer ( new DLTree ( TLexeme(PROJINTO), R, C ) ); }
 		/// @return project R from C
-	ComplexRole ProjectFrom ( ComplexRole R, ComplexConcept C ) const { return new DLTree ( TLexeme(PROJFROM), R, C ); }
+	ComplexRole ProjectFrom ( ComplexRole R, ComplexConcept C ) { return regPointer ( new DLTree ( TLexeme(PROJFROM), R, C ) ); }
+
+	//-------------------------------------------------------------------
+	//--	individual expressions
+	//-------------------------------------------------------------------
+
+		/// @return individual corresponding to NAME
+	ComplexConcept Individual ( const std::string& name ) { return regPointer ( new DLTree ( TLexeme ( INAME, Individuals.insert(name) ) ) ); }
 
 	//----------------------------------------------------
 	//	TELLS interface

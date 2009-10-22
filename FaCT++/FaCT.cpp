@@ -74,7 +74,7 @@ DLTree* getNextName ( TsScanner& sc, ReasoningKernel& Kernel )
 		DLTree* ret;
 		try
 		{
-			ret = Kernel.ensureConceptName(sc.GetName());
+			ret = Kernel.Concept(sc.GetName());
 			Kernel.checkDefined(ret);
 			return ret;
 		}
@@ -82,7 +82,7 @@ DLTree* getNextName ( TsScanner& sc, ReasoningKernel& Kernel )
 		{
 			try
 			{
-				ret = Kernel.ensureSingletonName(sc.GetName());
+				ret = Kernel.Individual(sc.GetName());
 				Kernel.checkDefined(ret);
 				return ret;
 			}

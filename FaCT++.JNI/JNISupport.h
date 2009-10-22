@@ -166,25 +166,25 @@ ReasoningKernel* getK ( JNIEnv * env, jobject obj )
 
 /// get tree for the class name by the kernel and the name
 inline
-DLTree* getCName ( ReasoningKernel* K, const std::string& name ) { return K->ensureConceptName(name); }
+DLTree* getCName ( ReasoningKernel* K, const std::string& name ) { return K->Concept(name); }
 /// get tree for the class name by the env:obj and the name
 inline
 DLTree* getCName ( JNIEnv * env, jobject obj, const std::string& name ) { return getCName ( getK(env,obj), name ); }
 /// get tree for the individual name by the kernel and the name
 inline
-DLTree* getIName ( ReasoningKernel* K, const std::string& name ) { return K->ensureSingletonName(name); }
+DLTree* getIName ( ReasoningKernel* K, const std::string& name ) { return K->Individual(name); }
 /// get tree for the individual name by the env:obj and the name
 inline
 DLTree* getIName ( JNIEnv * env, jobject obj, const std::string& name ) { return getIName ( getK(env,obj), name ); }
 /// get tree for the object property name by the kernel and the name
 inline
-DLTree* getOName ( ReasoningKernel* K, const std::string& name ) { return K->ensureObjectRoleName(name); }
+DLTree* getOName ( ReasoningKernel* K, const std::string& name ) { return K->ObjectRole(name); }
 /// get tree for the object property name by the env:obj and the name
 inline
 DLTree* getOName ( JNIEnv * env, jobject obj, const std::string& name ) { return getOName ( getK(env,obj), name ); }
 /// get tree for the data property name by the kernel and the name
 inline
-DLTree* getDName ( ReasoningKernel* K, const std::string& name ) { return K->ensureDataRoleName(name); }
+DLTree* getDName ( ReasoningKernel* K, const std::string& name ) { return K->DataRole(name); }
 /// get tree for the data property name by the env:obj and the name
 inline
 DLTree* getDName ( JNIEnv * env, jobject obj, const std::string& name ) { return getDName ( getK(env,obj), name ); }
