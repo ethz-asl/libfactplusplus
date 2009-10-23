@@ -23,6 +23,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #	define JNI_TRACING
 #endif
 
+// to set up the reference recorder debug info
+#ifdef JNI_TRACING
+#	define REF_RECORDER_TRACING
+#endif
+
 #include "uk_ac_manchester_cs_factplusplus_FaCTPlusPlus.h"
 #include "Kernel.h"
 #include "JNISupport.h"

@@ -21,10 +21,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <jni.h>
 
-#ifdef JNI_TRACING
-#	define REF_RECORDER_TRACING
-#endif
-
 #include "tRefRecorder.h"
 
 //-------------------------------------------------------------
