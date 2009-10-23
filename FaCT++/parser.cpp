@@ -432,12 +432,12 @@ DLTree* DLLispParser :: processComplexConceptTree ( void )
 		break;
 
 	case ONEOF:
-		parseConceptList(/*singletonsOnly=*/true);
-		return Kernel->processOneOf ();
-
 	case DONEOF:
-		parseConceptList(/*singletonsOnly=*/false);
-		return Kernel->processOneOf(/*data=*/true);
+	{
+		bool data = ( T == DONEOF );
+		parseConceptList(/*singletonsOnly=*/!data);
+		return Kernel->OneOf(data);
+	}
 
 	case STRING:	// expression (string <value>)
 	case NUMBER:	// expression (number <value>)

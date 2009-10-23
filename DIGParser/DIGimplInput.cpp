@@ -537,7 +537,7 @@ void DIGParseHandlers :: endConcept ( DIGTag tag )
 		workStack.pop();
 
 		//FIXME!! try..catch block here
-		workStack.push ( pKernel->processOneOf () );
+		workStack.push(pKernel->OneOf());
 		return;
 	}
 	// data staff

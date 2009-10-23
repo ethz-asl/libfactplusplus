@@ -365,7 +365,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
   (JNIEnv * env, jobject obj)
 {
 	TRACE_JNI("getDataEnumeration");
-	return DataTypeExpression ( env, getK(env,obj)->processOneOf(/*data=*/true) );
+	return DataTypeExpression ( env, getK(env,obj)->OneOf(/*data=*/true) );
 }
 
 /*
@@ -814,7 +814,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
   (JNIEnv * env, jobject obj)
 {
 	TRACE_JNI("getOneOf");
-	return Class ( env, getK(env,obj)->processOneOf(/*data=*/false) );
+	return Class ( env, getK(env,obj)->OneOf(/*data=*/false) );
 }
 
 /*

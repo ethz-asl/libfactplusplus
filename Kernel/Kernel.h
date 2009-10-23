@@ -285,9 +285,6 @@ public:	// general staff
 	void writeReasoningResult ( std::ostream& o, float time ) const
 		{ getTBox()->writeReasoningResult ( o, time ); }
 
-		/// @return one-of construction for the arguments in NAryQueue; data is true if data one-of is used
-	DLTree* processOneOf ( bool data = false ) { return getTBox()->processOneOf ( NAryQueue.getLastArgList(), data ); }
-
 	//----------------------------------------------
 	//-- save/load interface; implementation in SaveLoad.cpp
 	//----------------------------------------------
@@ -425,6 +422,9 @@ public:
 	}
 		/// @return \E R.Self
 	ComplexConcept SelfReference ( ComplexRole R ) { return regPointer ( new DLTree ( REFLEXIVE, R ) ); }
+		/// @return one-of construction for the arguments in NAryQueue; data is true if data one-of is used
+	DLTree* OneOf ( bool data = false ) { return regPointer ( getTBox()->processOneOf ( NAryQueue.getLastArgList(), data ) ); }
+
 
 		/// simple concept expression
 	ComplexConcept SimpleExpression ( Token t, ComplexConcept C, ComplexConcept D )
