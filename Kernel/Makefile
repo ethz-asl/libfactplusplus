@@ -47,5 +47,6 @@ SOURCES = \
           Input.cpp\
           Precomplete.cpp\
           SaveLoad.cpp\
+          ReasonerNom.cpp\
 
 include ../Makefile.include

@@ -23,7 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "cppi.h"
 
 #include "globaldef.h"
-#include "Reasoner.h"
+#include "ReasonerNom.h"
 #include "DLConceptTaxonomy.h"
 #include "procTimer.h"
 #include "dumpLisp.h"

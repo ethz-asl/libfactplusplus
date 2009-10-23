@@ -137,7 +137,7 @@ protected:	// types
 	enum { redoForall = 1, redoFunc = 2, redoAtMost = 4, redoIrr = 8 };
 
 protected:	// classes
-	/// stack to keep BContext
+		/// stack to keep BContext
 	class BCStack: public TSaveStack<BranchingContext>
 	{
 	protected:	// members
@@ -340,7 +340,7 @@ protected:	// methods
 #	define incStat(stat)
 #endif
 
-	/// resets all session flags
+		/// resets all session flags
 	void resetSessionFlags ( void );
 
 	//------------  methods  ----------------------------
@@ -867,10 +867,10 @@ public:
 		/// c'tor
 	DlSatTester ( TBox& tbox, const ifOptionSet* Options );
 		/// d'tor
-	~DlSatTester ( void ) {}
+	virtual ~DlSatTester ( void ) {}
 
 		/// prepare reasoner to a new run
-	void prepareReasoner ( void );
+	virtual void prepareReasoner ( void );
 		/// set-up satisfiability task for given pointers and run runSat on it
 	bool runSat ( BipolarPointer p, BipolarPointer q = bpTOP );
 
@@ -1055,50 +1055,11 @@ TBox :: setToDoPriorities ( void )
 		nomReasoner->initToDoPriorities(pOptions);
 }
 
-inline void
-TBox :: initReasoner ( void )
-{
-	if ( stdReasoner == NULL )	// 1st action
-	{
-		fpp_assert ( nomReasoner == NULL );
-
-		GCIs.setReflexive(ORM.hasReflexiveRoles());
-
-		stdReasoner = new DlSatTester ( *this, pOptions );
-		if ( NCFeatures.hasSingletons() )
-		{
-			nomReasoner = new DlSatTester ( *this, pOptions );
-			nomReasoner->initNominalVector();
-		}
-	}
-}
-
 /// init [singleton] cache for given concept implementation
 inline void
 TBox :: initSingletonCache ( BipolarPointer p )
 {
 	DLHeap.setCache ( p, stdReasoner->createModelCache(p) );
-}
-
-/// check if the ontology is consistent
-inline bool
-TBox :: performConsistencyCheck ( void )
-{
-	buildSimpleCache();
-
-	TConcept* test = ( NCFeatures.hasSingletons() ? *i_begin() : NULL );
-	prepareFeatures ( test, NULL );
-
-	if ( test )
-	{
-		// make a cache for TOP if it is not there
-		if ( DLHeap.getCache(bpTOP) == NULL )
-			initSingletonCache(bpTOP);
-
-		return nomReasoner->consistentNominalCloud();
-	}
-	else
-		return isSatisfiable(pTop);
 }
 
 inline const modelCacheInterface*

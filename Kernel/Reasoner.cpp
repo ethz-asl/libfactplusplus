@@ -86,16 +86,6 @@ void DlSatTester :: readConfig ( const ifOptionSet* Options )
 		LL << "Init testTimeout = " << testTimeout << "\n";
 }
 
-// register all nominals defined in TBox
-void DlSatTester :: initNominalVector ( void )
-{
-	Nominals.clear();
-
-	for ( TBox::i_iterator pi = tBox.i_begin(); pi != tBox.i_end(); ++pi )
-		if ( !(*pi)->isSynonym() )
-			Nominals.push_back(*pi);
-}
-
 /// prerpare Nominal Reasoner to a new job
 void
 DlSatTester :: prepareReasoner ( void )
@@ -480,53 +470,6 @@ DlSatTester :: hasDataClash ( const DlCompletionTree* Node )
 	return DTReasoner.checkClash();
 }
 
-//-----------------------------------------------------------------------------
-//--		internal nominal reasoning interface
-//-----------------------------------------------------------------------------
-
-bool
-DlSatTester :: consistentNominalCloud ( void )
-{
-	if ( LLM.isWritable(llBegSat) )
-		LL << "\n--------------------------------------------\n"
-			  "Checking consistency of an ontology with individuals:";
-	if ( LLM.isWritable(llGTA) )
-		LL << "\n";
-
-	bool result = false;
-
-	// reserve the root for the forthcoming reasoning
-	if ( initNewNode ( CGraph.getRoot(), DepSet(), bpTOP ) == utClash ||
-		 initNominalCloud() )	// clash during initialisation
-		result = false;
-	else	// perform a normal reasoning
-		result = runSat();
-
-	if ( result && noBranchingOps() )
-	{	// all nominal cloud is classified w/o branching -- make a barrier
-		if ( LLM.isWritable(llSRState) )
-			LL << "InitNominalReasoner[";
-		curNode = NULL;
-		createBCBarrier();
-		save();
-		nonDetShift = 1;	// the barrier doesn't introduce branching itself
-		if ( LLM.isWritable(llSRState) )
-			LL << "] utDone";
-	}
-
-	if ( LLM.isWritable(llSatResult) )
-		LL << "\nThe ontology is " << (result ? "consistent" : "INCONSISTENT");
-
-	if ( !result )
-		return false;
-
-	// ABox is consistent -> create cache for every nominal in KB
-	for ( SingletonVector::iterator p = Nominals.begin(); p != Nominals.end(); ++p )
-		updateClassifiedSingleton(*p);
-
-	return true;
-}
-
 bool DlSatTester :: runSat ( void )
 {
 	testTimer.Start();
@@ -564,60 +507,6 @@ DlSatTester :: finaliseStatistic ( void )
 
 	// clear global statistics
 	CGraph.clearStatistics();
-}
-
-	/// create nominal nodes for all individuals in TBox
-bool DlSatTester :: initNominalCloud ( void )
-{
-	// create nominal nodes and fills them with initial values
-	for ( SingletonVector::iterator p = Nominals.begin(); p != Nominals.end(); ++p )
-		if ( initNominalNode(*p) )
-			return true;	// ABox is inconsistent
-
-	// create edges between related nodes
-	if ( !tBox.isPrecompleted() )	// not needed for precompleted KB
-		for ( TBox::RelatedCollection::const_iterator q = tBox.RelatedI.begin(); q != tBox.RelatedI.end(); ++q, ++q )
-			if ( initRelatedNominals(*q) )
-				return true;	// ABox is inconsistent
-
-	// create disjoint markers on nominal nodes
-	if ( tBox.Different.empty() )
-		return false;
-
-	DepSet dummy;	// empty dep-set for the CGraph
-
-	for ( TBox::DifferentIndividuals::const_iterator
-		  r = tBox.Different.begin(); r != tBox.Different.end(); ++r )
-	{
-		CGraph.initIR();
-		for ( SingletonVector::const_iterator p = r->begin(); p != r->end(); ++p )
-			if ( CGraph.setCurIR ( resolveSynonym(*p)->node, dummy ) )	// different(c,c)
-				return true;
-		CGraph.finiIR();
-	}
-
-	// init was OK
-	return false;
-}
-
-bool DlSatTester :: initRelatedNominals ( const TRelated* rel )
-{
-	DlCompletionTree* from = resolveSynonym(rel->a)->node;
-	DlCompletionTree* to = resolveSynonym(rel->b)->node;
-	TRole* R = resolveSynonym(rel->R);
-	DepSet dep;	// empty dep-set
-
-	// check if merging will lead to clash because of disjoint roles
-	if ( R->isDisjoint() && checkDisjointRoleClash ( from, to, R, dep ) == utClash )
-		return true;
-
-	// create new edge between FROM and TO
-	DlCompletionTreeArc* pA =
-		CGraph.addRoleLabel ( from, to, /*isUpLink=*/false, R, dep );
-
-	// return OK iff setup new enge didn't lead to clash
-	// do NOT need to re-check anything: nothing was processed yet
-	return setupEdge ( pA, dep, 0 ) == utClash;
 }
 
 bool DlSatTester :: applyReflexiveRoles ( DlCompletionTree* node, const DepSet& dep )

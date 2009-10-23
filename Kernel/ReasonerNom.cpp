@@ -1,0 +1,134 @@
+/* This file is part of the FaCT++ DL reasoner
+Copyright (C) 2003-2009 by Dmitry Tsarkov
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+*/
+
+#include "ReasonerNom.h"
+
+//-----------------------------------------------------------------------------
+//--		internal nominal reasoning interface
+//-----------------------------------------------------------------------------
+
+// register all nominals defined in TBox
+void
+DlSatTester :: initNominalVector ( void )
+{
+	Nominals.clear();
+
+	for ( TBox::i_iterator pi = tBox.i_begin(); pi != tBox.i_end(); ++pi )
+		if ( !(*pi)->isSynonym() )
+			Nominals.push_back(*pi);
+}
+
+bool
+DlSatTester :: consistentNominalCloud ( void )
+{
+	if ( LLM.isWritable(llBegSat) )
+		LL << "\n--------------------------------------------\n"
+			  "Checking consistency of an ontology with individuals:";
+	if ( LLM.isWritable(llGTA) )
+		LL << "\n";
+
+	bool result = false;
+
+	// reserve the root for the forthcoming reasoning
+	if ( initNewNode ( CGraph.getRoot(), DepSet(), bpTOP ) == utClash ||
+		 initNominalCloud() )	// clash during initialisation
+		result = false;
+	else	// perform a normal reasoning
+		result = runSat();
+
+	if ( result && noBranchingOps() )
+	{	// all nominal cloud is classified w/o branching -- make a barrier
+		if ( LLM.isWritable(llSRState) )
+			LL << "InitNominalReasoner[";
+		curNode = NULL;
+		createBCBarrier();
+		save();
+		nonDetShift = 1;	// the barrier doesn't introduce branching itself
+		if ( LLM.isWritable(llSRState) )
+			LL << "] utDone";
+	}
+
+	if ( LLM.isWritable(llSatResult) )
+		LL << "\nThe ontology is " << (result ? "consistent" : "INCONSISTENT");
+
+	if ( !result )
+		return false;
+
+	// ABox is consistent -> create cache for every nominal in KB
+	for ( SingletonVector::iterator p = Nominals.begin(); p != Nominals.end(); ++p )
+		updateClassifiedSingleton(*p);
+
+	return true;
+}
+
+/// create nominal nodes for all individuals in TBox
+bool
+DlSatTester :: initNominalCloud ( void )
+{
+	// create nominal nodes and fills them with initial values
+	for ( SingletonVector::iterator p = Nominals.begin(); p != Nominals.end(); ++p )
+		if ( initNominalNode(*p) )
+			return true;	// ABox is inconsistent
+
+	// create edges between related nodes
+	if ( !tBox.isPrecompleted() )	// not needed for precompleted KB
+		for ( TBox::RelatedCollection::const_iterator q = tBox.RelatedI.begin(); q != tBox.RelatedI.end(); ++q, ++q )
+			if ( initRelatedNominals(*q) )
+				return true;	// ABox is inconsistent
+
+	// create disjoint markers on nominal nodes
+	if ( tBox.Different.empty() )
+		return false;
+
+	DepSet dummy;	// empty dep-set for the CGraph
+
+	for ( TBox::DifferentIndividuals::const_iterator
+		  r = tBox.Different.begin(); r != tBox.Different.end(); ++r )
+	{
+		CGraph.initIR();
+		for ( SingletonVector::const_iterator p = r->begin(); p != r->end(); ++p )
+			if ( CGraph.setCurIR ( resolveSynonym(*p)->node, dummy ) )	// different(c,c)
+				return true;
+		CGraph.finiIR();
+	}
+
+	// init was OK
+	return false;
+}
+
+bool
+DlSatTester :: initRelatedNominals ( const TRelated* rel )
+{
+	DlCompletionTree* from = resolveSynonym(rel->a)->node;
+	DlCompletionTree* to = resolveSynonym(rel->b)->node;
+	TRole* R = resolveSynonym(rel->R);
+	DepSet dep;	// empty dep-set
+
+	// check if merging will lead to clash because of disjoint roles
+	if ( R->isDisjoint() && checkDisjointRoleClash ( from, to, R, dep ) == utClash )
+		return true;
+
+	// create new edge between FROM and TO
+	DlCompletionTreeArc* pA =
+		CGraph.addRoleLabel ( from, to, /*isUpLink=*/false, R, dep );
+
+	// return OK iff setup new enge didn't lead to clash
+	// do NOT need to re-check anything: nothing was processed yet
+	return setupEdge ( pA, dep, 0 ) == utClash;
+}
+

@@ -25,7 +25,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "eFPPInconsistentKB.h"
 #include "tNAryQueue.h"
 #include "dlTBox.h"
-#include "Reasoner.h"
+#include "ReasonerNom.h"
 #include "ifOptions.h"
 #include "DLConceptTaxonomy.h"	// for getRelatives()
 #include "tOntology.h"
