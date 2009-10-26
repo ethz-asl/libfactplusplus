@@ -358,9 +358,8 @@ void DIGParseHandlers :: startAxiom ( DIGTag tag, AttributeList& attributes )
 	case digDefFeature:
 		if ( parm == NULL )
 			throwAttributeAbsence ( "name", tag );
-		x = tryRoleName(StrX(parm).localForm());
+		pKernel->declare(x = tryRoleName(StrX(parm).localForm()));
 		ERROR_IF ( pKernel->setTransitive(x) )
-		delete x;
 		return;
 
 	case digDefAttribute:
@@ -470,10 +469,10 @@ void DIGParseHandlers :: endConcept ( DIGTag tag )
 		workStack.pop();
 		fpp_assert ( pN->Element() == NUM );
 		unsigned int n = pN->Element().getData();
+		deleteTree(pN);
 
 		// create \?e n R.C
 		workStack.push ( pKernel->ComplexExpression ( op, n, R, C ) );
-		delete pN;
 		return;
 	}
 	case digAnd:
@@ -503,8 +502,8 @@ void DIGParseHandlers :: endConcept ( DIGTag tag )
 		}
 
 		// delete marker
-		delete cur;
-		delete stop;
+		deleteTree(cur);
+		deleteTree(stop);
 		// restore calculated acc
 		workStack.push ( acc );
 		return;
@@ -532,8 +531,8 @@ void DIGParseHandlers :: endConcept ( DIGTag tag )
 		}
 
 		// here cur = OneOf
-		delete cur;
-		delete stop;
+		deleteTree(cur);
+		deleteTree(stop);
 		workStack.pop();
 
 		//FIXME!! try..catch block here
@@ -715,8 +714,8 @@ void DIGParseHandlers :: endAxiom ( DIGTag tag )
 		}
 
 		// here cur = DISJOINT
-		delete cur;
-		delete stop;
+		deleteTree(cur);
+		deleteTree(stop);
 		workStack.pop();
 
 		//FIXME!! try..catch block here

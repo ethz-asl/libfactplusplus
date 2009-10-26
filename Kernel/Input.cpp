@@ -137,17 +137,16 @@ bool TBox :: axiomToRangeDomain ( DLTree* sub, DLTree* sup )
 {
 	if ( !useRangeDomain )
 		return false;
-	// applicability check for T [= A sup.C
+	// applicability check for T [= A R.C
 	if ( sub->Element() == TOP && sup->Element () == FORALL )
 	{
-		resolveRole(sup->Left())->setRange(sup->Right());
+		resolveRole(sup->Left())->setRange(clone(sup->Right()));
 		// free unused memory
-		delete sub;
-		sup->SetRight(NULL);
+		deleteTree(sub);
 		deleteTree(sup);
 		return true;
 	}
-	// applicability check for E sup.T [= D
+	// applicability check for E R.T [= D
 	if ( sub->Element() == NOT && sub->Left()->Element() == FORALL && sub->Left()->Right()->Element() == BOTTOM )
 	{
 		resolveRole(sub->Left()->Left())->setDomain(sup);
@@ -200,8 +199,8 @@ TBox :: addNonprimitiveDefinition ( DLTree* left, DLTree* right )
 	// nothing to do for the case C := D for named concepts C,D with D = C already
 	if ( D && resolveSynonym(D) == C )
 	{
-		delete left;
-		delete right;
+		deleteTree(left);
+		deleteTree(right);
 		return true;
 	}
 
@@ -214,7 +213,7 @@ TBox :: addNonprimitiveDefinition ( DLTree* left, DLTree* right )
 	{	// try to define C
 		if ( !initNonPrimitive ( C, right ) )
 		{
-			delete left;
+			deleteTree(left);
 			return true;
 		}
 	}
@@ -241,7 +240,7 @@ TBox :: switchToNonprimitive ( DLTree* left, DLTree* right )
 	// check whether we process C=D where C is defined as C[=E
 	if ( alwaysPreferEquals && C->isPrimitive() )	// change C to C=... with additional GCI C[=x
 	{
-		delete left;
+		deleteTree(left);
 		addSubsumeForDefined ( C, makeNonPrimitive(C,right) );
 		return true;
 	}

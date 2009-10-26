@@ -127,7 +127,7 @@ void testSat ( const std::string& names, ReasoningKernel& Kernel )
 		if ( !result )
 			std::cout << "un";
 		std::cout << "satisfiable w.r.t. TBox\n";
-		delete sat;
+		deleteTree(sat);
 	}
 }
 
@@ -149,9 +149,9 @@ void testSub ( const std::string& names1, const std::string& names2, ReasoningKe
 			if ( !result )
 				std::cout << " NOT";
 			std::cout << " holds w.r.t. TBox\n";
-			delete sup;
+			deleteTree(sup);
 		}
-		delete sub;
+		deleteTree(sub);
 	}
 }
 

@@ -105,7 +105,7 @@ public:		// interface
 		, PCConcept(NULL)
 		{}
 		/// empty d'tor
-	virtual ~TIndividual ( void ) { delete pRelatedMap; delete PCConcept; }
+	virtual ~TIndividual ( void ) { delete pRelatedMap; deleteTree(PCConcept); }
 
 		/// check whether a concept is indeed a singleton
 	virtual bool isSingleton ( void ) const { return true; }
@@ -185,7 +185,7 @@ public:		// interface
 		/// update individual's description from precompletion information
 	void usePCInfo ( void )
 	{
-		delete Description;
+		deleteTree(Description);
 		Description = PCConcept;
 		PCConcept = NULL;
 
@@ -195,7 +195,7 @@ public:		// interface
 		TConcept::initToldSubsumers();
 	}
 		/// remove all precompletion-related information
-	void clearPCInfo ( void ) { delete PCConcept; PCConcept = NULL; CSSet.clear(); }
+	void clearPCInfo ( void ) { deleteTree(PCConcept); PCConcept = NULL; CSSet.clear(); }
 
 	// save/load interface; implementation is in SaveLoad.cpp
 

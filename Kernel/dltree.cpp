@@ -32,10 +32,9 @@ DLTree* createInverse ( DLTree* R )
 	{
 	case INV:	// R-- = R
 	{
-		DLTree* p = R;
-		R = R->Left();
-		delete p;
-		return R;
+		DLTree* p = clone(R->Left());
+		deleteTree(R);
+		return p;
 	}
 	case RNAME:	// role name
 		return new DLTree ( INV, R );
@@ -59,10 +58,10 @@ DLTree* createSNFNot ( DLTree* C )
 		C->Element() = BOTTOM;
 	// \not\not C = C
 	else if ( C->Element () == NOT )
-	{	// delete p; return p->Left
-		DLTree* p = C;
-		C = C->Left();
-		delete p;
+	{
+		DLTree* p = clone(C->Left());
+		deleteTree(C);
+		C = p;
 	}
 	// general case
 	else
@@ -119,7 +118,7 @@ DLTree* createSNFReducedAnd ( DLTree* C, DLTree* D )
 
 	if ( D->Element().getToken() == CNAME && containsC ( C, D ) )
 	{
-		delete D;
+		deleteTree(D);
 		return C;
 	}
 	else if ( D->Element().getToken() == AND )

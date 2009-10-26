@@ -115,7 +115,7 @@ TConcept :: replaceWithConst ( DLTree* t ) const
 		const ClassifiableEntry* name = static_cast<const ClassifiableEntry*>(t->Element().getNE());
 		if ( resolveSynonym(name) == this )
 		{
-			delete t;	// replace it for TOP
+			deleteTree(t);	// replace it for TOP
 			return new DLTree(TOP);
 		}
 		else
