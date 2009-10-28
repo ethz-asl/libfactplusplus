@@ -166,7 +166,6 @@ protected:	// classes
 
 	public:		// interface
 			/// empty c'tor
-			// FIXME!! we'll lost the default 8 elements made by the c'tor of growingArrayP
 		BCStack ( void ) : bcBarrier(new BCBarrier) {}
 			/// empty d'tor
 		virtual ~BCStack ( void )

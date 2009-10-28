@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2005-2007 by Dmitry Tsarkov
+Copyright (C) 2005-2009 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -28,10 +28,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 template<class T>
 class growingArrayP
 {
-private:	// static members
-		/// initial size of heap
-	static const unsigned int initSize = 8;
-
 protected:	// typedefs
 		/// type of the heap
 	typedef std::vector<T*> baseType;
@@ -85,7 +81,7 @@ protected:	// methods
 
 public:		// interface
 		/// c'tor: make SIZE objects
-	growingArrayP ( unsigned int size = growingArrayP::initSize ) : Base(size), last(0)
+	growingArrayP ( unsigned int size = 0 ) : Base(size), last(0)
 	{
 		initArray ( Base.begin(), Base.end() );
 	}
