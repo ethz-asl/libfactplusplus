@@ -68,7 +68,8 @@ public:	// types interface
 	typedef TRelatedMap::CIVec CIVec;
 
 private:
-	ifOptionSet* pKernelOptions;
+		/// options for the kernel and all related substructures
+	ifOptionSet KernelOptions;
 
 private:
 	static const char* Version;
@@ -142,7 +143,7 @@ protected:	// methods
 	bool initOptions ( void );
 		/// register the pointer that is go outside the kernel
 		// do nothing for now
-	DLTree* regPointer ( DLTree* arg ATTR_UNUSED ) { return arg; }
+	DLTree* regPointer ( DLTree* arg ) { return arg; }
 
 		/// get status of the KB
 	KBStatus getStatus ( void ) const
@@ -264,8 +265,8 @@ public:	// general staff
 	ReasoningKernel ( void );
 	~ReasoningKernel ( void );
 
-	ifOptionSet* getOptions ( void ) { return pKernelOptions; }
-	const ifOptionSet* getOptions ( void ) const { return pKernelOptions; }
+	ifOptionSet* getOptions ( void ) { return &KernelOptions; }
+	const ifOptionSet* getOptions ( void ) const { return &KernelOptions; }
 
 	static const char* getVersion ( void ) { return Version; }
 
@@ -948,7 +949,6 @@ public:
 inline ReasoningKernel :: ~ReasoningKernel ( void )
 {
 	releaseKB ();
-	delete pKernelOptions;
 }
 
 #endif

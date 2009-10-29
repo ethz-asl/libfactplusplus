@@ -30,8 +30,7 @@ const char* ReasoningKernel :: ReleaseDate = "(29 May 2009)";
 static bool KernelFirstRun = true;
 
 ReasoningKernel :: ReasoningKernel ( void )
-	: pKernelOptions (NULL)
-	, pTBox (NULL)
+	: pTBox (NULL)
 	, cachedQuery(NULL)
 {
 	// Intro
@@ -327,13 +326,11 @@ ReasoningKernel :: isRelated ( const ComplexConcept I, const ComplexRole R, cons
 bool ReasoningKernel :: initOptions ( void )
 {
 	// register all possible options used in FaCT++ Kernel
-	fpp_assert ( pKernelOptions == NULL );
-	pKernelOptions = new ifOptionSet;
 
 	// options for TBox
 
 	// register "useRelevantOnly" option
-	if ( pKernelOptions->RegisterOption (
+	if ( KernelOptions.RegisterOption (
 		"useRelevantOnly",
 		"Option 'useRelevantOnly' is used when creating internal DAG representation for externally given TBox. "
 		"If true, DAG contains only concepts, relevant to query. It is safe to leave this option false.",
@@ -343,7 +340,7 @@ bool ReasoningKernel :: initOptions ( void )
 		return true;
 
 	// register "useRangeDomain" option
-	if ( pKernelOptions->RegisterOption (
+	if ( KernelOptions.RegisterOption (
 		"useRangeDomain",
 		"Option 'useRangeDomain' switch on and off native support for the range and domain. "
 		"This option is of internal use only. It is crusial for reasoning performance to leave this option true.",
@@ -353,7 +350,7 @@ bool ReasoningKernel :: initOptions ( void )
 		return true;
 
 	// register "dumpQuery" option -- 11-08-04
-	if ( pKernelOptions->RegisterOption (
+	if ( KernelOptions.RegisterOption (
 		"dumpQuery",
 		"Option 'dumpQuery' dumps sub-TBox relevant to given satisfiability/subsumption query.",
 		ifOption::iotBool,
@@ -362,7 +359,7 @@ bool ReasoningKernel :: initOptions ( void )
 		return true;
 
 	// register "absorptionFlags" option (04/05/2005)
-	if ( pKernelOptions->RegisterOption (
+	if ( KernelOptions.RegisterOption (
 		"absorptionFlags",
 		"Option 'absorptionFlags' sets up absorption process for general axioms. "
 		"It is 5-letters text field; "
@@ -376,7 +373,7 @@ bool ReasoningKernel :: initOptions ( void )
 		return true;
 
 	// register "alwaysPreferEquals" option (26/01/2006)
-	if ( pKernelOptions->RegisterOption (
+	if ( KernelOptions.RegisterOption (
 		"alwaysPreferEquals",
 		"Option 'alwaysPreferEquals' allows user to enforce usage of C=D definition instead of C[=D "
 		"during absorption, even if implication appeares earlier in stream of axioms.",
@@ -386,7 +383,7 @@ bool ReasoningKernel :: initOptions ( void )
 		return true;
 
 	// register "usePrecompletion" option (13/09/2007)
-	if ( pKernelOptions->RegisterOption (
+	if ( KernelOptions.RegisterOption (
 		"usePrecompletion",
 		"Option 'usePrecompletion' switchs on and off precompletion process for ABox.",
 		ifOption::iotBool,
@@ -397,7 +394,7 @@ bool ReasoningKernel :: initOptions ( void )
 	// options for DLDag
 
 	// register "orSortSub" option (20/12/2004)
-	if ( pKernelOptions->RegisterOption (
+	if ( KernelOptions.RegisterOption (
 		"orSortSub",
 		"Option 'orSortSub' define the sorting order of OR vertices in the DAG used in subsumption tests. "
 		"Option has form of string 'Mop', where 'M' is a sort field (could be 'D' for depth, 'S' for size, 'F' "
@@ -410,7 +407,7 @@ bool ReasoningKernel :: initOptions ( void )
 		return true;
 
 	// register "orSortSat" option (20/12/2004)
-	if ( pKernelOptions->RegisterOption (
+	if ( KernelOptions.RegisterOption (
 		"orSortSat",
 		"Option 'orSortSat' define the sorting order of OR vertices in the DAG used in satisfiability tests "
 		"(used mostly in caching). Option has form of string 'Mop', see orSortSub for details.",
@@ -422,7 +419,7 @@ bool ReasoningKernel :: initOptions ( void )
 	// options for ToDoTable
 
 	// register "IAOEFLG" option
-	if ( pKernelOptions->RegisterOption (
+	if ( KernelOptions.RegisterOption (
 		"IAOEFLG",
 		"Option 'IAOEFLG' define the priorities of different operations in TODO list. Possible values are "
 		"7-digit strings with ony possible digit are 0-6. The digits on the places 1, 2, ..., 7 are for "
@@ -436,7 +433,7 @@ bool ReasoningKernel :: initOptions ( void )
 	// options for Reasoner
 
 	// register "useSemanticBranching" option
-	if ( pKernelOptions->RegisterOption (
+	if ( KernelOptions.RegisterOption (
 		"useSemanticBranching",
 		"Option 'useSemanticBranching' switch semantic branching on and off. The usage of semantic branching "
 		"usually leads to faster reasoning, but sometime could give small overhead.",
@@ -446,7 +443,7 @@ bool ReasoningKernel :: initOptions ( void )
 		return true;
 
 	// register "useBackjumping" option
-	if ( pKernelOptions->RegisterOption (
+	if ( KernelOptions.RegisterOption (
 		"useBackjumping",
 		"Option 'useBackjumping' switch backjumping on and off. The usage of backjumping "
 		"usually leads to much faster reasoning.",
@@ -456,7 +453,7 @@ bool ReasoningKernel :: initOptions ( void )
 		return true;
 
 	// register "testTimeout" option -- 21/08/09
-	if ( pKernelOptions->RegisterOption (
+	if ( KernelOptions.RegisterOption (
 		"testTimeout",
 		"Option 'testTimeout' sets timeout for a single reasoning test in seconds.",
 		ifOption::iotInt,
@@ -467,7 +464,7 @@ bool ReasoningKernel :: initOptions ( void )
 	// options for Blocking
 
 	// register "useLazyBlocking" option -- 08-03-04
-	if ( pKernelOptions->RegisterOption (
+	if ( KernelOptions.RegisterOption (
 		"useLazyBlocking",
 		"Option 'useLazyBlocking' makes checking of blocking status as small as possible. This greatly "
 		"increase speed of reasoning.",
@@ -477,7 +474,7 @@ bool ReasoningKernel :: initOptions ( void )
 		return true;
 
 	// register "useAnywhereBlocking" option (18/08/2008)
-	if ( pKernelOptions->RegisterOption (
+	if ( KernelOptions.RegisterOption (
 		"useAnywhereBlocking",
 		"Option 'useAnywhereBlocking' allow user to choose between Anywhere and Ancestor blocking.",
 		ifOption::iotBool,
@@ -488,7 +485,7 @@ bool ReasoningKernel :: initOptions ( void )
 	// options for Taxonomy
 
 	// register "useCompletelyDefined" option
-	if ( pKernelOptions->RegisterOption (
+	if ( KernelOptions.RegisterOption (
 		"useCompletelyDefined",
 		"Option 'useCompletelyDefined' leads to simpler Taxonomy creation if TBox contains no non-primitive "
 		"concepts. Unfortunately, it is quite rare case.",
