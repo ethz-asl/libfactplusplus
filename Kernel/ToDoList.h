@@ -73,7 +73,7 @@ protected:	// classes
 			/// c'tor: init queue with proper size and reset it
 		arrayQueue ( void ) : sPointer(0)
 		{
-			Wait.resize(50);	// initial size; FIXME!! tune it later on
+			Wait.reserve(50);	// initial size
 			Wait.clear();
 		}
 			/// empty d'tor
@@ -98,7 +98,7 @@ protected:	// classes
 		void restore ( const arrayQueueSaveState& tss )
 		{
 			sPointer = tss.sp;
-			Wait.reset(tss.ep);
+			Wait.resize(tss.ep);
 		}
 	}; // arrayQueue
 	//--------------------------------------------------------------------------
@@ -189,7 +189,7 @@ protected:	// classes
 			if ( queueBroken )	// restore the whole queue
 				Wait = tss.Wait;
 			else				// save just end pointer
-				Wait.reset(tss.ep);
+				Wait.resize(tss.ep);
 		}
 	}; // queueQueue
 	//--------------------------------------------------------------------------

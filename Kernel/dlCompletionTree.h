@@ -117,7 +117,7 @@ protected:	// internal classes
 	public:
 		IRRestorer ( DlCompletionTree* q ) : p(q), n(q->IR.size()) {}
 		virtual ~IRRestorer ( void ) {}
-		void restore ( void ) { p->IR.reset(n); }
+		void restore ( void ) { p->IR.resize(n); }
 	}; // IRRestorer
 #endif
 

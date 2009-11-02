@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2008 by Dmitry Tsarkov
+Copyright (C) 2003-2009 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -46,7 +46,7 @@ CWDArray :: updateDepSet ( BipolarPointer bp, const DepSet& dep )
 		if ( i->bp() == bp )
 		{
 			TRestorer* ret = new UnMerge ( *this, i );
-			DepSet odep(i->getDep());
+//			DepSet odep(i->getDep());
 			i->addDep(dep);
 /*			if ( odep == i->getDep() )
 			{
@@ -63,7 +63,7 @@ void
 CWDArray :: restore ( const SaveState& ss, unsigned int level ATTR_UNUSED )
 {
 #ifndef __DYNAMIC_NODE_RESTORE
-	Base.reset(ss.ep);
+	Base.resize(ss.ep);
 #else
 	unsigned int j = ss.ep;
 	unsigned int k = j;

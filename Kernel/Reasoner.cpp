@@ -738,8 +738,8 @@ void DlSatTester :: restoreBC ( void )
 	// restore reasoning context
 	curNode = bContext->curNode;
 	curConcept = bContext->curConcept;
-	pUsed.reset(bContext->pUsedIndex);
-	nUsed.reset(bContext->nUsedIndex);
+	pUsed.resize(bContext->pUsedIndex);
+	nUsed.resize(bContext->nUsedIndex);
 
 	// update branch dep-set
 	updateBranchDep();

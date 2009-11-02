@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2008 by Dmitry Tsarkov
+Copyright (C) 2008-2009 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -61,7 +61,7 @@ public:		// interface
 		/// empty d'tor
 	~TFastSet ( void ) {}
 		/// reserve the set size to the SIZE elements
-	void reserve ( size_t size ) { Value.resize(size); }
+	void reserve ( size_t size ) { Value.reserve(size); }
 
 	// set iterators
 
@@ -133,8 +133,7 @@ public:		// interface
 		/// clear the set
 	void clear ( void ) { Value.clear(); }
 		/// set the size of the set to be a VALUE
-	void reset ( size_t value ) { Value.reset(value); }
+	void resize ( size_t value ) { Value.resize(value); }
 }; // TFastSet
 
 #endif
-

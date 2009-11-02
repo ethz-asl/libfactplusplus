@@ -28,24 +28,16 @@ template <class C>
 class growingArray
 {
 public:		// types
-	/// define iterator
+		/// define iterator
 	typedef typename std::vector<C>::iterator iterator;
-	/// define const_iterator
+		/// define const_iterator
 	typedef typename std::vector<C>::const_iterator const_iterator;
 
 protected:	// members
-	/// body of an aggay
+		/// body of an aggay
 	std::vector<C> Body;
-	/// index of the element after last actual element in array
+		/// index of the element after last actual element in array
 	unsigned int last;
-
-protected:	// methods
-	/// increase Body size to ensure 'last' points to valid place
-	void grow ( unsigned int _size )
-	{
-		if ( _size >= Body.size() )
-			Body.resize ( 2*_size+1 );
-	}
 
 public:		// interface
 		/// the empty c'tor
@@ -54,29 +46,33 @@ public:		// interface
 	growingArray ( const growingArray<C>& ga ) : Body(ga.Body), last(ga.last) {}
 		/// assignment
 	growingArray& operator = ( const growingArray<C>& ga ) { Body=ga.Body; last=ga.last; return *this; }
-	/// d'tor
+		/// empty d'tor
 	virtual ~growingArray ( void ) {}
 
-	/// add the entry to the array
-	void add ( const C& entry )
-	{
-		grow(last);
-		Body[last++] = entry;
-	}
-	/// is array empty
+		/// check whether array is empty
 	bool empty ( void ) const { return ( last == 0 ); }
-	/// resize an array (leaving 'last' unchanged)
-	void resize ( unsigned int i ) { if ( i >= last ) grow (i); }
-	/// reset last element to given index
-	void reset ( unsigned int i ) { resize (i); last = i; }
-	/// clear the array
+		/// make sure array is big enough to keep N elements (leaving 'last' unchanged)
+	void reserve ( unsigned int n )
+	{
+		if ( n >= Body.size() )
+			Body.resize(2*n+1);
+	}
+		/// set the last element to given index
+	void resize ( unsigned int n ) { reserve(n); last = n; }
+		/// clear the array
 	void clear ( void ) { last = 0; }
-	/// get the count of elements
+		/// get the count of elements
 	unsigned int size ( void ) const { return last; }
 
 	// access to elements
 
-	/// random access (non-const version)
+		/// add the entry to the array
+	void add ( const C& entry )
+	{
+		reserve(last);
+		Body[last++] = entry;
+	}
+		/// random access (non-const version)
 	C& operator [] ( unsigned int i )
 	{
 #	ifdef ENABLE_CHECKING
@@ -86,7 +82,7 @@ public:		// interface
 		return Body[i];
 	}
 
-	/// random access (const version)
+		/// random access (const version)
 	const C& operator [] ( unsigned int i ) const
 	{
 #	ifdef ENABLE_CHECKING

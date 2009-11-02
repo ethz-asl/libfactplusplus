@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2008 by Dmitry Tsarkov
+Copyright (C) 2003-2009 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -27,6 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ConceptWithDep.h"
 
 enum addConceptResult { acrClash, acrExist, acrDone };
+
 class TRestorer;
 
 /// array of concepts with dep-set, which may be viewed as a label of a completion-graph
@@ -68,7 +69,7 @@ public:		// interface
 		/// init/clear label with given size
 	void init ( unsigned int size )
 	{
-		Base.reset(size);
+		Base.reserve(size);
 		Base.clear();
 	}
 		/// empty c'tor
