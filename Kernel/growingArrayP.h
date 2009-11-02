@@ -93,6 +93,10 @@ public:		// interface
 			delete *p;
 	}
 
+		/// resize an array
+	void resize ( unsigned int n ) { ensureHeapSize(n); last = n; }
+		/// get the number of elements
+	unsigned int size ( void ) const { return last; }
 		/// check if heap is empty
 	bool empty ( void ) const { return last == 0; }
 		/// mark all array elements as unused

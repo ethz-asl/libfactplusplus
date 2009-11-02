@@ -148,6 +148,7 @@ void DlCompletionGraph :: save ( void )
 	SaveState* s = Stack.push();
 	s->nNodes = endUsed;
 	s->sNodes = SavedNodes.size();
+	s->nEdges = CTEdgeHeap.size();
 	RareStack.incLevel();
 	++branchingLevel;
 }
@@ -169,6 +170,7 @@ void DlCompletionGraph :: restore ( unsigned int level )
 			if ( (*p)->getId() < endUsed )	// don't restore nodes that are dead anyway
 				restoreNode ( (*p), level );
 	SavedNodes.resize(nSaved);
+	CTEdgeHeap.resize(s->nEdges);
 }
 
 // printing CGraph

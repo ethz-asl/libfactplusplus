@@ -53,10 +53,12 @@ protected:	// types
 		unsigned int nNodes;
 			/// end pointer of saved nodes
 		unsigned int sNodes;
+			/// number of used edges
+		unsigned int nEdges;
 
 	public:		// interface
 			/// empty c'tor
-		SaveState ( void ) : nNodes(0), sNodes(0) {}
+		SaveState ( void ) : nNodes(0), sNodes(0), nEdges(0) {}
 			/// empty d'tor
 		~SaveState ( void ) {}
 	}; // SaveState
