@@ -92,6 +92,18 @@ protected:	// methods
 		ri->setId (-newRoleId);
 		++newRoleId;
 	}
+		/// @return true if P is a role that is registered in the RM
+	bool isRegisteredRole ( const TNamedEntry* p ) const
+	{
+		const TRole* R = reinterpret_cast<const TRole*>(p);
+		if ( R == NULL )
+			return false;
+		unsigned int ind = R->getIndex();
+		return ( ind >= firstRoleIndex() &&
+				 ind < Roles.size() &&
+				 Roles[ind] == p );
+	}
+
 		/// get number of roles
 	size_t size ( void ) const { return Roles.size()/2-1; }
 
@@ -119,18 +131,6 @@ public:		// interface
 	}
 		/// d'tor (delete taxonomy)
 	~RoleMaster ( void ) { delete pTax; }
-
-		/// @return true if P is a role that is registered in the RM
-	bool isRegisteredRole ( const TNamedEntry* p ) const
-	{
-		const TRole* R = reinterpret_cast<const TRole*>(p);
-		if ( R == NULL )
-			return false;
-		unsigned int ind = R->getIndex();
-		return ( ind >= firstRoleIndex() &&
-				 ind < Roles.size() &&
-				 Roles[ind] == p );
-	}
 
 		/// create role entry with given name
 	TNamedEntry* ensureRoleName ( const std::string& name, bool isDataRole ) throw(EFPPCantRegName)

@@ -80,8 +80,10 @@ public:		// interface
 
 	// add/remove elements
 
-		/// check if name is registered in given collection
-	bool isRegistered ( const TNamedEntry* name ) const { return NameSet.get(name->getName()) != NULL; }
+		/// check if NAME is registered in given collection
+	bool isRegistered ( const std::string& name ) const { return NameSet.get(name) != NULL; }
+		/// check if ENTRY is registered in given collection
+	bool isRegistered ( const TNamedEntry* entry ) const { return isRegistered(entry->getName()); }
 		/// get entry by NAME from the collection; register it if necessary
 	T* get ( const std::string& name ) throw(EFPPCantRegName)
 	{

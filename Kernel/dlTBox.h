@@ -273,9 +273,6 @@ protected:	// methods
 //--		internal ensure*-like interface
 //-----------------------------------------------------------------------------
 
-		/// @return true if given name is registered as a concept-like structure in given TBox
-	bool isRegisteredConcept ( const TNamedEntry* name ) const { return Concepts.isRegistered(name); }
-
 		/// @return concept by given Named Entry ID
 	TConcept* toConcept ( TNamedEntry* id ) { return static_cast<TConcept*>(id); }
 		/// @return concept by given Named Entry ID
