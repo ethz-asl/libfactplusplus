@@ -795,11 +795,13 @@ public:
 		/// return registered individual by given NAME; @return NULL if can't register
 	TIndividual* getIndividual ( const std::string& name ) { return Individuals.get(name); }
 
-		/// @return true iff given name is a registered individual
-	bool isIndividual ( const TNamedEntry* name ) const { return Individuals.isRegistered(name); }
-		/// @return true iff given DLTree represents a registered individual
-	bool isIndividual ( const DLTree* entry ) const
-		{ return (entry->Element().getToken() == INAME && isIndividual(entry->Element().getNE())); }
+		/// @return true iff given NAME is a name of a registered individual
+	bool isIndividual ( const std::string& name ) const { return Individuals.isRegistered(name); }
+		/// @return true iff given ENTRY is a registered individual
+	bool isIndividual ( const TNamedEntry* entry ) const { return isIndividual(entry->getName()); }
+		/// @return true iff given TREE represents a registered individual
+	bool isIndividual ( const DLTree* tree ) const
+		{ return (tree->Element().getToken() == INAME && isIndividual(tree->Element().getNE())); }
 		/// @return true iff given DLTree represents a data value
 	static bool isDataValue ( const DLTree* entry )
 	{

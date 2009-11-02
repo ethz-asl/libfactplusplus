@@ -80,10 +80,8 @@ public:		// interface
 
 	// add/remove elements
 
-		/// check if NAME is registered in given collection
+		/// check if entry with a NAME is registered in given collection
 	bool isRegistered ( const std::string& name ) const { return NameSet.get(name) != NULL; }
-		/// check if ENTRY is registered in given collection
-	bool isRegistered ( const TNamedEntry* entry ) const { return isRegistered(entry->getName()); }
 		/// get entry by NAME from the collection; register it if necessary
 	T* get ( const std::string& name ) throw(EFPPCantRegName)
 	{
@@ -106,7 +104,7 @@ public:		// interface
 		/// remove given entry from the collection; @return true iff it was NOT the last entry.
 	bool Remove ( T* p )
 	{
-		if ( !isRegistered(p) )
+		if ( !isRegistered(p->getName()) )
 			return true;
 		// check if the entry is the last entry
 		if ( Base.size() - p->getId() != 1 )
