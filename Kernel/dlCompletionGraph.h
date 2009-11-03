@@ -91,6 +91,13 @@ protected:	// members
 		/// stack for usual saving/restoring
 	TSaveStack<SaveState> Stack;
 
+	// helpers for the output
+
+		/// bitmap to remember which node was printed
+	std::vector<bool> CGPFlag;
+		/// indent to print CGraph nodes
+	unsigned int CGPIndent;
+
 	// statistical members
 
 		/// number of node' saves
@@ -240,6 +247,20 @@ protected:	// methods
 			return true;
 		return node->isAffected();
 	}
+
+	// helpers for the graph printing
+
+		/// print proper indentation
+	void PrintIndent ( std::ostream& o )
+	{
+		o << "\n|";
+		for ( unsigned int i = 1; i < CGPIndent; ++i )
+			o << " |";
+	}
+		/// print node of the graph with proper indentation
+	void PrintNode ( const DlCompletionTree* node, std::ostream& o );
+		/// print edge of the graph with proper indentation
+	void PrintEdge ( DlCompletionTree::const_edge_iterator edge, const DlCompletionTree* parent, std::ostream& o );
 
 public:		// interface
 		/// c'tor: make INIT_SIZE objects
@@ -478,7 +499,7 @@ public:		// interface
 	// print
 
 		/// print graph starting from the root
-	void Print ( std::ostream& o ) const;
+	void Print ( std::ostream& o );
 }; // DlCompletionGraph
 
 // blocking

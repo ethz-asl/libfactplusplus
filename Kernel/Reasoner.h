@@ -761,7 +761,7 @@ protected:	// methods
 	void logClash ( const DlCompletionTree* n, BipolarPointer c, const DepSet& dep ) const
 		{ logNCEntry ( n, c, dep, "x", DLHeap[c].getTagName() ); }
 		/// write root subtree of CG with given LEVEL
-	void writeRoot ( unsigned int level ) const
+	void writeRoot ( unsigned int level )
 	{
 		if ( LLM.isWritable(level) )
 			CGraph.Print(LL);

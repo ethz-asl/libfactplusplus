@@ -175,30 +175,12 @@ void DlCompletionGraph :: restore ( unsigned int level )
 
 // printing CGraph
 
-// indent to print CGraph nodes
-unsigned int CGPIndent;
-// bitmap to remember which node was printed
-std::vector<bool> CGPFlag;
-
-/// print proper indentation
-static void PrintIndent ( std::ostream& o )
-{
-	o << "\n|";
-	for ( unsigned int i = 1; i < CGPIndent; ++i )
-		o << " |";
-}
-
-/// prints NODE with all the children (including loops) to the stream O
-static void
-PrintNode ( const DlCompletionTree* node, std::ostream& o );
-
-void DlCompletionGraph :: Print ( std::ostream& o ) const
+void DlCompletionGraph :: Print ( std::ostream& o )
 {
 	// init indentation and node labels
 	CGPIndent = 0;
-	CGPFlag.resize(endUsed);
-	for ( std::vector<bool>::iterator i = CGPFlag.begin(); i != CGPFlag.end(); ++i )
-		*i = false;
+	std::vector<bool> temp ( endUsed, false );
+	CGPFlag.swap(temp);
 
 	const_iterator p = begin(), p_end = end();
 
@@ -211,10 +193,8 @@ void DlCompletionGraph :: Print ( std::ostream& o ) const
 	o << "\n";
 }
 
-/// print edge of the graph with proper indentation
-static void
-PrintEdge ( DlCompletionTree::const_edge_iterator edge,
-			const DlCompletionTree* parent, std::ostream& o )
+void
+DlCompletionGraph :: PrintEdge ( DlCompletionTree::const_edge_iterator edge, const DlCompletionTree* parent, std::ostream& o )
 {
 	const DlCompletionTree* node = (*edge)->getArcEnd();
 
@@ -233,8 +213,8 @@ PrintEdge ( DlCompletionTree::const_edge_iterator edge,
 }
 
 /// print node of the graph with proper indentation
-static void
-PrintNode ( const DlCompletionTree* node, std::ostream& o )
+void
+DlCompletionGraph :: PrintNode ( const DlCompletionTree* node, std::ostream& o )
 {
 	if ( CGPIndent )
 	{
