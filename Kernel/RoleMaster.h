@@ -230,7 +230,7 @@ public:		// interface
 inline bool
 RoleMaster :: hasReflexiveRoles ( void ) const
 {
-	for  ( const_iterator p = begin(); p != end(); ++p )
+	for  ( const_iterator p = begin(), p_end = end(); p < p_end; ++p )
 		if ( (*p)->isReflexive() )
 			return true;
 
@@ -241,7 +241,7 @@ inline void
 RoleMaster :: fillReflexiveRoles ( roleSet& RR ) const
 {
 	RR.clear();
-	for  ( const_iterator p = begin(); p != end(); ++p )
+	for  ( const_iterator p = begin(), p_end = end(); p < p_end; ++p )
 		if ( !(*p)->isSynonym() && (*p)->isReflexive() )
 			RR.push_back(*p);
 }
