@@ -140,15 +140,15 @@ protected:	// methods
 	DlCompletionTreeArc* createEdge (
 		DlCompletionTree* from,
 		DlCompletionTree* to,
-		bool isUpLink,
+		bool isPredEdge,
 		const TRole* roleName,
 		const DepSet& dep );
 
-		/// Aux method for Merge(): add EDGE to the NODE wrt flag ISUPLINK and dep-set DEP
+		/// Aux method for Merge(): add EDGE to the NODE wrt flag ISPREDEDGE and dep-set DEP
 	DlCompletionTreeArc* moveEdge (
 		DlCompletionTree* node,
 		DlCompletionTreeArc* edge,
-		bool isUpLink, const DepSet& dep );
+		bool isPredEdge, const DepSet& dep );
 
 		/// invalidate EDGE, save restoring info
 	void invalidateEdge ( DlCompletionTreeArc* edge ) { saveRareCond(edge->save()); }
@@ -199,7 +199,7 @@ protected:	// methods
 	void unblockNodeChildren ( DlCompletionTree* node )
 	{
 		for ( DlCompletionTree::const_edge_iterator q = node->begin(), q_end = node->end(); q < q_end; ++q )
-			if ( !(*q)->isUpLink() && !(*q)->isIBlocked() && !(*q)->isReflexiveEdge() )	// all of them are i-blocked
+			if ( (*q)->isSuccEdge() && !(*q)->isIBlocked() && !(*q)->isReflexiveEdge() )	// all of them are i-blocked
 				unblockNode ( (*q)->getArcEnd(), false );
 	}
 		/// mark node unblocked; unblock all the hierarchy
@@ -234,7 +234,7 @@ protected:	// methods
 	void propagateIBlockedStatus ( DlCompletionTree* node, const DlCompletionTree* blocker )
 	{
 		for ( DlCompletionTree::const_edge_iterator q = node->begin(), q_end = node->end(); q < q_end; ++q )
-			if ( !(*q)->isUpLink() && !(*q)->isIBlocked() )
+			if ( (*q)->isSuccEdge() && !(*q)->isIBlocked() )
 				setNodeIBlocked ( (*q)->getArcEnd(), blocker );
 	}
 		/// @return true iff node might became unblocked
@@ -409,34 +409,34 @@ public:		// interface
 	// role/node
 	//----------------------------------------------
 
-		/// add RNAME with dep-set RDEP to the label of TO arc
+		/// add role R with dep-set DEP to the label of the TO arc
 	DlCompletionTreeArc* addRoleLabel (
 		DlCompletionTree* from,
 		DlCompletionTree* to,
-		bool isUpLink,
-		const TRole* rName,	// name of role (arc label)
-		const DepSet& rDep )	// dep-set of the arc label
+		bool isPredEdge,
+		const TRole* R,	// name of role (arc label)
+		const DepSet& dep )	// dep-set of the arc label
 	{
 		// check if GCraph already has FROM->TO edge labelled with RNAME
-		DlCompletionTreeArc* ret = from->getEdgeLabelled ( rName, to );
+		DlCompletionTreeArc* ret = from->getEdgeLabelled ( R, to );
 		if ( ret == NULL )
-			ret = createEdge ( from, to, isUpLink, rName, rDep );
+			ret = createEdge ( from, to, isPredEdge, R, dep );
 		else
-			saveRareCond(ret->addDep(rDep));
+			saveRareCond(ret->addDep(dep));
 
 		return ret;
 	}
 		/// Create an empty R-neighbour of FROM; @return an edge to created node
 	DlCompletionTreeArc* createNeighbour (
 		DlCompletionTree* from,
-		bool isUpLink,
+		bool isPredEdge,
 		const TRole* r,		// name of role (arc label)
 		const DepSet& dep )	// dep-set of the arc label
 	{
 #	ifdef RKG_IMPROVE_SAVE_RESTORE_DEPSET
 		fpp_assert ( branchingLevel == r.getDep().level()+1 );
 #	endif
-		return createEdge ( from, getNewNode(), isUpLink, r, dep );
+		return createEdge ( from, getNewNode(), isPredEdge, r, dep );
 	}
 
 		/// merge node FROM to node TO (do NOT copy label); fill EDGES with new edges added to TO

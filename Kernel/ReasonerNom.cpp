@@ -125,7 +125,7 @@ DlSatTester :: initRelatedNominals ( const TRelated* rel )
 
 	// create new edge between FROM and TO
 	DlCompletionTreeArc* pA =
-		CGraph.addRoleLabel ( from, to, /*isUpLink=*/false, R, dep );
+		CGraph.addRoleLabel ( from, to, /*isPredEdge=*/false, R, dep );
 
 	// return OK iff setup new enge didn't lead to clash
 	// do NOT need to re-check anything: nothing was processed yet

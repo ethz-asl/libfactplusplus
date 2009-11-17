@@ -47,8 +47,8 @@ protected:	// members
 	DepSet depSet;
 		/// pointer to reverse arc
 	DlCompletionTreeArc* Reverse;
-		/// true if the arc going from a child to a parent
-	bool upLink;
+		/// true if the edge going from a predecessor to a successor
+	bool SuccEdge;
 
 private:	// no copy
 		/// init an arc with R as a label and NODE on given LEVEL; use it inside MAKEARCS only
@@ -100,7 +100,7 @@ protected:	// methods
 
 public:		// interface
 		/// empty c'tor
-	DlCompletionTreeArc ( void ) : upLink(false) {}
+	DlCompletionTreeArc ( void ) : SuccEdge(true) {}
 		/// d'tor
 	~DlCompletionTreeArc ( void ) {}
 
@@ -109,10 +109,12 @@ public:		// interface
 		/// get dep-set of the edge
 	const DepSet& getDep ( void ) const { return depSet; }
 
-		/// set the up-link field
-	void setUpLink ( bool val ) { upLink = val; }
-		/// @return true if the arc is the up-link one
-	bool isUpLink ( void ) const { return upLink; }
+		/// set the successor field
+	void setSuccEdge ( bool val ) { SuccEdge = val; }
+		/// @return true if the edge is the successor one
+	bool isSuccEdge ( void ) const { return SuccEdge; }
+		/// @return true if the edge is the predecessor one
+	bool isPredEdge ( void ) const { return !SuccEdge; }
 
 		/// get (RW) access to the end of arc
 	DlCompletionTree* getArcEnd ( void ) const { return Node; }

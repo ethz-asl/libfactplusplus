@@ -514,7 +514,7 @@ bool DlSatTester :: applyReflexiveRoles ( DlCompletionTree* node, const DepSet& 
 	for ( RoleMaster::roleSet::const_iterator p = ReflexiveRoles.begin(); p != ReflexiveRoles.end(); ++p )
 	{
 		// create R-loop through the NODE
-		DlCompletionTreeArc* pA = CGraph.addRoleLabel ( node, node, /*isUpLink=*/false, *p, dep );
+		DlCompletionTreeArc* pA = CGraph.addRoleLabel ( node, node, /*isPredEdge=*/false, *p, dep );
 		if ( setupEdge ( pA, dep, 0 ) == utClash )
 			return true;
 	}

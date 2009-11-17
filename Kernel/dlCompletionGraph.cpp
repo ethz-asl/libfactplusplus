@@ -22,17 +22,17 @@ DlCompletionTreeArc*
 DlCompletionGraph :: createEdge (
 	DlCompletionTree* from,
 	DlCompletionTree* to,
-	bool isUpLink,
+	bool isPredEdge,
 	const TRole* roleName,
 	const DepSet& dep )
 {
 	// create 2 arcs between FROM and TO
 	DlCompletionTreeArc* forward = CTEdgeHeap.get();
 	forward->init ( roleName, dep, to );
-	forward->setUpLink(isUpLink);
+	forward->setSuccEdge(!isPredEdge);
 	DlCompletionTreeArc* backward = CTEdgeHeap.get();
 	backward->init ( roleName->inverse(), dep, from );
-	backward->setUpLink(!isUpLink);
+	backward->setSuccEdge(isPredEdge);
 	// set the reverse link
 	forward->setReverse(backward);
 
@@ -45,7 +45,7 @@ DlCompletionGraph :: createEdge (
 	if ( LLM.isWritable(llGTA) )
 	{
 		LL << " ce(";
-		if ( isUpLink )
+		if ( isPredEdge )
 			LL << to->getId() << "<-" << from->getId();
 		else
 			LL << from->getId() << "->" << to->getId();
@@ -58,21 +58,21 @@ DlCompletionGraph :: createEdge (
 /// replace the EDGE (that comes from old node to X) with a new one, that comes from NODE to X
 DlCompletionTreeArc*
 DlCompletionGraph :: moveEdge ( DlCompletionTree* node, DlCompletionTreeArc* edge,
-								bool isUpLink, const DepSet& dep )
+								bool isPredEdge, const DepSet& dep )
 {
 	// skip already purged edges
 	if ( edge->isIBlocked())
 		return NULL;
 
 	// skip edges not leading to nominal nodes
-	if ( !isUpLink && !edge->getArcEnd()->isNominalNode() )
+	if ( !isPredEdge && !edge->getArcEnd()->isNominalNode() )
 		return NULL;
 
 	const TRole* R = edge->getRole();
 
 	// we shall copy reflexive edges in a specific way
 	if ( edge->isReflexiveEdge() )
-		return addRoleLabel ( node, node, /*upLink=*/false, R, dep );
+		return addRoleLabel ( node, node, /*isPredEdge=*/false, R, dep );
 
 	DlCompletionTree* to = edge->getArcEnd();
 
@@ -82,10 +82,10 @@ DlCompletionGraph :: moveEdge ( DlCompletionTree* node, DlCompletionTreeArc* edg
 	// try to find for NODE->TO (TO->NODE) whether we
 	// have TO->NODE (NODE->TO) edge already
 	for ( DlCompletionTree::const_edge_iterator p = node->begin(), p_end = node->end(); p < p_end; ++p )
-		if ( (*p)->getArcEnd() == to && (*p)->isUpLink() != isUpLink )
-			return addRoleLabel ( node, to, !isUpLink, R, dep );
+		if ( (*p)->getArcEnd() == to && (*p)->isPredEdge() != isPredEdge )
+			return addRoleLabel ( node, to, !isPredEdge, R, dep );
 
-	return addRoleLabel ( node, to, isUpLink, R, dep );
+	return addRoleLabel ( node, to, isPredEdge, R, dep );
 }
 
 // merge labels; see SHOIN paper for detailed description
@@ -101,13 +101,13 @@ void DlCompletionGraph :: Merge ( DlCompletionTree* from, DlCompletionTree* to,
 	// FIXME!! no optimisations (in case there exists an edge x->TO labelled with R-)
 	for ( DlCompletionTree::const_edge_iterator p = from->begin(), p_end = from->end(); p < p_end; ++p )
 	{
-		if ( (*p)->isUpLink() || (*p)->getArcEnd()->isNominalNode() )
+		if ( (*p)->isPredEdge() || (*p)->getArcEnd()->isNominalNode() )
 		{
-			DlCompletionTreeArc* temp = moveEdge ( to, *p, (*p)->isUpLink(), dep );
+			DlCompletionTreeArc* temp = moveEdge ( to, *p, (*p)->isPredEdge(), dep );
 			if ( temp != NULL )
 				edges.push_back(temp);
 		}
-		if ( !(*p)->isUpLink() )
+		if ( (*p)->isSuccEdge() )
 			purgeEdge ( *p, to, dep );
 	}
 
@@ -128,7 +128,7 @@ DlCompletionGraph :: purgeNode ( DlCompletionTree* p, const DlCompletionTree* ro
 
 	// update successors
 	for ( DlCompletionTree::const_edge_iterator q = p->begin(); q != p->end(); ++q )
-		if ( !(*q)->isUpLink() && !(*q)->isIBlocked() )
+		if ( (*q)->isSuccEdge() && !(*q)->isIBlocked() )
 			purgeEdge ( *q, root, dep );
 }
 
@@ -200,7 +200,7 @@ DlCompletionGraph :: PrintEdge ( DlCompletionTree::const_edge_iterator edge, con
 
 	PrintIndent(o);
 	for ( DlCompletionTree::const_edge_iterator p = edge; p != parent->end(); ++p )
-		if ( !(*p)->isUpLink() && (*p)->getArcEnd() == node )
+		if ( (*p)->isSuccEdge() && (*p)->getArcEnd() == node )
 			o << " ", (*p)->Print(o);		// print edge's label
 
 	if ( node == parent )	// print loop
@@ -238,7 +238,7 @@ DlCompletionGraph :: PrintNode ( const DlCompletionTree* node, std::ostream& o )
 	// print all children
 	++CGPIndent;
 	for ( DlCompletionTree::const_edge_iterator p = node->begin(); p != node->end(); ++p )
-		if ( !(*p)->isUpLink() )
+		if ( (*p)->isSuccEdge() )
 			PrintEdge ( p, node, o );
 	--CGPIndent;
 }

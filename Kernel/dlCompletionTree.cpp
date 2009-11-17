@@ -31,7 +31,7 @@ DlCompletionTree :: isTSuccLabelled ( const TRole* R, BipolarPointer C ) const
 	// check all other successors
 	const DlCompletionTree* ret = NULL;
 	for ( const_edge_iterator p = begin(), p_end = end(); p < p_end; ++p )
-		if ( !(*p)->isUpLink() &&
+		if ( (*p)->isSuccEdge() &&
 			 (*p)->isNeighbour(R) &&
 			 !(*p)->isReflexiveEdge() &&	// prevent cycles
 			 (ret = (*p)->getArcEnd()->isTSuccLabelled(R,C)) != NULL )
@@ -54,7 +54,7 @@ DlCompletionTree :: isTPredLabelled ( const TRole* R, BipolarPointer C, const Dl
 	// check all other successors
 	const DlCompletionTree* ret = NULL;
 	for ( const_edge_iterator p = begin(), p_end = end(); p < p_end; ++p )
-		if ( !(*p)->isUpLink() && (*p)->isNeighbour(R) && (*p)->getArcEnd() != from &&
+		if ( (*p)->isSuccEdge() && (*p)->isNeighbour(R) && (*p)->getArcEnd() != from &&
 			 (ret = (*p)->getArcEnd()->isTSuccLabelled(R,C)) != NULL )
 			return ret;
 
@@ -83,7 +83,7 @@ DlCompletionTree :: isTSomeApplicable ( const TRole* R, BipolarPointer C ) const
 	for ( DlCompletionTree::const_edge_iterator p = begin(), p_end = end(); p < p_end; ++p )
 		if ( (*p)->isNeighbour(R) )
 		{
-			if ( (*p)->isUpLink() )
+			if ( (*p)->isPredEdge() )
 				ret = (*p)->getArcEnd()->isTPredLabelled(R,C,this);
 			else
 				ret = (*p)->getArcEnd()->isTSuccLabelled(R,C);

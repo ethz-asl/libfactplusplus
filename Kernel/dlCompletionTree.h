@@ -239,7 +239,7 @@ protected:	// methods
 	bool isParentArcIBlocked ( void ) const
 	{
 		for ( const_edge_iterator p = begin(); p != end(); ++p )
-			if ( (*p)->isUpLink() && !(*p)->isIBlocked() )
+			if ( (*p)->isPredEdge() && !(*p)->isIBlocked() )
 				return false;
 		return true;
 	}
@@ -376,7 +376,7 @@ public:		// methods
 	{
 		if ( Neighbour.empty() )
 			return false;
-		return (*begin())->isUpLink();
+		return (*begin())->isPredEdge();
 	}
 
 	//----------------------------------------------
@@ -446,7 +446,7 @@ public:		// methods
 			return;
 		affected = true;
 		for ( const_edge_iterator q = begin(), q_end = end(); q < q_end; ++q )
-			if ( !(*q)->isUpLink() )
+			if ( (*q)->isSuccEdge() )
 				(*q)->getArcEnd()->setAffected();
 	}
 		/// clear affected flag

@@ -585,7 +585,7 @@ tacticUsage DlSatTester :: commonTacticBodySome ( const DLVertex& cur )	// for E
 				return utClash;
 
 			// add current role label (to both arc and its reverse)
-			functionalArc = CGraph.addRoleLabel ( curNode, succ, functionalArc->isUpLink(), R, newDep );
+			functionalArc = CGraph.addRoleLabel ( curNode, succ, functionalArc->isPredEdge(), R, newDep );
 
 			// adds concept to the end of arc
 			switchResult ( ret, addToDoEntry ( succ, C, newDep ) );
@@ -687,7 +687,7 @@ DlCompletionTreeArc* DlSatTester :: createOneNeighbour ( const TRole* R, const D
 	bool forNN = level != BlockableLevel;
 
 	// create a proper neighbour
-	DlCompletionTreeArc* pA = CGraph.createNeighbour ( curNode, /*isUpLink=*/forNN, R, dep );
+	DlCompletionTreeArc* pA = CGraph.createNeighbour ( curNode, /*isPredEdge=*/forNN, R, dep );
 	DlCompletionTree* node = pA->getArcEnd();
 
 	// set nominal node's level if necessary
@@ -785,7 +785,7 @@ DlSatTester :: setupEdge ( DlCompletionTreeArc* pA, const DepSet& dep, unsigned 
 	switchResult ( ret, applyUniversalNR ( from, pA, dep, flags ) );
 
 	// for nominal children and loops -- just apply things for the inverses
-	if ( pA->isUpLink() || child->isNominalNode() || child == from )
+	if ( pA->isPredEdge() || child->isNominalNode() || child == from )
 		switchResult ( ret, applyUniversalNR ( child, pA->getReverse(), dep, flags ) );
 	else
 	{
@@ -1401,11 +1401,11 @@ bool DlSatTester :: isNNApplicable ( const TRole* r, BipolarPointer C ) const
 	{
 		const DlCompletionTree* suspect = (*p)->getArcEnd();
 
-		if ( (*p)->isUpLink() && suspect->isBlockableNode() && (*p)->isNeighbour(r) && suspect->isLabelledBy(C) )
+		if ( (*p)->isPredEdge() && suspect->isBlockableNode() && (*p)->isNeighbour(r) && suspect->isLabelledBy(C) )
 		{
 			// have to fire NN-rule. Check whether we did this earlier
 			for ( q = curNode->begin(); q != p_end; ++q )
-				if ( (*q)->isUpLink() && (*q)->getArcEnd()->isNominalNode(level) && (*q)->isNeighbour(r)
+				if ( (*q)->isPredEdge() && (*q)->getArcEnd()->isNominalNode(level) && (*q)->isNeighbour(r)
 					 && (*q)->getArcEnd()->isLabelledBy(C) )
 					return false;	// we already created at least one edge based on that rule
 
@@ -1438,7 +1438,7 @@ tacticUsage DlSatTester :: commonTacticBodySomeSelf ( const TRole* R )
 
 	// create an R-loop through curNode
 	const DepSet& dep = curConcept.getDep();
-	DlCompletionTreeArc* pA = CGraph.addRoleLabel ( curNode, curNode, /*isUpLink=*/false, R, dep );
+	DlCompletionTreeArc* pA = CGraph.addRoleLabel ( curNode, curNode, /*isPredEdge=*/false, R, dep );
 	return setupEdge ( pA, dep, redoForall|redoFunc|redoAtMost|redoIrr );
 }
 
@@ -1513,7 +1513,7 @@ tacticUsage DlSatTester :: checkProjection ( DlCompletionTreeArc* pA, BipolarPoi
 	}
 	// here C is in the label of curNode: add ProjR to the edge if necessary
 	DlCompletionTree* child = pA->getArcEnd();
-	pA = CGraph.addRoleLabel ( curNode, child, pA->isUpLink(), ProjR, dep );
+	pA = CGraph.addRoleLabel ( curNode, child, pA->isPredEdge(), ProjR, dep );
 	int flags = redoForall|redoFunc|redoAtMost|redoIrr;
 	switchResult ( ret, setupEdge ( pA, dep, flags ) );
 

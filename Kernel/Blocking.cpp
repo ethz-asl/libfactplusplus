@@ -274,7 +274,7 @@ bool DlCompletionTree :: B3 ( const DlCompletionTree* p, unsigned int n, const T
 	{	// ...and <=n-1 S-succ. z with C\in L(z)
 		register unsigned int m = 0;
 		for ( const_edge_iterator q = p->begin(), q_end = p->end(); q < q_end; ++q )
-			if ( !(*q)->isUpLink() && (*q)->isNeighbour(S) && (*q)->getArcEnd()->isLabelledBy(C) )
+			if ( (*q)->isSuccEdge() && (*q)->isNeighbour(S) && (*q)->getArcEnd()->isLabelledBy(C) )
 				++m;
 
 		ret = ( m < n );
@@ -303,7 +303,7 @@ bool DlCompletionTree :: B4 ( const DlCompletionTree* p, unsigned int m, const T
 	// check all sons
 	register unsigned int n = 0;
 	for ( const_edge_iterator q = p->begin(), q_end = p->end(); q < q_end; ++q )
-		if ( !(*q)->isUpLink() && (*q)->isNeighbour(T) && (*q)->getArcEnd()->isLabelledBy(E) )
+		if ( (*q)->isSuccEdge() && (*q)->isNeighbour(T) && (*q)->getArcEnd()->isLabelledBy(E) )
 			if ( ++n >= m )		// check if node has enough successors
 				return true;
 
