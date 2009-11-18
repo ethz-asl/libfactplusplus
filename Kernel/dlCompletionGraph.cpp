@@ -72,7 +72,7 @@ DlCompletionGraph :: moveEdge ( DlCompletionTree* node, DlCompletionTreeArc* edg
 
 	// we shall copy reflexive edges in a specific way
 	if ( edge->isReflexiveEdge() )
-		return addRoleLabel ( node, node, /*isPredEdge=*/false, R, dep );
+		return createLoop ( node, R, dep );
 
 	DlCompletionTree* to = edge->getArcEnd();
 

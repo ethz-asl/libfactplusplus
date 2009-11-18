@@ -438,6 +438,11 @@ public:		// interface
 #	endif
 		return createEdge ( from, getNewNode(), isPredEdge, r, dep );
 	}
+		/// Create an R-loop of NODE wrt dep-set DEP; @return a loop edge
+	DlCompletionTreeArc* createLoop ( DlCompletionTree* node, const TRole* r, const DepSet& dep )
+	{
+		return addRoleLabel ( node, node, /*isPredEdge=*/false, r, dep );
+	}
 
 		/// merge node FROM to node TO (do NOT copy label); fill EDGES with new edges added to TO
 	void Merge ( DlCompletionTree* from, DlCompletionTree* to, const DepSet& toAdd,

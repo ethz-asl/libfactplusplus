@@ -1438,7 +1438,7 @@ tacticUsage DlSatTester :: commonTacticBodySomeSelf ( const TRole* R )
 
 	// create an R-loop through curNode
 	const DepSet& dep = curConcept.getDep();
-	DlCompletionTreeArc* pA = CGraph.addRoleLabel ( curNode, curNode, /*isPredEdge=*/false, R, dep );
+	DlCompletionTreeArc* pA = CGraph.createLoop ( curNode, R, dep );
 	return setupEdge ( pA, dep, redoForall|redoFunc|redoAtMost|redoIrr );
 }
 
