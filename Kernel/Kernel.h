@@ -99,6 +99,18 @@ protected:	// types
 		}
 	}; // TreeNESet
 
+		/// helper that deletes temporary trees
+	class TreeDeleter
+	{
+	protected:
+		DLTree* ptr;
+	public:
+		TreeDeleter ( DLTree* p ) : ptr(p) {}
+		~TreeDeleter ( void ) { deleteTree(ptr); }
+		operator DLTree* ( void ) { return ptr; }
+		operator const DLTree* ( void ) const { return ptr; }
+	}; // TreeDeleter
+
 protected:	// members
 		/// local TBox (to be created)
 	TBox* pTBox;
@@ -654,12 +666,7 @@ public:
 	}
 		/// @return true iff role is inverse-functional
 	bool isInverseFunctional ( const ComplexRole R )
-	{
-		ComplexRole iR = Inverse(clone(R));
-		bool ret = isFunctional(iR);
-		deleteTree(iR);
-		return ret;
-	}
+		{ return isFunctional(TreeDeleter(Inverse(clone(R)))); }
 
 	// TBox info retriveal
 
@@ -721,19 +728,11 @@ public:
 		if ( isCN(C) && isCN(D) )
 			return getTBox()->isSubHolds ( getTBox()->getCI(C), getTBox()->getCI(D) );
 
-		ComplexConcept Probe = And ( clone(C), Not(clone(D)) );
-		bool ret = isSatisfiable(Probe);
-		deleteTree(Probe);
-		return !ret;
+		return !isSatisfiable ( TreeDeleter ( And ( clone(C), Not(clone(D)) ) ) );
 	}
 		/// @return true iff C is disjoint with D
 	bool isDisjoint ( const ComplexConcept C, const ComplexConcept D )
-	{
-		ComplexConcept Probe = And ( clone(C), clone(D) );
-		bool ret = isSatisfiable(Probe);
-		deleteTree(Probe);
-		return !ret;
-	}
+		{ return !isSatisfiable ( TreeDeleter ( And ( clone(C), clone(D) ) ) ); }
 		/// @return true iff C is equivalent to D
 	bool isEquivalent ( const ComplexConcept C, const ComplexConcept D )
 		{ return isSubsumedBy ( C, D ) && isSubsumedBy ( D, C ); }
@@ -844,20 +843,16 @@ public:
 	void getRoleDomain ( const ComplexRole r, Actor& actor )
 	{
 		classifyKB();	// ensure KB is ready to answer the query
-		DLTree* C = Exists(clone(r),Top());
-		setUpCache ( C, csClassified );
+		setUpCache ( TreeDeleter(Exists(clone(r),Top())), csClassified );
 		// gets an exact domain is named concept; otherwise, set of the most specific concepts
 		cachedVertex->getRelativesInfo</*needCurrent=*/true, /*onlyDirect=*/true,
 									   /*upDirection=*/true>(actor);
-		deleteTree(C);
 	}
 
 		/// apply actor::apply() to all NC that are in the range of [complex] R
 	template<class Actor>
 	void getRoleRange ( const ComplexRole r, Actor& actor )
-	{
-		getRoleDomain ( Inverse(r), actor );
-	}
+		{ getRoleDomain ( TreeDeleter(Inverse(clone(r))), actor ); }
 
 	// instances
 
