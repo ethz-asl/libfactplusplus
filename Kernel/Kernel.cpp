@@ -249,12 +249,11 @@ ReasoningKernel :: buildRelatedCache ( TIndividual* i )
 		{
 			TRole* R = *p;
 			RIActor actor;
-
 			// ask for instances of \exists R^-.{i}
-			DLTree* invR = (R->getId() > 0) ? Inverse(ObjectRole(R->getName())) : ObjectRole(R->inverse()->getName());
-			DLTree* query = Exists ( invR, Individual(i->getName()) );
+			TreeDeleter query ( Exists (
+				(R->getId() > 0) ? Inverse(ObjectRole(R->getName())) : ObjectRole(R->inverse()->getName()),
+				Individual(i->getName()) ) );
 			getInstances ( query, actor );
-			deleteTree(query);
 			map->setRelated ( R, actor.getAcc() );
 		}
 
