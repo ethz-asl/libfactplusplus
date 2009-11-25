@@ -704,7 +704,7 @@ public class TranslatorImpl implements Translator, OWLClassExpressionVisitor, OW
         try {
             lastDataPropertyPointer = owlDataProperty2DataPropertyPointerMap.get(owlDataProperty);
             if (lastDataPropertyPointer == null) {
-                lastDataPropertyPointer = faCTPlusPlus.getDataProperty(owlDataProperty.getURI().toString());
+                lastDataPropertyPointer = faCTPlusPlus.getDataProperty(owlDataProperty.getIRI().toString());
                 dataPropertyPointerMap.put(lastDataPropertyPointer, owlDataProperty);
                 owlDataProperty2DataPropertyPointerMap.put(owlDataProperty, lastDataPropertyPointer);
             }
@@ -719,7 +719,7 @@ public class TranslatorImpl implements Translator, OWLClassExpressionVisitor, OW
         try {
             lastObjectPropertyPointer = owlObjectProperty2ObjectPropertyPointerMap.get(owlObjectProperty);
             if (lastObjectPropertyPointer == null) {
-                lastObjectPropertyPointer = faCTPlusPlus.getObjectProperty(owlObjectProperty.getURI().toString());
+                lastObjectPropertyPointer = faCTPlusPlus.getObjectProperty(owlObjectProperty.getIRI().toString());
                 objectPropertyPointerMap.put(lastObjectPropertyPointer, owlObjectProperty);
                 owlObjectProperty2ObjectPropertyPointerMap.put(owlObjectProperty, lastObjectPropertyPointer);
             }
@@ -735,14 +735,14 @@ public class TranslatorImpl implements Translator, OWLClassExpressionVisitor, OW
             lastClassPointer = owlClass2ClassPointerMap.get(owlClass);
             // Cache if not in map
             if (lastClassPointer == null) {
-                if (owlClass.getURI().equals(OWLRDFVocabulary.OWL_THING.getURI())) {
+                if (owlClass.getIRI().equals(OWLRDFVocabulary.OWL_THING.getIRI())) {
                     lastClassPointer = faCTPlusPlus.getThing();
                 }
-                else if (owlClass.getURI().equals(OWLRDFVocabulary.OWL_NOTHING.getURI())) {
+                else if (owlClass.getIRI().equals(OWLRDFVocabulary.OWL_NOTHING.getIRI())) {
                     lastClassPointer = faCTPlusPlus.getNothing();
                 }
                 else {
-                    lastClassPointer = faCTPlusPlus.getNamedClass(owlClass.getURI().toString());
+                    lastClassPointer = faCTPlusPlus.getNamedClass(owlClass.getIRI().toString());
                 }
                 classPointerMap.put(lastClassPointer, owlClass);
                 owlClass2ClassPointerMap.put(owlClass, lastClassPointer);
@@ -758,7 +758,7 @@ public class TranslatorImpl implements Translator, OWLClassExpressionVisitor, OW
         try {
             lastIndividualPointer = owlIndividual2IndividualPointerMap.get(individual);
             if(lastIndividualPointer == null) {
-                lastIndividualPointer = faCTPlusPlus.getIndividual(individual.getURI().toString());
+                lastIndividualPointer = faCTPlusPlus.getIndividual(individual.getIRI().toString());
                 individualPointerMap.put(lastIndividualPointer, individual);
                 owlIndividual2IndividualPointerMap.put(individual, lastIndividualPointer);
             }
@@ -776,9 +776,9 @@ public class TranslatorImpl implements Translator, OWLClassExpressionVisitor, OW
                 if(owlOntologyManager.getOWLDataFactory().getTopDatatype().equals(dataType)) {
                     lastDataTypeExpressionPointer = faCTPlusPlus.getDataTop();
                 }
-                else if (XSDVocabulary.ALL_DATATYPES.contains(dataType.getURI()) ||
-                         OWLRDFVocabulary.RDF_XML_LITERAL.getURI().equals(dataType.getURI())){
-                    lastDataTypeExpressionPointer = faCTPlusPlus.getBuiltInDataType(dataType.getURI().toString());
+                else if (XSDVocabulary.ALL_DATATYPES.contains(dataType.getIRI()) ||
+                         OWLRDFVocabulary.RDF_XML_LITERAL.getIRI().equals(dataType.getIRI())){
+                    lastDataTypeExpressionPointer = faCTPlusPlus.getBuiltInDataType(dataType.getIRI().toString());
                 }
                 else{
                     // unknown custom datatype

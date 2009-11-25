@@ -187,25 +187,25 @@ public class TranslatorUtils extends OWLObjectVisitorAdapter {
 
     public void visit(OWLClass owlClass) {
         if (!translator.contains(owlClass)) {
-            throw new FaCTPlusPlusRuntimeException("Asking about unknown class (" + owlClass.getURI() + ").  (Check that the reasoner is synchronized)");
+            throw new FaCTPlusPlusRuntimeException("Asking about unknown class (" + owlClass.getIRI() + ").  (Check that the reasoner is synchronized)");
         }
     }
 
     public void visit(OWLObjectProperty property) {
         if (!translator.contains(property)) {
-            throw new FaCTPlusPlusRuntimeException("Asking about unknown object property (" + property.getURI() + ").  (Check that the reasoner is synchronized)");
+            throw new FaCTPlusPlusRuntimeException("Asking about unknown object property (" + property.getIRI() + ").  (Check that the reasoner is synchronized)");
         }
     }
 
     public void visit(OWLDataProperty property) {
         if (!translator.contains(property)) {
-            throw new FaCTPlusPlusRuntimeException("Asking about unknown data property (" + property.getURI() + ").  (Check that the reasoner is synchronized)");
+            throw new FaCTPlusPlusRuntimeException("Asking about unknown data property (" + property.getIRI() + ").  (Check that the reasoner is synchronized)");
         }
     }
 
     public void visit(OWLNamedIndividual individual) {
         if (!translator.contains(individual)) {
-            throw new FaCTPlusPlusRuntimeException("Asking about unknown individual (" + individual.getURI() + ") (Check that the reasoner is synchronized)");
+            throw new FaCTPlusPlusRuntimeException("Asking about unknown individual (" + individual.getIRI() + ") (Check that the reasoner is synchronized)");
         }
     }
 

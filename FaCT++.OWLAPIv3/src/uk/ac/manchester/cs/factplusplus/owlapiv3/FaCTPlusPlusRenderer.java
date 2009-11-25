@@ -328,14 +328,14 @@ public class FaCTPlusPlusRenderer implements OWLObjectVisitor {
 
 
     public void visit(OWLClass desc) {
-        if (desc.getURI().equals(OWLRDFVocabulary.OWL_THING.getURI())) {
+        if (desc.isOWLThing()) {
             write("*TOP*");
         }
-        else if (desc.getURI().equals(OWLRDFVocabulary.OWL_NOTHING.getURI())) {
+        else if (desc.isOWLNothing()) {
             write("*BOTTOM*");
         }
         else {
-            write(desc.getURI().toString());
+            write(desc.getIRI().toString());
         }
     }
 
@@ -493,13 +493,13 @@ public class FaCTPlusPlusRenderer implements OWLObjectVisitor {
 
 
     public void visit(OWLDatatype node) {
-        if (node.getURI().equals(XSDVocabulary.STRING.getURI())) {
+        if (node.getIRI().equals(XSDVocabulary.STRING.getIRI())) {
             write("string");
         }
-        else if (node.getURI().equals(XSDVocabulary.DOUBLE.getURI())) {
+        else if (node.getIRI().equals(XSDVocabulary.DOUBLE.getIRI())) {
             write("real");
         }
-        else if (node.getURI().equals(XSDVocabulary.FLOAT.getURI())) {
+        else if (node.getIRI().equals(XSDVocabulary.FLOAT.getIRI())) {
             write("real");
         }
         else {
@@ -557,7 +557,7 @@ public class FaCTPlusPlusRenderer implements OWLObjectVisitor {
         write("(");
         node.getDatatype().accept(this);
         write(" ");
-        if (node.getDatatype().getURI().equals(XSDVocabulary.STRING.getURI())) {
+        if (node.getDatatype().getIRI().equals(XSDVocabulary.STRING.getIRI())) {
             write("\"");
             write(node.getLiteral());
             write("\"");
@@ -578,7 +578,7 @@ public class FaCTPlusPlusRenderer implements OWLObjectVisitor {
 
 
     public void visit(OWLObjectProperty property) {
-        write(property.getURI().toString());
+        write(property.getIRI().toString());
     }
 
 
@@ -590,12 +590,12 @@ public class FaCTPlusPlusRenderer implements OWLObjectVisitor {
 
 
     public void visit(OWLDataProperty property) {
-        write(property.getURI().toString());
+        write(property.getIRI().toString());
     }
 
 
     public void visit(OWLNamedIndividual individual) {
-        write(individual.getURI().toString());
+        write(individual.getIRI().toString());
     }
 
 

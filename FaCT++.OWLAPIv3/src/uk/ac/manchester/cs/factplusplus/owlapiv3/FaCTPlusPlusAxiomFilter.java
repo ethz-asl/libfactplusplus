@@ -44,26 +44,26 @@ public class FaCTPlusPlusAxiomFilter implements OWLAxiomFilter, OWLAxiomVisitor,
 
     private boolean passDataStuff = false;
 
-    private Set<URI> supportedDataTypes;
+    private Set<IRI> supportedDataTypes;
 
     private String reason;
 
 
     public FaCTPlusPlusAxiomFilter() {
-        supportedDataTypes = new HashSet<URI>();
-        supportedDataTypes.add(XSDVocabulary.INT.getURI());
-        supportedDataTypes.add(XSDVocabulary.INTEGER.getURI());
-        supportedDataTypes.add(XSDVocabulary.NON_NEGATIVE_INTEGER.getURI());
-        supportedDataTypes.add(XSDVocabulary.DOUBLE.getURI());
-        supportedDataTypes.add(XSDVocabulary.FLOAT.getURI());
-        supportedDataTypes.add(XSDVocabulary.INTEGER.getURI());
-        supportedDataTypes.add(XSDVocabulary.STRING.getURI());
-        supportedDataTypes.add(XSDVocabulary.BOOLEAN.getURI());
-        supportedDataTypes.add(OWLRDFVocabulary.RDFS_LITERAL.getURI());
+        supportedDataTypes = new HashSet<IRI>();
+        supportedDataTypes.add(XSDVocabulary.INT.getIRI());
+        supportedDataTypes.add(XSDVocabulary.INTEGER.getIRI());
+        supportedDataTypes.add(XSDVocabulary.NON_NEGATIVE_INTEGER.getIRI());
+        supportedDataTypes.add(XSDVocabulary.DOUBLE.getIRI());
+        supportedDataTypes.add(XSDVocabulary.FLOAT.getIRI());
+        supportedDataTypes.add(XSDVocabulary.INTEGER.getIRI());
+        supportedDataTypes.add(XSDVocabulary.STRING.getIRI());
+        supportedDataTypes.add(XSDVocabulary.BOOLEAN.getIRI());
+        supportedDataTypes.add(OWLRDFVocabulary.RDFS_LITERAL.getIRI());
     }
 
 
-    public boolean isSupportedDatatype(URI datatypeURI) {
+    public boolean isSupportedDatatype(IRI datatypeURI) {
         return supportedDataTypes.contains(datatypeURI);
     }
 
@@ -374,9 +374,9 @@ public class FaCTPlusPlusAxiomFilter implements OWLAxiomFilter, OWLAxiomVisitor,
 
 
     public void visit(OWLDatatype dataType) {
-        passes = isSupportedDatatype(dataType.getURI());
+        passes = isSupportedDatatype(dataType.getIRI());
         if (!passes) {
-            reason = dataType.getURI() + " is not supported";
+            reason = dataType.getIRI() + " is not supported";
         }
     }
 
