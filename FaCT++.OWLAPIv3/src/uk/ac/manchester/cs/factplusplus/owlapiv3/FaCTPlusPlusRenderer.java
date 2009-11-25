@@ -653,14 +653,8 @@ public class FaCTPlusPlusRenderer implements OWLObjectVisitor {
     public void visit(SWRLBuiltInAtom node) {
     }
 
-
-    public void visit(SWRLLiteralVariable swrlLiteralVariable) {
+    public void visit(SWRLVariable node) {
     }
-
-
-    public void visit(SWRLIndividualVariable swrlIndividualVariable) {
-    }
-
 
     public void visit(SWRLIndividualArgument swrlIndividualArgument) {
     }

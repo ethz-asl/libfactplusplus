@@ -3,10 +3,12 @@ package uk.ac.manchester.cs.factplusplus.owlapiv3;
 import org.semanticweb.owlapi.inference.MonitorableOWLReasonerAdapter;
 import org.semanticweb.owlapi.inference.OWLReasonerException;
 import org.semanticweb.owlapi.model.*;
+import org.semanticweb.owlapi.apibinding.OWLManager;
 import uk.ac.manchester.cs.factplusplus.*;
 
 import java.util.*;
 import java.util.logging.Logger;
+import java.net.URI;
 
 /**
  * Author: Matthew Horridge<br>
@@ -51,7 +53,7 @@ public class Reasoner extends MonitorableOWLReasonerAdapter implements FaCTPlusP
      * if true, the reasoner will try to resync automatically when query methods are called
      * (when required)
      */
-    private boolean autoSync = false;
+    private boolean autoSync = true;
 
 
     private State state = State.EMPTY;
@@ -279,6 +281,7 @@ public class Reasoner extends MonitorableOWLReasonerAdapter implements FaCTPlusP
      */
     protected void ontologiesChanged() throws OWLReasonerException {
         clear();
+        load();
         if (state == State.FAIL && lastException != null){
             throw new FaCTPlusPlusReasonerException(lastException);
         }
@@ -321,8 +324,10 @@ public class Reasoner extends MonitorableOWLReasonerAdapter implements FaCTPlusP
             case CLASSIFIED_DIRTY:
                 if (autoSync){
                     resync();
+                    classify();
                 }
                 break;
+
         }
     }
 
@@ -869,7 +874,7 @@ public class Reasoner extends MonitorableOWLReasonerAdapter implements FaCTPlusP
     }
 
 
-    public boolean isAntiSymmetric(OWLObjectProperty property) throws OWLReasonerException {
+    public boolean isAsymmetric(OWLObjectProperty property) throws OWLReasonerException {
         try {
             autoSynchronise();
             translatorUtils.checkParams(property);
@@ -1006,7 +1011,7 @@ public class Reasoner extends MonitorableOWLReasonerAdapter implements FaCTPlusP
 
     public void setCurrentClass(String className) {
         count++;
-        getProgressMonitor().setProgress(className, count, size);
+        getProgressMonitor().setProgress(count);
     }
 
 
@@ -1017,5 +1022,35 @@ public class Reasoner extends MonitorableOWLReasonerAdapter implements FaCTPlusP
 
     public boolean isCancelled() {
         return getProgressMonitor().isCancelled();
+    }
+
+    public static void main(String[] args) {
+        try {
+            final OWLOntologyManager man = OWLManager.createOWLOntologyManager();
+            final OWLOntology ont = man.loadOntologyFromPhysicalURI(URI.create("http://www.co-ode.org/ontologies/pizza/pizza.owl"));
+
+            for(int i = 0; i < 2; i++) {
+                Thread t = new Thread(new Runnable() {
+                    public void run() {
+                        try {
+                            Reasoner r = new Reasoner(man);
+                            r.loadOntologies(Collections.singleton(ont));
+                            for (int i = 0; i < 10; i++) {
+                                r.isConsistent(ont);
+                                Thread.sleep(200);
+                            }
+                        }
+                        catch (Exception e) {
+                            e.printStackTrace();
+                        }
+
+                    }
+                });
+                t.start();
+            }
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
