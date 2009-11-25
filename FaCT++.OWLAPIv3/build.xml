@@ -1,6 +1,6 @@
 <project default="distribution">
 
-    <property name="version" value="1.3.1"/>
+    <property name="factplusplus.version" value="1.3.1"/>
     <property name="builddir" value="../out"/>
     <property name="classesdir" value="${builddir}/classes"/>
     <property name="distdir" value="${builddir}/dist"/>
@@ -15,11 +15,16 @@
                 </fileset>
             </classpath>
         </javac>
-
     </target>
     <target name="distribution" depends="compile">
         <mkdir dir="${distdir}"/>
-        <jar basedir="${classesdir}" jarfile="${distdir}/factplusplus-${version}.jar">
+        <tstamp/>
+        <jar basedir="${classesdir}" jarfile="${distdir}/factplusplus-${factplusplus.version}.jar">
+            <manifest>
+                <attribute name="Built-By" value="${user.name}"/>
+                <attribute name="Build-Date" value="${TODAY}"/>
+                <attribute name="Version" value="${factplusplus.version}"/>
+            </manifest>
         </jar>
     </target>
 
