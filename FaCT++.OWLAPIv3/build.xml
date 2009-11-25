@@ -4,16 +4,18 @@
     <property name="builddir" value="../out"/>
     <property name="classesdir" value="${builddir}/classes"/>
     <property name="distdir" value="${builddir}/dist"/>
+    <property name="libdir" value="lib"/>
 
+    <path id="path.libraries">
+        <fileset id="fileset.libraries" dir="${libdir}">
+            <include name="*.jar"/>
+        </fileset>
+    </path>
     <target name="compile">
         <mkdir dir="${builddir}"/>
         <mkdir dir="${classesdir}"/>
         <javac srcdir=".:../FaCT++.Java" destdir="${classesdir}">
-            <classpath>
-                <fileset dir="lib">
-                    <include name="*.jar"/>
-                </fileset>
-            </classpath>
+            <classpath refid="path.libraries"/>
         </javac>
     </target>
     <target name="distribution" depends="compile">
@@ -26,6 +28,10 @@
                 <attribute name="Version" value="${factplusplus.version}"/>
             </manifest>
         </jar>
+        <mkdir dir="${distdir}/lib"/>
+        <copy todir="${distdir}/lib">
+            <fileset refid="fileset.libraries"/>
+        </copy>
     </target>
 
 </project>
