@@ -7,7 +7,6 @@ import java.io.*;
 import java.net.URI;
 import java.util.logging.Logger;
 
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 /*
  * Copyright (C) 2007, University of Manchester
  *
