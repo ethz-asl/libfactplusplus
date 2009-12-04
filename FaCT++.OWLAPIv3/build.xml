@@ -16,6 +16,7 @@
         <mkdir dir="${classesdir}"/>
         <javac srcdir=".:../FaCT++.Java" destdir="${classesdir}">
             <classpath refid="path.libraries"/>
+            <compilerarg value="-Xlint"/>
         </javac>
     </target>
     <target name="distribution" depends="compile">
