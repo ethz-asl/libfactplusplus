@@ -142,6 +142,10 @@ void DLDag :: determineSorts ( RoleMaster& ORM, RoleMaster& DRM )
 		}
 
 	CHECK_LL_RETURN(llAlways);
+	// we added a temp concept here; don't count it
+	if ( sum > 0 )
+		sum--;
+
 	LL << "\nThere are ";
 	if ( sum > 1 )
 		LL << sum;

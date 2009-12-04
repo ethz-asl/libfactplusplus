@@ -53,6 +53,9 @@ void TBox :: buildDAG ( void )
 		if ( !(*p)->isSynonym() && (*p)->isTopFunc() )
 			(*p)->setFunctional ( DLHeap.add ( new DLVertex ( dtLE, 1, *p, bpTOP ) ) );
 
+	// make the temp concept
+	concept2dag(pTemp);
+
 	// check the type of the ontology
 	if ( nNominalReferences > 0 )
 	{

@@ -72,6 +72,7 @@ TBox :: ~TBox ( void )
 	// remove all concepts
 	delete pTop;
 	delete pBottom;
+	delete pTemp;
 
 	// remove aux structures
 	delete stdReasoner;
@@ -175,6 +176,12 @@ void TBox :: initTopBottom ( void )
 	p->tsDepth=1;
 	p->classTag = cttTrueCompletelyDefined;
 	pTop = p;
+
+	p = new TConcept (" ");
+	p->setId(-1);
+	p->tsDepth=1;
+	p->classTag = cttTrueCompletelyDefined;
+	pTemp = p;
 }
 
 void TBox :: prepareReasoning ( void )
@@ -226,6 +233,10 @@ TBox :: buildSimpleCache ( void )
 {
 	// set cache for BOTTOM entry
 	initSingletonCache(bpBOTTOM);
+
+	// set all the caches for the temp concept
+	initSingletonCache(pTemp->pName);
+	initSingletonCache(inverse(pTemp->pName));
 
 	// inapplicable if KB contains CGIs in any form
 	if ( GCIs.isGCI() || GCIs.isReflexive() )

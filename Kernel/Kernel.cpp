@@ -50,6 +50,7 @@ ReasoningKernel :: ReasoningKernel ( void )
 bool
 ReasoningKernel :: tryIncremental ( void )
 {
+	// FOR NOW!! switch off incremental reasoning while the JNI is unstable (as it is the only user ATM)
 	return true;
 }
 

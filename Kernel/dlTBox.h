@@ -166,10 +166,14 @@ protected:	// members
 	LogicFeatures* curFeature;
 
 	// auxiliary concepts for Taxonomy
-	TConcept* pTop;
-	TConcept* pBottom;
 
-	/// temporary concept
+		/// concept representing Top
+	TConcept* pTop;
+		/// concept representing Bottom
+	TConcept* pBottom;
+		/// concept representing temporary one that can not be used anywhere in the ontology
+	TConcept* pTemp;
+		/// temporary concept that represents query
 	TConcept* defConcept;
 
 	/** all named concepts */
