@@ -94,9 +94,9 @@ public:		// interface
 	DataTypeCenter ( void )
 	{
 		// register primitive DataTypes
-		RegisterDataType(new TDataType("Number"));
-		RegisterDataType(new TDataType("String"));
-		RegisterDataType(new TDataType("Real"));
+		RegisterDataType(new TDataType("number"));
+		RegisterDataType(new TDataType("string"));
+		RegisterDataType(new TDataType("real"));
 		RegisterDataType(new TDataTypeBool());
 	}
 		/// d'tor: delete all datatypes

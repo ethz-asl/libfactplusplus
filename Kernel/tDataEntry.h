@@ -180,11 +180,12 @@ protected:	// methods
 		/// set COMP for the (typed) data value
 	void setComp ( const std::string& typeName )
 	{
-		if ( typeName == "String" )
+		// FIXME!! do the thing properly; unify the usage of DT names
+		if ( typeName == "string" )
 			comp = ComparableDT(getName());
-		else if ( typeName == "Number" )
+		else if ( typeName == "number" )
 			comp = ComparableDT((long)atoi(getName()));
-		else if ( typeName == "Real" )
+		else if ( typeName == "real" )
 			comp = ComparableDT((float)atof(getName()));
 		else if ( typeName == "bool" )	// FIXME!! dirty hack
 			comp = ComparableDT(getName());
