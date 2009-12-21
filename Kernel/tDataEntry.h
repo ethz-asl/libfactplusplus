@@ -151,6 +151,26 @@ public:		// interface
 		else
 			o << '}';
 	}
+		/// print an interval as a LISP; FIXME!! hack
+	void printLISP ( std::ostream& o, const char* type ) const
+	{
+		if ( hasMin() && hasMax() )
+			o << "(and ";
+		if ( hasMin() )
+		{
+			o << "(g" << (minExcl ? 't' : 'e') << " (" << type;
+			min.printValue(o);
+			o << "))";
+		}
+		if ( hasMax() )
+		{
+			o << "(l" << (maxExcl ? 't' : 'e') << " (" << type;
+			max.printValue(o);
+			o << "))";
+		}
+		if ( hasMin() && hasMax() )
+			o << ")";
+	}
 }; // TDataInterval
 
 /// class for representing general data entry ("name" of data type or data value)
@@ -239,6 +259,23 @@ public:		// interface
 	BipolarPointer getBP ( void ) const { return pName; }
 		/// set DAG index of the data entry
 	void setBP ( BipolarPointer p ) { pName = p; }
+
+		// printing LISP FIXME!!
+	void printLISP ( std::ostream& o ) const
+	{
+		if ( isBasicDataType() )
+			o << "(" << getName() << ")";
+		else if ( isDataValue() )
+		{
+			o << "(" << getType()->getName();
+			comp.printValue(o);
+			o << ")";
+		}
+		else if ( isRestrictedDataType() )
+			Constraints.printLISP ( o, getType()->getName() );
+		else
+			fpp_unreachable();
+	}
 }; // TDataEntry
 
 inline std::ostream&

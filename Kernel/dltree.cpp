@@ -20,6 +20,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "dltree.h"
 #include "fpp_assert.h"
+#include "tDataEntry.h"
 
 	/// create inverse of role R
 DLTree* createInverse ( DLTree* R )
@@ -266,8 +267,11 @@ std::ostream& operator << ( std::ostream& o, const DLTree *form )
 		o << ' ' << TokenName(lex.getToken());
 		break;
 	case NAME:
-	case DATAEXPR:	// FIXME!! later on -- print restrictions
 		o << ' ' << lex.getName();
+		break;
+
+	case DATAEXPR:
+		static_cast<TDataEntry*>(lex.getNE())->printLISP(o);
 		break;
 
 	case NOT:

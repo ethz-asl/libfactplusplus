@@ -152,6 +152,19 @@ public:
 		/// check whether 2 DT entries with the same TYPE are in '>' relation
 	bool operator > ( const ComparableDT& other ) const { return other < *this; }
 
+		/// print the LISP value of a DTC; FIXME!! hack
+	std::ostream& printValue ( std::ostream& o ) const
+	{
+		o << ' ';
+		switch ( vType )
+		{
+		case INT:	o << getLongIntValue(); break;
+		case FLOAT:	o << getFloatValue(); break;
+		case STR:	o << '"' << getStringValue().c_str() << '"'; break;
+		default:	fpp_unreachable();
+		}
+		return o;
+	}
 	friend std::ostream& operator << ( std::ostream& o, const ComparableDT& cdt );
 }; // ComparableDT
 
