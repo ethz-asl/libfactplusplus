@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2009 by Dmitry Tsarkov
+Copyright (C) 2003-2010 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -63,6 +63,8 @@ protected:	// methods
 	TDataType* getStringDataType ( void ) const { return *(begin()+1); }
 		/// get type corresponding to Real
 	TDataType* getRealDataType ( void ) const { return *(begin()+2); }
+		/// get type corresponding to Bool
+	TDataType* getBoolDataType ( void ) const { return *(begin()+3); }
 		/// get type by name
 	TDataType* getTypeByName ( const std::string& name ) const;
 
@@ -110,6 +112,8 @@ public:		// interface
 	DLTree* getStringType ( void ) { return wrap(getStringDataType()->getType()); }
 		/// get REAL DT that can be used in TBox
 	DLTree* getRealType ( void ) { return wrap(getRealDataType()->getType()); }
+		/// get BOOL DT that can be used in TBox
+	DLTree* getBoolType ( void ) { return wrap(getBoolDataType()->getType()); }
 
 		/// return registered data value by given NAME of a Type, given by SAMPLE
 	DLTree* getDataValue ( const std::string& name, const DLTree* sample ) const throw(EFPPCantRegName)

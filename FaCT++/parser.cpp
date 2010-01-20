@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2009 by Dmitry Tsarkov
+Copyright (C) 2003-2010 by Dmitry Tsarkov
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -442,9 +442,11 @@ DLTree* DLLispParser :: processComplexConceptTree ( void )
 	case STRING:	// expression (string <value>)
 	case NUMBER:	// expression (number <value>)
 	case REAL:		// expression (real <value>)
+	case BOOL:
 		left =	(T == STRING) ? Kernel->getDataTypeCenter().getStringType():
 				(T == NUMBER) ? Kernel->getDataTypeCenter().getNumberType():
 				(T == REAL ) ? Kernel->getDataTypeCenter().getRealType():
+				(T == BOOL ) ? Kernel->getDataTypeCenter().getBoolType():
 				NULL;	// error, but this can not happens
 
 		if ( Current == RBRACK )	// just datatype
