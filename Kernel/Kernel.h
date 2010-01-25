@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2009 by Dmitry Tsarkov
+Copyright (C) 2003-2010 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -667,6 +667,19 @@ public:
 		/// @return true iff role is inverse-functional
 	bool isInverseFunctional ( const ComplexRole R )
 		{ return isFunctional(TreeDeleter(Inverse(clone(R)))); }
+		/// @return true iff two roles are disjoint
+	bool isDisjointRoles ( const ComplexRole R, const ComplexRole S )
+	{
+		preprocessKB();	// ensure KB is ready to answer the query
+		checkDefined(R);
+		checkDefined(S);
+		// FIXME!! add check for the empty role
+		if ( isUniversalRole(R) || isUniversalRole(S) )
+			return false;	// universal role is not disjoint with anything
+		return getTBox()->isDisjointRoles (
+			getRole ( R, "Role expression expected in isDisjointRoles()" ),
+			getRole ( S, "Role expression expected in isDisjointRoles()" ) );
+	}
 
 	// TBox info retriveal
 

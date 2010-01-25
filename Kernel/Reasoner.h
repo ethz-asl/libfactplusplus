@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2009 by Dmitry Tsarkov
+Copyright (C) 2003-2010 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -872,6 +872,8 @@ public:
 	virtual void prepareReasoner ( void );
 		/// set-up satisfiability task for given pointers and run runSat on it
 	bool runSat ( BipolarPointer p, BipolarPointer q = bpTOP );
+		/// set-up role disjointness task for given roels and run SAT test
+	bool checkDisjointRoles ( const TRole* R, const TRole* S );
 
 		/// init TODO list priority for classification
 	void initToDoPriorities ( const ifOptionSet* OptionSet )
@@ -992,6 +994,28 @@ DlSatTester :: runSat ( BipolarPointer p, BipolarPointer q )
 	bool result = runSat();
 	timer.Stop();
 	return result;
+}
+
+inline bool
+DlSatTester :: checkDisjointRoles ( const TRole* R, const TRole* S )
+{
+	prepareReasoner();
+
+	// use general method to init node...
+	DepSet dummy;
+	if ( initNewNode ( CGraph.getRoot(), dummy, bpTOP ) == utClash )
+		return true;
+	// ... add edges with R and S...
+	DlCompletionTreeArc* edgeR = createOneNeighbour ( R, dummy );
+	DlCompletionTreeArc* edgeS = CGraph.addRoleLabel ( CGraph.getRoot(), edgeR->getArcEnd(), /*linkToParent=*/false, S, dummy );
+	// init new nodes/edges. No need to apply restrictions, as no reasoning have been done yet.
+	if ( initNewNode ( edgeR->getArcEnd(), dummy, bpTOP ) == utClash
+		 || setupEdge ( edgeR, dummy, /*flags=*/0 ) == utClash
+		 || setupEdge ( edgeS, dummy, /*flags=*/0 ) == utClash )
+		return true;
+
+	// 2 roles are disjoint if current setting is unsatisfiable
+	return !runSat();
 }
 
 // restore implementation

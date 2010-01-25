@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2006-2009 by Dmitry Tsarkov
+Copyright (C) 2006-2010 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -1616,6 +1616,22 @@ JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_is
 
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
+ * Method:    areObjectPropertiesDisjoint
+ * Signature: (Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;)Z
+ */
+JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_areObjectPropertiesDisjoint
+  (JNIEnv * env, jobject obj, jobject arg1, jobject arg2)
+{
+	TRACE_JNI("areObjectPropertiesDisjoint");
+	TRACE_ARG(env,obj,arg1);
+	TRACE_ARG(env,obj,arg2);
+	bool ret = false;
+	PROCESS_ASK_QUERY ( ret=getK(env,obj)->isDisjointRoles ( getROTree(env,arg1), getROTree(env,arg2) ),"areObjectPropertiesDisjoint");
+	return ret;
+}
+
+/*
+ * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
  * Method:    isDataPropertyEmpty
  * Signature: (Luk/ac/manchester/cs/factplusplus/DataPropertyPointer;)Z
  */
@@ -1716,6 +1732,22 @@ JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_is
 	TRACE_ARG(env,obj,arg);
 	bool ret = false;
 	PROCESS_ASK_QUERY ( ret=getK(env,obj)->isFunctional ( getROTree(env,arg) ),"isDataPropertyFunctional");
+	return ret;
+}
+
+/*
+ * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
+ * Method:    areDataPropertiesDisjoint
+ * Signature: (Luk/ac/manchester/cs/factplusplus/DataPropertyPointer;Luk/ac/manchester/cs/factplusplus/DataPropertyPointer;)Z
+ */
+JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_areDataPropertiesDisjoint
+  (JNIEnv * env, jobject obj, jobject arg1, jobject arg2)
+{
+	TRACE_JNI("areDataPropertiesDisjoint");
+	TRACE_ARG(env,obj,arg1);
+	TRACE_ARG(env,obj,arg2);
+	bool ret = false;
+	PROCESS_ASK_QUERY ( ret=getK(env,obj)->isDisjointRoles ( getROTree(env,arg1), getROTree(env,arg2) ),"areDataPropertiesDisjoint");
 	return ret;
 }
 

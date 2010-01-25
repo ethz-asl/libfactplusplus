@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2009 by Dmitry Tsarkov
+Copyright (C) 2003-2010 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -336,6 +336,24 @@ bool TBox :: isSameIndividuals ( const TIndividual* a, const TIndividual* b )
 	if ( a->node == NULL || b->node == NULL )
 		throw EFaCTPlusPlus("isSameIndividuals() query with non-realised ontology");
 	return a->node->resolvePBlocker() == b->node->resolvePBlocker();
+}
+
+/// check if 2 roles are disjoint
+bool
+TBox :: isDisjointRoles ( const TRole* R, const TRole* S )
+{
+	fpp_assert ( R != NULL && S != NULL );
+
+	// object roles are disjoint with data toles
+	if ( R->isDataRole() != S->isDataRole() )
+		return true;
+	// prepare feature that are KB features
+	// FIXME!! overkill, but fine for now as it is sound
+	curFeature = &KBFeatures;
+	getReasoner()->setBlockingMethod ( isIRinQuery(), isNRinQuery() );
+	bool result = getReasoner()->checkDisjointRoles ( R, S );
+	clearFeatures();
+	return result;
 }
 
 // load init values from config file

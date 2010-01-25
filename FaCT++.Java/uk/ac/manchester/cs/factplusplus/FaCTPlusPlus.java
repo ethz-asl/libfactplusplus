@@ -423,6 +423,8 @@ public class FaCTPlusPlus {
 
     public native boolean isObjectPropertyIrreflexive(ObjectPropertyPointer r) throws FaCTPlusPlusException;
 
+    public native boolean areObjectPropertiesDisjoint(ObjectPropertyPointer r, ObjectPropertyPointer s) throws FaCTPlusPlusException;
+
 
 
     public native boolean isDataPropertyEmpty(DataPropertyPointer r) throws FaCTPlusPlusException;
@@ -438,6 +440,8 @@ public class FaCTPlusPlus {
     public native DataTypeExpressionPointer askDataPropertyRange(DataPropertyPointer r) throws FaCTPlusPlusException;
 
     public native boolean isDataPropertyFunctional(DataPropertyPointer r) throws FaCTPlusPlusException;
+
+    public native boolean areDataPropertiesDisjoint(DataPropertyPointer r, DataPropertyPointer s) throws FaCTPlusPlusException;
 
 
     public native ClassPointer [][] askIndividualTypes(IndividualPointer i, boolean direct) throws FaCTPlusPlusException;

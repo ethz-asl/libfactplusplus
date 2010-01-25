@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2009 by Dmitry Tsarkov
+Copyright (C) 2003-2010 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -1018,6 +1018,8 @@ public:
 	bool isSatisfiable ( const TConcept* C );
 		/// check that 2 individuals are the same
 	bool isSameIndividuals ( const TIndividual* a, const TIndividual* b );
+		/// check if 2 roles are disjoint
+	bool isDisjointRoles ( const TRole* R, const TRole* S );
 
 		/// fills cache entry for given concept; set up SAT flag to a concept
 	const modelCacheInterface* initCache ( TConcept* pConcept );
