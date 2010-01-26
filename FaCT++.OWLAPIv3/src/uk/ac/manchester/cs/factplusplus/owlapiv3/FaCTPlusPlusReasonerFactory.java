@@ -38,18 +38,18 @@ public class FaCTPlusPlusReasonerFactory implements OWLReasonerFactory {
     }
 
     public OWLReasoner createReasoner(OWLOntology ontology) {
-        return new FaCTPlusPlusReasoner(ontology, new SimpleConfiguration(), BufferingMode.NON_BUFFERING);
-    }
-
-    public OWLReasoner createBufferedReasoner(OWLOntology ontology) {
         return new FaCTPlusPlusReasoner(ontology, new SimpleConfiguration(), BufferingMode.BUFFERING);
     }
 
-    public OWLReasoner createReasoner(OWLOntology ontology, OWLReasonerConfiguration config) throws IllegalConfigurationException {
-        return new FaCTPlusPlusReasoner(ontology, config, BufferingMode.NON_BUFFERING);
+    public OWLReasoner createNonBufferingReasoner(OWLOntology ontology) {
+        return new FaCTPlusPlusReasoner(ontology, new SimpleConfiguration(), BufferingMode.NON_BUFFERING);
     }
 
-    public OWLReasoner createBufferedReasoner(OWLOntology ontology, OWLReasonerConfiguration config) throws IllegalConfigurationException {
+    public OWLReasoner createReasoner(OWLOntology ontology, OWLReasonerConfiguration config) throws IllegalConfigurationException {
         return new FaCTPlusPlusReasoner(ontology, config, BufferingMode.BUFFERING);
+    }
+
+    public OWLReasoner createNonBufferingReasoner(OWLOntology ontology, OWLReasonerConfiguration config) throws IllegalConfigurationException {
+        return new FaCTPlusPlusReasoner(ontology, config, BufferingMode.NON_BUFFERING);
     }
 }
