@@ -81,6 +81,13 @@ public class FaCTPlusPlusReasoner extends OWLReasonerBase {
         getReasonerConfiguration().getProgressMonitor().reasonerTaskStarted(ReasonerProgressMonitor.LOADING);
         getReasonerConfiguration().getProgressMonitor().reasonerTaskBusy();
         kernel.clearKernel();
+        axiomTranslator = new AxiomTranslator();
+        classExpressionTranslator = new ClassExpressionTranslator();
+        dataRangeTranslator = new DataRangeTranslator();
+        objectPropertyTranslator = new ObjectPropertyTranslator();
+        dataPropertyTranslator = new DataPropertyTranslator();
+        individualTranslator = new IndividualTranslator();
+        
         for (OWLAxiom ax : getReasonerAxioms()) {
             ax.accept(axiomTranslator);
         }
