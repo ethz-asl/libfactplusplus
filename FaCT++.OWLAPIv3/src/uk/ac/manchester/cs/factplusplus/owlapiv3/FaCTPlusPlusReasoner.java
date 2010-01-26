@@ -1203,7 +1203,7 @@ public class FaCTPlusPlusReasoner extends OWLReasonerBase {
                 return kernel.isClassEquivalentTo(toClassPointer(it.next()), toClassPointer(it.next()));
             }
             else {
-                for (OWLAxiom ax : axiom.asSubClassAxioms()) {
+                for (OWLAxiom ax : axiom.asOWLSubClassOfAxioms()) {
                     if (!ax.accept(this)) {
                         return false;
                     }
