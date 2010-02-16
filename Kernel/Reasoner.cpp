@@ -523,7 +523,7 @@ bool DlSatTester :: applyReflexiveRoles ( DlCompletionTree* node, const DepSet& 
 	return false;
 }
 
-const modelCacheInterface* DlSatTester :: createCache ( BipolarPointer p, BPSet& inProcess )
+const modelCacheInterface* DlSatTester :: createCache ( BipolarPointer p )
 {
 	fpp_assert ( isValid(p) );	// safety check
 
@@ -534,7 +534,7 @@ const modelCacheInterface* DlSatTester :: createCache ( BipolarPointer p, BPSet&
 		return cache;
 
 //	std::cout << "\nCCache for " << p << ":";
-	prepareCascadedCache ( p, inProcess );
+	prepareCascadedCache(p);
 
 	// it may be a cycle and the cache for p is already calculated
 	if ( (cache = DLHeap.getCache(p)) != NULL )
@@ -547,7 +547,7 @@ const modelCacheInterface* DlSatTester :: createCache ( BipolarPointer p, BPSet&
 }
 
 void
-DlSatTester :: prepareCascadedCache ( BipolarPointer p, BPSet& inProcess )
+DlSatTester :: prepareCascadedCache ( BipolarPointer p )
 {
 	/// cycle found -- shall be processed without caching
 	if ( inProcess.find(p) != inProcess.end() )
@@ -577,7 +577,7 @@ DlSatTester :: prepareCascadedCache ( BipolarPointer p, BPSet& inProcess )
 	case dtCollection:
 	{
 		for ( DLVertex::const_iterator q = v.begin(), q_end = v.end(); q < q_end; ++q )
-			prepareCascadedCache ( pos ? *q : inverse(*q), inProcess );
+			prepareCascadedCache ( pos ? *q : inverse(*q) );
 		break;
 	}
 
@@ -589,7 +589,7 @@ DlSatTester :: prepareCascadedCache ( BipolarPointer p, BPSet& inProcess )
 			return;
 		inProcess.insert(p);
 //		std::cout << " expanding " << p << ";";
-		prepareCascadedCache ( pos ? v.getC() : inverse(v.getC()), inProcess );
+		prepareCascadedCache ( pos ? v.getC() : inverse(v.getC()) );
 		inProcess.erase(p);
 		break;
 
@@ -606,7 +606,7 @@ DlSatTester :: prepareCascadedCache ( BipolarPointer p, BPSet& inProcess )
 		{
 			inProcess.insert(x);
 //			std::cout << " caching " << x << ";";
-			createCache ( x, inProcess );
+			createCache(x);
 			inProcess.erase(x);
 		}
 
@@ -616,7 +616,7 @@ DlSatTester :: prepareCascadedCache ( BipolarPointer p, BPSet& inProcess )
 		{
 			inProcess.insert(x);
 //			std::cout << " caching range(" << v.getRole()->getName() << ") = " << x << ";";
-			createCache ( x, inProcess );
+			createCache(x);
 			inProcess.erase(x);
 		}
 

@@ -229,6 +229,9 @@ protected:	// members
 		/// GCI-related KB flags
 	TKBFlags GCIs;
 
+		/// record nodes that were processed during Cascaded Cache construction
+	std::set<BipolarPointer> inProcess;
+
 		/// timer for the SAT tests (ie, cache creation)
 	TsProcTimer satTimer;
 		/// timer for the SUB tests (ie, general subsumption)
@@ -409,10 +412,8 @@ protected:	// methods
 //--		internal cache support
 //-----------------------------------------------------------------------------
 
-		/// build cache entry for given DAG node, using cascaded schema; @return cache
-	const modelCacheInterface* createCache ( BipolarPointer p, BPSet& inProcess );
 		/// build cache suitable for classification
-	void prepareCascadedCache ( BipolarPointer p, BPSet& inProcess );
+	void prepareCascadedCache ( BipolarPointer p );
 		/// create cache for given DAG node bu building model; @return cache
 	const modelCacheInterface* buildCache ( BipolarPointer p );
 		/// return cache of given completion tree (implementation)
@@ -904,11 +905,7 @@ public:
 			return new modelCacheSingleton(p);
 	}
 		/// build cache entry for given DAG node, using cascaded schema; @return cache
-	const modelCacheInterface* createCache ( BipolarPointer p )
-	{
-		BPSet inProcess;
-		return createCache ( p, inProcess );
-	}
+	const modelCacheInterface* createCache ( BipolarPointer p );
 		/// create model cache for the just-classified entry
 	const modelCacheInterface* buildCacheByCGraph ( bool sat ) const
 	{
