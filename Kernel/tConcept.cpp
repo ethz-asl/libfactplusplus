@@ -182,18 +182,15 @@ void TConcept :: SearchTSbyRole ( const TRole* R, RoleSSet& RolesProcessed )
 	if ( Domain == NULL || isConst(Domain) )
 		return;
 
-	// check for the loop
+	// don't process the same role twice
 	if ( RolesProcessed.find(R) != RolesProcessed.end() )
 		return;
 
-	// add role in processing; usually it's the only role, so set hint as a begin()
-	RoleSSet::iterator i = RolesProcessed.insert ( RolesProcessed.begin(), R );
+	// mark role as processed; usually it's the only role, so set hint as a begin()
+	RolesProcessed.insert ( RolesProcessed.begin(), R );
 
 	// init TS by the domain of role
-	initToldSubsumers(Domain);	// don't bother about result
-
-	// remove processed role from set
-	RolesProcessed.erase(i);
+	initToldSubsumers ( Domain, RolesProcessed );	// don't bother about result
 }
 
 void TConcept :: SearchTSbyRoleAndSupers ( const TRole* r, RoleSSet& RolesProcessed )
