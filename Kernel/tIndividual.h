@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2009 by Dmitry Tsarkov
+Copyright (C) 2003-2010 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -131,10 +131,10 @@ public:		// interface
 
 		/// update told subsumers from the RELATED axioms in a given range
 	template<class Iterator>
-	void updateTold ( Iterator begin, Iterator end )
+	void updateTold ( Iterator begin, Iterator end, RoleSSet& RolesProcessed )
 	{
 		for ( Iterator p = begin; p < end; ++p )
-			SearchTSbyRoleAndSupers((*p)->getRole());
+			SearchTSbyRoleAndSupers ( (*p)->getRole(), RolesProcessed);
 	}
 		/// update told subsumers from all relevant RELATED axioms
 	void updateToldFromRelated ( void );

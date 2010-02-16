@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2009 by Dmitry Tsarkov
+Copyright (C) 2003-2010 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -16,10 +16,7 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#include <set>
-
 #include "tConcept.h"
-
 #include "tRole.h"
 
 void TConcept :: clear ( void )
@@ -144,7 +141,7 @@ TConcept :: replaceWithConst ( DLTree* t ) const
 }
 
 /// init told subsumers of the concept by given DESCription; @return TRUE iff concept is CD
-bool TConcept :: initToldSubsumers ( const DLTree* desc )
+bool TConcept :: initToldSubsumers ( const DLTree* desc, RoleSSet& RolesProcessed )
 {
 	// no description => nothing to do (and yes, it is told)
 	if ( desc == NULL )
@@ -157,21 +154,21 @@ bool TConcept :: initToldSubsumers ( const DLTree* desc )
 	case NAME:	// it is a concept ID
 		return addToldSubsumer(static_cast<TConcept*>(desc->Element().getNE()));
 	case AND:	// add TS from BOTH parts of AND
-		return initToldSubsumers(desc->Left()) & initToldSubsumers(desc->Right());
+		return initToldSubsumers ( desc->Left(), RolesProcessed ) & initToldSubsumers ( desc->Right(), RolesProcessed );
 	case NOT:	// Domains from \ER.C and (>= n R.C) are told concepts
 	{
 		const TLexeme& cur = desc->Left()->Element();
 
 		if ( cur.getToken() == FORALL || cur.getToken() == LE )
-			SearchTSbyRoleAndSupers(resolveRole(desc->Left()->Left()));
+			SearchTSbyRoleAndSupers ( resolveRole(desc->Left()->Left()), RolesProcessed );
 
 		return false;
 	}
 	case REFLEXIVE:	// Domains and Range from participating role
 	{
 		const TRole* R = resolveRole(desc->Left());
-		SearchTSbyRoleAndSupers(R);
-		SearchTSbyRoleAndSupers(R->inverse());
+		SearchTSbyRoleAndSupers ( R, RolesProcessed );
+		SearchTSbyRoleAndSupers ( R->inverse(), RolesProcessed );
 		return false;
 	}
 	default:	// not told one
@@ -179,38 +176,34 @@ bool TConcept :: initToldSubsumers ( const DLTree* desc )
 	}
 }
 
-void TConcept :: SearchTSbyRole ( const TRole* R )
+void TConcept :: SearchTSbyRole ( const TRole* R, RoleSSet& RolesProcessed )
 {
 	const DLTree* Domain = R->getTDomain();
 	if ( Domain == NULL || isConst(Domain) )
 		return;
 
-	// searchable set for roles in process
-	typedef std::set<const TRole*> SearchableSet;
-	static SearchableSet sSet;
-
 	// check for the loop
-	if ( sSet.find(R) != sSet.end() )
+	if ( RolesProcessed.find(R) != RolesProcessed.end() )
 		return;
 
 	// add role in processing; usually it's the only role, so set hint as a begin()
-	SearchableSet::iterator i = sSet.insert ( sSet.begin(), R );
+	RoleSSet::iterator i = RolesProcessed.insert ( RolesProcessed.begin(), R );
 
 	// init TS by the domain of role
 	initToldSubsumers(Domain);	// don't bother about result
 
 	// remove processed role from set
-	sSet.erase(i);
+	RolesProcessed.erase(i);
 }
 
-void TConcept :: SearchTSbyRoleAndSupers ( const TRole* r )
+void TConcept :: SearchTSbyRoleAndSupers ( const TRole* r, RoleSSet& RolesProcessed )
 {
-	SearchTSbyRole(r);
+	SearchTSbyRole ( r, RolesProcessed );
 
 	// do the same for all super-roles if necessary
 	// FIXME!! need to do the same for DomSupers (like SoR [= R)
 	for ( TRole::iterator q = r->begin_anc(); q != r->end_anc(); ++q )
-		SearchTSbyRole(*q);
+		SearchTSbyRole ( *q, RolesProcessed );
 }
 
 unsigned int TConcept :: calculateTSDepth ( void )

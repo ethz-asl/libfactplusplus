@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2009 by Dmitry Tsarkov
+Copyright (C) 2003-2010 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -18,6 +18,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #ifndef _TCONCEPT_H
 #define _TCONCEPT_H
+
+#include <set>
 
 #include "taxNamEntry.h"
 #include "tNameSet.h"
@@ -60,6 +62,8 @@ inline char getCTTagName ( CTTag tag )
 	}
 }
 
+class TRole;
+
 /// class for representing concept-like entries
 class TConcept: public ClassifiableEntry
 {
@@ -70,6 +74,8 @@ private:	// members
 protected:	// types
 		/// set of extra rules
 	typedef std::vector<unsigned int> ERSet;
+		/// set of roles
+	typedef std::set<const TRole*> RoleSSet;
 
 public:		// type interface
 		/// extra rules iterators
@@ -110,6 +116,34 @@ protected:	// methods
 
 		/// replace every entry of THIS in the P with true/false; return updated tree
 	DLTree* replaceWithConst ( DLTree* p ) const;
+
+	// told subsumers interface
+
+		/// adds concept as a told subsumer of current one; @return value for CDC analisys
+	bool addToldSubsumer ( TConcept* p )
+	{
+		if ( p != this )
+		{
+			addParentIfNew(p);
+			if ( p->isSingleton() || p->isHasSP() )
+				setHasSP();		// this has singleton parent
+		}
+
+		// if non-primitive concept was found in a description, it's not CD
+		return p->isPrimitive();
+	}
+		/// init told subsumers of the concept by given DESCription; @return TRUE iff concept is CD
+	bool initToldSubsumers ( const DLTree* desc, RoleSSet& RolesProcessed );
+		/// init told subsumers of the concept by given DESCription; @return TRUE iff concept is CD
+	bool initToldSubsumers ( const DLTree* desc )
+	{
+		RoleSSet RolesProcessed;
+		return initToldSubsumers ( desc, RolesProcessed );
+	}
+		/// find told subsumers by given role's domain
+	void SearchTSbyRole ( const TRole* R, RoleSSet& RolesProcessed );
+		/// find told subsumers by given role and its supers domains
+	void SearchTSbyRoleAndSupers ( const TRole* R, RoleSSet& RolesProcessed );
 
 public:		// methods
 		/// the only c'tor
@@ -195,27 +229,6 @@ public:		// methods
 		return ret;
 	}
 
-	// told subsumers interface
-
-		/// adds concept as a told subsumer of current one; @return value for CDC analisys
-	bool addToldSubsumer ( TConcept* p )
-	{
-		if ( p != this )
-		{
-			addParentIfNew(p);
-			if ( p->isSingleton() || p->isHasSP() )
-				setHasSP();		// this has singleton parent
-		}
-
-		// if non-primitive concept was found in a description, it's not CD
-		return p->isPrimitive();
-	}
-		/// init told subsumers of the concept by given DESCription; @return TRUE iff concept is CD
-	bool initToldSubsumers ( const DLTree* desc );
-		/// find told subsumers by given role's domain
-	void SearchTSbyRole ( const TRole* R );
-		/// find told subsumers by given role and its supers domains
-	void SearchTSbyRoleAndSupers ( const TRole* R );
 		/// init told subsumers of the concept by it's description
 	virtual void initToldSubsumers ( void )
 	{
