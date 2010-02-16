@@ -275,7 +275,7 @@ TBox :: isSatisfiable ( const TConcept* pConcept )
 	prepareFeatures ( pConcept, NULL );
 	bool result = getReasoner()->runSat ( pConcept->resolveId(), bpTOP );
 	// save cache
-	cache = getReasoner()->createCacheByCGraph(result);
+	cache = getReasoner()->buildCacheByCGraph(result);
 	DLHeap.setCache ( pConcept->pName, cache );
 	clearFeatures();
 

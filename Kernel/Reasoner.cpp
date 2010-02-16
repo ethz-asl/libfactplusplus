@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2009 by Dmitry Tsarkov
+Copyright (C) 2003-2010 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -523,7 +523,7 @@ bool DlSatTester :: applyReflexiveRoles ( DlCompletionTree* node, const DepSet& 
 	return false;
 }
 
-const modelCacheInterface* DlSatTester :: fillsCache ( BipolarPointer p )
+const modelCacheInterface* DlSatTester :: createCache ( BipolarPointer p, BPSet& inProcess )
 {
 	fpp_assert ( isValid(p) );	// safety check
 
@@ -534,23 +534,21 @@ const modelCacheInterface* DlSatTester :: fillsCache ( BipolarPointer p )
 		return cache;
 
 //	std::cout << "\nCCache for " << p << ":";
-	prepareCascadedCache(p);
+	prepareCascadedCache ( p, inProcess );
 
 	// it may be a cycle and the cache for p is already calculated
 	if ( (cache = DLHeap.getCache(p)) != NULL )
 		return cache;
 
 	// need to build cache
-	cache = createCache(p);
+	cache = buildCache(p);
 	DLHeap.setCache ( p, cache );
 	return cache;
 }
 
 void
-DlSatTester :: prepareCascadedCache ( BipolarPointer p )
+DlSatTester :: prepareCascadedCache ( BipolarPointer p, BPSet& inProcess )
 {
-	static std::set<BipolarPointer> inProcess;
-
 	/// cycle found -- shall be processed without caching
 	if ( inProcess.find(p) != inProcess.end() )
 	{
@@ -579,7 +577,7 @@ DlSatTester :: prepareCascadedCache ( BipolarPointer p )
 	case dtCollection:
 	{
 		for ( DLVertex::const_iterator q = v.begin(), q_end = v.end(); q < q_end; ++q )
-			prepareCascadedCache ( pos ? *q : inverse(*q) );
+			prepareCascadedCache ( pos ? *q : inverse(*q), inProcess );
 		break;
 	}
 
@@ -591,7 +589,7 @@ DlSatTester :: prepareCascadedCache ( BipolarPointer p )
 			return;
 		inProcess.insert(p);
 //		std::cout << " expanding " << p << ";";
-		prepareCascadedCache(pos ? v.getC() : inverse(v.getC()));
+		prepareCascadedCache ( pos ? v.getC() : inverse(v.getC()), inProcess );
 		inProcess.erase(p);
 		break;
 
@@ -608,7 +606,7 @@ DlSatTester :: prepareCascadedCache ( BipolarPointer p )
 		{
 			inProcess.insert(x);
 //			std::cout << " caching " << x << ";";
-			fillsCache(x);
+			createCache ( x, inProcess );
 			inProcess.erase(x);
 		}
 
@@ -618,7 +616,7 @@ DlSatTester :: prepareCascadedCache ( BipolarPointer p )
 		{
 			inProcess.insert(x);
 //			std::cout << " caching range(" << v.getRole()->getName() << ") = " << x << ";";
-			fillsCache(x);
+			createCache ( x, inProcess );
 			inProcess.erase(x);
 		}
 
@@ -633,9 +631,9 @@ DlSatTester :: prepareCascadedCache ( BipolarPointer p )
 	}
 }
 
-/// create cache for given DAG node; @return cache
+/// build cache for given DAG node using SAT tests; @return cache
 const modelCacheInterface*
-DlSatTester :: createCache ( BipolarPointer p )
+DlSatTester :: buildCache ( BipolarPointer p )
 {
 	if ( LLM.isWritable(llDagSat) )
 	{
@@ -653,7 +651,7 @@ DlSatTester :: createCache ( BipolarPointer p )
 	if ( !sat && LLM.isWritable(llAlways) )
 		LL << "\nDAG entry " << p << " is unsatisfiable\n";
 
-	return createCacheByCGraph(sat);
+	return buildCacheByCGraph(sat);
 }
 
 bool DlSatTester :: checkSatisfiability ( void )

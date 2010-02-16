@@ -131,6 +131,8 @@ protected:	// type definition
 	typedef std::vector<DlCompletionTreeArc*> EdgeVector;
 		/// RO label iterator
 	typedef DlCompletionTree::const_label_iterator const_label_iterator;
+		/// set to keep BPs (during cascaded cache creation)
+	typedef std::set<BipolarPointer> BPSet;
 
 protected:	// types
 		/// possible flags of re-checking ALL-like expressions in new nodes
@@ -407,6 +409,12 @@ protected:	// methods
 //--		internal cache support
 //-----------------------------------------------------------------------------
 
+		/// build cache entry for given DAG node, using cascaded schema; @return cache
+	const modelCacheInterface* createCache ( BipolarPointer p, BPSet& inProcess );
+		/// build cache suitable for classification
+	void prepareCascadedCache ( BipolarPointer p, BPSet& inProcess );
+		/// create cache for given DAG node bu building model; @return cache
+	const modelCacheInterface* buildCache ( BipolarPointer p );
 		/// return cache of given completion tree (implementation)
 	const modelCacheInterface* createModelCache ( const DlCompletionTree* p ) const
 		{ return new modelCacheIan ( DLHeap, p, encounterNominal ); }
@@ -895,14 +903,14 @@ public:
 		else
 			return new modelCacheSingleton(p);
 	}
-		/// fills cache entry for given DAG node; @return cache
-	const modelCacheInterface* fillsCache ( BipolarPointer p );
-		/// build cache suitable for classification
-	void prepareCascadedCache ( BipolarPointer p );
-		/// create cache for given DAG node; @return cache
-	const modelCacheInterface* createCache ( BipolarPointer p );
+		/// build cache entry for given DAG node, using cascaded schema; @return cache
+	const modelCacheInterface* createCache ( BipolarPointer p )
+	{
+		BPSet inProcess;
+		return createCache ( p, inProcess );
+	}
 		/// create model cache for the just-classified entry
-	const modelCacheInterface* createCacheByCGraph ( bool sat ) const
+	const modelCacheInterface* buildCacheByCGraph ( bool sat ) const
 	{
 		if ( sat )	// here we need actual (not a p-blocked) root of the tree
 			return createModelCache(CGraph.getActualRoot());
@@ -1093,7 +1101,7 @@ TBox :: initCache ( TConcept* pConcept )
 	if ( cache == NULL )
 	{
 		prepareFeatures ( pConcept, NULL );
-		cache = getReasoner()->fillsCache(pConcept->pName);
+		cache = getReasoner()->createCache(pConcept->pName);
 		clearFeatures();
 	}
 
@@ -1106,7 +1114,7 @@ TBox :: testCachedNonSubsumption ( const TConcept* p, const TConcept* q )
 {
 	const modelCacheInterface* pCache = initCache(const_cast<TConcept*>(p));
 	prepareFeatures ( NULL, q );	// make appropriate conditions for reasoning
-	const modelCacheInterface* nCache = getReasoner()->fillsCache(inverse(q->pName));
+	const modelCacheInterface* nCache = getReasoner()->createCache(inverse(q->pName));
 	clearFeatures();
 	return pCache->canMerge(nCache);
 }
