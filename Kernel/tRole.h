@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2009 by Dmitry Tsarkov
+Copyright (C) 2003-2010 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -105,8 +105,13 @@ protected:	// methods
 		/// init map of all disjoint roles
 	void initDJMap ( void );
 
+		/// eliminate told role cycle, carrying aux arrays of processed roles and synonyms
+	TRole* eliminateToldCycles ( SetOfRoles& RInProcess, roleSet& ToldSynonyms );
+
 	// support for automaton construction
 
+		/// complete role automaton; keep track of processed roles in RINPROCESS
+	void completeAutomaton ( SetOfRoles& RInProcess );
 		/// replace RoR [= R with Trans(R), replace synonyms in RS
 	void preprocessComposition ( roleSet& RS ) throw(EFPPCycleInRIA);
 		/// add transition to automaton with the role
@@ -124,39 +129,39 @@ protected:	// methods
 			A.addRA(R->getAutomaton());
 	}
 		/// get an automaton by a (possibly synonymical) role
-	const RoleAutomaton& completeAutomatonByRole ( TRole* R ) const
+	const RoleAutomaton& completeAutomatonByRole ( TRole* R, SetOfRoles& RInProcess ) const
 	{
 		fpp_assert ( !R->isSynonym() );	// no synonyms here
 		fpp_assert ( R != this );		// no case ...*S*... [= S
-		R->completeAutomaton();
+		R->completeAutomaton(RInProcess);
 		return R->getAutomaton();
 	}
 		/// init non-empty chain of role automata
 	template<class Iterator>
-	void createChain ( Iterator begin, Iterator end )
+	void createChain ( Iterator begin, Iterator end, SetOfRoles& RInProcess )
 	{
-		A.initChain(completeAutomatonByRole(*begin));
+		A.initChain(completeAutomatonByRole ( *begin, RInProcess ));
 		for ( Iterator p = begin+1; p != end; ++p )
-			A.addToChain(completeAutomatonByRole(*p));
+			A.addToChain(completeAutomatonByRole ( *p, RInProcess ));
 	}
 		/// add automaton for a role composition
-	void addSubCompositionAutomaton ( const roleSet& RS )
+	void addSubCompositionAutomaton ( const roleSet& RS, SetOfRoles& RInProcess )
 	{
 		if ( RS.empty() )	// fallout from transitivity axiom
 			return;
 		if ( resolveSynonym(RS.front()) == this )
 		{
-			createChain ( RS.begin()+1, RS.end() );
+			createChain ( RS.begin()+1, RS.end(), RInProcess );
 			A.addRBegRA();
 		}
 		else if ( resolveSynonym(RS.back()) == this )
 		{
-			createChain ( RS.begin(), RS.end()-1 );
+			createChain ( RS.begin(), RS.end()-1, RInProcess );
 			A.addREndRA();
 		}
 		else
 		{
-			createChain ( RS.begin(), RS.end() );
+			createChain ( RS.begin(), RS.end(), RInProcess );
 			A.addChainRA();
 		}
 	}
@@ -348,7 +353,12 @@ public:		// interface
 	// completing internal constructions
 
 		/// eliminate told role cycle
-	TRole* eliminateToldCycles ( void );
+	TRole* eliminateToldCycles ( void )
+	{
+		SetOfRoles RInProcess;
+		roleSet ToldSynonyms;
+		return eliminateToldCycles ( RInProcess, ToldSynonyms );
+	}
 		/// replace RoR [= R with Trans(R)
 	void preprocessAllCompositions ( void ) throw(EFPPCycleInRIA)
 	{
@@ -363,7 +373,11 @@ public:		// interface
 		/// fills role composition by given TREE
 	void fillsComposition ( roleSet& Composition, const DLTree* tree ) const;
 		/// complete role automaton
-	void completeAutomaton ( void );
+	void completeAutomaton ( void )
+	{
+		SetOfRoles RInProcess;
+		completeAutomaton(RInProcess);
+	}
 		/// check whether role description is consistent
 	void consistent ( void ) throw(EFPPNonSimpleRole)
 	{

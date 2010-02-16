@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2009 by Dmitry Tsarkov
+Copyright (C) 2003-2010 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -93,29 +93,23 @@ public:
 	}
 }; // TRoleCompare
 
-// keep set of currently processing roles
-TRole::SetOfRoles sStack;
-
-TRole* TRole :: eliminateToldCycles ( void )
+TRole* TRole :: eliminateToldCycles ( SetOfRoles& RInProcess, roleSet& ToldSynonyms )
 {
-	// vector of synonyms
-	static std::vector<TRole*> synonyms;
-
 	// skip synonyms
 	if ( isSynonym() )
 		return NULL;
 
 	// if we found a cycle...
-	if ( sStack.find(this) != sStack.end() )
+	if ( RInProcess.find(this) != RInProcess.end() )
 	{
-		synonyms.push_back(this);
+		ToldSynonyms.push_back(this);
 		return this;
 	}
 
 	TRole* ret = NULL;
 
 	// start processing role
-	sStack.insert(this);
+	RInProcess.insert(this);
 
 	// ensure that parents does not contain synonyms
 	removeSynonymsFromParents();
@@ -123,36 +117,36 @@ TRole* TRole :: eliminateToldCycles ( void )
 	// not involved in cycle -- check all told subsumers
 	for ( ClassifiableEntry::const_iterator r = told_begin(); r != told_end(); ++r )
 		// if cycle was detected
-		if ( (ret = static_cast<TRole*>(*r)->eliminateToldCycles()) != NULL )
+		if ( (ret = static_cast<TRole*>(*r)->eliminateToldCycles ( RInProcess, ToldSynonyms )) != NULL )
 		{
 			if ( ret == this )
 			{
-				std::sort ( synonyms.begin(), synonyms.end(), TRoleCompare() );
+				std::sort ( ToldSynonyms.begin(), ToldSynonyms.end(), TRoleCompare() );
 				// now first element is representative; save it as RET
-				ret = *synonyms.begin();
+				ret = *ToldSynonyms.begin();
 
 				// make all others synonyms of RET
 				for ( std::vector<TRole*>::iterator
-						p = synonyms.begin()+1, p_end = synonyms.end(); p < p_end; ++p )
+						p = ToldSynonyms.begin()+1, p_end = ToldSynonyms.end(); p < p_end; ++p )
 				{
 					(*p)->setSynonym(ret);
 					ret->addParents ( (*p)->told_begin(), (*p)->told_end() );
 				}
 
-				synonyms.clear();
+				ToldSynonyms.clear();
 				// restart search for the representative
-				sStack.erase(this);
-				return ret->eliminateToldCycles();
+				RInProcess.erase(this);
+				return ret->eliminateToldCycles ( RInProcess, ToldSynonyms );
 			}
 			else	// some role inside a cycle: save it and return
 			{
-				synonyms.push_back(this);
+				ToldSynonyms.push_back(this);
 				break;
 			}
 		}
 
 	// finish processing role
-	sStack.erase(this);
+	RInProcess.erase(this);
 	return ret;
 }
 
@@ -398,21 +392,21 @@ TRole :: preprocessComposition ( roleSet& RS ) throw(EFPPCycleInRIA)
 }
 
 /// complete role automaton
-void TRole :: completeAutomaton ( void )
+void TRole :: completeAutomaton ( SetOfRoles& RInProcess )
 {
 	if ( A.isComplete() )
 		return;
 
 	// if we found a cycle...
-	if ( sStack.find(this) != sStack.end() )
+	if ( RInProcess.find(this) != RInProcess.end() )
 		throw EFPPCycleInRIA(getName());
 
 	// start processing role
-	sStack.insert(this);
+	RInProcess.insert(this);
 
 	// make sure that all sub-roles already have completed automata
 	for ( iterator p = begin_desc(); p != end_desc(); ++p )
-		(*p)->completeAutomaton();
+		(*p)->completeAutomaton(RInProcess);
 
 	// check for the transitivity
 	if ( isTransitive() )
@@ -420,7 +414,7 @@ void TRole :: completeAutomaton ( void )
 
 	// add automata for complex role inclusions
 	for ( std::vector<roleSet>::iterator q = subCompositions.begin(); q != subCompositions.end(); ++q )
-		addSubCompositionAutomaton(*q);
+		addSubCompositionAutomaton ( *q, RInProcess );
 
 	// complete automaton
 	A.complete();
@@ -429,5 +423,5 @@ void TRole :: completeAutomaton ( void )
 		static_cast<TRole*>(resolveSynonym(*p))->addSubRoleAutomaton(this);
 
 	// finish processing role
-	sStack.erase(this);
+	RInProcess.erase(this);
 }
