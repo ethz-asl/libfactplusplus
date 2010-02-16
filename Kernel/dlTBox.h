@@ -200,6 +200,8 @@ protected:	// members
 
 		/// current axiom's ID
 	unsigned int axiomId;
+		/// how many times nominals were found during translation to DAG; local to BuildDAG
+	unsigned int nNominalReferences;
 
 		/// fairness constraints
 	ConceptVector Fairness;

@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2009 by Dmitry Tsarkov
+Copyright (C) 2003-2010 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -19,9 +19,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 // This file contains methods for creating DAG representation of KB
 
 #include "dlTBox.h"
-
-// how many times nominals were found during translation to DAG
-static int nNominalReferences;
 
 void TBox :: buildDAG ( void )
 {
@@ -59,7 +56,7 @@ void TBox :: buildDAG ( void )
 	// check the type of the ontology
 	if ( nNominalReferences > 0 )
 	{
-		int nInd = i_end() - i_begin();
+		unsigned int nInd = i_end() - i_begin();
 		if ( nInd > 100 && nNominalReferences > nInd )
 			isLikeWINE = true;
 	}
