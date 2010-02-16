@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2009 by Dmitry Tsarkov
+Copyright (C) 2003-2010 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -242,11 +242,6 @@ TConcept* TBox :: checkToldCycle ( TConcept* p )
 {
 	fpp_assert ( p != NULL );	// safety check
 
-		// searchable stack for the told subsumers
-	static std::set<TConcept*> sStack;
-		// all the synonyms in the cycle
-	static std::vector<TConcept*> syns;
-
 	// resolve synonym (if happens) to prevent cases like A[=B[=C[=A, A[=D[=B
 	p = resolveSynonym(p);
 
@@ -255,7 +250,7 @@ TConcept* TBox :: checkToldCycle ( TConcept* p )
 		return NULL;
 
 	// if we found a cycle...
-	if ( sStack.find(p) != sStack.end() )
+	if ( CInProcess.find(p) != CInProcess.end() )
 	{
 //		std::cout << "Cycle with " << p->getName() << std::endl;
 		return p;
@@ -270,7 +265,7 @@ TConcept* TBox :: checkToldCycle ( TConcept* p )
 	TConcept* ret = NULL;
 
 	// add concept in processing
-	sStack.insert(p);
+	CInProcess.insert(p);
 
 redo:
 
@@ -283,23 +278,23 @@ redo:
 			if ( ret == p )
 			{
 //				std::cout << "Fill cycle with " << p->getName() << std::endl;
-				syns.push_back(p);
+				ToldSynonyms.push_back(p);
 
-				std::vector<TConcept*>::iterator q, q_end = syns.end();
+				std::vector<TConcept*>::iterator q, q_end = ToldSynonyms.end();
 
 				// find a representative for the cycle; nominal is preferable
-				for ( q = syns.begin(); q < q_end; ++q )
+				for ( q = ToldSynonyms.begin(); q < q_end; ++q )
 					if ( (*q)->isSingleton() )
 						p = *q;
 				// now p is a representative for all the synonyms
 
 				// fill the description
 				DLTree* desc = NULL;
-				for ( q = syns.begin(); q < q_end; ++q )
+				for ( q = ToldSynonyms.begin(); q < q_end; ++q )
 					if ( *q != p )	// make it a synonym of RET, save old desc
 						desc = createSNFAnd ( desc, makeNonPrimitive ( *q, getTree(p) ) );
 
-				syns.clear();
+				ToldSynonyms.clear();
 
 				// mark the returned concept primitive (to allow addDesc to work)
 				p->setPrimitive();
@@ -311,8 +306,8 @@ redo:
 				// re-run the search starting from new sample
 				if ( ret != p )	// need to fix the stack
 				{
-					sStack.erase(ret);
-					sStack.insert(p);
+					CInProcess.erase(ret);
+					CInProcess.insert(p);
 					ret->setRelevant(relevance);
 					p->dropRelevant(relevance);
 				}
@@ -322,14 +317,14 @@ redo:
 			}
 			else
 			{
-				syns.push_back(p);
+				ToldSynonyms.push_back(p);
 				// no need to continue; finish with this cycle first
 				break;
 			}
 		}
 
 	// remove processed concept from set
-	sStack.erase(p);
+	CInProcess.erase(p);
 
 	p->setRelevant(relevance);
 //	std::cout << "Done with " << p->getName() << std::endl;

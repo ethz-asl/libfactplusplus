@@ -203,6 +203,11 @@ protected:	// members
 		/// how many times nominals were found during translation to DAG; local to BuildDAG
 	unsigned int nNominalReferences;
 
+		/// searchable stack for the told subsumers
+	std::set<TConcept*> CInProcess;
+		/// all the synonyms in the told subsumers' cycle
+	std::vector<TConcept*> ToldSynonyms;
+
 		/// fairness constraints
 	ConceptVector Fairness;
 
