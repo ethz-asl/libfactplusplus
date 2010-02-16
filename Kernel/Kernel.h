@@ -363,6 +363,12 @@ public:
 
 		pTBox = new TBox ( getOptions(), DTCenter );
 		initCacheAndFlags();
+#	ifdef OWLAPI3
+		declare(ObjectRole("http://www.w3.org/2002/07/owl#topObjectProperty"));
+		declare(ObjectRole("http://www.w3.org/2002/07/owl#bottomObjectProperty"));
+		declare(DataRole("http://www.w3.org/2002/07/owl#topDataProperty"));
+		declare(DataRole("http://www.w3.org/2002/07/owl#bottomDataProperty"));
+#	endif
 		return false;
 	}
 		/// delete existed KB

@@ -165,6 +165,8 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
 	return ret;
 }
 
+#ifdef OWLAPI3
+
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
  * Method:    getTopObjectProperty
@@ -174,8 +176,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
   (JNIEnv * env, jobject obj)
 {
 	TRACE_JNI("getTopObjectProperty");
-	Throw ( env, "FaCT++ Kernel: unsupported operation" );
-	return NULL;
+	return ObjectProperty ( env, getOName(env,obj,"http://www.w3.org/2002/07/owl#topObjectProperty") );
 }
 
 /*
@@ -187,9 +188,9 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
   (JNIEnv * env, jobject obj)
 {
 	TRACE_JNI("getBottomObjectProperty");
-	Throw ( env, "FaCT++ Kernel: unsupported operation" );
-	return NULL;
+	return ObjectProperty ( env, getOName(env,obj,"http://www.w3.org/2002/07/owl#bottomObjectProperty") );
 }
+#endif
 
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
@@ -213,6 +214,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
 	return ret;
 }
 
+#ifdef OWLAPI3
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
  * Method:    getTopDataProperty
@@ -222,8 +224,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
   (JNIEnv * env, jobject obj)
 {
 	TRACE_JNI("getTopDataProperty");
-	Throw ( env, "FaCT++ Kernel: unsupported operation" );
-	return NULL;
+	return DataProperty ( env, getDName(env,obj,"http://www.w3.org/2002/07/owl#topDataProperty") );
 }
 
 /*
@@ -235,9 +236,9 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
   (JNIEnv * env, jobject obj)
 {
 	TRACE_JNI("getBottomDataProperty");
-	Throw ( env, "FaCT++ Kernel: unsupported operation" );
-	return NULL;
+	return DataProperty ( env, getDName(env,obj,"http://www.w3.org/2002/07/owl#bottomDataProperty") );
 }
+#endif
 
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
