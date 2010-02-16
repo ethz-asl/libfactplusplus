@@ -117,9 +117,47 @@ protected:	// types
 			/// allow reasoner to check the applicability according to the type of the rule
 		virtual bool applicable ( DlSatTester& Reasoner ) const;
 	}; // TSimpleRule
-
 		/// all simple rules in KB
 	typedef std::vector<TSimpleRule*> TSimpleRules;
+
+		/// R-C cache for the \forall R.C replacement in GCIs
+	class TRCCache
+	{
+	protected:	// types
+			/// array of CE used for given role
+		typedef std::vector<std::pair<const DLTree*,TConcept*> > DTVec;
+			/// "map" role ID -> array
+		typedef std::vector<DTVec> BaseType;
+
+	protected:	// members
+			/// cache for direct and inverse roles
+		BaseType DCache, ICache;
+
+	protected:	// methods
+			/// get the array for a given role
+		DTVec& getArray ( const TRole* R ) { return R->getId() > 0 ? DCache[R->getId()] : ICache[-R->getId()]; }
+			/// @return pointer to CN, corresponding to given C in an array. @return NULL if no C registered
+		TConcept* find ( const DLTree* C, const DTVec& vec ) const
+		{
+			if ( vec.empty() )
+				return NULL;
+			for ( DTVec::const_iterator p = vec.begin(), p_end = vec.end(); p < p_end; ++p )
+				if ( equalTrees ( C, p->first ) )
+					return p->second;
+			return NULL;
+		}
+
+	public:		// interface
+			/// init c'tor
+		TRCCache ( size_t n ) : DCache(n+1), ICache(n+1) {}
+			/// empty d'tor
+		~TRCCache ( void ) {}
+
+			/// get concept corresponding to <R,C> pair. @return NULL if there are none
+		TConcept* get ( const TRole* R, const DLTree* C ) { return find ( C, getArray(R) ); }
+			/// add CN as a cache entry for <R,C>
+		void add ( const TRole* R, const DLTree* C, TConcept* CN ) { getArray(R).push_back(std::make_pair(C,CN)); }
+	}; // TRCCache
 
 protected:	// typedefs
 		/// RW concept iterator
@@ -176,7 +214,7 @@ protected:	// members
 		/// temporary concept that represents query
 	TConcept* defConcept;
 
-	/** all named concepts */
+		/// all named concepts
 	ConceptCollection Concepts;
 		/// all named individuals/nominals
 	IndividualCollection Individuals;
@@ -198,8 +236,13 @@ protected:	// members
 		/// KB flags about GCIs
 	TKBFlags GCIs;
 
+		/// cache for the \forall R.C replacements during absorption
+	TRCCache* RCCache;
+
 		/// current axiom's ID
 	unsigned int axiomId;
+		/// current aux concept's ID
+	unsigned int auxConceptID;
 		/// how many times nominals were found during translation to DAG; local to BuildDAG
 	unsigned int nNominalReferences;
 
