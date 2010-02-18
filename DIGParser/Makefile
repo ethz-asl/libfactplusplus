@@ -10,7 +10,7 @@ LDFLAGS = -L$(XERCESCROOT)/lib/ -lxerces-c
 LIBRARY = DIGParser
 LTYPE = static
 
-USE_IL = ../Kernel ../Bdd
+USE_IL = ../Kernel
 
 SOURCES = \
 	  DIGParserHandlers.cpp\

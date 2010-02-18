@@ -5,7 +5,7 @@
 # -- DO NOT CHANGE THE REST OF FILE --
 EXECUTABLE = FaCT++
 
-USE_IL = ../Kernel ../Bdd
+USE_IL = ../Kernel
 
 SOURCES = \
           scanner.cpp\

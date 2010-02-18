@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2008 by Dmitry Tsarkov
+Copyright (C) 2006-2010 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -16,6 +16,7 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#include "depSet_bdd.h"
+#include "tDepSet.h"
 
-depSet_bdd::BddManager depSet_bdd::Manager;
+// manager for dep-sets; init with large number of braching levels
+TDepSet::TDepSetManager TDepSet :: Manager(64);

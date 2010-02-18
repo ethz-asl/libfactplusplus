@@ -9,7 +9,7 @@ LDFLAGS = -L$(XERCESCROOT)/lib/ -lxerces-c
 # -- DO NOT CHANGE THE REST OF FILE --
 EXECUTABLE = digFaCT++
 
-USE_IL = ../DIGParser ../Kernel ../Bdd
+USE_IL = ../DIGParser ../Kernel
 
 SOURCES = digFileInterface.cpp\
           digFaCT.cpp

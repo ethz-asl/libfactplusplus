@@ -3,16 +3,13 @@
 #
 
 # -- DO NOT CHANGE THE REST OF FILE --
-SUBDIRS = Bdd Kernel FaCT++ FaCT++.JNI DIGParser FaCT++.DIG FaCT++.Server
+SUBDIRS = Kernel FaCT++ FaCT++.JNI DIGParser FaCT++.DIG FaCT++.Server
 
 include Makefile.include
 
 # Additional targets to build parts of the FaCT++
 
-bdd:
-	make -C Bdd
-
-kernel: bdd
+kernel:
 	make -C Kernel
 
 digparser: kernel
