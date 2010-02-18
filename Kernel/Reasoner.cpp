@@ -523,6 +523,8 @@ bool DlSatTester :: applyReflexiveRoles ( DlCompletionTree* node, const DepSet& 
 	return false;
 }
 
+//#define TMP_CACHE_DEBUG
+
 const modelCacheInterface* DlSatTester :: createCache ( BipolarPointer p )
 {
 	fpp_assert ( isValid(p) );	// safety check
@@ -533,7 +535,9 @@ const modelCacheInterface* DlSatTester :: createCache ( BipolarPointer p )
 	if ( (cache = DLHeap.getCache(p)) != NULL )
 		return cache;
 
-//	std::cout << "\nCCache for " << p << ":";
+#ifdef TMP_CACHE_DEBUG
+	std::cout << "\nCCache for " << p << ":";
+#endif
 	prepareCascadedCache(p);
 
 	// it may be a cycle and the cache for p is already calculated
@@ -552,7 +556,9 @@ DlSatTester :: prepareCascadedCache ( BipolarPointer p )
 	/// cycle found -- shall be processed without caching
 	if ( inProcess.find(p) != inProcess.end() )
 	{
-//		std::cout << " cycle with " << p << ";";
+#	ifdef TMP_CACHE_DEBUG
+		std::cout << " cycle with " << p << ";";
+#	endif
 		return;
 	}
 
@@ -588,7 +594,9 @@ DlSatTester :: prepareCascadedCache ( BipolarPointer p )
 		if ( isNegative(p) && isPNameTag(v.Type()) )
 			return;
 		inProcess.insert(p);
-//		std::cout << " expanding " << p << ";";
+#	ifdef TMP_CACHE_DEBUG
+		std::cout << " expanding " << p << ";";
+#	endif
 		prepareCascadedCache ( pos ? v.getC() : inverse(v.getC()) );
 		inProcess.erase(p);
 		break;
@@ -605,7 +613,9 @@ DlSatTester :: prepareCascadedCache ( BipolarPointer p )
 		if ( x != bpTOP )
 		{
 			inProcess.insert(x);
-//			std::cout << " caching " << x << ";";
+#		ifdef TMP_CACHE_DEBUG
+			std::cout << " caching " << x << ";";
+#		endif
 			createCache(x);
 			inProcess.erase(x);
 		}
@@ -615,7 +625,9 @@ DlSatTester :: prepareCascadedCache ( BipolarPointer p )
 		if ( x != bpTOP )
 		{
 			inProcess.insert(x);
-//			std::cout << " caching range(" << v.getRole()->getName() << ") = " << x << ";";
+#		ifdef TMP_CACHE_DEBUG
+			std::cout << " caching range(" << v.getRole()->getName() << ") = " << x << ";";
+#		endif
 			createCache(x);
 			inProcess.erase(x);
 		}
@@ -630,6 +642,9 @@ DlSatTester :: prepareCascadedCache ( BipolarPointer p )
 		fpp_unreachable();
 	}
 }
+
+// do not need cache debug anymore
+#undef TMP_CACHE_DEBUG
 
 /// build cache for given DAG node using SAT tests; @return cache
 const modelCacheInterface*
