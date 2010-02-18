@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2005-2009 by Dmitry Tsarkov
+Copyright (C) 2005-2010 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -31,6 +31,8 @@ class growingArrayP
 protected:	// typedefs
 		/// type of the heap
 	typedef std::vector<T*> baseType;
+		/// heap's reverse iterator (used in the destructor)
+	typedef typename baseType::reverse_iterator riterator;
 
 public:		// typedefs
 		/// heap's iterator
@@ -85,11 +87,10 @@ public:		// interface
 	{
 		initArray ( Base.begin(), Base.end() );
 	}
-
 		/// d'tor: delete all allocated objects
 	virtual ~growingArrayP ( void )
 	{
-		for ( iterator p = Base.begin(); p != Base.end(); ++p )
+		for ( riterator p = Base.rbegin(), p_end = Base.rend(); p != p_end; ++p )
 			delete *p;
 	}
 
