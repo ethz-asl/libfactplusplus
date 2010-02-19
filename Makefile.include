@@ -80,11 +80,8 @@ override BUILD_DIR := obj
 $(BUILD_DIR):
 	mkdir -p $(BUILD_DIR)
 
-# Set C and C++ compilers and linker
-# Linker defaults to C compiler if all $(SOURCES) are .c files, and to
-# C++ compiler otherwise
+# Set C++ compilers and linker
 
-override CC := gcc$(GCC_SUFFIX) $(OS_DEF)
 override CXX := g++$(GCC_SUFFIX) $(OS_DEF)
 
 # Library building tools
@@ -172,11 +169,8 @@ override OBJECTS := $(addprefix $(BUILD_DIR)/,$(addsuffix .o,$(basename $(notdir
 
 # Rules for building object files
 
-override CC_COMPILE_COMMAND = $(CC) -c $(CXXFLAGS) -o $@ $<
 override CXX_COMPILE_COMMAND = $(CXX) -c $(CXXFLAGS) -o $@ $<
 
-$(BUILD_DIR)/%.o: %.c
-	$(CC_COMPILE_COMMAND)
 $(BUILD_DIR)/%.o: %.cpp
 	$(CXX_COMPILE_COMMAND)
 
@@ -207,11 +201,7 @@ dep: dep_subdirs .deps
 	rm -f .deps
 	touch .deps
 	for file in $(SOURCES); do \
-		if test `basename $$file .c`.c = `basename $$file`; then \
-			$(CC) $(CXXFLAGS) -MM $$file > .deps.tmp ; \
-		else	\
-			$(CXX) $(CXXFLAGS) -MM $$file > .deps.tmp ; \
-		fi;		\
+		$(CXX) $(CXXFLAGS) -MM $$file > .deps.tmp ; \
 		sed '1 s/^\(.*\)/$(BUILD_DIR)\/\1/' .deps.tmp > .deps.tmp2 ; \
 		cat .deps.tmp2 >> .deps ; \
 		echo >> .deps ; \
