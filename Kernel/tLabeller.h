@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2009 by Dmitry Tsarkov
+Copyright (C) 2003-2010 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -16,8 +16,8 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef _TLABELLER_H
-#define _TLABELLER_H
+#ifndef TLABELLER_H
+#define TLABELLER_H
 
 #include "fpp_assert.h"
 #include "tCounter.h"
@@ -67,8 +67,8 @@ public:		// interface
 
 		/// set given label's value to the counter's one
 	void set ( LabType& lab ) const { lab = counter.val(); }
-		/// clear given label's value
-	void clear ( LabType& lab ) const { lab = 0; }
+		/// clear given label's value (independent of a labeller)
+	static void clear ( LabType& lab ) { lab = 0; }
 		/// check if given label is labelled
 	bool isLabelled ( const LabType& lab ) const { return (lab == counter.val()); }
 }; // TLabeller
