@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2006 by Dmitry Tsarkov
+Copyright (C) 2003-2010 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -16,8 +16,8 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef _CONCEPTWITHDEP_H
-#define _CONCEPTWITHDEP_H
+#ifndef CONCEPTWITHDEP_H
+#define CONCEPTWITHDEP_H
 
 #include "BiPointer.h"
 #include "DepSet.h"
@@ -36,8 +36,6 @@ public:		// methods
 	ConceptWDep ( void ) : Concept (bpINVALID) {}
 		/// c'tor with empty dep-set
 	explicit ConceptWDep ( BipolarPointer p ) : Concept(p) {}
-		/// c'tor with singleton dep-set
-	ConceptWDep ( BipolarPointer p, unsigned int u ) : Concept(p), depSet(u) {}
 		/// usual c'tor
 	ConceptWDep ( BipolarPointer p, const DepSet& dep ) : Concept(p), depSet(dep) {}
 		/// copy c'tor
@@ -69,4 +67,4 @@ public:		// methods
 	friend O& operator << ( O& o, const ConceptWDep& c ) { o << c.Concept << c.getDep(); return o; }
 }; // ConceptWDep
 
-#endif // _CONCEPTWITHDEP_H
+#endif // CONCEPTWITHDEP_H

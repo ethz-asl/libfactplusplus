@@ -217,6 +217,8 @@ protected:	// members
 		/// all the reflexive roles
 	RoleMaster::roleSet ReflexiveRoles;
 
+		/// manager for all the dep-sets corresponding to a graph here
+	TDepSetManager Manager;
 		/// Completion Graph of tested concept(s)
 	DlCompletionGraph CGraph;
 		/// TODO list
@@ -825,7 +827,7 @@ protected:	// methods
 		/// add D to global dep-set
 	void updateClashSet ( const DepSet& d ) { clashSet.add(d); }
 		/// get dep-set wrt current level
-	DepSet getCurDepSet ( void ) const { return DepSet(getCurLevel()-1); }
+	DepSet getCurDepSet ( void ) const { return DepSet(Manager.get(getCurLevel()-1)); }
 
 		/// get RW access to current branching dep-set
 	DepSet& getBranchDep ( void ) { return bContext->branchDep; }

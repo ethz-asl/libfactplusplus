@@ -30,7 +30,6 @@ SOURCES = \
 		  dumpInterface.cpp\
 		  dumpLisp.cpp\
 		  dumpDIG.cpp\
-		  tDepSet.cpp\
 		  dlCompletionGraph.cpp\
 		  Relevance.cpp\
 		  BuildDAG.cpp\

@@ -32,6 +32,7 @@ AccumulatedStatistic* AccumulatedStatistic::root = NULL;
 DlSatTester :: DlSatTester ( TBox& tbox, const ifOptionSet* Options )
 	: tBox(tbox)
 	, DLHeap(tbox.DLHeap)
+	, Manager(64)
 	, CGraph(1,this)
 	, DTReasoner(tbox.DLHeap)
 	, GCIs(tbox.GCIs)
@@ -769,7 +770,7 @@ void DlSatTester :: save ( void )
 
 	// increase tryLevel
 	++tryLevel;
-	DepSet::ensureLevel(getCurLevel());
+	Manager.ensureLevel(getCurLevel());
 
 	// init BC
 	clearBC();
