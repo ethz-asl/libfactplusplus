@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2009 by Dmitry Tsarkov
+Copyright (C) 2003-2010 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -16,8 +16,8 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef _TAXONOMY_H
-#define _TAXONOMY_H
+#ifndef TAXONOMY_H
+#define TAXONOMY_H
 
 // taxonomy graph for DL
 #include <iostream>
@@ -97,24 +97,23 @@ public:		// typedefs
 	typedef SetOfVertex::const_iterator const_iterator;
 
 protected:	// members
-	/// array of taxonomy verteces
+		/// array of taxonomy verteces
 	SetOfVertex Graph;
 
-	/// aux. vertex to be included to taxonomy
+		/// aux. vertex to be included to taxonomy
 	TaxonomyVertex* Current;
 		/// pointer to currently classified entry
 	const ClassifiableEntry* curEntry;
 
-	/// optimisation flag: if entry is completely defined by it's told subsumers, no other classification required
+		/// optimisation flag: if entry is completely defined by it's told subsumers, no other classification required
 	bool useCompletelyDefined;
 
-	/// behaviour flag: if true, insert temporary vertex into taxonomy
+		/// behaviour flag: if true, insert temporary vertex into taxonomy
 	bool willInsertIntoTaxonomy;
-
 		/// behaviour flag: if true, delete temporary vertex
 	bool deleteCurrent;
 
-	/// number of tested entryes
+		/// number of tested entryes
 	unsigned int nEntries;
 		/// number of completely-defined entries
 	unsigned long nCDEntries;
@@ -328,4 +327,4 @@ inline void Taxonomy :: setupTopDown ( void )
 	setNonRedundantCandidates();
 }
 
-#endif // _TAXONOMY_H
+#endif // TAXONOMY_H
