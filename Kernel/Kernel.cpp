@@ -29,6 +29,9 @@ const char* ReasoningKernel :: ReleaseDate = "(29 May 2009)";
 // print the FaCT++ information only once
 static bool KernelFirstRun = true;
 
+// debug related individual/values switch
+//#define FPP_DEBUG_PRINT_RELATED_PROGRESS
+
 ReasoningKernel :: ReasoningKernel ( void )
 	: pTBox (NULL)
 	, cachedQuery(NULL)
@@ -237,40 +240,29 @@ public:
 	const ReasoningKernel::CIVec& getAcc ( void ) const { return acc; }
 }; // RIActor
 
-const TRelatedMap*
-ReasoningKernel :: buildRelatedCache ( TIndividual* i )
+ReasoningKernel::CIVec
+ReasoningKernel :: buildRelatedCache ( TIndividual* I, const TRole* R )
 {
-	fpp_assert ( i->getRelatedMap() == NULL );
-	TRelatedMap* map = new TRelatedMap();
+#ifdef FPP_DEBUG_PRINT_RELATED_PROGRESS
+	std::cout << "Related for " << I->getName() << " via property " << R->getName() << "\n";
+#endif
 
-	// fill the map with role-related thing
-	RoleMaster::iterator p, p_end = getORM()->end();
-	for ( p = getORM()->begin(); p < p_end; ++p )
-		if ( !(*p)->isSynonym() )
-		{
-			TRole* R = *p;
-			RIActor actor;
-			// ask for instances of \exists R^-.{i}
-			TreeDeleter query ( Exists (
-				(R->getId() > 0) ? Inverse(ObjectRole(R->getName())) : ObjectRole(R->inverse()->getName()),
-				Individual(i->getName()) ) );
-			getInstances ( query, actor );
-			map->setRelated ( R, actor.getAcc() );
-		}
+	// for synonyms: use the representative's cache
+	if ( R->isSynonym() )
+		return getRelated ( I, resolveSynonym(R) );
 
-	for ( p = getORM()->begin(); p < p_end; ++p )
-		if ( (*p)->isSynonym() )
-			map->setRelated ( *p, map->getRelated(resolveSynonym(*p)) );
+	// FIXME!! return an empty set for data roles
+	if ( R->isDataRole() )
+		return CIVec();
 
-	// FIXME!! put fake entries for data roles
-	for ( p = getDRM()->begin(), p_end = getDRM()->end(); p < p_end; ++p )
-	{
-		RIActor actor;
-		map->setRelated ( *p, actor.getAcc() );
-	}
-
-	i->setRelatedMap(map);
-	return map;
+	// now fills the query
+	RIActor actor;
+	// ask for instances of \exists R^-.{i}
+	TreeDeleter query ( Exists (
+		(R->getId() > 0) ? Inverse(ObjectRole(R->getName())) : ObjectRole(R->inverse()->getName()),
+		Individual(I->getName()) ) );
+	getInstances ( query, actor );
+	return actor.getAcc();
 }
 
 /// @return in Rs all (DATA)-roles R s.t. (I,x):R; add inverses if NEEDI is true
@@ -278,14 +270,14 @@ void
 ReasoningKernel :: getRelatedRoles ( const ComplexConcept I, NamesVector& Rs, bool data, bool needI )
 {
 	realiseKB();	// ensure KB is ready to answer the query
-	const TRelatedMap* map = getRelatedCache(getIndividual ( I, "individual name expected in the getRelatedRoles()" ));
-
 	Rs.clear();
+
+	TIndividual* i = getIndividual ( I, "individual name expected in the getRelatedRoles()" );
 	RoleMaster* RM = data ? getDRM() : getORM();
 	for ( RoleMaster::iterator p = RM->begin(), p_end = RM->end(); p < p_end; ++p )
 	{
 		const TRole* R = *p;
-		if ( ( R->getId() > 0 || needI ) && !map->getRelated(R).empty() )
+		if ( ( R->getId() > 0 || needI ) && !getRelated(i,R).empty() )
 			Rs.push_back(R);
 	}
 }
@@ -294,8 +286,8 @@ void
 ReasoningKernel :: getRoleFillers ( const ComplexConcept I, const ComplexRole R, IndividualSet& Result )
 {
 	realiseKB();	// ensure KB is ready to answer the query
-	CIVec vec = getRelatedCache(getIndividual ( I, "Individual name expected in the getRoleFillers()" ))
-		->getRelated(getRole ( R, "Role expression expected in the getRoleFillers()" ));
+	CIVec vec = getRelated ( getIndividual ( I, "Individual name expected in the getRoleFillers()" ),
+							 getRole ( R, "Role expression expected in the getRoleFillers()" ) );
 	for ( CIVec::iterator p = vec.begin(), p_end = vec.end(); p < p_end; ++p )
 		Result.push_back(const_cast<TIndividual*>(*p));
 }
@@ -311,7 +303,7 @@ ReasoningKernel :: isRelated ( const ComplexConcept I, const ComplexRole R, cons
 		return false;	// FIXME!! not implemented
 
 	TIndividual* j = getIndividual ( J, "Individual name expected in the isRelated()" );
-	CIVec vec = getRelatedCache(i)->getRelated(r);
+	CIVec vec = getRelated ( i, r );
 	for ( CIVec::iterator p = vec.begin(), p_end = vec.end(); p < p_end; ++p )
 		if ( j == (*p) )
 			return true;

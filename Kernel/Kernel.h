@@ -183,15 +183,14 @@ protected:	// methods
 		reasoningFailed = false;
 	}
 
-		/// build and set a cache for an individual I
-	const TRelatedMap* buildRelatedCache ( TIndividual* I );
+		/// build and set a cache for an individual I wrt role R
+	CIVec buildRelatedCache ( TIndividual* I, const TRole* R );
 		/// get related cache for an individual I
-	const TRelatedMap* getRelatedCache ( TIndividual* I )
+	const CIVec& getRelated ( TIndividual* I, const TRole* R )
 	{
-		const TRelatedMap* ret = I->getRelatedMap();
-		if ( ret == NULL )
-			ret = buildRelatedCache(I);
-		return ret;
+		if ( !I->hasRelatedCache(R) )
+			I->setRelatedCache ( R, buildRelatedCache ( I, R ) );
+		return I->getRelatedCache(R);
 	}
 
 	// get access to internal structures

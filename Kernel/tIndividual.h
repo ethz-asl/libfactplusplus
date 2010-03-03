@@ -16,8 +16,8 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef _TINDIVIDUAL_H
-#define _TINDIVIDUAL_H
+#ifndef TINDIVIDUAL_H
+#define TINDIVIDUAL_H
 
 #include "tConcept.h"
 
@@ -52,7 +52,7 @@ public:		// interface
 		/// check whether role is in map
 	bool hasRole ( const TRole* R ) const { return Base.find(R) != Base.end(); }
 		/// get array related to role
-	CIVec getRelated ( const TRole* R ) const
+	const CIVec& getRelated ( const TRole* R ) const
 	{
 		fpp_assert ( hasRole(R) );
 		return Base.find(R)->second;
@@ -73,6 +73,8 @@ public:		// types
 	typedef std::vector<TRelated*> RelatedSet;
 		/// pointers to concept expressions
 	typedef std::vector<const DLTree*> ConceptSearchSet;
+		/// vector of individuals
+	typedef TRelatedMap::CIVec CIVec;
 
 public:		// members
 		/// pointer to nominal node (works for singletons only)
@@ -101,7 +103,7 @@ public:		// interface
 	explicit TIndividual ( const std::string& name )
 		: TConcept(name)
 		, node(NULL)
-		, pRelatedMap(NULL)
+		, pRelatedMap(new TRelatedMap())
 		, PCConcept(NULL)
 		{}
 		/// empty d'tor
@@ -148,12 +150,14 @@ public:		// interface
 
 	// related map access
 
-		/// get RM
-	const TRelatedMap* getRelatedMap ( void ) const { return pRelatedMap; }
-		/// set RM
-	void setRelatedMap ( TRelatedMap* map ) { pRelatedMap = map; }
+		/// @return true if has cache for related individuals via role R
+	bool hasRelatedCache ( const TRole* R ) const { return pRelatedMap->hasRole(R); }
+		/// get set of individuals related to THIS via R
+	const CIVec& getRelatedCache ( const TRole* R ) const { return pRelatedMap->getRelated(R); }
+		/// set the cache of individuals related to THIS via R
+	void setRelatedCache ( const TRole* R, const CIVec& v ) { pRelatedMap->setRelated ( R, v ); }
 		/// clear RM
-	void clearRelatedMap ( void ) { delete pRelatedMap; pRelatedMap = NULL; }
+	void clearRelatedMap ( void ) { delete pRelatedMap; pRelatedMap = new TRelatedMap(); }
 
 	// precompletion interface
 
