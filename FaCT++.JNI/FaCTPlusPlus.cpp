@@ -1838,7 +1838,7 @@ JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlu
 	PROCESS_ASK_QUERY ( getK(env,obj)->getRoleFillers ( getROTree(env,arg1), getROTree(env,arg2), Js ),"askRelatedValues");
 	vector<DLTree*> acc;
 	for ( ReasoningKernel::NamesVector::const_iterator p = Js.begin(), p_end = Js.end(); p < p_end; ++p )
-		acc.push_back(new DLTree(TLexeme(DATAEXPR,new TTreeNamedEntry(*p))));
+		acc.push_back(new DLTree(TLexeme(DATAEXPR,new TTreeNamedEntry(const_cast<TNamedEntry*>(*p)))));
 	return buildArray ( env, acc, cnDataValuePointer() );
 }
 

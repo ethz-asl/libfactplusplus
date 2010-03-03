@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2009 by Dmitry Tsarkov
+Copyright (C) 2003-2010 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -284,7 +284,7 @@ ReasoningKernel :: getRelatedRoles ( const ComplexConcept I, NamesVector& Rs, bo
 	RoleMaster* RM = data ? getDRM() : getORM();
 	for ( RoleMaster::iterator p = RM->begin(), p_end = RM->end(); p < p_end; ++p )
 	{
-		TRole* R = *p;
+		const TRole* R = *p;
 		if ( ( R->getId() > 0 || needI ) && !map->getRelated(R).empty() )
 			Rs.push_back(R);
 	}

@@ -16,8 +16,8 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef _DLTBOX_H
-#define _DLTBOX_H
+#ifndef DLTBOX_H
+#define DLTBOX_H
 
 #include <string>
 #include <vector>
@@ -75,7 +75,7 @@ protected:	// types
 		/// type for a collection of DIFFERENT individuals
 	typedef std::vector<SingletonVector> DifferentIndividuals;
 		/// return type for a set of names
-	typedef std::vector<TNamedEntry*> NamesVector;
+	typedef std::vector<const TNamedEntry*> NamesVector;
 
 		/// class for simple rules like Ch :- Cb1, Cbi, CbN; all C are primitive named concepts
 	class TSimpleRule

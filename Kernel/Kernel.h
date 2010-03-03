@@ -16,8 +16,8 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef _KERNEL_H
-#define _KERNEL_H
+#ifndef KERNEL_H
+#define KERNEL_H
 
 #include <string>
 
@@ -62,7 +62,7 @@ public:	// types interface
 	// RoleSet = set of synonyms (role may be inverse)
 	typedef vector<RoleNameSet> RoleSet;
 	// IndividualSet is just set of pos. names
-	typedef ConceptNameSet IndividualSet;
+	typedef NamesVector IndividualSet;
 
 		/// typedef for intermediate instance related type
 	typedef TRelatedMap::CIVec CIVec;
