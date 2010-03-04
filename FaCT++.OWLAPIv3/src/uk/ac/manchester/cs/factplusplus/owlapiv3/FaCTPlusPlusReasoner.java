@@ -458,25 +458,40 @@ public class FaCTPlusPlusReasoner extends OWLReasonerBase {
     }
 
     protected DataTypePointer toDataTypePointer(OWLDatatype datatype) {
+        if(datatype == null) {
+            throw new NullPointerException();
+        }
         return kernel.getBuiltInDataType(datatype.toStringID());
     }
 
     protected DataValuePointer toDataValuePointer(OWLLiteral literal) {
-        return kernel.getDataValue(literal.getLiteral(), toDataTypePointer(literal.getDatatype()));
+        if (literal.isOWLTypedLiteral()) {
+            return kernel.getDataValue(literal.getLiteral(), toDataTypePointer(literal.getDatatype()));
+        }
+        else {
+            return kernel.getDataValue(literal.getLiteral(), toDataTypePointer(getOWLDataFactory().getTopDatatype()));
+        }
     }
 
     private NodeSet<OWLNamedIndividual> translateIndividualPointersToNodeSet(IndividualPointer[] pointers) {
         if (getIndividualNodeSetPolicy().equals(IndividualNodeSetPolicy.BY_SAME_AS)) {
             OWLNamedIndividualNodeSet ns = new OWLNamedIndividualNodeSet();
             for (IndividualPointer pointer : pointers) {
-                ns.addNode(individualTranslator.getNodeFromPointers(kernel.askSameAs(pointer)));
+                if (pointer != null) {
+                    IndividualPointer[] sameAsPointers = kernel.askSameAs(pointer);
+                    if (sameAsPointers != null && sameAsPointers.length > 0) {
+                        ns.addNode(individualTranslator.getNodeFromPointers(sameAsPointers));
+                    }
+                }
             }
             return ns;
         }
         else {
             OWLNamedIndividualNodeSet ns = new OWLNamedIndividualNodeSet();
             for (IndividualPointer pointer : pointers) {
-                ns.addEntity(individualTranslator.getEntityFromPointer(pointer));
+                if (pointer != null) {
+                    ns.addEntity(individualTranslator.getEntityFromPointer(pointer));
+                }
             }
             return ns;
         }
@@ -775,13 +790,13 @@ public class FaCTPlusPlusReasoner extends OWLReasonerBase {
         @Override
         protected ObjectPropertyPointer getTopEntityPointer() {
             // TODO: Bloody FaCT!
-            return null;//kernel.getTopObjectProperty();
+            return kernel.getTopObjectProperty();
         }
 
         @Override
         protected ObjectPropertyPointer getBottomEntityPointer() {
             // TODO:
-            return null;//kernel.getBottomObjectProperty();
+            return kernel.getBottomObjectProperty();
         }
 
         @Override
@@ -814,14 +829,12 @@ public class FaCTPlusPlusReasoner extends OWLReasonerBase {
 
         @Override
         protected DataPropertyPointer getTopEntityPointer() {
-            // TODO:
-            return null;//kernel.getTopDataProperty();
+            return kernel.getTopDataProperty();
         }
 
         @Override
         protected DataPropertyPointer getBottomEntityPointer() {
-            // TODO:
-            return null;// kernel.getBottomDataProperty();
+            return kernel.getBottomDataProperty();
         }
 
         @Override
@@ -971,9 +984,7 @@ public class FaCTPlusPlusReasoner extends OWLReasonerBase {
             else if (entity.isOWLDatatype()) {
                 return kernel.tellDatatypeDeclaration(toDataTypePointer(entity.asOWLDatatype()));
             }
-            else {
-                throw new OWLRuntimeException("Unknown entity type: " + entity);
-            }
+            return null;
         }
 
         public AxiomPointer visit(OWLAnnotationAssertionAxiom axiom) {
