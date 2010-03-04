@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2005-2009 by Dmitry Tsarkov
+Copyright (C) 2005-2010 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -16,8 +16,8 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef _TDATAENTRY_H
-#define _TDATAENTRY_H
+#ifndef TDATAENTRY_H
+#define TDATAENTRY_H
 
 #include <cstdlib>
 
@@ -263,6 +263,7 @@ public:		// interface
 		// printing LISP FIXME!!
 	void printLISP ( std::ostream& o ) const
 	{
+		o << ' ';
 		if ( isBasicDataType() )
 			o << "(" << getName() << ")";
 		else if ( isDataValue() )
