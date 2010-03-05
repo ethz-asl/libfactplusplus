@@ -260,7 +260,9 @@ inline TDepSetElement*
 TDepSetElement :: merge ( TDepSetElement* elem )
 {
 #ifdef ENABLE_CHECKING
-	fpp_assert ( Manager == elem->getManager() );
+	if ( elem == NULL )
+		return this;
+	fpp_assert ( Manager == elem->Manager );
 #endif
 	return Manager->merge ( this, elem );
 }
