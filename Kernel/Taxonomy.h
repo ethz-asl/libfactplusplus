@@ -139,13 +139,6 @@ protected:	// methods
 		Current = new TaxonomyVertex (p);
 		curEntry = p;
 	}
-		/// remove top entry
-	void removeTop ( void )
-	{
-		waitStack.pop();
-		delete ksStack.top();
-		ksStack.pop();
-	}
 
 	//-----------------------------------------------------------------
 	//--	General classification support
@@ -209,9 +202,22 @@ protected:	// methods
 
 		/// check if told subsumer P have to be classified during current session
 	virtual bool needToldClassification ( ClassifiableEntry* p ATTR_UNUSED ) const { return true; }
-		/// prepare told subsumers for given entry if necessary
-	virtual KnownSubsumers* buildToldSubsumers ( ClassifiableEntry* p )
+		/// prepare known subsumers for given entry if necessary
+	virtual KnownSubsumers* buildKnownSubsumers ( ClassifiableEntry* p )
 		{ return new ToldSubsumers(p->told_begin(), p->told_end()); }
+		/// add top entry together with its known subsumers
+	void addTop ( ClassifiableEntry* p )
+	{
+		waitStack.push(p);
+		ksStack.push(buildKnownSubsumers(p));
+	}
+		/// remove top entry
+	void removeTop ( void )
+	{
+		waitStack.pop();
+		delete ksStack.top();
+		ksStack.pop();
+	}
 		/// ensure that all TS of top entries are classified. @return true if cycle detected.
 	bool checkToldSubsumers ( void );
 		/// classify top entry in the stack

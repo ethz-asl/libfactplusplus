@@ -173,7 +173,7 @@ replaceSynonymsFromTree ( DLTree* desc )
 			//FIXME!! may be, better use ID for TOP/BOTTOM
 			if ( entry->getId() == -1 )
 				cur = !strcmp(entry->getName(), "TOP") ? TOP : BOTTOM;
-			else
+			else	// FIXME!! MEM-LEAK! the TTNamEn is not freed later
 				cur = TLexeme ( static_cast<TConcept*>(entry)->isSingleton() ? INAME : CNAME, new TTreeNamedEntry(entry) );
 			return true;
 		}

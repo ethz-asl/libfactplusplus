@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2009 by Dmitry Tsarkov
+Copyright (C) 2003-2010 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -25,7 +25,7 @@ DLTree* inverseComposition ( const DLTree* tree )
 		return new DLTree ( TLexeme(RCOMPOSITION),
 							inverseComposition(tree->Right()),
 							inverseComposition(tree->Left()) );
-	else
+	else	// FIXME!! MEM-LEAK! this new TTNamEn is not deleted later, should be produced using central way
 		return new DLTree ( TLexeme ( RNAME, new TTreeNamedEntry(resolveRole(tree)->inverse()) ) );
 }
 

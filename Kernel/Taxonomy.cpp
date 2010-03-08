@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2009 by Dmitry Tsarkov
+Copyright (C) 2003-2010 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -246,7 +246,7 @@ void Taxonomy :: classifyEntry ( ClassifiableEntry* p )
 #ifdef TMP_PRINT_TAXONOMY_INFO
 	std::cout << "\n\nClassifying " << p->getName();
 #endif
-	waitStack.push (p);	// put entry into stack
+	addTop(p);	// put entry into stack
 
 	// classify last concept from the stack
 	while ( !waitStack.empty () )
@@ -268,9 +268,6 @@ bool Taxonomy :: checkToldSubsumers ( void )
 #ifdef TMP_PRINT_TAXONOMY_INFO
 	++level;
 #endif
-		// prepare told subsumers for the top of the stack
-	ksStack.push(buildToldSubsumers(waitStack.top()));
-
 		// check that all the TS are classified (if necessary)
 	for ( ss_iterator p = told_begin(), p_end = told_end(); p < p_end; ++p )
 	{
@@ -286,15 +283,15 @@ bool Taxonomy :: checkToldSubsumers ( void )
 			// check if *q is in stack already
 			if ( waitStack.contains (r) )
 			{	// cycle found
-				waitStack.push (r);		// set last element
-				ret = false;			// false = not all told subsumers are collected
+				addTop(r);		// set last element
+				ret = false;	// not all told subsumers are collected
 				break;
 			}
 
 			if ( !needToldClassification(r) )
 				continue;
 			// else - check all told subsumers of new on
-			waitStack.push (r);
+			addTop(r);
 			ret = checkToldSubsumers ();
 			break;
 		}
