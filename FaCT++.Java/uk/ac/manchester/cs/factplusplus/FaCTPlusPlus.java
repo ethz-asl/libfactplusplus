@@ -40,7 +40,7 @@ public class FaCTPlusPlus {
      * MUST be called when the reasoner is no longer required.  Failure
      * to call dispose, may result in memory leaks!
      */
-    public void dispose() throws Exception {
+    public void dispose() throws FaCTPlusPlusException {
         deleteKernel();
     }
 
