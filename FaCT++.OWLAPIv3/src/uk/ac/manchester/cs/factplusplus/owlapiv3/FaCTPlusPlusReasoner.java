@@ -1286,6 +1286,11 @@ public class FaCTPlusPlusReasoner extends OWLReasonerBase {
         }
     }
 
+    @Override
+    public void dispose() {
+        super.dispose();
+        kernel.dispose();
+    }
 
     private class ProgressMonitorAdapter implements FaCTPlusPlusProgressMonitor {
 
