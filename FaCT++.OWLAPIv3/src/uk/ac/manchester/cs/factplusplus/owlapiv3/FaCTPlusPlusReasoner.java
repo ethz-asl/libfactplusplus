@@ -789,13 +789,11 @@ public class FaCTPlusPlusReasoner extends OWLReasonerBase {
     private class ObjectPropertyTranslator extends OWLEntityTranslator<OWLObjectProperty, ObjectPropertyPointer> {
         @Override
         protected ObjectPropertyPointer getTopEntityPointer() {
-            // TODO: Bloody FaCT!
             return kernel.getTopObjectProperty();
         }
 
         @Override
         protected ObjectPropertyPointer getBottomEntityPointer() {
-            // TODO:
             return kernel.getBottomObjectProperty();
         }
 
