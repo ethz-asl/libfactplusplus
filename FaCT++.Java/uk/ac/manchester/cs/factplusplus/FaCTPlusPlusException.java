@@ -30,7 +30,7 @@ package uk.ac.manchester.cs.factplusplus;
  * Bio-Health Informatics Group<br>
  * Date: 21-Sep-2007<br><br>
  */
-public class FaCTPlusPlusException extends Exception {
+public class FaCTPlusPlusException extends RuntimeException {
 
     
 
