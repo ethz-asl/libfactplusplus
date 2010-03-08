@@ -16,6 +16,8 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
+#include <sstream>
+
 // switch tracing on
 //#define JNI_TRACING
 
@@ -302,6 +304,8 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
 
 	if ( DTName == "http://www.w3.org/2001/XMLSchema#string" )
 		return DataType ( env, getK(env,obj)->getDataTypeCenter().getStringType() );
+	if ( DTName == "http://www.w3.org/2001/XMLSchema#anyURI" )
+		return DataType ( env, getK(env,obj)->getDataTypeCenter().getStringType() );
 
 	if ( DTName == "http://www.w3.org/2001/XMLSchema#integer" )
 		return DataType ( env, getK(env,obj)->getDataTypeCenter().getNumberType());
@@ -318,7 +322,9 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
 	if ( DTName == "http://www.w3.org/2001/XMLSchema#boolean" )
 		return DataType ( env, getK(env,obj)->getDataTypeCenter().getDataType("bool"));
 
-	Throw ( env, "Unsupported datatype in getBuiltInDataType" );
+	std::stringstream err;
+	err << "Unsupported datatype '" << DTName.c_str() << "'";
+	Throw ( env, err.str().c_str() );
 	return (jobject)0;
 }
 
