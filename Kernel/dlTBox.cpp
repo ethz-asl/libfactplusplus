@@ -54,6 +54,7 @@ TBox :: TBox ( const ifOptionSet* Options, const DataTypeCenter& dtCenter )
 	, Consistent(true)
 	, Precompleted(false)
 	, preprocTime(0)
+	, consistTime(0)
 {
 	readConfig ( Options );
 	initTopBottom ();
@@ -213,6 +214,40 @@ TBox :: buildSimpleCache ( void )
 	for ( i_const_iterator i = i_begin(), iend = i_end(); i < iend; ++i )
 		if ( (*i)->isPrimitive() )
 			initSingletonCache(inverse((*i)->pName));
+}
+
+/// check if the ontology is consistent
+bool
+TBox :: performConsistencyCheck ( void )
+{
+	if ( verboseOutput )
+		std::cerr << "Consistency checking...";
+	TsProcTimer pt;
+	pt.Start();
+
+	buildSimpleCache();
+
+	TConcept* test = ( NCFeatures.hasSingletons() ? *i_begin() : NULL );
+	prepareFeatures ( test, NULL );
+	bool ret = false;
+
+	if ( test )
+	{
+		// make a cache for TOP if it is not there
+		if ( DLHeap.getCache(bpTOP) == NULL )
+			initSingletonCache(bpTOP);
+
+		ret = nomReasoner->consistentNominalCloud();
+	}
+	else
+		ret = isSatisfiable(pTop);
+
+	pt.Stop();
+	consistTime = pt;
+	if ( verboseOutput )
+		std::cerr << " done in " << pt << " seconds\n";
+
+	return ret;
 }
 
 bool
@@ -437,9 +472,9 @@ TBox :: writeReasoningResult ( std::ostream& o, float time ) const
 	else
 		o << "KB is inconsistent. Query is NOT processed\nConsistency";
 
-	float sum = preprocTime;
+	float sum = preprocTime + consistTime;
 	o << " check done in " << time << " seconds\nof which:\nPreproc. takes "
-	  << preprocTime << " seconds";
+	  << preprocTime << " seconds\nConsist. takes " << consistTime << " seconds";
 	if ( nomReasoner )
 	{
 		o << "\nReasoning NOM:";
@@ -448,7 +483,10 @@ TBox :: writeReasoningResult ( std::ostream& o, float time ) const
 	o << "\nReasoning STD:";
 	sum += stdReasoner->printReasoningTime(o);
 	o << "\nThe rest takes ";
+	// determine and normalize the rest
 	float f = time - sum;
+	if ( f < 0 )
+		f = 0;
 	f = ((unsigned long)(f*100))/100.f;
 	o << f << " seconds\n";
 	Print(o);

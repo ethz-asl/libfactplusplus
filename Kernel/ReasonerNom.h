@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2009 by Dmitry Tsarkov
+Copyright (C) 2003-2010 by Dmitry Tsarkov
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -16,8 +16,8 @@ along with this program; if not, write to the Free Software
 Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 */
 
-#ifndef _REASONERNOM_H
-#define _REASONERNOM_H
+#ifndef REASONERNOM_H
+#define REASONERNOM_H
 
 #include "Reasoner.h"
 
@@ -41,27 +41,6 @@ TBox :: initReasoner ( void )
 			nomReasoner->initNominalVector();
 		}
 	}
-}
-
-/// check if the ontology is consistent
-inline bool
-TBox :: performConsistencyCheck ( void )
-{
-	buildSimpleCache();
-
-	TConcept* test = ( NCFeatures.hasSingletons() ? *i_begin() : NULL );
-	prepareFeatures ( test, NULL );
-
-	if ( test )
-	{
-		// make a cache for TOP if it is not there
-		if ( DLHeap.getCache(bpTOP) == NULL )
-			initSingletonCache(bpTOP);
-
-		return nomReasoner->consistentNominalCloud();
-	}
-	else
-		return isSatisfiable(pTop);
 }
 
 #endif

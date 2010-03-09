@@ -287,6 +287,8 @@ protected:	// members
 
 		/// time spend for preprocessing
 	float preprocTime;
+		/// time spend for consistency checking
+	float consistTime;
 
 private:	// no copy
 		/// no copy c'tor
