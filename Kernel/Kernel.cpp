@@ -18,6 +18,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "Kernel.h"
 #include "tOntologyLoader.h"
+#include "tOntologyPrinterLISP.h"
 
 const char* ReasoningKernel :: Version = "1.3.0";
 const char* ReasoningKernel :: ProductName =
@@ -31,6 +32,9 @@ static bool KernelFirstRun = true;
 
 // debug related individual/values switch
 //#define FPP_DEBUG_PRINT_RELATED_PROGRESS
+
+// dump loaded ontology in LISP format to the stdout
+//#define FPP_DEBUG_DUMP_LISP_ONTOLOGY
 
 ReasoningKernel :: ReasoningKernel ( void )
 	: pTBox (NULL)
@@ -91,6 +95,11 @@ ReasoningKernel :: processKB ( KBStatus status )
 	{
 		TOntologyLoader OntologyLoader(*getTBox());
 		OntologyLoader.visitOntology(Ontology);
+#	ifdef FPP_DEBUG_DUMP_LISP_ONTOLOGY
+		TLISPOntologyPrinter OntologyPrinter(std::cout);
+		DRoles.fill(OntologyPrinter);
+		OntologyPrinter.visitOntology(Ontology);
+#	endif
 		// after loading ontology became processed completely
 		Ontology.setProcessed();
 	}

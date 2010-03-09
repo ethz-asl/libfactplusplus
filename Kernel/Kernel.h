@@ -97,6 +97,13 @@ protected:	// types
 			for ( iterator p = Base.begin(); p != Base.end(); ++p )
 				p->second->setImpl(NULL);
 		}
+			/// dirty hack for the LISP ontology printing
+		template<class T>
+		void fill ( T& x ) const
+		{
+			for ( const_iterator p = Base.begin(); p != Base.end(); ++p )
+				x.recordDataRole(p->second->getName());
+		}
 	}; // TreeNESet
 
 		/// helper that deletes temporary trees
