@@ -2,7 +2,6 @@ package uk.ac.manchester.cs.factplusplus.protege;
 
 import org.protege.editor.owl.ui.view.ontology.AbstractOntologyRenderingViewComponent;
 import org.semanticweb.owlapi.model.OWLOntology;
-import uk.ac.manchester.cs.factplusplus.owlapiv3.FaCTPlusPlusRenderer;
 
 import java.io.Writer;
 /*
@@ -39,8 +38,9 @@ public class FaCTPlusPlusRenderingViewComponent extends AbstractOntologyRenderin
 
 
     protected void renderOntology(OWLOntology ontology, Writer writer) throws Exception {
-        FaCTPlusPlusRenderer renderer = new FaCTPlusPlusRenderer(writer);
-        ontology.accept(renderer);
-        writer.flush();
+        writer.append("Not implemented for owlapi v3");
+//        FaCTPlusPlusRenderer renderer = new FaCTPlusPlusRenderer(writer);
+//        ontology.accept(renderer);
+//        writer.flush();
     }
 }

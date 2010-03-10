@@ -25,17 +25,14 @@ package uk.ac.manchester.cs.factplusplus.protege;
 
 
 import org.protege.editor.owl.model.inference.ProtegeOWLReasonerFactoryAdapter;
-import org.semanticweb.owlapi.inference.OWLReasoner;
-import org.semanticweb.owlapi.inference.OWLReasonerException;
-import org.semanticweb.owlapi.model.OWLOntologyManager;
-import org.semanticweb.owlapi.model.OWLRuntimeException;
 import org.semanticweb.owlapi.model.OWLOntology;
+import org.semanticweb.owlapi.model.OWLRuntimeException;
+import org.semanticweb.owlapi.reasoner.OWLReasoner;
+import org.semanticweb.owlapi.reasoner.OWLReasonerConfiguration;
+import org.semanticweb.owlapi.reasoner.ReasonerProgressMonitor;
+import org.semanticweb.owlapi.reasoner.SimpleConfiguration;
 
 import javax.swing.*;
-
-import uk.ac.manchester.cs.factplusplus.owlapiv3.Reasoner;
-
-import java.util.Set;
 
 /**
  * Author: Matthew Horridge<br>
@@ -43,26 +40,15 @@ import java.util.Set;
  * Bio-Health Informatics Group<br>
  * Date: 11-May-2007<br><br>
  */
-public class FaCTPlusPlusReasonerFactory extends ProtegeOWLReasonerFactoryAdapter {
+public class FaCTPlusPlusFactory extends ProtegeOWLReasonerFactoryAdapter {
 
-    public OWLReasoner createReasoner(OWLOntologyManager mngr, Set<OWLOntology> ontologies) {
-        OWLReasoner r = createReasoner(mngr);
+    private uk.ac.manchester.cs.factplusplus.owlapiv3.FaCTPlusPlusReasonerFactory fac;
+
+
+    public OWLReasoner createReasoner(OWLOntology owlOntology, ReasonerProgressMonitor reasonerProgressMonitor) {
         try {
-            r.loadOntologies(ontologies);
-        }
-        catch (OWLReasonerException e) {
-            throw new OWLRuntimeException(e);
-        }
-        return r;
-    }
-
-
-    public OWLReasoner createReasoner(OWLOntologyManager owlOntologyManager) {
-        try {
-            Reasoner factPlusPlus = new Reasoner(owlOntologyManager);
-            factPlusPlus.setModeIncremental(true);
-
-            return new FaCTPlusPlusReasonerWrapper(factPlusPlus);
+            OWLReasonerConfiguration conf = new SimpleConfiguration(reasonerProgressMonitor);
+            return fac.createNonBufferingReasoner(owlOntology, conf);
         }
         catch (UnsatisfiedLinkError e) {
             JOptionPane.showMessageDialog(null,
@@ -74,18 +60,16 @@ public class FaCTPlusPlusReasonerFactory extends ProtegeOWLReasonerFactoryAdapte
         }
         catch (Exception e) {
             throw new OWLRuntimeException(e);
-        }    }
+        }
+    }
 
 
     public void initialise() throws Exception {
+        fac = new uk.ac.manchester.cs.factplusplus.owlapiv3.FaCTPlusPlusReasonerFactory();
     }
 
 
     public void dispose() throws Exception {
-    }
-
-
-    public boolean requiresExplicitClassification() {
-        return true;
+        fac = null;
     }
 }
