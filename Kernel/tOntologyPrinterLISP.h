@@ -29,12 +29,13 @@ protected:	// members
 protected:	// methods
 		/// helper to print several expressions in a row
 	template<class Iterator>
-	std::ostream& print ( Iterator beg, Iterator end )
+	void print ( Iterator beg, Iterator end )
 	{
 		for ( ; beg < end; ++beg )
 			o << *beg;
-		return o;
 	}
+		/// helper to print name (w/o one-of) of the individual
+	void pn ( const DLTree* p ) { o << ' ' << p->Element().getName(); }
 
 public:		// visitor interface
 	virtual void visit ( TDLAxiomDeclaration& axiom )
@@ -80,15 +81,15 @@ public:		// visitor interface
 	virtual void visit ( TDLAxiomRoleFunctional& axiom ) { o << "(functional" << axiom.getRole() << ")\n"; }
 
 	virtual void visit ( TDLAxiomConceptInclusion& axiom ) { o << "(implies_c" << axiom.getSubC() << axiom.getSupC() << ")\n"; }
-	virtual void visit ( TDLAxiomInstanceOf& axiom ) { o << "(implies_c" << axiom.getIndividual() << axiom.getC() << ")\n"; }
+	virtual void visit ( TDLAxiomInstanceOf& axiom ) { o << "(instance"; pn(axiom.getIndividual()); o << axiom.getC() << ")\n"; }
 	virtual void visit ( TDLAxiomRelatedTo& axiom )
-		{ o << "(related" << axiom.getIndividual() << axiom.getRelation() << axiom.getRelatedIndividual() << ")\n"; }
+		{ o << "(related"; pn(axiom.getIndividual()); o << axiom.getRelation(); pn(axiom.getRelatedIndividual()); o << ")\n"; }
 	virtual void visit ( TDLAxiomRelatedToNot& axiom )
-		{ o << "(instance" << axiom.getIndividual() << "(all" << axiom.getRelation() << "(not (one-of" << axiom.getRelatedIndividual() << "))))\n"; }
+		{ o << "(instance"; pn(axiom.getIndividual()); o << " (all" << axiom.getRelation() << "(not" << axiom.getRelatedIndividual() << ")))\n"; }
 	virtual void visit ( TDLAxiomValueOf& axiom )
-		{ o << "(instance" << axiom.getIndividual() << "(some" << axiom.getAttribute() << axiom.getValue() << "))\n"; }
+		{ o << "(instance"; pn(axiom.getIndividual()); o << " (some" << axiom.getAttribute() << axiom.getValue() << "))\n"; }
 	virtual void visit ( TDLAxiomValueOfNot& axiom )
-		{ o << "(instance" << axiom.getIndividual() << "(all" << axiom.getAttribute() << "(not " << axiom.getValue() << ")))\n"; }
+		{ o << "(instance"; pn(axiom.getIndividual()); o << " (all" << axiom.getAttribute() << "(not " << axiom.getValue() << ")))\n"; }
 
 public:		// interface
 	TLISPOntologyPrinter ( std::ostream& o_ ) : o(o_) {}

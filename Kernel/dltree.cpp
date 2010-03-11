@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2009 by Dmitry Tsarkov
+Copyright (C) 2003-2010 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -266,8 +266,13 @@ std::ostream& operator << ( std::ostream& o, const DLTree *form )
 	case BOTTOM:
 		o << ' ' << TokenName(lex.getToken());
 		break;
-	case NAME:
+	case RNAME:
+	case DNAME:
+	case CNAME:
 		o << ' ' << lex.getName();
+		break;
+	case INAME:
+		o << " (one-of " << lex.getName() << ')';
 		break;
 
 	case DATAEXPR:
