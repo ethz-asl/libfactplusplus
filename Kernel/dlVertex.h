@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2009 by Dmitry Tsarkov
+Copyright (C) 2003-2010 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -16,8 +16,8 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef _DLVERTEX_H
-#define _DLVERTEX_H
+#ifndef DLVERTEX_H
+#define DLVERTEX_H
 
 #include <vector>
 #include <iostream>
@@ -57,6 +57,7 @@ enum DagTag {
 	dtUAll,		// \dall U.C
 	dtIrr,		// \neg\exists R.Self
 	dtProj,		// aux vertex with Projection FROM the current node
+	dtNN,		// NN-rule was applied
 
 	// ID's
 	dtPConcept,	// primitive concept
@@ -465,6 +466,7 @@ DLVertex :: omitStat ( bool pos ) const
 	case dtDataType:
 	case dtDataValue:
 	case dtDataExpr:
+	case dtNN:
 	case dtBad:
 	case dtTop:
 		return true;

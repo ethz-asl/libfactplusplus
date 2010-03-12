@@ -902,7 +902,7 @@ tacticUsage DlSatTester :: commonTacticBodyFunc ( const DLVertex& cur )	// for <
 #endif
 
 	// check whether we need to apply NN rule first
-	if ( isNNApplicable ( cur.getRole(), bpTOP ) )
+	if ( isNNApplicable ( cur.getRole(), bpTOP, curConcept.bp()+1 ) )
 		return commonTacticBodyNN(cur);	// after application func-rule would be checked again
 
 	incStat(nFuncCalls);
@@ -969,7 +969,7 @@ applyCh:
 		switchResult ( ret, commonTacticBodyChoose ( cur.getRole(), C ) );
 
 	// check whether we need to apply NN rule first
-	if ( isNNApplicable ( cur.getRole(), C ) )
+	if ( isNNApplicable ( cur.getRole(), C, /*stopper=*/curConcept.bp()+cur.getNumberLE() ) )
 	{
 applyNN:
 		return commonTacticBodyNN(cur);	// after application <=-rule would be checked again
@@ -1372,6 +1372,9 @@ tacticUsage DlSatTester :: commonTacticBodyNN ( const DLVertex& cur )	// NN-rule
 	// new (just branched) dep-set
 	const DepSet curDep(getCurDepSet());
 
+	// make a stopper to mark that NN-rule is applied
+	switchResult ( ret, addToDoEntry ( curNode, curConcept.bp() + cur.getNumberLE(), DepSet(), "NNs" ) );
+
 	// create curNN new different edges
 	switchResult ( ret,
 		createDifferentNeighbours ( cur.getRole(), cur.getC(), curDep, NN, curNode->getNominalLevel()+1 ) );
@@ -1387,13 +1390,15 @@ tacticUsage DlSatTester :: commonTacticBodyNN ( const DLVertex& cur )	// NN-rule
 //-------------------------------------------------------------------------------
 
 /// @return true iff NN-rule wrt (<= R) is applicable to the curNode
-bool DlSatTester :: isNNApplicable ( const TRole* r, BipolarPointer C ) const
+bool DlSatTester :: isNNApplicable ( const TRole* r, BipolarPointer C, BipolarPointer stopper ) const
 {
 	// NN rule is only applicable to nominal nodes
 	if ( !curNode->isNominalNode() )
 		return false;
 
-	unsigned int level = curNode->getNominalLevel()+1;
+	// check whether the NN-rule was already applied here for a given concept
+	if ( curNode->isLabelledBy(stopper) )
+		return false;
 
 	// check for the real applicability of the NN-rule here
 	DlCompletionTree::const_edge_iterator p, p_end = curNode->end(), q;
@@ -1401,18 +1406,12 @@ bool DlSatTester :: isNNApplicable ( const TRole* r, BipolarPointer C ) const
 	{
 		const DlCompletionTree* suspect = (*p)->getArcEnd();
 
+		// if there is an edge that require to run the rule, then we need it
 		if ( (*p)->isPredEdge() && suspect->isBlockableNode() && (*p)->isNeighbour(r) && suspect->isLabelledBy(C) )
 		{
-			// have to fire NN-rule. Check whether we did this earlier
-			for ( q = curNode->begin(); q != p_end; ++q )
-				if ( (*q)->isPredEdge() && (*q)->getArcEnd()->isNominalNode(level) && (*q)->isNeighbour(r)
-					 && (*q)->getArcEnd()->isLabelledBy(C) )
-					return false;	// we already created at least one edge based on that rule
-
 			if ( LLM.isWritable(llGTA) )
 				LL << " NN(" << suspect->getId() << ")";
 
-			// no such edges were created => have to run NN-rule
 			return true;
 		}
 	}

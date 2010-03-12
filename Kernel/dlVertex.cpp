@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2009 by Dmitry Tsarkov
+Copyright (C) 2003-2010 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -277,6 +277,7 @@ const char* DLVertex :: getTagName ( void ) const
 	case dtUAll:	return "all U";
 	case dtIrr:		return "irreflexive";
 	case dtProj:	return "projection";
+	case dtNN:		return "NN-stopper";
 	default:		return "UNKNOWN";
 	};
 }
@@ -296,9 +297,12 @@ DLVertex :: Print ( std::ostream& o ) const
 	{
 	case dtAnd:		// nothing to do (except for printing operands)
 	case dtCollection:
-	case dtTop:
-	case dtUAll:
 		break;
+
+	case dtTop:		// nothing to do
+	case dtUAll:
+	case dtNN:
+		return;
 
 	case dtDataExpr:
 		o << ' ' << *static_cast<const TDataEntry*>(getConcept())->getFacet();

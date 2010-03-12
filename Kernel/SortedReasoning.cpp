@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2009 by Dmitry Tsarkov
+Copyright (C) 2003-2010 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -89,6 +89,7 @@ void DLDag :: mergeSorts ( DLVertex& v )
 	case dtDataType:	// nothing to do
 	case dtDataValue:
 	case dtDataExpr:
+	case dtNN:
 		break;
 	case dtTop:
 	default:

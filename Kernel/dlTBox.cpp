@@ -563,6 +563,9 @@ void TBox :: PrintDagEntry ( std::ostream& o, BipolarPointer p ) const
 		o << " => " << v.getProjRole()->getName() << ")";
 		return;
 
+	case dtNN:	// shouldn't appears in the expressions
+		fpp_unreachable();
+
 	default:	// invalid value
 		std::cerr << "Error printing vertex of type " << v.getTagName() << "(" << v.Type () << ")";
 		fpp_unreachable();

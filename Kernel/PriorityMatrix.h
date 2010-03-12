@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2009 by Dmitry Tsarkov
+Copyright (C) 2003-2010 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -16,8 +16,8 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef _PRIORITYMATRIX_H
-#define _PRIORITYMATRIX_H
+#ifndef PRIORITYMATRIX_H
+#define PRIORITYMATRIX_H
 
 #include "eFaCTPlusPlus.h"
 #include "dlVertex.h"	// DagTag
@@ -103,6 +103,7 @@ inline unsigned int ToDoPriorMatrix :: getIndex ( DagTag Op, bool Sign, bool Nom
 	case dtDataType:
 	case dtDataValue:
 	case dtDataExpr:
+	case dtNN:
 	case dtTop:			// no need to process these ops
 		return nRegularOps;
 

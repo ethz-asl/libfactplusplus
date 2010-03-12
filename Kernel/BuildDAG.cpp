@@ -45,10 +45,10 @@ void TBox :: buildDAG ( void )
 	// builds functional labels for roles
 	for ( RoleMaster::iterator p = ORM.begin(), p_end = ORM.end(); p < p_end; ++p )
 		if ( !(*p)->isSynonym() && (*p)->isTopFunc() )
-			(*p)->setFunctional ( DLHeap.add ( new DLVertex ( dtLE, 1, *p, bpTOP ) ) );
+			(*p)->setFunctional ( atmost2dag ( 1, *p, bpTOP ) );
 	for ( RoleMaster::iterator p = DRM.begin(), p_end = DRM.end(); p < p_end; ++p )
 		if ( !(*p)->isSynonym() && (*p)->isTopFunc() )
-			(*p)->setFunctional ( DLHeap.add ( new DLVertex ( dtLE, 1, *p, bpTOP ) ) );
+			(*p)->setFunctional ( atmost2dag ( 1, *p, bpTOP ) );
 
 	// make the temp concept
 	concept2dag(pTemp);
@@ -247,6 +247,9 @@ BipolarPointer TBox :: atmost2dag ( unsigned int n, const TRole* R, BipolarPoint
 	// create entries for the transitive sub-roles
 	for ( unsigned int m = n-1; m > 0; --m )
 		DLHeap.directAddAndCache ( new DLVertex ( dtLE, m, R, C ) );
+
+	// create a blocker for the NN-rule
+	DLHeap.directAddAndCache(new DLVertex(dtNN));
 
 	return ret;
 }

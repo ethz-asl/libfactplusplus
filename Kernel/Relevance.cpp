@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2005-2009 by Dmitry Tsarkov
+Copyright (C) 2005-2010 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -42,6 +42,7 @@ void TBox :: setRelevant ( BipolarPointer p )
 	case dtDataType:	// types and values are not relevant
 	case dtDataValue:
 	case dtDataExpr:
+	case dtNN:			// not appear in any expression => not relevant
 		break;
 
 	case dtPConcept:	// negated primitive entries -- does nothing

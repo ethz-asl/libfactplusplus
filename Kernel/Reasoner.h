@@ -16,8 +16,8 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef _REASONER_H
-#define _REASONER_H
+#ifndef REASONER_H
+#define REASONER_H
 
 #include "globaldef.h"
 #include "tBranchingContext.h"
@@ -517,7 +517,7 @@ protected:	// methods
 		/// @return true iff current node is i-blocked (ie, no expansion necessary)
 	bool isIBlocked ( void ) const { return curNode->isIBlocked(); }
 		/// @return true iff NN-rule wrt (<= R.C) is applicable to the curNode
-	bool isNNApplicable ( const TRole* r, BipolarPointer C ) const;
+	bool isNNApplicable ( const TRole* r, BipolarPointer C, BipolarPointer stopper ) const;
 		/// apply rule-like actions for the concept P
 	tacticUsage applyExtraRules ( const TConcept* p );
 		/// apply rule-like actions for the concept P if necessary
