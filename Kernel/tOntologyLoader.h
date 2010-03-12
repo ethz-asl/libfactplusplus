@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2009 by Dmitry Tsarkov
+Copyright (C) 2003-2010 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -197,7 +197,8 @@ public:		// visitor interface
 	{
 		ensureNames(axiom.getIndividual());
 		ensureNames(axiom.getC());
-		kb.RegisterInstance ( getIndividual ( axiom.getIndividual(), "Individual expected in Instance axiom" ), clone(axiom.getC()) );
+		getIndividual ( axiom.getIndividual(), "Individual expected in Instance axiom" );
+		kb.addSubsumeAxiom ( clone(axiom.getIndividual()), clone(axiom.getC()) );
 	}
 	virtual void visit ( TDLAxiomRelatedTo& axiom )
 	{
@@ -218,34 +219,37 @@ public:		// visitor interface
 		if ( isUniversalRole(axiom.getRelation()) )	// inconsistent ontology
 			throw EFPPInconsistentKB();
 		// make sure everything is consistent
+		getIndividual ( axiom.getIndividual(), "Individual expected in Related To Not axiom" ),
 		getIndividual ( axiom.getRelatedIndividual(), "Individual expected in Related To Not axiom" );
 		// make an axiom i:AR.\neg{j}
-		kb.RegisterInstance (
-				getIndividual ( axiom.getIndividual(), "Individual expected in Related To Not axiom" ),
+		kb.addSubsumeAxiom (
+				clone(axiom.getIndividual()),
 				createSNFForall ( clone(axiom.getRelation()), createSNFNot(clone(axiom.getRelatedIndividual())) ) );
 	}
 	virtual void visit ( TDLAxiomValueOf& axiom )
 	{
 		ensureNames(axiom.getIndividual());
 		ensureNames(axiom.getAttribute());
+		getIndividual ( axiom.getIndividual(), "Individual expected in Value Of axiom" );
 		// FIXME!! think about ensuring the value
 		if ( isUniversalRole(axiom.getAttribute()) )	// data role can't be universal
 			throw EFPPInconsistentKB();
 		// make an axiom i:EA.V
-		kb.RegisterInstance (
-				getIndividual ( axiom.getIndividual(), "Individual expected in Value Of axiom" ),
+		kb.addSubsumeAxiom (
+				clone(axiom.getIndividual()),
 				createSNFExists ( clone(axiom.getAttribute()), clone(axiom.getValue())) );
 	}
 	virtual void visit ( TDLAxiomValueOfNot& axiom )
 	{
 		ensureNames(axiom.getIndividual());
 		ensureNames(axiom.getAttribute());
+		getIndividual ( axiom.getIndividual(), "Individual expected in Value Of Not axiom" );
 		// FIXME!! think about ensuring the value
 		if ( isUniversalRole(axiom.getAttribute()) )	// data role can't be universal
 			throw EFPPInconsistentKB();
 		// make an axiom i:AA.\neg V
-		kb.RegisterInstance (
-				getIndividual ( axiom.getIndividual(), "Individual expected in Value Of Not axiom" ),
+		kb.addSubsumeAxiom (
+				clone(axiom.getIndividual()),
 				createSNFForall ( clone(axiom.getAttribute()), createSNFNot(clone(axiom.getValue()))) );
 	}
 

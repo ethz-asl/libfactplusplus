@@ -900,13 +900,7 @@ public:
 		Individuals.setLocked(val);
 		return Concepts.setLocked(val);
 	}
-
-	void RegisterInstance ( TNamedEntry* name, DLTree* Desc )
-	{
-		if ( !isIndividual(name) )
-			throw EFaCTPlusPlus("Individual expected in instance()");
-		addSubsumeAxiom ( toIndividual(name), Desc );
-	}
+		/// register individual relation <a,b>:R
 	void RegisterIndividualRelation ( TNamedEntry* a, TNamedEntry* R, TNamedEntry* b )
 	{
 		if ( !isIndividual(a) || !isIndividual(b) )
