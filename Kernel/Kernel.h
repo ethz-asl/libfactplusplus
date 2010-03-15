@@ -887,8 +887,18 @@ public:
 	{
 		realiseKB();	// ensure KB is ready to answer the query
 		setUpCache ( C, csClassified );
-		cachedVertex->getRelativesInfo</*needCurrent=*/true, /*onlyDirect=*/true,
-									   /*upDirection=*/false>(actor);
+
+		// implement 1-level check by hand
+
+		// if the root vertex contains individuals -- we are done
+		if ( actor.apply(*cachedVertex) )
+			return;
+
+		// if not, just go 1 level down and apply the actor regardless of what's found
+		// FIXME!! check again after bucket-method will be implemented
+		for ( TaxonomyVertex::iterator p = cachedVertex->begin(/*upDirection=*/false),
+				p_end = cachedVertex->end(/*upDirection=*/false); p < p_end; ++p )
+			actor.apply(**p);
 	}
 
 		/// apply actor::apply() to all instances of given [complex] C
