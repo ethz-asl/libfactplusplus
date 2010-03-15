@@ -1909,7 +1909,7 @@ JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlu
 {
 	TRACE_JNI("askInstances");
 	TRACE_ARG(env,obj,arg);
-	JTaxonomyActor<IndividualPolicy> actor(env,obj);
+	JTaxonomyActor<IndividualPolicy</*plain=*/true> > actor(env,obj);
 	DLTree* p = getROTree(env,arg);
 	PROCESS_ASK_QUERY ( direct ? getK(env,obj)->getDirectInstances(p,actor) : getK(env,obj)->getInstances(p,actor),"askInstances");
 	return actor.getElements();
@@ -1925,7 +1925,7 @@ JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlu
 {
 	TRACE_JNI("askSameAs");
 	TRACE_ARG(env,obj,arg);
-	JTaxonomyActor<IndividualPolicy> actor(env,obj);
+	JTaxonomyActor<IndividualPolicy</*plain=*/true> > actor(env,obj);
 	PROCESS_ASK_QUERY ( getK(env,obj)->getSameAs ( getROTree(env,arg), actor ),"askSameAs");
 	return actor.getSynonyms();
 }

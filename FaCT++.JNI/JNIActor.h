@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2006-2009 by Dmitry Tsarkov
+Copyright (C) 2006-2010 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -16,8 +16,8 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef _JNIACTOR_H
-#define _JNIACTOR_H
+#ifndef JNIACTOR_H
+#define JNIACTOR_H
 
 #include <jni.h>
 #include "JNISupport.h"
@@ -133,13 +133,14 @@ public:
 }; // ClassPolicy
 
 /// policy for individuals
+template<bool plain>
 class IndividualPolicy
 {
 public:
 	static const char* getClassName ( void ) { return cnIndividualPointer(); }
 	static bool applicable ( const ClassifiableEntry* p )
 		{ return static_cast<const TConcept*>(p)->isSingleton(); }
-	static bool needPlain ( void ) { return true; }
+	static bool needPlain ( void ) { return plain; }
 	static DLTree* buildTree ( ReasoningKernel* K, const ClassifiableEntry* p )
 		{ return getIName ( K, p->getName() ); }
 }; // IndividualPolicy
