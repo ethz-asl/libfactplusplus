@@ -149,6 +149,8 @@ protected:	// members
 
 		/// set if TBox throws an exception during preprocessing/classification
 	bool reasoningFailed;
+		/// timeout value
+	unsigned long OpTimeout;
 
 private:	// no copy
 		/// no copy c'tor
@@ -304,6 +306,14 @@ public:	// general staff
 	void writeReasoningResult ( std::ostream& o, float time ) const
 		{ getTBox()->writeReasoningResult ( o, time ); }
 
+		/// set timeout value to VALUE
+	void setOperationTimeout ( unsigned long value )
+	{
+		OpTimeout = value;
+		if ( pTBox != NULL )
+			pTBox->setTestTimeout(value);
+	}
+
 	//----------------------------------------------
 	//-- save/load interface; implementation in SaveLoad.cpp
 	//----------------------------------------------
@@ -368,6 +378,7 @@ public:
 			return true;
 
 		pTBox = new TBox ( getOptions(), DTCenter );
+		pTBox->setTestTimeout(OpTimeout);
 		initCacheAndFlags();
 #	ifdef OWLAPI3
 		declare(ObjectRole("http://www.w3.org/2002/07/owl#topObjectProperty"));

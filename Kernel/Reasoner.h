@@ -896,7 +896,7 @@ public:
 		/// set blocking method for a session
 	void setBlockingMethod ( bool hasInverse, bool hasQCR ) { CGraph.setBlockingMethod ( hasInverse, hasQCR ); }
 		/// set SAT test timeout
-	void setTestTimeout ( unsigned int nSec ) { testTimeout = nSec; }
+	void setTestTimeout ( unsigned int ms ) { testTimeout = ms; }
 
 		/// return [singleton] cache for given concept implementation
 	const modelCacheInterface* createModelCache ( BipolarPointer p ) const
@@ -1072,6 +1072,18 @@ inline tacticUsage DlSatTester :: commonTacticBodyAll ( const DLVertex& cur )
 //-----------------------------------------------------------------------------
 //--		implemenation of reasoner-related parts of TBox
 //-----------------------------------------------------------------------------
+
+/// set the value of a test timeout in milliseconds to VALUE
+inline void
+TBox :: setTestTimeout ( unsigned long value )
+{
+	testTimeout = value;
+	if ( stdReasoner != NULL )
+		stdReasoner->setTestTimeout(value);
+	if ( nomReasoner != NULL )
+		nomReasoner->setTestTimeout(value);
+}
+
 
 inline bool
 TBox::TSimpleRule :: applicable ( DlSatTester& Reasoner ) const { return Reasoner.applicable(*this); }

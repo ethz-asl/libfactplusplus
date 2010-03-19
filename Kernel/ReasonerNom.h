@@ -35,10 +35,13 @@ TBox :: initReasoner ( void )
 		GCIs.setReflexive(ORM.hasReflexiveRoles());
 
 		stdReasoner = new DlSatTester ( *this, pOptions );
+		stdReasoner->setTestTimeout(testTimeout);
+
 		if ( NCFeatures.hasSingletons() )
 		{
 			nomReasoner = new DlSatTester ( *this, pOptions );
 			nomReasoner->initNominalVector();
+			nomReasoner->setTestTimeout(testTimeout);
 		}
 	}
 }

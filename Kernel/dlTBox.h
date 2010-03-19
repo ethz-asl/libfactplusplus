@@ -254,6 +254,9 @@ protected:	// members
 		/// fairness constraints
 	ConceptVector Fairness;
 
+		/// single SAT/SUB test timeout in milliseconds
+	unsigned long testTimeout;
+
 	/////////////////////////////////////////////////////
 	// Flags section
 	/////////////////////////////////////////////////////
@@ -841,6 +844,9 @@ public:
 	RoleMaster* getRM ( const TRole* R ) { return R->isDataRole() ? getDRM() : getORM(); }
 		/// get RO access to the RoleMaster depending of the R
 	const RoleMaster* getRM ( const TRole* R ) const { return R->isDataRole() ? getDRM() : getORM(); }
+
+		/// set the value of a test timeout in milliseconds to VALUE
+	void setTestTimeout ( unsigned long value );
 
 //-----------------------------------------------------------------------------
 //--		public parser ensure* interface

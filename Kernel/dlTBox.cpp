@@ -374,6 +374,10 @@ void TBox :: readConfig ( const ifOptionSet* Options )
 		 || !Axioms.isAbsorptionFlagsCorrect(useRangeDomain) )
 		throw EFaCTPlusPlus ( "Incorrect absorption flags given" );
 
+	setTestTimeout(Options->getInt("testTimeout"));
+	if ( LLM.isWritable(llAlways) )
+		LL << "Init testTimeout = " << testTimeout << "\n";
+
 	verboseOutput = false;
 #undef addBoolOption
 }

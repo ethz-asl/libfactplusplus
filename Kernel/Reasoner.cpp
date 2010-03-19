@@ -82,9 +82,6 @@ void DlSatTester :: readConfig ( const ifOptionSet* Options )
 	addBoolOption(useLazyBlocking);
 	addBoolOption(useAnywhereBlocking);
 #undef addBoolOption
-	setTestTimeout(Options->getInt("testTimeout"));
-	if ( LLM.isWritable(llAlways) )
-		LL << "Init testTimeout = " << testTimeout << "\n";
 }
 
 /// prerpare Nominal Reasoner to a new job
