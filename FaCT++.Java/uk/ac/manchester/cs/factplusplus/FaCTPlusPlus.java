@@ -464,6 +464,9 @@ public class FaCTPlusPlus {
 
     public native IndividualPointer [] askInstances(ClassPointer c, boolean direct) throws FaCTPlusPlusException;
 
+    // return instances grouped by the SameAs relation
+    public native IndividualPointer [][] askInstancesGrouped(ClassPointer c, boolean direct) throws FaCTPlusPlusException;
+
 
     /**
      * This method is deprecated and might be removed in the future releases
@@ -481,7 +484,8 @@ public class FaCTPlusPlus {
     //
     // Options
 
-
+    // sets single operation timeout in milliseconds
+    public native void setOperationTimeout(long millis);
 
 
     ///////////////////////////////////////////////////////////////////////////////////////////////

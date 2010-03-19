@@ -1917,6 +1917,22 @@ JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlu
 
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
+ * Method:    askInstancesGrouped
+ * Signature: (Luk/ac/manchester/cs/factplusplus/ClassPointer;Z)[[Luk/ac/manchester/cs/factplusplus/IndividualPointer;
+ */
+JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_askInstancesGrouped
+  (JNIEnv * env, jobject obj, jobject arg, jboolean direct)
+{
+	TRACE_JNI("askInstancesGrouped");
+	TRACE_ARG(env,obj,arg);
+	JTaxonomyActor<IndividualPolicy</*plain=*/false> > actor(env,obj);
+	DLTree* p = getROTree(env,arg);
+	PROCESS_ASK_QUERY ( direct ? getK(env,obj)->getDirectInstances(p,actor) : getK(env,obj)->getInstances(p,actor),"askInstances");
+	return actor.getElements();
+}
+
+/*
+ * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
  * Method:    askSameAs
  * Signature: (Luk/ac/manchester/cs/factplusplus/IndividualPointer;)[Luk/ac/manchester/cs/factplusplus/IndividualPointer;
  */
@@ -1944,6 +1960,18 @@ JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_is
 	bool ret = false;
 	PROCESS_ASK_QUERY ( ret=getK(env,obj)->isSameIndividuals ( getROTree(env,arg1), getROTree(env,arg2) ),"isSameAs");
 	return ret;
+}
+
+/*
+ * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
+ * Method:    setOperationTimeout
+ * Signature: (J)V
+ */
+JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_setOperationTimeout
+(JNIEnv * env, jobject obj, jlong delay)
+{
+	TRACE_JNI("setOperationTimeout");
+	getK(env,obj)->setOperationTimeout(delay > 0 ? static_cast<unsigned long>(delay) : 0);
 }
 
 //-------------------------------------------------------------
