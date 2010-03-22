@@ -68,6 +68,7 @@ public class FaCTPlusPlusReasoner extends OWLReasonerBase {
         super(rootOntology, configuration, bufferingMode);
         loadReasonerAxioms();
         kernel.setProgressMonitor(new ProgressMonitorAdapter());
+        kernel.setOperationTimeout(configuration.getTimeOut());
     }
 
     @Override
@@ -328,7 +329,7 @@ public class FaCTPlusPlusReasoner extends OWLReasonerBase {
 
         private Map<E, P> entity2PointerMap = new HashMap<E, P>();
 
-        private Map<P, E> pointer2EntityMap = new HashMap<P, E>();
+        protected Map<P, E> pointer2EntityMap = new HashMap<P, E>();
 
         protected OWLEntityTranslator() {
             E topEntity = getTopEntity();
@@ -442,19 +443,26 @@ public class FaCTPlusPlusReasoner extends OWLReasonerBase {
         OWLObjectPropertyExpression simp = propertyExpression.getSimplified();
         if (simp.isAnonymous()) {
             OWLObjectInverseOf inv = (OWLObjectInverseOf) simp;
-            return kernel.getInverseProperty(kernel.getObjectProperty(inv.getInverse().asOWLObjectProperty().toStringID()));
+            return kernel.getInverseProperty(objectPropertyTranslator.getPointerFromEntity(inv.getInverse().asOWLObjectProperty()));
         }
         else {
-            return kernel.getObjectProperty(simp.asOWLObjectProperty().toStringID());
+            return objectPropertyTranslator.getPointerFromEntity(simp.asOWLObjectProperty());
         }
     }
 
     protected DataPropertyPointer toDataPropertyPointer(OWLDataPropertyExpression propertyExpression) {
-        return kernel.getDataProperty(propertyExpression.asOWLDataProperty().getIRI().toString());
+        return dataPropertyTranslator.getPointerFromEntity(propertyExpression.asOWLDataProperty());
     }
 
     protected IndividualPointer toIndividualPointer(OWLIndividual individual) {
-        return kernel.getIndividual(individual.toStringID());
+//        return kernel.getIndividual(individual.toStringID());
+        if (!individual.isAnonymous()) {
+            return individualTranslator.getPointerFromEntity(individual.asOWLNamedIndividual());
+        }
+        else {
+            return kernel.getIndividual(individual.toStringID());
+//            throw new RuntimeException("Anonymous individuals not supported");
+        }
     }
 
     protected DataTypePointer toDataTypePointer(OWLDatatype datatype) {
@@ -474,27 +482,28 @@ public class FaCTPlusPlusReasoner extends OWLReasonerBase {
     }
 
     private NodeSet<OWLNamedIndividual> translateIndividualPointersToNodeSet(IndividualPointer[] pointers) {
-        if (getIndividualNodeSetPolicy().equals(IndividualNodeSetPolicy.BY_SAME_AS)) {
+//        if (getIndividualNodeSetPolicy().equals(IndividualNodeSetPolicy.BY_SAME_AS)) {
+//            OWLNamedIndividualNodeSet ns = new OWLNamedIndividualNodeSet();
+//            for (IndividualPointer pointer : pointers) {
+//                if (pointer != null) {
+//                    IndividualPointer[] sameAsPointers = kernel.askSameAs(pointer);
+//                    if (sameAsPointers != null && sameAsPointers.length > 0) {
+//                        ns.addNode(individualTranslator.getNodeFromPointers(sameAsPointers));
+//                    }
+//                }
+//            }
+//            return ns;
+//        }
+//        else {
             OWLNamedIndividualNodeSet ns = new OWLNamedIndividualNodeSet();
             for (IndividualPointer pointer : pointers) {
                 if (pointer != null) {
-                    IndividualPointer[] sameAsPointers = kernel.askSameAs(pointer);
-                    if (sameAsPointers != null && sameAsPointers.length > 0) {
-                        ns.addNode(individualTranslator.getNodeFromPointers(sameAsPointers));
-                    }
+                    OWLNamedIndividual ind = individualTranslator.getEntityFromPointer(pointer);
+                    ns.addEntity(ind);
                 }
             }
             return ns;
-        }
-        else {
-            OWLNamedIndividualNodeSet ns = new OWLNamedIndividualNodeSet();
-            for (IndividualPointer pointer : pointers) {
-                if (pointer != null) {
-                    ns.addEntity(individualTranslator.getEntityFromPointer(pointer));
-                }
-            }
-            return ns;
-        }
+//        }
     }
 
     private void translateIndividualSet(Set<OWLIndividual> inds) {
@@ -777,12 +786,12 @@ public class FaCTPlusPlusReasoner extends OWLReasonerBase {
 
         @Override
         protected DefaultNode<OWLNamedIndividual> createDefaultNode() {
-            return null;
+            return new OWLNamedIndividualNode();
         }
 
         @Override
         protected DefaultNodeSet<OWLNamedIndividual> createDefaultNodeSet() {
-            return null;
+            return new OWLNamedIndividualNodeSet();
         }
     }
 
@@ -1289,6 +1298,12 @@ public class FaCTPlusPlusReasoner extends OWLReasonerBase {
     @Override
     public void dispose() {
         super.dispose();
+        axiomTranslator = new AxiomTranslator();
+        classExpressionTranslator = new ClassExpressionTranslator();
+        dataRangeTranslator = new DataRangeTranslator();
+        objectPropertyTranslator = new ObjectPropertyTranslator();
+        dataPropertyTranslator = new DataPropertyTranslator();
+        individualTranslator = new IndividualTranslator();
         kernel.dispose();
     }
 
