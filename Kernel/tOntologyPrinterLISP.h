@@ -34,6 +34,13 @@ protected:	// methods
 		for ( ; beg < end; ++beg )
 			o << *beg;
 	}
+		/// helper to print several individuals in a row
+	template<class Iterator>
+	void printInd ( Iterator beg, Iterator end )
+	{
+		for ( ; beg < end; ++beg )
+			pn(*beg);
+	}
 		/// helper to print name (w/o one-of) of the individual
 	void pn ( const DLTree* p ) { o << ' ' << p->Element().getName(); }
 
@@ -41,6 +48,10 @@ public:		// visitor interface
 	virtual void visit ( TDLAxiomDeclaration& axiom )
 	{
 		const DLTree* decl = axiom.getDeclaration();
+		// do not print TOP/BOT
+		if ( decl->Element() == TOP || decl->Element() == BOTTOM )
+			return;
+
 		o << "(def";
 		switch ( decl->Element().getToken() )
 		{
@@ -49,7 +60,9 @@ public:		// visitor interface
 			break;
 		case INAME:
 			o << "individual";
-			break;
+			pn(decl);
+			o << ")\n";
+			return;
 		case RNAME:
 			o << "primrole";
 			break;
@@ -66,8 +79,8 @@ public:		// visitor interface
 	virtual void visit ( TDLAxiomDisjointConcepts& axiom ) { o << "(disjoint_c"; print ( axiom.begin(), axiom.end() ); o << ")\n"; }
 	virtual void visit ( TDLAxiomEquivalentRoles& axiom ) { o << "(equal_r"; print ( axiom.begin(), axiom.end() ); o << ")\n"; }
 	virtual void visit ( TDLAxiomDisjointRoles& axiom ) { o << "(disjoint_r"; print ( axiom.begin(), axiom.end() ); o << ")\n"; }
-	virtual void visit ( TDLAxiomSameIndividuals& axiom ) { o << "(same"; print ( axiom.begin(), axiom.end() ); o << ")\n"; }
-	virtual void visit ( TDLAxiomDifferentIndividuals& axiom ) { o << "(different"; print ( axiom.begin(), axiom.end() ); o << ")\n"; }
+	virtual void visit ( TDLAxiomSameIndividuals& axiom ) { o << "(same"; printInd ( axiom.begin(), axiom.end() ); o << ")\n"; }
+	virtual void visit ( TDLAxiomDifferentIndividuals& axiom ) { o << "(different"; printInd ( axiom.begin(), axiom.end() ); o << ")\n"; }
 	virtual void visit ( TDLAxiomFairnessConstraint& axiom ) { o << "(fairness"; print ( axiom.begin(), axiom.end() ); o << ")\n"; }
 
 	virtual void visit ( TDLAxiomRoleSubsumption& axiom ) { o << "(implies_r" << axiom.getSubRole() << axiom.getRole() << ")\n"; }
