@@ -14,11 +14,16 @@ package uk.ac.manchester.cs.factplusplus;
  * class requires the FaCT++ JNI library for the appropriate
  * platform.
  */
+import java.lang.System;
+
 public class FaCTPlusPlus {
 
     static {
         // Load the FaCT++ JNI library
-        System.loadLibrary("FaCTPlusPlusJNI");
+	if (System.getProperty("factpp.jni.path","nope") == "nope")
+	    { System.loadLibrary("FaCTPlusPlusJNI"); }
+	else
+	    { System.load(System.getProperty("factpp.jni.path")); }
     }
 
     /**
