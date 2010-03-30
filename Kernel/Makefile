@@ -45,5 +45,6 @@ SOURCES = \
           Precomplete.cpp\
           SaveLoad.cpp\
           ReasonerNom.cpp\
+          tExpressionManager.cpp\
 
 include ../Makefile.include

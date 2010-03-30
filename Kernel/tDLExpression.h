@@ -26,27 +26,43 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 class TDLExpression;
 
 class TDLConceptExpression;
+class TDLConceptTop;
+class TDLConceptBottom;
 
 class TDLRoleExpression;
 class TDLObjectRoleExpression;
+class TDLObjectRoleTop;
+class TDLObjectRoleBottom;
 
 class TDLDataRoleExpression;
+class TDLDataRoleTop;
+class TDLDataRoleBottom;
 
 class TDLIndividualExpression;
 
 class TDLDataExpression;
+class TDLDataTop;
+class TDLDataBottom;
 
 /// general visitor for DL expressions
 class DLExpressionVisitor
 {
 public:		// visitor interface
 	// concept expressions
+	virtual void visit ( TDLConceptTop& expr ) = 0;
+	virtual void visit ( TDLConceptBottom& expr ) = 0;
 
 	// object role expressions
+	virtual void visit ( TDLObjectRoleTop& expr ) = 0;
+	virtual void visit ( TDLObjectRoleBottom& expr ) = 0;
 
 	// data role expressions
+	virtual void visit ( TDLDataRoleTop& expr ) = 0;
+	virtual void visit ( TDLDataRoleBottom& expr ) = 0;
 
 	// data expressions
+	virtual void visit ( TDLDataTop& expr ) = 0;
+	virtual void visit ( TDLDataBottom& expr ) = 0;
 
 	// other methods
 	virtual ~DLExpressionVisitor ( void ) {}
@@ -86,6 +102,37 @@ public:		// interface
 		/// accept method for the visitor pattern
 	void accept ( DLExpressionVisitor& visitor ) = 0;
 }; // TDLConceptExpression
+
+//------------------------------------------------------------------
+///	concept TOP expression
+//------------------------------------------------------------------
+class TDLConceptTop: public TDLConceptExpression
+{
+public:		// interface
+		/// empty c'tor
+	TDLConceptTop ( void ) : TDLConceptExpression() {}
+		/// empty d'tor
+	virtual ~TDLConceptTop ( void ) {}
+
+		/// accept method for the visitor pattern
+	void accept ( DLExpressionVisitor& visitor ) { visitor.visit(*this); }
+}; // TDLConceptTop
+
+//------------------------------------------------------------------
+///	concept BOTTOM expression
+//------------------------------------------------------------------
+class TDLConceptBottom: public TDLConceptExpression
+{
+public:		// interface
+		/// empty c'tor
+	TDLConceptBottom ( void ) : TDLConceptExpression() {}
+		/// empty d'tor
+	virtual ~TDLConceptBottom ( void ) {}
+
+		/// accept method for the visitor pattern
+	void accept ( DLExpressionVisitor& visitor ) { visitor.visit(*this); }
+}; // TDLConceptBottom
+
 
 
 //------------------------------------------------------------------
@@ -129,6 +176,36 @@ public:		// interface
 	void accept ( DLExpressionVisitor& visitor ) = 0;
 }; // TDLObjectRoleExpression
 
+//------------------------------------------------------------------
+///	object role TOP expression
+//------------------------------------------------------------------
+class TDLObjectRoleTop: public TDLObjectRoleExpression
+{
+public:		// interface
+		/// empty c'tor
+	TDLObjectRoleTop ( void ) : TDLObjectRoleExpression() {}
+		/// empty d'tor
+	virtual ~TDLObjectRoleTop ( void ) {}
+
+		/// accept method for the visitor pattern
+	void accept ( DLExpressionVisitor& visitor ) { visitor.visit(*this); }
+}; // TDLObjectRoleTop
+
+//------------------------------------------------------------------
+///	object role BOTTOM expression
+//------------------------------------------------------------------
+class TDLObjectRoleBottom: public TDLObjectRoleExpression
+{
+public:		// interface
+		/// empty c'tor
+	TDLObjectRoleBottom ( void ) : TDLObjectRoleExpression() {}
+		/// empty d'tor
+	virtual ~TDLObjectRoleBottom ( void ) {}
+
+		/// accept method for the visitor pattern
+	void accept ( DLExpressionVisitor& visitor ) { visitor.visit(*this); }
+}; // TDLObjectRoleBottom
+
 
 //------------------------------------------------------------------
 //	data role expressions
@@ -150,6 +227,36 @@ public:		// interface
 	void accept ( DLExpressionVisitor& visitor ) = 0;
 }; // TDLDataRoleExpression
 
+//------------------------------------------------------------------
+///	data role TOP expression
+//------------------------------------------------------------------
+class TDLDataRoleTop: public TDLDataRoleExpression
+{
+public:		// interface
+		/// empty c'tor
+	TDLDataRoleTop ( void ) : TDLDataRoleExpression() {}
+		/// empty d'tor
+	virtual ~TDLDataRoleTop ( void ) {}
+
+		/// accept method for the visitor pattern
+	void accept ( DLExpressionVisitor& visitor ) { visitor.visit(*this); }
+}; // TDLDataRoleTop
+
+//------------------------------------------------------------------
+///	data role BOTTOM expression
+//------------------------------------------------------------------
+class TDLDataRoleBottom: public TDLDataRoleExpression
+{
+public:		// interface
+		/// empty c'tor
+	TDLDataRoleBottom ( void ) : TDLDataRoleExpression() {}
+		/// empty d'tor
+	virtual ~TDLDataRoleBottom ( void ) {}
+
+		/// accept method for the visitor pattern
+	void accept ( DLExpressionVisitor& visitor ) { visitor.visit(*this); }
+}; // TDLDataRoleBottom
+
 
 //------------------------------------------------------------------
 //	data expressions
@@ -170,6 +277,36 @@ public:		// interface
 		/// accept method for the visitor pattern
 	void accept ( DLExpressionVisitor& visitor ) = 0;
 }; // TDLDataExpression
+
+//------------------------------------------------------------------
+///	data TOP expression
+//------------------------------------------------------------------
+class TDLDataTop: public TDLDataExpression
+{
+public:		// interface
+		/// empty c'tor
+	TDLDataTop ( void ) : TDLDataExpression() {}
+		/// empty d'tor
+	virtual ~TDLDataTop ( void ) {}
+
+		/// accept method for the visitor pattern
+	void accept ( DLExpressionVisitor& visitor ) { visitor.visit(*this); }
+}; // TDLDataTop
+
+//------------------------------------------------------------------
+///	data BOTTOM expression
+//------------------------------------------------------------------
+class TDLDataBottom: public TDLDataExpression
+{
+public:		// interface
+		/// empty c'tor
+	TDLDataBottom ( void ) : TDLDataExpression() {}
+		/// empty d'tor
+	virtual ~TDLDataBottom ( void ) {}
+
+		/// accept method for the visitor pattern
+	void accept ( DLExpressionVisitor& visitor ) { visitor.visit(*this); }
+}; // TDLDataBottom
 
 
 #endif
