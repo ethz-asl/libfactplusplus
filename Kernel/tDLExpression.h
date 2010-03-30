@@ -28,21 +28,26 @@ class TDLExpression;
 class TDLConceptExpression;
 class TDLConceptTop;
 class TDLConceptBottom;
+class TDLConceptName;
+
+class TDLIndividualExpression;
+class TDLIndividualName;
 
 class TDLRoleExpression;
 class TDLObjectRoleExpression;
 class TDLObjectRoleTop;
 class TDLObjectRoleBottom;
+class TDLObjectRoleName;
 
 class TDLDataRoleExpression;
 class TDLDataRoleTop;
 class TDLDataRoleBottom;
-
-class TDLIndividualExpression;
+class TDLDataRoleName;
 
 class TDLDataExpression;
 class TDLDataTop;
 class TDLDataBottom;
+class TDLDataTypeName;
 
 /// general visitor for DL expressions
 class DLExpressionVisitor
@@ -51,18 +56,25 @@ public:		// visitor interface
 	// concept expressions
 	virtual void visit ( TDLConceptTop& expr ) = 0;
 	virtual void visit ( TDLConceptBottom& expr ) = 0;
+	virtual void visit ( TDLConceptName& expr ) = 0;
+
+	// individual expressions
+	virtual void visit ( TDLIndividualName& expr ) = 0;
 
 	// object role expressions
 	virtual void visit ( TDLObjectRoleTop& expr ) = 0;
 	virtual void visit ( TDLObjectRoleBottom& expr ) = 0;
+	virtual void visit ( TDLObjectRoleName& expr ) = 0;
 
 	// data role expressions
 	virtual void visit ( TDLDataRoleTop& expr ) = 0;
 	virtual void visit ( TDLDataRoleBottom& expr ) = 0;
+	virtual void visit ( TDLDataRoleName& expr ) = 0;
 
 	// data expressions
 	virtual void visit ( TDLDataTop& expr ) = 0;
 	virtual void visit ( TDLDataBottom& expr ) = 0;
+	virtual void visit ( TDLDataTypeName& expr ) = 0;
 
 	// other methods
 	virtual ~DLExpressionVisitor ( void ) {}
@@ -81,6 +93,31 @@ public:		// interface
 		/// accept method for the visitor pattern
 	virtual void accept ( DLExpressionVisitor& visitor ) = 0;
 }; // TDLExpression
+
+
+//------------------------------------------------------------------
+//	helper classes
+//------------------------------------------------------------------
+
+
+//------------------------------------------------------------------
+///	named entity
+//------------------------------------------------------------------
+class TNamedEntity
+{
+protected:	// members
+		/// name of the entity
+	std::string Name;
+
+public:		// interface
+		/// c'tor: initialise name
+	TNamedEntity ( const std::string& name ) : Name(name) {}
+		/// empty d'tor
+	virtual ~TNamedEntity ( void ) {}
+
+		/// get access to the name
+	const char* getName ( void ) const { return Name.c_str(); }
+}; // TNamedEntity
 
 
 //------------------------------------------------------------------
@@ -133,6 +170,56 @@ public:		// interface
 	void accept ( DLExpressionVisitor& visitor ) { visitor.visit(*this); }
 }; // TDLConceptBottom
 
+//------------------------------------------------------------------
+///	named concept expression
+//------------------------------------------------------------------
+class TDLConceptName: public TDLConceptExpression, public TNamedEntity
+{
+public:		// interface
+		/// c'tor: init field(s)
+	TDLConceptName ( const std::string& name ) : TDLConceptExpression(), TNamedEntity(name) {}
+		/// empty d'tor
+	virtual ~TDLConceptName ( void ) {}
+
+		/// accept method for the visitor pattern
+	void accept ( DLExpressionVisitor& visitor ) { visitor.visit(*this); }
+}; // TDLConceptName
+
+
+//------------------------------------------------------------------
+//	individual expressions
+//------------------------------------------------------------------
+
+
+//------------------------------------------------------------------
+///	general individual expression
+//------------------------------------------------------------------
+class TDLIndividualExpression: public TDLExpression
+{
+public:		// interface
+		/// empty c'tor
+	TDLIndividualExpression ( void ) : TDLExpression() {}
+		/// empty d'tor
+	virtual ~TDLIndividualExpression ( void ) {}
+
+		/// accept method for the visitor pattern
+	void accept ( DLExpressionVisitor& visitor ) = 0;
+}; // TDLIndividualExpression
+
+//------------------------------------------------------------------
+///	named individual expression
+//------------------------------------------------------------------
+class TDLIndividualName: public TDLIndividualExpression, public TNamedEntity
+{
+public:		// interface
+		/// c'tor: init field(s)
+	TDLIndividualName ( const std::string& name ) : TDLIndividualExpression(), TNamedEntity(name) {}
+		/// empty d'tor
+	virtual ~TDLIndividualName ( void ) {}
+
+		/// accept method for the visitor pattern
+	void accept ( DLExpressionVisitor& visitor ) { visitor.visit(*this); }
+}; // TDLIndividualName
 
 
 //------------------------------------------------------------------
@@ -206,6 +293,21 @@ public:		// interface
 	void accept ( DLExpressionVisitor& visitor ) { visitor.visit(*this); }
 }; // TDLObjectRoleBottom
 
+//------------------------------------------------------------------
+///	named object role expression
+//------------------------------------------------------------------
+class TDLObjectRoleName: public TDLObjectRoleExpression, public TNamedEntity
+{
+public:		// interface
+		/// c'tor: init field(s)
+	TDLObjectRoleName ( const std::string& name ) : TDLObjectRoleExpression(), TNamedEntity(name) {}
+		/// empty d'tor
+	virtual ~TDLObjectRoleName ( void ) {}
+
+		/// accept method for the visitor pattern
+	void accept ( DLExpressionVisitor& visitor ) { visitor.visit(*this); }
+}; // TDLObjectRoleName
+
 
 //------------------------------------------------------------------
 //	data role expressions
@@ -257,6 +359,21 @@ public:		// interface
 	void accept ( DLExpressionVisitor& visitor ) { visitor.visit(*this); }
 }; // TDLDataRoleBottom
 
+//------------------------------------------------------------------
+///	named data role expression
+//------------------------------------------------------------------
+class TDLDataRoleName: public TDLDataRoleExpression, public TNamedEntity
+{
+public:		// interface
+		/// c'tor: init field(s)
+	TDLDataRoleName ( const std::string& name ) : TDLDataRoleExpression(), TNamedEntity(name) {}
+		/// empty d'tor
+	virtual ~TDLDataRoleName ( void ) {}
+
+		/// accept method for the visitor pattern
+	void accept ( DLExpressionVisitor& visitor ) { visitor.visit(*this); }
+}; // TDLDataRoleName
+
 
 //------------------------------------------------------------------
 //	data expressions
@@ -307,6 +424,21 @@ public:		// interface
 		/// accept method for the visitor pattern
 	void accept ( DLExpressionVisitor& visitor ) { visitor.visit(*this); }
 }; // TDLDataBottom
+
+//------------------------------------------------------------------
+///	named data type expression
+//------------------------------------------------------------------
+class TDLDataTypeName: public TDLDataExpression, public TNamedEntity
+{
+public:		// interface
+		/// c'tor: init field(s)
+	TDLDataTypeName ( const std::string& name ) : TDLDataExpression(), TNamedEntity(name) {}
+		/// empty d'tor
+	virtual ~TDLDataTypeName ( void ) {}
+
+		/// accept method for the visitor pattern
+	void accept ( DLExpressionVisitor& visitor ) { visitor.visit(*this); }
+}; // TDLDataTypeName
 
 
 #endif

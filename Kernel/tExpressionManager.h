@@ -20,11 +20,23 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #define TEXPRESSIONMANAGER_H
 
 #include "tDLExpression.h"
+#include "tNameSet.h"
 
 /// manager to work with all DL expressions in the kernel
 class TExpressionManager
 {
 protected:	// members
+		/// nameset for concepts
+	TNameSet<TDLConceptName> NS_C;
+		/// nameset for individuals
+	TNameSet<TDLIndividualName> NS_I;
+		/// nameset for object roles
+	TNameSet<TDLObjectRoleName> NS_OR;
+		/// nameset for data roles
+	TNameSet<TDLDataRoleName> NS_DR;
+		/// nameset for data types
+	TNameSet<TDLDataTypeName> NS_DT;
+
 		/// TOP concept
 	TDLConceptTop* CTop;
 		/// BOTTOM concept
@@ -59,6 +71,13 @@ public:		// interface
 	TDLConceptExpression* getConceptTop ( void ) const { return CTop; }
 		/// get BOTTOM concept
 	TDLConceptExpression* getConceptBottom ( void ) const { return CBottom; }
+		/// get named concept
+	TDLConceptExpression* getConcept ( const std::string& name ) { return NS_C.insert(name); }
+
+	// individuals
+
+		/// get named individual
+	TDLIndividualExpression* getIndividual ( const std::string& name ) { return NS_I.insert(name); }
 
 	// object roles
 
@@ -66,6 +85,8 @@ public:		// interface
 	TDLObjectRoleExpression* getObjectRoleTop ( void ) const { return ORTop; }
 		/// get BOTTOM object role
 	TDLObjectRoleExpression* getObjectRoleBottom ( void ) const { return ORBottom; }
+		/// get named object role
+	TDLObjectRoleExpression* getObjectRole ( const std::string& name ) { return NS_OR.insert(name); }
 
 	// data roles
 
@@ -73,6 +94,8 @@ public:		// interface
 	TDLDataRoleExpression* getDataRoleTop ( void ) const { return DRTop; }
 		/// get BOTTOM data role
 	TDLDataRoleExpression* getDataRoleBottom ( void ) const { return DRBottom; }
+		/// get named data role
+	TDLDataRoleExpression* getDataRole ( const std::string& name ) { return NS_DR.insert(name); }
 
 	// data expressions
 
@@ -80,6 +103,8 @@ public:		// interface
 	TDLDataExpression* getDataTop ( void ) const { return DTop; }
 		/// get BOTTOM data element
 	TDLDataExpression* getDataBottom ( void ) const { return DBottom; }
+		/// get named data type
+	TDLDataExpression* getDataType ( const std::string& name ) { return NS_DT.insert(name); }
 }; // TExpressionManager
 
 #endif
