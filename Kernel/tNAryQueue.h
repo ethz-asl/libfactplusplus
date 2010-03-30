@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2008 by Dmitry Tsarkov
+Copyright (C) 2003-2010 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -20,24 +20,24 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #define TNARYQUEUE_H
 
 #include <vector>
-#include "dltree.h"
-
-typedef std::vector<DLTree*> DLExpressionArray;
 
 /// queue for n-ary operations
+template<class Expression>
 class TNAryQueue
 {
+public:		// types
+		/// type of the array
+	typedef std::vector<Expression*> DLExpressionArray;
+
 protected:	// types
 		/// type of a base storage
 	typedef std::vector<DLExpressionArray*> BaseType;
 		/// base storage iterator
-	typedef BaseType::iterator iterator;
+	typedef typename BaseType::iterator iterator;
 
 private:	// members
 		/// all lists of arguments for n-ary predicates/commands
 	BaseType Base;
-		/// pointer to the current n-ary array
-	DLExpressionArray* Current;
 		/// pre-current index of n-ary statement
 	int level;
 
@@ -71,7 +71,7 @@ public:		// interface
 		Base[level]->clear();
 	}
 		/// add the next element to the current argument list
-	void addArg ( DLTree* p ) { Base[level]->push_back(p); }
+	void addArg ( Expression* p ) { Base[level]->push_back(p); }
 
 		/// get access to the last closed argument list
 	const DLExpressionArray& getLastArgList ( void ) { return *Base[level--]; }

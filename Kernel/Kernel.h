@@ -130,7 +130,7 @@ protected:	// members
 		/// DataType center
 	DataTypeCenter DTCenter;
 		/// set of queues for the n-ary expressions/commands
-	TNAryQueue NAryQueue;
+	TNAryQueue<DLTree> NAryQueue;
 		/// set of axioms
 	TOntology Ontology;
 
