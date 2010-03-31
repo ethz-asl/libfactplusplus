@@ -45,4 +45,6 @@ TExpressionManager::~TExpressionManager ( void )
 void
 TExpressionManager::clear ( void )
 {
+	for ( std::vector<TDLExpression*> p = RefRecorder.begin(), p_end = RefRecorder.end(); p < p_end; ++p )
+		delete *p;
 }

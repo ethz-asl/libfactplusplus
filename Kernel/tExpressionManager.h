@@ -21,6 +21,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "tDLExpression.h"
 #include "tNameSet.h"
+#include "tNAryQueue.h"
 
 /// manager to work with all DL expressions in the kernel
 class TExpressionManager
@@ -36,6 +37,9 @@ protected:	// members
 	TNameSet<TDLDataRoleName> NS_DR;
 		/// nameset for data types
 	TNameSet<TDLDataTypeName> NS_DT;
+
+		/// n-ary queue for arguments
+	TNAryQueue<TDLExpression> ArgQueue;
 
 		/// TOP concept
 	TDLConceptTop* CTop;
@@ -54,6 +58,13 @@ protected:	// members
 		/// BOTTOM data element
 	TDLDataBottom* DBottom;
 
+		/// record all the references
+	std::vector<TDLExpression*> RefRecorder;
+
+protected:	// methods
+		/// record the reference; @return the argument
+	TDLExpression* record ( TDLExpression* arg ) { RefRecorder.push_back(arg); return arg; }
+
 public:		// interface
 		/// empty c'tor
 	TExpressionManager ( void );
@@ -62,6 +73,13 @@ public:		// interface
 
 		/// clear the ontology
 	void clear ( void );
+
+	// argument lists
+
+		/// opens new argument list
+	void newArgList ( void ) { ArgQueue.openArgList(); }
+		/// add argument ARG to the current argument list
+	void addArg ( TDLExpression* arg ) { ArgQueue.addArg(arg); }
 
 	// create expressions methods
 
@@ -87,6 +105,18 @@ public:		// interface
 	TDLObjectRoleExpression* getObjectRoleBottom ( void ) const { return ORBottom; }
 		/// get named object role
 	TDLObjectRoleExpression* getObjectRole ( const std::string& name ) { return NS_OR.insert(name); }
+		/// get an inverse of a given object role expression R
+	TDLObjectRoleExpression* getObjectRoleInverse ( TDLObjectRoleExpression* R ) { return record(new TDLObjectRoleInverse(R)); }
+		/// get a role chain corresponding to R o S
+	TDLObjectRoleComplexExpression* getObjectRoleChain ( TDLObjectRoleExpression* R, TDLObjectRoleExpression* S ) { return record(new TDLObjectRoleChain(R,S)); }
+		/// get a role chain corresponding to R1 o ... o Rn; take the arguments from the last argument list
+	TDLObjectRoleComplexExpression* getObjectRoleChain ( void ) { return record(new TDLObjectRoleChain(ArgQueue.getLastArgList())); }
+		/// get a expression corresponding to R projected from C
+	TDLObjectRoleComplexExpression* getObjectRoleProjectionFrom ( TDLObjectRoleExpression* R, TDLConceptExpression* C )
+		{ return record(new TDLObjectRoleProjectionFrom(R,C)); }
+		/// get a expression corresponding to R projected into C
+	TDLObjectRoleComplexExpression* getObjectRoleProjectionInto ( TDLObjectRoleExpression* R, TDLConceptExpression* C )
+		{ return record(new TDLObjectRoleProjectionInto(R,C)); }
 
 	// data roles
 

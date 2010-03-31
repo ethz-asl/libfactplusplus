@@ -22,32 +22,39 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <vector>
 #include <string>
 
+#include "eFaCTPlusPlus.h"
+
 // forward declaration for all expression classes: necessary for the visitor pattern
 class TDLExpression;
 
-class TDLConceptExpression;
-class TDLConceptTop;
-class TDLConceptBottom;
-class TDLConceptName;
+class  TDLConceptExpression;
+class   TDLConceptTop;
+class   TDLConceptBottom;
+class   TDLConceptName;
 
-class TDLIndividualExpression;
-class TDLIndividualName;
+class  TDLIndividualExpression;
+class   TDLIndividualName;
 
-class TDLRoleExpression;
-class TDLObjectRoleExpression;
-class TDLObjectRoleTop;
-class TDLObjectRoleBottom;
-class TDLObjectRoleName;
+class  TDLRoleExpression;
+class   TDLObjectRoleComplexExpression;
+class    TDLObjectRoleExpression;
+class     TDLObjectRoleTop;
+class     TDLObjectRoleBottom;
+class     TDLObjectRoleName;
+class     TDLObjectRoleInverse;
+class    TDLObjectRoleChain;
+class    TDLObjectRoleProjectionFrom;
+class    TDLObjectRoleProjectionInto;
 
-class TDLDataRoleExpression;
-class TDLDataRoleTop;
-class TDLDataRoleBottom;
-class TDLDataRoleName;
+class   TDLDataRoleExpression;
+class    TDLDataRoleTop;
+class    TDLDataRoleBottom;
+class    TDLDataRoleName;
 
-class TDLDataExpression;
-class TDLDataTop;
-class TDLDataBottom;
-class TDLDataTypeName;
+class  TDLDataExpression;
+class   TDLDataTop;
+class   TDLDataBottom;
+class   TDLDataTypeName;
 
 /// general visitor for DL expressions
 class DLExpressionVisitor
@@ -65,6 +72,10 @@ public:		// visitor interface
 	virtual void visit ( TDLObjectRoleTop& expr ) = 0;
 	virtual void visit ( TDLObjectRoleBottom& expr ) = 0;
 	virtual void visit ( TDLObjectRoleName& expr ) = 0;
+	virtual void visit ( TDLObjectRoleInverse& expr ) = 0;
+	virtual void visit ( TDLObjectRoleChain& expr ) = 0;
+	virtual void visit ( TDLObjectRoleProjectionFrom& expr ) = 0;
+	virtual void visit ( TDLObjectRoleProjectionInto& expr ) = 0;
 
 	// data role expressions
 	virtual void visit ( TDLDataRoleTop& expr ) = 0;
@@ -118,6 +129,149 @@ public:		// interface
 		/// get access to the name
 	const char* getName ( void ) const { return Name.c_str(); }
 }; // TNamedEntity
+
+//------------------------------------------------------------------
+///	concept argument
+//------------------------------------------------------------------
+class TConceptArg
+{
+protected:	// members
+		/// concept argument
+	TDLConceptExpression* C;
+
+public:		// interface
+		/// init c'tor
+	TConceptArg ( TDLConceptExpression* c ) : C(c) {}
+		/// empty d'tor
+	virtual ~TConceptArg ( void ) {}
+
+		/// get access to the argument
+	TDLConceptExpression* getC ( void ) const { return C; }
+}; // TConceptArg
+
+//------------------------------------------------------------------
+///	object role argument
+//------------------------------------------------------------------
+class TObjectRoleArg
+{
+protected:	// members
+		/// object role argument
+	TDLObjectRoleExpression* OR;
+
+public:		// interface
+		/// init c'tor
+	TObjectRoleArg ( TDLObjectRoleExpression* oR ) : OR(oR) {}
+		/// empty d'tor
+	virtual ~TObjectRoleArg ( void ) {}
+
+		/// get access to the argument
+	TDLObjectRoleExpression* getOR ( void ) const { return OR; }
+}; // TObjectRoleArg
+
+//------------------------------------------------------------------
+///	data role argument
+//------------------------------------------------------------------
+class TDataRoleArg
+{
+protected:	// members
+		/// data role argument
+	TDLDataRoleExpression* DR;
+
+public:		// interface
+		/// init c'tor
+	TDataRoleArg ( TDLDataRoleExpression* dR ) : DR(dR) {}
+		/// empty d'tor
+	virtual ~TDataRoleArg ( void ) {}
+
+		/// get access to the argument
+	TDLDataRoleExpression* getDR ( void ) const { return DR; }
+}; // TDataRoleArg
+
+//------------------------------------------------------------------
+///	data expression argument (templated with the exact type)
+//------------------------------------------------------------------
+template<class TExpression>
+class TDataExpressionArg
+{
+protected:	// members
+		/// data expression argument
+	TExpression* Expr;
+
+public:		// interface
+		/// init c'tor
+	TDataExpressionArg ( TExpression* expr ) : Expr(expr) {}
+		/// empty d'tor
+	virtual ~TDataExpressionArg ( void ) {}
+
+		/// get access to the argument
+	TExpression* getExpr ( void ) const { return Expr; }
+}; // TDataExpressionArg
+
+//------------------------------------------------------------------
+///	general n-argument expression
+//------------------------------------------------------------------
+template<class Argument>
+class TDLNAryExpression
+{
+public:		// types
+		/// base type
+	typedef std::vector<Argument*> ArgumentArray;
+		/// RW iterator over base type
+	typedef typename ArgumentArray::const_iterator iterator;
+		/// input array type
+	typedef std::vector<TDLExpression*> ExpressionArray;
+		/// RW input iterator
+	typedef ExpressionArray::const_iterator i_iterator;
+
+protected:	// members
+		/// set of equivalent concept descriptions
+	ArgumentArray Base;
+		/// name for excepion depending on class name and direction
+	std::string EString;
+
+protected:	// methods
+		/// transform general expression into the argument one
+	Argument* transform ( TDLExpression* arg )
+	{
+		Argument* p = dynamic_cast<Argument*>(arg);
+		if ( p == NULL )
+			throw EFaCTPlusPlus(EString.c_str());
+		return p;
+	}
+
+public:		// interface
+		/// c'tor: build an error string
+	TDLNAryExpression ( const char* typeName, const char* className )
+	{
+		EString = "Expected ";
+		EString += typeName;
+		EString += " argument in the '";
+		EString += className;
+		EString += "' expression";
+	}
+		/// empty d'tor
+	virtual ~TDLNAryExpression ( void ) {}
+
+	// add elements to the array
+
+		/// add a single element to the array
+	void add ( TDLExpression* p ) { Base.push_back(transform(p)); }
+		/// add a range to the array
+	void add ( i_iterator b, i_iterator e )
+	{
+		for ( ; b != e; ++b )
+			add(*b);
+	}
+		/// add a vector
+	void add ( const ExpressionArray& v ) { add ( v.begin(), v.end() ); }
+
+	// access to members
+
+		/// RW begin iterator for array
+	iterator begin ( void ) { return Base.begin(); }
+		/// RW end iterator for array
+	iterator end ( void ) { return Base.end(); }
+}; // TDLNAryExpression
 
 
 //------------------------------------------------------------------
@@ -176,7 +330,7 @@ public:		// interface
 class TDLConceptName: public TDLConceptExpression, public TNamedEntity
 {
 public:		// interface
-		/// c'tor: init field(s)
+		/// init c'tor
 	TDLConceptName ( const std::string& name ) : TDLConceptExpression(), TNamedEntity(name) {}
 		/// empty d'tor
 	virtual ~TDLConceptName ( void ) {}
@@ -212,7 +366,7 @@ public:		// interface
 class TDLIndividualName: public TDLIndividualExpression, public TNamedEntity
 {
 public:		// interface
-		/// c'tor: init field(s)
+		/// init c'tor
 	TDLIndividualName ( const std::string& name ) : TDLIndividualExpression(), TNamedEntity(name) {}
 		/// empty d'tor
 	virtual ~TDLIndividualName ( void ) {}
@@ -249,13 +403,28 @@ public:		// interface
 
 
 //------------------------------------------------------------------
-///	general object role expression
+///	complex object role expression (general expression, role chain or projection)
 //------------------------------------------------------------------
-class TDLObjectRoleExpression: public TDLRoleExpression
+class TDLObjectRoleComplexExpression: public TDLRoleExpression
 {
 public:		// interface
 		/// empty c'tor
-	TDLObjectRoleExpression ( void ) : TDLRoleExpression() {}
+	TDLObjectRoleComplexExpression ( void ) : TDLRoleExpression() {}
+		/// empty d'tor
+	virtual ~TDLObjectRoleComplexExpression ( void ) {}
+
+		/// accept method for the visitor pattern
+	void accept ( DLExpressionVisitor& visitor ) = 0;
+}; // TDLObjectRoleComplexExpression
+
+//------------------------------------------------------------------
+///	general object role expression
+//------------------------------------------------------------------
+class TDLObjectRoleExpression: public TDLObjectRoleComplexExpression
+{
+public:		// interface
+		/// empty c'tor
+	TDLObjectRoleExpression ( void ) : TDLObjectRoleComplexExpression() {}
 		/// empty d'tor
 	virtual ~TDLObjectRoleExpression ( void ) {}
 
@@ -299,7 +468,7 @@ public:		// interface
 class TDLObjectRoleName: public TDLObjectRoleExpression, public TNamedEntity
 {
 public:		// interface
-		/// c'tor: init field(s)
+		/// init c'tor
 	TDLObjectRoleName ( const std::string& name ) : TDLObjectRoleExpression(), TNamedEntity(name) {}
 		/// empty d'tor
 	virtual ~TDLObjectRoleName ( void ) {}
@@ -307,6 +476,88 @@ public:		// interface
 		/// accept method for the visitor pattern
 	void accept ( DLExpressionVisitor& visitor ) { visitor.visit(*this); }
 }; // TDLObjectRoleName
+
+//------------------------------------------------------------------
+///	inverse object role expression
+//------------------------------------------------------------------
+class TDLObjectRoleInverse: public TDLObjectRoleExpression, public TObjectRoleArg
+{
+public:		// interface
+		/// init c'tor
+	TDLObjectRoleInverse ( TDLObjectRoleExpression* R )
+		: TDLObjectRoleExpression()
+		, TObjectRoleArg(R)
+		{}
+		/// empty d'tor
+	virtual ~TDLObjectRoleInverse ( void ) {}
+
+		/// accept method for the visitor pattern
+	void accept ( DLExpressionVisitor& visitor ) { visitor.visit(*this); }
+}; // TDLObjectRoleInverse
+
+//------------------------------------------------------------------
+/// object role chain expression
+//------------------------------------------------------------------
+class TDLObjectRoleChain: public TDLObjectRoleComplexExpression, public TDLNAryExpression<TDLObjectRoleExpression>
+{
+public:		// interface
+		/// init c'tor: create role chain from given array
+	TDLObjectRoleChain ( const ExpressionArray& v )
+		: TDLObjectRoleComplexExpression()
+		, TDLNAryExpression<TDLObjectRoleExpression>("object role expression","role chain")
+	{
+		add(v);
+	}
+		/// empty d'tor
+	virtual ~TDLObjectRoleChain ( void ) {}
+
+		/// accept method for the visitor pattern
+	void accept ( DLExpressionVisitor& visitor ) { visitor.visit(*this); }
+}; // TDLObjectRoleChain
+
+//------------------------------------------------------------------
+///	object role projection from expression
+//------------------------------------------------------------------
+class TDLObjectRoleProjectionFrom
+	: public TDLObjectRoleComplexExpression
+	, public TObjectRoleArg
+	, public TConceptArg
+{
+public:		// interface
+		/// init c'tor
+	TDLObjectRoleProjectionFrom ( TDLObjectRoleExpression* R, TDLConceptExpression* C )
+		: TDLObjectRoleComplexExpression()
+		, TObjectRoleArg(R)
+		, TConceptArg(C)
+		{}
+		/// empty d'tor
+	virtual ~TDLObjectRoleProjectionFrom ( void ) {}
+
+		/// accept method for the visitor pattern
+	void accept ( DLExpressionVisitor& visitor ) { visitor.visit(*this); }
+}; // TDLObjectRoleProjectionFrom
+
+//------------------------------------------------------------------
+///	object role projection from expression
+//------------------------------------------------------------------
+class TDLObjectRoleProjectionInto
+	: public TDLObjectRoleComplexExpression
+	, public TObjectRoleArg
+	, public TConceptArg
+{
+public:		// interface
+		/// init c'tor
+	TDLObjectRoleProjectionInto ( TDLObjectRoleExpression* R, TDLConceptExpression* C )
+		: TDLObjectRoleComplexExpression()
+		, TObjectRoleArg(R)
+		, TConceptArg(C)
+		{}
+		/// empty d'tor
+	virtual ~TDLObjectRoleProjectionInto ( void ) {}
+
+		/// accept method for the visitor pattern
+	void accept ( DLExpressionVisitor& visitor ) { visitor.visit(*this); }
+}; // TDLObjectRoleProjectionInto
 
 
 //------------------------------------------------------------------
@@ -365,7 +616,7 @@ public:		// interface
 class TDLDataRoleName: public TDLDataRoleExpression, public TNamedEntity
 {
 public:		// interface
-		/// c'tor: init field(s)
+		/// init c'tor
 	TDLDataRoleName ( const std::string& name ) : TDLDataRoleExpression(), TNamedEntity(name) {}
 		/// empty d'tor
 	virtual ~TDLDataRoleName ( void ) {}
@@ -431,7 +682,7 @@ public:		// interface
 class TDLDataTypeName: public TDLDataExpression, public TNamedEntity
 {
 public:		// interface
-		/// c'tor: init field(s)
+		/// init c'tor
 	TDLDataTypeName ( const std::string& name ) : TDLDataExpression(), TNamedEntity(name) {}
 		/// empty d'tor
 	virtual ~TDLDataTypeName ( void ) {}
