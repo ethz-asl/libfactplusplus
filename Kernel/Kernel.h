@@ -437,8 +437,6 @@ public:
 	ComplexConcept And ( ComplexConcept C, ComplexConcept D ) { return regPointer ( createSNFAnd ( C, D ) ); }
 		/// @return C1/\.../\Cn
 	ComplexConcept And ( void ) { return regPointer(getTBox()->processAnd(NAryQueue.getLastArgList())); }
-		/// @return C\/D
-	ComplexConcept Or ( ComplexConcept C, ComplexConcept D ) { return regPointer ( createSNFOr ( C, D ) ); }
 		/// @return C1\/...\/Cn
 	ComplexConcept Or ( void ) { return regPointer(getTBox()->processOr(NAryQueue.getLastArgList())); }
 		/// @return \E R.C
@@ -463,15 +461,6 @@ public:
 	DLTree* OneOf ( bool data = false ) { return regPointer ( getTBox()->processOneOf ( NAryQueue.getLastArgList(), data ) ); }
 
 
-		/// simple concept expression
-	ComplexConcept SimpleExpression ( Token t, ComplexConcept C, ComplexConcept D )
-	{
-		fpp_assert ( t == AND || t == OR );
-		if ( t == AND )
-			return And ( C, D );
-		else
-			return Or ( C, D );
-	}
 		/// complex concept expression
 	ComplexConcept ComplexExpression ( Token t, unsigned int n, ComplexRole R, ComplexConcept C )
 	{

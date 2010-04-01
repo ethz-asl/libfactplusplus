@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2009 by Dmitry Tsarkov
+Copyright (C) 2003-2010 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -481,31 +481,27 @@ void DIGParseHandlers :: endConcept ( DIGTag tag )
 		Token op = (tag == digAnd) ? AND : OR;
 		DLTree* stop = new DLTree(op);
 
+		pKernel->openArgList();
+
 		if ( workStack.empty() )
 			throwCorruptedStack(tag);
 
-		// create accumulator
-		DLTree* acc = new DLTree ( (tag == digAnd) ? TOP : BOTTOM );
-		DLTree* cur = workStack.top();
-		workStack.pop();
-
 		// cycle until we find begin marker
-		while ( !equalTrees(cur,stop) )
+		while ( !equalTrees(workStack.top(),stop) )
 		{
-			acc = pKernel->SimpleExpression ( op, acc, cur );
+			pKernel->addArg(workStack.top());
+			workStack.pop();
 
 			if ( workStack.empty() )
 				throwCorruptedStack(tag);
-
-			cur = workStack.top();
-			workStack.pop();
 		}
 
 		// delete marker
-		deleteTree(cur);
+		deleteTree(workStack.top());
+		workStack.pop();
 		deleteTree(stop);
-		// restore calculated acc
-		workStack.push ( acc );
+		// return appropriate value
+		workStack.push ( op == AND ? pKernel->And() : pKernel->Or() );
 		return;
 	}
 	case digISet:

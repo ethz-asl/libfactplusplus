@@ -31,6 +31,10 @@ class  TDLConceptExpression;
 class   TDLConceptTop;
 class   TDLConceptBottom;
 class   TDLConceptName;
+class   TDLConceptNot;
+class   TDLConceptAnd;
+class   TDLConceptOr;
+class   TDLConceptOneOf;
 
 class  TDLIndividualExpression;
 class   TDLIndividualName;
@@ -64,6 +68,10 @@ public:		// visitor interface
 	virtual void visit ( TDLConceptTop& expr ) = 0;
 	virtual void visit ( TDLConceptBottom& expr ) = 0;
 	virtual void visit ( TDLConceptName& expr ) = 0;
+	virtual void visit ( TDLConceptNot& expr ) = 0;
+	virtual void visit ( TDLConceptAnd& expr ) = 0;
+	virtual void visit ( TDLConceptOr& expr ) = 0;
+	virtual void visit ( TDLConceptOneOf& expr ) = 0;
 
 	// individual expressions
 	virtual void visit ( TDLIndividualName& expr ) = 0;
@@ -338,6 +346,84 @@ public:		// interface
 		/// accept method for the visitor pattern
 	void accept ( DLExpressionVisitor& visitor ) { visitor.visit(*this); }
 }; // TDLConceptName
+
+//------------------------------------------------------------------
+///	concept NOT expression
+//------------------------------------------------------------------
+class TDLConceptNot: public TDLConceptExpression, public TConceptArg
+{
+public:		// interface
+		/// init c'tor
+	TDLConceptNot ( TDLConceptExpression* C )
+		: TDLConceptExpression()
+		, TConceptArg(C)
+		{}
+		/// empty d'tor
+	virtual ~TDLConceptNot ( void ) {}
+
+		/// accept method for the visitor pattern
+	void accept ( DLExpressionVisitor& visitor ) { visitor.visit(*this); }
+}; // TDLConceptNot
+
+//------------------------------------------------------------------
+///	concept AND expression
+//------------------------------------------------------------------
+class TDLConceptAnd: public TDLConceptExpression, public TDLNAryExpression<TDLConceptExpression>
+{
+public:		// interface
+		/// init c'tor: create AND of expressions from the given array
+	TDLConceptAnd ( const ExpressionArray& v )
+		: TDLConceptExpression()
+		, TDLNAryExpression<TDLConceptExpression>("concept expression","AND")
+	{
+		add(v);
+	}
+		/// empty d'tor
+	virtual ~TDLConceptAnd ( void ) {}
+
+		/// accept method for the visitor pattern
+	void accept ( DLExpressionVisitor& visitor ) { visitor.visit(*this); }
+}; // TDLConceptAnd
+
+//------------------------------------------------------------------
+///	concept OR expression
+//------------------------------------------------------------------
+class TDLConceptOr: public TDLConceptExpression, public TDLNAryExpression<TDLConceptExpression>
+{
+public:		// interface
+		/// init c'tor: create OR of expressions from the given array
+	TDLConceptOr ( const ExpressionArray& v )
+		: TDLConceptExpression()
+		, TDLNAryExpression<TDLConceptExpression>("concept expression","OR")
+	{
+		add(v);
+	}
+		/// empty d'tor
+	virtual ~TDLConceptOr ( void ) {}
+
+		/// accept method for the visitor pattern
+	void accept ( DLExpressionVisitor& visitor ) { visitor.visit(*this); }
+}; // TDLConceptOr
+
+//------------------------------------------------------------------
+///	concept one-of expression
+//------------------------------------------------------------------
+class TDLConceptOneOf: public TDLConceptExpression, public TDLNAryExpression<TDLIndividualName>
+{
+public:		// interface
+		/// init c'tor: create one-of from individuals in the given array
+	TDLConceptOneOf ( const ExpressionArray& v )
+		: TDLConceptExpression()
+		, TDLNAryExpression<TDLIndividualName>("individual name","OneOf")
+	{
+		add(v);
+	}
+		/// empty d'tor
+	virtual ~TDLConceptOneOf ( void ) {}
+
+		/// accept method for the visitor pattern
+	void accept ( DLExpressionVisitor& visitor ) { visitor.visit(*this); }
+}; // TDLConceptOneOf
 
 
 //------------------------------------------------------------------

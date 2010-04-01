@@ -408,28 +408,15 @@ DLTree* DLLispParser :: processComplexConceptTree ( void )
 
 	case AND:
 	case OR:	// multiple And's/Or's
-		left = processConceptTree ();
-		// 1 operand
-		if ( Current == RBRACK )
+		Kernel->openArgList();
+		do
 		{
-			NextLex ();
-			return left;
-		}
+			Kernel->addArg(processConceptTree());
+		} while ( Current != RBRACK );
 
-		// >= 1 operand
-		while (1)
-		{
-			right = processConceptTree ();
-
-			if ( Current == RBRACK )
-			{
-				NextLex ();
-				return Kernel->SimpleExpression ( T, left, right );
-			}
-			else
-				left = Kernel->SimpleExpression ( T, left, right );
-		}
-		break;
+		// list is parsed here
+		NextLex();	// skip ')'
+		return T == AND ? Kernel->And() : Kernel->Or();
 
 	case ONEOF:
 	case DONEOF:
