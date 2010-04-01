@@ -63,7 +63,8 @@ protected:	// members
 
 protected:	// methods
 		/// record the reference; @return the argument
-	TDLExpression* record ( TDLExpression* arg ) { RefRecorder.push_back(arg); return arg; }
+	template<class T>
+	T* record ( T* arg ) { RefRecorder.push_back(arg); return arg; }
 
 public:		// interface
 		/// empty c'tor
@@ -107,8 +108,6 @@ public:		// interface
 	TDLObjectRoleExpression* getObjectRole ( const std::string& name ) { return NS_OR.insert(name); }
 		/// get an inverse of a given object role expression R
 	TDLObjectRoleExpression* getObjectRoleInverse ( TDLObjectRoleExpression* R ) { return record(new TDLObjectRoleInverse(R)); }
-		/// get a role chain corresponding to R o S
-	TDLObjectRoleComplexExpression* getObjectRoleChain ( TDLObjectRoleExpression* R, TDLObjectRoleExpression* S ) { return record(new TDLObjectRoleChain(R,S)); }
 		/// get a role chain corresponding to R1 o ... o Rn; take the arguments from the last argument list
 	TDLObjectRoleComplexExpression* getObjectRoleChain ( void ) { return record(new TDLObjectRoleChain(ArgQueue.getLastArgList())); }
 		/// get a expression corresponding to R projected from C

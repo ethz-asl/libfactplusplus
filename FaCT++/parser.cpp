@@ -486,9 +486,11 @@ DLTree* DLLispParser :: getRoleExpression ( bool allowComplex )
 	if ( keyword == RCOMPOSITION )	// role composition expression = list of simple roles
 	{
 		NextLex();	// skip RCOMPOSITION
-		ret = getRoleExpression(/*allowComplex=*/false);
+		Kernel->openArgList();
+		Kernel->addArg(getRoleExpression(/*allowComplex=*/false));
 		while ( Current != RBRACK )
-			ret = Kernel->Compose ( ret, getRoleExpression(/*allowComplex=*/false) );
+			Kernel->addArg(getRoleExpression(/*allowComplex=*/false));
+		ret = Kernel->Compose();
 		goto end;
 	}
 

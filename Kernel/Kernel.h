@@ -505,8 +505,6 @@ public:
 //	ComplexRole UniversalRole ( void ) const { return new DLTree(UROLE); }
 		/// @return R^-
 	ComplexRole Inverse ( ComplexRole R ) { return regPointer(createInverse(R)); }
-		/// @return R*S
-	ComplexRole Compose ( ComplexRole R, ComplexRole S ) { return regPointer ( new DLTree ( TLexeme(RCOMPOSITION), R, S ) ); }
 		/// @return R1*...*Rn
 	ComplexRole Compose ( void ) { return regPointer(getTBox()->processRComposition(NAryQueue.getLastArgList())); }
 		/// @return project R into C
