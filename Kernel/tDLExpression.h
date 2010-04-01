@@ -35,6 +35,25 @@ class   TDLConceptNot;
 class   TDLConceptAnd;
 class   TDLConceptOr;
 class   TDLConceptOneOf;
+class   TDLConceptObjectRoleExpression;
+class    TDLConceptObjectSelf;
+class    TDLConceptObjectValue;
+class    TDLConceptObjectRCExpression;
+class     TDLConceptObjectExists;
+class     TDLConceptObjectForall;
+class     TDLConceptObjectCardinalityExpression;
+class      TDLConceptObjectMinCardinality;
+class      TDLConceptObjectMaxCardinality;
+class      TDLConceptObjectExactCardinality;
+class   TDLConceptDataRoleExpression;
+class    TDLConceptDataValue;
+class    TDLConceptDataRVExpression;
+class     TDLConceptDataExists;
+class     TDLConceptDataForall;
+class     TDLConceptDataCardinalityExpression;
+class      TDLConceptDataMinCardinality;
+class      TDLConceptDataMaxCardinality;
+class      TDLConceptDataExactCardinality;
 
 class  TDLIndividualExpression;
 class   TDLIndividualName;
@@ -59,6 +78,7 @@ class  TDLDataExpression;
 class   TDLDataTop;
 class   TDLDataBottom;
 class   TDLDataTypeName;
+class   TDLDataValue;
 
 /// general visitor for DL expressions
 class DLExpressionVisitor
@@ -72,6 +92,19 @@ public:		// visitor interface
 	virtual void visit ( TDLConceptAnd& expr ) = 0;
 	virtual void visit ( TDLConceptOr& expr ) = 0;
 	virtual void visit ( TDLConceptOneOf& expr ) = 0;
+	virtual void visit ( TDLConceptObjectSelf& expr ) = 0;
+	virtual void visit ( TDLConceptObjectValue& expr ) = 0;
+	virtual void visit ( TDLConceptObjectExists& expr ) = 0;
+	virtual void visit ( TDLConceptObjectForall& expr ) = 0;
+	virtual void visit ( TDLConceptObjectMinCardinality& expr ) = 0;
+	virtual void visit ( TDLConceptObjectMaxCardinality& expr ) = 0;
+	virtual void visit ( TDLConceptObjectExactCardinality& expr ) = 0;
+	virtual void visit ( TDLConceptDataValue& expr ) = 0;
+	virtual void visit ( TDLConceptDataExists& expr ) = 0;
+	virtual void visit ( TDLConceptDataForall& expr ) = 0;
+	virtual void visit ( TDLConceptDataMinCardinality& expr ) = 0;
+	virtual void visit ( TDLConceptDataMaxCardinality& expr ) = 0;
+	virtual void visit ( TDLConceptDataExactCardinality& expr ) = 0;
 
 	// individual expressions
 	virtual void visit ( TDLIndividualName& expr ) = 0;
@@ -94,6 +127,7 @@ public:		// visitor interface
 	virtual void visit ( TDLDataTop& expr ) = 0;
 	virtual void visit ( TDLDataBottom& expr ) = 0;
 	virtual void visit ( TDLDataTypeName& expr ) = 0;
+	virtual void visit ( TDLDataValue& expr ) = 0;
 
 	// other methods
 	virtual ~DLExpressionVisitor ( void ) {}
@@ -156,6 +190,44 @@ public:		// interface
 		/// get access to the argument
 	TDLConceptExpression* getC ( void ) const { return C; }
 }; // TConceptArg
+
+//------------------------------------------------------------------
+///	individual argument
+//------------------------------------------------------------------
+class TIndividualArg
+{
+protected:	// members
+		/// individual argument
+	TDLIndividualExpression* I;
+
+public:		// interface
+		/// init c'tor
+	TIndividualArg ( TDLIndividualExpression* i ) : I(i) {}
+		/// empty d'tor
+	virtual ~TIndividualArg ( void ) {}
+
+		/// get access to the argument
+	TDLIndividualExpression* getI ( void ) const { return I; }
+}; // TIndividualArg
+
+//------------------------------------------------------------------
+///	numerical argument
+//------------------------------------------------------------------
+class TNumberArg
+{
+protected:	// members
+		/// number argument
+	unsigned int N;
+
+public:		// interface
+		/// init c'tor
+	TNumberArg ( unsigned int n ) : N(n) {}
+		/// empty d'tor
+	virtual ~TNumberArg ( void ) {}
+
+		/// get access to the argument
+	unsigned int getNumber ( void ) const { return N; }
+}; // TNumberArg
 
 //------------------------------------------------------------------
 ///	object role argument
@@ -424,6 +496,337 @@ public:		// interface
 		/// accept method for the visitor pattern
 	void accept ( DLExpressionVisitor& visitor ) { visitor.visit(*this); }
 }; // TDLConceptOneOf
+
+//------------------------------------------------------------------
+///	general concept expression that contains an object role
+//------------------------------------------------------------------
+class TDLConceptObjectRoleExpression: public TDLConceptExpression, public TObjectRoleArg
+{
+public:		// interface
+		/// init c'tor
+	TDLConceptObjectRoleExpression ( TDLObjectRoleExpression* R )
+		: TDLConceptExpression()
+		, TObjectRoleArg(R)
+		{}
+		/// empty d'tor
+	virtual ~TDLConceptObjectRoleExpression ( void ) {}
+
+		/// accept method for the visitor pattern
+	void accept ( DLExpressionVisitor& visitor ) = 0;
+}; // TDLConceptObjectRoleExpression
+
+//------------------------------------------------------------------
+///	concept self-ref expression
+//------------------------------------------------------------------
+class TDLConceptObjectSelf: public TDLConceptObjectRoleExpression
+{
+public:		// interface
+		/// init c'tor
+	TDLConceptObjectSelf ( TDLObjectRoleExpression* R )
+		: TDLConceptObjectRoleExpression(R)
+		{}
+		/// empty d'tor
+	virtual ~TDLConceptObjectSelf ( void ) {}
+
+		/// accept method for the visitor pattern
+	void accept ( DLExpressionVisitor& visitor ) { visitor.visit(*this); }
+}; // TDLConceptObjectSelf
+
+//------------------------------------------------------------------
+///	concept some value restriction expression
+//------------------------------------------------------------------
+class TDLConceptObjectValue: public TDLConceptObjectRoleExpression, public TIndividualArg
+{
+public:		// interface
+		/// init c'tor
+	TDLConceptObjectValue ( TDLObjectRoleExpression* R, TDLIndividualExpression* I )
+		: TDLConceptObjectRoleExpression(R)
+		, TIndividualArg(I)
+		{}
+		/// empty d'tor
+	virtual ~TDLConceptObjectValue ( void ) {}
+
+		/// accept method for the visitor pattern
+	void accept ( DLExpressionVisitor& visitor ) { visitor.visit(*this); }
+}; // TDLConceptObjectValue
+
+//------------------------------------------------------------------
+///	general concept expression that contains an object role and a class expression
+//------------------------------------------------------------------
+class TDLConceptObjectRCExpression: public TDLConceptObjectRoleExpression, public TConceptArg
+{
+public:		// interface
+		/// init c'tor
+	TDLConceptObjectRCExpression ( TDLObjectRoleExpression* R, TDLConceptExpression* C )
+		: TDLConceptObjectRoleExpression(R)
+		, TConceptArg(C)
+		{}
+		/// empty d'tor
+	virtual ~TDLConceptObjectRCExpression ( void ) {}
+
+		/// accept method for the visitor pattern
+	void accept ( DLExpressionVisitor& visitor ) = 0;
+}; // TDLConceptObjectRCExpression
+
+//------------------------------------------------------------------
+///	concept object existential restriction expression
+//------------------------------------------------------------------
+class TDLConceptObjectExists: public TDLConceptObjectRCExpression
+{
+public:		// interface
+		/// init c'tor
+	TDLConceptObjectExists ( TDLObjectRoleExpression* R, TDLConceptExpression* C )
+		: TDLConceptObjectRCExpression(R,C)
+		{}
+		/// empty d'tor
+	virtual ~TDLConceptObjectExists ( void ) {}
+
+		/// accept method for the visitor pattern
+	void accept ( DLExpressionVisitor& visitor ) { visitor.visit(*this); }
+}; // TDLConceptObjectExists
+
+//------------------------------------------------------------------
+///	concept object universal restriction expression
+//------------------------------------------------------------------
+class TDLConceptObjectForall: public TDLConceptObjectRCExpression
+{
+public:		// interface
+		/// init c'tor
+	TDLConceptObjectForall ( TDLObjectRoleExpression* R, TDLConceptExpression* C )
+		: TDLConceptObjectRCExpression(R,C)
+		{}
+		/// empty d'tor
+	virtual ~TDLConceptObjectForall ( void ) {}
+
+		/// accept method for the visitor pattern
+	void accept ( DLExpressionVisitor& visitor ) { visitor.visit(*this); }
+}; // TDLConceptObjectForall
+
+//------------------------------------------------------------------
+///	general object role cardinality expression
+//------------------------------------------------------------------
+class TDLConceptObjectCardinalityExpression: public TDLConceptObjectRCExpression, public TNumberArg
+{
+public:		// interface
+		/// init c'tor
+	TDLConceptObjectCardinalityExpression ( unsigned int n, TDLObjectRoleExpression* R, TDLConceptExpression* C )
+		: TDLConceptObjectRCExpression(R,C)
+		, TNumberArg(n)
+		{}
+		/// empty d'tor
+	virtual ~TDLConceptObjectCardinalityExpression ( void ) {}
+
+		/// accept method for the visitor pattern
+	void accept ( DLExpressionVisitor& visitor ) = 0;
+}; // TDLConceptObjectCardinalityExpression
+
+//------------------------------------------------------------------
+///	concept object min cardinality expression
+//------------------------------------------------------------------
+class TDLConceptObjectMinCardinality: public TDLConceptObjectCardinalityExpression
+{
+public:		// interface
+		/// init c'tor
+	TDLConceptObjectMinCardinality ( unsigned int n, TDLObjectRoleExpression* R, TDLConceptExpression* C )
+		: TDLConceptObjectCardinalityExpression(n,R,C)
+		{}
+		/// empty d'tor
+	virtual ~TDLConceptObjectMinCardinality ( void ) {}
+
+		/// accept method for the visitor pattern
+	void accept ( DLExpressionVisitor& visitor ) { visitor.visit(*this); }
+}; // TDLConceptObjectMinCardinality
+
+//------------------------------------------------------------------
+///	concept object max cardinality expression
+//------------------------------------------------------------------
+class TDLConceptObjectMaxCardinality: public TDLConceptObjectCardinalityExpression
+{
+public:		// interface
+		/// init c'tor
+	TDLConceptObjectMaxCardinality ( unsigned int n, TDLObjectRoleExpression* R, TDLConceptExpression* C )
+		: TDLConceptObjectCardinalityExpression(n,R,C)
+		{}
+		/// empty d'tor
+	virtual ~TDLConceptObjectMaxCardinality ( void ) {}
+
+		/// accept method for the visitor pattern
+	void accept ( DLExpressionVisitor& visitor ) { visitor.visit(*this); }
+}; // TDLConceptObjectMaxCardinality
+
+//------------------------------------------------------------------
+///	concept object exact cardinality expression
+//------------------------------------------------------------------
+class TDLConceptObjectExactCardinality: public TDLConceptObjectCardinalityExpression
+{
+public:		// interface
+		/// init c'tor
+	TDLConceptObjectExactCardinality ( unsigned int n, TDLObjectRoleExpression* R, TDLConceptExpression* C )
+		: TDLConceptObjectCardinalityExpression(n,R,C)
+		{}
+		/// empty d'tor
+	virtual ~TDLConceptObjectExactCardinality ( void ) {}
+
+		/// accept method for the visitor pattern
+	void accept ( DLExpressionVisitor& visitor ) { visitor.visit(*this); }
+}; // TDLConceptObjectExactCardinality
+
+//------------------------------------------------------------------
+///	general concept expression that contains an data role
+//------------------------------------------------------------------
+class TDLConceptDataRoleExpression: public TDLConceptExpression, public TDataRoleArg
+{
+public:		// interface
+		/// init c'tor
+	TDLConceptDataRoleExpression ( TDLDataRoleExpression* R )
+		: TDLConceptExpression()
+		, TDataRoleArg(R)
+		{}
+		/// empty d'tor
+	virtual ~TDLConceptDataRoleExpression ( void ) {}
+
+		/// accept method for the visitor pattern
+	void accept ( DLExpressionVisitor& visitor ) = 0;
+}; // TDLConceptDataRoleExpression
+
+//------------------------------------------------------------------
+///	concept some value restriction expression
+//------------------------------------------------------------------
+class TDLConceptDataValue: public TDLConceptDataRoleExpression, public TDataExpressionArg<TDLDataValue>
+{
+public:		// interface
+		/// init c'tor
+	TDLConceptDataValue ( TDLDataRoleExpression* R, TDLDataValue* V )
+		: TDLConceptDataRoleExpression(R)
+		, TDataExpressionArg<TDLDataValue>(V)
+		{}
+		/// empty d'tor
+	virtual ~TDLConceptDataValue ( void ) {}
+
+		/// accept method for the visitor pattern
+	void accept ( DLExpressionVisitor& visitor ) { visitor.visit(*this); }
+}; // TDLConceptDataValue
+
+//------------------------------------------------------------------
+///	general concept expression that contains an data role and a data expression
+//------------------------------------------------------------------
+class TDLConceptDataRVExpression: public TDLConceptDataRoleExpression, public TDataExpressionArg<TDLDataExpression>
+{
+public:		// interface
+		/// init c'tor
+	TDLConceptDataRVExpression ( TDLDataRoleExpression* R, TDLDataExpression* E )
+		: TDLConceptDataRoleExpression(R)
+		, TDataExpressionArg<TDLDataExpression>(E)
+		{}
+		/// empty d'tor
+	virtual ~TDLConceptDataRVExpression ( void ) {}
+
+		/// accept method for the visitor pattern
+	void accept ( DLExpressionVisitor& visitor ) = 0;
+}; // TDLConceptDataRVExpression
+
+//------------------------------------------------------------------
+///	concept data existential restriction expression
+//------------------------------------------------------------------
+class TDLConceptDataExists: public TDLConceptDataRVExpression
+{
+public:		// interface
+		/// init c'tor
+	TDLConceptDataExists ( TDLDataRoleExpression* R, TDLDataExpression* E )
+		: TDLConceptDataRVExpression(R,E)
+		{}
+		/// empty d'tor
+	virtual ~TDLConceptDataExists ( void ) {}
+
+		/// accept method for the visitor pattern
+	void accept ( DLExpressionVisitor& visitor ) { visitor.visit(*this); }
+}; // TDLConceptDataExists
+
+//------------------------------------------------------------------
+///	concept data universal restriction expression
+//------------------------------------------------------------------
+class TDLConceptDataForall: public TDLConceptDataRVExpression
+{
+public:		// interface
+		/// init c'tor
+	TDLConceptDataForall ( TDLDataRoleExpression* R, TDLDataExpression* E )
+		: TDLConceptDataRVExpression(R,E)
+		{}
+		/// empty d'tor
+	virtual ~TDLConceptDataForall ( void ) {}
+
+		/// accept method for the visitor pattern
+	void accept ( DLExpressionVisitor& visitor ) { visitor.visit(*this); }
+}; // TDLConceptDataForall
+
+//------------------------------------------------------------------
+///	general data role cardinality expression
+//------------------------------------------------------------------
+class TDLConceptDataCardinalityExpression: public TDLConceptDataRVExpression, public TNumberArg
+{
+public:		// interface
+		/// init c'tor
+	TDLConceptDataCardinalityExpression ( unsigned int n, TDLDataRoleExpression* R, TDLDataExpression* E )
+		: TDLConceptDataRVExpression(R,E)
+		, TNumberArg(n)
+		{}
+		/// empty d'tor
+	virtual ~TDLConceptDataCardinalityExpression ( void ) {}
+
+		/// accept method for the visitor pattern
+	void accept ( DLExpressionVisitor& visitor ) = 0;
+}; // TDLConceptDataCardinalityExpression
+
+//------------------------------------------------------------------
+///	concept data min cardinality expression
+//------------------------------------------------------------------
+class TDLConceptDataMinCardinality: public TDLConceptDataCardinalityExpression
+{
+public:		// interface
+		/// init c'tor
+	TDLConceptDataMinCardinality ( unsigned int n, TDLDataRoleExpression* R, TDLDataExpression* E )
+		: TDLConceptDataCardinalityExpression(n,R,E)
+		{}
+		/// empty d'tor
+	virtual ~TDLConceptDataMinCardinality ( void ) {}
+
+		/// accept method for the visitor pattern
+	void accept ( DLExpressionVisitor& visitor ) { visitor.visit(*this); }
+}; // TDLConceptDataMinCardinality
+
+//------------------------------------------------------------------
+///	concept data max cardinality expression
+//------------------------------------------------------------------
+class TDLConceptDataMaxCardinality: public TDLConceptDataCardinalityExpression
+{
+public:		// interface
+		/// init c'tor
+	TDLConceptDataMaxCardinality ( unsigned int n, TDLDataRoleExpression* R, TDLDataExpression* E )
+		: TDLConceptDataCardinalityExpression(n,R,E)
+		{}
+		/// empty d'tor
+	virtual ~TDLConceptDataMaxCardinality ( void ) {}
+
+		/// accept method for the visitor pattern
+	void accept ( DLExpressionVisitor& visitor ) { visitor.visit(*this); }
+}; // TDLConceptDataMaxCardinality
+
+//------------------------------------------------------------------
+///	concept data exact cardinality expression
+//------------------------------------------------------------------
+class TDLConceptDataExactCardinality: public TDLConceptDataCardinalityExpression
+{
+public:		// interface
+		/// init c'tor
+	TDLConceptDataExactCardinality ( unsigned int n, TDLDataRoleExpression* R, TDLDataExpression* E )
+		: TDLConceptDataCardinalityExpression(n,R,E)
+		{}
+		/// empty d'tor
+	virtual ~TDLConceptDataExactCardinality ( void ) {}
+
+		/// accept method for the visitor pattern
+	void accept ( DLExpressionVisitor& visitor ) { visitor.visit(*this); }
+}; // TDLConceptDataExactCardinality
 
 
 //------------------------------------------------------------------
@@ -776,6 +1179,21 @@ public:		// interface
 		/// accept method for the visitor pattern
 	void accept ( DLExpressionVisitor& visitor ) { visitor.visit(*this); }
 }; // TDLDataTypeName
+
+//------------------------------------------------------------------
+///	data value expression
+//------------------------------------------------------------------
+class TDLDataValue: public TDLDataExpression, public TDataExpressionArg<TDLDataTypeName>
+{
+public:		// interface
+		/// init c'tor
+	TDLDataValue ( TDLDataTypeName* T ) : TDLDataExpression(), TDataExpressionArg<TDLDataTypeName>(T) {}
+		/// empty d'tor
+	virtual ~TDLDataValue ( void ) {}
+
+		/// accept method for the visitor pattern
+	void accept ( DLExpressionVisitor& visitor ) { visitor.visit(*this); }
+}; // TDLDataValue
 
 
 #endif
