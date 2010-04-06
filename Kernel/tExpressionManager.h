@@ -92,6 +92,54 @@ public:		// interface
 	TDLConceptExpression* getConceptBottom ( void ) const { return CBottom; }
 		/// get named concept
 	TDLConceptExpression* getConcept ( const std::string& name ) { return NS_C.insert(name); }
+		/// get negation of a concept C
+	TDLConceptExpression* getConceptNot ( TDLConceptExpression* C ) { return record(new TDLConceptNot(C)); }
+		/// get an n-ary conjunction expression; take the arguments from the last argument list
+	TDLConceptExpression* getConceptAnd ( void ) { return record(new TDLConceptAnd(ArgQueue.getLastArgList())); }
+		/// get an n-ary disjunction expression; take the arguments from the last argument list
+	TDLConceptExpression* getConceptOr ( void ) { return record(new TDLConceptOr(ArgQueue.getLastArgList())); }
+		/// get an n-ary one-of expression; take the arguments from the last argument list
+	TDLConceptExpression* getConceptOneOf ( void ) { return record(new TDLConceptOneOf(ArgQueue.getLastArgList())); }
+
+		/// get self-reference restriction of an object role R
+	TDLConceptExpression* getConceptObjectSelf ( TDLObjectRoleExpression* R ) { return record(new TDLConceptObjectSelf(R)); }
+		/// get value restriction wrt an object role R and an individual I
+	TDLConceptExpression* getConceptObjectValue ( TDLObjectRoleExpression* R, TDLIndividualExpression* I )
+		{ return record(new TDLConceptObjectValue(R,I)); }
+		/// get existential restriction wrt an object role R and a concept C
+	TDLConceptExpression* getConceptObjectExists ( TDLObjectRoleExpression* R, TDLConceptExpression* C )
+		{ return record(new TDLConceptObjectExists(R,C)); }
+		/// get universal restriction wrt an object role R and a concept C
+	TDLConceptExpression* getConceptObjectForall ( TDLObjectRoleExpression* R, TDLConceptExpression* C )
+		{ return record(new TDLConceptObjectForall(R,C)); }
+		/// get min cardinality restriction wrt number N, an object role R and a concept C
+	TDLConceptExpression* getConceptObjectMinCardinality ( unsigned int n, TDLObjectRoleExpression* R, TDLConceptExpression* C )
+		{ return record(new TDLConceptObjectMinCardinality(n,R,C)); }
+		/// get max cardinality restriction wrt number N, an object role R and a concept C
+	TDLConceptExpression* getConceptObjectMaxCardinality ( unsigned int n, TDLObjectRoleExpression* R, TDLConceptExpression* C )
+		{ return record(new TDLConceptObjectMaxCardinality(n,R,C)); }
+		/// get exact cardinality restriction wrt number N, an object role R and a concept C
+	TDLConceptExpression* getConceptObjectExactCardinality ( unsigned int n, TDLObjectRoleExpression* R, TDLConceptExpression* C )
+		{ return record(new TDLConceptObjectExactCardinality(n,R,C)); }
+
+		/// get value restriction wrt a data role R and a data value V
+	TDLConceptExpression* getConceptDataValue ( TDLDataRoleExpression* R, TDLDataValue* V )
+		{ return record(new TDLConceptDataValue(R,V)); }
+		/// get existential restriction wrt a data role R and a data expression E
+	TDLConceptExpression* getConceptDataExists ( TDLDataRoleExpression* R, TDLDataExpression* E )
+		{ return record(new TDLConceptDataExists(R,E)); }
+		/// get universal restriction wrt a data role R and a data expression E
+	TDLConceptExpression* getConceptDataForall ( TDLDataRoleExpression* R, TDLDataExpression* E )
+		{ return record(new TDLConceptDataForall(R,E)); }
+		/// get min cardinality restriction wrt number N, a data role R and a data expression E
+	TDLConceptExpression* getConceptDataMinCardinality ( unsigned int n, TDLDataRoleExpression* R, TDLDataExpression* E )
+		{ return record(new TDLConceptDataMinCardinality(n,R,E)); }
+		/// get max cardinality restriction wrt number N, a data role R and a data expression E
+	TDLConceptExpression* getConceptDataMaxCardinality ( unsigned int n, TDLDataRoleExpression* R, TDLDataExpression* E )
+		{ return record(new TDLConceptDataMaxCardinality(n,R,E)); }
+		/// get exact cardinality restriction wrt number N, a data role R and a data expression E
+	TDLConceptExpression* getConceptDataExactCardinality ( unsigned int n, TDLDataRoleExpression* R, TDLDataExpression* E )
+		{ return record(new TDLConceptDataExactCardinality(n,R,E)); }
 
 	// individuals
 
@@ -134,6 +182,8 @@ public:		// interface
 	TDLDataExpression* getDataBottom ( void ) const { return DBottom; }
 		/// get named data type
 	TDLDataExpression* getDataType ( const std::string& name ) { return NS_DT.insert(name); }
+		/// get data value with given VALUE and TYPE
+	TDLDataExpression* getDataValue ( const std::string& value, TDLDataTypeName* type ) { return record(new TDLDataValue(value,type)); }
 }; // TExpressionManager
 
 #endif

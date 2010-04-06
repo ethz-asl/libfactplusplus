@@ -1183,11 +1183,15 @@ public:		// interface
 //------------------------------------------------------------------
 ///	data value expression
 //------------------------------------------------------------------
-class TDLDataValue: public TDLDataExpression, public TDataExpressionArg<TDLDataTypeName>
+class TDLDataValue: public TDLDataExpression, public TNamedEntity, public TDataExpressionArg<TDLDataTypeName>
 {
 public:		// interface
 		/// init c'tor
-	TDLDataValue ( TDLDataTypeName* T ) : TDLDataExpression(), TDataExpressionArg<TDLDataTypeName>(T) {}
+	TDLDataValue ( const std::string& value, TDLDataTypeName* T )
+		: TDLDataExpression()
+		, TNamedEntity(value)
+		, TDataExpressionArg<TDLDataTypeName>(T)
+		{}
 		/// empty d'tor
 	virtual ~TDLDataValue ( void ) {}
 

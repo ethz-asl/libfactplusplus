@@ -45,6 +45,12 @@ TExpressionManager::~TExpressionManager ( void )
 void
 TExpressionManager::clear ( void )
 {
+	// clear all the names but the datatypes
+	NS_C.clear();
+	NS_I.clear();
+	NS_OR.clear();
+	NS_DR.clear();
+	// delete all the recorded references
 	for ( std::vector<TDLExpression*>::iterator p = RefRecorder.begin(), p_end = RefRecorder.end(); p < p_end; ++p )
 		delete *p;
 }
