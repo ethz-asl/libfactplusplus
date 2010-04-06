@@ -133,7 +133,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
   (JNIEnv * env, jobject obj)
 {
 	TRACE_JNI("getThing");
-	return Class ( env, getK(env,obj)->Top() );
+	return Class ( env, getEM(env,obj)->Top() );
 }
 
 /*
@@ -145,7 +145,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
   (JNIEnv * env, jobject obj)
 {
 	TRACE_JNI("getNothing");
-	return Class ( env, getK(env,obj)->Bottom() );
+	return Class ( env, getEM(env,obj)->Bottom() );
 }
 
 /*
@@ -363,7 +363,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
   (JNIEnv * env, jobject obj)
 {
 	TRACE_JNI("getDataTop");
-	return DataType ( env, getK(env,obj)->Top() );
+	return DataType ( env, getEM(env,obj)->Top() );
 }
 
 /*
@@ -375,7 +375,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
   (JNIEnv * env, jobject obj)
 {
 	TRACE_JNI("getDataEnumeration");
-	return DataTypeExpression ( env, getK(env,obj)->OneOf(/*data=*/true) );
+	return DataTypeExpression ( env, getEM(env,obj)->OneOf(/*data=*/true) );
 }
 
 /*
@@ -533,7 +533,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
   (JNIEnv * env, jobject obj, jobject arg)
 {
 	TRACE_JNI("getNot");
-	return DataTypeExpression ( env, getK(env,obj)->Not(getTree(env,arg)) );
+	return DataTypeExpression ( env, getEM(env,obj)->Not(getTree(env,arg)) );
 }
 
 /*
@@ -545,7 +545,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
   (JNIEnv * env, jobject obj)
 {
 	TRACE_JNI("getDataIntersectionOf");
-	return DataTypeExpression ( env, getK(env,obj)->And() );
+	return DataTypeExpression ( env, getEM(env,obj)->And() );
 }
 
 /*
@@ -557,7 +557,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
   (JNIEnv * env, jobject obj)
 {
 	TRACE_JNI("getDataUnionOf");
-	return DataTypeExpression ( env, getK(env,obj)->Or() );
+	return DataTypeExpression ( env, getEM(env,obj)->Or() );
 }
 
 /*
@@ -592,7 +592,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
   (JNIEnv * env, jobject obj)
 {
 	TRACE_JNI("getConceptAnd");
-	return Class ( env, getK(env,obj)->And() );
+	return Class ( env, getEM(env,obj)->And() );
 }
 
 /*
@@ -604,7 +604,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
   (JNIEnv * env, jobject obj)
 {
 	TRACE_JNI("getConceptOr");
-	return Class ( env, getK(env,obj)->Or() );
+	return Class ( env, getEM(env,obj)->Or() );
 }
 
 /*
@@ -616,7 +616,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
   (JNIEnv * env, jobject obj, jobject arg)
 {
 	TRACE_JNI("getConceptNot");
-	return Class ( env, getK(env,obj)->Not(getTree(env,arg)) );
+	return Class ( env, getEM(env,obj)->Not(getTree(env,arg)) );
 }
 
 /*
@@ -628,7 +628,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
   (JNIEnv * env, jobject obj, jobject arg1, jobject arg2)
 {
 	TRACE_JNI("getObjectSome");
-	return Class ( env, getK(env,obj)->Exists ( getTree(env,arg1), getTree(env,arg2) ) );
+	return Class ( env, getEM(env,obj)->Exists ( getTree(env,arg1), getTree(env,arg2) ) );
 }
 
 /*
@@ -640,7 +640,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
   (JNIEnv * env, jobject obj, jobject arg1, jobject arg2)
 {
 	TRACE_JNI("getObjectAll");
-	return Class ( env, getK(env,obj)->Forall ( getTree(env,arg1), getTree(env,arg2) ) );
+	return Class ( env, getEM(env,obj)->Forall ( getTree(env,arg1), getTree(env,arg2) ) );
 }
 
 /*
@@ -652,7 +652,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
   (JNIEnv * env, jobject obj, jobject arg1, jobject arg2)
 {
 	TRACE_JNI("getObjectValue");
-	return Class ( env, getK(env,obj)->Value ( getTree(env,arg1), getTree(env,arg2) ) );
+	return Class ( env, getEM(env,obj)->Value ( getTree(env,arg1), getTree(env,arg2) ) );
 }
 
 /*
@@ -664,7 +664,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
   (JNIEnv * env, jobject obj, jobject arg1, jobject arg2)
 {
 	TRACE_JNI("getDataSome");
-	return Class ( env, getK(env,obj)->Exists ( getTree(env,arg1), getTree(env,arg2) ) );
+	return Class ( env, getEM(env,obj)->Exists ( getTree(env,arg1), getTree(env,arg2) ) );
 }
 
 /*
@@ -676,7 +676,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
   (JNIEnv * env, jobject obj, jobject arg1, jobject arg2)
 {
 	TRACE_JNI("getDataAll");
-	return Class ( env, getK(env,obj)->Forall ( getTree(env,arg1), getTree(env,arg2) ) );
+	return Class ( env, getEM(env,obj)->Forall ( getTree(env,arg1), getTree(env,arg2) ) );
 }
 
 /*
@@ -688,7 +688,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
   (JNIEnv * env, jobject obj, jobject arg1, jobject arg2)
 {
 	TRACE_JNI("getDataValue");
-	return Class ( env, getK(env,obj)->Exists ( getTree(env,arg1), getTree(env,arg2) ) );
+	return Class ( env, getEM(env,obj)->Exists ( getTree(env,arg1), getTree(env,arg2) ) );
 }
 
 /*
@@ -700,7 +700,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
   (JNIEnv * env, jobject obj, jint n, jobject arg1, jobject arg2)
 {
 	TRACE_JNI("getObjectAtLeast");
-	return Class ( env, getK(env,obj)->MinCardinality ( n, getTree(env,arg1), getTree(env,arg2) ) );
+	return Class ( env, getEM(env,obj)->MinCardinality ( n, getTree(env,arg1), getTree(env,arg2) ) );
 }
 
 /*
@@ -712,7 +712,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
   (JNIEnv * env, jobject obj, jint n, jobject arg1, jobject arg2)
 {
 	TRACE_JNI("getObjectExact");
-	return Class ( env, getK(env,obj)->Cardinality ( n, getTree(env,arg1), getTree(env,arg2) ) );
+	return Class ( env, getEM(env,obj)->Cardinality ( n, getTree(env,arg1), getTree(env,arg2) ) );
 }
 
 /*
@@ -724,7 +724,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
   (JNIEnv * env, jobject obj, jint n, jobject arg1, jobject arg2)
 {
 	TRACE_JNI("getObjectAtMost");
-	return Class ( env, getK(env,obj)->MaxCardinality ( n, getTree(env,arg1), getTree(env,arg2) ) );
+	return Class ( env, getEM(env,obj)->MaxCardinality ( n, getTree(env,arg1), getTree(env,arg2) ) );
 }
 
 /*
@@ -736,7 +736,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
   (JNIEnv * env, jobject obj, jint n, jobject arg1, jobject arg2)
 {
 	TRACE_JNI("getDataAtLeast");
-	return Class ( env, getK(env,obj)->MinCardinality ( n, getTree(env,arg1), getTree(env,arg2) ) );
+	return Class ( env, getEM(env,obj)->MinCardinality ( n, getTree(env,arg1), getTree(env,arg2) ) );
 }
 
 /*
@@ -748,7 +748,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
   (JNIEnv * env, jobject obj, jint n, jobject arg1, jobject arg2)
 {
 	TRACE_JNI("getDataExact");
-	return Class ( env, getK(env,obj)->Cardinality ( n, getTree(env,arg1), getTree(env,arg2) ) );
+	return Class ( env, getEM(env,obj)->Cardinality ( n, getTree(env,arg1), getTree(env,arg2) ) );
 }
 
 /*
@@ -760,7 +760,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
   (JNIEnv * env, jobject obj, jint n, jobject arg1, jobject arg2)
 {
 	TRACE_JNI("getDataAtMost");
-	return Class ( env, getK(env,obj)->MaxCardinality ( n, getTree(env,arg1), getTree(env,arg2) ) );
+	return Class ( env, getEM(env,obj)->MaxCardinality ( n, getTree(env,arg1), getTree(env,arg2) ) );
 }
 
 /*
@@ -772,7 +772,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
   (JNIEnv * env, jobject obj, jobject arg)
 {
 	TRACE_JNI("getInverseProperty");
-	return ObjectProperty ( env, getK(env,obj)->Inverse(getTree(env,arg)) );
+	return ObjectProperty ( env, getEM(env,obj)->Inverse(getTree(env,arg)) );
 }
 
 /*
@@ -784,7 +784,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
   (JNIEnv * env, jobject obj)
 {
 	TRACE_JNI("getPropertyComposition");
-	return ObjectProperty ( env, getK(env,obj)->Compose() );
+	return ObjectProperty ( env, getEM(env,obj)->Compose() );
 }
 
 /*
@@ -824,7 +824,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
   (JNIEnv * env, jobject obj)
 {
 	TRACE_JNI("getOneOf");
-	return Class ( env, getK(env,obj)->OneOf(/*data=*/false) );
+	return Class ( env, getEM(env,obj)->OneOf(/*data=*/false) );
 }
 
 /*
@@ -836,7 +836,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
   (JNIEnv * env, jobject obj, jobject arg)
 {
 	TRACE_JNI("getSelf");
-	return Class ( env, getK(env,obj)->SelfReference(getTree(env,arg)) );
+	return Class ( env, getEM(env,obj)->SelfReference(getTree(env,arg)) );
 }
 
 

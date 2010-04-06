@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2006-2009 by Dmitry Tsarkov
+Copyright (C) 2006-2010 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -16,8 +16,8 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef _JNISUPPORT_H
-#define _JNISUPPORT_H
+#ifndef JNISUPPORT_H
+#define JNISUPPORT_H
 
 #include <jni.h>
 
@@ -158,32 +158,36 @@ ReasoningKernel* getK ( JNIEnv * env, jobject obj )
 	return curKernel->pKernel;
 }
 
+/// get the expression manager corresponding local kernel
+inline
+TExpressionManager* getEM ( JNIEnv * env, jobject obj ) { return getK(env,obj)->getExpressionManager(); }
+
 // get trees for the names in the unified way
 
-/// get tree for the class name by the kernel and the name
+/// get tree for the class name by the EM and the name
 inline
-DLTree* getCName ( ReasoningKernel* K, const std::string& name ) { return K->Concept(name); }
+DLTree* getCName ( TExpressionManager* EM, const std::string& name ) { return EM->Concept(name); }
 /// get tree for the class name by the env:obj and the name
 inline
-DLTree* getCName ( JNIEnv * env, jobject obj, const std::string& name ) { return getCName ( getK(env,obj), name ); }
-/// get tree for the individual name by the kernel and the name
+DLTree* getCName ( JNIEnv * env, jobject obj, const std::string& name ) { return getCName ( getEM(env,obj), name ); }
+/// get tree for the individual name by the EM and the name
 inline
-DLTree* getIName ( ReasoningKernel* K, const std::string& name ) { return K->Individual(name); }
+DLTree* getIName ( TExpressionManager* EM, const std::string& name ) { return EM->Individual(name); }
 /// get tree for the individual name by the env:obj and the name
 inline
-DLTree* getIName ( JNIEnv * env, jobject obj, const std::string& name ) { return getIName ( getK(env,obj), name ); }
-/// get tree for the object property name by the kernel and the name
+DLTree* getIName ( JNIEnv * env, jobject obj, const std::string& name ) { return getIName ( getEM(env,obj), name ); }
+/// get tree for the object property name by the EM and the name
 inline
-DLTree* getOName ( ReasoningKernel* K, const std::string& name ) { return K->ObjectRole(name); }
+DLTree* getOName ( TExpressionManager* EM, const std::string& name ) { return EM->ObjectRole(name); }
 /// get tree for the object property name by the env:obj and the name
 inline
-DLTree* getOName ( JNIEnv * env, jobject obj, const std::string& name ) { return getOName ( getK(env,obj), name ); }
-/// get tree for the data property name by the kernel and the name
+DLTree* getOName ( JNIEnv * env, jobject obj, const std::string& name ) { return getOName ( getEM(env,obj), name ); }
+/// get tree for the data property name by the EM and the name
 inline
-DLTree* getDName ( ReasoningKernel* K, const std::string& name ) { return K->DataRole(name); }
+DLTree* getDName ( TExpressionManager* EM, const std::string& name ) { return EM->DataRole(name); }
 /// get tree for the data property name by the env:obj and the name
 inline
-DLTree* getDName ( JNIEnv * env, jobject obj, const std::string& name ) { return getDName ( getK(env,obj), name ); }
+DLTree* getDName ( JNIEnv * env, jobject obj, const std::string& name ) { return getDName ( getEM(env,obj), name ); }
 
 // helper for getTree which extracts a JLONG from a given object
 inline
