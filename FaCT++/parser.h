@@ -73,6 +73,8 @@ protected:	// methods
 		return ret;
 	}
 
+		/// check whether expression R is data role
+	bool isDataRole ( DLTree* R ) const { return R->Element().getToken() == DNAME; }
 		/// get role expression, ie role or its inverse
 	DLTree* getRoleExpression ( void );
 		/// get simple role expression or role projection or chain
@@ -87,6 +89,8 @@ protected:	// methods
 	DLTree* processConceptTree ( void );
 		/// get concept-like expression for complex constructors
 	DLTree* processComplexConceptTree ( void );
+		/// get data expression
+	DLTree* getDataExpression ( void );
 
 public:		// interface
 		/// the only c'tor

@@ -121,7 +121,7 @@ void DLLispParser :: parseCommand ( void )
 				Kernel->setAntiSymmetric(R);
 				break;
 			case ROLERANGE:
-				Kernel->setRange ( R, processConceptTree() );
+				Kernel->setRange ( R, isDataRole(R) ? getDataExpression() : processConceptTree() );
 				break;
 			case ROLEDOMAIN:
 				Kernel->setDomain ( R, processConceptTree() );
@@ -317,15 +317,12 @@ DLTree* DLLispParser :: processConceptTree ( void )
 		return getConcept();
 	case ID:
 	{
-		Token T = scan.getNameKeyword();
-
-		if ( T != ID )	// TOP or BOTTOM
-		{
-			NextLex ();
-			return new DLTree (T);
+		switch ( scan.getNameKeyword() )
+		{	// Top/Bottom or real ID
+		case TOP: NextLex(); return EManager->Top();
+		case BOTTOM: NextLex(); return EManager->Bottom();
+		default: return getConcept();
 		}
-		// else -- concept name
-		return getConcept();
 	}
 	default:	// else -- report syntax error
 		MustBe(ID);
@@ -344,35 +341,6 @@ DLTree* DLLispParser :: processComplexConceptTree ( void )
 
 	switch (T)
 	{
-	case DTGT:
-		left = processConceptTree();
-		MustBeM(RBRACK);
-		right = Kernel->getDataTypeCenter().getDataExpr(left);
-		Kernel->getDataTypeCenter().applyFacet ( right,
-			Kernel->getDataTypeCenter().getMinExclusiveFacet(left) );
-		return right;
-	case DTGE:
-		left = processConceptTree();
-		MustBeM(RBRACK);
-		right = Kernel->getDataTypeCenter().getDataExpr(left);
-		Kernel->getDataTypeCenter().applyFacet ( right,
-			Kernel->getDataTypeCenter().getMinInclusiveFacet(left) );
-		return right;
-	case DTLT:
-		left = processConceptTree();
-		MustBeM(RBRACK);
-		right = Kernel->getDataTypeCenter().getDataExpr(left);
-		Kernel->getDataTypeCenter().applyFacet ( right,
-			Kernel->getDataTypeCenter().getMaxExclusiveFacet(left) );
-		return right;
-	case DTLE:
-		left = processConceptTree();
-		MustBeM(RBRACK);
-		right = Kernel->getDataTypeCenter().getDataExpr(left);
-		Kernel->getDataTypeCenter().applyFacet ( right,
-			Kernel->getDataTypeCenter().getMaxInclusiveFacet(left) );
-		return right;
-
 	case GE:
 	case LE:
 		// hack: id here is a number restriction
@@ -385,9 +353,9 @@ DLTree* DLLispParser :: processComplexConceptTree ( void )
 		left = getRoleExpression();
 		// second argument -- concept description
 		if ( Current == RBRACK )
-			right = new DLTree ( TOP );	// for (GE n R)
+			right = EManager->Top();	// for (GE n R)
 		else
-			right = processConceptTree ();
+			right = isDataRole(left) ? getDataExpression() : processConceptTree();
 
 		// skip right bracket
 		MustBeM ( RBRACK );
@@ -419,31 +387,8 @@ DLTree* DLLispParser :: processComplexConceptTree ( void )
 		return T == AND ? EManager->And() : EManager->Or();
 
 	case ONEOF:
-	case DONEOF:
-	{
-		bool data = ( T == DONEOF );
-		parseConceptList(/*singletonsOnly=*/!data);
-		return EManager->OneOf(data);
-	}
-
-	case STRING:	// expression (string <value>)
-	case NUMBER:	// expression (number <value>)
-	case REAL:		// expression (real <value>)
-	case BOOL:
-		left =	(T == STRING) ? Kernel->getDataTypeCenter().getStringType():
-				(T == NUMBER) ? Kernel->getDataTypeCenter().getNumberType():
-				(T == REAL ) ? Kernel->getDataTypeCenter().getRealType():
-				(T == BOOL ) ? Kernel->getDataTypeCenter().getBoolType():
-				NULL;	// error, but this can not happens
-
-		if ( Current == RBRACK )	// just datatype
-		{
-			NextLex();
-			return left;
-		}
-
-		NextLex();
-		return getDTValue(left);
+		parseConceptList(/*singletonsOnly=*/true);
+		return EManager->OneOf(/*data=*/false);
 
 	default:	// error
 		parseError ( "Unknown concept constructor" );
@@ -499,4 +444,99 @@ DLTree* DLLispParser :: getComplexRoleExpression ( void )
 
 	MustBeM(RBRACK);
 	return ret;
+}
+
+DLTree*
+DLLispParser :: getDataExpression ( void )
+{
+	// check for TOP/BOTTOM
+	if ( Code() == ID )
+	{
+		switch ( scan.getNameKeyword() )
+		{	// Top/Bottom; can not be name
+		case TOP: NextLex(); return EManager->Top();
+		case BOTTOM: NextLex(); return EManager->Bottom();
+		default: parseError ( "Unknown concept constructor" ); return NULL;
+		}
+	}
+
+	MustBeM(LBRACK);	// always complex expression
+	Token T = scan.getExpressionKeyword();
+	DLTree *left = NULL, *right = NULL;
+
+	NextLex ();
+
+	switch (T)
+	{
+	case DTGT:
+		left = getDataExpression();
+		MustBeM(RBRACK);
+		right = Kernel->getDataTypeCenter().getDataExpr(left);
+		Kernel->getDataTypeCenter().applyFacet ( right,
+			Kernel->getDataTypeCenter().getMinExclusiveFacet(left) );
+		return right;
+	case DTGE:
+		left = getDataExpression();
+		MustBeM(RBRACK);
+		right = Kernel->getDataTypeCenter().getDataExpr(left);
+		Kernel->getDataTypeCenter().applyFacet ( right,
+			Kernel->getDataTypeCenter().getMinInclusiveFacet(left) );
+		return right;
+	case DTLT:
+		left = getDataExpression();
+		MustBeM(RBRACK);
+		right = Kernel->getDataTypeCenter().getDataExpr(left);
+		Kernel->getDataTypeCenter().applyFacet ( right,
+			Kernel->getDataTypeCenter().getMaxExclusiveFacet(left) );
+		return right;
+	case DTLE:
+		left = getDataExpression();
+		MustBeM(RBRACK);
+		right = Kernel->getDataTypeCenter().getDataExpr(left);
+		Kernel->getDataTypeCenter().applyFacet ( right,
+			Kernel->getDataTypeCenter().getMaxInclusiveFacet(left) );
+		return right;
+
+	case NOT:
+		left = getDataExpression();
+		// skip right bracket
+		MustBeM ( RBRACK );
+		return EManager->Not(left);
+
+	case DONEOF:
+	case AND:
+	case OR:	// multiple And's/Or's
+		EManager->openArgList();
+		do
+		{
+			EManager->addArg(getDataExpression());
+		} while ( Current != RBRACK );
+
+		// list is parsed here
+		NextLex();	// skip ')'
+		return T == AND ? EManager->And() : T == OR ? EManager->Or() : EManager->OneOf(/*data=*/true);
+
+	case STRING:	// expression (string <value>)
+	case NUMBER:	// expression (number <value>)
+	case REAL:		// expression (real <value>)
+	case BOOL:
+		left =	(T == STRING) ? Kernel->getDataTypeCenter().getStringType():
+				(T == NUMBER) ? Kernel->getDataTypeCenter().getNumberType():
+				(T == REAL ) ? Kernel->getDataTypeCenter().getRealType():
+				(T == BOOL ) ? Kernel->getDataTypeCenter().getBoolType():
+				NULL;	// error, but this can not happens
+
+		if ( Current == RBRACK )	// just datatype
+		{
+			NextLex();
+			return left;
+		}
+
+		NextLex();
+		return getDTValue(left);
+
+	default:	// error
+		parseError ( "Unknown data constructor" );
+		return NULL;	// FSCO
+	}
 }

@@ -27,4 +27,3 @@ fpp_dig: digparser
 fpp_server: digparser
 	make -C FaCT++.Server
 
-
