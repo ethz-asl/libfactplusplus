@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2006 by Dmitry Tsarkov
+Copyright (C) 2003-2010 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -42,7 +42,7 @@ void KernelFactory :: createName ( std::string& id )
 	static unsigned int count;
 
 	std::stringstream s;
-	s << KBPrefix << setw(KBNumberLength) << setfill('0') << count++ << "_";
+	s << KBPrefix << std::setw(KBNumberLength) << std::setfill('0') << count++ << "_";
 
 	// clear the counter
 	if ( count >= maxKBNumber )

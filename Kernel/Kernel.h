@@ -28,10 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ReasonerNom.h"
 #include "ifOptions.h"
 #include "DLConceptTaxonomy.h"	// for getRelatives()
-#include "tExpressionManager.h"
 #include "tOntology.h"
-
-using namespace std;
 
 class ReasoningKernel
 {
@@ -53,15 +50,15 @@ public:	// types interface
 
 	// name sets
 	typedef TaxonomyVertex::EqualNames ConceptList;
-	typedef vector<ConceptName> ConceptNameSet;
-	typedef vector<RoleName> RoleNameSet;
-	typedef vector<ComplexConcept> ConceptExpressionList;
+	typedef std::vector<ConceptName> ConceptNameSet;
+	typedef std::vector<RoleName> RoleNameSet;
+	typedef std::vector<ComplexConcept> ConceptExpressionList;
 	typedef TBox::NamesVector NamesVector;
 
 	// ConceptSet = set of synonyms (concept names are positive)
-	typedef vector<ConceptList> ConceptSet;
+	typedef std::vector<ConceptList> ConceptSet;
 	// RoleSet = set of synonyms (role may be inverse)
-	typedef vector<RoleNameSet> RoleSet;
+	typedef std::vector<RoleNameSet> RoleSet;
 	// IndividualSet is just set of pos. names
 	typedef NamesVector IndividualSet;
 

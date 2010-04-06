@@ -1789,7 +1789,7 @@ JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlu
 	TRACE_ARG(env,obj,arg);
 	ReasoningKernel::NamesVector Rs;
 	PROCESS_ASK_QUERY ( getK(env,obj)->getRelatedRoles ( getROTree(env,arg), Rs, /*data=*/false, /*needI=*/false ),"askObjectProperties");
-	vector<DLTree*> acc;
+	std::vector<DLTree*> acc;
 	for ( ReasoningKernel::NamesVector::const_iterator p = Rs.begin(), p_end = Rs.end(); p < p_end; ++p )
 		acc.push_back(getOName(env,obj,(*p)->getName()));
 	return buildArray ( env, acc, cnObjectPropertyPointer() );
@@ -1808,7 +1808,7 @@ JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlu
 	TRACE_ARG(env,obj,arg2);
 	ReasoningKernel::NamesVector Js;
 	PROCESS_ASK_QUERY ( getK(env,obj)->getRoleFillers ( getROTree(env,arg1), getROTree(env,arg2), Js ),"askRelatedIndividuals");
-	vector<DLTree*> acc;
+	std::vector<DLTree*> acc;
 	for ( ReasoningKernel::NamesVector::const_iterator p = Js.begin(), p_end = Js.end(); p < p_end; ++p )
 		acc.push_back(getIName(env,obj,(*p)->getName()));
 	return buildArray ( env, acc, cnIndividualPointer() );
@@ -1826,7 +1826,7 @@ JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlu
 	TRACE_ARG(env,obj,arg);
 	ReasoningKernel::NamesVector Rs;
 	PROCESS_ASK_QUERY ( getK(env,obj)->getRelatedRoles ( getROTree(env,arg), Rs, /*data=*/true, /*needI=*/false ),"askDataProperties");
-	vector<DLTree*> acc;
+	std::vector<DLTree*> acc;
 	for ( ReasoningKernel::NamesVector::const_iterator p = Rs.begin(), p_end = Rs.end(); p < p_end; ++p )
 		acc.push_back(getDName(env,obj,(*p)->getName()));
 	return buildArray ( env, acc, cnDataPropertyPointer() );
@@ -1845,7 +1845,7 @@ JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlu
 	TRACE_ARG(env,obj,arg2);
 	ReasoningKernel::NamesVector Js;
 	PROCESS_ASK_QUERY ( getK(env,obj)->getRoleFillers ( getROTree(env,arg1), getROTree(env,arg2), Js ),"askRelatedValues");
-	vector<DLTree*> acc;
+	std::vector<DLTree*> acc;
 	for ( ReasoningKernel::NamesVector::const_iterator p = Js.begin(), p_end = Js.end(); p < p_end; ++p )
 		acc.push_back(new DLTree(TLexeme(DATAEXPR,new TTreeNamedEntry(const_cast<TNamedEntry*>(*p)))));
 	return buildArray ( env, acc, cnDataValuePointer() );

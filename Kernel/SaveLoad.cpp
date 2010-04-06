@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2008-2009 by Dmitry Tsarkov
+Copyright (C) 2008-2010 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -24,6 +24,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "eFPPSaveLoad.h"
 #include "Kernel.h"
+
+using namespace std;
 
 const char* ReasoningKernel :: InternalStateFileHeader = "FaCT++InternalStateDump1.0";
 
