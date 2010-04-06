@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2009 by Dmitry Tsarkov
+Copyright (C) 2003-2010 by Dmitry Tsarkov
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -16,8 +16,8 @@ along with this program; if not, write to the Free Software
 Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 */
 
-#ifndef _PARSER_HPP_
-#define _PARSER_HPP_
+#ifndef PARSER_H
+#define PARSER_H
 
 #include "comparser.h"
 #include "dltree.h"
@@ -29,6 +29,8 @@ class DLLispParser: public CommonParser
 protected:	// members
 		/// Kernel to be filled
 	ReasoningKernel* Kernel;
+		/// expression manager to be used
+	TExpressionManager* EManager;
 
 protected:	// methods
 		/// error by given exception
@@ -37,28 +39,28 @@ protected:	// methods
 		/// @return concept-like Id of just scanned name
 	DLTree* getConcept ( void )
 	{
-		DLTree* ret = Kernel->Concept(scan.GetName());
+		DLTree* ret = EManager->Concept(scan.GetName());
 		NextLex();
 		return ret;
 	}
 		/// @return singleton Id of just scanned name
 	DLTree* getSingleton ( void )
 	{
-		DLTree* ret = Kernel->Individual(scan.GetName());
+		DLTree* ret = EManager->Individual(scan.GetName());
 		NextLex();
 		return ret;
 	}
 		/// @return role-like Id of just scanned name
 	DLTree* getRole ( void )
 	{
-		DLTree* ret = Kernel->Role(scan.GetName());
+		DLTree* ret = EManager->Role(scan.GetName());
 		NextLex();
 		return ret;
 	}
 		/// @return role-like Id of just scanned name
 	DLTree* getDataRole ( void )
 	{
-		DLTree* ret = Kernel->DataRole(scan.GetName());
+		DLTree* ret = EManager->DataRole(scan.GetName());
 		NextLex();
 		return ret;
 	}
@@ -71,8 +73,10 @@ protected:	// methods
 		return ret;
 	}
 
-		/// get role expression, ie role, role's inverse or (if allowComplex) complex role expression
-	DLTree* getRoleExpression ( bool allowComplex );
+		/// get role expression, ie role or its inverse
+	DLTree* getRoleExpression ( void );
+		/// get simple role expression or role projection or chain
+	DLTree* getComplexRoleExpression ( void );
 		/// parse simple DL command
 	void parseCommand ( void );
 		/// parse role arguments if defprimrole command
@@ -89,6 +93,7 @@ public:		// interface
 	DLLispParser ( std::istream* in, ReasoningKernel* kernel )
 		: CommonParser (in)
 		, Kernel (kernel)
+		, EManager(kernel->getExpressionManager())
 	{
 	}
 		/// empty d'tor

@@ -30,6 +30,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "DLConceptTaxonomy.h"	// for getRelatives()
 #include "tOntology.h"
 
+class ReasoningKernel;
+typedef ReasoningKernel TExpressionManager;
+
 class ReasoningKernel
 {
 public:	// types interface
@@ -333,6 +336,9 @@ public:	// general staff
 	DataTypeCenter& getDataTypeCenter ( void ) { return DTCenter; }
 		/// get RO access to a DT center
 	const DataTypeCenter& getDataTypeCenter ( void ) const { return DTCenter; }
+
+		/// get access to an expression manager
+	TExpressionManager* getExpressionManager ( void ) { return this; }
 
 		/// check whether every named entry of E is defined in the KB
 	static void checkDefined ( const DLTree* E ) throw(EFPPCantRegName)

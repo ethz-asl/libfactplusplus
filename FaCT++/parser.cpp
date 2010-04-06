@@ -61,8 +61,8 @@ void DLLispParser :: parseCommand ( void )
 
 	if ( t == IMPLIES_R || t == EQUAL_R || t == DISJOINT_R || t == INVERSE )
 	{
-		DLTree* left = getRoleExpression(/*allowComplex=*/(t == IMPLIES_R));
-		DLTree* right = getRoleExpression(/*allowComplex=*/false);
+		DLTree* left = (t == IMPLIES_R) ? getComplexRoleExpression() : getRoleExpression();
+		DLTree* right = getRoleExpression();
 
 		try
 		{
@@ -96,7 +96,7 @@ void DLLispParser :: parseCommand ( void )
 		 t == ROLERANGE ||
 		 t == ROLEDOMAIN )
 	{
-		DLTree* R = getRoleExpression(/*allowComplex=*/false);
+		DLTree* R = getRoleExpression();
 
 		try
 		{
@@ -203,7 +203,7 @@ void DLLispParser :: parseCommand ( void )
 	case RELATED:			// command is (Related id1 R id2);
 	try {
 		DLTree* id1 = getSingleton();
-		DLTree* R = getRoleExpression(/*allowComplex=*/false);
+		DLTree* R = getRoleExpression();
 		MustBe (ID);	// second indiv.
 		DLTree* id2 = getSingleton();
 		Kernel->relatedTo ( id1, R, id2 );
@@ -253,11 +253,11 @@ void DLLispParser :: parseCommand ( void )
 
 void DLLispParser :: parseConceptList ( bool singletonsOnly )
 {
-	Kernel->openArgList();
+	EManager->openArgList();
 
 	// continue with all concepts
 	while ( Current != RBRACK )
-		Kernel->addArg ( singletonsOnly ? getSingleton() : processConceptTree() );
+		EManager->addArg ( singletonsOnly ? getSingleton() : processConceptTree() );
 
 	// skip RBRACK
 	MustBeM (RBRACK);
@@ -273,7 +273,7 @@ void DLLispParser :: parseRoleArguments ( DLTree* R )
 
 			while ( Current != RBRACK )
 			{
-				DLTree* S = getRoleExpression(/*allowComplex=*/false);
+				DLTree* S = getRoleExpression();
 				try
 				{
 					Kernel->impliesRoles ( clone(R), S );
@@ -382,7 +382,7 @@ DLTree* DLLispParser :: processComplexConceptTree ( void )
 	case FORALL:
 	case EXISTS:
 		// first argument -- role name
-		left = getRoleExpression(/*allowComplex=*/false);
+		left = getRoleExpression();
 		// second argument -- concept description
 		if ( Current == RBRACK )
 			right = new DLTree ( TOP );	// for (GE n R)
@@ -392,10 +392,10 @@ DLTree* DLLispParser :: processComplexConceptTree ( void )
 		// skip right bracket
 		MustBeM ( RBRACK );
 
-		return Kernel->ComplexExpression ( T, n, left, right );
+		return EManager->ComplexExpression ( T, n, left, right );
 
 	case REFLEXIVE:	// self-reference
-		left = getRoleExpression(/*allowComplex=*/false);
+		left = getRoleExpression();
 		// skip right bracket
 		MustBeM(RBRACK);
 		return Kernel->SelfReference(left);
@@ -404,26 +404,26 @@ DLTree* DLLispParser :: processComplexConceptTree ( void )
 		left = processConceptTree ();
 		// skip right bracket
 		MustBeM ( RBRACK );
-		return Kernel->Not(left);
+		return EManager->Not(left);
 
 	case AND:
 	case OR:	// multiple And's/Or's
-		Kernel->openArgList();
+		EManager->openArgList();
 		do
 		{
-			Kernel->addArg(processConceptTree());
+			EManager->addArg(processConceptTree());
 		} while ( Current != RBRACK );
 
 		// list is parsed here
 		NextLex();	// skip ')'
-		return T == AND ? Kernel->And() : Kernel->Or();
+		return T == AND ? EManager->And() : EManager->Or();
 
 	case ONEOF:
 	case DONEOF:
 	{
 		bool data = ( T == DONEOF );
 		parseConceptList(/*singletonsOnly=*/!data);
-		return Kernel->OneOf(data);
+		return EManager->OneOf(data);
 	}
 
 	case STRING:	// expression (string <value>)
@@ -451,53 +451,51 @@ DLTree* DLLispParser :: processComplexConceptTree ( void )
 	}
 }
 
-DLTree* DLLispParser :: getRoleExpression ( bool allowComplex )
+DLTree* DLLispParser :: getRoleExpression ( void )
+{
+	if ( Current != LBRACK )
+		return getRole();
+
+	NextLex();	// skip '('
+	if ( scan.getExpressionKeyword() != INV )
+		MustBe ( INV, "only role names and their inverses are allowed as a role expression" );
+	NextLex();	// skip INV
+	DLTree* ret = EManager->Inverse(getRoleExpression());
+	MustBeM(RBRACK);
+	return ret;
+}
+
+DLTree* DLLispParser :: getComplexRoleExpression ( void )
 {
 	if ( Current != LBRACK )
 		return getRole();
 
 	NextLex();	// skip '('
 	Token keyword = scan.getExpressionKeyword();
+	NextLex();	// skip keyword
 	DLTree* ret = NULL;
-	if ( keyword == INV )
+	switch ( keyword )
 	{
-		NextLex();	// skip INV
-		ret = Kernel->Inverse(getRoleExpression(/*allowComplex=*/false));
-		goto end;
-	}
-
-	// all other operators are complex
-	if ( !allowComplex )
-		MustBe ( INV, "only role names and their inverses are allowed as a role expression" );
-
-	if ( keyword == RCOMPOSITION )	// role composition expression = list of simple roles
-	{
-		NextLex();	// skip RCOMPOSITION
-		Kernel->openArgList();
-		Kernel->addArg(getRoleExpression(/*allowComplex=*/false));
+	case INV:	// inverse of a simple role
+		ret = EManager->Inverse(getRoleExpression());
+		break;
+	case RCOMPOSITION:	// role composition expression = list of simple roles
+		EManager->openArgList();
 		while ( Current != RBRACK )
-			Kernel->addArg(getRoleExpression(/*allowComplex=*/false));
-		ret = Kernel->Compose();
-		goto end;
-	}
-
-	if ( keyword == PROJINTO )	// role projection operator, parse simple role and concept
-	{
-		NextLex();	// skip PROJECTION
-		ret = getRoleExpression(/*allowComplex=*/false);
-		ret = Kernel->ProjectInto ( ret, processConceptTree() );
-		goto end;
-	}
-
-	if ( keyword == PROJFROM )	// role projection operator, parse simple role and concept
-	{
-		NextLex();	// skip PROJECTION
-		ret = getRoleExpression(/*allowComplex=*/false);
+			EManager->addArg(getRoleExpression());
+		ret = EManager->Compose();
+		break;
+	case PROJINTO:	// role projection operator, parse simple role and concept
+		ret = getRoleExpression();
+		ret = EManager->ProjectInto ( ret, processConceptTree() );
+		break;
+	case PROJFROM:	// role projection operator, parse simple role and concept
+		ret = getRoleExpression();
 		ret = Kernel->ProjectFrom ( ret, processConceptTree() );
-		goto end;
+		break;
+	default:
+		MustBe ( INV, "unknown expression in complex role constructor" );
 	}
-
-end:	// close bracket
 
 	MustBeM(RBRACK);
 	return ret;
