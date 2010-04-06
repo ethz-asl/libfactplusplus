@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2009 by Dmitry Tsarkov
+Copyright (C) 2003-2010 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -16,8 +16,8 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef __DIGPARSERHANDLERS_H
-#define __DIGPARSERHANDLERS_H
+#ifndef DIGPARSERHANDLERS_H
+#define DIGPARSERHANDLERS_H
 
 // ---------------------------------------------------------------------------
 //  Includes
@@ -142,8 +142,10 @@ protected:
 	/// factory of kernels
 	KernelFactory kFactory;
 
-	/// DL reasoner kernel
+		/// DL reasoner kernel
 	ReasoningKernel* pKernel;
+		/// Expression manager corresponding to kernel
+	TExpressionManager* pEM;
 
 	/// internal stack for the parsing operations
 	std::stack <DLTree*> workStack;
@@ -244,22 +246,22 @@ protected:	// methods
 		/// return concept by given name; throw exception if unable
 	DLTree* tryConceptName ( const std::string& name )
 	{
-		return pKernel->Concept(name);
+		return pEM->Concept(name);
 	}
 		/// return individual by given name; throw exception if unable
 	DLTree* tryIndividualName ( const std::string& name )
 	{
-		return pKernel->Individual(name);
+		return pEM->Individual(name);
 	}
 		/// return role by given name; throw exception if unable
 	DLTree* tryRoleName ( const std::string& name )
 	{
-		return pKernel->ObjectRole(name);
+		return pEM->ObjectRole(name);
 	}
 		/// return role by given name; throw exception if unable
 	DLTree* tryDataRoleName ( const std::string& name )
 	{
-		DLTree* x = pKernel->DataRole(name);
+		DLTree* x = pEM->DataRole(name);
 		try
 		{
 			pKernel->setFunctional(clone(x));	// in DIG 1.1 data roles are always functional

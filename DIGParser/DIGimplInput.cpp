@@ -129,6 +129,7 @@ void DIGParseHandlers :: startCommand ( DIGTag tag, AttributeList& attributes )
 			pKernel = kFactory.getKernel(KB);
 			if ( pKernel == NULL )
 				throw DIGParserException ( 203, "Unknown KB URI", "No such KB" );
+			pEM = pKernel->getExpressionManager();
 			if ( tag == digAsks )	// late classification: after all tells
 				try
 				{
@@ -182,11 +183,11 @@ void DIGParseHandlers :: startConcept ( DIGTag tag, AttributeList& attributes )
 	switch (tag)
 	{
 	case digTop:
-		workStack.push(pKernel->Top());
+		workStack.push(pEM->Top());
 		return;
 
 	case digBottom:
-		workStack.push(pKernel->Bottom());
+		workStack.push(pEM->Bottom());
 		return;
 
 	case digCAtom:
@@ -427,13 +428,13 @@ void DIGParseHandlers :: endConcept ( DIGTag tag )
 	case digNot:	// top := NOT (top)
 		if ( workStack.empty() )
 			throwArgumentAbsence ( "concept", tag );
-		workStack.top() = pKernel->Not(workStack.top());
+		workStack.top() = pEM->Not(workStack.top());
 		return;
 
 	case digInverse:
 		if ( workStack.empty() )
 			throwArgumentAbsence ( "role", tag );
-		workStack.top() = pKernel->Inverse(workStack.top());
+		workStack.top() = pEM->Inverse(workStack.top());
 		return;
 
 	case digSome:
@@ -446,7 +447,7 @@ void DIGParseHandlers :: endConcept ( DIGTag tag )
 		workStack.pop();
 		if ( workStack.empty() )
 			throwArgumentAbsence ( "concept", "role", tag );
-		workStack.top() = pKernel->ComplexExpression ( op, 0, workStack.top(), C );
+		workStack.top() = pEM->ComplexExpression ( op, 0, workStack.top(), C );
 		return;
 	}
 
@@ -472,7 +473,7 @@ void DIGParseHandlers :: endConcept ( DIGTag tag )
 		deleteTree(pN);
 
 		// create \?e n R.C
-		workStack.push ( pKernel->ComplexExpression ( op, n, R, C ) );
+		workStack.push ( pEM->ComplexExpression ( op, n, R, C ) );
 		return;
 	}
 	case digAnd:
@@ -481,7 +482,7 @@ void DIGParseHandlers :: endConcept ( DIGTag tag )
 		Token op = (tag == digAnd) ? AND : OR;
 		DLTree* stop = new DLTree(op);
 
-		pKernel->openArgList();
+		pEM->openArgList();
 
 		if ( workStack.empty() )
 			throwCorruptedStack(tag);
@@ -489,7 +490,7 @@ void DIGParseHandlers :: endConcept ( DIGTag tag )
 		// cycle until we find begin marker
 		while ( !equalTrees(workStack.top(),stop) )
 		{
-			pKernel->addArg(workStack.top());
+			pEM->addArg(workStack.top());
 			workStack.pop();
 
 			if ( workStack.empty() )
@@ -506,7 +507,7 @@ void DIGParseHandlers :: endConcept ( DIGTag tag )
 	}
 	case digISet:
 	{
-		pKernel->openArgList();
+		pEM->openArgList();
 
 		if ( workStack.empty() )
 			throwCorruptedStack(tag);
@@ -517,7 +518,7 @@ void DIGParseHandlers :: endConcept ( DIGTag tag )
 
 		while ( !equalTrees(cur,stop) )
 		{
-			pKernel->addArg(cur);
+			pEM->addArg(cur);
 
 			if ( workStack.empty() )
 				throwCorruptedStack(tag);
@@ -532,7 +533,7 @@ void DIGParseHandlers :: endConcept ( DIGTag tag )
 		workStack.pop();
 
 		//FIXME!! try..catch block here
-		workStack.push(pKernel->OneOf());
+		workStack.push(pEM->OneOf());
 		return;
 	}
 	// data staff
@@ -550,7 +551,7 @@ void DIGParseHandlers :: endConcept ( DIGTag tag )
 	case digDefined:
 		if ( workStack.empty() )
 			throwArgumentAbsence ( "data property", tag );
-		workStack.top() = pKernel->Exists ( workStack.top(), pKernel->Top() );
+		workStack.top() = pEM->Exists ( workStack.top(), pEM->Top() );
 		return;
 
 	// min/max data restrictions
@@ -578,7 +579,7 @@ void DIGParseHandlers :: endConcept ( DIGTag tag )
 			expr = pKernel->getDataTypeCenter().applyFacet ( expr,
 				pKernel->getDataTypeCenter().getMaxInclusiveFacet(N) );
 
-		workStack.push( pKernel->Exists ( R, expr ) );
+		workStack.push( pEM->Exists ( R, expr ) );
 		return;
 	}
 
@@ -606,7 +607,7 @@ void DIGParseHandlers :: endConcept ( DIGTag tag )
 		expr = pKernel->getDataTypeCenter().applyFacet ( expr,
 			pKernel->getDataTypeCenter().getMinInclusiveFacet(min) );
 
-		workStack.push( pKernel->Exists ( R, expr ) );
+		workStack.push( pEM->Exists ( R, expr ) );
 		return;
 	}
 
@@ -624,7 +625,7 @@ void DIGParseHandlers :: endConcept ( DIGTag tag )
 		// FIXME: throw exception
 		fpp_assert ( ps->Element().getToken() == DATAEXPR );
 		workStack.pop();
-		workStack.push ( pKernel->Exists ( A, ps ) );
+		workStack.push ( pEM->Exists ( A, ps ) );
 
 		return;
 	}
