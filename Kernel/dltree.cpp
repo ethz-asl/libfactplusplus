@@ -244,6 +244,7 @@ const char* TokenName ( Token t )
 	case FORALL:	return "all";
 	case GE:	return "at-least";
 	case LE:	return "at-most";
+	case RCOMPOSITION: return "compose";
 	case REFLEXIVE: return "self-ref";
 	case PROJINTO: return "project_into";
 	case PROJFROM: return "project_from";
@@ -289,6 +290,7 @@ std::ostream& operator << ( std::ostream& o, const DLTree *form )
 	case OR:
 	case EXISTS:
 	case FORALL:
+	case RCOMPOSITION:
 	case PROJINTO:
 	case PROJFROM:
 		o << " (" << TokenName (lex.getToken()) << form->Left() << form->Right() << ')';
