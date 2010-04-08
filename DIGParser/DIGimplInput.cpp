@@ -250,15 +250,9 @@ void DIGParseHandlers :: startConcept ( DIGTag tag, AttributeList& attributes )
 
 	// n-argument staff
 	case digAnd:
-		workStack.push ( new DLTree (AND) );	// put stopper into stack
-		return;
-
 	case digOr:
-		workStack.push ( new DLTree (OR) );		// put stopper into stack
-		return;
-
 	case digISet:
-		workStack.push ( new DLTree (ONEOF) );	// put stopper into stack
+		workStack.push(NULL);	// put stopper into stack
 		return;
 
 	// value staff
@@ -478,9 +472,7 @@ void DIGParseHandlers :: endConcept ( DIGTag tag )
 	}
 	case digAnd:
 	case digOr:
-	{
-		Token op = (tag == digAnd) ? AND : OR;
-		DLTree* stop = new DLTree(op);
+	case digISet:
 
 		pEM->openArgList();
 
@@ -488,7 +480,7 @@ void DIGParseHandlers :: endConcept ( DIGTag tag )
 			throwCorruptedStack(tag);
 
 		// cycle until we find begin marker
-		while ( !equalTrees(workStack.top(),stop) )
+		while ( workStack.top() != NULL  )
 		{
 			pEM->addArg(workStack.top());
 			workStack.pop();
@@ -497,45 +489,10 @@ void DIGParseHandlers :: endConcept ( DIGTag tag )
 				throwCorruptedStack(tag);
 		}
 
-		// delete marker
-		deleteTree(workStack.top());
-		workStack.pop();
-		deleteTree(stop);
-		// return appropriate value
-		workStack.push ( op == AND ? pKernel->And() : pKernel->Or() );
+		// replace marker
+		workStack.top() = tag == digAnd ? pEM->And() : tag == digOr ? pEM->Or() : pEM->OneOf();
 		return;
-	}
-	case digISet:
-	{
-		pEM->openArgList();
 
-		if ( workStack.empty() )
-			throwCorruptedStack(tag);
-
-		// init concept list
-		DLTree* stop = new DLTree(ONEOF);
-		DLTree* cur = workStack.top();
-
-		while ( !equalTrees(cur,stop) )
-		{
-			pEM->addArg(cur);
-
-			if ( workStack.empty() )
-				throwCorruptedStack(tag);
-
-			workStack.pop();
-			cur = workStack.top();
-		}
-
-		// here cur = OneOf
-		deleteTree(cur);
-		deleteTree(stop);
-		workStack.pop();
-
-		//FIXME!! try..catch block here
-		workStack.push(pEM->OneOf());
-		return;
-	}
 	// data staff
 	case digIVal:
 		workStack.push(tryDataValue(data,pKernel->getDataTypeCenter().getNumberType()));
