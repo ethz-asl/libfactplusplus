@@ -880,8 +880,7 @@ public:
 			return new DLTree(TOP);
 		if ( C == pBottom )
 			return new DLTree(BOTTOM);
-			// FIXME!! MEM-LEAK! this new TTNamEn will not be deleted!
-		return new DLTree ( TLexeme ( isIndividual(C) ? INAME : CNAME, new TTreeNamedEntry(C) ) );
+		return new DLTree ( TLexeme ( isIndividual(C) ? INAME : CNAME, C ) );
 	}
 
 	// n-ary absorption support

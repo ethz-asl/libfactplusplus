@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2009 by Dmitry Tsarkov
+Copyright (C) 2003-2010 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -16,11 +16,11 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef _TLEXEME_H
-#define _TLEXEME_H
+#ifndef TLEXEME_H
+#define TLEXEME_H
 
 #include "grammar.h"
-#include "tTreeNamedEntry.h"
+#include "tNamedEntry.h"
 
 /// Lexeme (smallest lexical element) in a syntax tree
 class TLexeme
@@ -31,13 +31,13 @@ private:	// members
 		/// pointer to information (for names)
 	union
 	{
-		TTreeNamedEntry* pName;
+		TNamedEntry* pName;
 		unsigned int data;
 	} value;
 
 public:		// interface
 		/// default c'tor for pointers
-	TLexeme ( Token tok = BAD_LEX, TTreeNamedEntry* p = NULL ) : token(tok) { value.pName = p; }
+	TLexeme ( Token tok = BAD_LEX, TNamedEntry* p = NULL ) : token(tok) { value.pName = p; }
 		/// default c'tor for numbers
 	TLexeme ( Token tok, unsigned int val ) : token(tok) { value.data = val; }
 		/// Copy c'tor
@@ -55,16 +55,11 @@ public:		// interface
 		/// get Token of given Lexeme
 	Token getToken ( void ) const { return token; }
 		/// get name pointer of given lexeme
-	TNamedEntry* getNE ( void ) const { return value.pName->getImpl(); }
+	TNamedEntry* getNE ( void ) const { return value.pName; }
 		/// get name pointer of given lexeme
 	const char* getName ( void ) const { return value.pName->getName(); }
 		/// get data value of given lexeme
 	unsigned int getData ( void ) const { return value.data; }
-		/// get TNE pointer
-	const TTreeNamedEntry* getPName ( void ) const { return value.pName; }
-
-		/// set name implementation for given lexeme
-	void setNE ( TNamedEntry* p ) { value.pName->setImpl(p); }
 
 	// comparison
 

@@ -216,6 +216,9 @@ bool isSNF ( const DLTree* t )
 	case FORALL:
 	case LE:
 	case REFLEXIVE:
+	case RCOMPOSITION:
+	case PROJFROM:
+	case PROJINTO:
 		return ( isSNF (t->Left()) && isSNF (t->Right()) );
 	default:
 		return false;

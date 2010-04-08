@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2009 by Dmitry Tsarkov
+Copyright (C) 2003-2010 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -16,8 +16,8 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef _ROLEMASTER_H
-#define _ROLEMASTER_H
+#ifndef ROLEMASTER_H
+#define ROLEMASTER_H
 
 #include "globaldef.h"
 #include "tNameSet.h"
@@ -149,6 +149,8 @@ public:		// interface
 		registerRole(p,isDataRole);
 		return p;
 	}
+		/// @return true iff NAME is a name of a registered role
+	bool isRegistered ( const std::string& name ) const { return roleNS.get(name) != NULL; }
 
 		/// add parent for the input role
 	void addRoleParent ( TRole* role, TRole* parent ) const

@@ -16,8 +16,8 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef _TROLE_H
-#define _TROLE_H
+#ifndef TROLE_H
+#define TROLE_H
 
 #include <set>
 #include <vector>
@@ -249,7 +249,7 @@ public:		// interface
 	{
 		if ( equalTrees ( pDomain, p ) )	// not just a CName
 			deleteTree(p);	// usual case when you have a name for inverse role
-		else if ( isFunctionalExpr ( p, getName() ) )
+		else if ( isFunctionalExpr ( p, this ) )
 		{
 			setFunctional();
 			deleteTree(p);	// functional restriction in the role domain means the role is functional

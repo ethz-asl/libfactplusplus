@@ -25,8 +25,8 @@ DLTree* inverseComposition ( const DLTree* tree )
 		return new DLTree ( TLexeme(RCOMPOSITION),
 							inverseComposition(tree->Right()),
 							inverseComposition(tree->Left()) );
-	else	// FIXME!! MEM-LEAK! this new TTNamEn is not deleted later, should be produced using central way
-		return new DLTree ( TLexeme ( RNAME, new TTreeNamedEntry(resolveRole(tree)->inverse()) ) );
+	else
+		return new DLTree ( TLexeme ( RNAME, resolveRole(tree)->inverse() ) );
 }
 
 void RoleMaster :: addRoleParent ( const DLTree* tree, TRole* parent )
@@ -50,8 +50,8 @@ void RoleMaster :: addRoleParent ( const DLTree* tree, TRole* parent )
 		if ( R->isDataRole() )
 			throw EFaCTPlusPlus("Projection into not implemented for the data role");
 		DLTree* C = clone(tree->Right());
-		DLTree* InvP = new DLTree ( TLexeme ( RNAME, new TTreeNamedEntry(parent->inverse()) ) );
-		DLTree* InvR = new DLTree ( TLexeme ( RNAME, new TTreeNamedEntry(R->inverse()) ) );
+		DLTree* InvP = new DLTree ( TLexeme ( RNAME, parent->inverse() ) );
+		DLTree* InvR = new DLTree ( TLexeme ( RNAME, R->inverse() ) );
 		R->setRange ( new DLTree ( PROJFROM, InvR, new DLTree ( PROJINTO, InvP, C ) ) );
 	}
 	else if ( tree->Element() == PROJFROM )
@@ -61,7 +61,7 @@ void RoleMaster :: addRoleParent ( const DLTree* tree, TRole* parent )
 		// added to the domain of R
 		TRole* R = resolveRole(tree->Left());
 		DLTree* C = clone(tree->Right());
-		DLTree* P = new DLTree ( TLexeme ( RNAME, new TTreeNamedEntry(parent) ) );
+		DLTree* P = new DLTree ( TLexeme ( RNAME, parent ) );
 		R->setDomain ( new DLTree ( PROJFROM, clone(tree->Left()), new DLTree ( PROJINTO, P, C ) ) );
 	}
 	else

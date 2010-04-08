@@ -16,8 +16,8 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef _DATATYPECENTER_H
-#define _DATATYPECENTER_H
+#ifndef DATATYPECENTER_H
+#define DATATYPECENTER_H
 
 #include "tDataType.h"
 #include "dltree.h"
@@ -83,7 +83,7 @@ protected:	// methods
 	// DLTree wrapping interface
 
 		/// get DLTree by a given TDE
-	static DLTree* wrap ( const TDataEntry* t ) { return new DLTree(TLexeme(DATAEXPR,new TTreeNamedEntry(const_cast<TDataEntry*>(t)))); }
+	static DLTree* wrap ( const TDataEntry* t ) { return new DLTree(TLexeme(DATAEXPR,const_cast<TDataEntry*>(t))); }
 		/// get TDE by a given DLTree
 	static TDataEntry* unwrap ( const DLTree* t ) { return static_cast<TDataEntry*>(t->Element().getNE()); }
 

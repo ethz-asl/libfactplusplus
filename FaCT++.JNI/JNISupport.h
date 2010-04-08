@@ -254,9 +254,9 @@ jlong getId ( DLTree* p )
 	case BOTTOM:	return -1;
 	case NAME:
 #	ifdef JNI_TRACING
-		std::cerr << "ID for " << TokenName(p->Element().getToken()) << p << ": " << (jlong)p->Element().getPName() << "\n";
+		std::cerr << "ID for " << TokenName(p->Element().getToken()) << p << ": " << (jlong)p->Element().getNE() << "\n";
 #	endif
-		return (jlong)p->Element().getPName();
+		return (jlong)p->Element().getNE();
 	default:		return 0;
 	}
 }

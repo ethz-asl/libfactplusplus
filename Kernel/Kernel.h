@@ -84,7 +84,7 @@ protected:	// types
 		/// enumeration for the cache
 	enum cacheStatus { csEmpty, csSat, csClassified };
 		/// set of TreeNE
-	class TreeNESet: public TNameSet<TTreeNamedEntry>
+/*	class TreeNESet: public TNameSet<TTreeNamedEntry>
 	{
 	public:
 			/// empty c'tor
@@ -106,7 +106,7 @@ protected:	// types
 				x.recordDataRole(p->second->getName());
 		}
 	}; // TreeNESet
-
+*/
 		/// helper that deletes temporary trees
 	class TreeDeleter
 	{
@@ -122,12 +122,6 @@ protected:	// types
 protected:	// members
 		/// local TBox (to be created)
 	TBox* pTBox;
-		/// NameSets for the named entities
-	TreeNESet
-		Concepts,
-		ORoles,
-		DRoles,
-		Individuals;
 		/// DataType center
 	DataTypeCenter DTCenter;
 		/// set of queues for the n-ary expressions/commands
@@ -345,7 +339,7 @@ public:	// general staff
 	{
 		if ( E == NULL )
 			return;
-		switch ( E->Element().getToken() )
+/*		switch ( E->Element().getToken() )
 		{
 		case CNAME:
 			if ( E->Element().getNE() == NULL )
@@ -367,7 +361,7 @@ public:	// general staff
 			checkDefined(E->Left());
 			checkDefined(E->Right());
 			break;
-		};
+		};*/
 	}
 
 public:
@@ -400,10 +394,6 @@ public:
 		deleteTree(cachedQuery);
 		cachedQuery = NULL;
 		Ontology.clear();
-		Concepts.clear();
-		Individuals.clear();
-		ORoles.clear();
-		DRoles.clear();
 
 		return false;
 	}
@@ -433,7 +423,7 @@ public:
 		/// @return BOTTOM
 	ComplexConcept Bottom ( void ) { return regPointer ( new DLTree(BOTTOM) ); }
 		/// @return concept corresponding to NAME
-	ComplexConcept Concept ( const std::string& name ) { return regPointer ( new DLTree ( TLexeme ( CNAME, Concepts.insert(name) ) ) ); }
+	ComplexConcept Concept ( const std::string& name ) { return regPointer ( new DLTree ( TLexeme ( CNAME, getTBox()->getConcept(name) ) ) ); }
 		/// @return ~C
 	ComplexConcept Not ( ComplexConcept C ) { return regPointer(createSNFNot(C)); }
 		/// @return C/\D
@@ -488,11 +478,11 @@ public:
 	//-------------------------------------------------------------------
 
 		/// @return object role corresponding to NAME
-	ComplexRole ObjectRole ( const std::string& name ) { return regPointer ( new DLTree ( TLexeme ( RNAME, ORoles.insert(name) ) ) ); }
+	ComplexRole ObjectRole ( const std::string& name ) { return regPointer ( new DLTree ( TLexeme ( RNAME, getORM()->ensureRoleName(name,/*data=*/false) ) ) ); }
 		/// @return data role corresponding to NAME
-	ComplexRole DataRole ( const std::string& name ) { return regPointer ( new DLTree ( TLexeme ( DNAME, DRoles.insert(name) ) ) ); }
+	ComplexRole DataRole ( const std::string& name ) { return regPointer ( new DLTree ( TLexeme ( DNAME, getDRM()->ensureRoleName(name,/*data=*/true) ) ) ); }
 		/// register NAME as a role if it is not a data property (kludge for LISP interface)
-	ComplexRole Role ( const std::string& name ) { return DRoles.get(name) ? DataRole(name) : ObjectRole(name); }
+	ComplexRole Role ( const std::string& name ) { return getDRM()->isRegistered(name) ? DataRole(name) : ObjectRole(name); }
 		/// @return universal role
 //	ComplexRole UniversalRole ( void ) const { return new DLTree(UROLE); }
 		/// @return R^-
@@ -509,7 +499,7 @@ public:
 	//-------------------------------------------------------------------
 
 		/// @return individual corresponding to NAME
-	ComplexConcept Individual ( const std::string& name ) { return regPointer ( new DLTree ( TLexeme ( INAME, Individuals.insert(name) ) ) ); }
+	ComplexConcept Individual ( const std::string& name ) { return regPointer ( new DLTree ( TLexeme ( INAME, getTBox()->getIndividual(name) ) ) ); }
 
 	//----------------------------------------------------
 	//	TELLS interface
@@ -670,10 +660,6 @@ public:
 		delete pTBox;
 		pTBox = NULL;
 		newKB();
-		Concepts.clearLabels();
-		Individuals.clearLabels();
-		ORoles.clearLabels();
-		DRoles.clearLabels();
 		DTCenter.clearTypes();
 		realiseKB();
 	}

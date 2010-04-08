@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2009 by Dmitry Tsarkov
+Copyright (C) 2003-2010 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -16,8 +16,8 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef __DLTREE_H
-#define __DLTREE_H
+#ifndef DLTREE_H
+#define DLTREE_H
 
 #include <vector>
 #include <iostream>
@@ -90,9 +90,9 @@ inline bool isCN ( const DLTree* t ) { return isConst(t) || isName(t); }
 	/// check whether T is U-Role
 inline bool isUniversalRole ( const DLTree* t ) { return isRName(t) && t->Element().getNE()->isTop(); }
 	/// check whether T is an expression in the form (atmost 1 RNAME)
-inline bool isFunctionalExpr ( const DLTree* t, const std::string& RName )
+inline bool isFunctionalExpr ( const DLTree* t, const TNamedEntry* R )
 {
-	return t && t->Element().getToken() == LE && RName == t->Left()->Element().getName() &&
+	return t && t->Element().getToken() == LE && R == t->Left()->Element().getNE() &&
 		   t->Element().getData() == 1 && t->Right()->Element().getToken() == TOP;
 }
 
@@ -165,37 +165,6 @@ inline DLTree* createSNFLE ( unsigned int n, DLTree* R, DLTree* C )
 	if ( n == 0 )	// <= 0 R.C -> \AR.\not C
 		return createSNFForall ( R, createSNFNot(C) );
 	return new DLTree ( TLexeme ( LE, n ), R, C );
-}
-
-// parser access
-
-	/// create and-like formula (C\and D or C\or D)
-inline DLTree* createSNFwC ( Token T, DLTree* C, DLTree* D )
-{
-	fpp_assert ( T == AND || T == OR );
-
-	if ( T == AND )
-		return createSNFAnd ( C, D );
-	else
-		return createSNFOr ( C, D );
-}
-	/// create R-like formula (\ER.C, \AR.C, >= n R.C, <= n R.C)
-inline DLTree* createSNFwR ( Token T, unsigned int n, DLTree* R, DLTree* C )
-{
-	switch(T)
-	{
-	case LE:
-		return createSNFLE ( n, R, C );
-	case GE:
-		return createSNFGE ( n, R, C );
-	case EXISTS:
-		return createSNFExists ( R, C );
-	case FORALL:
-		return createSNFForall ( R, C );
-	default:
-		fpp_unreachable();
-		return NULL;
-	}
 }
 
 // prints formula
