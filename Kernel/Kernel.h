@@ -538,6 +538,9 @@ public:
 
 	// Role axioms
 
+		/// R = Inverse(S)
+	TDLAxiom* setInverseRoles ( const ComplexRole R, const ComplexRole S )
+		{ return Ontology.add ( new TDLAxiomRoleInverse(R,S) ); }
 		/// axiom (R [= S)
 	TDLAxiom* impliesRoles ( ComplexRole R, ComplexRole S )
 		{ return Ontology.add ( new TDLAxiomRoleSubsumption ( R, S ) ); }
@@ -579,6 +582,9 @@ public:
 		/// Functional (R)
 	TDLAxiom* setFunctional ( ComplexRole R )
 		{ return Ontology.add ( new TDLAxiomRoleFunctional(R) ); }
+		/// InverseFunctional (R)
+	TDLAxiom* setInverseFunctional ( ComplexRole R )
+		{ return Ontology.add ( new TDLAxiomRoleInverseFunctional(R) ); }
 
 
 	// Individual axioms

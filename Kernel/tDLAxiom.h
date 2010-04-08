@@ -32,6 +32,7 @@ class TDLAxiomSameIndividuals;
 class TDLAxiomDifferentIndividuals;
 class TDLAxiomFairnessConstraint;
 
+class TDLAxiomRoleInverse;
 class TDLAxiomRoleSubsumption;
 class TDLAxiomRoleDomain;
 class TDLAxiomRoleRange;
@@ -41,6 +42,7 @@ class TDLAxiomRoleIrreflexive;
 class TDLAxiomRoleSymmetric;
 class TDLAxiomRoleAntiSymmetric;
 class TDLAxiomRoleFunctional;
+class TDLAxiomRoleInverseFunctional;
 
 class TDLAxiomConceptInclusion;
 class TDLAxiomInstanceOf;
@@ -65,6 +67,7 @@ public:		// visitor interface
 	virtual void visit ( TDLAxiomDifferentIndividuals& axiom ) = 0;
 	virtual void visit ( TDLAxiomFairnessConstraint& axiom ) = 0;
 
+	virtual void visit ( TDLAxiomRoleInverse& axiom ) = 0;
 	virtual void visit ( TDLAxiomRoleSubsumption& axiom ) = 0;
 	virtual void visit ( TDLAxiomRoleDomain& axiom ) = 0;
 	virtual void visit ( TDLAxiomRoleRange& axiom ) = 0;
@@ -74,6 +77,7 @@ public:		// visitor interface
 	virtual void visit ( TDLAxiomRoleSymmetric& axiom ) = 0;
 	virtual void visit ( TDLAxiomRoleAntiSymmetric& axiom ) = 0;
 	virtual void visit ( TDLAxiomRoleFunctional& axiom ) = 0;
+	virtual void visit ( TDLAxiomRoleInverseFunctional& axiom ) = 0;
 
 	virtual void visit ( TDLAxiomConceptInclusion& axiom ) = 0;
 	virtual void visit ( TDLAxiomInstanceOf& axiom ) = 0;
@@ -323,6 +327,29 @@ public:		// interface
 }; // TDLAxiomSingleRole
 
 //------------------------------------------------------------------
+///	Role inverse axiom
+//------------------------------------------------------------------
+class TDLAxiomRoleInverse: public TDLAxiomSingleRole
+{
+protected:	// members
+	DLTree* InvRole;
+
+public:		// interface
+		/// c'tor: create an axiom
+	TDLAxiomRoleInverse ( DLTree* dirRole, DLTree* invRole )
+		: TDLAxiomSingleRole(dirRole)
+		, InvRole(invRole)
+		{}
+		/// d'tor
+	virtual ~TDLAxiomRoleInverse ( void ) { deleteTree(InvRole); }
+		/// accept method for the visitor pattern
+	void accept ( DLAxiomVisitor& visitor ) { visitor.visit(*this); }
+
+		/// access to role
+	const DLTree* getInvRole ( void ) const { return InvRole; }
+}; // TDLAxiomRoleInverse
+
+//------------------------------------------------------------------
 ///	Role subsumption axiom
 //------------------------------------------------------------------
 class TDLAxiomRoleSubsumption: public TDLAxiomSingleRole
@@ -486,6 +513,22 @@ public:		// interface
 		/// accept method for the visitor pattern
 	void accept ( DLAxiomVisitor& visitor ) { visitor.visit(*this); }
 }; // TDLAxiomRoleFunctional
+
+//------------------------------------------------------------------
+///	Role inverse functionality axiom
+//------------------------------------------------------------------
+class TDLAxiomRoleInverseFunctional: public TDLAxiomSingleRole
+{
+public:		// interface
+		/// c'tor: create an axiom
+	TDLAxiomRoleInverseFunctional ( DLTree* role )
+		: TDLAxiomSingleRole(role)
+		{}
+		/// d'tor;
+	virtual ~TDLAxiomRoleInverseFunctional ( void ) {}
+		/// accept method for the visitor pattern
+	void accept ( DLAxiomVisitor& visitor ) { visitor.visit(*this); }
+}; // TDLAxiomRoleInverseFunctional
 
 
 //------------------------------------------------------------------

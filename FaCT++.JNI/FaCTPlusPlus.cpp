@@ -996,7 +996,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tel
 JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellInverseProperties
   (JNIEnv * env, jobject obj, jobject arg1, jobject arg2)
 {
-	PROCESS_QUERY ( getK(env,obj)->equalRoles ( getTree(env,arg1), getK(env,obj)->Inverse(getTree(env,arg2)) ), "tellInverseProperties" );
+	PROCESS_QUERY ( getK(env,obj)->setInverseRoles ( getTree(env,arg1), getTree(env,arg2) ), "tellInverseProperties" );
 }
 
 /*
@@ -1073,7 +1073,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tel
 JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellInverseFunctionalObjectProperty
   (JNIEnv * env, jobject obj, jobject arg)
 {
-	PROCESS_QUERY ( getK(env,obj)->setFunctional(getK(env,obj)->Inverse(getTree(env,arg))), "tellInverseFunctionalObjectProperty" );
+	PROCESS_QUERY ( getK(env,obj)->setInverseFunctional(getTree(env,arg)), "tellInverseFunctionalObjectProperty" );
 }
 
 /*

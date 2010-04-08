@@ -121,6 +121,14 @@ public:		// visitor interface
 
 	// role axioms
 
+	virtual void visit ( TDLAxiomRoleInverse& axiom )
+	{
+		ensureNames(axiom.getRole());
+		ensureNames(axiom.getInvRole());
+		TRole* R = getRole ( axiom.getRole(), "Role expression expected in Role Inverse axiom" );
+		TRole* iR = getRole ( axiom.getInvRole(), "Role expression expected in Role Inverse axiom" );
+		kb.getRM(R)->addRoleSynonym ( iR->inverse(), R );
+	}
 	virtual void visit ( TDLAxiomRoleSubsumption& axiom )
 	{
 		ensureNames(axiom.getRole());
@@ -183,6 +191,13 @@ public:		// visitor interface
 		if ( isUniversalRole(axiom.getRole()) )	// KB became inconsistent
 			throw EFPPInconsistentKB();
 		getRole ( axiom.getRole(), "Role expression expected in Role Functionality axiom" )->setFunctional();
+	}
+	virtual void visit ( TDLAxiomRoleInverseFunctional& axiom )
+	{
+		ensureNames(axiom.getRole());
+		if ( isUniversalRole(axiom.getRole()) )	// KB became inconsistent
+			throw EFPPInconsistentKB();
+		getRole ( axiom.getRole(), "Role expression expected in Role Inverse Functionality axiom" )->inverse()->setFunctional();
 	}
 
 	// concept/individual axioms
