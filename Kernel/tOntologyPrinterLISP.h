@@ -77,22 +77,28 @@ public:		// visitor interface
 
 	virtual void visit ( TDLAxiomEquivalentConcepts& axiom ) { o << "(equal_c"; print ( axiom.begin(), axiom.end() ); o << ")\n"; }
 	virtual void visit ( TDLAxiomDisjointConcepts& axiom ) { o << "(disjoint_c"; print ( axiom.begin(), axiom.end() ); o << ")\n"; }
-	virtual void visit ( TDLAxiomEquivalentRoles& axiom ) { o << "(equal_r"; print ( axiom.begin(), axiom.end() ); o << ")\n"; }
-	virtual void visit ( TDLAxiomDisjointRoles& axiom ) { o << "(disjoint_r"; print ( axiom.begin(), axiom.end() ); o << ")\n"; }
+	virtual void visit ( TDLAxiomEquivalentORoles& axiom ) { o << "(equal_r"; print ( axiom.begin(), axiom.end() ); o << ")\n"; }
+	virtual void visit ( TDLAxiomEquivalentDRoles& axiom ) { o << "(equal_r"; print ( axiom.begin(), axiom.end() ); o << ")\n"; }
+	virtual void visit ( TDLAxiomDisjointORoles& axiom ) { o << "(disjoint_r"; print ( axiom.begin(), axiom.end() ); o << ")\n"; }
+	virtual void visit ( TDLAxiomDisjointDRoles& axiom ) { o << "(disjoint_r"; print ( axiom.begin(), axiom.end() ); o << ")\n"; }
 	virtual void visit ( TDLAxiomSameIndividuals& axiom ) { o << "(same"; printInd ( axiom.begin(), axiom.end() ); o << ")\n"; }
 	virtual void visit ( TDLAxiomDifferentIndividuals& axiom ) { o << "(different"; printInd ( axiom.begin(), axiom.end() ); o << ")\n"; }
 	virtual void visit ( TDLAxiomFairnessConstraint& axiom ) { o << "(fairness"; print ( axiom.begin(), axiom.end() ); o << ")\n"; }
 
 	virtual void visit ( TDLAxiomRoleInverse& axiom ) { o << "(equal_r" << axiom.getRole() << " (inv" << axiom.getInvRole() << "))\n"; }
-	virtual void visit ( TDLAxiomRoleSubsumption& axiom ) { o << "(implies_r" << axiom.getSubRole() << axiom.getRole() << ")\n"; }
-	virtual void visit ( TDLAxiomRoleDomain& axiom ) { o << "(domain" << axiom.getRole() << axiom.getDomain() << ")\n"; }
-	virtual void visit ( TDLAxiomRoleRange& axiom ) { o << "(range" << axiom.getRole() << axiom.getRange() << ")\n"; }
+	virtual void visit ( TDLAxiomORoleSubsumption& axiom ) { o << "(implies_r" << axiom.getSubRole() << axiom.getRole() << ")\n"; }
+	virtual void visit ( TDLAxiomDRoleSubsumption& axiom ) { o << "(implies_r" << axiom.getSubRole() << axiom.getRole() << ")\n"; }
+	virtual void visit ( TDLAxiomORoleDomain& axiom ) { o << "(domain" << axiom.getRole() << axiom.getDomain() << ")\n"; }
+	virtual void visit ( TDLAxiomDRoleDomain& axiom ) { o << "(domain" << axiom.getRole() << axiom.getDomain() << ")\n"; }
+	virtual void visit ( TDLAxiomORoleRange& axiom ) { o << "(range" << axiom.getRole() << axiom.getRange() << ")\n"; }
+	virtual void visit ( TDLAxiomDRoleRange& axiom ) { o << "(range" << axiom.getRole() << axiom.getRange() << ")\n"; }
 	virtual void visit ( TDLAxiomRoleTransitive& axiom ) { o << "(transitive" << axiom.getRole() << ")\n"; }
 	virtual void visit ( TDLAxiomRoleReflexive& axiom ) { o << "(reflexive" << axiom.getRole() << ")\n"; }
 	virtual void visit ( TDLAxiomRoleIrreflexive& axiom ) { o << "(irreflexive" << axiom.getRole() << ")\n"; }
 	virtual void visit ( TDLAxiomRoleSymmetric& axiom ) { o << "(symmetric" << axiom.getRole() << ")\n"; }
 	virtual void visit ( TDLAxiomRoleAntiSymmetric& axiom ) { o << "(antisymmetric" << axiom.getRole() << ")\n"; }
-	virtual void visit ( TDLAxiomRoleFunctional& axiom ) { o << "(functional" << axiom.getRole() << ")\n"; }
+	virtual void visit ( TDLAxiomORoleFunctional& axiom ) { o << "(functional" << axiom.getRole() << ")\n"; }
+	virtual void visit ( TDLAxiomDRoleFunctional& axiom ) { o << "(functional" << axiom.getRole() << ")\n"; }
 	virtual void visit ( TDLAxiomRoleInverseFunctional& axiom ) { o << "(functional (inv" << axiom.getRole() << "))\n"; }
 
 	virtual void visit ( TDLAxiomConceptInclusion& axiom ) { o << "(implies_c" << axiom.getSubC() << axiom.getSupC() << ")\n"; }

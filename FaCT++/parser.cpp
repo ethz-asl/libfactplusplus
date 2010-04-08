@@ -63,20 +63,39 @@ void DLLispParser :: parseCommand ( void )
 	{
 		DLTree* left = (t == IMPLIES_R) ? getComplexRoleExpression() : getRoleExpression();
 		DLTree* right = getRoleExpression();
+		bool data = isDataRole(left);
 
 		try
 		{
-			if ( t == IMPLIES_R )
-				Kernel->impliesRoles ( left, right );
-			else if ( t == EQUAL_R )
-				Kernel->equalRoles ( left, right );
-			else if ( t == INVERSE )
+			if ( t == INVERSE )
+				Kernel->setInverseRoles ( left, right );
+			else if ( t == IMPLIES_R )
 			{
-				right = createInverse(right);
-				Kernel->equalRoles ( left, right );
+				if ( data )
+					Kernel->impliesDRoles ( left, right );
+				else
+					Kernel->impliesORoles ( left, right );
 			}
 			else
-				Kernel->disjointRoles ( left, right );
+			{	// make N-ary arg
+				EManager->openArgList();
+				EManager->addArg(left);
+				EManager->addArg(right);
+				if ( data )
+				{
+					if ( t == DISJOINT_R )
+						Kernel->disjointDRoles();
+					else
+						Kernel->equalDRoles();
+				}
+				else
+				{
+					if ( t == DISJOINT_R )
+						Kernel->disjointORoles();
+					else
+						Kernel->equalORoles();
+				}
+			}
 		}
 		catch ( EFaCTPlusPlus ex )
 		{
@@ -97,13 +116,17 @@ void DLLispParser :: parseCommand ( void )
 		 t == ROLEDOMAIN )
 	{
 		DLTree* R = getRoleExpression();
+		bool data = isDataRole(R);
 
 		try
 		{
 			switch (t)
 			{
 			case FUNCTIONAL:
-				Kernel->setFunctional(R);
+				if ( data )
+					Kernel->setDFunctional(R);
+				else
+					Kernel->setOFunctional(R);
 				break;
 			case TRANSITIVE:
 				Kernel->setTransitive(R);
@@ -121,10 +144,16 @@ void DLLispParser :: parseCommand ( void )
 				Kernel->setAntiSymmetric(R);
 				break;
 			case ROLERANGE:
-				Kernel->setRange ( R, isDataRole(R) ? getDataExpression() : processConceptTree() );
+				if ( data )
+					Kernel->setDRange ( R, getDataExpression() );
+				else
+					Kernel->setORange ( R, processConceptTree() );
 				break;
 			case ROLEDOMAIN:
-				Kernel->setDomain ( R, processConceptTree() );
+				if ( data )
+					Kernel->setDDomain ( R, processConceptTree() );
+				else
+					Kernel->setODomain ( R, processConceptTree() );
 				break;
 			default:
 				fpp_unreachable();
@@ -227,7 +256,7 @@ void DLLispParser :: parseCommand ( void )
 
 		try
 		{
-			Kernel->setFunctional(clone(Name));
+			Kernel->setOFunctional(clone(Name));
 		}
 		catch ( EFaCTPlusPlus ex )
 		{
@@ -265,6 +294,7 @@ void DLLispParser :: parseConceptList ( bool singletonsOnly )
 
 void DLLispParser :: parseRoleArguments ( DLTree* R )
 {
+	bool data = isDataRole(R);
 	while ( Current != RBRACK )
 		if ( scan.isKeyword ("parents") || scan.isKeyword ("supers") )
 		{	// followed by a list of parent role names
@@ -276,7 +306,10 @@ void DLLispParser :: parseRoleArguments ( DLTree* R )
 				DLTree* S = getRoleExpression();
 				try
 				{
-					Kernel->impliesRoles ( clone(R), S );
+					if ( data )
+						Kernel->impliesDRoles ( clone(R), S );
+					else
+						Kernel->impliesORoles ( clone(R), S );
 				}
 				catch ( EFaCTPlusPlus ex )
 				{

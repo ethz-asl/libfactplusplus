@@ -264,7 +264,7 @@ protected:	// methods
 		DLTree* x = pEM->DataRole(name);
 		try
 		{
-			pKernel->setFunctional(clone(x));	// in DIG 1.1 data roles are always functional
+			pKernel->setDFunctional(clone(x));	// in DIG 1.1 data roles are always functional
 		}
 		catch(...)
 		{
@@ -278,6 +278,8 @@ protected:	// methods
 	{
 		return pKernel->getDataTypeCenter().getDataValue(name,type);
 	}
+		/// check whether expression R is data role
+	bool isDataRole ( DLTree* R ) const { return R->Element().getToken() == DNAME; }
 
 		/// output supported DIG fragment to local stream
 	void outputSupportedLanguage ( void );

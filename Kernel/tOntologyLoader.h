@@ -93,12 +93,22 @@ public:		// visitor interface
 		ensureNames(axiom.begin(),axiom.end());
 		kb.processDisjointC(axiom.begin(),axiom.end());
 	}
-	virtual void visit ( TDLAxiomEquivalentRoles& axiom )
+	virtual void visit ( TDLAxiomEquivalentORoles& axiom )
 	{
 		ensureNames(axiom.begin(),axiom.end());
 		kb.processEquivalentR(axiom.begin(),axiom.end());
 	}
-	virtual void visit ( TDLAxiomDisjointRoles& axiom )
+	virtual void visit ( TDLAxiomEquivalentDRoles& axiom )
+	{
+		ensureNames(axiom.begin(),axiom.end());
+		kb.processEquivalentR(axiom.begin(),axiom.end());
+	}
+	virtual void visit ( TDLAxiomDisjointORoles& axiom )
+	{
+		ensureNames(axiom.begin(),axiom.end());
+		kb.processDisjointR(axiom.begin(),axiom.end());
+	}
+	virtual void visit ( TDLAxiomDisjointDRoles& axiom )
 	{
 		ensureNames(axiom.begin(),axiom.end());
 		kb.processDisjointR(axiom.begin(),axiom.end());
@@ -129,24 +139,43 @@ public:		// visitor interface
 		TRole* iR = getRole ( axiom.getInvRole(), "Role expression expected in Role Inverse axiom" );
 		kb.getRM(R)->addRoleSynonym ( iR->inverse(), R );
 	}
-	virtual void visit ( TDLAxiomRoleSubsumption& axiom )
+	virtual void visit ( TDLAxiomORoleSubsumption& axiom )
 	{
 		ensureNames(axiom.getRole());
 		ensureNames(axiom.getSubRole());
-		TRole* R = getRole ( axiom.getRole(), "Role expression expected in Roles Subsumption axiom" );
+		TRole* R = getRole ( axiom.getRole(), "Role expression expected in Object Roles Subsumption axiom" );
 		kb.getRM(R)->addRoleParent ( axiom.getSubRole(), R );
 	}
-	virtual void visit ( TDLAxiomRoleDomain& axiom )
+	virtual void visit ( TDLAxiomDRoleSubsumption& axiom )
+	{
+		ensureNames(axiom.getRole());
+		ensureNames(axiom.getSubRole());
+		TRole* R = getRole ( axiom.getRole(), "Role expression expected in Data Roles Subsumption axiom" );
+		kb.getRM(R)->addRoleParent ( axiom.getSubRole(), R );
+	}
+	virtual void visit ( TDLAxiomORoleDomain& axiom )
 	{
 		ensureNames(axiom.getRole());
 		ensureNames(axiom.getDomain());
-		getRole ( axiom.getRole(), "Role expression expected in Role Domain axiom" )->setDomain(clone(axiom.getDomain()));
+		getRole ( axiom.getRole(), "Role expression expected in Object Role Domain axiom" )->setDomain(clone(axiom.getDomain()));
 	}
-	virtual void visit ( TDLAxiomRoleRange& axiom )
+	virtual void visit ( TDLAxiomDRoleDomain& axiom )
+	{
+		ensureNames(axiom.getRole());
+		ensureNames(axiom.getDomain());
+		getRole ( axiom.getRole(), "Role expression expected in Data Role Domain axiom" )->setDomain(clone(axiom.getDomain()));
+	}
+	virtual void visit ( TDLAxiomORoleRange& axiom )
 	{
 		ensureNames(axiom.getRole());
 		ensureNames(axiom.getRange());
-		getRole ( axiom.getRole(), "Role expression expected in Role Range axiom" )->setRange(clone(axiom.getRange()));
+		getRole ( axiom.getRole(), "Role expression expected in Object Role Range axiom" )->setRange(clone(axiom.getRange()));
+	}
+	virtual void visit ( TDLAxiomDRoleRange& axiom )
+	{
+		ensureNames(axiom.getRole());
+		ensureNames(axiom.getRange());
+		getRole ( axiom.getRole(), "Role expression expected in Data Role Range axiom" )->setRange(clone(axiom.getRange()));
 	}
 	virtual void visit ( TDLAxiomRoleTransitive& axiom )
 	{
@@ -185,12 +214,19 @@ public:		// visitor interface
 		TRole* R = getRole ( axiom.getRole(), "Role expression expected in Role AntiSymmetry axiom" );
 		kb.getRM(R)->addDisjointRoles ( R, R->inverse() );
 	}
-	virtual void visit ( TDLAxiomRoleFunctional& axiom )
+	virtual void visit ( TDLAxiomORoleFunctional& axiom )
 	{
 		ensureNames(axiom.getRole());
 		if ( isUniversalRole(axiom.getRole()) )	// KB became inconsistent
 			throw EFPPInconsistentKB();
-		getRole ( axiom.getRole(), "Role expression expected in Role Functionality axiom" )->setFunctional();
+		getRole ( axiom.getRole(), "Role expression expected in Object Role Functionality axiom" )->setFunctional();
+	}
+	virtual void visit ( TDLAxiomDRoleFunctional& axiom )
+	{
+		ensureNames(axiom.getRole());
+		if ( isUniversalRole(axiom.getRole()) )	// KB became inconsistent
+			throw EFPPInconsistentKB();
+		getRole ( axiom.getRole(), "Role expression expected in Data Role Functionality axiom" )->setFunctional();
 	}
 	virtual void visit ( TDLAxiomRoleInverseFunctional& axiom )
 	{

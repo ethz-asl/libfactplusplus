@@ -542,27 +542,36 @@ public:
 	TDLAxiom* setInverseRoles ( const ComplexRole R, const ComplexRole S )
 		{ return Ontology.add ( new TDLAxiomRoleInverse(R,S) ); }
 		/// axiom (R [= S)
-	TDLAxiom* impliesRoles ( ComplexRole R, ComplexRole S )
-		{ return Ontology.add ( new TDLAxiomRoleSubsumption ( R, S ) ); }
+	TDLAxiom* impliesORoles ( ComplexRole R, ComplexRole S )
+		{ return Ontology.add ( new TDLAxiomORoleSubsumption ( R, S ) ); }
+		/// axiom (R [= S)
+	TDLAxiom* impliesDRoles ( ComplexRole R, ComplexRole S )
+		{ return Ontology.add ( new TDLAxiomDRoleSubsumption ( R, S ) ); }
 		/// axiom R1 = R2 = ...
-	TDLAxiom* equalRoles ( void )
-		{ return Ontology.add ( new TDLAxiomEquivalentRoles(NAryQueue.getLastArgList()) ); }
-		/// axiom (R = S)
-	TDLAxiom* equalRoles ( const ComplexRole R, const ComplexRole S )
-		{ return Ontology.add ( new TDLAxiomEquivalentRoles ( R, S ) ); }
+	TDLAxiom* equalORoles ( void )
+		{ return Ontology.add ( new TDLAxiomEquivalentORoles(NAryQueue.getLastArgList()) ); }
+		/// axiom R1 = R2 = ...
+	TDLAxiom* equalDRoles ( void )
+		{ return Ontology.add ( new TDLAxiomEquivalentDRoles(NAryQueue.getLastArgList()) ); }
 		/// axiom R1 != R2 != ...
-	TDLAxiom* disjointRoles ( void )
-		{ return Ontology.add ( new TDLAxiomDisjointRoles(NAryQueue.getLastArgList()) ); }
-		/// axiom (R != S)
-	TDLAxiom* disjointRoles ( const ComplexRole R, const ComplexRole S )
-		{ return Ontology.add ( new TDLAxiomDisjointRoles ( R, S ) ); }
+	TDLAxiom* disjointORoles ( void )
+		{ return Ontology.add ( new TDLAxiomDisjointORoles(NAryQueue.getLastArgList()) ); }
+		/// axiom R1 != R2 != ...
+	TDLAxiom* disjointDRoles ( void )
+		{ return Ontology.add ( new TDLAxiomDisjointDRoles(NAryQueue.getLastArgList()) ); }
 
 		/// Domain (R C)
-	TDLAxiom* setDomain ( ComplexRole R, const ComplexConcept C )
-		{ return Ontology.add ( new TDLAxiomRoleDomain ( R, C ) ); }
+	TDLAxiom* setODomain ( ComplexRole R, const ComplexConcept C )
+		{ return Ontology.add ( new TDLAxiomORoleDomain ( R, C ) ); }
+		/// Domain (R C)
+	TDLAxiom* setDDomain ( ComplexRole R, const ComplexConcept C )
+		{ return Ontology.add ( new TDLAxiomDRoleDomain ( R, C ) ); }
 		/// Range (R C)
-	TDLAxiom* setRange ( ComplexRole R, const ComplexConcept C )
-		{ return Ontology.add ( new TDLAxiomRoleRange ( R, C ) ); }
+	TDLAxiom* setORange ( ComplexRole R, const ComplexConcept C )
+		{ return Ontology.add ( new TDLAxiomORoleRange ( R, C ) ); }
+		/// Range (R C)
+	TDLAxiom* setDRange ( ComplexRole R, const ComplexConcept C )
+		{ return Ontology.add ( new TDLAxiomDRoleRange ( R, C ) ); }
 
 		/// Transitive (R)
 	TDLAxiom* setTransitive ( ComplexRole R )
@@ -580,8 +589,11 @@ public:
 	TDLAxiom* setAntiSymmetric ( ComplexRole R )
 		{ return Ontology.add ( new TDLAxiomRoleAntiSymmetric(R) ); }
 		/// Functional (R)
-	TDLAxiom* setFunctional ( ComplexRole R )
-		{ return Ontology.add ( new TDLAxiomRoleFunctional(R) ); }
+	TDLAxiom* setOFunctional ( ComplexRole R )
+		{ return Ontology.add ( new TDLAxiomORoleFunctional(R) ); }
+		/// Functional (R)
+	TDLAxiom* setDFunctional ( ComplexRole R )
+		{ return Ontology.add ( new TDLAxiomDRoleFunctional(R) ); }
 		/// InverseFunctional (R)
 	TDLAxiom* setInverseFunctional ( ComplexRole R )
 		{ return Ontology.add ( new TDLAxiomRoleInverseFunctional(R) ); }

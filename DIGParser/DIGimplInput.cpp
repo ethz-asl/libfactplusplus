@@ -208,7 +208,7 @@ void DIGParseHandlers :: startConcept ( DIGTag tag, AttributeList& attributes )
 		x = tryRoleName(name);
 		try
 		{
-			pKernel->setFunctional(x);
+			pKernel->setOFunctional(x);
 		}
 		catch(...)
 		{
@@ -686,20 +686,22 @@ void DIGParseHandlers :: endAxiom ( DIGTag tag )
 			throwArgumentAbsence ( "two role expressions", tag );
 		DLTree* R1 = workStack.top();
 		workStack.pop();
-		ERROR_IF ( pKernel->impliesRoles ( R1, R2 ) )
+		ERROR_IF ( isDataRole(R1) ? pKernel->impliesDRoles ( R1, R2 ) : pKernel->impliesORoles ( R1, R2 ) );
 		return;
 	}
 	case digEqualR:
 	{
 		if ( workStack.empty() )
 			throwArgumentAbsence ( "two role expressions", tag );
-		DLTree* R2 = workStack.top();
+		bool data = isDataRole(workStack.top());
+		pEM->openArgList();
+		pEM->addArg(workStack.top());
 		workStack.pop();
 		if ( workStack.empty() )
 			throwArgumentAbsence ( "two role expressions", tag );
-		DLTree* R1 = workStack.top();
+		pEM->addArg(workStack.top());
 		workStack.pop();
-		ERROR_IF ( pKernel->equalRoles ( R1, R2 ) );
+		ERROR_IF ( data ? pKernel->equalDRoles() : pKernel->equalORoles() );
 		return;
 	}
 	case digDomain:
@@ -712,7 +714,7 @@ void DIGParseHandlers :: endAxiom ( DIGTag tag )
 			throwArgumentAbsence ( "role", "concept", tag );
 		DLTree* R = workStack.top();
 		workStack.pop();
-		ERROR_IF ( pKernel->setDomain ( R, C ) );
+		ERROR_IF ( isDataRole(R) ? pKernel->setDDomain ( R, C ) : pKernel->setODomain ( R, C ) );
 		return;
 	}
 	case digRange:
@@ -725,7 +727,7 @@ void DIGParseHandlers :: endAxiom ( DIGTag tag )
 			throwArgumentAbsence ( "role", "concept", tag );
 		DLTree* R = workStack.top();
 		workStack.pop();
-		ERROR_IF ( pKernel->setRange ( R, C ) );
+		ERROR_IF ( isDataRole(R) ? pKernel->setDRange ( R, C ) : pKernel->setORange ( R, C ) );
 		return;
 	}
 	case digRangeInt:
@@ -735,7 +737,7 @@ void DIGParseHandlers :: endAxiom ( DIGTag tag )
 			throwArgumentAbsence ( "data property", tag );
 		DLTree* R = workStack.top();
 		workStack.pop();
-		ERROR_IF ( pKernel->setRange ( R, tag == digRangeInt ?
+		ERROR_IF ( pKernel->setDRange ( R, tag == digRangeInt ?
 											pKernel->getDataTypeCenter().getNumberType() :
 											pKernel->getDataTypeCenter().getStringType() ) );
 		return;
@@ -755,7 +757,7 @@ void DIGParseHandlers :: endAxiom ( DIGTag tag )
 			throwArgumentAbsence ( "role", tag );
 		DLTree* R = workStack.top();
 		workStack.pop();
-		ERROR_IF ( pKernel->setFunctional(R) );
+		ERROR_IF ( isDataRole(R) ? pKernel->setDFunctional(R) : pKernel->setOFunctional(R) );
 		return;
 	}
 	case digInstanceOf:
