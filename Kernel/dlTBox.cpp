@@ -43,6 +43,8 @@ TBox :: TBox ( const ifOptionSet* Options, const DataTypeCenter& dtCenter )
 	, defConcept (NULL)
 	, Concepts("concept")
 	, Individuals("individual")
+	, ORM(/*data=*/false)
+	, DRM(/*data=*/true)
 	, Axioms(*this)
 	, T_G(bpTOP)	// initialise GCA's concept with Top
 	, RCCache(NULL)

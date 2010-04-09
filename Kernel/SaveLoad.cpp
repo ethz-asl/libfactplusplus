@@ -504,10 +504,7 @@ RoleMaster :: Save ( ostream& o ) const
 
 	// save names of all (non-inverse) entries
 	for ( p = p_beg; p < p_end; p += 2 )
-	{
-		saveUInt ( o, (*p)->isDataRole() );
 		o << (*p)->getName() << "\n";
-	}
 
 	// save the entries itself
 	for ( p = p_beg; p < p_end; ++p )
@@ -524,7 +521,7 @@ RoleMaster :: Load ( istream& i )
 	// sanity check: Load shall be done for the empty collection and only once
 	fpp_assert ( size() == 0 );
 
-	unsigned int RMSize, maxLength, DataRole;
+	unsigned int RMSize, maxLength;
 	RMSize = loadUInt(i);
 	maxLength = loadUInt(i);
 	++maxLength;
@@ -533,9 +530,8 @@ RoleMaster :: Load ( istream& i )
 	// register all the named entries
 	for ( unsigned int j = 0; j < RMSize; ++j )
 	{
-		DataRole = loadUInt(i);
 		i.getline ( name, maxLength, '\n' );
-		ensureRoleName ( name, DataRole );
+		ensureRoleName(name);
 	}
 
 	delete [] name;

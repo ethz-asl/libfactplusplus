@@ -55,6 +55,9 @@ protected:	// members
 		/// two halves of disjoint roles axioms
 	roleSet DJRolesA, DJRolesB;
 
+		/// flag whether to create data roles or not
+	bool DataRoles;
+
 		/// flag if it is possible to introduce new names
 	bool useUndefinedNames;
 
@@ -68,12 +71,12 @@ private:	// methods
 
 protected:	// methods
 		/// register TRole and it's inverse in RoleBox
-	void registerRole ( TRole* r, bool isDataRole )
+	void registerRole ( TRole* r )
 	{
 		fpp_assert ( r != NULL && r->Inverse == NULL );	// sanity check
 		fpp_assert ( r->getId() == 0 );	// only call it for the new roles
 
-		if ( isDataRole )
+		if ( DataRoles )
 			r->setDataRole();
 
 		Roles.push_back (r);
@@ -109,11 +112,12 @@ protected:	// methods
 
 public:		// interface
 		/// the only c'tor
-	RoleMaster ( void )
+	RoleMaster ( bool dataRoles )
 		: newRoleId(1)
 		, emptyRole("emptyRole")
 		, universalRole("universalRole")
 		, roleNS()
+		, DataRoles(dataRoles)
 		, useUndefinedNames(true)
 	{
 		// no zero-named roles allowed
@@ -133,20 +137,20 @@ public:		// interface
 	~RoleMaster ( void ) { delete pTax; }
 
 		/// create role entry with given name
-	TNamedEntry* ensureRoleName ( const std::string& name, bool isDataRole ) throw(EFPPCantRegName)
+	TNamedEntry* ensureRoleName ( const std::string& name ) throw(EFPPCantRegName)
 	{
 		TRole* p = roleNS.insert(name);
 		// check what happens
 		if ( p == NULL )			// role registration attempt failed
-			throw EFPPCantRegName ( name, isDataRole ? "data role" : "role" );
+			throw EFPPCantRegName ( name, DataRoles ? "data role" : "role" );
 
 		if ( isRegisteredRole(p) )	// registered role
 			return p;
 		if ( p->getId() != 0 ||		// not registered but has non-null ID
 			 !useUndefinedNames )	// new names are disallowed
-			throw EFPPCantRegName ( name, isDataRole ? "data role" : "role" );
+			throw EFPPCantRegName ( name, DataRoles ? "data role" : "role" );
 
-		registerRole(p,isDataRole);
+		registerRole(p);
 		return p;
 	}
 		/// @return true iff NAME is a name of a registered role
