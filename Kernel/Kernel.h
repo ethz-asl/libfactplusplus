@@ -481,8 +481,6 @@ public:
 	ComplexRole ObjectRole ( const std::string& name ) { return regPointer ( new DLTree ( TLexeme ( RNAME, getORM()->ensureRoleName(name) ) ) ); }
 		/// @return data role corresponding to NAME
 	ComplexRole DataRole ( const std::string& name ) { return regPointer ( new DLTree ( TLexeme ( DNAME, getDRM()->ensureRoleName(name) ) ) ); }
-		/// register NAME as a role if it is not a data property (kludge for LISP interface)
-	ComplexRole Role ( const std::string& name ) { return getDRM()->isRegistered(name) ? DataRole(name) : ObjectRole(name); }
 		/// @return universal role
 //	ComplexRole UniversalRole ( void ) const { return new DLTree(UROLE); }
 		/// @return R^-

@@ -153,8 +153,6 @@ public:		// interface
 		registerRole(p);
 		return p;
 	}
-		/// @return true iff NAME is a name of a registered role
-	bool isRegistered ( const std::string& name ) const { return roleNS.get(name) != NULL; }
 
 		/// add parent for the input role
 	void addRoleParent ( TRole* role, TRole* parent ) const

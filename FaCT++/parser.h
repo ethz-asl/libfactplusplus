@@ -31,6 +31,8 @@ protected:	// members
 	ReasoningKernel* Kernel;
 		/// expression manager to be used
 	TExpressionManager* EManager;
+		/// set of known data role names
+	std::set<std::string> DataRoles;
 
 protected:	// methods
 		/// error by given exception
@@ -53,13 +55,18 @@ protected:	// methods
 		/// @return role-like Id of just scanned name
 	DLTree* getRole ( void )
 	{
-		DLTree* ret = EManager->Role(scan.GetName());
+		DLTree* ret;
+		if ( DataRoles.find(scan.GetName()) != DataRoles.end() )
+			ret = EManager->DataRole(scan.GetName());	// found data role
+		else	// object role
+			ret = EManager->ObjectRole(scan.GetName());
 		NextLex();
 		return ret;
 	}
 		/// @return role-like Id of just scanned name
 	DLTree* getDataRole ( void )
 	{
+		DataRoles.insert(scan.GetName());
 		DLTree* ret = EManager->DataRole(scan.GetName());
 		NextLex();
 		return ret;
