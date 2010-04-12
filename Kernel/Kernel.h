@@ -36,6 +36,20 @@ typedef ReasoningKernel TExpressionManager;
 class ReasoningKernel
 {
 public:	// types interface
+	/*
+		The type system for DL expressions used in the input language:
+	 
+		TExpr;
+		 TConceptExpr: TExpr;
+		 TRoleExpr: TExpr;
+		  TORoleComplexExpr: TRoleExpr;
+		   TORoleExpr: TORoleComplexExpr;
+		  TDRoleExpr: TRoleExpr;
+		 TIndividualExpr : TExpr;
+		 TDataExpr: TExpr;
+		  TDataValueExpr: TDataExpr;
+	*/
+
 	// single concept name is just its index
 	typedef TNamedEntry* ConceptName;
 	// role name can bi direct or inverted
