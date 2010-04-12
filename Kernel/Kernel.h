@@ -38,7 +38,7 @@ class ReasoningKernel
 public:	// types interface
 	/*
 		The type system for DL expressions used in the input language:
-	 
+
 		TExpr;
 		 TConceptExpr: TExpr;
 		 TRoleExpr: TExpr;
@@ -464,8 +464,8 @@ public:
 	}
 		/// @return \E R.Self
 	ComplexConcept SelfReference ( ComplexRole R ) { return regPointer ( new DLTree ( REFLEXIVE, R ) ); }
-		/// @return one-of construction for the arguments in NAryQueue; data is true if data one-of is used
-	DLTree* OneOf ( bool data = false ) { return regPointer ( getTBox()->processOneOf ( NAryQueue.getLastArgList(), data ) ); }
+		/// @return {i_1,...,i_n} constructor for the arguments in NAryQueue
+	ComplexConcept OneOf ( void ) { return regPointer ( getTBox()->processOneOf ( NAryQueue.getLastArgList(), /*data=*/false ) ); }
 
 
 		/// complex concept expression
@@ -512,6 +512,23 @@ public:
 
 		/// @return individual corresponding to NAME
 	ComplexConcept Individual ( const std::string& name ) { return regPointer ( new DLTree ( TLexeme ( INAME, getTBox()->getIndividual(name) ) ) ); }
+
+	//-------------------------------------------------------------------
+	//--	data expressions (data values and types are obtained by DataTypeCenter
+	//-------------------------------------------------------------------
+
+		/// @return data TOP
+	ComplexConcept DataTop ( void ) { return regPointer ( new DLTree(TOP) ); }
+		/// @return data BOTTOM
+	ComplexConcept DataBottom ( void ) { return regPointer ( new DLTree(BOTTOM) ); }
+		/// @return data negation
+	ComplexConcept DataNot ( ComplexConcept C ) { return regPointer(createSNFNot(C)); }
+		/// @return conjunction of data expressions
+	ComplexConcept DataAnd ( void ) { return regPointer(getTBox()->processAnd(NAryQueue.getLastArgList())); }
+		/// @return disjunction of data expressions
+	ComplexConcept DataOr ( void ) { return regPointer(getTBox()->processOr(NAryQueue.getLastArgList())); }
+		/// @return {v_1,...,v_n} constructor for the data values in NAryQueue
+	ComplexConcept DataOneOf ( void ) { return regPointer ( getTBox()->processOneOf ( NAryQueue.getLastArgList(), /*data=*/true ) ); }
 
 	//----------------------------------------------------
 	//	TELLS interface

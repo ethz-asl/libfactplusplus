@@ -363,7 +363,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
   (JNIEnv * env, jobject obj)
 {
 	TRACE_JNI("getDataTop");
-	return DataType ( env, getEM(env,obj)->Top() );
+	return DataType ( env, getEM(env,obj)->DataTop() );
 }
 
 /*
@@ -375,7 +375,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
   (JNIEnv * env, jobject obj)
 {
 	TRACE_JNI("getDataEnumeration");
-	return DataTypeExpression ( env, getEM(env,obj)->OneOf(/*data=*/true) );
+	return DataTypeExpression ( env, getEM(env,obj)->DataOneOf() );
 }
 
 /*
@@ -533,7 +533,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
   (JNIEnv * env, jobject obj, jobject arg)
 {
 	TRACE_JNI("getNot");
-	return DataTypeExpression ( env, getEM(env,obj)->Not(getTree(env,arg)) );
+	return DataTypeExpression ( env, getEM(env,obj)->DataNot(getTree(env,arg)) );
 }
 
 /*
@@ -545,7 +545,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
   (JNIEnv * env, jobject obj)
 {
 	TRACE_JNI("getDataIntersectionOf");
-	return DataTypeExpression ( env, getEM(env,obj)->And() );
+	return DataTypeExpression ( env, getEM(env,obj)->DataAnd() );
 }
 
 /*
@@ -557,7 +557,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
   (JNIEnv * env, jobject obj)
 {
 	TRACE_JNI("getDataUnionOf");
-	return DataTypeExpression ( env, getEM(env,obj)->Or() );
+	return DataTypeExpression ( env, getEM(env,obj)->DataOr() );
 }
 
 /*
@@ -824,7 +824,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
   (JNIEnv * env, jobject obj)
 {
 	TRACE_JNI("getOneOf");
-	return Class ( env, getEM(env,obj)->OneOf(/*data=*/false) );
+	return Class ( env, getEM(env,obj)->OneOf() );
 }
 
 /*

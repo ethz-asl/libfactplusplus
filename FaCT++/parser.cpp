@@ -421,7 +421,7 @@ DLTree* DLLispParser :: processComplexConceptTree ( void )
 
 	case ONEOF:
 		parseConceptList(/*singletonsOnly=*/true);
-		return EManager->OneOf(/*data=*/false);
+		return EManager->OneOf();
 
 	default:	// error
 		parseError ( "Unknown concept constructor" );
@@ -487,8 +487,8 @@ DLLispParser :: getDataExpression ( void )
 	{
 		switch ( scan.getNameKeyword() )
 		{	// Top/Bottom; can not be name
-		case TOP: NextLex(); return EManager->Top();
-		case BOTTOM: NextLex(); return EManager->Bottom();
+		case TOP: NextLex(); return EManager->DataTop();
+		case BOTTOM: NextLex(); return EManager->DataBottom();
 		default: parseError ( "Unknown concept constructor" ); return NULL;
 		}
 	}
@@ -534,7 +534,7 @@ DLLispParser :: getDataExpression ( void )
 		left = getDataExpression();
 		// skip right bracket
 		MustBeM ( RBRACK );
-		return EManager->Not(left);
+		return EManager->DataNot(left);
 
 	case DONEOF:
 	case AND:
@@ -547,7 +547,7 @@ DLLispParser :: getDataExpression ( void )
 
 		// list is parsed here
 		NextLex();	// skip ')'
-		return T == AND ? EManager->And() : T == OR ? EManager->Or() : EManager->OneOf(/*data=*/true);
+		return T == AND ? EManager->DataAnd() : T == OR ? EManager->DataOr() : EManager->DataOneOf();
 
 	case STRING:	// expression (string <value>)
 	case NUMBER:	// expression (number <value>)
