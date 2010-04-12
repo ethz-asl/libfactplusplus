@@ -434,22 +434,21 @@ void DIGParseHandlers :: endConcept ( DIGTag tag )
 	case digSome:
 	case digAll:	// top := \? R.C [now top = ... R C]
 	{
-		Token op = (tag == digSome) ? EXISTS : FORALL;
 		if ( workStack.empty() )
 			throwArgumentAbsence ( "concept", "role", tag );
 		DLTree* C = workStack.top();	// C
 		workStack.pop();
 		if ( workStack.empty() )
 			throwArgumentAbsence ( "concept", "role", tag );
-		workStack.top() = pEM->ComplexExpression ( op, 0, workStack.top(), C );
+		workStack.top() = tag == digSome
+			? pEM->Exists ( workStack.top(), C )
+			: pEM->Forall ( workStack.top(), C );
 		return;
 	}
 
 	case digAtMost:
 	case digAtLeast:	// top := \?e n R.C [now top = ... R C]
 	{
-		Token op = (tag == digAtMost) ? LE : GE;
-
 		if ( workStack.empty() )
 			throwArgumentAbsence ( "concept", "role", tag );
 		DLTree* C = workStack.top();	// C
@@ -461,13 +460,14 @@ void DIGParseHandlers :: endConcept ( DIGTag tag )
 		if ( workStack.empty() )
 			throwArgumentAbsence ( "number", tag );
 		DLTree* pN = workStack.top();	// n
-		workStack.pop();
 		fpp_assert ( pN->Element() == NUM );
 		unsigned int n = pN->Element().getData();
 		deleteTree(pN);
 
 		// create \?e n R.C
-		workStack.push ( pEM->ComplexExpression ( op, n, R, C ) );
+		workStack.top() = tag == digAtMost
+			? pEM->MaxCardinality ( n, R, C )
+			: pEM->MinCardinality ( n, R, C );
 		return;
 	}
 	case digAnd:

@@ -393,7 +393,14 @@ DLTree* DLLispParser :: processComplexConceptTree ( void )
 		// skip right bracket
 		MustBeM ( RBRACK );
 
-		return EManager->ComplexExpression ( T, n, left, right );
+		if ( T == EXISTS )
+			return EManager->Exists ( left, right );
+		else if ( T == FORALL )
+			return EManager->Forall ( left, right );
+		else if ( T == GE )
+			return EManager->MinCardinality ( n, left, right );
+		else
+			return EManager->MaxCardinality ( n, left, right );
 
 	case REFLEXIVE:	// self-reference
 		left = getRoleExpression();

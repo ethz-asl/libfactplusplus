@@ -467,26 +467,6 @@ public:
 		/// @return {i_1,...,i_n} constructor for the arguments in NAryQueue
 	ComplexConcept OneOf ( void ) { return regPointer ( getTBox()->processOneOf ( NAryQueue.getLastArgList(), /*data=*/false ) ); }
 
-
-		/// complex concept expression
-	ComplexConcept ComplexExpression ( Token t, unsigned int n, ComplexRole R, ComplexConcept C )
-	{
-		switch(t)
-		{
-		case LE:
-			return MaxCardinality ( n, R, C );
-		case GE:
-			return MinCardinality ( n, R, C );
-		case EXISTS:
-			return Exists ( R, C );
-		case FORALL:
-			return Forall ( R, C );
-		default:
-			fpp_unreachable();
-			return NULL;
-		}
-	}
-
 	//-------------------------------------------------------------------
 	//--	(Data)Role expressions
 	//-------------------------------------------------------------------
