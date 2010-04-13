@@ -370,7 +370,7 @@ void DIGParseHandlers :: startAxiom ( DIGTag tag, AttributeList& attributes )
 		return;
 
 	case digDisjointAxiom:	// push begining of disjoint
-		workStack.push ( new DLTree (DISJOINT) );
+		workStack.push(NULL);
 		return;
 
 	case digImpliesC:
@@ -473,7 +473,6 @@ void DIGParseHandlers :: endConcept ( DIGTag tag )
 	case digAnd:
 	case digOr:
 	case digISet:
-
 		pEM->openArgList();
 
 		if ( workStack.empty() )
@@ -633,49 +632,36 @@ void DIGParseHandlers :: endAxiom ( DIGTag tag )
 		return;
 	}
 	case digEqualC:
-	{
 		if ( workStack.empty() )
 			throwArgumentAbsence ( "two concept expressions", tag );
-		DLTree* C2 = workStack.top();
+		pEM->openArgList();
+		pEM->addArg(workStack.top());
 		workStack.pop();
 		if ( workStack.empty() )
 			throwArgumentAbsence ( "two concept expressions", tag );
-		DLTree* C1 = workStack.top();
+		pEM->addArg(workStack.top());
 		workStack.pop();
-		ERROR_IF ( pKernel->equalConcepts ( C1, C2 ) );
+		ERROR_IF ( pKernel->equalConcepts() );
 		return;
-	}
 	case digDisjointAxiom:
-	{
-		pKernel->openArgList();
+		pEM->openArgList();
 
 		if ( workStack.empty() )
 			throwCorruptedStack(tag);
 
-		// init concept list
-		DLTree* cur = workStack.top();
-		DLTree* stop = new DLTree(DISJOINT);
-
-		while ( !equalTrees(cur,stop) )
+		// cycle until we find begin marker
+		while ( workStack.top() != NULL  )
 		{
-			pKernel->addArg(cur);
+			pEM->addArg(workStack.top());
+			workStack.pop();
 
 			if ( workStack.empty() )
 				throwCorruptedStack(tag);
-
-			workStack.pop();
-			cur = workStack.top();
 		}
-
-		// here cur = DISJOINT
-		deleteTree(cur);
-		deleteTree(stop);
-		workStack.pop();
 
 		//FIXME!! try..catch block here
 		ERROR_IF ( pKernel->disjointConcepts() );
 		return;
-	}
 	case digImpliesR:
 	{
 		if ( workStack.empty() )
