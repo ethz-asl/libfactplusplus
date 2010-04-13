@@ -102,6 +102,8 @@ public:		// interface
 	TDLConceptExpression* Or ( void ) { return record(new TDLConceptOr(getArgList())); }
 		/// get an n-ary one-of expression; take the arguments from the last argument list
 	TDLConceptExpression* OneOf ( void ) { return record(new TDLConceptOneOf(getArgList())); }
+		/// @return concept {I} for the individual I
+	TDLConceptExpression* OneOf ( TDLIndividualExpression* I ) { newArgList(); addArg(I); return OneOf(); }
 
 		/// get self-reference restriction of an object role R
 	TDLConceptExpression* SelfReference ( TDLObjectRoleExpression* R ) { return record(new TDLConceptObjectSelf(R)); }

@@ -408,6 +408,13 @@ public:
 	ComplexConcept SelfReference ( ComplexRole R ) { return regPointer ( new DLTree ( REFLEXIVE, R ) ); }
 		/// @return {i_1,...,i_n} constructor for the arguments in NAryQueue
 	ComplexConcept OneOf ( void ) { return regPointer ( getTBox()->processOneOf ( NAryQueue.getLastArgList(), /*data=*/false ) ); }
+		/// @return concept {I} for the individual I
+	ComplexConcept OneOf ( ComplexConcept I )
+	{
+		getExpressionManager()->openArgList();
+		getExpressionManager()->addArg(I);
+		return OneOf();
+	}
 
 	//-------------------------------------------------------------------
 	//--	(Data)Role expressions
