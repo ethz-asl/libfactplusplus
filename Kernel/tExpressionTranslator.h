@@ -22,7 +22,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "tDLExpression.h"
 #include "dlTBox.h"
 
-class TExpressionTransformer: public DLExpressionVisitor
+class TExpressionTranslator: public DLExpressionVisitor
 {
 protected:	// members
 		/// tree corresponding to a processing expression
@@ -39,19 +39,19 @@ protected:	// members
 
 public:		// interface
 		/// empty c'tor
-	TExpressionTransformer ( void ) : tree(NULL) {}
+	TExpressionTranslator ( void ) : tree(NULL) {}
 		/// empty d'tor
-	~TExpressionTransformer ( void ) { deleteTree(tree); }
+	~TExpressionTranslator ( void ) { deleteTree(tree); }
 
 		/// get (single) access to the tree
-	DLTree* operator() ( void ) { DLTree* ret = tree; tree = NULL; return ret; }
+	operator DLTree* ( void ) { DLTree* ret = tree; tree = NULL; return ret; }
 
 public:		// visitor interface
 	// concept expressions
 	virtual void visit ( TDLConceptTop& expr ATTR_UNUSED ) { tree = new DLTree(TOP); }
 	virtual void visit ( TDLConceptBottom& expr ATTR_UNUSED ) { tree = new DLTree(BOTTOM); }
 	virtual void visit ( TDLConceptName& expr ) { tree = new DLTree(TLexeme(CNAME,NS_C.insert(expr.getName()))); }
-	virtual void visit ( TDLConceptNot& expr ) { expr.getC()->accept(*this); tree = createSNFNot((*this)()); }
+	virtual void visit ( TDLConceptNot& expr ) { expr.getC()->accept(*this); tree = createSNFNot(*this); }
 	virtual void visit ( TDLConceptAnd& expr )
 	{
 		DLTree* acc = new DLTree(TOP);
@@ -59,7 +59,7 @@ public:		// visitor interface
 		for ( TDLConceptAnd::iterator p = expr.begin(), p_end = expr.end(); p != p_end; ++p )
 		{
 			(*p)->accept(*this);
-			acc = createSNFAnd ( acc, (*this)() );
+			acc = createSNFAnd ( acc, *this );
 		}
 
 		tree = acc;
@@ -71,7 +71,7 @@ public:		// visitor interface
 		for ( TDLConceptOr::iterator p = expr.begin(), p_end = expr.end(); p != p_end; ++p )
 		{
 			(*p)->accept(*this);
-			acc = createSNFOr ( acc, (*this)() );
+			acc = createSNFOr ( acc, *this );
 		}
 
 		tree = acc;
@@ -83,53 +83,53 @@ public:		// visitor interface
 		for ( TDLConceptOneOf::iterator p = expr.begin(), p_end = expr.end(); p != p_end; ++p )
 		{
 			(*p)->accept(*this);
-			acc = createSNFOr ( acc, (*this)() );
+			acc = createSNFOr ( acc, *this );
 		}
 
 		tree = acc;
 	}
-	virtual void visit ( TDLConceptObjectSelf& expr ) { expr.getOR()->accept(*this); tree = new DLTree ( REFLEXIVE, (*this)() ); }
+	virtual void visit ( TDLConceptObjectSelf& expr ) { expr.getOR()->accept(*this); tree = new DLTree ( REFLEXIVE, *this ); }
 	virtual void visit ( TDLConceptObjectValue& expr )
 	{
 		expr.getOR()->accept(*this);
-		DLTree* R = (*this)();
+		DLTree* R = *this;
 		expr.getI()->accept(*this);
-		tree = createSNFExists ( R, (*this)() );
+		tree = createSNFExists ( R, *this );
 	}
 	virtual void visit ( TDLConceptObjectExists& expr )
 	{
 		expr.getOR()->accept(*this);
-		DLTree* R = (*this)();
+		DLTree* R = *this;
 		expr.getC()->accept(*this);
-		tree = createSNFExists ( R, (*this)() );
+		tree = createSNFExists ( R, *this );
 	}
 	virtual void visit ( TDLConceptObjectForall& expr )
 	{
 		expr.getOR()->accept(*this);
-		DLTree* R = (*this)();
+		DLTree* R = *this;
 		expr.getC()->accept(*this);
-		tree = createSNFForall ( R, (*this)() );
+		tree = createSNFForall ( R, *this );
 	}
 	virtual void visit ( TDLConceptObjectMinCardinality& expr )
 	{
 		expr.getOR()->accept(*this);
-		DLTree* R = (*this)();
+		DLTree* R = *this;
 		expr.getC()->accept(*this);
-		tree = createSNFGE ( expr.getNumber(), R, (*this)() );
+		tree = createSNFGE ( expr.getNumber(), R, *this );
 	}
 	virtual void visit ( TDLConceptObjectMaxCardinality& expr )
 	{
 		expr.getOR()->accept(*this);
-		DLTree* R = (*this)();
+		DLTree* R = *this;
 		expr.getC()->accept(*this);
-		tree = createSNFLE ( expr.getNumber(), R, (*this)() );
+		tree = createSNFLE ( expr.getNumber(), R, *this );
 	}
 	virtual void visit ( TDLConceptObjectExactCardinality& expr )
 	{
 		expr.getOR()->accept(*this);
-		DLTree* R = (*this)();
+		DLTree* R = *this;
 		expr.getC()->accept(*this);
-		DLTree* C = (*this)();
+		DLTree* C = *this;
 		DLTree* LE = createSNFLE ( expr.getNumber(), clone(R), clone(C) );
 		DLTree* GE = createSNFGE ( expr.getNumber(), R, C );
 		tree = createSNFAnd ( GE, LE );
@@ -138,37 +138,37 @@ public:		// visitor interface
 	virtual void visit ( TDLConceptDataExists& expr )
 	{
 		expr.getDR()->accept(*this);
-		DLTree* R = (*this)();
+		DLTree* R = *this;
 		expr.getExpr()->accept(*this);
-		tree = createSNFExists ( R, (*this)() );
+		tree = createSNFExists ( R, *this );
 	}
 	virtual void visit ( TDLConceptDataForall& expr )
 	{
 		expr.getDR()->accept(*this);
-		DLTree* R = (*this)();
+		DLTree* R = *this;
 		expr.getExpr()->accept(*this);
-		tree = createSNFForall ( R, (*this)() );
+		tree = createSNFForall ( R, *this );
 	}
 	virtual void visit ( TDLConceptDataMinCardinality& expr )
 	{
 		expr.getDR()->accept(*this);
-		DLTree* R = (*this)();
+		DLTree* R = *this;
 		expr.getExpr()->accept(*this);
-		tree = createSNFGE ( expr.getNumber(), R, (*this)() );
+		tree = createSNFGE ( expr.getNumber(), R, *this );
 	}
 	virtual void visit ( TDLConceptDataMaxCardinality& expr )
 	{
 		expr.getDR()->accept(*this);
-		DLTree* R = (*this)();
+		DLTree* R = *this;
 		expr.getExpr()->accept(*this);
-		tree = createSNFLE ( expr.getNumber(), R, (*this)() );
+		tree = createSNFLE ( expr.getNumber(), R, *this );
 	}
 	virtual void visit ( TDLConceptDataExactCardinality& expr )
 	{
 		expr.getDR()->accept(*this);
-		DLTree* R = (*this)();
+		DLTree* R = *this;
 		expr.getExpr()->accept(*this);
-		DLTree* C = (*this)();
+		DLTree* C = *this;
 		DLTree* LE = createSNFLE ( expr.getNumber(), clone(R), clone(C) );
 		DLTree* GE = createSNFGE ( expr.getNumber(), R, C );
 		tree = createSNFAnd ( GE, LE );
@@ -181,7 +181,7 @@ public:		// visitor interface
 	virtual void visit ( TDLObjectRoleTop& expr ATTR_UNUSED ) { THROW_UNSUPPORTED("top object role"); }
 	virtual void visit ( TDLObjectRoleBottom& expr ATTR_UNUSED ) { THROW_UNSUPPORTED("bottom object role"); }
 	virtual void visit ( TDLObjectRoleName& expr ) { tree = new DLTree(TLexeme(RNAME,NS_OR.insert(expr.getName()))); }
-	virtual void visit ( TDLObjectRoleInverse& expr ) { expr.getOR()->accept(*this); tree = createInverse((*this)()); }
+	virtual void visit ( TDLObjectRoleInverse& expr ) { expr.getOR()->accept(*this); tree = createInverse(*this); }
 	virtual void visit ( TDLObjectRoleChain& expr )
 	{
 		TDLObjectRoleChain::iterator p = expr.begin(), p_end = expr.end();
@@ -189,12 +189,12 @@ public:		// visitor interface
 			THROW_UNSUPPORTED("empty role chain");
 
 		(*p)->accept(*this);
-		DLTree* acc = (*this)();
+		DLTree* acc = *this;
 
 		while ( ++p != p_end )
 		{
 			(*p)->accept(*this);
-			acc = new DLTree ( TLexeme(RCOMPOSITION), acc, (*this)() );
+			acc = new DLTree ( TLexeme(RCOMPOSITION), acc, *this );
 		}
 
 		tree = acc;
@@ -202,17 +202,17 @@ public:		// visitor interface
 	virtual void visit ( TDLObjectRoleProjectionFrom& expr )
 	{
 		expr.getOR()->accept(*this);
-		DLTree* R = (*this)();
+		DLTree* R = *this;
 		expr.getC()->accept(*this);
-		DLTree* C = (*this)();
+		DLTree* C = *this;
 		tree = new DLTree ( TLexeme(PROJFROM), R, C );
 	}
 	virtual void visit ( TDLObjectRoleProjectionInto& expr )
 	{
 		expr.getOR()->accept(*this);
-		DLTree* R = (*this)();
+		DLTree* R = *this;
 		expr.getC()->accept(*this);
-		DLTree* C = (*this)();
+		DLTree* C = *this;
 		tree = new DLTree ( TLexeme(PROJINTO), R, C );
 	}
 
@@ -228,6 +228,6 @@ public:		// visitor interface
 	virtual void visit ( TDLDataValue& expr ) {}
 
 #undef THROW_UNSUPPORTED
-}; // TExpressionTransformer
+}; // TExpressionTranslator
 
 #endif
