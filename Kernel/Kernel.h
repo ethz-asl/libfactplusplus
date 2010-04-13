@@ -234,7 +234,6 @@ protected:	// methods
 		/// get individual by a DLTree
 	TIndividual* getIndividual ( const ComplexConcept i, const char* reason )
 	{
-		checkDefined(i);
 		if ( !getTBox()->isIndividual(i) )
 			throw EFaCTPlusPlus(reason);
 		return static_cast<TIndividual*>(getTBox()->getCI(i));
@@ -242,7 +241,6 @@ protected:	// methods
 		/// get role by the DLTree
 	TRole* getRole ( const ComplexRole r, const char* reason ) const
 	{
-		checkDefined(r);
 		try { return resolveRole(r); }
 		catch ( EFaCTPlusPlus e ) { throw EFaCTPlusPlus(reason); }
 	}
@@ -321,36 +319,6 @@ public:	// general staff
 
 		/// get access to an expression manager
 	TExpressionManager* getExpressionManager ( void ) { return this; }
-
-		/// check whether every named entry of E is defined in the KB
-	static void checkDefined ( const DLTree* E ) throw(EFPPCantRegName)
-	{
-		if ( E == NULL )
-			return;
-/*		switch ( E->Element().getToken() )
-		{
-		case CNAME:
-			if ( E->Element().getNE() == NULL )
-				throw EFPPCantRegName ( E->Element().getName(), "concept" );
-			break;
-		case INAME:
-			if ( E->Element().getNE() == NULL )
-				throw EFPPCantRegName ( E->Element().getName(), "individual" );
-			break;
-		case RNAME:
-			if ( E->Element().getNE() == NULL )
-				throw EFPPCantRegName ( E->Element().getName(), "role" );
-			break;
-		case DNAME:
-			if ( E->Element().getNE() == NULL )
-				throw EFPPCantRegName ( E->Element().getName(), "data role" );
-			break;
-		default:
-			checkDefined(E->Left());
-			checkDefined(E->Right());
-			break;
-		};*/
-	}
 
 public:
 	//******************************************
@@ -656,7 +624,6 @@ public:
 	bool isFunctional ( const ComplexRole R )
 	{
 		preprocessKB();	// ensure KB is ready to answer the query
-		checkDefined(R);
 		if ( isUniversalRole(R) )
 			return false;	// universal role is not functional
 
@@ -675,8 +642,6 @@ public:
 	bool isDisjointRoles ( const ComplexRole R, const ComplexRole S )
 	{
 		preprocessKB();	// ensure KB is ready to answer the query
-		checkDefined(R);
-		checkDefined(S);
 		// FIXME!! add check for the empty role
 		if ( isUniversalRole(R) || isUniversalRole(S) )
 			return false;	// universal role is not disjoint with anything
@@ -729,7 +694,6 @@ public:
 	bool isSatisfiable ( const ComplexConcept C )
 	{
 		preprocessKB();	// ensure KB is ready to answer the query
-		checkDefined(C);
 		if ( isCN(C) )
 			return getTBox()->isSatisfiable(getTBox()->getCI(C));
 
@@ -740,8 +704,6 @@ public:
 	bool isSubsumedBy ( const ComplexConcept C, const ComplexConcept D )
 	{
 		preprocessKB();	// ensure KB is ready to answer the query
-		checkDefined(C);
-		checkDefined(D);
 		if ( isCN(C) && isCN(D) )
 			return getTBox()->isSubHolds ( getTBox()->getCI(C), getTBox()->getCI(D) );
 

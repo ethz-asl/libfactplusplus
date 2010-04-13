@@ -163,9 +163,6 @@ ReasoningKernel :: setUpCache ( const DLTree* query, cacheStatus level )
 		throw EFaCTPlusPlus("FaCT++ Kernel: incremental classification not supported");
 	}
 
-	// make sure that all names in the query are defined in KB
-	checkDefined(query);
-
 	// change current query
 	deleteTree(cachedQuery);
 	cachedQuery = clone (query);
