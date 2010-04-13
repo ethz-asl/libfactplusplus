@@ -25,7 +25,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 class TOntologyLoader: public DLAxiomVisitor
 {
 protected:	// members
+		/// KB to load the ontology
 	TBox& kb;
+		/// temporary vector for arguments of TBox n-ary axioms
+	std::vector<DLTree*> ArgList;
 
 protected:	// methods
 		/// get role by the DLTree; throw exception if unable
@@ -41,17 +44,21 @@ protected:	// methods
 			throw EFaCTPlusPlus(reason);
 		return static_cast<TIndividual*>(I->Element().getNE());
 	}
-		/// ensure that the concept expression E has its named entities linked to the KB ones
+		/// ensure that the expression E has its named entities linked to the KB ones
 	void ensureNames ( const DLTree* E )
 	{
-		fpp_assert(isSNF(E));
+		fpp_assert ( E != NULL );	// FORNOW
 	}
-		/// ensure names in the [begin,end) interval
+		/// prepare arguments for the [begin,end) interval
 	template<class Iterator>
-	void ensureNames ( Iterator begin, Iterator end )
+	void prepareArgList ( Iterator begin, Iterator end )
 	{
+		ArgList.clear();
 		for ( ; begin != end; ++begin )
+		{
 			ensureNames(*begin);
+			ArgList.push_back(*begin);
+		}
 	}
 
 public:		// visitor interface
@@ -61,48 +68,48 @@ public:		// visitor interface
 
 	virtual void visit ( TDLAxiomEquivalentConcepts& axiom )
 	{
-		ensureNames(axiom.begin(),axiom.end());
-		kb.processEquivalentC(axiom.begin(),axiom.end());
+		prepareArgList(axiom.begin(),axiom.end());
+		kb.processEquivalentC(ArgList.begin(),ArgList.end());
 	}
 	virtual void visit ( TDLAxiomDisjointConcepts& axiom )
 	{
-		ensureNames(axiom.begin(),axiom.end());
-		kb.processDisjointC(axiom.begin(),axiom.end());
+		prepareArgList(axiom.begin(),axiom.end());
+		kb.processDisjointC(ArgList.begin(),ArgList.end());
 	}
 	virtual void visit ( TDLAxiomEquivalentORoles& axiom )
 	{
-		ensureNames(axiom.begin(),axiom.end());
-		kb.processEquivalentR(axiom.begin(),axiom.end());
+		prepareArgList(axiom.begin(),axiom.end());
+		kb.processEquivalentR(ArgList.begin(),ArgList.end());
 	}
 	virtual void visit ( TDLAxiomEquivalentDRoles& axiom )
 	{
-		ensureNames(axiom.begin(),axiom.end());
-		kb.processEquivalentR(axiom.begin(),axiom.end());
+		prepareArgList(axiom.begin(),axiom.end());
+		kb.processEquivalentR(ArgList.begin(),ArgList.end());
 	}
 	virtual void visit ( TDLAxiomDisjointORoles& axiom )
 	{
-		ensureNames(axiom.begin(),axiom.end());
-		kb.processDisjointR(axiom.begin(),axiom.end());
+		prepareArgList(axiom.begin(),axiom.end());
+		kb.processDisjointR(ArgList.begin(),ArgList.end());
 	}
 	virtual void visit ( TDLAxiomDisjointDRoles& axiom )
 	{
-		ensureNames(axiom.begin(),axiom.end());
-		kb.processDisjointR(axiom.begin(),axiom.end());
+		prepareArgList(axiom.begin(),axiom.end());
+		kb.processDisjointR(ArgList.begin(),ArgList.end());
 	}
 	virtual void visit ( TDLAxiomSameIndividuals& axiom )
 	{
-		ensureNames(axiom.begin(),axiom.end());
-		kb.processSame(axiom.begin(),axiom.end());
+		prepareArgList(axiom.begin(),axiom.end());
+		kb.processSame(ArgList.begin(),ArgList.end());
 	}
 	virtual void visit ( TDLAxiomDifferentIndividuals& axiom )
 	{
-		ensureNames(axiom.begin(),axiom.end());
-		kb.processDifferent(axiom.begin(),axiom.end());
+		prepareArgList(axiom.begin(),axiom.end());
+		kb.processDifferent(ArgList.begin(),ArgList.end());
 	}
 	virtual void visit ( TDLAxiomFairnessConstraint& axiom )
 	{
-		ensureNames(axiom.begin(),axiom.end());
-		kb.setFairnessConstraint(axiom.begin(),axiom.end());
+		prepareArgList(axiom.begin(),axiom.end());
+		kb.setFairnessConstraint(ArgList.begin(),ArgList.end());
 	}
 
 	// role axioms
