@@ -138,7 +138,7 @@ Realise:	// do realisation
 //* caching support
 //******************************************
 void
-ReasoningKernel :: setUpCache ( DLTree* query, cacheStatus level )
+ReasoningKernel :: setUpCache ( const DLTree* query, cacheStatus level )
 {
 	// check if the query is already cached
 	if ( isCached (query) )

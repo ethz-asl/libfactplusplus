@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2008-2009 by Dmitry Tsarkov
+Copyright (C) 2008-2010 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -175,13 +175,6 @@ protected:	// members
 	ExpressionArray Base;
 
 public:		// interface
-		/// c'tor: create n-ary axiom for n = 2
-	TDLAxiomNAry ( DLTree* C, DLTree* D )
-		: TDLAxiom()
-	{
-		Base.push_back(C);
-		Base.push_back(D);
-	}
 		/// c'tor: create n-ary axiom
 	TDLAxiomNAry ( const ExpressionArray& v )
 		: TDLAxiom()
@@ -209,8 +202,6 @@ public:		// interface
 class TDLAxiomEquivalentConcepts: public TDLAxiomNAry
 {
 public:		// interface
-		/// c'tor: create an axiom for C = D
-	TDLAxiomEquivalentConcepts ( DLTree* C, DLTree* D ) : TDLAxiomNAry(C,D) {}
 		/// c'tor: create an axiom for C1 = ... = Cn
 	TDLAxiomEquivalentConcepts ( const ExpressionArray& v ) : TDLAxiomNAry(v) {}
 		/// d'tor
@@ -225,9 +216,7 @@ public:		// interface
 class TDLAxiomDisjointConcepts: public TDLAxiomNAry
 {
 public:		// interface
-		/// c'tor: create an axiom for C = D
-	TDLAxiomDisjointConcepts ( DLTree* C, DLTree* D ) : TDLAxiomNAry(C,D) {}
-		/// c'tor: create an axiom for C1 = ... = Cn
+		/// c'tor: create an axiom for C1 != ... != Cn
 	TDLAxiomDisjointConcepts ( const ExpressionArray& v ) : TDLAxiomNAry(v) {}
 		/// d'tor
 	virtual ~TDLAxiomDisjointConcepts ( void ) {}
@@ -241,9 +230,7 @@ public:		// interface
 class TDLAxiomEquivalentORoles: public TDLAxiomNAry
 {
 public:		// interface
-		/// c'tor: create an axiom for C = D
-	TDLAxiomEquivalentORoles ( DLTree* C, DLTree* D ) : TDLAxiomNAry(C,D) {}
-		/// c'tor: create an axiom for C1 = ... = Cn
+		/// c'tor: create an axiom for OR1 = ... = ORn
 	TDLAxiomEquivalentORoles ( const ExpressionArray& v ) : TDLAxiomNAry(v) {}
 		/// d'tor
 	virtual ~TDLAxiomEquivalentORoles ( void ) {}
@@ -257,9 +244,7 @@ public:		// interface
 class TDLAxiomEquivalentDRoles: public TDLAxiomNAry
 {
 public:		// interface
-		/// c'tor: create an axiom for C = D
-	TDLAxiomEquivalentDRoles ( DLTree* C, DLTree* D ) : TDLAxiomNAry(C,D) {}
-		/// c'tor: create an axiom for C1 = ... = Cn
+		/// c'tor: create an axiom for DR1 = ... = DRn
 	TDLAxiomEquivalentDRoles ( const ExpressionArray& v ) : TDLAxiomNAry(v) {}
 		/// d'tor
 	virtual ~TDLAxiomEquivalentDRoles ( void ) {}
@@ -273,9 +258,7 @@ public:		// interface
 class TDLAxiomDisjointORoles: public TDLAxiomNAry
 {
 public:		// interface
-		/// c'tor: create an axiom for C = D
-	TDLAxiomDisjointORoles ( DLTree* C, DLTree* D ) : TDLAxiomNAry(C,D) {}
-		/// c'tor: create an axiom for C1 = ... = Cn
+		/// c'tor: create an axiom for OR1 != ... != ORn
 	TDLAxiomDisjointORoles ( const ExpressionArray& v ) : TDLAxiomNAry(v) {}
 		/// d'tor
 	virtual ~TDLAxiomDisjointORoles ( void ) {}
@@ -289,9 +272,7 @@ public:		// interface
 class TDLAxiomDisjointDRoles: public TDLAxiomNAry
 {
 public:		// interface
-		/// c'tor: create an axiom for C = D
-	TDLAxiomDisjointDRoles ( DLTree* C, DLTree* D ) : TDLAxiomNAry(C,D) {}
-		/// c'tor: create an axiom for C1 = ... = Cn
+		/// c'tor: create an axiom for DR1 != ... != DRn
 	TDLAxiomDisjointDRoles ( const ExpressionArray& v ) : TDLAxiomNAry(v) {}
 		/// d'tor
 	virtual ~TDLAxiomDisjointDRoles ( void ) {}
@@ -305,9 +286,7 @@ public:		// interface
 class TDLAxiomSameIndividuals: public TDLAxiomNAry
 {
 public:		// interface
-		/// c'tor: create an axiom for C = D
-	TDLAxiomSameIndividuals ( DLTree* C, DLTree* D ) : TDLAxiomNAry(C,D) {}
-		/// c'tor: create an axiom for C1 = ... = Cn
+		/// c'tor: create an axiom for i1 = ... = in
 	TDLAxiomSameIndividuals ( const ExpressionArray& v ) : TDLAxiomNAry(v) {}
 		/// d'tor
 	virtual ~TDLAxiomSameIndividuals ( void ) {}
@@ -321,9 +300,7 @@ public:		// interface
 class TDLAxiomDifferentIndividuals: public TDLAxiomNAry
 {
 public:		// interface
-		/// c'tor: create an axiom for C = D
-	TDLAxiomDifferentIndividuals ( DLTree* C, DLTree* D ) : TDLAxiomNAry(C,D) {}
-		/// c'tor: create an axiom for C1 = ... = Cn
+		/// c'tor: create an axiom for i1 != ... != in
 	TDLAxiomDifferentIndividuals ( const ExpressionArray& v ) : TDLAxiomNAry(v) {}
 		/// d'tor
 	virtual ~TDLAxiomDifferentIndividuals ( void ) {}
@@ -337,7 +314,7 @@ public:		// interface
 class TDLAxiomFairnessConstraint: public TDLAxiomNAry
 {
 public:		// interface
-		/// c'tor: create an axiom for C1 = ... = Cn
+		/// c'tor: create an axiom for Fair(C1), ... Fair(Cn) constraints
 	TDLAxiomFairnessConstraint ( const ExpressionArray& v ) : TDLAxiomNAry(v) {}
 		/// d'tor
 	virtual ~TDLAxiomFairnessConstraint ( void ) {}

@@ -48,7 +48,12 @@ void DLLispParser :: parseCommand ( void )
 			if ( t == SUBSUMES )
 				Kernel->impliesConcepts ( left, right );
 			else
-				Kernel->equalConcepts ( left, right );
+			{
+				EManager->openArgList();
+				EManager->addArg(left);
+				EManager->addArg(right);
+				Kernel->equalConcepts();
+			}
 		}
 		catch ( EFaCTPlusPlus ex )
 		{
@@ -216,8 +221,10 @@ void DLLispParser :: parseCommand ( void )
 		break;
 
 	case CONCEPT:
-		Name = getConcept();
-		Kernel->equalConcepts ( Name, processConceptTree() );
+		EManager->openArgList();
+		EManager->addArg(getConcept());
+		EManager->addArg(processConceptTree());
+		Kernel->equalConcepts();
 		break;
 
 	case DEFINDIVIDUAL:		// just register singleton

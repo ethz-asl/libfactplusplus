@@ -50,14 +50,6 @@ public:	// types interface
 		  TDataValueExpr: TDataExpr;
 	*/
 
-	// single concept name is just its index
-	typedef TNamedEntry* ConceptName;
-	// role name can bi direct or inverted
-	typedef TNamedEntry* RoleName;
-	// datatype and/or datavalue name
-	typedef TNamedEntry* DataName;
-	// individual name is just a concept name
-	typedef ConceptName IndividualName;
 	// complex concept is DLTree for it
 	typedef DLTree* ComplexConcept;
 	// complex role expression is DLTree for it
@@ -66,17 +58,10 @@ public:	// types interface
 	typedef DLTree* IndividualExpression;
 
 	// name sets
-	typedef TaxonomyVertex::EqualNames ConceptList;
-	typedef std::vector<ConceptName> ConceptNameSet;
-	typedef std::vector<RoleName> RoleNameSet;
-	typedef std::vector<ComplexConcept> ConceptExpressionList;
-	typedef TBox::NamesVector NamesVector;
 
-	// ConceptSet = set of synonyms (concept names are positive)
-	typedef std::vector<ConceptList> ConceptSet;
-	// RoleSet = set of synonyms (role may be inverse)
-	typedef std::vector<RoleNameSet> RoleSet;
-	// IndividualSet is just set of pos. names
+		/// set of arbitrary named expressions
+	typedef TBox::NamesVector NamesVector;
+		// IndividualSet is just set of named individual expressions
 	typedef NamesVector IndividualSet;
 
 		/// typedef for intermediate instance related type
@@ -101,17 +86,6 @@ protected:	// types
 /*	class TreeNESet: public TNameSet<TTreeNamedEntry>
 	{
 	public:
-			/// empty c'tor
-		TreeNESet ( void ) {}
-			/// empty d'tor
-		~TreeNESet ( void ) {}
-
-			/// clear labels in the name set
-		void clearLabels ( void )
-		{
-			for ( iterator p = Base.begin(); p != Base.end(); ++p )
-				p->second->setImpl(NULL);
-		}
 			/// dirty hack for the LISP ontology printing
 		template<class T>
 		void fill ( T& x ) const
@@ -186,10 +160,10 @@ protected:	// methods
 	void processKB ( KBStatus status );
 
 		/// checks if current query is cached
-	bool isCached ( DLTree* query ) const
+	bool isCached ( const DLTree* query ) const
 		{ return ( cachedQuery == NULL ? false : equalTrees ( cachedQuery, query ) ); }
 		/// set up cache for query, performing additional (re-)classification if necessary
-	void setUpCache ( DLTree* query, cacheStatus level );
+	void setUpCache ( const DLTree* query, cacheStatus level );
 		/// clear cache and flags
 	void initCacheAndFlags ( void )
 	{
@@ -527,9 +501,6 @@ public:
 		/// axiom C1 = ... = Cn
 	TDLAxiom* equalConcepts ( void )
 		{ return Ontology.add ( new TDLAxiomEquivalentConcepts(NAryQueue.getLastArgList()) ); }
-		/// axiom C = D
-	TDLAxiom* equalConcepts ( const ComplexConcept C, const ComplexConcept D )
-		{ return Ontology.add ( new TDLAxiomEquivalentConcepts ( C, D ) ); }
 		/// axiom C1 != ... != Cn
 	TDLAxiom* disjointConcepts ( void )
 		{ return Ontology.add ( new TDLAxiomDisjointConcepts(NAryQueue.getLastArgList()) ); }
@@ -693,7 +664,13 @@ public:
 	}
 		/// @return true iff role is inverse-functional
 	bool isInverseFunctional ( const ComplexRole R )
-		{ return isFunctional(TreeDeleter(Inverse(clone(R)))); }
+	{
+		preprocessKB();	// ensure KB is ready to answer the query
+		if ( isUniversalRole(R) )
+			return false;	// universal role is not functional
+
+		return getRole ( R, "Role expression expected in isInverseFunctional()" )->inverse()->isFunctional();
+	}
 		/// @return true iff two roles are disjoint
 	bool isDisjointRoles ( const ComplexRole R, const ComplexRole S )
 	{
