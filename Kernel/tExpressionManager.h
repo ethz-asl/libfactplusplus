@@ -81,6 +81,8 @@ public:		// interface
 	void newArgList ( void ) { ArgQueue.openArgList(); }
 		/// add argument ARG to the current argument list
 	void addArg ( TDLExpression* arg ) { ArgQueue.addArg(arg); }
+		/// get the latest argument list
+	const std::vector<TDLExpression*>& getArgList ( void ) { return ArgQueue.getLastArgList(); }
 
 	// create expressions methods
 
@@ -95,11 +97,11 @@ public:		// interface
 		/// get negation of a concept C
 	TDLConceptExpression* Not ( TDLConceptExpression* C ) { return record(new TDLConceptNot(C)); }
 		/// get an n-ary conjunction expression; take the arguments from the last argument list
-	TDLConceptExpression* And ( void ) { return record(new TDLConceptAnd(ArgQueue.getLastArgList())); }
+	TDLConceptExpression* And ( void ) { return record(new TDLConceptAnd(getArgList())); }
 		/// get an n-ary disjunction expression; take the arguments from the last argument list
-	TDLConceptExpression* Or ( void ) { return record(new TDLConceptOr(ArgQueue.getLastArgList())); }
+	TDLConceptExpression* Or ( void ) { return record(new TDLConceptOr(getArgList())); }
 		/// get an n-ary one-of expression; take the arguments from the last argument list
-	TDLConceptExpression* OneOf ( void ) { return record(new TDLConceptOneOf(ArgQueue.getLastArgList())); }
+	TDLConceptExpression* OneOf ( void ) { return record(new TDLConceptOneOf(getArgList())); }
 
 		/// get self-reference restriction of an object role R
 	TDLConceptExpression* SelfReference ( TDLObjectRoleExpression* R ) { return record(new TDLConceptObjectSelf(R)); }
@@ -157,7 +159,7 @@ public:		// interface
 		/// get an inverse of a given object role expression R
 	TDLObjectRoleExpression* Inverse ( TDLObjectRoleExpression* R ) { return record(new TDLObjectRoleInverse(R)); }
 		/// get a role chain corresponding to R1 o ... o Rn; take the arguments from the last argument list
-	TDLObjectRoleComplexExpression* Compose ( void ) { return record(new TDLObjectRoleChain(ArgQueue.getLastArgList())); }
+	TDLObjectRoleComplexExpression* Compose ( void ) { return record(new TDLObjectRoleChain(getArgList())); }
 		/// get a expression corresponding to R projected from C
 	TDLObjectRoleComplexExpression* ProjectFrom ( TDLObjectRoleExpression* R, TDLConceptExpression* C )
 		{ return record(new TDLObjectRoleProjectionFrom(R,C)); }
@@ -184,6 +186,14 @@ public:		// interface
 	TDLDataExpression* DataType ( const std::string& name ) { return NS_DT.insert(name); }
 		/// get data value with given VALUE and TYPE
 	TDLDataExpression* DataValue ( const std::string& value, TDLDataTypeName* type ) { return record(new TDLDataValue(value,type)); }
+		/// get negation of a data expression E
+	TDLDataExpression* DataNot ( TDLDataExpression* E ) { return record(new TDLDataNot(E)); }
+		/// get an n-ary data conjunction expression; take the arguments from the last argument list
+	TDLDataExpression* DataAnd ( void ) { return record(new TDLDataAnd(getArgList())); }
+		/// get an n-ary data disjunction expression; take the arguments from the last argument list
+	TDLDataExpression* DataOr ( void ) { return record(new TDLDataOr(getArgList())); }
+		/// get an n-ary data one-of expression; take the arguments from the last argument list
+	TDLDataExpression* DataOneOf ( void ) { return record(new TDLDataOneOf(getArgList())); }
 }; // TExpressionManager
 
 #endif

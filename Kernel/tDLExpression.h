@@ -79,6 +79,10 @@ class   TDLDataTop;
 class   TDLDataBottom;
 class   TDLDataTypeName;
 class   TDLDataValue;
+class   TDLDataNot;
+class   TDLDataAnd;
+class   TDLDataOr;
+class   TDLDataOneOf;
 
 /// general visitor for DL expressions
 class DLExpressionVisitor
@@ -128,6 +132,10 @@ public:		// visitor interface
 	virtual void visit ( TDLDataBottom& expr ) = 0;
 	virtual void visit ( TDLDataTypeName& expr ) = 0;
 	virtual void visit ( TDLDataValue& expr ) = 0;
+	virtual void visit ( TDLDataNot& expr ) = 0;
+	virtual void visit ( TDLDataAnd& expr ) = 0;
+	virtual void visit ( TDLDataOr& expr ) = 0;
+	virtual void visit ( TDLDataOneOf& expr ) = 0;
 
 	// other methods
 	virtual ~DLExpressionVisitor ( void ) {}
@@ -1199,5 +1207,82 @@ public:		// interface
 	void accept ( DLExpressionVisitor& visitor ) { visitor.visit(*this); }
 }; // TDLDataValue
 
+//------------------------------------------------------------------
+///	data NOT expression
+//------------------------------------------------------------------
+class TDLDataNot: public TDLDataExpression, public TDataExpressionArg<TDLDataExpression>
+{
+public:		// interface
+		/// init c'tor
+	TDLDataNot ( TDLDataExpression* E )
+		: TDLDataExpression()
+		, TDataExpressionArg<TDLDataExpression>(E)
+		{}
+		/// empty d'tor
+	virtual ~TDLDataNot ( void ) {}
+
+		/// accept method for the visitor pattern
+	void accept ( DLExpressionVisitor& visitor ) { visitor.visit(*this); }
+}; // TDLDataNot
+
+//------------------------------------------------------------------
+///	data AND expression
+//------------------------------------------------------------------
+class TDLDataAnd: public TDLDataExpression, public TDLNAryExpression<TDLDataExpression>
+{
+public:		// interface
+		/// init c'tor: create AND of expressions from the given array
+	TDLDataAnd ( const ExpressionArray& v )
+		: TDLDataExpression()
+		, TDLNAryExpression<TDLDataExpression>("data expression","data AND")
+	{
+		add(v);
+	}
+		/// empty d'tor
+	virtual ~TDLDataAnd ( void ) {}
+
+		/// accept method for the visitor pattern
+	void accept ( DLExpressionVisitor& visitor ) { visitor.visit(*this); }
+}; // TDLDataAnd
+
+//------------------------------------------------------------------
+///	data OR expression
+//------------------------------------------------------------------
+class TDLDataOr: public TDLDataExpression, public TDLNAryExpression<TDLDataExpression>
+{
+public:		// interface
+		/// init c'tor: create OR of expressions from the given array
+	TDLDataOr ( const ExpressionArray& v )
+		: TDLDataExpression()
+		, TDLNAryExpression<TDLDataExpression>("data expression","data OR")
+	{
+		add(v);
+	}
+		/// empty d'tor
+	virtual ~TDLDataOr ( void ) {}
+
+		/// accept method for the visitor pattern
+	void accept ( DLExpressionVisitor& visitor ) { visitor.visit(*this); }
+}; // TDLDataOr
+
+//------------------------------------------------------------------
+///	data one-of expression
+//------------------------------------------------------------------
+class TDLDataOneOf: public TDLDataExpression, public TDLNAryExpression<TDLDataValue>
+{
+public:		// interface
+		/// init c'tor: create one-of from individuals in the given array
+	TDLDataOneOf ( const ExpressionArray& v )
+		: TDLDataExpression()
+		, TDLNAryExpression<TDLDataValue>("data value","data OneOf")
+	{
+		add(v);
+	}
+		/// empty d'tor
+	virtual ~TDLDataOneOf ( void ) {}
+
+		/// accept method for the visitor pattern
+	void accept ( DLExpressionVisitor& visitor ) { visitor.visit(*this); }
+}; // TDLDataOneOf
 
 #endif

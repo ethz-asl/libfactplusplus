@@ -116,6 +116,10 @@ public:		// visitor interface
 	virtual void visit ( TDLDataBottom& expr ATTR_UNUSED ) { o << " *BOTTOM*"; }
 	virtual void visit ( TDLDataTypeName& expr ) { o << " (" << expr.getName() << ")"; }
 	virtual void visit ( TDLDataValue& expr ) { o << " (" << expr.getExpr()->getName() << " " << expr.getName() << ")"; }
+	virtual void visit ( TDLDataNot& expr ) { BR b(o,"not"); expr.getExpr()->accept(*this); }
+	virtual void visit ( TDLDataAnd& expr ) { BR b(o,"and"); printArray(expr); }
+	virtual void visit ( TDLDataOr& expr ) { BR b(o,"or"); printArray(expr); }
+	virtual void visit ( TDLDataOneOf& expr ) { BR b(o,"d-one-of"); printArray(expr); }
 
 #undef THROW_UNSUPPORTED
 }; // TLISPExpressionPrinter

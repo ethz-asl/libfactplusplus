@@ -226,6 +226,43 @@ public:		// visitor interface
 	virtual void visit ( TDLDataBottom& expr ATTR_UNUSED ) { tree = new DLTree(BOTTOM); }
 	virtual void visit ( TDLDataTypeName& expr ) {}
 	virtual void visit ( TDLDataValue& expr ) {}
+	virtual void visit ( TDLDataNot& expr ) { expr.getExpr()->accept(*this); tree = createSNFNot(*this); }
+	virtual void visit ( TDLDataAnd& expr )
+	{
+		DLTree* acc = new DLTree(TOP);
+
+		for ( TDLDataAnd::iterator p = expr.begin(), p_end = expr.end(); p != p_end; ++p )
+		{
+			(*p)->accept(*this);
+			acc = createSNFAnd ( acc, *this );
+		}
+
+		tree = acc;
+	}
+	virtual void visit ( TDLDataOr& expr )
+	{
+		DLTree* acc = new DLTree(BOTTOM);
+
+		for ( TDLDataOr::iterator p = expr.begin(), p_end = expr.end(); p != p_end; ++p )
+		{
+			(*p)->accept(*this);
+			acc = createSNFOr ( acc, *this );
+		}
+
+		tree = acc;
+	}
+	virtual void visit ( TDLDataOneOf& expr )
+	{
+		DLTree* acc = new DLTree(BOTTOM);
+
+		for ( TDLDataOneOf::iterator p = expr.begin(), p_end = expr.end(); p != p_end; ++p )
+		{
+			(*p)->accept(*this);
+			acc = createSNFOr ( acc, *this );
+		}
+
+		tree = acc;
+	}
 
 #undef THROW_UNSUPPORTED
 }; // TExpressionTranslator
