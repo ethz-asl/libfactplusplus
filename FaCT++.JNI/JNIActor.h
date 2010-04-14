@@ -29,7 +29,7 @@ class JTaxonomyActor
 {
 protected:	// types
 		/// array of TNEs
-	typedef std::vector<DLTree*> SynVector;
+	typedef std::vector<TExpr*> SynVector;
 		/// array for a set of taxonomy verteces
 	typedef std::vector<SynVector> SetOfNodes;
 
@@ -37,7 +37,7 @@ protected:	// members
 		/// JNI environment
 	JNIEnv* env;
 		/// Kernel (need for names)
-	ReasoningKernel* K;
+	TExpressionManager* EM;
 		/// 2D array to return
 	SetOfNodes acc;
 		/// 1D array to return
@@ -55,12 +55,12 @@ protected:	// methods
 		if ( p->isSystem() )
 			return;
 		if ( AccessPolicy::applicable(p) )
-			syn.push_back(AccessPolicy::buildTree(K,p));
+			syn.push_back(AccessPolicy::buildTree(EM,p));
 	}
 
 public:		// interface
 		/// c'tor
-	JTaxonomyActor ( JNIEnv* e, jobject obj ) : env(e), K(getK(env,obj)) {}
+	JTaxonomyActor ( JNIEnv* e, jobject obj ) : env(e), EM(getEM(env,obj)) {}
 		/// d'tor
 	~JTaxonomyActor ( void ) {}
 
@@ -115,18 +115,18 @@ public:
 	static bool applicable ( const ClassifiableEntry* p )
 		{ return !static_cast<const TConcept*>(p)->isSingleton(); }
 	static bool needPlain ( void ) { return false; }
-	static DLTree* buildTree ( ReasoningKernel* K, const ClassifiableEntry* p )
+	static TExpr* buildTree ( TExpressionManager* EM, const ClassifiableEntry* p )
 	{
-		if ( p->getId () >= 0 )
-			return getCName ( K, p->getName() );
+		if ( p->getId() >= 0 )
+			return getCName ( EM, p->getName() );
 
 		// top or bottom
 		std::string name(p->getName());
 
 		if ( name == std::string("TOP") )
-			return new DLTree(TOP);
+			return EM->Top();
 		else if ( name == std::string("BOTTOM") )
-			return new DLTree(BOTTOM);
+			return EM->Bottom();
 		else	// error
 			return NULL;
 	}
@@ -141,8 +141,8 @@ public:
 	static bool applicable ( const ClassifiableEntry* p )
 		{ return static_cast<const TConcept*>(p)->isSingleton(); }
 	static bool needPlain ( void ) { return plain; }
-	static DLTree* buildTree ( ReasoningKernel* K, const ClassifiableEntry* p )
-		{ return getIName ( K, p->getName() ); }
+	static TExpr* buildTree ( TExpressionManager* EM, const ClassifiableEntry* p )
+		{ return getIName ( EM, p->getName() ); }
 }; // IndividualPolicy
 
 /// policy for object properties
@@ -152,8 +152,8 @@ public:
 	static const char* getClassName ( void ) { return cnObjectPropertyPointer(); }
 	static bool applicable ( const ClassifiableEntry* p ) { return p->getId() > 0; }
 	static bool needPlain ( void ) { return false; }
-	static DLTree* buildTree ( ReasoningKernel* K, const ClassifiableEntry* p )
-		{ return getOName ( K, p->getName() ); }
+	static TExpr* buildTree ( TExpressionManager* EM, const ClassifiableEntry* p )
+		{ return getOName ( EM, p->getName() ); }
 }; // ObjectPropertyPolicy
 
 /// policy for data properties
@@ -163,8 +163,8 @@ public:
 	static const char* getClassName ( void ) { return cnDataPropertyPointer(); }
 	static bool applicable ( const ClassifiableEntry* p ) { return p->getId() > 0; }
 	static bool needPlain ( void ) { return false; }
-	static DLTree* buildTree ( ReasoningKernel* K, const ClassifiableEntry* p )
-		{ return getDName ( K, p->getName() ); }
+	static TExpr* buildTree ( TExpressionManager* EM, const ClassifiableEntry* p )
+		{ return getDName ( EM, p->getName() ); }
 }; // DataPropertyPolicy
 
 #endif

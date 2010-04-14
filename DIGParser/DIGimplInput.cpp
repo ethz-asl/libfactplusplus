@@ -167,7 +167,7 @@ void DIGParseHandlers :: startConcept ( DIGTag tag, AttributeList& attributes )
 
 	int n = 0;
 	string name, val, min, max;
-	DLTree* x;
+	TExpr* x;
 
 	if ( parm_name != NULL )
 		name = StrX (parm_name).localForm();
@@ -208,7 +208,7 @@ void DIGParseHandlers :: startConcept ( DIGTag tag, AttributeList& attributes )
 		x = tryRoleName(name);
 		try
 		{
-			pKernel->setOFunctional(x);
+			pKernel->setOFunctional(dynamic_cast<TORoleExpr*>(x));
 		}
 		catch(...)
 		{
@@ -320,7 +320,6 @@ void DIGParseHandlers :: startAxiom ( DIGTag tag, AttributeList& attributes )
 	fpp_assert ( tag >= dig_Axioms_Begin && tag < dig_Axioms_End );	// safety check
 	// set up name for the named stuff
 	const XMLCh* parm = attributes.getValue ( "name" );
-	DLTree* x;
 
 	// check whether axioms are allowed
 	if ( pKernel->isKBClassified() )
@@ -353,8 +352,8 @@ void DIGParseHandlers :: startAxiom ( DIGTag tag, AttributeList& attributes )
 	case digDefFeature:
 		if ( parm == NULL )
 			throwAttributeAbsence ( "name", tag );
-		pKernel->declare(x = tryRoleName(StrX(parm).localForm()));
-		ERROR_IF ( pKernel->setTransitive(x) )
+		pKernel->declare(tryRoleName(StrX(parm).localForm()));
+		ERROR_IF ( pKernel->setTransitive(tryRoleName(StrX(parm).localForm())) )
 		return;
 
 	case digDefAttribute:
@@ -436,13 +435,13 @@ void DIGParseHandlers :: endConcept ( DIGTag tag )
 	{
 		if ( workStack.empty() )
 			throwArgumentAbsence ( "concept", "role", tag );
-		DLTree* C = workStack.top();	// C
+		TConceptExpr* C = dynamic_cast<TConceptExpr*>(workStack.top());
 		workStack.pop();
 		if ( workStack.empty() )
 			throwArgumentAbsence ( "concept", "role", tag );
 		workStack.top() = tag == digSome
-			? pEM->Exists ( workStack.top(), C )
-			: pEM->Forall ( workStack.top(), C );
+			? pEM->Exists ( dynamic_cast<TORoleExpr*>(workStack.top()), C )
+			: pEM->Forall ( dynamic_cast<TORoleExpr*>(workStack.top()), C );
 		return;
 	}
 
@@ -451,11 +450,11 @@ void DIGParseHandlers :: endConcept ( DIGTag tag )
 	{
 		if ( workStack.empty() )
 			throwArgumentAbsence ( "concept", "role", tag );
-		DLTree* C = workStack.top();	// C
+		TConceptExpr* C = dynamic_cast<TConceptExpr*>(workStack.top());
 		workStack.pop();
 		if ( workStack.empty() )
 			throwArgumentAbsence ( "concept", "role", tag );
-		DLTree* R = workStack.top();	// R
+		TORoleExpr* R = dynamic_cast<TORoleExpr*>(workStack.top());
 		workStack.pop();
 		if ( workStack.empty() )
 			throwArgumentAbsence ( "number", tag );
@@ -518,15 +517,15 @@ void DIGParseHandlers :: endConcept ( DIGTag tag )
 	{
 		if ( workStack.empty() )
 			throwArgumentAbsence ( "role", "data expression", tag );
-		DLTree* R = workStack.top();
+		TDRoleExpr* R = dynamic_cast<TDRoleExpr*>(workStack.top());
 		workStack.pop();
 		if ( workStack.empty() )
 			throwArgumentAbsence ( "role", "data expression", tag );
-		DLTree* N = workStack.top();
+		TDataExpr* N = dynamic_cast<TDataExpr*>(workStack.top());
 		// FIXME: throw exception
 		fpp_assert ( N->Element().getToken() == DATAEXPR );
 		workStack.pop();
-		DLTree* expr = pKernel->getDataTypeCenter().getDataExpr(N);
+		TDataExpr* expr = pKernel->getDataTypeCenter().getDataExpr(N);
 
 		if ( tag==digIntMin||tag==digStrMin )
 			expr = pKernel->getDataTypeCenter().applyFacet ( expr,
@@ -545,20 +544,20 @@ void DIGParseHandlers :: endConcept ( DIGTag tag )
 	{
 		if ( workStack.empty() )
 			throwArgumentAbsence ( "role", "two data expressions", tag );
-		DLTree* R = workStack.top();
+		TDRoleExpr* R = dynamic_cast<TDRoleExpr*>(workStack.top());
 		workStack.pop();
 
 		if ( workStack.empty() )
 			throwArgumentAbsence ( "role", "two data expressions", tag );
-		DLTree* max = workStack.top();
+		TDataExpr* max = dynamic_cast<TDataExpr*>(workStack.top());
 		workStack.pop();
-		DLTree* expr = pKernel->getDataTypeCenter().getDataExpr(max);
+		TDataExpr* expr = pKernel->getDataTypeCenter().getDataExpr(max);
 		expr = pKernel->getDataTypeCenter().applyFacet ( expr,
 			pKernel->getDataTypeCenter().getMaxInclusiveFacet(max) );
 
 		if ( workStack.empty() )
 			throwArgumentAbsence ( "role", "two data expressions", tag );
-		DLTree* min = workStack.top();
+		TDataExpr* min = dynamic_cast<TDataExpr*>(workStack.top());
 		workStack.pop();
 		expr = pKernel->getDataTypeCenter().applyFacet ( expr,
 			pKernel->getDataTypeCenter().getMinInclusiveFacet(min) );
@@ -573,11 +572,11 @@ void DIGParseHandlers :: endConcept ( DIGTag tag )
 	{
 		if ( workStack.empty() )
 			throwArgumentAbsence ( "role", "data expression", tag );
-		DLTree* A = workStack.top();
+		TDRoleExpr* A = dynamic_cast<TDRoleExpr*>(workStack.top());
 		workStack.pop();
 		if ( workStack.empty() )
 			throwArgumentAbsence ( "role", "data expression", tag );
-		DLTree* ps = workStack.top();
+		TDataExpr* ps = dynamic_cast<TDataExpr*>(workStack.top());
 		// FIXME: throw exception
 		fpp_assert ( ps->Element().getToken() == DATAEXPR );
 		workStack.pop();
@@ -622,11 +621,11 @@ void DIGParseHandlers :: endAxiom ( DIGTag tag )
 	{
 		if ( workStack.empty() )
 			throwArgumentAbsence ( "two concept expressions", tag );
-		DLTree* C2 = workStack.top();
+		TConceptExpr* C2 = dynamic_cast<TConceptExpr*>(workStack.top());
 		workStack.pop();
 		if ( workStack.empty() )
 			throwArgumentAbsence ( "two concept expressions", tag );
-		DLTree* C1 = workStack.top();
+		TConceptExpr* C1 = dynamic_cast<TConceptExpr*>(workStack.top());
 		workStack.pop();
 		ERROR_IF ( pKernel->impliesConcepts ( C1, C2 ) );
 		return;
@@ -666,13 +665,15 @@ void DIGParseHandlers :: endAxiom ( DIGTag tag )
 	{
 		if ( workStack.empty() )
 			throwArgumentAbsence ( "two role expressions", tag );
-		DLTree* R2 = workStack.top();
+		TExpr* R2 = workStack.top();
 		workStack.pop();
 		if ( workStack.empty() )
 			throwArgumentAbsence ( "two role expressions", tag );
-		DLTree* R1 = workStack.top();
+		TExpr* R1 = workStack.top();
 		workStack.pop();
-		ERROR_IF ( isDataRole(R1) ? pKernel->impliesDRoles ( R1, R2 ) : pKernel->impliesORoles ( R1, R2 ) );
+		ERROR_IF ( isDataRole(R1)
+			? pKernel->impliesDRoles ( dynamic_cast<TDRoleExpr*>(R1), dynamic_cast<TDRoleExpr*>(R2) )
+			: pKernel->impliesORoles ( dynamic_cast<TORoleExpr*>(R1), dynamic_cast<TORoleExpr*>(R2) ) );
 		return;
 	}
 	case digEqualR:
@@ -694,26 +695,30 @@ void DIGParseHandlers :: endAxiom ( DIGTag tag )
 	{
 		if ( workStack.empty() )
 			throwArgumentAbsence ( "role", "concept", tag );
-		DLTree* C = workStack.top();
+		TConceptExpr* C = dynamic_cast<TConceptExpr*>(workStack.top());
 		workStack.pop();
 		if ( workStack.empty() )
 			throwArgumentAbsence ( "role", "concept", tag );
-		DLTree* R = workStack.top();
+		TExpr* R = workStack.top();
 		workStack.pop();
-		ERROR_IF ( isDataRole(R) ? pKernel->setDDomain ( R, C ) : pKernel->setODomain ( R, C ) );
+		ERROR_IF ( isDataRole(R)
+			? pKernel->setDDomain ( dynamic_cast<TDRoleExpr*>(R), C )
+			: pKernel->setODomain ( dynamic_cast<TORoleExpr*>(R), C ) );
 		return;
 	}
 	case digRange:
 	{
 		if ( workStack.empty() )
 			throwArgumentAbsence ( "role", "concept", tag );
-		DLTree* C = workStack.top();
+		TExpr* C = workStack.top();
 		workStack.pop();
 		if ( workStack.empty() )
 			throwArgumentAbsence ( "role", "concept", tag );
-		DLTree* R = workStack.top();
+		TExpr* R = workStack.top();
 		workStack.pop();
-		ERROR_IF ( isDataRole(R) ? pKernel->setDRange ( R, C ) : pKernel->setORange ( R, C ) );
+		ERROR_IF ( isDataRole(R)
+			? pKernel->setDRange ( dynamic_cast<TDRoleExpr*>(R), dynamic_cast<TDataExpr*>(C) )
+			: pKernel->setORange ( dynamic_cast<TORoleExpr*>(R), dynamic_cast<TConceptExpr*>(C) ) );
 		return;
 	}
 	case digRangeInt:
@@ -721,7 +726,7 @@ void DIGParseHandlers :: endAxiom ( DIGTag tag )
 	{
 		if ( workStack.empty() )
 			throwArgumentAbsence ( "data property", tag );
-		DLTree* R = workStack.top();
+		TDRoleExpr* R = dynamic_cast<TDRoleExpr*>(workStack.top());
 		workStack.pop();
 		ERROR_IF ( pKernel->setDRange ( R, tag == digRangeInt ?
 											pKernel->getDataTypeCenter().getNumberType() :
@@ -732,7 +737,7 @@ void DIGParseHandlers :: endAxiom ( DIGTag tag )
 	{
 		if ( workStack.empty() )
 			throwArgumentAbsence ( "role", tag );
-		DLTree* R = workStack.top();
+		TORoleExpr* R = dynamic_cast<TORoleExpr*>(workStack.top());
 		workStack.pop();
 		ERROR_IF ( pKernel->setTransitive(R) );
 		return;
@@ -741,20 +746,22 @@ void DIGParseHandlers :: endAxiom ( DIGTag tag )
 	{
 		if ( workStack.empty() )
 			throwArgumentAbsence ( "role", tag );
-		DLTree* R = workStack.top();
+		TExpr* R = workStack.top();
 		workStack.pop();
-		ERROR_IF ( isDataRole(R) ? pKernel->setDFunctional(R) : pKernel->setOFunctional(R) );
+		ERROR_IF ( isDataRole(R)
+			? pKernel->setDFunctional(dynamic_cast<TDRoleExpr*>(R))
+			: pKernel->setOFunctional(dynamic_cast<TORoleExpr*>(R)) );
 		return;
 	}
 	case digInstanceOf:
 	{
 		if ( workStack.empty() )
 			throwArgumentAbsence ( "individual", "concept", tag );
-		DLTree* C = workStack.top();
+		TConceptExpr* C = dynamic_cast<TConceptExpr*>(workStack.top());
 		workStack.pop();
 		if ( workStack.empty() )
 			throwArgumentAbsence ( "individual", "concept", tag );
-		DLTree* I = workStack.top();
+		TIndividualExpr* I = dynamic_cast<TIndividualExpr*>(workStack.top());
 		workStack.pop();
 		ERROR_IF ( pKernel->instanceOf ( I, C ) );
 		return;
@@ -763,15 +770,15 @@ void DIGParseHandlers :: endAxiom ( DIGTag tag )
 	{
 		if ( workStack.empty() )
 			throwArgumentAbsence ( "two individuals", "role", tag );
-		DLTree* I2 = workStack.top();
+		TIndividualExpr* I2 = dynamic_cast<TIndividualExpr*>(workStack.top());
 		workStack.pop();
 		if ( workStack.empty() )
 			throwArgumentAbsence ( "two individuals", "role", tag );
-		DLTree* R = workStack.top();
+		TORoleExpr* R = dynamic_cast<TORoleExpr*>(workStack.top());
 		workStack.pop();
 		if ( workStack.empty() )
 			throwArgumentAbsence ( "two individuals", "role", tag );
-		DLTree* I1 = workStack.top();
+		TIndividualExpr* I1 = dynamic_cast<TIndividualExpr*>(workStack.top());
 		workStack.pop();
 		ERROR_IF ( pKernel->relatedTo ( I1, R, I2 ) );
 		return;
@@ -780,15 +787,15 @@ void DIGParseHandlers :: endAxiom ( DIGTag tag )
 	{
 		if ( workStack.empty() )
 			throwArgumentAbsence ( "individual, data property", "data value", tag );
-		DLTree* V = workStack.top();
+		TDataValueExpr* V = dynamic_cast<TDataValueExpr*>(workStack.top());
 		workStack.pop();
 		if ( workStack.empty() )
 			throwArgumentAbsence ( "individual, data property", "data value", tag );
-		DLTree* A = workStack.top();
+		TORoleExpr* A = dynamic_cast<TDRoleExpr*>(workStack.top());
 		workStack.pop();
 		if ( workStack.empty() )
 			throwArgumentAbsence ( "individual, data property", "data value", tag );
-		DLTree* I = workStack.top();
+		TIndividualExpr* I = dynamic_cast<TIndividualExpr*>(workStack.top());
 		workStack.pop();
 		ERROR_IF ( pKernel->valueOf ( I, A, V ) );
 		return;

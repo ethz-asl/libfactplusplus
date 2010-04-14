@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2009 by Dmitry Tsarkov
+Copyright (C) 2003-2010 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -268,7 +268,7 @@ void DIGParseHandlers :: endAsk ( DIGTag tag )
 
 		if ( workStack.empty() )
 			throwArgumentAbsence ( "concept", tag );
-		DLTree* q = workStack.top();
+		TConceptExpr* q = dynamic_cast<TConceptExpr*>(workStack.top());
 		workStack.pop();
 
 		if ( wasError )
@@ -279,7 +279,7 @@ void DIGParseHandlers :: endAsk ( DIGTag tag )
 		{
 			if ( workStack.empty() )
 				throwArgumentAbsence ( "concept", tag );
-			DLTree* p = workStack.top();
+			TConceptExpr* p = dynamic_cast<TConceptExpr*>(workStack.top());
 			workStack.pop();
 
 			if ( tag == digSubsumes )
@@ -306,7 +306,7 @@ void DIGParseHandlers :: endAsk ( DIGTag tag )
 		if ( workStack.empty() )
 			throwArgumentAbsence ( "concept or individual", tag );
 
-		DLTree* p = workStack.top();
+		TConceptExpr* p = dynamic_cast<TConceptExpr*>(workStack.top());
 		workStack.pop();
 		ConceptActor actor ( *o, curId.c_str() );
 
@@ -335,7 +335,7 @@ void DIGParseHandlers :: endAsk ( DIGTag tag )
 	{
 		if ( workStack.empty() )
 			throwArgumentAbsence ( "concept expression", tag );
-		DLTree* p = workStack.top();
+		TConceptExpr* p = dynamic_cast<TConceptExpr*>(workStack.top());
 		workStack.pop();
 		ConceptActor actor ( *o, curId.c_str() );
 
@@ -359,7 +359,7 @@ void DIGParseHandlers :: endAsk ( DIGTag tag )
 		if ( workStack.empty() )
 			throwArgumentAbsence ( "role", tag );
 
-		DLTree* p = workStack.top();
+		TRoleExpr* p = dynamic_cast<TRoleExpr*>(workStack.top());
 		workStack.pop();
 		RoleActor actor ( *o, curId.c_str() );
 
@@ -386,7 +386,7 @@ void DIGParseHandlers :: endAsk ( DIGTag tag )
 	{
 		if ( workStack.empty() )
 			throwArgumentAbsence ( "role", tag );
-		DLTree* p = workStack.top();
+		TRoleExpr* p = dynamic_cast<TRoleExpr*>(workStack.top());
 		workStack.pop();
 		RoleActor actor ( *o, curId.c_str() );
 
@@ -407,7 +407,7 @@ void DIGParseHandlers :: endAsk ( DIGTag tag )
 	{
 		if ( workStack.empty() )
 			throwArgumentAbsence ( "concept expression", tag );
-		DLTree* p = workStack.top();
+		TConceptExpr* p = dynamic_cast<TConceptExpr*>(workStack.top());
 		workStack.pop();
 		IndividualActor actor ( *o, curId.c_str() );
 
@@ -428,11 +428,11 @@ void DIGParseHandlers :: endAsk ( DIGTag tag )
 	{
 		if ( workStack.empty() )
 			throwArgumentAbsence ( "role", tag );
-		DLTree* R = workStack.top();
+		TORoleExpr* R = dynamic_cast<TORoleExpr*>(workStack.top());
 		workStack.pop();
 		if ( workStack.empty() )
 			throwArgumentAbsence ( "individual", tag );
-		DLTree* I = workStack.top();
+		TIndividualExpr* I = dynamic_cast<TIndividualExpr*>(workStack.top());
 		workStack.pop();
 		ReasoningKernel::IndividualSet Js;
 
@@ -460,7 +460,7 @@ void DIGParseHandlers :: endAsk ( DIGTag tag )
 	{
 		if ( workStack.empty() )
 			throwArgumentAbsence ( "role", tag );
-		DLTree* R = workStack.top();
+		TORoleExpr* R = dynamic_cast<TORoleExpr*>(workStack.top());
 		workStack.pop();
 		ReasoningKernel::IndividualSet Is, Js;
 

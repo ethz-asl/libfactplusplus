@@ -61,7 +61,7 @@ void fillSatSubQuery ( void )
 		Query[1] = Config.getString();
 }
 
-DLTree*
+ReasoningKernel::TConceptExpr*
 getNextName ( TsScanner& sc, ReasoningKernel& Kernel )
 {
 	TExpressionManager* pEM = Kernel.getExpressionManager();
@@ -110,7 +110,7 @@ void testSat ( const std::string& names, ReasoningKernel& Kernel )
 {
 	std::stringstream s(names);
 	TsScanner sc(&s);
-	DLTree* sat;
+	ReasoningKernel::TConceptExpr* sat;
 
 	while ( (sat = getNextName(sc,Kernel)) != NULL )
 	{
@@ -132,7 +132,7 @@ void testSub ( const std::string& names1, const std::string& names2, ReasoningKe
 {
 	std::stringstream s1(names1), s2(names2);
 	TsScanner sc1(&s1), sc2(&s2);
-	DLTree* sub, *sup;
+	ReasoningKernel::TConceptExpr *sub, *sup;
 
 	while ( (sub = getNextName(sc1,Kernel)) != NULL )
 	{

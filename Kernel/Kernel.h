@@ -41,21 +41,38 @@ public:	// types interface
 
 		TExpr;
 		 TConceptExpr: TExpr;
+		 TIndividualExpr : TExpr;
 		 TRoleExpr: TExpr;
 		  TORoleComplexExpr: TRoleExpr;
 		   TORoleExpr: TORoleComplexExpr;
 		  TDRoleExpr: TRoleExpr;
-		 TIndividualExpr : TExpr;
 		 TDataExpr: TExpr;
 		  TDataValueExpr: TDataExpr;
+
+		Right now all the expressions are of the type DLTree*.
+		Later on the appropriate classes from tDlExpression.h
+
+		As a transition step, the intermediate structure is introduced.
 	*/
 
-	// complex concept is DLTree for it
-	typedef DLTree* ComplexConcept;
-	// complex role expression is DLTree for it
-	typedef DLTree* ComplexRole;
-	// individual expression is DLTree for it
-	typedef DLTree* IndividualExpression;
+		/// general expression
+	typedef DLTree TExpr;
+		/// concept expression
+	typedef DLTree TConceptExpr;
+		/// individual expression
+	typedef DLTree TIndividualExpr;
+		/// role expression
+	typedef DLTree TRoleExpr;
+		/// object role complex expression (including role chains and projections)
+	typedef DLTree TORoleComplexExpr;
+		/// object role expression
+	typedef DLTree TORoleExpr;
+		/// data role expression
+	typedef DLTree TDRoleExpr;
+		/// data expression
+	typedef DLTree TDataExpr;
+		/// data value expression
+	typedef DLTree TDataValueExpr;
 
 	// name sets
 
@@ -160,10 +177,10 @@ protected:	// methods
 	void processKB ( KBStatus status );
 
 		/// checks if current query is cached
-	bool isCached ( const DLTree* query ) const
+	bool isCached ( const TConceptExpr* query ) const
 		{ return ( cachedQuery == NULL ? false : equalTrees ( cachedQuery, query ) ); }
 		/// set up cache for query, performing additional (re-)classification if necessary
-	void setUpCache ( const DLTree* query, cacheStatus level );
+	void setUpCache ( const TConceptExpr* query, cacheStatus level );
 		/// clear cache and flags
 	void initCacheAndFlags ( void )
 	{
@@ -232,14 +249,14 @@ protected:	// methods
 	// transformation methods
 
 		/// get individual by a DLTree
-	TIndividual* getIndividual ( const ComplexConcept i, const char* reason )
+	TIndividual* getIndividual ( const TIndividualExpr* i, const char* reason ATTR_UNUSED )
 	{
 		if ( !getTBox()->isIndividual(i) )
 			throw EFaCTPlusPlus(reason);
 		return static_cast<TIndividual*>(getTBox()->getCI(i));
 	}
 		/// get role by the DLTree
-	TRole* getRole ( const ComplexRole r, const char* reason ) const
+	TRole* getRole ( const TRoleExpr* r, const char* reason ) const
 	{
 		try { return resolveRole(r); }
 		catch ( EFaCTPlusPlus e ) { throw EFaCTPlusPlus(reason); }
@@ -368,48 +385,66 @@ public:
 		/// start new argument list for n-ary concept expressions/axioms
 	void openArgList ( void ) { NAryQueue.openArgList(); }
 		/// add an element C to the most recent open argument list
-	void addArg ( const ComplexConcept C ) { NAryQueue.addArg(C); }
+	void addArg ( TExpr* C ) { NAryQueue.addArg(C); }
 
 	//-------------------------------------------------------------------
 	//--	Concept expressions
 	//-------------------------------------------------------------------
 
 		/// @return TOP
-	ComplexConcept Top ( void ) { return regPointer ( new DLTree(TOP) ); }
+	TConceptExpr* Top ( void ) { return regPointer( new DLTree(TOP) ); }
 		/// @return BOTTOM
-	ComplexConcept Bottom ( void ) { return regPointer ( new DLTree(BOTTOM) ); }
+	TConceptExpr* Bottom ( void ) { return regPointer ( new DLTree(BOTTOM) ); }
 		/// @return concept corresponding to NAME
-	ComplexConcept Concept ( const std::string& name ) { return regPointer ( new DLTree ( TLexeme ( CNAME, getTBox()->getConcept(name) ) ) ); }
+	TConceptExpr* Concept ( const std::string& name ) { return regPointer ( new DLTree ( TLexeme ( CNAME, getTBox()->getConcept(name) ) ) ); }
 		/// @return ~C
-	ComplexConcept Not ( ComplexConcept C ) { return regPointer(createSNFNot(C)); }
+	TConceptExpr* Not ( TConceptExpr* C ) { return regPointer(createSNFNot(C)); }
 		/// @return C/\D
-	ComplexConcept And ( ComplexConcept C, ComplexConcept D ) { return regPointer ( createSNFAnd ( C, D ) ); }
+	TConceptExpr* And ( TConceptExpr* C, TConceptExpr* D ) { return regPointer ( createSNFAnd ( C, D ) ); }
 		/// @return C1/\.../\Cn
-	ComplexConcept And ( void ) { return regPointer(getTBox()->processAnd(NAryQueue.getLastArgList())); }
+	TConceptExpr* And ( void ) { return regPointer(getTBox()->processAnd(NAryQueue.getLastArgList())); }
 		/// @return C1\/...\/Cn
-	ComplexConcept Or ( void ) { return regPointer(getTBox()->processOr(NAryQueue.getLastArgList())); }
+	TConceptExpr* Or ( void ) { return regPointer(getTBox()->processOr(NAryQueue.getLastArgList())); }
 		/// @return \E R.C
-	ComplexConcept Exists ( ComplexRole R, ComplexConcept C ) { return regPointer ( createSNFExists ( R, C ) ); }
+	TConceptExpr* Exists ( TORoleExpr* R, TConceptExpr* C ) { return regPointer ( createSNFExists ( R, C ) ); }
+		/// @return \E R.D
+//	TConceptExpr* Exists ( TDRoleExpr* R, TDataExpr* D ) { return regPointer ( createSNFExists ( R, D ) ); }
 		/// @return \A R.C
-	ComplexConcept Forall ( ComplexRole R, ComplexConcept C ) { return regPointer ( createSNFForall ( R, C ) ); }
-		/// @return \E R.I for individual/data value I
-	ComplexConcept Value ( ComplexRole R, ComplexConcept I ) { return regPointer ( createSNFExists ( R, I ) ); }
+	TConceptExpr* Forall ( TORoleExpr* R, TConceptExpr* C ) { return regPointer ( createSNFForall ( R, C ) ); }
+		/// @return \A R.D
+//	TConceptExpr* Forall ( TDRoleExpr* R, TDataExpr* D ) { return regPointer ( createSNFForall ( R, D ) ); }
+		/// @return \E R.I for individual value I
+	TConceptExpr* Value ( TORoleExpr* R, TIndividualExpr* I ) { return regPointer ( createSNFExists ( R, I ) ); }
+		/// @return \E R.V for data value I
+//	TConceptExpr* Value ( TORoleExpr* R, TDataValueExpr* V ) { return regPointer ( createSNFExists ( R, V ) ); }
 		/// @return <= n R.C
-	ComplexConcept MaxCardinality ( unsigned int n, ComplexRole R, ComplexConcept C ) { return regPointer ( createSNFLE ( n, R, C ) ); }
+	TConceptExpr* MaxCardinality ( unsigned int n, TORoleExpr* R, TConceptExpr* C ) { return regPointer ( createSNFLE ( n, R, C ) ); }
 		/// @return >= n R.C
-	ComplexConcept MinCardinality ( unsigned int n, ComplexRole R, ComplexConcept C ) { return regPointer ( createSNFGE ( n, R, C ) ); }
+	TConceptExpr* MinCardinality ( unsigned int n, TORoleExpr* R, TConceptExpr* C ) { return regPointer ( createSNFGE ( n, R, C ) ); }
 		/// @return = n R.C
-	ComplexConcept Cardinality ( unsigned int n, ComplexRole R, ComplexConcept C )
+	TConceptExpr* Cardinality ( unsigned int n, TORoleExpr* R, TConceptExpr* C )
 	{
-		ComplexConcept temp = MinCardinality ( n, clone(R), clone(C) );
-		return And ( temp, MaxCardinality ( n, R, C ) );
+		DLTree* tMin = createSNFLE ( n, clone(R), clone(C) );
+		DLTree* tMax = createSNFGE ( n, R, C );
+		return regPointer ( createSNFAnd ( tMin, tMax ) );
 	}
+		/// @return <= n R.D
+//	TConceptExpr* MaxCardinality ( unsigned int n, TORoleExpr* R, TDataExpr* D ) { return regPointer ( createSNFLE ( n, R, D ) ); }
+		/// @return >= n R.D
+//	TConceptExpr* MinCardinality ( unsigned int n, TORoleExpr* R, TDataExpr* D ) { return regPointer ( createSNFGE ( n, R, D ) ); }
+		/// @return = n R.D
+/*	TConceptExpr* Cardinality ( unsigned int n, TORoleExpr* R, TDataExpr* D )
+	{
+		DLTree* tMin = createSNFLE ( n, clone(R), clone(D) );
+		DLTree* tMax = createSNFGE ( n, R, D );
+		return regPointer ( createSNFAnd ( tMin, tMax ) );
+	}*/
 		/// @return \E R.Self
-	ComplexConcept SelfReference ( ComplexRole R ) { return regPointer ( new DLTree ( REFLEXIVE, R ) ); }
-		/// @return {i_1,...,i_n} constructor for the arguments in NAryQueue
-	ComplexConcept OneOf ( void ) { return regPointer ( getTBox()->processOneOf ( NAryQueue.getLastArgList(), /*data=*/false ) ); }
+	TConceptExpr* SelfReference ( TORoleExpr* R ) { return regPointer ( new DLTree ( REFLEXIVE, R ) ); }
+		/// @return one-of construction for the arguments in NAryQueue
+	TConceptExpr* OneOf ( void ) { return regPointer ( getTBox()->processOneOf ( NAryQueue.getLastArgList(), /*data=*/false ) ); }
 		/// @return concept {I} for the individual I
-	ComplexConcept OneOf ( ComplexConcept I )
+	TConceptExpr* OneOf ( TIndividualExpr* I )
 	{
 		getExpressionManager()->openArgList();
 		getExpressionManager()->addArg(I);
@@ -421,43 +456,43 @@ public:
 	//-------------------------------------------------------------------
 
 		/// @return object role corresponding to NAME
-	ComplexRole ObjectRole ( const std::string& name ) { return regPointer ( new DLTree ( TLexeme ( RNAME, getORM()->ensureRoleName(name) ) ) ); }
+	TORoleExpr* ObjectRole ( const std::string& name ) { return regPointer ( new DLTree ( TLexeme ( RNAME, getORM()->ensureRoleName(name) ) ) ); }
 		/// @return data role corresponding to NAME
-	ComplexRole DataRole ( const std::string& name ) { return regPointer ( new DLTree ( TLexeme ( DNAME, getDRM()->ensureRoleName(name) ) ) ); }
+	TDRoleExpr* DataRole ( const std::string& name ) { return regPointer ( new DLTree ( TLexeme ( DNAME, getDRM()->ensureRoleName(name) ) ) ); }
 		/// @return universal role
 //	ComplexRole UniversalRole ( void ) const { return new DLTree(UROLE); }
 		/// @return R^-
-	ComplexRole Inverse ( ComplexRole R ) { return regPointer(createInverse(R)); }
+	TORoleExpr* Inverse ( TORoleExpr* R ) { return regPointer(createInverse(R)); }
 		/// @return R1*...*Rn
-	ComplexRole Compose ( void ) { return regPointer(getTBox()->processRComposition(NAryQueue.getLastArgList())); }
+	TORoleComplexExpr* Compose ( void ) { return regPointer(getTBox()->processRComposition(NAryQueue.getLastArgList())); }
 		/// @return project R into C
-	ComplexRole ProjectInto ( ComplexRole R, ComplexConcept C ) { return regPointer ( new DLTree ( TLexeme(PROJINTO), R, C ) ); }
+	TORoleComplexExpr* ProjectInto ( TORoleExpr* R, TConceptExpr* C ) { return regPointer ( new DLTree ( TLexeme(PROJINTO), R, C ) ); }
 		/// @return project R from C
-	ComplexRole ProjectFrom ( ComplexRole R, ComplexConcept C ) { return regPointer ( new DLTree ( TLexeme(PROJFROM), R, C ) ); }
+	TORoleComplexExpr* ProjectFrom ( TORoleExpr* R, TConceptExpr* C ) { return regPointer ( new DLTree ( TLexeme(PROJFROM), R, C ) ); }
 
 	//-------------------------------------------------------------------
 	//--	individual expressions
 	//-------------------------------------------------------------------
 
 		/// @return individual corresponding to NAME
-	ComplexConcept Individual ( const std::string& name ) { return regPointer ( new DLTree ( TLexeme ( INAME, getTBox()->getIndividual(name) ) ) ); }
+	TIndividualExpr* Individual ( const std::string& name ) { return regPointer ( new DLTree ( TLexeme ( INAME, getTBox()->getIndividual(name) ) ) ); }
 
 	//-------------------------------------------------------------------
 	//--	data expressions (data values and types are obtained by DataTypeCenter
 	//-------------------------------------------------------------------
 
 		/// @return data TOP
-	ComplexConcept DataTop ( void ) { return regPointer ( new DLTree(TOP) ); }
+	TDataExpr* DataTop ( void ) { return regPointer ( new DLTree(TOP) ); }
 		/// @return data BOTTOM
-	ComplexConcept DataBottom ( void ) { return regPointer ( new DLTree(BOTTOM) ); }
+	TDataExpr* DataBottom ( void ) { return regPointer ( new DLTree(BOTTOM) ); }
 		/// @return data negation
-	ComplexConcept DataNot ( ComplexConcept C ) { return regPointer(createSNFNot(C)); }
+	TDataExpr* DataNot ( TDataExpr* E ) { return regPointer(createSNFNot(E)); }
 		/// @return conjunction of data expressions
-	ComplexConcept DataAnd ( void ) { return regPointer(getTBox()->processAnd(NAryQueue.getLastArgList())); }
+	TDataExpr* DataAnd ( void ) { return regPointer(getTBox()->processAnd(NAryQueue.getLastArgList())); }
 		/// @return disjunction of data expressions
-	ComplexConcept DataOr ( void ) { return regPointer(getTBox()->processOr(NAryQueue.getLastArgList())); }
+	TDataExpr* DataOr ( void ) { return regPointer(getTBox()->processOr(NAryQueue.getLastArgList())); }
 		/// @return {v_1,...,v_n} constructor for the data values in NAryQueue
-	ComplexConcept DataOneOf ( void ) { return regPointer ( getTBox()->processOneOf ( NAryQueue.getLastArgList(), /*data=*/true ) ); }
+	TDataExpr* DataOneOf ( void ) { return regPointer ( getTBox()->processOneOf ( NAryQueue.getLastArgList(), /*data=*/true ) ); }
 
 	//----------------------------------------------------
 	//	TELLS interface
@@ -466,12 +501,12 @@ public:
 	// Declaration axioms
 
 		/// axiom declare(x)
-	TDLAxiom* declare ( const ComplexConcept C ) { return Ontology.add(new TDLAxiomDeclaration(C)); }
+	TDLAxiom* declare ( TExpr* C ) { return Ontology.add(new TDLAxiomDeclaration(C)); }
 
 	// Concept axioms
 
 		/// axiom C [= D
-	TDLAxiom* impliesConcepts ( const ComplexConcept C, const ComplexConcept D )
+	TDLAxiom* impliesConcepts ( TConceptExpr* C,TConceptExpr* D )
 		{ return Ontology.add ( new TDLAxiomConceptInclusion ( C, D ) ); }
 		/// axiom C1 = ... = Cn
 	TDLAxiom* equalConcepts ( void )
@@ -484,13 +519,13 @@ public:
 	// Role axioms
 
 		/// R = Inverse(S)
-	TDLAxiom* setInverseRoles ( const ComplexRole R, const ComplexRole S )
+	TDLAxiom* setInverseRoles ( TORoleExpr* R, TORoleExpr* S )
 		{ return Ontology.add ( new TDLAxiomRoleInverse(R,S) ); }
 		/// axiom (R [= S)
-	TDLAxiom* impliesORoles ( ComplexRole R, ComplexRole S )
+	TDLAxiom* impliesORoles ( TORoleComplexExpr* R, TORoleExpr* S )
 		{ return Ontology.add ( new TDLAxiomORoleSubsumption ( R, S ) ); }
 		/// axiom (R [= S)
-	TDLAxiom* impliesDRoles ( ComplexRole R, ComplexRole S )
+	TDLAxiom* impliesDRoles ( TDRoleExpr* R, TDRoleExpr* S )
 		{ return Ontology.add ( new TDLAxiomDRoleSubsumption ( R, S ) ); }
 		/// axiom R1 = R2 = ...
 	TDLAxiom* equalORoles ( void )
@@ -506,60 +541,60 @@ public:
 		{ return Ontology.add ( new TDLAxiomDisjointDRoles(NAryQueue.getLastArgList()) ); }
 
 		/// Domain (R C)
-	TDLAxiom* setODomain ( ComplexRole R, const ComplexConcept C )
+	TDLAxiom* setODomain ( TORoleExpr* R, TConceptExpr* C )
 		{ return Ontology.add ( new TDLAxiomORoleDomain ( R, C ) ); }
 		/// Domain (R C)
-	TDLAxiom* setDDomain ( ComplexRole R, const ComplexConcept C )
+	TDLAxiom* setDDomain ( TDRoleExpr* R, TConceptExpr* C )
 		{ return Ontology.add ( new TDLAxiomDRoleDomain ( R, C ) ); }
 		/// Range (R C)
-	TDLAxiom* setORange ( ComplexRole R, const ComplexConcept C )
+	TDLAxiom* setORange ( TORoleExpr* R, TConceptExpr* C )
 		{ return Ontology.add ( new TDLAxiomORoleRange ( R, C ) ); }
-		/// Range (R C)
-	TDLAxiom* setDRange ( ComplexRole R, const ComplexConcept C )
-		{ return Ontology.add ( new TDLAxiomDRoleRange ( R, C ) ); }
+		/// Range (R E)
+	TDLAxiom* setDRange ( TDRoleExpr* R, TDataExpr* E )
+		{ return Ontology.add ( new TDLAxiomDRoleRange ( R, E ) ); }
 
 		/// Transitive (R)
-	TDLAxiom* setTransitive ( ComplexRole R )
+	TDLAxiom* setTransitive ( TORoleExpr* R )
 		{ return Ontology.add ( new TDLAxiomRoleTransitive(R) ); }
 		/// Reflexive (R)
-	TDLAxiom* setReflexive ( ComplexRole R )
+	TDLAxiom* setReflexive ( TORoleExpr* R )
 		{ return Ontology.add ( new TDLAxiomRoleReflexive(R) ); }
 		/// Irreflexive (R): Domain(R) = \neg ER.Self
-	TDLAxiom* setIrreflexive ( ComplexRole R )
+	TDLAxiom* setIrreflexive ( TORoleExpr* R )
 		{ return Ontology.add ( new TDLAxiomRoleIrreflexive(R) ); }
 		/// Symmetric (R): R [= R^-
-	TDLAxiom* setSymmetric ( ComplexRole R )
+	TDLAxiom* setSymmetric ( TORoleExpr* R )
 		{ return Ontology.add ( new TDLAxiomRoleSymmetric(R) ); }
 		/// AntySymmetric (R): disjoint(R,R^-)
-	TDLAxiom* setAntiSymmetric ( ComplexRole R )
+	TDLAxiom* setAntiSymmetric ( TORoleExpr* R )
 		{ return Ontology.add ( new TDLAxiomRoleAntiSymmetric(R) ); }
 		/// Functional (R)
-	TDLAxiom* setOFunctional ( ComplexRole R )
+	TDLAxiom* setOFunctional ( TORoleExpr* R )
 		{ return Ontology.add ( new TDLAxiomORoleFunctional(R) ); }
 		/// Functional (R)
-	TDLAxiom* setDFunctional ( ComplexRole R )
+	TDLAxiom* setDFunctional ( TDRoleExpr* R )
 		{ return Ontology.add ( new TDLAxiomDRoleFunctional(R) ); }
 		/// InverseFunctional (R)
-	TDLAxiom* setInverseFunctional ( ComplexRole R )
+	TDLAxiom* setInverseFunctional ( TORoleExpr* R )
 		{ return Ontology.add ( new TDLAxiomRoleInverseFunctional(R) ); }
 
 
 	// Individual axioms
 
 		/// axiom I e C
-	TDLAxiom* instanceOf ( const ComplexConcept I, const ComplexConcept C )
+	TDLAxiom* instanceOf ( TIndividualExpr* I, TConceptExpr* C )
 		{ return Ontology.add ( new TDLAxiomInstanceOf(I,C) ); }
 		/// axiom <I,J>:R
-	TDLAxiom* relatedTo ( const ComplexConcept I, const ComplexRole R, const ComplexConcept J )
+	TDLAxiom* relatedTo ( TIndividualExpr* I, TORoleExpr* R, TIndividualExpr* J )
 		{ return Ontology.add ( new TDLAxiomRelatedTo(I,R,J) ); }
 		/// axiom <I,J>:\neg R
-	TDLAxiom* relatedToNot ( const ComplexConcept I, const ComplexRole R, const ComplexConcept J )
+	TDLAxiom* relatedToNot ( TIndividualExpr* I, TORoleExpr* R, TIndividualExpr* J )
 		{ return Ontology.add ( new TDLAxiomRelatedToNot(I,R,J) ); }
 		/// axiom (value I A V)
-	TDLAxiom* valueOf ( const ComplexConcept I, const ComplexRole A, const ComplexConcept V )
+	TDLAxiom* valueOf ( TIndividualExpr* I, TDRoleExpr* A, TDataValueExpr* V )
 		{ return Ontology.add ( new TDLAxiomValueOf(I,A,V) ); }
 		/// axiom <I,V>:\neg A
-	TDLAxiom* valueOfNot ( const ComplexConcept I, const ComplexRole A, const ComplexConcept V )
+	TDLAxiom* valueOfNot ( TIndividualExpr* I, TDRoleExpr* A, TDataValueExpr* V )
 		{ return Ontology.add ( new TDLAxiomValueOfNot(I,A,V) ); }
 		/// same individuals
 	TDLAxiom* processSame ( void )
@@ -628,7 +663,7 @@ public:
 	// role info retrieval
 
 		/// @return true iff role is functional
-	bool isFunctional ( const ComplexRole R )
+	bool isFunctional ( const TRoleExpr* R )
 	{
 		preprocessKB();	// ensure KB is ready to answer the query
 		if ( isUniversalRole(R) )
@@ -637,7 +672,7 @@ public:
 		return getRole ( R, "Role expression expected in isFunctional()" )->isFunctional();
 	}
 		/// @return true iff role is inverse-functional
-	bool isInverseFunctional ( const ComplexRole R )
+	bool isInverseFunctional ( const TORoleExpr* R )
 	{
 		preprocessKB();	// ensure KB is ready to answer the query
 		if ( isUniversalRole(R) )
@@ -646,7 +681,7 @@ public:
 		return getRole ( R, "Role expression expected in isInverseFunctional()" )->inverse()->isFunctional();
 	}
 		/// @return true iff two roles are disjoint
-	bool isDisjointRoles ( const ComplexRole R, const ComplexRole S )
+	bool isDisjointRoles ( const TORoleExpr* R, const TORoleExpr* S )
 	{
 		preprocessKB();	// ensure KB is ready to answer the query
 		// FIXME!! add check for the empty role
@@ -656,7 +691,18 @@ public:
 			getRole ( R, "Role expression expected in isDisjointRoles()" ),
 			getRole ( S, "Role expression expected in isDisjointRoles()" ) );
 	}
-
+/*		/// @return true iff two roles are disjoint
+	bool isDisjointRoles ( const TDRoleExpr* R, const TDRoleExpr* S )
+	{
+		preprocessKB();	// ensure KB is ready to answer the query
+		// FIXME!! add check for the empty role
+		if ( isUniversalRole(R) || isUniversalRole(S) )
+			return false;	// universal role is not disjoint with anything
+		return getTBox()->isDisjointRoles (
+			getRole ( R, "Role expression expected in isDisjointRoles()" ),
+			getRole ( S, "Role expression expected in isDisjointRoles()" ) );
+	}
+*/
 	// TBox info retriveal
 
 	// apply actor.apply() to all concept names
@@ -698,7 +744,7 @@ public:
 	// single satisfiability
 
 		/// @return true iff C is satisfiable
-	bool isSatisfiable ( const ComplexConcept C )
+	bool isSatisfiable ( const TConceptExpr* C )
 	{
 		preprocessKB();	// ensure KB is ready to answer the query
 		if ( isCN(C) )
@@ -708,7 +754,7 @@ public:
 		return getTBox()->isSatisfiable(cachedConcept);
 	}
 		/// @return true iff C [= D holds
-	bool isSubsumedBy ( const ComplexConcept C, const ComplexConcept D )
+	bool isSubsumedBy ( const TConceptExpr* C, const TConceptExpr* D )
 	{
 		preprocessKB();	// ensure KB is ready to answer the query
 		if ( isCN(C) && isCN(D) )
@@ -717,17 +763,17 @@ public:
 		return !isSatisfiable ( TreeDeleter ( And ( clone(C), Not(clone(D)) ) ) );
 	}
 		/// @return true iff C is disjoint with D
-	bool isDisjoint ( const ComplexConcept C, const ComplexConcept D )
+	bool isDisjoint ( const TConceptExpr* C, const TConceptExpr* D )
 		{ return !isSatisfiable ( TreeDeleter ( And ( clone(C), clone(D) ) ) ); }
 		/// @return true iff C is equivalent to D
-	bool isEquivalent ( const ComplexConcept C, const ComplexConcept D )
+	bool isEquivalent ( const TConceptExpr* C, const TConceptExpr* D )
 		{ return isSubsumedBy ( C, D ) && isSubsumedBy ( D, C ); }
 
 	// concept hierarchy
 
 		/// apply actor::apply() to all direct parents of [complex] C (with possible synonyms)
 	template<class Actor>
-	void getParents ( const ComplexConcept C, Actor& actor )
+	void getParents ( const TConceptExpr* C, Actor& actor )
 	{
 		classifyKB();	// ensure KB is ready to answer the query
 		setUpCache ( C, csClassified );
@@ -736,7 +782,7 @@ public:
 	}
 		/// apply Actor::apply() to all direct children of [complex] C (with possible synonyms)
 	template<class Actor>
-	void getChildren ( const ComplexConcept C, Actor& actor )
+	void getChildren ( const TConceptExpr* C, Actor& actor )
 	{
 		classifyKB();	// ensure KB is ready to answer the query
 		setUpCache ( C, csClassified );
@@ -745,7 +791,7 @@ public:
 	}
 		/// apply actor::apply() to all parents of [complex] C (with possible synonyms)
 	template<class Actor>
-	void getAncestors ( const ComplexConcept C, Actor& actor )
+	void getAncestors ( const TConceptExpr* C, Actor& actor )
 	{
 		classifyKB();	// ensure KB is ready to answer the query
 		setUpCache ( C, csClassified );
@@ -754,7 +800,7 @@ public:
 	}
 		/// apply actor::apply() to all children of [complex] C (with possible synonyms)
 	template<class Actor>
-	void getDescendants ( const ComplexConcept C, Actor& actor )
+	void getDescendants ( const TConceptExpr* C, Actor& actor )
 	{
 		classifyKB();	// ensure KB is ready to answer the query
 		setUpCache ( C, csClassified );
@@ -763,7 +809,7 @@ public:
 	}
 		/// apply actor::apply() to all synonyms of [complex] C
 	template<class Actor>
-	void getEquivalents ( const ComplexConcept C, Actor& actor )
+	void getEquivalents ( const TConceptExpr* C, Actor& actor )
 	{
 		classifyKB();	// ensure KB is ready to answer the query
 		setUpCache ( C, csClassified );
@@ -774,7 +820,7 @@ public:
 
 	// all direct parents of R (with possible synonyms)
 	template<class Actor>
-	void getRParents ( const ComplexRole r, Actor& actor )
+	void getRParents ( const TRoleExpr* r, Actor& actor )
 	{
 		preprocessKB();	// ensure KB is ready to answer the query
 		TRole* R = getRole ( r, "Role expression expected in getRParents()" );
@@ -784,7 +830,7 @@ public:
 
 	// all direct children of R (with possible synonyms)
 	template<class Actor>
-	void getRChildren ( const ComplexRole r, Actor& actor )
+	void getRChildren ( const TRoleExpr* r, Actor& actor )
 	{
 		preprocessKB();	// ensure KB is ready to answer the query
 		TRole* R = getRole ( r, "Role expression expected in getRChildren()" );
@@ -794,7 +840,7 @@ public:
 
 	// all parents of R (with possible synonyms)
 	template<class Actor>
-	void getRAncestors ( const ComplexRole r, Actor& actor )
+	void getRAncestors ( const TRoleExpr* r, Actor& actor )
 	{
 		preprocessKB();	// ensure KB is ready to answer the query
 		TRole* R = getRole ( r, "Role expression expected in getRAncestors()" );
@@ -804,7 +850,7 @@ public:
 
 	// all children of R (with possible synonyms)
 	template<class Actor>
-	void getRDescendants ( const ComplexRole r, Actor& actor )
+	void getRDescendants ( const TRoleExpr* r, Actor& actor )
 	{
 		preprocessKB();	// ensure KB is ready to answer the query
 		TRole* R = getRole ( r, "Role expression expected in getRDescendants()" );
@@ -814,7 +860,7 @@ public:
 
 		/// apply actor::apply() to all synonyms of [complex] R
 	template<class Actor>
-	void getREquivalents ( const ComplexRole r, Actor& actor )
+	void getREquivalents ( const TRoleExpr* r, Actor& actor )
 	{
 		preprocessKB();	// ensure KB is ready to answer the query
 		TRole* R = getRole ( r, "Role expression expected in getREquivalents()" );
@@ -826,7 +872,7 @@ public:
 
 		/// apply actor::apply() to all NC that are in the domain of [complex] R
 	template<class Actor>
-	void getRoleDomain ( const ComplexRole r, Actor& actor )
+	void getRoleDomain ( const TRoleExpr* r, Actor& actor )
 	{
 		classifyKB();	// ensure KB is ready to answer the query
 		setUpCache ( TreeDeleter(Exists(clone(r),Top())), csClassified );
@@ -837,14 +883,14 @@ public:
 
 		/// apply actor::apply() to all NC that are in the range of [complex] R
 	template<class Actor>
-	void getRoleRange ( const ComplexRole r, Actor& actor )
+	void getRoleRange ( const TRoleExpr* r, Actor& actor )
 		{ getRoleDomain ( TreeDeleter(Inverse(clone(r))), actor ); }
 
 	// instances
 
 		/// apply actor::apply() to all direct instances of given [complex] C
 	template<class Actor>
-	void getDirectInstances ( const ComplexConcept C, Actor& actor )
+	void getDirectInstances ( const TConceptExpr* C, Actor& actor )
 	{
 		realiseKB();	// ensure KB is ready to answer the query
 		setUpCache ( C, csClassified );
@@ -864,7 +910,7 @@ public:
 
 		/// apply actor::apply() to all instances of given [complex] C
 	template<class Actor>
-	void getInstances ( const ComplexConcept C, Actor& actor )
+	void getInstances ( const TConceptExpr* C, Actor& actor )
 	{	// FIXME!! check for Racer's/IS approach
 		realiseKB();	// ensure KB is ready to answer the query
 		setUpCache ( C, csClassified );
@@ -874,27 +920,27 @@ public:
 
 		/// apply actor::apply() to all direct concept parents of an individual I
 	template<class Actor>
-	void getDirectTypes ( const ComplexConcept I, Actor& actor )
+	void getDirectTypes ( const TIndividualExpr* I, Actor& actor )
 	{
 		realiseKB();	// ensure KB is ready to answer the query
 		getParents ( I, actor );
 	}
 		/// apply actor::apply() to all concept ancestors of an individual I
 	template<class Actor>
-	void getTypes ( const ComplexConcept I, Actor& actor )
+	void getTypes ( const TIndividualExpr* I, Actor& actor )
 	{
 		realiseKB();	// ensure KB is ready to answer the query
 		getAncestors ( I, actor );
 	}
 		/// apply actor::apply() to all synonyms of an individual I
 	template<class Actor>
-	void getSameAs ( const ComplexConcept I, Actor& actor )
+	void getSameAs ( const TIndividualExpr* I, Actor& actor )
 	{
 		realiseKB();	// ensure KB is ready to answer the query
 		getEquivalents ( I, actor );
 	}
 		/// @return true iff I and J refer to the same individual
-	bool isSameIndividuals ( const ComplexConcept I, const ComplexConcept J )
+	bool isSameIndividuals ( const TIndividualExpr* I, const TIndividualExpr* J )
 	{
 		realiseKB();
 		TIndividual* i = getIndividual ( I, "Only known individuals are allowed in the isSameAs()" );
@@ -902,18 +948,18 @@ public:
 		return getTBox()->isSameIndividuals(i,j);
 	}
 		/// @return true iff individual I is instance of given [complex] C
-	bool isInstance ( const ComplexConcept I, const ComplexConcept C )
+	bool isInstance ( const TIndividualExpr* I, const TConceptExpr* C )
 	{
 		realiseKB();	// ensure KB is ready to answer the query
 		getIndividual ( I, "individual name expected in the isInstance()" );
 		return isSubsumedBy ( I, C );
 	}
 		/// @return in Rs all (DATA)-roles R s.t. (I,x):R; add inverses if NEEDI is true
-	void getRelatedRoles ( const ComplexConcept I, NamesVector& Rs, bool data, bool needI );
+	void getRelatedRoles ( const TIndividualExpr* I, NamesVector& Rs, bool data, bool needI );
 		/// set RESULT into set of J's such that R(I,J)
-	void getRoleFillers ( const ComplexConcept I, const ComplexRole R, IndividualSet& Result );
+	void getRoleFillers ( const TIndividualExpr* I, const TORoleExpr* R, IndividualSet& Result );
 		/// set RESULT into set of (I,J)'s such that R(I,J)
-	void getRelatedIndividuals ( const ComplexRole R, IndividualSet& Is, IndividualSet& Js )
+	void getRelatedIndividuals ( const TORoleExpr* R, IndividualSet& Is, IndividualSet& Js )
 	{
 		realiseKB();	// ensure KB is ready to answer the query
 		getTBox()->getRelatedIndividuals (
@@ -921,7 +967,7 @@ public:
 			Is, Js );
 	}
 		/// set RESULT into set of J's such that R(I,J)
-	bool isRelated ( const ComplexConcept I, const ComplexRole R, const ComplexConcept J );
+	bool isRelated ( const TIndividualExpr* I, const TORoleExpr* R, const TIndividualExpr* J );
 	// ???
 	// ??? getToldValues ( const IndividualName I, const RoleName A );	// FIXME!! unsupported
 

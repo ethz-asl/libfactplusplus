@@ -129,6 +129,26 @@ public:
 	// -----------------------------------------------------------------------
 	void getResult ( std::string& res ) const { res = o->str(); }
 
+protected:	// typedefs
+		/// general expression
+	typedef ReasoningKernel::TExpr TExpr;
+		/// concept expression
+	typedef ReasoningKernel::TConceptExpr TConceptExpr;
+		/// individual expression
+	typedef ReasoningKernel::TIndividualExpr TIndividualExpr;
+		/// role expression
+	typedef ReasoningKernel::TRoleExpr TRoleExpr;
+		/// object role complex expression (including role chains and projections)
+	typedef ReasoningKernel::TORoleComplexExpr TORoleComplexExpr;
+		/// object role expression
+	typedef ReasoningKernel::TORoleExpr TORoleExpr;
+		/// data role expression
+	typedef ReasoningKernel::TDRoleExpr TDRoleExpr;
+		/// data expression
+	typedef ReasoningKernel::TDataExpr TDataExpr;
+		/// data value expression
+	typedef ReasoningKernel::TDataValueExpr TDataValueExpr;
+
 protected:
 	/// stream with results of query processing
 	std::ostringstream* o;
@@ -147,8 +167,8 @@ protected:
 		/// Expression manager corresponding to kernel
 	TExpressionManager* pEM;
 
-	/// internal stack for the parsing operations
-	std::stack <DLTree*> workStack;
+		/// internal stack for the parsing operations
+	std::stack<TExpr*> workStack;
 
 	/// local id name for current ask
 	std::string curId;
@@ -244,24 +264,24 @@ protected:	// methods
 	}
 
 		/// return concept by given name; throw exception if unable
-	DLTree* tryConceptName ( const std::string& name )
+	TConceptExpr* tryConceptName ( const std::string& name )
 	{
 		return pEM->Concept(name);
 	}
 		/// return individual by given name; throw exception if unable
-	DLTree* tryIndividualName ( const std::string& name )
+	TIndividualExpr* tryIndividualName ( const std::string& name )
 	{
 		return pEM->Individual(name);
 	}
 		/// return role by given name; throw exception if unable
-	DLTree* tryRoleName ( const std::string& name )
+	TORoleExpr* tryRoleName ( const std::string& name )
 	{
 		return pEM->ObjectRole(name);
 	}
 		/// return role by given name; throw exception if unable
-	DLTree* tryDataRoleName ( const std::string& name )
+	TDRoleExpr* tryDataRoleName ( const std::string& name )
 	{
-		DLTree* x = pEM->DataRole(name);
+		TDRoleExpr* x = pEM->DataRole(name);
 		try
 		{
 			pKernel->setDFunctional(clone(x));	// in DIG 1.1 data roles are always functional
@@ -274,12 +294,12 @@ protected:	// methods
 		return x;
 	}
 		/// return data value of a type TYPE by given name; throw exception if unable
-	DLTree* tryDataValue ( const std::string& name, DLTree* type )
+	TDataValueExpr* tryDataValue ( const std::string& name, TDataExpr* type )
 	{
 		return pKernel->getDataTypeCenter().getDataValue(name,type);
 	}
 		/// check whether expression R is data role
-	bool isDataRole ( DLTree* R ) const { return R->Element().getToken() == DNAME; }
+	bool isDataRole ( TRoleExpr* R ) const { return R->Element().getToken() == DNAME; }
 
 		/// output supported DIG fragment to local stream
 	void outputSupportedLanguage ( void );

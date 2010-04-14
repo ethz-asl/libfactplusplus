@@ -40,8 +40,8 @@ void DLLispParser :: parseCommand ( void )
 
 	if ( t == SUBSUMES || t == EQUAL_C )
 	{
-		DLTree* left = getConceptExpression();
-		DLTree* right = getConceptExpression();
+		TConceptExpr* left = getConceptExpression();
+		TConceptExpr* right = getConceptExpression();
 
 		try
 		{
@@ -66,8 +66,8 @@ void DLLispParser :: parseCommand ( void )
 
 	if ( t == IMPLIES_R || t == EQUAL_R || t == DISJOINT_R || t == INVERSE )
 	{
-		DLTree* left = (t == IMPLIES_R) ? getComplexRoleExpression() : getRoleExpression();
-		DLTree* right = getRoleExpression();
+		TRoleExpr* left = (t == IMPLIES_R) ? getComplexRoleExpression() : getRoleExpression();
+		TRoleExpr* right = getRoleExpression();
 		bool data = isDataRole(left);
 
 		try
@@ -238,10 +238,10 @@ void DLLispParser :: parseCommand ( void )
 
 	case RELATED:			// command is (Related id1 R id2);
 	try {
-		DLTree* id1 = getSingleton();
-		DLTree* R = getORoleExpression();
+		TIndividualExpr* id1 = getSingleton();
+		TORoleExpr* R = getORoleExpression();
 		MustBe (ID);	// second indiv.
-		DLTree* id2 = getSingleton();
+		TIndividualExpr* id2 = getSingleton();
 		Kernel->relatedTo ( id1, R, id2 );
 		break;
 	}
@@ -299,7 +299,7 @@ void DLLispParser :: parseConceptList ( bool singletonsOnly )
 	MustBeM (RBRACK);
 }
 
-void DLLispParser :: parseRoleArguments ( DLTree* R )
+void DLLispParser :: parseRoleArguments ( TORoleExpr* R )
 {
 	while ( Current != RBRACK )
 		if ( scan.isKeyword ("parents") || scan.isKeyword ("supers") )
@@ -309,7 +309,7 @@ void DLLispParser :: parseRoleArguments ( DLTree* R )
 
 			while ( Current != RBRACK )
 			{
-				DLTree* S = getRoleExpression();
+				TORoleExpr* S = getORoleExpression();
 				try
 				{	// only object roles can have arguments
 					Kernel->impliesORoles ( clone(R), S );
@@ -343,7 +343,7 @@ void DLLispParser :: parseRoleArguments ( DLTree* R )
 	deleteTree(R);
 }
 
-DLTree*
+DLLispParser::TConceptExpr*
 DLLispParser :: getConceptExpression ( void )
 {
 	switch ( Code() )
@@ -367,13 +367,14 @@ DLLispParser :: getConceptExpression ( void )
 	}
 }
 
-DLTree*
+DLLispParser::TConceptExpr*
 DLLispParser :: getComplexConceptExpression ( void )
 {
 	MustBeM ( LBRACK );
 	Token T = scan.getExpressionKeyword();
 	unsigned int n = 0;	// number for >= (<=) expression (or just 0)
-	DLTree *left = NULL, *right = NULL;
+	TRoleExpr* R = NULL;
+	TConceptExpr* C = NULL;
 
 	NextLex ();
 
@@ -388,36 +389,65 @@ DLLispParser :: getComplexConceptExpression ( void )
 	case FORALL:
 	case EXISTS:
 		// first argument -- role name
-		left = getRoleExpression();
-		// second argument -- concept description
-		if ( Current == RBRACK )
-			right = EManager->Top();	// for (GE n R)
-		else
-			right = isDataRole(left) ? getDataExpression() : getConceptExpression();
+		R = getRoleExpression();
+		if ( isDataRole(R) )	// data expression
+		{
+			TDRoleExpr* A = dynamic_cast<TDRoleExpr*>(R);
+			TDataExpr* E = NULL;
 
-		// skip right bracket
-		MustBeM ( RBRACK );
+			// second argument -- data expression
+			if ( Current == RBRACK )
+				E = EManager->DataTop();	// for (GE n R)
+			else
+				E = getDataExpression();
 
-		if ( T == EXISTS )
-			return EManager->Exists ( left, right );
-		else if ( T == FORALL )
-			return EManager->Forall ( left, right );
-		else if ( T == GE )
-			return EManager->MinCardinality ( n, left, right );
+			// skip right bracket
+			MustBeM(RBRACK);
+
+			if ( T == EXISTS )
+				return EManager->Exists ( A, E );
+			else if ( T == FORALL )
+				return EManager->Forall ( A, E );
+			else if ( T == GE )
+				return EManager->MinCardinality ( n, A, E );
+			else
+				return EManager->MaxCardinality ( n, A, E );
+		}
 		else
-			return EManager->MaxCardinality ( n, left, right );
+		{
+			TORoleExpr* S = dynamic_cast<TORoleExpr*>(R);
+			TConceptExpr* C = NULL;
+
+			// second argument -- data expression
+			if ( Current == RBRACK )
+				C = EManager->Top();	// for (GE n R)
+			else
+				C = getConceptExpression();
+
+			// skip right bracket
+			MustBeM(RBRACK);
+
+			if ( T == EXISTS )
+				return EManager->Exists ( S, C );
+			else if ( T == FORALL )
+				return EManager->Forall ( S, C );
+			else if ( T == GE )
+				return EManager->MinCardinality ( n, S, C );
+			else
+				return EManager->MaxCardinality ( n, S, C );
+		}
 
 	case REFLEXIVE:	// self-reference
-		left = getORoleExpression();
+		R = getORoleExpression();
 		// skip right bracket
 		MustBeM(RBRACK);
-		return Kernel->SelfReference(left);
+		return Kernel->SelfReference(dynamic_cast<TORoleExpr*>(R));
 
 	case NOT:
-		left = getConceptExpression();
+		C = getConceptExpression();
 		// skip right bracket
-		MustBeM ( RBRACK );
-		return EManager->Not(left);
+		MustBeM(RBRACK);
+		return EManager->Not(C);
 
 	case AND:
 	case OR:	// multiple And's/Or's
@@ -441,7 +471,7 @@ DLLispParser :: getComplexConceptExpression ( void )
 	}
 }
 
-DLTree*
+DLLispParser::TDRoleExpr*
 DLLispParser :: getDRoleExpression ( void )
 {
 	// FIXME!! later on -- add DataRoleTop/bottom
@@ -449,7 +479,7 @@ DLLispParser :: getDRoleExpression ( void )
 	return getDataRole();
 }
 
-DLTree*
+DLLispParser::TORoleExpr*
 DLLispParser :: getORoleExpression ( void )
 {
 	if ( Current != LBRACK )
@@ -459,12 +489,12 @@ DLLispParser :: getORoleExpression ( void )
 	if ( scan.getExpressionKeyword() != INV )
 		MustBe ( INV, "only role names and their inverses are allowed as a role expression" );
 	NextLex();	// skip INV
-	DLTree* ret = EManager->Inverse(getORoleExpression());
+	TORoleExpr* ret = EManager->Inverse(getORoleExpression());
 	MustBeM(RBRACK);
 	return ret;
 }
 
-DLTree*
+DLLispParser::TRoleExpr*
 DLLispParser :: getRoleExpression ( void )
 {
 	if ( Current != LBRACK )
@@ -474,12 +504,12 @@ DLLispParser :: getRoleExpression ( void )
 	if ( scan.getExpressionKeyword() != INV )
 		MustBe ( INV, "only role names and their inverses are allowed as a role expression" );
 	NextLex();	// skip INV
-	DLTree* ret = EManager->Inverse(getORoleExpression());
+	TORoleExpr* ret = EManager->Inverse(getORoleExpression());
 	MustBeM(RBRACK);
 	return ret;
 }
 
-DLTree*
+DLLispParser::TRoleExpr*
 DLLispParser :: getComplexRoleExpression ( void )
 {
 	if ( Current != LBRACK )
@@ -488,7 +518,7 @@ DLLispParser :: getComplexRoleExpression ( void )
 	NextLex();	// skip '('
 	Token keyword = scan.getExpressionKeyword();
 	NextLex();	// skip keyword
-	DLTree* ret = NULL;
+	TORoleComplexExpr* ret = NULL;
 	switch ( keyword )
 	{
 	case INV:	// inverse of a simple role
@@ -516,7 +546,7 @@ DLLispParser :: getComplexRoleExpression ( void )
 	return ret;
 }
 
-DLTree*
+DLLispParser::TDataExpr*
 DLLispParser :: getDataExpression ( void )
 {
 	// check for TOP/BOTTOM
@@ -532,7 +562,7 @@ DLLispParser :: getDataExpression ( void )
 
 	MustBeM(LBRACK);	// always complex expression
 	Token T = scan.getExpressionKeyword();
-	DLTree *left = NULL, *right = NULL;
+	TDataExpr *left = NULL, *right = NULL;
 
 	NextLex ();
 

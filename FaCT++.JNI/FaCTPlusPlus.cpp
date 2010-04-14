@@ -50,7 +50,7 @@ extern "C" {
 #	define TRACE_JNI(func) std::cerr << "JNI Kernel " << getK(env,obj) << " Call " << func << "\n"
 #	define TRACE_ARG(env,obj,arg) do {	\
 		getK(env,obj);					\
-		DLTree* p = getROTree(env,arg);	\
+		TExpr* p = getROExpr(env,arg);	\
 		if ( !curKernel->pRefRecorder->in(p) )	\
 			std::cerr << "argument not in the ref-set: "; \
 		std::cerr << p << "\n";	\
@@ -345,7 +345,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
 	try
 	{
 		ret = DataTypeExpression ( env, getK(env,obj)->getDataTypeCenter().
-								   getDataType ( name(), getTree(env,type) ) );
+								   getDataType ( name(), getDataExpr(env,type) ) );
 	}
 	catch (EFPPCantRegName)
 	{
@@ -390,7 +390,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
 	DataTypeCenter& center = getK(env,obj)->getDataTypeCenter();
 
 	// create new DTExpression of the type ARG1 and add both facets to it
-	DLTree* type = getTree(env,arg1);
+	DLTree* type = getDataExpr(env,arg1);
 	DLTree* ret = center.getDataExpr(type);
 	ret = center.applyFacet(ret,type);
 	ret = center.applyFacet(ret,getFacet(env,arg2));
@@ -459,7 +459,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
   (JNIEnv * env, jobject obj, jobject arg)
 {
 	TRACE_JNI("getMinExclusiveFacet");
-	return Facet ( env, getK(env,obj)->getDataTypeCenter().getMinExclusiveFacet(getTree(env,arg)) );
+	return Facet ( env, getK(env,obj)->getDataTypeCenter().getMinExclusiveFacet(getDataValueExpr(env,arg)) );
 }
 
 /*
@@ -471,7 +471,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
   (JNIEnv * env, jobject obj, jobject arg)
 {
 	TRACE_JNI("getMaxExclusiveFacet");
-	return Facet ( env, getK(env,obj)->getDataTypeCenter().getMaxExclusiveFacet(getTree(env,arg)) );
+	return Facet ( env, getK(env,obj)->getDataTypeCenter().getMaxExclusiveFacet(getDataValueExpr(env,arg)) );
 }
 
 /*
@@ -483,7 +483,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
   (JNIEnv * env, jobject obj, jobject arg)
 {
 	TRACE_JNI("getMinInclusiveFacet");
-	return Facet ( env, getK(env,obj)->getDataTypeCenter().getMinInclusiveFacet(getTree(env,arg)) );
+	return Facet ( env, getK(env,obj)->getDataTypeCenter().getMinInclusiveFacet(getDataValueExpr(env,arg)) );
 }
 
 /*
@@ -495,7 +495,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
   (JNIEnv * env, jobject obj, jobject arg)
 {
 	TRACE_JNI("getMaxInclusiveFacet");
-	return Facet ( env, getK(env,obj)->getDataTypeCenter().getMaxInclusiveFacet(getTree(env,arg)) );
+	return Facet ( env, getK(env,obj)->getDataTypeCenter().getMaxInclusiveFacet(getDataValueExpr(env,arg)) );
 }
 
 /*
@@ -533,7 +533,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
   (JNIEnv * env, jobject obj, jobject arg)
 {
 	TRACE_JNI("getNot");
-	return DataTypeExpression ( env, getEM(env,obj)->DataNot(getTree(env,arg)) );
+	return DataTypeExpression ( env, getEM(env,obj)->DataNot(getDataExpr(env,arg)) );
 }
 
 /*
@@ -574,7 +574,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
 	try
 	{
 		ret = DataValue ( env, getK(env,obj)->getDataTypeCenter().
-							   getDataValue ( name(), getTree(env,type) ) );
+							   getDataValue ( name(), getDataExpr(env,type) ) );
 	}
 	catch (EFPPCantRegName)
 	{
@@ -616,7 +616,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
   (JNIEnv * env, jobject obj, jobject arg)
 {
 	TRACE_JNI("getConceptNot");
-	return Class ( env, getEM(env,obj)->Not(getTree(env,arg)) );
+	return Class ( env, getEM(env,obj)->Not(getConceptExpr(env,arg)) );
 }
 
 /*
@@ -628,7 +628,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
   (JNIEnv * env, jobject obj, jobject arg1, jobject arg2)
 {
 	TRACE_JNI("getObjectSome");
-	return Class ( env, getEM(env,obj)->Exists ( getTree(env,arg1), getTree(env,arg2) ) );
+	return Class ( env, getEM(env,obj)->Exists ( getORoleExpr(env,arg1), getConceptExpr(env,arg2) ) );
 }
 
 /*
@@ -640,7 +640,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
   (JNIEnv * env, jobject obj, jobject arg1, jobject arg2)
 {
 	TRACE_JNI("getObjectAll");
-	return Class ( env, getEM(env,obj)->Forall ( getTree(env,arg1), getTree(env,arg2) ) );
+	return Class ( env, getEM(env,obj)->Forall ( getORoleExpr(env,arg1), getConceptExpr(env,arg2) ) );
 }
 
 /*
@@ -652,7 +652,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
   (JNIEnv * env, jobject obj, jobject arg1, jobject arg2)
 {
 	TRACE_JNI("getObjectValue");
-	return Class ( env, getEM(env,obj)->Value ( getTree(env,arg1), getTree(env,arg2) ) );
+	return Class ( env, getEM(env,obj)->Value ( getORoleExpr(env,arg1), getIndividualExpr(env,arg2) ) );
 }
 
 /*
@@ -664,7 +664,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
   (JNIEnv * env, jobject obj, jobject arg1, jobject arg2)
 {
 	TRACE_JNI("getDataSome");
-	return Class ( env, getEM(env,obj)->Exists ( getTree(env,arg1), getTree(env,arg2) ) );
+	return Class ( env, getEM(env,obj)->Exists ( getDRoleExpr(env,arg1), getDataExpr(env,arg2) ) );
 }
 
 /*
@@ -676,7 +676,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
   (JNIEnv * env, jobject obj, jobject arg1, jobject arg2)
 {
 	TRACE_JNI("getDataAll");
-	return Class ( env, getEM(env,obj)->Forall ( getTree(env,arg1), getTree(env,arg2) ) );
+	return Class ( env, getEM(env,obj)->Forall ( getDRoleExpr(env,arg1), getDataExpr(env,arg2) ) );
 }
 
 /*
@@ -688,7 +688,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
   (JNIEnv * env, jobject obj, jobject arg1, jobject arg2)
 {
 	TRACE_JNI("getDataValue");
-	return Class ( env, getEM(env,obj)->Exists ( getTree(env,arg1), getTree(env,arg2) ) );
+	return Class ( env, getEM(env,obj)->Exists ( getDRoleExpr(env,arg1), getDataValueExpr(env,arg2) ) );
 }
 
 /*
@@ -700,7 +700,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
   (JNIEnv * env, jobject obj, jint n, jobject arg1, jobject arg2)
 {
 	TRACE_JNI("getObjectAtLeast");
-	return Class ( env, getEM(env,obj)->MinCardinality ( n, getTree(env,arg1), getTree(env,arg2) ) );
+	return Class ( env, getEM(env,obj)->MinCardinality ( n, getORoleExpr(env,arg1), getConceptExpr(env,arg2) ) );
 }
 
 /*
@@ -712,7 +712,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
   (JNIEnv * env, jobject obj, jint n, jobject arg1, jobject arg2)
 {
 	TRACE_JNI("getObjectExact");
-	return Class ( env, getEM(env,obj)->Cardinality ( n, getTree(env,arg1), getTree(env,arg2) ) );
+	return Class ( env, getEM(env,obj)->Cardinality ( n, getORoleExpr(env,arg1), getConceptExpr(env,arg2) ) );
 }
 
 /*
@@ -724,7 +724,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
   (JNIEnv * env, jobject obj, jint n, jobject arg1, jobject arg2)
 {
 	TRACE_JNI("getObjectAtMost");
-	return Class ( env, getEM(env,obj)->MaxCardinality ( n, getTree(env,arg1), getTree(env,arg2) ) );
+	return Class ( env, getEM(env,obj)->MaxCardinality ( n, getORoleExpr(env,arg1), getConceptExpr(env,arg2) ) );
 }
 
 /*
@@ -736,7 +736,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
   (JNIEnv * env, jobject obj, jint n, jobject arg1, jobject arg2)
 {
 	TRACE_JNI("getDataAtLeast");
-	return Class ( env, getEM(env,obj)->MinCardinality ( n, getTree(env,arg1), getTree(env,arg2) ) );
+	return Class ( env, getEM(env,obj)->MinCardinality ( n, getDRoleExpr(env,arg1), getDataExpr(env,arg2) ) );
 }
 
 /*
@@ -748,7 +748,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
   (JNIEnv * env, jobject obj, jint n, jobject arg1, jobject arg2)
 {
 	TRACE_JNI("getDataExact");
-	return Class ( env, getEM(env,obj)->Cardinality ( n, getTree(env,arg1), getTree(env,arg2) ) );
+	return Class ( env, getEM(env,obj)->Cardinality ( n, getDRoleExpr(env,arg1), getDataExpr(env,arg2) ) );
 }
 
 /*
@@ -760,7 +760,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
   (JNIEnv * env, jobject obj, jint n, jobject arg1, jobject arg2)
 {
 	TRACE_JNI("getDataAtMost");
-	return Class ( env, getEM(env,obj)->MaxCardinality ( n, getTree(env,arg1), getTree(env,arg2) ) );
+	return Class ( env, getEM(env,obj)->MaxCardinality ( n, getDRoleExpr(env,arg1), getDataExpr(env,arg2) ) );
 }
 
 /*
@@ -772,7 +772,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
   (JNIEnv * env, jobject obj, jobject arg)
 {
 	TRACE_JNI("getInverseProperty");
-	return ObjectProperty ( env, getEM(env,obj)->Inverse(getTree(env,arg)) );
+	return ObjectProperty ( env, getEM(env,obj)->Inverse(getORoleExpr(env,arg)) );
 }
 
 /*
@@ -836,7 +836,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
   (JNIEnv * env, jobject obj, jobject arg)
 {
 	TRACE_JNI("getSelf");
-	return Class ( env, getEM(env,obj)->SelfReference(getTree(env,arg)) );
+	return Class ( env, getEM(env,obj)->SelfReference(getORoleExpr(env,arg)) );
 }
 
 
@@ -868,7 +868,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
 JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellClassDeclaration
   (JNIEnv * env, jobject obj, jobject arg)
 {
-	PROCESS_QUERY ( getK(env,obj)->declare(getTree(env,arg)), "tellClassDeclaration" );
+	PROCESS_QUERY ( getK(env,obj)->declare(getConceptExpr(env,arg)), "tellClassDeclaration" );
 }
 
 /*
@@ -879,7 +879,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tel
 JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellObjectPropertyDeclaration
   (JNIEnv * env, jobject obj, jobject arg)
 {
-	PROCESS_QUERY ( getK(env,obj)->declare(getTree(env,arg)), "tellObjectPropertyDeclaration" );
+	PROCESS_QUERY ( getK(env,obj)->declare(getORoleExpr(env,arg)), "tellObjectPropertyDeclaration" );
 }
 
 /*
@@ -890,7 +890,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tel
 JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellDataPropertyDeclaration
   (JNIEnv * env, jobject obj, jobject arg)
 {
-	PROCESS_QUERY ( getK(env,obj)->declare(getTree(env,arg)), "tellDataPropertyDeclaration" );
+	PROCESS_QUERY ( getK(env,obj)->declare(getDRoleExpr(env,arg)), "tellDataPropertyDeclaration" );
 }
 
 /*
@@ -901,7 +901,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tel
 JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellIndividualDeclaration
   (JNIEnv * env, jobject obj, jobject arg)
 {
-	PROCESS_QUERY ( getK(env,obj)->declare(getTree(env,arg)), "tellIndividualDeclaration" );
+	PROCESS_QUERY ( getK(env,obj)->declare(getIndividualExpr(env,arg)), "tellIndividualDeclaration" );
 }
 
 
@@ -926,7 +926,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tel
 JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellSubClassOf
   (JNIEnv * env, jobject obj, jobject arg1, jobject arg2)
 {
-	PROCESS_QUERY ( getK(env,obj)->impliesConcepts ( getTree(env,arg1), getTree(env,arg2) ), "tellSubClassOf" );
+	PROCESS_QUERY ( getK(env,obj)->impliesConcepts ( getConceptExpr(env,arg1), getConceptExpr(env,arg2) ), "tellSubClassOf" );
 }
 
 /*
@@ -974,7 +974,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tel
 JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellSubObjectProperties
   (JNIEnv * env, jobject obj, jobject arg1, jobject arg2)
 {
-	PROCESS_QUERY ( getK(env,obj)->impliesORoles ( getTree(env,arg1), getTree(env,arg2) ), "tellSubObjectProperties" );
+	PROCESS_QUERY ( getK(env,obj)->impliesORoles ( getORoleComplexExpr(env,arg1), getORoleExpr(env,arg2) ), "tellSubObjectProperties" );
 }
 
 /*
@@ -996,7 +996,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tel
 JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellInverseProperties
   (JNIEnv * env, jobject obj, jobject arg1, jobject arg2)
 {
-	PROCESS_QUERY ( getK(env,obj)->setInverseRoles ( getTree(env,arg1), getTree(env,arg2) ), "tellInverseProperties" );
+	PROCESS_QUERY ( getK(env,obj)->setInverseRoles ( getORoleExpr(env,arg1), getORoleExpr(env,arg2) ), "tellInverseProperties" );
 }
 
 /*
@@ -1007,7 +1007,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tel
 JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellObjectPropertyRange
   (JNIEnv * env, jobject obj, jobject arg1, jobject arg2)
 {
-	PROCESS_QUERY ( getK(env,obj)->setORange ( getTree(env,arg1), getTree(env,arg2) ), "tellObjectPropertyRange" );
+	PROCESS_QUERY ( getK(env,obj)->setORange ( getORoleExpr(env,arg1), getConceptExpr(env,arg2) ), "tellObjectPropertyRange" );
 }
 
 /*
@@ -1018,7 +1018,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tel
 JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellDataPropertyRange
   (JNIEnv * env, jobject obj, jobject arg1, jobject arg2)
 {
-	PROCESS_QUERY ( getK(env,obj)->setDRange ( getTree(env,arg1), getTree(env,arg2) ), "tellDataPropertyRange" );
+	PROCESS_QUERY ( getK(env,obj)->setDRange ( getDRoleExpr(env,arg1), getDataExpr(env,arg2) ), "tellDataPropertyRange" );
 }
 
 /*
@@ -1029,7 +1029,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tel
 JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellObjectPropertyDomain
   (JNIEnv * env, jobject obj, jobject arg1, jobject arg2)
 {
-	PROCESS_QUERY ( getK(env,obj)->setODomain ( getTree(env,arg1), getTree(env,arg2) ), "tellObjectPropertyDomain" );
+	PROCESS_QUERY ( getK(env,obj)->setODomain ( getORoleExpr(env,arg1), getConceptExpr(env,arg2) ), "tellObjectPropertyDomain" );
 }
 
 /*
@@ -1040,7 +1040,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tel
 JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellDataPropertyDomain
   (JNIEnv * env, jobject obj, jobject arg1, jobject arg2)
 {
-	PROCESS_QUERY ( getK(env,obj)->setDDomain ( getTree(env,arg1), getTree(env,arg2) ), "tellDataPropertyDomain" );
+	PROCESS_QUERY ( getK(env,obj)->setDDomain ( getDRoleExpr(env,arg1), getConceptExpr(env,arg2) ), "tellDataPropertyDomain" );
 }
 
 /*
@@ -1062,7 +1062,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tel
 JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellFunctionalObjectProperty
   (JNIEnv * env, jobject obj, jobject arg)
 {
-	PROCESS_QUERY ( getK(env,obj)->setOFunctional(getTree(env,arg)), "tellFunctionalObjectProperty" );
+	PROCESS_QUERY ( getK(env,obj)->setOFunctional(getORoleExpr(env,arg)), "tellFunctionalObjectProperty" );
 }
 
 /*
@@ -1073,7 +1073,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tel
 JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellInverseFunctionalObjectProperty
   (JNIEnv * env, jobject obj, jobject arg)
 {
-	PROCESS_QUERY ( getK(env,obj)->setInverseFunctional(getTree(env,arg)), "tellInverseFunctionalObjectProperty" );
+	PROCESS_QUERY ( getK(env,obj)->setInverseFunctional(getORoleExpr(env,arg)), "tellInverseFunctionalObjectProperty" );
 }
 
 /*
@@ -1084,7 +1084,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tel
 JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellSymmetricObjectProperty
   (JNIEnv * env, jobject obj, jobject arg)
 {
-	PROCESS_QUERY ( getK(env,obj)->setSymmetric(getTree(env,arg)), "tellSymmetricObjectProperty" );
+	PROCESS_QUERY ( getK(env,obj)->setSymmetric(getORoleExpr(env,arg)), "tellSymmetricObjectProperty" );
 }
 
 /*
@@ -1095,7 +1095,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tel
 JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellAntiSymmetricObjectProperty
   (JNIEnv * env, jobject obj, jobject arg)
 {
-	PROCESS_QUERY ( getK(env,obj)->setAntiSymmetric(getTree(env,arg)), "tellAntiSymmetricObjectProperty" );
+	PROCESS_QUERY ( getK(env,obj)->setAntiSymmetric(getORoleExpr(env,arg)), "tellAntiSymmetricObjectProperty" );
 }
 
 /*
@@ -1106,7 +1106,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tel
 JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellReflexiveObjectProperty
   (JNIEnv * env, jobject obj, jobject arg)
 {
-	PROCESS_QUERY ( getK(env,obj)->setReflexive(getTree(env,arg)), "tellReflexiveObjectProperty" );
+	PROCESS_QUERY ( getK(env,obj)->setReflexive(getORoleExpr(env,arg)), "tellReflexiveObjectProperty" );
 }
 
 /*
@@ -1117,7 +1117,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tel
 JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellIrreflexiveObjectProperty
   (JNIEnv * env, jobject obj, jobject arg)
 {
-	PROCESS_QUERY ( getK(env,obj)->setIrreflexive(getTree(env,arg)), "tellIrreflexiveObjectProperty" );
+	PROCESS_QUERY ( getK(env,obj)->setIrreflexive(getORoleExpr(env,arg)), "tellIrreflexiveObjectProperty" );
 }
 
 /*
@@ -1128,7 +1128,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tel
 JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellTransitiveObjectProperty
   (JNIEnv * env, jobject obj, jobject arg)
 {
-	PROCESS_QUERY ( getK(env,obj)->setTransitive(getTree(env,arg)), "tellTransitiveObjectProperty" );
+	PROCESS_QUERY ( getK(env,obj)->setTransitive(getORoleExpr(env,arg)), "tellTransitiveObjectProperty" );
 }
 
 /*
@@ -1139,7 +1139,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tel
 JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellSubDataProperties
   (JNIEnv * env, jobject obj, jobject arg1, jobject arg2)
 {
-	PROCESS_QUERY ( getK(env,obj)->impliesDRoles ( getTree(env,arg1), getTree(env,arg2) ), "tellSubDataProperties" );
+	PROCESS_QUERY ( getK(env,obj)->impliesDRoles ( getDRoleExpr(env,arg1), getDRoleExpr(env,arg2) ), "tellSubDataProperties" );
 }
 
 /*
@@ -1172,7 +1172,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tel
 JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellFunctionalDataProperty
   (JNIEnv * env, jobject obj, jobject arg)
 {
-	PROCESS_QUERY ( getK(env,obj)->setDFunctional(getTree(env,arg)), "tellFunctionalDataProperty" );
+	PROCESS_QUERY ( getK(env,obj)->setDFunctional(getDRoleExpr(env,arg)), "tellFunctionalDataProperty" );
 }
 
 /*
@@ -1183,7 +1183,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tel
 JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellIndividualType
   (JNIEnv * env, jobject obj, jobject arg1, jobject arg2)
 {
-	PROCESS_QUERY ( getK(env,obj)->instanceOf ( getTree(env,arg1), getTree(env,arg2) ), "tellIndividualType" );
+	PROCESS_QUERY ( getK(env,obj)->instanceOf ( getIndividualExpr(env,arg1), getConceptExpr(env,arg2) ), "tellIndividualType" );
 }
 
 /*
@@ -1194,7 +1194,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tel
 JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellRelatedIndividuals
   (JNIEnv * env, jobject obj, jobject arg1, jobject arg2, jobject arg3)
 {
-	PROCESS_QUERY ( getK(env,obj)->relatedTo ( getTree(env,arg1), getTree(env,arg2), getTree(env,arg3) ), "tellRelatedIndividuals" );
+	PROCESS_QUERY ( getK(env,obj)->relatedTo ( getIndividualExpr(env,arg1), getORoleExpr(env,arg2), getIndividualExpr(env,arg3) ), "tellRelatedIndividuals" );
 }
 
 /*
@@ -1205,7 +1205,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tel
 JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellNotRelatedIndividuals
   (JNIEnv * env, jobject obj, jobject arg1, jobject arg2, jobject arg3)
 {
-	PROCESS_QUERY ( getK(env,obj)->relatedToNot ( getTree(env,arg1), getTree(env,arg2), getTree(env,arg3) ), "tellNotRelatedIndividuals" );
+	PROCESS_QUERY ( getK(env,obj)->relatedToNot ( getIndividualExpr(env,arg1), getORoleExpr(env,arg2), getIndividualExpr(env,arg3) ), "tellNotRelatedIndividuals" );
 }
 
 /*
@@ -1216,7 +1216,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tel
 JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellRelatedIndividualValue
   (JNIEnv * env, jobject obj, jobject arg1, jobject arg2, jobject arg3)
 {
-	PROCESS_QUERY ( getK(env,obj)->valueOf ( getTree(env,arg1), getTree(env,arg2), getTree(env,arg3) ), "tellRelatedIndividualValue" );
+	PROCESS_QUERY ( getK(env,obj)->valueOf ( getIndividualExpr(env,arg1), getDRoleExpr(env,arg2), getDataValueExpr(env,arg3) ), "tellRelatedIndividualValue" );
 }
 
 /*
@@ -1227,7 +1227,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tel
 JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellNotRelatedIndividualValue
   (JNIEnv * env, jobject obj, jobject arg1, jobject arg2, jobject arg3)
 {
-	PROCESS_QUERY ( getK(env,obj)->valueOfNot ( getTree(env,arg1), getTree(env,arg2), getTree(env,arg3) ), "tellNotRelatedIndividualValue" );
+	PROCESS_QUERY ( getK(env,obj)->valueOfNot ( getIndividualExpr(env,arg1), getDRoleExpr(env,arg2), getDataValueExpr(env,arg3) ), "tellNotRelatedIndividualValue" );
 }
 
 /*
@@ -1333,7 +1333,7 @@ JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_is
 	TRACE_JNI("isClassSatisfiable");
 	TRACE_ARG(env,obj,arg);
 	bool ret = false;
-	PROCESS_ASK_QUERY ( ret=getK(env,obj)->isSatisfiable ( getROTree(env,arg) ),"isClassSatisfiable");
+	PROCESS_ASK_QUERY ( ret=getK(env,obj)->isSatisfiable ( getROConceptExpr(env,arg) ),"isClassSatisfiable");
 	return ret;
 }
 
@@ -1349,7 +1349,7 @@ JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_is
 	TRACE_ARG(env,obj,arg1);
 	TRACE_ARG(env,obj,arg2);
 	bool ret = false;
-	PROCESS_ASK_QUERY ( ret=getK(env,obj)->isSubsumedBy ( getROTree(env,arg1), getROTree(env,arg2) ),"isClassSubsumedBy");
+	PROCESS_ASK_QUERY ( ret=getK(env,obj)->isSubsumedBy ( getROConceptExpr(env,arg1), getROConceptExpr(env,arg2) ),"isClassSubsumedBy");
 	return ret;
 }
 
@@ -1365,7 +1365,7 @@ JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_is
 	TRACE_ARG(env,obj,arg1);
 	TRACE_ARG(env,obj,arg2);
 	bool ret = false;
-	PROCESS_ASK_QUERY ( ret=getK(env,obj)->isEquivalent ( getROTree(env,arg1), getROTree(env,arg2) ),"isClassEquivalentTo");
+	PROCESS_ASK_QUERY ( ret=getK(env,obj)->isEquivalent ( getROConceptExpr(env,arg1), getROConceptExpr(env,arg2) ),"isClassEquivalentTo");
 	return ret;
 }
 
@@ -1381,7 +1381,7 @@ JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_is
 	TRACE_ARG(env,obj,arg1);
 	TRACE_ARG(env,obj,arg2);
 	bool ret = false;
-	PROCESS_ASK_QUERY ( ret=getK(env,obj)->isDisjoint ( getROTree(env,arg1), getROTree(env,arg2) ),"isClassDisjointWith");
+	PROCESS_ASK_QUERY ( ret=getK(env,obj)->isDisjoint ( getROConceptExpr(env,arg1), getROConceptExpr(env,arg2) ),"isClassDisjointWith");
 	return ret;
 }
 
@@ -1396,7 +1396,7 @@ JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlu
 	TRACE_JNI("askSubClasses");
 	TRACE_ARG(env,obj,arg);
 	JTaxonomyActor<ClassPolicy> actor(env,obj);
-	DLTree* p = getROTree(env,arg);
+	const TConceptExpr* p = getROConceptExpr(env,arg);
 	PROCESS_ASK_QUERY ( direct ? getK(env,obj)->getChildren(p,actor) : getK(env,obj)->getDescendants(p,actor),"askSubClasses");
 	return actor.getElements();
 }
@@ -1412,7 +1412,7 @@ JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlu
 	TRACE_JNI("askSuperClasses");
 	TRACE_ARG(env,obj,arg);
 	JTaxonomyActor<ClassPolicy> actor(env,obj);
-	DLTree* p = getROTree(env,arg);
+	const TConceptExpr* p = getROConceptExpr(env,arg);
 	PROCESS_ASK_QUERY ( direct ? getK(env,obj)->getParents(p,actor) : getK(env,obj)->getAncestors(p,actor),"askSuperClasses");
 	return actor.getElements();
 }
@@ -1429,7 +1429,7 @@ JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlu
 	TRACE_ARG(env,obj,arg);
 	JTaxonomyActor<ClassPolicy> actor(env,obj);
 	PROCESS_ASK_QUERY (
-		getK(env,obj)->getEquivalents ( getROTree(env,arg), actor ),"askEquivalentClasses");
+		getK(env,obj)->getEquivalents ( getROConceptExpr(env,arg), actor ),"askEquivalentClasses");
 	return actor.getSynonyms();
 }
 
@@ -1458,7 +1458,7 @@ JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlu
 	TRACE_JNI("askSuperObjectProperties");
 	TRACE_ARG(env,obj,arg);
 	JTaxonomyActor<ObjectPropertyPolicy> actor(env,obj);
-	DLTree* p = getROTree(env,arg);
+	const TORoleExpr* p = getROORoleExpr(env,arg);
 	PROCESS_ASK_QUERY ( direct ? getK(env,obj)->getRParents(p,actor) : getK(env,obj)->getRAncestors(p,actor),"askSuperObjectProperties");
 	return actor.getElements();
 }
@@ -1474,7 +1474,7 @@ JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlu
 	TRACE_JNI("askSubObjectProperties");
 	TRACE_ARG(env,obj,arg);
 	JTaxonomyActor<ObjectPropertyPolicy> actor(env,obj);
-	DLTree* p = getROTree(env,arg);
+	const TORoleExpr* p = getROORoleExpr(env,arg);
 	PROCESS_ASK_QUERY ( direct ? getK(env,obj)->getRChildren(p,actor) : getK(env,obj)->getRDescendants(p,actor),"askSubObjectProperties");
 	return actor.getElements();
 }
@@ -1490,7 +1490,7 @@ JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlu
 	TRACE_JNI("askEquivalentObjectProperties");
 	TRACE_ARG(env,obj,arg);
 	JTaxonomyActor<ObjectPropertyPolicy> actor(env,obj);
-	PROCESS_ASK_QUERY ( getK(env,obj)->getREquivalents ( getROTree(env,arg), actor ),"askEquivalentObjectProperties");
+	PROCESS_ASK_QUERY ( getK(env,obj)->getREquivalents ( getROORoleExpr(env,arg), actor ),"askEquivalentObjectProperties");
 	return actor.getSynonyms();
 }
 
@@ -1505,7 +1505,7 @@ JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlu
 	TRACE_JNI("askObjectPropertyDomain");
 	TRACE_ARG(env,obj,arg);
 	JTaxonomyActor<ClassPolicy> actor(env,obj);
-	PROCESS_ASK_QUERY ( getK(env,obj)->getRoleDomain ( getROTree(env,arg), actor ),"askObjectPropertyDomain");
+	PROCESS_ASK_QUERY ( getK(env,obj)->getRoleDomain ( getROORoleExpr(env,arg), actor ),"askObjectPropertyDomain");
 	return actor.getElements();
 }
 
@@ -1520,7 +1520,7 @@ JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlu
 	TRACE_JNI("askObjectPropertyRange");
 	TRACE_ARG(env,obj,arg);
 	JTaxonomyActor<ClassPolicy> actor(env,obj);
-	PROCESS_ASK_QUERY ( getK(env,obj)->getRoleRange ( getROTree(env,arg), actor ),"askObjectPropertyRange");
+	PROCESS_ASK_QUERY ( getK(env,obj)->getRoleRange ( getROORoleExpr(env,arg), actor ),"askObjectPropertyRange");
 	return actor.getElements();
 }
 
@@ -1535,7 +1535,7 @@ JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_is
 	TRACE_JNI("isObjectPropertyFunctional");
 	TRACE_ARG(env,obj,arg);
 	bool ret = false;
-	PROCESS_ASK_QUERY ( ret=getK(env,obj)->isFunctional ( getROTree(env,arg) ),"isObjectPropertyFunctional");
+	PROCESS_ASK_QUERY ( ret=getK(env,obj)->isFunctional ( getROORoleExpr(env,arg) ),"isObjectPropertyFunctional");
 	return ret;
 }
 
@@ -1550,7 +1550,7 @@ JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_is
 	TRACE_JNI("isObjectPropertyInverseFunctional");
 	TRACE_ARG(env,obj,arg);
 	bool ret = false;
-	PROCESS_ASK_QUERY ( ret=getK(env,obj)->isInverseFunctional ( getROTree(env,arg) ),"isObjectPropertyInverseFunctional");
+	PROCESS_ASK_QUERY ( ret=getK(env,obj)->isInverseFunctional ( getROORoleExpr(env,arg) ),"isObjectPropertyInverseFunctional");
 	return ret;
 }
 
@@ -1636,7 +1636,7 @@ JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_ar
 	TRACE_ARG(env,obj,arg1);
 	TRACE_ARG(env,obj,arg2);
 	bool ret = false;
-	PROCESS_ASK_QUERY ( ret=getK(env,obj)->isDisjointRoles ( getROTree(env,arg1), getROTree(env,arg2) ),"areObjectPropertiesDisjoint");
+	PROCESS_ASK_QUERY ( ret=getK(env,obj)->isDisjointRoles ( getROORoleExpr(env,arg1), getROORoleExpr(env,arg2) ),"areObjectPropertiesDisjoint");
 	return ret;
 }
 
@@ -1665,7 +1665,7 @@ JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlu
 	TRACE_JNI("askSuperDataProperties");
 	TRACE_ARG(env,obj,arg);
 	JTaxonomyActor<DataPropertyPolicy> actor(env,obj);
-	DLTree* p = getROTree(env,arg);
+	const TDRoleExpr* p = getRODRoleExpr(env,arg);
 	PROCESS_ASK_QUERY ( direct ? getK(env,obj)->getRParents(p,actor) : getK(env,obj)->getRAncestors(p,actor),"askSuperDataProperties");
 	return actor.getElements();
 }
@@ -1681,7 +1681,7 @@ JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlu
 	TRACE_JNI("askSubDataProperties");
 	TRACE_ARG(env,obj,arg);
 	JTaxonomyActor<DataPropertyPolicy> actor(env,obj);
-	DLTree* p = getROTree(env,arg);
+	const TDRoleExpr* p = getRODRoleExpr(env,arg);
 	PROCESS_ASK_QUERY ( direct ? getK(env,obj)->getRChildren(p,actor) : getK(env,obj)->getRDescendants(p,actor),"askSubDataProperties");
 	return actor.getElements();
 }
@@ -1697,7 +1697,7 @@ JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlu
 	TRACE_JNI("askEquivalentDataProperties");
 	TRACE_ARG(env,obj,arg);
 	JTaxonomyActor<DataPropertyPolicy> actor(env,obj);
-	PROCESS_ASK_QUERY ( getK(env,obj)->getREquivalents ( getROTree(env,arg), actor ),"askEquivalentDataProperties");
+	PROCESS_ASK_QUERY ( getK(env,obj)->getREquivalents ( getRODRoleExpr(env,arg), actor ),"askEquivalentDataProperties");
 	return actor.getSynonyms();
 }
 
@@ -1712,7 +1712,7 @@ JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlu
 	TRACE_JNI("askDataPropertyDomain");
 	TRACE_ARG(env,obj,arg);
 	JTaxonomyActor<ClassPolicy> actor(env,obj);
-	PROCESS_ASK_QUERY ( getK(env,obj)->getRoleDomain ( getROTree(env,arg), actor ),"askDataPropertyDomain");
+	PROCESS_ASK_QUERY ( getK(env,obj)->getRoleDomain ( getRODRoleExpr(env,arg), actor ),"askDataPropertyDomain");
 	return actor.getElements();
 }
 
@@ -1741,7 +1741,7 @@ JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_is
 	TRACE_JNI("isDataPropertyFunctional");
 	TRACE_ARG(env,obj,arg);
 	bool ret = false;
-	PROCESS_ASK_QUERY ( ret=getK(env,obj)->isFunctional ( getROTree(env,arg) ),"isDataPropertyFunctional");
+	PROCESS_ASK_QUERY ( ret=getK(env,obj)->isFunctional ( getRODRoleExpr(env,arg) ),"isDataPropertyFunctional");
 	return ret;
 }
 
@@ -1757,7 +1757,7 @@ JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_ar
 	TRACE_ARG(env,obj,arg1);
 	TRACE_ARG(env,obj,arg2);
 	bool ret = false;
-	PROCESS_ASK_QUERY ( ret=getK(env,obj)->isDisjointRoles ( getROTree(env,arg1), getROTree(env,arg2) ),"areDataPropertiesDisjoint");
+	PROCESS_ASK_QUERY ( ret=getK(env,obj)->isDisjointRoles ( getRODRoleExpr(env,arg1), getRODRoleExpr(env,arg2) ),"areDataPropertiesDisjoint");
 	return ret;
 }
 
@@ -1772,7 +1772,7 @@ JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlu
 	TRACE_JNI("askIndividualTypes");
 	TRACE_ARG(env,obj,arg);
 	JTaxonomyActor<ClassPolicy> actor(env,obj);
-	DLTree* p = getROTree(env,arg);
+	const TIndividualExpr* p = getROIndividualExpr(env,arg);
 	PROCESS_ASK_QUERY ( direct ? getK(env,obj)->getDirectTypes(p,actor) : getK(env,obj)->getTypes(p,actor),"askIndividualTypes");
 	return actor.getElements();
 }
@@ -1788,8 +1788,8 @@ JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlu
 	TRACE_JNI("askObjectProperties");
 	TRACE_ARG(env,obj,arg);
 	ReasoningKernel::NamesVector Rs;
-	PROCESS_ASK_QUERY ( getK(env,obj)->getRelatedRoles ( getROTree(env,arg), Rs, /*data=*/false, /*needI=*/false ),"askObjectProperties");
-	std::vector<DLTree*> acc;
+	PROCESS_ASK_QUERY ( getK(env,obj)->getRelatedRoles ( getROIndividualExpr(env,arg), Rs, /*data=*/false, /*needI=*/false ),"askObjectProperties");
+	std::vector<TExpr*> acc;
 	for ( ReasoningKernel::NamesVector::const_iterator p = Rs.begin(), p_end = Rs.end(); p < p_end; ++p )
 		acc.push_back(getOName(env,obj,(*p)->getName()));
 	return buildArray ( env, acc, cnObjectPropertyPointer() );
@@ -1807,8 +1807,8 @@ JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlu
 	TRACE_ARG(env,obj,arg1);
 	TRACE_ARG(env,obj,arg2);
 	ReasoningKernel::NamesVector Js;
-	PROCESS_ASK_QUERY ( getK(env,obj)->getRoleFillers ( getROTree(env,arg1), getROTree(env,arg2), Js ),"askRelatedIndividuals");
-	std::vector<DLTree*> acc;
+	PROCESS_ASK_QUERY ( getK(env,obj)->getRoleFillers ( getROIndividualExpr(env,arg1), getROORoleExpr(env,arg2), Js ),"askRelatedIndividuals");
+	std::vector<TExpr*> acc;
 	for ( ReasoningKernel::NamesVector::const_iterator p = Js.begin(), p_end = Js.end(); p < p_end; ++p )
 		acc.push_back(getIName(env,obj,(*p)->getName()));
 	return buildArray ( env, acc, cnIndividualPointer() );
@@ -1825,8 +1825,8 @@ JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlu
 	TRACE_JNI("askDataProperties");
 	TRACE_ARG(env,obj,arg);
 	ReasoningKernel::NamesVector Rs;
-	PROCESS_ASK_QUERY ( getK(env,obj)->getRelatedRoles ( getROTree(env,arg), Rs, /*data=*/true, /*needI=*/false ),"askDataProperties");
-	std::vector<DLTree*> acc;
+	PROCESS_ASK_QUERY ( getK(env,obj)->getRelatedRoles ( getROIndividualExpr(env,arg), Rs, /*data=*/true, /*needI=*/false ),"askDataProperties");
+	std::vector<TExpr*> acc;
 	for ( ReasoningKernel::NamesVector::const_iterator p = Rs.begin(), p_end = Rs.end(); p < p_end; ++p )
 		acc.push_back(getDName(env,obj,(*p)->getName()));
 	return buildArray ( env, acc, cnDataPropertyPointer() );
@@ -1844,10 +1844,10 @@ JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlu
 	TRACE_ARG(env,obj,arg1);
 	TRACE_ARG(env,obj,arg2);
 	ReasoningKernel::NamesVector Js;
-	PROCESS_ASK_QUERY ( getK(env,obj)->getRoleFillers ( getROTree(env,arg1), getROTree(env,arg2), Js ),"askRelatedValues");
-	std::vector<DLTree*> acc;
+	PROCESS_ASK_QUERY ( getK(env,obj)->getRoleFillers ( getROIndividualExpr(env,arg1), getRODRoleExpr(env,arg2), Js ),"askRelatedValues");
+	std::vector<TExpr*> acc;
 	for ( ReasoningKernel::NamesVector::const_iterator p = Js.begin(), p_end = Js.end(); p < p_end; ++p )
-		acc.push_back(new DLTree(TLexeme(DATAEXPR,const_cast<TNamedEntry*>(*p))));
+		acc.push_back(new TExpr(TLexeme(DATAEXPR,const_cast<TNamedEntry*>(*p))));
 	return buildArray ( env, acc, cnDataValuePointer() );
 }
 
@@ -1864,7 +1864,7 @@ JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_ha
 	TRACE_ARG(env,obj,arg2);
 	TRACE_ARG(env,obj,arg3);
 	bool ret = false;
-	PROCESS_ASK_QUERY ( ret=getK(env,obj)->isRelated ( getROTree(env,arg1), getROTree(env,arg2), getROTree(env,arg3) ),"hasDataPropertyRelationship");
+	PROCESS_ASK_QUERY ( ret=getK(env,obj)->isRelated ( getROIndividualExpr(env,arg1), getRODRoleExpr(env,arg2), getROIndividualExpr(env,arg3) ),"hasDataPropertyRelationship");
 	return ret;
 }
 
@@ -1881,7 +1881,7 @@ JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_ha
 	TRACE_ARG(env,obj,arg2);
 	TRACE_ARG(env,obj,arg3);
 	bool ret = false;
-	PROCESS_ASK_QUERY ( ret=getK(env,obj)->isRelated ( getROTree(env,arg1), getROTree(env,arg2), getROTree(env,arg3) ),"hasObjectPropertyRelationship");
+	PROCESS_ASK_QUERY ( ret=getK(env,obj)->isRelated ( getROIndividualExpr(env,arg1), getROORoleExpr(env,arg2), getROIndividualExpr(env,arg3) ),"hasObjectPropertyRelationship");
 	return ret;
 }
 
@@ -1895,7 +1895,7 @@ JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_is
 {
 	TRACE_JNI("isInstanceOf");
 	bool ret = false;
-	PROCESS_ASK_QUERY ( ret=getK(env,obj)->isInstance ( getROTree(env,arg1), getROTree(env,arg2) ),"isInstanceOf");
+	PROCESS_ASK_QUERY ( ret=getK(env,obj)->isInstance ( getROIndividualExpr(env,arg1), getROConceptExpr(env,arg2) ),"isInstanceOf");
 	return ret;
 }
 
@@ -1910,7 +1910,7 @@ JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlu
 	TRACE_JNI("askInstances");
 	TRACE_ARG(env,obj,arg);
 	JTaxonomyActor<IndividualPolicy</*plain=*/true> > actor(env,obj);
-	DLTree* p = getROTree(env,arg);
+	const TConceptExpr* p = getROConceptExpr(env,arg);
 	PROCESS_ASK_QUERY ( direct ? getK(env,obj)->getDirectInstances(p,actor) : getK(env,obj)->getInstances(p,actor),"askInstances");
 	return actor.getElements();
 }
@@ -1926,7 +1926,7 @@ JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlu
 	TRACE_JNI("askInstancesGrouped");
 	TRACE_ARG(env,obj,arg);
 	JTaxonomyActor<IndividualPolicy</*plain=*/false> > actor(env,obj);
-	DLTree* p = getROTree(env,arg);
+	const TConceptExpr* p = getROConceptExpr(env,arg);
 	PROCESS_ASK_QUERY ( direct ? getK(env,obj)->getDirectInstances(p,actor) : getK(env,obj)->getInstances(p,actor),"askInstances");
 	return actor.getElements();
 }
@@ -1942,7 +1942,7 @@ JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlu
 	TRACE_JNI("askSameAs");
 	TRACE_ARG(env,obj,arg);
 	JTaxonomyActor<IndividualPolicy</*plain=*/true> > actor(env,obj);
-	PROCESS_ASK_QUERY ( getK(env,obj)->getSameAs ( getROTree(env,arg), actor ),"askSameAs");
+	PROCESS_ASK_QUERY ( getK(env,obj)->getSameAs ( getROIndividualExpr(env,arg), actor ),"askSameAs");
 	return actor.getSynonyms();
 }
 
@@ -1958,7 +1958,7 @@ JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_is
 	TRACE_ARG(env,obj,arg1);
 	TRACE_ARG(env,obj,arg2);
 	bool ret = false;
-	PROCESS_ASK_QUERY ( ret=getK(env,obj)->isSameIndividuals ( getROTree(env,arg1), getROTree(env,arg2) ),"isSameAs");
+	PROCESS_ASK_QUERY ( ret=getK(env,obj)->isSameIndividuals ( getROIndividualExpr(env,arg1), getROIndividualExpr(env,arg2) ),"isSameAs");
 	return ret;
 }
 
@@ -2001,7 +2001,7 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_addArg
 {
 	TRACE_JNI("addArg");
 	TRACE_ARG(env,obj,arg);
-	getK(env,obj)->addArg(getTree(env,arg));
+	getK(env,obj)->addArg(getExpr(env,arg));
 }
 
 /*

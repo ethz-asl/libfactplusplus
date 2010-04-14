@@ -138,7 +138,7 @@ Realise:	// do realisation
 //* caching support
 //******************************************
 void
-ReasoningKernel :: setUpCache ( const DLTree* query, cacheStatus level )
+ReasoningKernel :: setUpCache ( const TConceptExpr* query, cacheStatus level )
 {
 	// check if the query is already cached
 	if ( isCached (query) )
@@ -274,7 +274,7 @@ ReasoningKernel :: buildRelatedCache ( TIndividual* I, const TRole* R )
 
 /// @return in Rs all (DATA)-roles R s.t. (I,x):R; add inverses if NEEDI is true
 void
-ReasoningKernel :: getRelatedRoles ( const ComplexConcept I, NamesVector& Rs, bool data, bool needI )
+ReasoningKernel :: getRelatedRoles ( const TIndividualExpr* I, NamesVector& Rs, bool data, bool needI )
 {
 	realiseKB();	// ensure KB is ready to answer the query
 	Rs.clear();
@@ -290,7 +290,7 @@ ReasoningKernel :: getRelatedRoles ( const ComplexConcept I, NamesVector& Rs, bo
 }
 
 void
-ReasoningKernel :: getRoleFillers ( const ComplexConcept I, const ComplexRole R, IndividualSet& Result )
+ReasoningKernel :: getRoleFillers ( const TIndividualExpr* I, const TORoleExpr* R, IndividualSet& Result )
 {
 	realiseKB();	// ensure KB is ready to answer the query
 	CIVec vec = getRelated ( getIndividual ( I, "Individual name expected in the getRoleFillers()" ),
@@ -301,7 +301,7 @@ ReasoningKernel :: getRoleFillers ( const ComplexConcept I, const ComplexRole R,
 
 /// set RESULT into set of J's such that R(I,J)
 bool
-ReasoningKernel :: isRelated ( const ComplexConcept I, const ComplexRole R, const ComplexConcept J )
+ReasoningKernel :: isRelated ( const TIndividualExpr* I, const TORoleExpr* R, const TIndividualExpr* J )
 {
 	realiseKB();	// ensure KB is ready to answer the query
 	TIndividual* i = getIndividual ( I, "Individual name expected in the isRelated()" );

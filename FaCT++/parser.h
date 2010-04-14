@@ -26,6 +26,26 @@ Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 /// class for parsing LISP-like ontologies
 class DLLispParser: public CommonParser
 {
+protected:	// typedefs
+		/// general expression
+	typedef ReasoningKernel::TExpr TExpr;
+		/// concept expression
+	typedef ReasoningKernel::TConceptExpr TConceptExpr;
+		/// individual expression
+	typedef ReasoningKernel::TIndividualExpr TIndividualExpr;
+		/// role expression
+	typedef ReasoningKernel::TRoleExpr TRoleExpr;
+		/// object role complex expression (including role chains and projections)
+	typedef ReasoningKernel::TORoleComplexExpr TORoleComplexExpr;
+		/// object role expression
+	typedef ReasoningKernel::TORoleExpr TORoleExpr;
+		/// data role expression
+	typedef ReasoningKernel::TDRoleExpr TDRoleExpr;
+		/// data expression
+	typedef ReasoningKernel::TDataExpr TDataExpr;
+		/// data value expression
+	typedef ReasoningKernel::TDataValueExpr TDataValueExpr;
+
 protected:	// members
 		/// Kernel to be filled
 	ReasoningKernel* Kernel;
@@ -39,23 +59,23 @@ protected:	// methods
 	void errorByException ( const EFPPCantRegName& ex ) const { parseError(ex.what()); }
 
 		/// @return concept-like Id of just scanned name
-	DLTree* getConcept ( void )
+	TConceptExpr* getConcept ( void )
 	{
-		DLTree* ret = EManager->Concept(scan.GetName());
+		TConceptExpr* ret = EManager->Concept(scan.GetName());
 		NextLex();
 		return ret;
 	}
 		/// @return singleton Id of just scanned name
-	DLTree* getSingleton ( void )
+	TIndividualExpr* getSingleton ( void )
 	{
-		DLTree* ret = EManager->Individual(scan.GetName());
+		TIndividualExpr* ret = EManager->Individual(scan.GetName());
 		NextLex();
 		return ret;
 	}
-		/// @return role-like Id of just scanned name
-	DLTree* getRole ( void )
+		/// @return data- or object role build from just scanned name
+	TRoleExpr* getRole ( void )
 	{
-		DLTree* ret;
+		TRoleExpr* ret;
 		if ( DataRoles.find(scan.GetName()) != DataRoles.end() )
 			ret = EManager->DataRole(scan.GetName());	// found data role
 		else	// object role
@@ -63,52 +83,52 @@ protected:	// methods
 		NextLex();
 		return ret;
 	}
-		/// @return role-like Id of just scanned name
-	DLTree* getDataRole ( void )
+		/// @return data role build from just scanned name
+	TDRoleExpr* getDataRole ( void )
 	{
 		DataRoles.insert(scan.GetName());
-		DLTree* ret = EManager->DataRole(scan.GetName());
+		TDRoleExpr* ret = EManager->DataRole(scan.GetName());
 		NextLex();
 		return ret;
 	}
-		/// @return role-like Id of just scanned name
-	DLTree* getObjectRole ( void )
+		/// @return object role build from just scanned name
+	TORoleExpr* getObjectRole ( void )
 	{
-		DLTree* ret = EManager->ObjectRole(scan.GetName());
+		TORoleExpr* ret = EManager->ObjectRole(scan.GetName());
 		NextLex();
 		return ret;
 	}
 		/// @return datavalue of a data type TYPE with an Id of a just scanned name
-	DLTree* getDTValue ( DLTree* type )
+	TDataValueExpr* getDTValue ( TDataExpr* type )
 	{
-		DLTree* ret = Kernel->getDataTypeCenter().getDataValue(scan.GetName(),type);
+		TDataValueExpr* ret = Kernel->getDataTypeCenter().getDataValue(scan.GetName(),type);
 		NextLex();
 		deleteTree(type);
 		return ret;
 	}
 
 		/// check whether expression R is data role
-	bool isDataRole ( DLTree* R ) const { return R->Element().getToken() == DNAME; }
-		/// get role expression, ie role or its inverse
-	DLTree* getRoleExpression ( void );
+	bool isDataRole ( TRoleExpr* R ) const { return R->Element().getToken() == DNAME; }
+		/// get role expression, ie (data)role or its inverse
+	TRoleExpr* getRoleExpression ( void );
 		/// get object role expression, ie object role, OR constant or their inverse
-	DLTree* getORoleExpression ( void );
+	TORoleExpr* getORoleExpression ( void );
 		/// get data role expression, ie data role or DR constant
-	DLTree* getDRoleExpression ( void );
+	TDRoleExpr* getDRoleExpression ( void );
 		/// get simple role expression or role projection or chain
-	DLTree* getComplexRoleExpression ( void );
+	TRoleExpr* getComplexRoleExpression ( void );
 		/// parse simple DL command
 	void parseCommand ( void );
 		/// parse role arguments if defprimrole command
-	void parseRoleArguments ( DLTree* role );
+	void parseRoleArguments ( TORoleExpr* role );
 		/// parse list of concept expressions (in disjoint-like commands)
 	void parseConceptList ( bool singletonsOnly );
 		/// get concept-like expression for simple variants
-	DLTree* getConceptExpression ( void );
+	TConceptExpr* getConceptExpression ( void );
 		/// get concept-like expression for complex constructors
-	DLTree* getComplexConceptExpression ( void );
+	TConceptExpr* getComplexConceptExpression ( void );
 		/// get data expression
-	DLTree* getDataExpression ( void );
+	TDataExpr* getDataExpression ( void );
 
 public:		// interface
 		/// the only c'tor

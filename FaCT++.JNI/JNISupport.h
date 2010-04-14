@@ -37,6 +37,29 @@ inline const char* cnDataValuePointer ( void ) { return "Luk/ac/manchester/cs/fa
 
 
 //-------------------------------------------------------------
+// Expression typedefs
+//-------------------------------------------------------------
+
+	/// general expression
+typedef ReasoningKernel::TExpr TExpr;
+	/// concept expression
+typedef ReasoningKernel::TConceptExpr TConceptExpr;
+	/// individual expression
+typedef ReasoningKernel::TIndividualExpr TIndividualExpr;
+	/// role expression
+typedef ReasoningKernel::TRoleExpr TRoleExpr;
+	/// object role complex expression (including role chains and projections)
+typedef ReasoningKernel::TORoleComplexExpr TORoleComplexExpr;
+	/// object role expression
+typedef ReasoningKernel::TORoleExpr TORoleExpr;
+	/// data role expression
+typedef ReasoningKernel::TDRoleExpr TDRoleExpr;
+	/// data expression
+typedef ReasoningKernel::TDataExpr TDataExpr;
+	/// data value expression
+typedef ReasoningKernel::TDataValueExpr TDataValueExpr;
+
+//-------------------------------------------------------------
 // Support functions
 //-------------------------------------------------------------
 
@@ -166,28 +189,28 @@ TExpressionManager* getEM ( JNIEnv * env, jobject obj ) { return getK(env,obj)->
 
 /// get tree for the class name by the EM and the name
 inline
-DLTree* getCName ( TExpressionManager* EM, const std::string& name ) { return EM->Concept(name); }
+TConceptExpr* getCName ( TExpressionManager* EM, const std::string& name ) { return EM->Concept(name); }
 /// get tree for the class name by the env:obj and the name
 inline
-DLTree* getCName ( JNIEnv * env, jobject obj, const std::string& name ) { return getCName ( getEM(env,obj), name ); }
+TConceptExpr* getCName ( JNIEnv * env, jobject obj, const std::string& name ) { return getCName ( getEM(env,obj), name ); }
 /// get tree for the individual name by the EM and the name
 inline
-DLTree* getIName ( TExpressionManager* EM, const std::string& name ) { return EM->Individual(name); }
+TIndividualExpr* getIName ( TExpressionManager* EM, const std::string& name ) { return EM->Individual(name); }
 /// get tree for the individual name by the env:obj and the name
 inline
-DLTree* getIName ( JNIEnv * env, jobject obj, const std::string& name ) { return getIName ( getEM(env,obj), name ); }
+TIndividualExpr* getIName ( JNIEnv * env, jobject obj, const std::string& name ) { return getIName ( getEM(env,obj), name ); }
 /// get tree for the object property name by the EM and the name
 inline
-DLTree* getOName ( TExpressionManager* EM, const std::string& name ) { return EM->ObjectRole(name); }
+TORoleExpr* getOName ( TExpressionManager* EM, const std::string& name ) { return EM->ObjectRole(name); }
 /// get tree for the object property name by the env:obj and the name
 inline
-DLTree* getOName ( JNIEnv * env, jobject obj, const std::string& name ) { return getOName ( getEM(env,obj), name ); }
+TORoleExpr* getOName ( JNIEnv * env, jobject obj, const std::string& name ) { return getOName ( getEM(env,obj), name ); }
 /// get tree for the data property name by the EM and the name
 inline
-DLTree* getDName ( TExpressionManager* EM, const std::string& name ) { return EM->DataRole(name); }
+TDRoleExpr* getDName ( TExpressionManager* EM, const std::string& name ) { return EM->DataRole(name); }
 /// get tree for the data property name by the env:obj and the name
 inline
-DLTree* getDName ( JNIEnv * env, jobject obj, const std::string& name ) { return getDName ( getEM(env,obj), name ); }
+TDRoleExpr* getDName ( JNIEnv * env, jobject obj, const std::string& name ) { return getDName ( getEM(env,obj), name ); }
 
 // helper for getTree which extracts a JLONG from a given object
 inline
@@ -212,19 +235,42 @@ jlong getPointer ( JNIEnv * env, jobject obj )
 	return env->GetLongField ( obj, fid );
 }
 
-inline
-DLTree* getTree ( JNIEnv * env, jobject obj )
-{
-	// FIXME!! that's overkill but it is easiest way for now
-	return clone((DLTree*)getPointer(env,obj));
-}
+// macro to expand into the accessor function that transforms pointer into appropriate type
+#define ACCESSOR(Name)	\
+inline T ## Name* get ## Name ( JNIEnv * env, jobject obj ) {	\
+	/* FIXME!! that's overkill but it is easiest way for now */	\
+	return clone((DLTree*)getPointer(env,obj)); }
 
-// use this method is TREE is read-only
-inline
-DLTree* getROTree ( JNIEnv * env, jobject obj )
-{
-	return (DLTree*)getPointer(env,obj);
-}
+// accessors for different expression types
+ACCESSOR(Expr)
+ACCESSOR(ConceptExpr)
+ACCESSOR(IndividualExpr)
+ACCESSOR(RoleExpr)
+ACCESSOR(ORoleComplexExpr)
+ACCESSOR(ORoleExpr)
+ACCESSOR(DRoleExpr)
+ACCESSOR(DataExpr)
+ACCESSOR(DataValueExpr)
+
+#undef ACCESSOR
+
+// macro to expand into the RO accessor function that transforms pointer into appropriate type
+#define ACCESSOR(Name)	\
+inline const T ## Name* getRO ## Name ( JNIEnv * env, jobject obj ) {	\
+	return dynamic_cast<const T ## Name*>((const TExpr*)getPointer(env,obj)); }
+
+// accessors for different expression types
+ACCESSOR(Expr)
+ACCESSOR(ConceptExpr)
+ACCESSOR(IndividualExpr)
+ACCESSOR(RoleExpr)
+ACCESSOR(ORoleComplexExpr)
+ACCESSOR(ORoleExpr)
+ACCESSOR(DRoleExpr)
+ACCESSOR(DataExpr)
+ACCESSOR(DataValueExpr)
+
+#undef ACCESSOR
 
 inline
 TDataInterval* getFacet ( JNIEnv * env, jobject obj )
@@ -344,43 +390,43 @@ jobject retObject ( JNIEnv * env, T* t, const char* className )
 }
 
 inline
-jobject Class ( JNIEnv * env, DLTree* t )
+jobject Class ( JNIEnv * env, TConceptExpr* t )
 {
 	return retObject ( env, t, cnClassPointer() );
 }
 
 inline
-jobject Individual ( JNIEnv * env, DLTree* t )
+jobject Individual ( JNIEnv * env, TIndividualExpr* t )
 {
 	return retObject ( env, t, cnIndividualPointer() );
 }
 
 inline
-jobject ObjectProperty ( JNIEnv * env, DLTree* t )
+jobject ObjectProperty ( JNIEnv * env, TORoleExpr* t )
 {
 	return retObject ( env, t, cnObjectPropertyPointer() );
 }
 
 inline
-jobject DataProperty ( JNIEnv * env, DLTree* t )
+jobject DataProperty ( JNIEnv * env, TDRoleExpr* t )
 {
 	return retObject ( env, t, cnDataPropertyPointer() );
 }
 
 inline
-jobject DataType ( JNIEnv * env, DLTree* t )
+jobject DataType ( JNIEnv * env, TDataExpr* t )
 {
 	return retObject ( env, t, cnDataTypePointer() );
 }
 
 inline
-jobject DataTypeExpression ( JNIEnv * env, DLTree* t )
+jobject DataTypeExpression ( JNIEnv * env, TDataExpr* t )
 {
 	return retObject ( env, t, cnDataTypeExpressionPointer() );
 }
 
 inline
-jobject DataValue ( JNIEnv * env, DLTree* t )
+jobject DataValue ( JNIEnv * env, TDataValueExpr* t )
 {
 	return retObject ( env, t, cnDataValuePointer() );
 }
@@ -399,7 +445,7 @@ jobject Axiom ( JNIEnv * env, TDLAxiom* t )
 
 /// create vector of Java objects of class CLASSNAME by given VEC
 inline
-jobjectArray buildArray ( JNIEnv* env, const std::vector<DLTree*>& vec, const char* className )
+jobjectArray buildArray ( JNIEnv* env, const std::vector<TExpr*>& vec, const char* className )
 {
 	jclass objClass = env->FindClass(className);
 	jobjectArray ret = env->NewObjectArray ( vec.size(), objClass, NULL );
