@@ -71,6 +71,13 @@ protected:	// methods
 		NextLex();
 		return ret;
 	}
+		/// @return role-like Id of just scanned name
+	DLTree* getObjectRole ( void )
+	{
+		DLTree* ret = EManager->ObjectRole(scan.GetName());
+		NextLex();
+		return ret;
+	}
 		/// @return datavalue of a data type TYPE with an Id of a just scanned name
 	DLTree* getDTValue ( DLTree* type )
 	{
@@ -84,6 +91,10 @@ protected:	// methods
 	bool isDataRole ( DLTree* R ) const { return R->Element().getToken() == DNAME; }
 		/// get role expression, ie role or its inverse
 	DLTree* getRoleExpression ( void );
+		/// get object role expression, ie object role, OR constant or their inverse
+	DLTree* getORoleExpression ( void );
+		/// get data role expression, ie data role or DR constant
+	DLTree* getDRoleExpression ( void );
 		/// get simple role expression or role projection or chain
 	DLTree* getComplexRoleExpression ( void );
 		/// parse simple DL command
@@ -93,9 +104,9 @@ protected:	// methods
 		/// parse list of concept expressions (in disjoint-like commands)
 	void parseConceptList ( bool singletonsOnly );
 		/// get concept-like expression for simple variants
-	DLTree* processConceptTree ( void );
+	DLTree* getConceptExpression ( void );
 		/// get concept-like expression for complex constructors
-	DLTree* processComplexConceptTree ( void );
+	DLTree* getComplexConceptExpression ( void );
 		/// get data expression
 	DLTree* getDataExpression ( void );
 

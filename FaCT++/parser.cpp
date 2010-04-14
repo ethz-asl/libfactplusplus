@@ -40,8 +40,8 @@ void DLLispParser :: parseCommand ( void )
 
 	if ( t == SUBSUMES || t == EQUAL_C )
 	{
-		DLTree* left = processConceptTree ();
-		DLTree* right = processConceptTree ();
+		DLTree* left = getConceptExpression();
+		DLTree* right = getConceptExpression();
 
 		try
 		{
@@ -152,13 +152,13 @@ void DLLispParser :: parseCommand ( void )
 				if ( data )
 					Kernel->setDRange ( R, getDataExpression() );
 				else
-					Kernel->setORange ( R, processConceptTree() );
+					Kernel->setORange ( R, getConceptExpression() );
 				break;
 			case ROLEDOMAIN:
 				if ( data )
-					Kernel->setDDomain ( R, processConceptTree() );
+					Kernel->setDDomain ( R, getConceptExpression() );
 				else
-					Kernel->setODomain ( R, processConceptTree() );
+					Kernel->setODomain ( R, getConceptExpression() );
 				break;
 			default:
 				fpp_unreachable();
@@ -215,7 +215,7 @@ void DLLispParser :: parseCommand ( void )
 	case PCONCEPT:
 		Name = getConcept();
 		if ( Current != RBRACK )
-			Kernel->impliesConcepts ( Name, processConceptTree() );
+			Kernel->impliesConcepts ( Name, getConceptExpression() );
 		else
 			Kernel->declare(Name);
 		break;
@@ -223,7 +223,7 @@ void DLLispParser :: parseCommand ( void )
 	case CONCEPT:
 		EManager->openArgList();
 		EManager->addArg(getConcept());
-		EManager->addArg(processConceptTree());
+		EManager->addArg(getConceptExpression());
 		Kernel->equalConcepts();
 		break;
 
@@ -233,13 +233,13 @@ void DLLispParser :: parseCommand ( void )
 
 	case INSTANCE:
 		Name = getSingleton();
-		Kernel->instanceOf ( Name, processConceptTree() );
+		Kernel->instanceOf ( Name, getConceptExpression() );
 		break;
 
 	case RELATED:			// command is (Related id1 R id2);
 	try {
 		DLTree* id1 = getSingleton();
-		DLTree* R = getRoleExpression();
+		DLTree* R = getORoleExpression();
 		MustBe (ID);	// second indiv.
 		DLTree* id2 = getSingleton();
 		Kernel->relatedTo ( id1, R, id2 );
@@ -251,7 +251,7 @@ void DLLispParser :: parseCommand ( void )
 	}
 
 	case PROLE:
-		Name = getRole();
+		Name = getObjectRole();
 		if ( Current != RBRACK )
 			parseRoleArguments(Name);
 		else
@@ -259,7 +259,7 @@ void DLLispParser :: parseCommand ( void )
 		break;
 
 	case PATTR:
-		Name = getRole();
+		Name = getObjectRole();
 
 		try
 		{
@@ -293,7 +293,7 @@ void DLLispParser :: parseConceptList ( bool singletonsOnly )
 
 	// continue with all concepts
 	while ( Current != RBRACK )
-		EManager->addArg ( singletonsOnly ? getSingleton() : processConceptTree() );
+		EManager->addArg ( singletonsOnly ? getSingleton() : getConceptExpression() );
 
 	// skip RBRACK
 	MustBeM (RBRACK);
@@ -301,7 +301,6 @@ void DLLispParser :: parseConceptList ( bool singletonsOnly )
 
 void DLLispParser :: parseRoleArguments ( DLTree* R )
 {
-	bool data = isDataRole(R);
 	while ( Current != RBRACK )
 		if ( scan.isKeyword ("parents") || scan.isKeyword ("supers") )
 		{	// followed by a list of parent role names
@@ -312,11 +311,8 @@ void DLLispParser :: parseRoleArguments ( DLTree* R )
 			{
 				DLTree* S = getRoleExpression();
 				try
-				{
-					if ( data )
-						Kernel->impliesDRoles ( clone(R), S );
-					else
-						Kernel->impliesORoles ( clone(R), S );
+				{	// only object roles can have arguments
+					Kernel->impliesORoles ( clone(R), S );
 				}
 				catch ( EFaCTPlusPlus ex )
 				{
@@ -347,12 +343,13 @@ void DLLispParser :: parseRoleArguments ( DLTree* R )
 	deleteTree(R);
 }
 
-DLTree* DLLispParser :: processConceptTree ( void )
+DLTree*
+DLLispParser :: getConceptExpression ( void )
 {
 	switch ( Code() )
 	{
 	case LBRACK:	// complex description
-		return processComplexConceptTree ();
+		return getComplexConceptExpression ();
 	case NUM:		// numbers in concept expressions are constant names
 		return getConcept();
 	case ID:
@@ -370,7 +367,8 @@ DLTree* DLLispParser :: processConceptTree ( void )
 	}
 }
 
-DLTree* DLLispParser :: processComplexConceptTree ( void )
+DLTree*
+DLLispParser :: getComplexConceptExpression ( void )
 {
 	MustBeM ( LBRACK );
 	Token T = scan.getExpressionKeyword();
@@ -395,7 +393,7 @@ DLTree* DLLispParser :: processComplexConceptTree ( void )
 		if ( Current == RBRACK )
 			right = EManager->Top();	// for (GE n R)
 		else
-			right = isDataRole(left) ? getDataExpression() : processConceptTree();
+			right = isDataRole(left) ? getDataExpression() : getConceptExpression();
 
 		// skip right bracket
 		MustBeM ( RBRACK );
@@ -410,13 +408,13 @@ DLTree* DLLispParser :: processComplexConceptTree ( void )
 			return EManager->MaxCardinality ( n, left, right );
 
 	case REFLEXIVE:	// self-reference
-		left = getRoleExpression();
+		left = getORoleExpression();
 		// skip right bracket
 		MustBeM(RBRACK);
 		return Kernel->SelfReference(left);
 
 	case NOT:
-		left = processConceptTree ();
+		left = getConceptExpression();
 		// skip right bracket
 		MustBeM ( RBRACK );
 		return EManager->Not(left);
@@ -426,7 +424,7 @@ DLTree* DLLispParser :: processComplexConceptTree ( void )
 		EManager->openArgList();
 		do
 		{
-			EManager->addArg(processConceptTree());
+			EManager->addArg(getConceptExpression());
 		} while ( Current != RBRACK );
 
 		// list is parsed here
@@ -443,7 +441,31 @@ DLTree* DLLispParser :: processComplexConceptTree ( void )
 	}
 }
 
-DLTree* DLLispParser :: getRoleExpression ( void )
+DLTree*
+DLLispParser :: getDRoleExpression ( void )
+{
+	// FIXME!! later on -- add DataRoleTop/bottom
+	MustBe ( ID, "Data role name expected" );
+	return getDataRole();
+}
+
+DLTree*
+DLLispParser :: getORoleExpression ( void )
+{
+	if ( Current != LBRACK )
+		return getObjectRole();
+
+	NextLex();	// skip '('
+	if ( scan.getExpressionKeyword() != INV )
+		MustBe ( INV, "only role names and their inverses are allowed as a role expression" );
+	NextLex();	// skip INV
+	DLTree* ret = EManager->Inverse(getORoleExpression());
+	MustBeM(RBRACK);
+	return ret;
+}
+
+DLTree*
+DLLispParser :: getRoleExpression ( void )
 {
 	if ( Current != LBRACK )
 		return getRole();
@@ -452,12 +474,13 @@ DLTree* DLLispParser :: getRoleExpression ( void )
 	if ( scan.getExpressionKeyword() != INV )
 		MustBe ( INV, "only role names and their inverses are allowed as a role expression" );
 	NextLex();	// skip INV
-	DLTree* ret = EManager->Inverse(getRoleExpression());
+	DLTree* ret = EManager->Inverse(getORoleExpression());
 	MustBeM(RBRACK);
 	return ret;
 }
 
-DLTree* DLLispParser :: getComplexRoleExpression ( void )
+DLTree*
+DLLispParser :: getComplexRoleExpression ( void )
 {
 	if ( Current != LBRACK )
 		return getRole();
@@ -469,21 +492,21 @@ DLTree* DLLispParser :: getComplexRoleExpression ( void )
 	switch ( keyword )
 	{
 	case INV:	// inverse of a simple role
-		ret = EManager->Inverse(getRoleExpression());
+		ret = EManager->Inverse(getORoleExpression());
 		break;
 	case RCOMPOSITION:	// role composition expression = list of simple roles
 		EManager->openArgList();
 		while ( Current != RBRACK )
-			EManager->addArg(getRoleExpression());
+			EManager->addArg(getORoleExpression());
 		ret = EManager->Compose();
 		break;
 	case PROJINTO:	// role projection operator, parse simple role and concept
-		ret = getRoleExpression();
-		ret = EManager->ProjectInto ( ret, processConceptTree() );
+		ret = getORoleExpression();
+		ret = EManager->ProjectInto ( ret, getConceptExpression() );
 		break;
 	case PROJFROM:	// role projection operator, parse simple role and concept
-		ret = getRoleExpression();
-		ret = Kernel->ProjectFrom ( ret, processConceptTree() );
+		ret = getORoleExpression();
+		ret = Kernel->ProjectFrom ( ret, getConceptExpression() );
 		break;
 	default:
 		MustBe ( INV, "unknown expression in complex role constructor" );

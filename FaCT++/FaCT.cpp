@@ -61,8 +61,10 @@ void fillSatSubQuery ( void )
 		Query[1] = Config.getString();
 }
 
-DLTree* getNextName ( TsScanner& sc, ReasoningKernel& Kernel )
+DLTree*
+getNextName ( TsScanner& sc, ReasoningKernel& Kernel )
 {
+	TExpressionManager* pEM = Kernel.getExpressionManager();
 	for(;;)
 	{
 		if ( sc.GetLex() == LEXEOF )
@@ -70,17 +72,16 @@ DLTree* getNextName ( TsScanner& sc, ReasoningKernel& Kernel )
 		Token t = sc.getNameKeyword();
 
 		if ( t != ID )
-			return new DLTree(t);
-		DLTree* ret;
+			return t == TOP ? pEM->Top() : pEM->Bottom();
 		try
 		{
-			return Kernel.getExpressionManager()->Concept(sc.GetName());
+			return pEM->Concept(sc.GetName());
 		}
 		catch ( EFPPCantRegName )
 		{
 			try
 			{
-				return Kernel.getExpressionManager()->Individual(sc.GetName());
+				return pEM->OneOf(pEM->Individual(sc.GetName()));
 			}
 			catch ( EFPPCantRegName )
 			{
