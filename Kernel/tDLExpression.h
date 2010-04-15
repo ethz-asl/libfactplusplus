@@ -89,53 +89,53 @@ class DLExpressionVisitor
 {
 public:		// visitor interface
 	// concept expressions
-	virtual void visit ( TDLConceptTop& expr ) = 0;
-	virtual void visit ( TDLConceptBottom& expr ) = 0;
-	virtual void visit ( TDLConceptName& expr ) = 0;
-	virtual void visit ( TDLConceptNot& expr ) = 0;
-	virtual void visit ( TDLConceptAnd& expr ) = 0;
-	virtual void visit ( TDLConceptOr& expr ) = 0;
-	virtual void visit ( TDLConceptOneOf& expr ) = 0;
-	virtual void visit ( TDLConceptObjectSelf& expr ) = 0;
-	virtual void visit ( TDLConceptObjectValue& expr ) = 0;
-	virtual void visit ( TDLConceptObjectExists& expr ) = 0;
-	virtual void visit ( TDLConceptObjectForall& expr ) = 0;
-	virtual void visit ( TDLConceptObjectMinCardinality& expr ) = 0;
-	virtual void visit ( TDLConceptObjectMaxCardinality& expr ) = 0;
-	virtual void visit ( TDLConceptObjectExactCardinality& expr ) = 0;
-	virtual void visit ( TDLConceptDataValue& expr ) = 0;
-	virtual void visit ( TDLConceptDataExists& expr ) = 0;
-	virtual void visit ( TDLConceptDataForall& expr ) = 0;
-	virtual void visit ( TDLConceptDataMinCardinality& expr ) = 0;
-	virtual void visit ( TDLConceptDataMaxCardinality& expr ) = 0;
-	virtual void visit ( TDLConceptDataExactCardinality& expr ) = 0;
+	virtual void visit ( const TDLConceptTop& expr ) = 0;
+	virtual void visit ( const TDLConceptBottom& expr ) = 0;
+	virtual void visit ( const TDLConceptName& expr ) = 0;
+	virtual void visit ( const TDLConceptNot& expr ) = 0;
+	virtual void visit ( const TDLConceptAnd& expr ) = 0;
+	virtual void visit ( const TDLConceptOr& expr ) = 0;
+	virtual void visit ( const TDLConceptOneOf& expr ) = 0;
+	virtual void visit ( const TDLConceptObjectSelf& expr ) = 0;
+	virtual void visit ( const TDLConceptObjectValue& expr ) = 0;
+	virtual void visit ( const TDLConceptObjectExists& expr ) = 0;
+	virtual void visit ( const TDLConceptObjectForall& expr ) = 0;
+	virtual void visit ( const TDLConceptObjectMinCardinality& expr ) = 0;
+	virtual void visit ( const TDLConceptObjectMaxCardinality& expr ) = 0;
+	virtual void visit ( const TDLConceptObjectExactCardinality& expr ) = 0;
+	virtual void visit ( const TDLConceptDataValue& expr ) = 0;
+	virtual void visit ( const TDLConceptDataExists& expr ) = 0;
+	virtual void visit ( const TDLConceptDataForall& expr ) = 0;
+	virtual void visit ( const TDLConceptDataMinCardinality& expr ) = 0;
+	virtual void visit ( const TDLConceptDataMaxCardinality& expr ) = 0;
+	virtual void visit ( const TDLConceptDataExactCardinality& expr ) = 0;
 
 	// individual expressions
-	virtual void visit ( TDLIndividualName& expr ) = 0;
+	virtual void visit ( const TDLIndividualName& expr ) = 0;
 
 	// object role expressions
-	virtual void visit ( TDLObjectRoleTop& expr ) = 0;
-	virtual void visit ( TDLObjectRoleBottom& expr ) = 0;
-	virtual void visit ( TDLObjectRoleName& expr ) = 0;
-	virtual void visit ( TDLObjectRoleInverse& expr ) = 0;
-	virtual void visit ( TDLObjectRoleChain& expr ) = 0;
-	virtual void visit ( TDLObjectRoleProjectionFrom& expr ) = 0;
-	virtual void visit ( TDLObjectRoleProjectionInto& expr ) = 0;
+	virtual void visit ( const TDLObjectRoleTop& expr ) = 0;
+	virtual void visit ( const TDLObjectRoleBottom& expr ) = 0;
+	virtual void visit ( const TDLObjectRoleName& expr ) = 0;
+	virtual void visit ( const TDLObjectRoleInverse& expr ) = 0;
+	virtual void visit ( const TDLObjectRoleChain& expr ) = 0;
+	virtual void visit ( const TDLObjectRoleProjectionFrom& expr ) = 0;
+	virtual void visit ( const TDLObjectRoleProjectionInto& expr ) = 0;
 
 	// data role expressions
-	virtual void visit ( TDLDataRoleTop& expr ) = 0;
-	virtual void visit ( TDLDataRoleBottom& expr ) = 0;
-	virtual void visit ( TDLDataRoleName& expr ) = 0;
+	virtual void visit ( const TDLDataRoleTop& expr ) = 0;
+	virtual void visit ( const TDLDataRoleBottom& expr ) = 0;
+	virtual void visit ( const TDLDataRoleName& expr ) = 0;
 
 	// data expressions
-	virtual void visit ( TDLDataTop& expr ) = 0;
-	virtual void visit ( TDLDataBottom& expr ) = 0;
-	virtual void visit ( TDLDataTypeName& expr ) = 0;
-	virtual void visit ( TDLDataValue& expr ) = 0;
-	virtual void visit ( TDLDataNot& expr ) = 0;
-	virtual void visit ( TDLDataAnd& expr ) = 0;
-	virtual void visit ( TDLDataOr& expr ) = 0;
-	virtual void visit ( TDLDataOneOf& expr ) = 0;
+	virtual void visit ( const TDLDataTop& expr ) = 0;
+	virtual void visit ( const TDLDataBottom& expr ) = 0;
+	virtual void visit ( const TDLDataTypeName& expr ) = 0;
+	virtual void visit ( const TDLDataValue& expr ) = 0;
+	virtual void visit ( const TDLDataNot& expr ) = 0;
+	virtual void visit ( const TDLDataAnd& expr ) = 0;
+	virtual void visit ( const TDLDataOr& expr ) = 0;
+	virtual void visit ( const TDLDataOneOf& expr ) = 0;
 
 	// other methods
 	virtual ~DLExpressionVisitor ( void ) {}
@@ -152,7 +152,7 @@ public:		// interface
 	virtual ~TDLExpression ( void ) {}
 
 		/// accept method for the visitor pattern
-	virtual void accept ( DLExpressionVisitor& visitor ) = 0;
+	virtual void accept ( DLExpressionVisitor& visitor ) const = 0;
 }; // TDLExpression
 
 
@@ -319,7 +319,7 @@ protected:	// members
 
 protected:	// methods
 		/// transform general expression into the argument one
-	Argument* transform ( TDLExpression* arg )
+	Argument* transform ( TDLExpression* arg ) const
 	{
 		Argument* p = dynamic_cast<Argument*>(arg);
 		if ( p == NULL )
@@ -356,9 +356,9 @@ public:		// interface
 	// access to members
 
 		/// RW begin iterator for array
-	iterator begin ( void ) { return Base.begin(); }
+	iterator begin ( void ) const { return Base.begin(); }
 		/// RW end iterator for array
-	iterator end ( void ) { return Base.end(); }
+	iterator end ( void ) const { return Base.end(); }
 }; // TDLNAryExpression
 
 
@@ -379,7 +379,7 @@ public:		// interface
 	virtual ~TDLConceptExpression ( void ) {}
 
 		/// accept method for the visitor pattern
-	void accept ( DLExpressionVisitor& visitor ) = 0;
+	void accept ( DLExpressionVisitor& visitor ) const = 0;
 }; // TDLConceptExpression
 
 //------------------------------------------------------------------
@@ -394,7 +394,7 @@ public:		// interface
 	virtual ~TDLConceptTop ( void ) {}
 
 		/// accept method for the visitor pattern
-	void accept ( DLExpressionVisitor& visitor ) { visitor.visit(*this); }
+	void accept ( DLExpressionVisitor& visitor ) const { visitor.visit(*this); }
 }; // TDLConceptTop
 
 //------------------------------------------------------------------
@@ -409,7 +409,7 @@ public:		// interface
 	virtual ~TDLConceptBottom ( void ) {}
 
 		/// accept method for the visitor pattern
-	void accept ( DLExpressionVisitor& visitor ) { visitor.visit(*this); }
+	void accept ( DLExpressionVisitor& visitor ) const { visitor.visit(*this); }
 }; // TDLConceptBottom
 
 //------------------------------------------------------------------
@@ -424,7 +424,7 @@ public:		// interface
 	virtual ~TDLConceptName ( void ) {}
 
 		/// accept method for the visitor pattern
-	void accept ( DLExpressionVisitor& visitor ) { visitor.visit(*this); }
+	void accept ( DLExpressionVisitor& visitor ) const { visitor.visit(*this); }
 }; // TDLConceptName
 
 //------------------------------------------------------------------
@@ -442,7 +442,7 @@ public:		// interface
 	virtual ~TDLConceptNot ( void ) {}
 
 		/// accept method for the visitor pattern
-	void accept ( DLExpressionVisitor& visitor ) { visitor.visit(*this); }
+	void accept ( DLExpressionVisitor& visitor ) const { visitor.visit(*this); }
 }; // TDLConceptNot
 
 //------------------------------------------------------------------
@@ -462,7 +462,7 @@ public:		// interface
 	virtual ~TDLConceptAnd ( void ) {}
 
 		/// accept method for the visitor pattern
-	void accept ( DLExpressionVisitor& visitor ) { visitor.visit(*this); }
+	void accept ( DLExpressionVisitor& visitor ) const { visitor.visit(*this); }
 }; // TDLConceptAnd
 
 //------------------------------------------------------------------
@@ -482,7 +482,7 @@ public:		// interface
 	virtual ~TDLConceptOr ( void ) {}
 
 		/// accept method for the visitor pattern
-	void accept ( DLExpressionVisitor& visitor ) { visitor.visit(*this); }
+	void accept ( DLExpressionVisitor& visitor ) const { visitor.visit(*this); }
 }; // TDLConceptOr
 
 //------------------------------------------------------------------
@@ -502,7 +502,7 @@ public:		// interface
 	virtual ~TDLConceptOneOf ( void ) {}
 
 		/// accept method for the visitor pattern
-	void accept ( DLExpressionVisitor& visitor ) { visitor.visit(*this); }
+	void accept ( DLExpressionVisitor& visitor ) const { visitor.visit(*this); }
 }; // TDLConceptOneOf
 
 //------------------------------------------------------------------
@@ -520,7 +520,7 @@ public:		// interface
 	virtual ~TDLConceptObjectRoleExpression ( void ) {}
 
 		/// accept method for the visitor pattern
-	void accept ( DLExpressionVisitor& visitor ) = 0;
+	void accept ( DLExpressionVisitor& visitor ) const = 0;
 }; // TDLConceptObjectRoleExpression
 
 //------------------------------------------------------------------
@@ -537,7 +537,7 @@ public:		// interface
 	virtual ~TDLConceptObjectSelf ( void ) {}
 
 		/// accept method for the visitor pattern
-	void accept ( DLExpressionVisitor& visitor ) { visitor.visit(*this); }
+	void accept ( DLExpressionVisitor& visitor ) const { visitor.visit(*this); }
 }; // TDLConceptObjectSelf
 
 //------------------------------------------------------------------
@@ -555,7 +555,7 @@ public:		// interface
 	virtual ~TDLConceptObjectValue ( void ) {}
 
 		/// accept method for the visitor pattern
-	void accept ( DLExpressionVisitor& visitor ) { visitor.visit(*this); }
+	void accept ( DLExpressionVisitor& visitor ) const { visitor.visit(*this); }
 }; // TDLConceptObjectValue
 
 //------------------------------------------------------------------
@@ -573,7 +573,7 @@ public:		// interface
 	virtual ~TDLConceptObjectRCExpression ( void ) {}
 
 		/// accept method for the visitor pattern
-	void accept ( DLExpressionVisitor& visitor ) = 0;
+	void accept ( DLExpressionVisitor& visitor ) const = 0;
 }; // TDLConceptObjectRCExpression
 
 //------------------------------------------------------------------
@@ -590,7 +590,7 @@ public:		// interface
 	virtual ~TDLConceptObjectExists ( void ) {}
 
 		/// accept method for the visitor pattern
-	void accept ( DLExpressionVisitor& visitor ) { visitor.visit(*this); }
+	void accept ( DLExpressionVisitor& visitor ) const { visitor.visit(*this); }
 }; // TDLConceptObjectExists
 
 //------------------------------------------------------------------
@@ -607,7 +607,7 @@ public:		// interface
 	virtual ~TDLConceptObjectForall ( void ) {}
 
 		/// accept method for the visitor pattern
-	void accept ( DLExpressionVisitor& visitor ) { visitor.visit(*this); }
+	void accept ( DLExpressionVisitor& visitor ) const { visitor.visit(*this); }
 }; // TDLConceptObjectForall
 
 //------------------------------------------------------------------
@@ -625,7 +625,7 @@ public:		// interface
 	virtual ~TDLConceptObjectCardinalityExpression ( void ) {}
 
 		/// accept method for the visitor pattern
-	void accept ( DLExpressionVisitor& visitor ) = 0;
+	void accept ( DLExpressionVisitor& visitor ) const = 0;
 }; // TDLConceptObjectCardinalityExpression
 
 //------------------------------------------------------------------
@@ -642,7 +642,7 @@ public:		// interface
 	virtual ~TDLConceptObjectMinCardinality ( void ) {}
 
 		/// accept method for the visitor pattern
-	void accept ( DLExpressionVisitor& visitor ) { visitor.visit(*this); }
+	void accept ( DLExpressionVisitor& visitor ) const { visitor.visit(*this); }
 }; // TDLConceptObjectMinCardinality
 
 //------------------------------------------------------------------
@@ -659,7 +659,7 @@ public:		// interface
 	virtual ~TDLConceptObjectMaxCardinality ( void ) {}
 
 		/// accept method for the visitor pattern
-	void accept ( DLExpressionVisitor& visitor ) { visitor.visit(*this); }
+	void accept ( DLExpressionVisitor& visitor ) const { visitor.visit(*this); }
 }; // TDLConceptObjectMaxCardinality
 
 //------------------------------------------------------------------
@@ -676,7 +676,7 @@ public:		// interface
 	virtual ~TDLConceptObjectExactCardinality ( void ) {}
 
 		/// accept method for the visitor pattern
-	void accept ( DLExpressionVisitor& visitor ) { visitor.visit(*this); }
+	void accept ( DLExpressionVisitor& visitor ) const { visitor.visit(*this); }
 }; // TDLConceptObjectExactCardinality
 
 //------------------------------------------------------------------
@@ -694,7 +694,7 @@ public:		// interface
 	virtual ~TDLConceptDataRoleExpression ( void ) {}
 
 		/// accept method for the visitor pattern
-	void accept ( DLExpressionVisitor& visitor ) = 0;
+	void accept ( DLExpressionVisitor& visitor ) const = 0;
 }; // TDLConceptDataRoleExpression
 
 //------------------------------------------------------------------
@@ -712,7 +712,7 @@ public:		// interface
 	virtual ~TDLConceptDataValue ( void ) {}
 
 		/// accept method for the visitor pattern
-	void accept ( DLExpressionVisitor& visitor ) { visitor.visit(*this); }
+	void accept ( DLExpressionVisitor& visitor ) const { visitor.visit(*this); }
 }; // TDLConceptDataValue
 
 //------------------------------------------------------------------
@@ -730,7 +730,7 @@ public:		// interface
 	virtual ~TDLConceptDataRVExpression ( void ) {}
 
 		/// accept method for the visitor pattern
-	void accept ( DLExpressionVisitor& visitor ) = 0;
+	void accept ( DLExpressionVisitor& visitor ) const = 0;
 }; // TDLConceptDataRVExpression
 
 //------------------------------------------------------------------
@@ -747,7 +747,7 @@ public:		// interface
 	virtual ~TDLConceptDataExists ( void ) {}
 
 		/// accept method for the visitor pattern
-	void accept ( DLExpressionVisitor& visitor ) { visitor.visit(*this); }
+	void accept ( DLExpressionVisitor& visitor ) const { visitor.visit(*this); }
 }; // TDLConceptDataExists
 
 //------------------------------------------------------------------
@@ -764,7 +764,7 @@ public:		// interface
 	virtual ~TDLConceptDataForall ( void ) {}
 
 		/// accept method for the visitor pattern
-	void accept ( DLExpressionVisitor& visitor ) { visitor.visit(*this); }
+	void accept ( DLExpressionVisitor& visitor ) const { visitor.visit(*this); }
 }; // TDLConceptDataForall
 
 //------------------------------------------------------------------
@@ -782,7 +782,7 @@ public:		// interface
 	virtual ~TDLConceptDataCardinalityExpression ( void ) {}
 
 		/// accept method for the visitor pattern
-	void accept ( DLExpressionVisitor& visitor ) = 0;
+	void accept ( DLExpressionVisitor& visitor ) const = 0;
 }; // TDLConceptDataCardinalityExpression
 
 //------------------------------------------------------------------
@@ -799,7 +799,7 @@ public:		// interface
 	virtual ~TDLConceptDataMinCardinality ( void ) {}
 
 		/// accept method for the visitor pattern
-	void accept ( DLExpressionVisitor& visitor ) { visitor.visit(*this); }
+	void accept ( DLExpressionVisitor& visitor ) const { visitor.visit(*this); }
 }; // TDLConceptDataMinCardinality
 
 //------------------------------------------------------------------
@@ -816,7 +816,7 @@ public:		// interface
 	virtual ~TDLConceptDataMaxCardinality ( void ) {}
 
 		/// accept method for the visitor pattern
-	void accept ( DLExpressionVisitor& visitor ) { visitor.visit(*this); }
+	void accept ( DLExpressionVisitor& visitor ) const { visitor.visit(*this); }
 }; // TDLConceptDataMaxCardinality
 
 //------------------------------------------------------------------
@@ -833,7 +833,7 @@ public:		// interface
 	virtual ~TDLConceptDataExactCardinality ( void ) {}
 
 		/// accept method for the visitor pattern
-	void accept ( DLExpressionVisitor& visitor ) { visitor.visit(*this); }
+	void accept ( DLExpressionVisitor& visitor ) const { visitor.visit(*this); }
 }; // TDLConceptDataExactCardinality
 
 
@@ -854,7 +854,7 @@ public:		// interface
 	virtual ~TDLIndividualExpression ( void ) {}
 
 		/// accept method for the visitor pattern
-	void accept ( DLExpressionVisitor& visitor ) = 0;
+	void accept ( DLExpressionVisitor& visitor ) const = 0;
 }; // TDLIndividualExpression
 
 //------------------------------------------------------------------
@@ -869,7 +869,7 @@ public:		// interface
 	virtual ~TDLIndividualName ( void ) {}
 
 		/// accept method for the visitor pattern
-	void accept ( DLExpressionVisitor& visitor ) { visitor.visit(*this); }
+	void accept ( DLExpressionVisitor& visitor ) const { visitor.visit(*this); }
 }; // TDLIndividualName
 
 
@@ -890,7 +890,7 @@ public:		// interface
 	virtual ~TDLRoleExpression ( void ) {}
 
 		/// accept method for the visitor pattern
-	void accept ( DLExpressionVisitor& visitor ) = 0;
+	void accept ( DLExpressionVisitor& visitor ) const = 0;
 }; // TDLRoleExpression
 
 
@@ -911,7 +911,7 @@ public:		// interface
 	virtual ~TDLObjectRoleComplexExpression ( void ) {}
 
 		/// accept method for the visitor pattern
-	void accept ( DLExpressionVisitor& visitor ) = 0;
+	void accept ( DLExpressionVisitor& visitor ) const = 0;
 }; // TDLObjectRoleComplexExpression
 
 //------------------------------------------------------------------
@@ -926,7 +926,7 @@ public:		// interface
 	virtual ~TDLObjectRoleExpression ( void ) {}
 
 		/// accept method for the visitor pattern
-	void accept ( DLExpressionVisitor& visitor ) = 0;
+	void accept ( DLExpressionVisitor& visitor ) const = 0;
 }; // TDLObjectRoleExpression
 
 //------------------------------------------------------------------
@@ -941,7 +941,7 @@ public:		// interface
 	virtual ~TDLObjectRoleTop ( void ) {}
 
 		/// accept method for the visitor pattern
-	void accept ( DLExpressionVisitor& visitor ) { visitor.visit(*this); }
+	void accept ( DLExpressionVisitor& visitor ) const { visitor.visit(*this); }
 }; // TDLObjectRoleTop
 
 //------------------------------------------------------------------
@@ -956,7 +956,7 @@ public:		// interface
 	virtual ~TDLObjectRoleBottom ( void ) {}
 
 		/// accept method for the visitor pattern
-	void accept ( DLExpressionVisitor& visitor ) { visitor.visit(*this); }
+	void accept ( DLExpressionVisitor& visitor ) const { visitor.visit(*this); }
 }; // TDLObjectRoleBottom
 
 //------------------------------------------------------------------
@@ -971,7 +971,7 @@ public:		// interface
 	virtual ~TDLObjectRoleName ( void ) {}
 
 		/// accept method for the visitor pattern
-	void accept ( DLExpressionVisitor& visitor ) { visitor.visit(*this); }
+	void accept ( DLExpressionVisitor& visitor ) const { visitor.visit(*this); }
 }; // TDLObjectRoleName
 
 //------------------------------------------------------------------
@@ -989,7 +989,7 @@ public:		// interface
 	virtual ~TDLObjectRoleInverse ( void ) {}
 
 		/// accept method for the visitor pattern
-	void accept ( DLExpressionVisitor& visitor ) { visitor.visit(*this); }
+	void accept ( DLExpressionVisitor& visitor ) const { visitor.visit(*this); }
 }; // TDLObjectRoleInverse
 
 //------------------------------------------------------------------
@@ -1009,7 +1009,7 @@ public:		// interface
 	virtual ~TDLObjectRoleChain ( void ) {}
 
 		/// accept method for the visitor pattern
-	void accept ( DLExpressionVisitor& visitor ) { visitor.visit(*this); }
+	void accept ( DLExpressionVisitor& visitor ) const { visitor.visit(*this); }
 }; // TDLObjectRoleChain
 
 //------------------------------------------------------------------
@@ -1031,7 +1031,7 @@ public:		// interface
 	virtual ~TDLObjectRoleProjectionFrom ( void ) {}
 
 		/// accept method for the visitor pattern
-	void accept ( DLExpressionVisitor& visitor ) { visitor.visit(*this); }
+	void accept ( DLExpressionVisitor& visitor ) const { visitor.visit(*this); }
 }; // TDLObjectRoleProjectionFrom
 
 //------------------------------------------------------------------
@@ -1053,7 +1053,7 @@ public:		// interface
 	virtual ~TDLObjectRoleProjectionInto ( void ) {}
 
 		/// accept method for the visitor pattern
-	void accept ( DLExpressionVisitor& visitor ) { visitor.visit(*this); }
+	void accept ( DLExpressionVisitor& visitor ) const { visitor.visit(*this); }
 }; // TDLObjectRoleProjectionInto
 
 
@@ -1074,7 +1074,7 @@ public:		// interface
 	virtual ~TDLDataRoleExpression ( void ) {}
 
 		/// accept method for the visitor pattern
-	void accept ( DLExpressionVisitor& visitor ) = 0;
+	void accept ( DLExpressionVisitor& visitor ) const = 0;
 }; // TDLDataRoleExpression
 
 //------------------------------------------------------------------
@@ -1089,7 +1089,7 @@ public:		// interface
 	virtual ~TDLDataRoleTop ( void ) {}
 
 		/// accept method for the visitor pattern
-	void accept ( DLExpressionVisitor& visitor ) { visitor.visit(*this); }
+	void accept ( DLExpressionVisitor& visitor ) const { visitor.visit(*this); }
 }; // TDLDataRoleTop
 
 //------------------------------------------------------------------
@@ -1104,7 +1104,7 @@ public:		// interface
 	virtual ~TDLDataRoleBottom ( void ) {}
 
 		/// accept method for the visitor pattern
-	void accept ( DLExpressionVisitor& visitor ) { visitor.visit(*this); }
+	void accept ( DLExpressionVisitor& visitor ) const { visitor.visit(*this); }
 }; // TDLDataRoleBottom
 
 //------------------------------------------------------------------
@@ -1119,7 +1119,7 @@ public:		// interface
 	virtual ~TDLDataRoleName ( void ) {}
 
 		/// accept method for the visitor pattern
-	void accept ( DLExpressionVisitor& visitor ) { visitor.visit(*this); }
+	void accept ( DLExpressionVisitor& visitor ) const { visitor.visit(*this); }
 }; // TDLDataRoleName
 
 
@@ -1140,7 +1140,7 @@ public:		// interface
 	virtual ~TDLDataExpression ( void ) {}
 
 		/// accept method for the visitor pattern
-	void accept ( DLExpressionVisitor& visitor ) = 0;
+	void accept ( DLExpressionVisitor& visitor ) const = 0;
 }; // TDLDataExpression
 
 //------------------------------------------------------------------
@@ -1155,7 +1155,7 @@ public:		// interface
 	virtual ~TDLDataTop ( void ) {}
 
 		/// accept method for the visitor pattern
-	void accept ( DLExpressionVisitor& visitor ) { visitor.visit(*this); }
+	void accept ( DLExpressionVisitor& visitor ) const { visitor.visit(*this); }
 }; // TDLDataTop
 
 //------------------------------------------------------------------
@@ -1170,7 +1170,7 @@ public:		// interface
 	virtual ~TDLDataBottom ( void ) {}
 
 		/// accept method for the visitor pattern
-	void accept ( DLExpressionVisitor& visitor ) { visitor.visit(*this); }
+	void accept ( DLExpressionVisitor& visitor ) const { visitor.visit(*this); }
 }; // TDLDataBottom
 
 //------------------------------------------------------------------
@@ -1185,7 +1185,7 @@ public:		// interface
 	virtual ~TDLDataTypeName ( void ) {}
 
 		/// accept method for the visitor pattern
-	void accept ( DLExpressionVisitor& visitor ) { visitor.visit(*this); }
+	void accept ( DLExpressionVisitor& visitor ) const { visitor.visit(*this); }
 }; // TDLDataTypeName
 
 //------------------------------------------------------------------
@@ -1204,7 +1204,7 @@ public:		// interface
 	virtual ~TDLDataValue ( void ) {}
 
 		/// accept method for the visitor pattern
-	void accept ( DLExpressionVisitor& visitor ) { visitor.visit(*this); }
+	void accept ( DLExpressionVisitor& visitor ) const { visitor.visit(*this); }
 }; // TDLDataValue
 
 //------------------------------------------------------------------
@@ -1222,7 +1222,7 @@ public:		// interface
 	virtual ~TDLDataNot ( void ) {}
 
 		/// accept method for the visitor pattern
-	void accept ( DLExpressionVisitor& visitor ) { visitor.visit(*this); }
+	void accept ( DLExpressionVisitor& visitor ) const { visitor.visit(*this); }
 }; // TDLDataNot
 
 //------------------------------------------------------------------
@@ -1242,7 +1242,7 @@ public:		// interface
 	virtual ~TDLDataAnd ( void ) {}
 
 		/// accept method for the visitor pattern
-	void accept ( DLExpressionVisitor& visitor ) { visitor.visit(*this); }
+	void accept ( DLExpressionVisitor& visitor ) const { visitor.visit(*this); }
 }; // TDLDataAnd
 
 //------------------------------------------------------------------
@@ -1262,7 +1262,7 @@ public:		// interface
 	virtual ~TDLDataOr ( void ) {}
 
 		/// accept method for the visitor pattern
-	void accept ( DLExpressionVisitor& visitor ) { visitor.visit(*this); }
+	void accept ( DLExpressionVisitor& visitor ) const { visitor.visit(*this); }
 }; // TDLDataOr
 
 //------------------------------------------------------------------
@@ -1282,7 +1282,7 @@ public:		// interface
 	virtual ~TDLDataOneOf ( void ) {}
 
 		/// accept method for the visitor pattern
-	void accept ( DLExpressionVisitor& visitor ) { visitor.visit(*this); }
+	void accept ( DLExpressionVisitor& visitor ) const { visitor.visit(*this); }
 }; // TDLDataOneOf
 
 #endif

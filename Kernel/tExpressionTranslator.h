@@ -48,11 +48,11 @@ public:		// interface
 
 public:		// visitor interface
 	// concept expressions
-	virtual void visit ( TDLConceptTop& expr ATTR_UNUSED ) { tree = new DLTree(TOP); }
-	virtual void visit ( TDLConceptBottom& expr ATTR_UNUSED ) { tree = new DLTree(BOTTOM); }
-	virtual void visit ( TDLConceptName& expr ) { tree = new DLTree(TLexeme(CNAME,NS_C.insert(expr.getName()))); }
-	virtual void visit ( TDLConceptNot& expr ) { expr.getC()->accept(*this); tree = createSNFNot(*this); }
-	virtual void visit ( TDLConceptAnd& expr )
+	virtual void visit ( const TDLConceptTop& expr ATTR_UNUSED ) { tree = new DLTree(TOP); }
+	virtual void visit ( const TDLConceptBottom& expr ATTR_UNUSED ) { tree = new DLTree(BOTTOM); }
+	virtual void visit ( const TDLConceptName& expr ) { tree = new DLTree(TLexeme(CNAME,NS_C.insert(expr.getName()))); }
+	virtual void visit ( const TDLConceptNot& expr ) { expr.getC()->accept(*this); tree = createSNFNot(*this); }
+	virtual void visit ( const TDLConceptAnd& expr )
 	{
 		DLTree* acc = new DLTree(TOP);
 
@@ -64,7 +64,7 @@ public:		// visitor interface
 
 		tree = acc;
 	}
-	virtual void visit ( TDLConceptOr& expr )
+	virtual void visit ( const TDLConceptOr& expr )
 	{
 		DLTree* acc = new DLTree(BOTTOM);
 
@@ -76,7 +76,7 @@ public:		// visitor interface
 
 		tree = acc;
 	}
-	virtual void visit ( TDLConceptOneOf& expr )
+	virtual void visit ( const TDLConceptOneOf& expr )
 	{
 		DLTree* acc = new DLTree(BOTTOM);
 
@@ -88,43 +88,43 @@ public:		// visitor interface
 
 		tree = acc;
 	}
-	virtual void visit ( TDLConceptObjectSelf& expr ) { expr.getOR()->accept(*this); tree = new DLTree ( REFLEXIVE, *this ); }
-	virtual void visit ( TDLConceptObjectValue& expr )
+	virtual void visit ( const TDLConceptObjectSelf& expr ) { expr.getOR()->accept(*this); tree = new DLTree ( REFLEXIVE, *this ); }
+	virtual void visit ( const TDLConceptObjectValue& expr )
 	{
 		expr.getOR()->accept(*this);
 		DLTree* R = *this;
 		expr.getI()->accept(*this);
 		tree = createSNFExists ( R, *this );
 	}
-	virtual void visit ( TDLConceptObjectExists& expr )
+	virtual void visit ( const TDLConceptObjectExists& expr )
 	{
 		expr.getOR()->accept(*this);
 		DLTree* R = *this;
 		expr.getC()->accept(*this);
 		tree = createSNFExists ( R, *this );
 	}
-	virtual void visit ( TDLConceptObjectForall& expr )
+	virtual void visit ( const TDLConceptObjectForall& expr )
 	{
 		expr.getOR()->accept(*this);
 		DLTree* R = *this;
 		expr.getC()->accept(*this);
 		tree = createSNFForall ( R, *this );
 	}
-	virtual void visit ( TDLConceptObjectMinCardinality& expr )
+	virtual void visit ( const TDLConceptObjectMinCardinality& expr )
 	{
 		expr.getOR()->accept(*this);
 		DLTree* R = *this;
 		expr.getC()->accept(*this);
 		tree = createSNFGE ( expr.getNumber(), R, *this );
 	}
-	virtual void visit ( TDLConceptObjectMaxCardinality& expr )
+	virtual void visit ( const TDLConceptObjectMaxCardinality& expr )
 	{
 		expr.getOR()->accept(*this);
 		DLTree* R = *this;
 		expr.getC()->accept(*this);
 		tree = createSNFLE ( expr.getNumber(), R, *this );
 	}
-	virtual void visit ( TDLConceptObjectExactCardinality& expr )
+	virtual void visit ( const TDLConceptObjectExactCardinality& expr )
 	{
 		expr.getOR()->accept(*this);
 		DLTree* R = *this;
@@ -134,36 +134,36 @@ public:		// visitor interface
 		DLTree* GE = createSNFGE ( expr.getNumber(), R, C );
 		tree = createSNFAnd ( GE, LE );
 	}
-	virtual void visit ( TDLConceptDataValue& expr ATTR_UNUSED ) { THROW_UNSUPPORTED("data value"); }
-	virtual void visit ( TDLConceptDataExists& expr )
+	virtual void visit ( const TDLConceptDataValue& expr ATTR_UNUSED ) { THROW_UNSUPPORTED("data value"); }
+	virtual void visit ( const TDLConceptDataExists& expr )
 	{
 		expr.getDR()->accept(*this);
 		DLTree* R = *this;
 		expr.getExpr()->accept(*this);
 		tree = createSNFExists ( R, *this );
 	}
-	virtual void visit ( TDLConceptDataForall& expr )
+	virtual void visit ( const TDLConceptDataForall& expr )
 	{
 		expr.getDR()->accept(*this);
 		DLTree* R = *this;
 		expr.getExpr()->accept(*this);
 		tree = createSNFForall ( R, *this );
 	}
-	virtual void visit ( TDLConceptDataMinCardinality& expr )
+	virtual void visit ( const TDLConceptDataMinCardinality& expr )
 	{
 		expr.getDR()->accept(*this);
 		DLTree* R = *this;
 		expr.getExpr()->accept(*this);
 		tree = createSNFGE ( expr.getNumber(), R, *this );
 	}
-	virtual void visit ( TDLConceptDataMaxCardinality& expr )
+	virtual void visit ( const TDLConceptDataMaxCardinality& expr )
 	{
 		expr.getDR()->accept(*this);
 		DLTree* R = *this;
 		expr.getExpr()->accept(*this);
 		tree = createSNFLE ( expr.getNumber(), R, *this );
 	}
-	virtual void visit ( TDLConceptDataExactCardinality& expr )
+	virtual void visit ( const TDLConceptDataExactCardinality& expr )
 	{
 		expr.getDR()->accept(*this);
 		DLTree* R = *this;
@@ -175,14 +175,14 @@ public:		// visitor interface
 	}
 
 	// individual expressions
-	virtual void visit ( TDLIndividualName& expr ) { tree = new DLTree(TLexeme(INAME,NS_I.insert(expr.getName()))); }
+	virtual void visit ( const TDLIndividualName& expr ) { tree = new DLTree(TLexeme(INAME,NS_I.insert(expr.getName()))); }
 
 	// object role expressions
-	virtual void visit ( TDLObjectRoleTop& expr ATTR_UNUSED ) { THROW_UNSUPPORTED("top object role"); }
-	virtual void visit ( TDLObjectRoleBottom& expr ATTR_UNUSED ) { THROW_UNSUPPORTED("bottom object role"); }
-	virtual void visit ( TDLObjectRoleName& expr ) { tree = new DLTree(TLexeme(RNAME,NS_OR.insert(expr.getName()))); }
-	virtual void visit ( TDLObjectRoleInverse& expr ) { expr.getOR()->accept(*this); tree = createInverse(*this); }
-	virtual void visit ( TDLObjectRoleChain& expr )
+	virtual void visit ( const TDLObjectRoleTop& expr ATTR_UNUSED ) { THROW_UNSUPPORTED("top object role"); }
+	virtual void visit ( const TDLObjectRoleBottom& expr ATTR_UNUSED ) { THROW_UNSUPPORTED("bottom object role"); }
+	virtual void visit ( const TDLObjectRoleName& expr ) { tree = new DLTree(TLexeme(RNAME,NS_OR.insert(expr.getName()))); }
+	virtual void visit ( const TDLObjectRoleInverse& expr ) { expr.getOR()->accept(*this); tree = createInverse(*this); }
+	virtual void visit ( const TDLObjectRoleChain& expr )
 	{
 		TDLObjectRoleChain::iterator p = expr.begin(), p_end = expr.end();
 		if ( p == p_end )
@@ -199,7 +199,7 @@ public:		// visitor interface
 
 		tree = acc;
 	}
-	virtual void visit ( TDLObjectRoleProjectionFrom& expr )
+	virtual void visit ( const TDLObjectRoleProjectionFrom& expr )
 	{
 		expr.getOR()->accept(*this);
 		DLTree* R = *this;
@@ -207,7 +207,7 @@ public:		// visitor interface
 		DLTree* C = *this;
 		tree = new DLTree ( TLexeme(PROJFROM), R, C );
 	}
-	virtual void visit ( TDLObjectRoleProjectionInto& expr )
+	virtual void visit ( const TDLObjectRoleProjectionInto& expr )
 	{
 		expr.getOR()->accept(*this);
 		DLTree* R = *this;
@@ -217,17 +217,17 @@ public:		// visitor interface
 	}
 
 	// data role expressions
-	virtual void visit ( TDLDataRoleTop& expr ATTR_UNUSED ) { THROW_UNSUPPORTED("top data role");  }
-	virtual void visit ( TDLDataRoleBottom& expr ATTR_UNUSED ) { THROW_UNSUPPORTED("bottom data role"); }
-	virtual void visit ( TDLDataRoleName& expr ) { tree = new DLTree(TLexeme(DNAME,NS_DR.insert(expr.getName()))); }
+	virtual void visit ( const TDLDataRoleTop& expr ATTR_UNUSED ) { THROW_UNSUPPORTED("top data role");  }
+	virtual void visit ( const TDLDataRoleBottom& expr ATTR_UNUSED ) { THROW_UNSUPPORTED("bottom data role"); }
+	virtual void visit ( const TDLDataRoleName& expr ) { tree = new DLTree(TLexeme(DNAME,NS_DR.insert(expr.getName()))); }
 
 	// data expressions
-	virtual void visit ( TDLDataTop& expr ATTR_UNUSED ) { tree = new DLTree(TOP); }
-	virtual void visit ( TDLDataBottom& expr ATTR_UNUSED ) { tree = new DLTree(BOTTOM); }
-	virtual void visit ( TDLDataTypeName& expr ) {}
-	virtual void visit ( TDLDataValue& expr ) {}
-	virtual void visit ( TDLDataNot& expr ) { expr.getExpr()->accept(*this); tree = createSNFNot(*this); }
-	virtual void visit ( TDLDataAnd& expr )
+	virtual void visit ( const TDLDataTop& expr ATTR_UNUSED ) { tree = new DLTree(TOP); }
+	virtual void visit ( const TDLDataBottom& expr ATTR_UNUSED ) { tree = new DLTree(BOTTOM); }
+	virtual void visit ( const TDLDataTypeName& expr ) {}
+	virtual void visit ( const TDLDataValue& expr ) {}
+	virtual void visit ( const TDLDataNot& expr ) { expr.getExpr()->accept(*this); tree = createSNFNot(*this); }
+	virtual void visit ( const TDLDataAnd& expr )
 	{
 		DLTree* acc = new DLTree(TOP);
 
@@ -239,7 +239,7 @@ public:		// visitor interface
 
 		tree = acc;
 	}
-	virtual void visit ( TDLDataOr& expr )
+	virtual void visit ( const TDLDataOr& expr )
 	{
 		DLTree* acc = new DLTree(BOTTOM);
 
@@ -251,7 +251,7 @@ public:		// visitor interface
 
 		tree = acc;
 	}
-	virtual void visit ( TDLDataOneOf& expr )
+	virtual void visit ( const TDLDataOneOf& expr )
 	{
 		DLTree* acc = new DLTree(BOTTOM);
 
