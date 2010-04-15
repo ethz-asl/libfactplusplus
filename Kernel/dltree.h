@@ -172,4 +172,16 @@ inline DLTree* createSNFLE ( unsigned int n, DLTree* R, DLTree* C )
 extern const char* TokenName ( Token t );
 extern std::ostream& operator << ( std::ostream& o, const DLTree *form );
 
+/// helper that deletes temporary trees
+class TreeDeleter
+{
+protected:
+	DLTree* ptr;
+public:
+	TreeDeleter ( DLTree* p ) : ptr(p) {}
+	~TreeDeleter ( void ) { deleteTree(ptr); }
+	operator DLTree* ( void ) { return ptr; }
+	operator const DLTree* ( void ) const { return ptr; }
+}; // TreeDeleter
+
 #endif

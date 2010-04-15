@@ -112,18 +112,6 @@ protected:	// types
 		}
 	}; // TreeNESet
 */
-		/// helper that deletes temporary trees
-	class TreeDeleter
-	{
-	protected:
-		DLTree* ptr;
-	public:
-		TreeDeleter ( DLTree* p ) : ptr(p) {}
-		~TreeDeleter ( void ) { deleteTree(ptr); }
-		operator DLTree* ( void ) { return ptr; }
-		operator const DLTree* ( void ) const { return ptr; }
-	}; // TreeDeleter
-
 protected:	// members
 		/// local TBox (to be created)
 	TBox* pTBox;
