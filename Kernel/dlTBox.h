@@ -340,22 +340,6 @@ protected:	// methods
 	TIndividual* toIndividual ( TNamedEntry* id ) { return static_cast<TIndividual*>(id); }
 		/// @return individual by given Named Entry ID
 	const TIndividual* toIndividual ( const TNamedEntry* id ) const { return static_cast<const TIndividual*>(id); }
-		/// get TOP/BOTTOM/CN by the DLTree entry
-	TConcept* getCI ( const DLTree* name )
-	{
-		if ( name->Element() == TOP )
-			return pTop;
-		if ( name->Element() == BOTTOM )
-			return pBottom;
-
-		if ( !isName(name) )
-			return NULL;
-
-		if ( name->Element().getToken() == CNAME )
-			return toConcept(name->Element().getNE());
-		else
-			return toIndividual(name->Element().getNE());
-	}
 
 //-----------------------------------------------------------------------------
 //--		internal BP-to-concept interface
@@ -871,6 +855,22 @@ public:
 			static_cast<const TDataEntry*>(entry->Element().getNE())->isDataValue();
 	}
 
+		/// get TOP/BOTTOM/CN/IN by the DLTree entry
+	TConcept* getCI ( const DLTree* name )
+	{
+		if ( name->Element() == TOP )
+			return pTop;
+		if ( name->Element() == BOTTOM )
+			return pBottom;
+
+		if ( !isName(name) )
+			return NULL;
+
+		if ( name->Element().getToken() == CNAME )
+			return toConcept(name->Element().getNE());
+		else
+			return toIndividual(name->Element().getNE());
+	}
 		/// get a DL tree by a given concept-like C
 	DLTree* getTree ( TConcept* C ) const
 	{
