@@ -187,16 +187,16 @@ class TConceptArg
 {
 protected:	// members
 		/// concept argument
-	TDLConceptExpression* C;
+	const TDLConceptExpression* C;
 
 public:		// interface
 		/// init c'tor
-	TConceptArg ( TDLConceptExpression* c ) : C(c) {}
+	TConceptArg ( const TDLConceptExpression* c ) : C(c) {}
 		/// empty d'tor
 	virtual ~TConceptArg ( void ) {}
 
 		/// get access to the argument
-	TDLConceptExpression* getC ( void ) const { return C; }
+	const TDLConceptExpression* getC ( void ) const { return C; }
 }; // TConceptArg
 
 //------------------------------------------------------------------
@@ -206,16 +206,16 @@ class TIndividualArg
 {
 protected:	// members
 		/// individual argument
-	TDLIndividualExpression* I;
+	const TDLIndividualExpression* I;
 
 public:		// interface
 		/// init c'tor
-	TIndividualArg ( TDLIndividualExpression* i ) : I(i) {}
+	TIndividualArg ( const TDLIndividualExpression* i ) : I(i) {}
 		/// empty d'tor
 	virtual ~TIndividualArg ( void ) {}
 
 		/// get access to the argument
-	TDLIndividualExpression* getI ( void ) const { return I; }
+	const TDLIndividualExpression* getI ( void ) const { return I; }
 }; // TIndividualArg
 
 //------------------------------------------------------------------
@@ -244,16 +244,16 @@ class TObjectRoleArg
 {
 protected:	// members
 		/// object role argument
-	TDLObjectRoleExpression* OR;
+	const TDLObjectRoleExpression* OR;
 
 public:		// interface
 		/// init c'tor
-	TObjectRoleArg ( TDLObjectRoleExpression* oR ) : OR(oR) {}
+	TObjectRoleArg ( const TDLObjectRoleExpression* oR ) : OR(oR) {}
 		/// empty d'tor
 	virtual ~TObjectRoleArg ( void ) {}
 
 		/// get access to the argument
-	TDLObjectRoleExpression* getOR ( void ) const { return OR; }
+	const TDLObjectRoleExpression* getOR ( void ) const { return OR; }
 }; // TObjectRoleArg
 
 //------------------------------------------------------------------
@@ -263,16 +263,16 @@ class TDataRoleArg
 {
 protected:	// members
 		/// data role argument
-	TDLDataRoleExpression* DR;
+	const TDLDataRoleExpression* DR;
 
 public:		// interface
 		/// init c'tor
-	TDataRoleArg ( TDLDataRoleExpression* dR ) : DR(dR) {}
+	TDataRoleArg ( const TDLDataRoleExpression* dR ) : DR(dR) {}
 		/// empty d'tor
 	virtual ~TDataRoleArg ( void ) {}
 
 		/// get access to the argument
-	TDLDataRoleExpression* getDR ( void ) const { return DR; }
+	const TDLDataRoleExpression* getDR ( void ) const { return DR; }
 }; // TDataRoleArg
 
 //------------------------------------------------------------------
@@ -283,16 +283,16 @@ class TDataExpressionArg
 {
 protected:	// members
 		/// data expression argument
-	TExpression* Expr;
+	const TExpression* Expr;
 
 public:		// interface
 		/// init c'tor
-	TDataExpressionArg ( TExpression* expr ) : Expr(expr) {}
+	TDataExpressionArg ( const TExpression* expr ) : Expr(expr) {}
 		/// empty d'tor
 	virtual ~TDataExpressionArg ( void ) {}
 
 		/// get access to the argument
-	TExpression* getExpr ( void ) const { return Expr; }
+	const TExpression* getExpr ( void ) const { return Expr; }
 }; // TDataExpressionArg
 
 //------------------------------------------------------------------
@@ -303,7 +303,7 @@ class TDLNAryExpression
 {
 public:		// types
 		/// base type
-	typedef std::vector<Argument*> ArgumentArray;
+	typedef std::vector<const Argument*> ArgumentArray;
 		/// RW iterator over base type
 	typedef typename ArgumentArray::const_iterator iterator;
 		/// input array type
@@ -319,9 +319,9 @@ protected:	// members
 
 protected:	// methods
 		/// transform general expression into the argument one
-	Argument* transform ( TDLExpression* arg ) const
+	const Argument* transform ( const TDLExpression* arg ) const
 	{
-		Argument* p = dynamic_cast<Argument*>(arg);
+		const Argument* p = dynamic_cast<const Argument*>(arg);
 		if ( p == NULL )
 			throw EFaCTPlusPlus(EString.c_str());
 		return p;
@@ -343,7 +343,7 @@ public:		// interface
 	// add elements to the array
 
 		/// add a single element to the array
-	void add ( TDLExpression* p ) { Base.push_back(transform(p)); }
+	void add ( const TDLExpression* p ) { Base.push_back(transform(p)); }
 		/// add a range to the array
 	void add ( i_iterator b, i_iterator e )
 	{
@@ -434,7 +434,7 @@ class TDLConceptNot: public TDLConceptExpression, public TConceptArg
 {
 public:		// interface
 		/// init c'tor
-	TDLConceptNot ( TDLConceptExpression* C )
+	TDLConceptNot ( const TDLConceptExpression* C )
 		: TDLConceptExpression()
 		, TConceptArg(C)
 		{}
@@ -512,7 +512,7 @@ class TDLConceptObjectRoleExpression: public TDLConceptExpression, public TObjec
 {
 public:		// interface
 		/// init c'tor
-	TDLConceptObjectRoleExpression ( TDLObjectRoleExpression* R )
+	TDLConceptObjectRoleExpression ( const TDLObjectRoleExpression* R )
 		: TDLConceptExpression()
 		, TObjectRoleArg(R)
 		{}
@@ -530,7 +530,7 @@ class TDLConceptObjectSelf: public TDLConceptObjectRoleExpression
 {
 public:		// interface
 		/// init c'tor
-	TDLConceptObjectSelf ( TDLObjectRoleExpression* R )
+	TDLConceptObjectSelf ( const TDLObjectRoleExpression* R )
 		: TDLConceptObjectRoleExpression(R)
 		{}
 		/// empty d'tor
@@ -547,7 +547,7 @@ class TDLConceptObjectValue: public TDLConceptObjectRoleExpression, public TIndi
 {
 public:		// interface
 		/// init c'tor
-	TDLConceptObjectValue ( TDLObjectRoleExpression* R, TDLIndividualExpression* I )
+	TDLConceptObjectValue ( const TDLObjectRoleExpression* R, const TDLIndividualExpression* I )
 		: TDLConceptObjectRoleExpression(R)
 		, TIndividualArg(I)
 		{}
@@ -565,7 +565,7 @@ class TDLConceptObjectRCExpression: public TDLConceptObjectRoleExpression, publi
 {
 public:		// interface
 		/// init c'tor
-	TDLConceptObjectRCExpression ( TDLObjectRoleExpression* R, TDLConceptExpression* C )
+	TDLConceptObjectRCExpression ( const TDLObjectRoleExpression* R, const TDLConceptExpression* C )
 		: TDLConceptObjectRoleExpression(R)
 		, TConceptArg(C)
 		{}
@@ -583,7 +583,7 @@ class TDLConceptObjectExists: public TDLConceptObjectRCExpression
 {
 public:		// interface
 		/// init c'tor
-	TDLConceptObjectExists ( TDLObjectRoleExpression* R, TDLConceptExpression* C )
+	TDLConceptObjectExists ( const TDLObjectRoleExpression* R, const TDLConceptExpression* C )
 		: TDLConceptObjectRCExpression(R,C)
 		{}
 		/// empty d'tor
@@ -600,7 +600,7 @@ class TDLConceptObjectForall: public TDLConceptObjectRCExpression
 {
 public:		// interface
 		/// init c'tor
-	TDLConceptObjectForall ( TDLObjectRoleExpression* R, TDLConceptExpression* C )
+	TDLConceptObjectForall ( const TDLObjectRoleExpression* R, const TDLConceptExpression* C )
 		: TDLConceptObjectRCExpression(R,C)
 		{}
 		/// empty d'tor
@@ -617,7 +617,7 @@ class TDLConceptObjectCardinalityExpression: public TDLConceptObjectRCExpression
 {
 public:		// interface
 		/// init c'tor
-	TDLConceptObjectCardinalityExpression ( unsigned int n, TDLObjectRoleExpression* R, TDLConceptExpression* C )
+	TDLConceptObjectCardinalityExpression ( unsigned int n, const TDLObjectRoleExpression* R, const TDLConceptExpression* C )
 		: TDLConceptObjectRCExpression(R,C)
 		, TNumberArg(n)
 		{}
@@ -635,7 +635,7 @@ class TDLConceptObjectMinCardinality: public TDLConceptObjectCardinalityExpressi
 {
 public:		// interface
 		/// init c'tor
-	TDLConceptObjectMinCardinality ( unsigned int n, TDLObjectRoleExpression* R, TDLConceptExpression* C )
+	TDLConceptObjectMinCardinality ( unsigned int n, const TDLObjectRoleExpression* R, const TDLConceptExpression* C )
 		: TDLConceptObjectCardinalityExpression(n,R,C)
 		{}
 		/// empty d'tor
@@ -652,7 +652,7 @@ class TDLConceptObjectMaxCardinality: public TDLConceptObjectCardinalityExpressi
 {
 public:		// interface
 		/// init c'tor
-	TDLConceptObjectMaxCardinality ( unsigned int n, TDLObjectRoleExpression* R, TDLConceptExpression* C )
+	TDLConceptObjectMaxCardinality ( unsigned int n, const TDLObjectRoleExpression* R, const TDLConceptExpression* C )
 		: TDLConceptObjectCardinalityExpression(n,R,C)
 		{}
 		/// empty d'tor
@@ -669,7 +669,7 @@ class TDLConceptObjectExactCardinality: public TDLConceptObjectCardinalityExpres
 {
 public:		// interface
 		/// init c'tor
-	TDLConceptObjectExactCardinality ( unsigned int n, TDLObjectRoleExpression* R, TDLConceptExpression* C )
+	TDLConceptObjectExactCardinality ( unsigned int n, const TDLObjectRoleExpression* R, const TDLConceptExpression* C )
 		: TDLConceptObjectCardinalityExpression(n,R,C)
 		{}
 		/// empty d'tor
@@ -686,7 +686,7 @@ class TDLConceptDataRoleExpression: public TDLConceptExpression, public TDataRol
 {
 public:		// interface
 		/// init c'tor
-	TDLConceptDataRoleExpression ( TDLDataRoleExpression* R )
+	TDLConceptDataRoleExpression ( const TDLDataRoleExpression* R )
 		: TDLConceptExpression()
 		, TDataRoleArg(R)
 		{}
@@ -704,7 +704,7 @@ class TDLConceptDataValue: public TDLConceptDataRoleExpression, public TDataExpr
 {
 public:		// interface
 		/// init c'tor
-	TDLConceptDataValue ( TDLDataRoleExpression* R, TDLDataValue* V )
+	TDLConceptDataValue ( const TDLDataRoleExpression* R, const TDLDataValue* V )
 		: TDLConceptDataRoleExpression(R)
 		, TDataExpressionArg<TDLDataValue>(V)
 		{}
@@ -722,7 +722,7 @@ class TDLConceptDataRVExpression: public TDLConceptDataRoleExpression, public TD
 {
 public:		// interface
 		/// init c'tor
-	TDLConceptDataRVExpression ( TDLDataRoleExpression* R, TDLDataExpression* E )
+	TDLConceptDataRVExpression ( const TDLDataRoleExpression* R, const TDLDataExpression* E )
 		: TDLConceptDataRoleExpression(R)
 		, TDataExpressionArg<TDLDataExpression>(E)
 		{}
@@ -740,7 +740,7 @@ class TDLConceptDataExists: public TDLConceptDataRVExpression
 {
 public:		// interface
 		/// init c'tor
-	TDLConceptDataExists ( TDLDataRoleExpression* R, TDLDataExpression* E )
+	TDLConceptDataExists ( const TDLDataRoleExpression* R, const TDLDataExpression* E )
 		: TDLConceptDataRVExpression(R,E)
 		{}
 		/// empty d'tor
@@ -757,7 +757,7 @@ class TDLConceptDataForall: public TDLConceptDataRVExpression
 {
 public:		// interface
 		/// init c'tor
-	TDLConceptDataForall ( TDLDataRoleExpression* R, TDLDataExpression* E )
+	TDLConceptDataForall ( const TDLDataRoleExpression* R, const TDLDataExpression* E )
 		: TDLConceptDataRVExpression(R,E)
 		{}
 		/// empty d'tor
@@ -774,7 +774,7 @@ class TDLConceptDataCardinalityExpression: public TDLConceptDataRVExpression, pu
 {
 public:		// interface
 		/// init c'tor
-	TDLConceptDataCardinalityExpression ( unsigned int n, TDLDataRoleExpression* R, TDLDataExpression* E )
+	TDLConceptDataCardinalityExpression ( unsigned int n, const TDLDataRoleExpression* R, const TDLDataExpression* E )
 		: TDLConceptDataRVExpression(R,E)
 		, TNumberArg(n)
 		{}
@@ -792,7 +792,7 @@ class TDLConceptDataMinCardinality: public TDLConceptDataCardinalityExpression
 {
 public:		// interface
 		/// init c'tor
-	TDLConceptDataMinCardinality ( unsigned int n, TDLDataRoleExpression* R, TDLDataExpression* E )
+	TDLConceptDataMinCardinality ( unsigned int n, const TDLDataRoleExpression* R, const TDLDataExpression* E )
 		: TDLConceptDataCardinalityExpression(n,R,E)
 		{}
 		/// empty d'tor
@@ -809,7 +809,7 @@ class TDLConceptDataMaxCardinality: public TDLConceptDataCardinalityExpression
 {
 public:		// interface
 		/// init c'tor
-	TDLConceptDataMaxCardinality ( unsigned int n, TDLDataRoleExpression* R, TDLDataExpression* E )
+	TDLConceptDataMaxCardinality ( unsigned int n, const TDLDataRoleExpression* R, const TDLDataExpression* E )
 		: TDLConceptDataCardinalityExpression(n,R,E)
 		{}
 		/// empty d'tor
@@ -826,7 +826,7 @@ class TDLConceptDataExactCardinality: public TDLConceptDataCardinalityExpression
 {
 public:		// interface
 		/// init c'tor
-	TDLConceptDataExactCardinality ( unsigned int n, TDLDataRoleExpression* R, TDLDataExpression* E )
+	TDLConceptDataExactCardinality ( unsigned int n, const TDLDataRoleExpression* R, const TDLDataExpression* E )
 		: TDLConceptDataCardinalityExpression(n,R,E)
 		{}
 		/// empty d'tor
@@ -981,7 +981,7 @@ class TDLObjectRoleInverse: public TDLObjectRoleExpression, public TObjectRoleAr
 {
 public:		// interface
 		/// init c'tor
-	TDLObjectRoleInverse ( TDLObjectRoleExpression* R )
+	TDLObjectRoleInverse ( const TDLObjectRoleExpression* R )
 		: TDLObjectRoleExpression()
 		, TObjectRoleArg(R)
 		{}
@@ -1022,7 +1022,7 @@ class TDLObjectRoleProjectionFrom
 {
 public:		// interface
 		/// init c'tor
-	TDLObjectRoleProjectionFrom ( TDLObjectRoleExpression* R, TDLConceptExpression* C )
+	TDLObjectRoleProjectionFrom ( const TDLObjectRoleExpression* R, const TDLConceptExpression* C )
 		: TDLObjectRoleComplexExpression()
 		, TObjectRoleArg(R)
 		, TConceptArg(C)
@@ -1044,7 +1044,7 @@ class TDLObjectRoleProjectionInto
 {
 public:		// interface
 		/// init c'tor
-	TDLObjectRoleProjectionInto ( TDLObjectRoleExpression* R, TDLConceptExpression* C )
+	TDLObjectRoleProjectionInto ( const TDLObjectRoleExpression* R, const TDLConceptExpression* C )
 		: TDLObjectRoleComplexExpression()
 		, TObjectRoleArg(R)
 		, TConceptArg(C)
@@ -1195,7 +1195,7 @@ class TDLDataValue: public TDLDataExpression, public TNamedEntity, public TDataE
 {
 public:		// interface
 		/// init c'tor
-	TDLDataValue ( const std::string& value, TDLDataTypeName* T )
+	TDLDataValue ( const std::string& value, const TDLDataTypeName* T )
 		: TDLDataExpression()
 		, TNamedEntity(value)
 		, TDataExpressionArg<TDLDataTypeName>(T)
@@ -1214,7 +1214,7 @@ class TDLDataNot: public TDLDataExpression, public TDataExpressionArg<TDLDataExp
 {
 public:		// interface
 		/// init c'tor
-	TDLDataNot ( TDLDataExpression* E )
+	TDLDataNot ( const TDLDataExpression* E )
 		: TDLDataExpression()
 		, TDataExpressionArg<TDLDataExpression>(E)
 		{}
