@@ -190,6 +190,26 @@ protected:	// methods
 		return I->getRelatedCache(R);
 	}
 
+		/// @return true iff C is satisfiable
+	bool checkSat ( const DLTree* C )
+	{
+		preprocessKB();	// ensure KB is ready to answer the query
+		if ( isCN(C) )
+			return getTBox()->isSatisfiable(getTBox()->getCI(C));
+
+		setUpCache ( C, csSat );
+		return getTBox()->isSatisfiable(cachedConcept);
+	}
+		/// @return true iff C [= D holds
+	bool checkSub ( const DLTree* C, const DLTree* D )
+	{
+		preprocessKB();	// ensure KB is ready to answer the query
+		if ( isCN(C) && isCN(D) )
+			return getTBox()->isSubHolds ( getTBox()->getCI(C), getTBox()->getCI(D) );
+
+		return !checkSat ( TreeDeleter ( createSNFAnd ( clone(C), createSNFNot(clone(D)) ) ) );
+	}
+
 	// get access to internal structures
 
 		/// @throw an exception if no TBox found
@@ -734,28 +754,19 @@ public:
 		/// @return true iff C is satisfiable
 	bool isSatisfiable ( const TConceptExpr* C )
 	{
-		preprocessKB();	// ensure KB is ready to answer the query
-		if ( isCN(C) )
-			return getTBox()->isSatisfiable(getTBox()->getCI(C));
-
-		setUpCache ( C, csSat );
-		return getTBox()->isSatisfiable(cachedConcept);
+		return checkSat(C);
 	}
 		/// @return true iff C [= D holds
 	bool isSubsumedBy ( const TConceptExpr* C, const TConceptExpr* D )
 	{
-		preprocessKB();	// ensure KB is ready to answer the query
-		if ( isCN(C) && isCN(D) )
-			return getTBox()->isSubHolds ( getTBox()->getCI(C), getTBox()->getCI(D) );
-
-		return !isSatisfiable ( TreeDeleter ( And ( clone(C), Not(clone(D)) ) ) );
+		return checkSub ( C, D );
 	}
 		/// @return true iff C is disjoint with D
 	bool isDisjoint ( const TConceptExpr* C, const TConceptExpr* D )
-		{ return !isSatisfiable ( TreeDeleter ( And ( clone(C), clone(D) ) ) ); }
+		{ return !checkSat ( TreeDeleter ( And ( clone(C), clone(D) ) ) ); }
 		/// @return true iff C is equivalent to D
 	bool isEquivalent ( const TConceptExpr* C, const TConceptExpr* D )
-		{ return isSubsumedBy ( C, D ) && isSubsumedBy ( D, C ); }
+		{ return checkSub ( C, D ) && checkSub ( D, C ); }
 
 	// concept hierarchy
 
