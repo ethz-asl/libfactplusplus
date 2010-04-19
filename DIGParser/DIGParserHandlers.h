@@ -284,7 +284,7 @@ protected:	// methods
 		TDRoleExpr* x = pEM->DataRole(name);
 		try
 		{
-			pKernel->setDFunctional(clone(x));	// in DIG 1.1 data roles are always functional
+			pKernel->setDFunctional(x);	// in DIG 1.x data roles are always functional
 		}
 		catch(...)
 		{
@@ -296,10 +296,13 @@ protected:	// methods
 		/// return data value of a type TYPE by given name; throw exception if unable
 	TDataValueExpr* tryDataValue ( const std::string& name, TDataExpr* type )
 	{
+		return NULL;
+#if 0
 		return pKernel->getDataTypeCenter().getDataValue(name,type);
+#endif
 	}
 		/// check whether expression R is data role
-	bool isDataRole ( TRoleExpr* R ) const { return R->Element().getToken() == DNAME; }
+	bool isDataRole ( const TExpr* R ) const { return dynamic_cast<const TDRoleExpr*>(R) != NULL; }
 
 		/// output supported DIG fragment to local stream
 	void outputSupportedLanguage ( void );

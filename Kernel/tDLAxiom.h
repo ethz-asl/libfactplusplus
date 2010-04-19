@@ -19,7 +19,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef TDLAXIOM_H
 #define TDLAXIOM_H
 
-#include "dltree.h"
+#include "tDLExpression.h"
 
 // forward declaration for all axiom classes: necessary for the visitor pattern
 class TDLAxiomDeclaration;
@@ -141,16 +141,16 @@ public:
 class TDLAxiomDeclaration: public TDLAxiom
 {
 protected:	// members
-	DLTree* D;
+	const TDLExpression* D;
 
 public:		// interface
 		/// c'tor: create an axiom
-	TDLAxiomDeclaration ( DLTree* d ) : TDLAxiom(), D(d) {}
+	TDLAxiomDeclaration ( const TDLExpression* d ) : TDLAxiom(), D(d) {}
 		/// d'tor
-	virtual ~TDLAxiomDeclaration ( void ) { deleteTree(D); }
+	virtual ~TDLAxiomDeclaration ( void ) {}
 
 		/// access
-	DLTree* getDeclaration ( void ) { return D; }
+	const TDLExpression* getDeclaration ( void ) { return D; }
 		/// accept method for the visitor pattern
 	void accept ( DLAxiomVisitor& visitor ) { visitor.visit(*this); }
 }; // TDLAxiomIndividual
@@ -160,50 +160,16 @@ public:		// interface
 //------------------------------------------------------------------
 
 //------------------------------------------------------------------
-///	general n-argument axiom
-//------------------------------------------------------------------
-class TDLAxiomNAry: public TDLAxiom
-{
-public:		// types
-		/// base type
-	typedef std::vector<DLTree*> ExpressionArray;
-		/// RW iterator over base type
-	typedef ExpressionArray::iterator iterator;
-
-protected:	// members
-		/// set of equivalent concept descriptions
-	ExpressionArray Base;
-
-public:		// interface
-		/// c'tor: create n-ary axiom
-	TDLAxiomNAry ( const ExpressionArray& v )
-		: TDLAxiom()
-		, Base(v)
-		{}
-		/// d'tor
-	virtual ~TDLAxiomNAry ( void )
-	{
-		for ( iterator p = Base.begin(), p_end = Base.end(); p < p_end; ++p )
-			deleteTree(*p);
-	}
-
-	// access to members
-
-		/// RW begin iterator for array
-	iterator begin ( void ) { return Base.begin(); }
-		/// RW end iterator for array
-	iterator end ( void ) { return Base.end(); }
-}; // TDLAxiomNAry
-
-
-//------------------------------------------------------------------
 ///	Concept equivalence axiom
 //------------------------------------------------------------------
-class TDLAxiomEquivalentConcepts: public TDLAxiomNAry
+class TDLAxiomEquivalentConcepts: public TDLAxiom, public TDLNAryExpression<TDLConceptExpression>
 {
 public:		// interface
 		/// c'tor: create an axiom for C1 = ... = Cn
-	TDLAxiomEquivalentConcepts ( const ExpressionArray& v ) : TDLAxiomNAry(v) {}
+	TDLAxiomEquivalentConcepts ( const ExpressionArray& v )
+		: TDLAxiom()
+		, TDLNAryExpression<TDLConceptExpression>("concept expression","equivalent concepts")
+		{ add(v); }
 		/// d'tor
 	virtual ~TDLAxiomEquivalentConcepts ( void ) {}
 		/// accept method for the visitor pattern
@@ -213,11 +179,14 @@ public:		// interface
 //------------------------------------------------------------------
 ///	Concept disjointness axiom
 //------------------------------------------------------------------
-class TDLAxiomDisjointConcepts: public TDLAxiomNAry
+class TDLAxiomDisjointConcepts: public TDLAxiom, public TDLNAryExpression<TDLConceptExpression>
 {
 public:		// interface
 		/// c'tor: create an axiom for C1 != ... != Cn
-	TDLAxiomDisjointConcepts ( const ExpressionArray& v ) : TDLAxiomNAry(v) {}
+	TDLAxiomDisjointConcepts ( const ExpressionArray& v )
+		: TDLAxiom()
+		, TDLNAryExpression<TDLConceptExpression>("concept expression","disjoint concepts")
+		{ add(v); }
 		/// d'tor
 	virtual ~TDLAxiomDisjointConcepts ( void ) {}
 		/// accept method for the visitor pattern
@@ -227,11 +196,14 @@ public:		// interface
 //------------------------------------------------------------------
 ///	Object Role equivalence axiom
 //------------------------------------------------------------------
-class TDLAxiomEquivalentORoles: public TDLAxiomNAry
+class TDLAxiomEquivalentORoles: public TDLAxiom, public TDLNAryExpression<TDLObjectRoleExpression>
 {
 public:		// interface
 		/// c'tor: create an axiom for OR1 = ... = ORn
-	TDLAxiomEquivalentORoles ( const ExpressionArray& v ) : TDLAxiomNAry(v) {}
+	TDLAxiomEquivalentORoles ( const ExpressionArray& v )
+		: TDLAxiom()
+		, TDLNAryExpression<TDLObjectRoleExpression>("object role expression","equivalent roles")
+		{ add(v); }
 		/// d'tor
 	virtual ~TDLAxiomEquivalentORoles ( void ) {}
 		/// accept method for the visitor pattern
@@ -241,11 +213,14 @@ public:		// interface
 //------------------------------------------------------------------
 ///	Data Role equivalence axiom
 //------------------------------------------------------------------
-class TDLAxiomEquivalentDRoles: public TDLAxiomNAry
+class TDLAxiomEquivalentDRoles: public TDLAxiom, public TDLNAryExpression<TDLDataRoleExpression>
 {
 public:		// interface
 		/// c'tor: create an axiom for DR1 = ... = DRn
-	TDLAxiomEquivalentDRoles ( const ExpressionArray& v ) : TDLAxiomNAry(v) {}
+	TDLAxiomEquivalentDRoles ( const ExpressionArray& v )
+		: TDLAxiom()
+		, TDLNAryExpression<TDLDataRoleExpression>("data role expression","equivalent roles")
+		{ add(v); }
 		/// d'tor
 	virtual ~TDLAxiomEquivalentDRoles ( void ) {}
 		/// accept method for the visitor pattern
@@ -255,11 +230,14 @@ public:		// interface
 //------------------------------------------------------------------
 ///	Object Role disjointness axiom
 //------------------------------------------------------------------
-class TDLAxiomDisjointORoles: public TDLAxiomNAry
+class TDLAxiomDisjointORoles: public TDLAxiom, public TDLNAryExpression<TDLObjectRoleExpression>
 {
 public:		// interface
 		/// c'tor: create an axiom for OR1 != ... != ORn
-	TDLAxiomDisjointORoles ( const ExpressionArray& v ) : TDLAxiomNAry(v) {}
+	TDLAxiomDisjointORoles ( const ExpressionArray& v )
+		: TDLAxiom()
+		, TDLNAryExpression<TDLObjectRoleExpression>("object role expression","disjoint roles")
+		{ add(v); }
 		/// d'tor
 	virtual ~TDLAxiomDisjointORoles ( void ) {}
 		/// accept method for the visitor pattern
@@ -267,13 +245,16 @@ public:		// interface
 }; // TDLAxiomDisjointORoles
 
 //------------------------------------------------------------------
-///	Object Role disjointness axiom
+///	Data Role disjointness axiom
 //------------------------------------------------------------------
-class TDLAxiomDisjointDRoles: public TDLAxiomNAry
+class TDLAxiomDisjointDRoles: public TDLAxiom, public TDLNAryExpression<TDLDataRoleExpression>
 {
 public:		// interface
 		/// c'tor: create an axiom for DR1 != ... != DRn
-	TDLAxiomDisjointDRoles ( const ExpressionArray& v ) : TDLAxiomNAry(v) {}
+	TDLAxiomDisjointDRoles ( const ExpressionArray& v )
+		: TDLAxiom()
+		, TDLNAryExpression<TDLDataRoleExpression>("data role expression","disjoint roles")
+		{ add(v); }
 		/// d'tor
 	virtual ~TDLAxiomDisjointDRoles ( void ) {}
 		/// accept method for the visitor pattern
@@ -283,11 +264,14 @@ public:		// interface
 //------------------------------------------------------------------
 ///	Same individuals axiom
 //------------------------------------------------------------------
-class TDLAxiomSameIndividuals: public TDLAxiomNAry
+class TDLAxiomSameIndividuals: public TDLAxiom, public TDLNAryExpression<TDLIndividualExpression>
 {
 public:		// interface
 		/// c'tor: create an axiom for i1 = ... = in
-	TDLAxiomSameIndividuals ( const ExpressionArray& v ) : TDLAxiomNAry(v) {}
+	TDLAxiomSameIndividuals ( const ExpressionArray& v )
+		: TDLAxiom()
+		, TDLNAryExpression<TDLIndividualExpression>("individual expression","same individuals")
+		{ add(v); }
 		/// d'tor
 	virtual ~TDLAxiomSameIndividuals ( void ) {}
 		/// accept method for the visitor pattern
@@ -297,11 +281,14 @@ public:		// interface
 //------------------------------------------------------------------
 ///	Different individuals axiom
 //------------------------------------------------------------------
-class TDLAxiomDifferentIndividuals: public TDLAxiomNAry
+class TDLAxiomDifferentIndividuals: public TDLAxiom, public TDLNAryExpression<TDLIndividualExpression>
 {
 public:		// interface
 		/// c'tor: create an axiom for i1 != ... != in
-	TDLAxiomDifferentIndividuals ( const ExpressionArray& v ) : TDLAxiomNAry(v) {}
+	TDLAxiomDifferentIndividuals ( const ExpressionArray& v )
+		: TDLAxiom()
+		, TDLNAryExpression<TDLIndividualExpression>("individual expression","different individuals")
+		{ add(v); }
 		/// d'tor
 	virtual ~TDLAxiomDifferentIndividuals ( void ) {}
 		/// accept method for the visitor pattern
@@ -311,11 +298,14 @@ public:		// interface
 //------------------------------------------------------------------
 ///	Fairness constraint axiom
 //------------------------------------------------------------------
-class TDLAxiomFairnessConstraint: public TDLAxiomNAry
+class TDLAxiomFairnessConstraint: public TDLAxiom, public TDLNAryExpression<TDLConceptExpression>
 {
 public:		// interface
 		/// c'tor: create an axiom for Fair(C1), ... Fair(Cn) constraints
-	TDLAxiomFairnessConstraint ( const ExpressionArray& v ) : TDLAxiomNAry(v) {}
+	TDLAxiomFairnessConstraint ( const ExpressionArray& v )
+		: TDLAxiom()
+		, TDLNAryExpression<TDLConceptExpression>("concept expression","fairness")
+		{ add(v); }
 		/// d'tor
 	virtual ~TDLAxiomFairnessConstraint ( void ) {}
 		/// accept method for the visitor pattern
@@ -332,19 +322,19 @@ public:		// interface
 class TDLAxiomSingleORole: public TDLAxiom
 {
 protected:	// members
-	DLTree* Role;
+	const TDLObjectRoleExpression* Role;
 
 public:		// interface
 		/// c'tor: create an axiom
-	TDLAxiomSingleORole ( DLTree* role )
+	TDLAxiomSingleORole ( const TDLObjectRoleExpression* role )
 		: TDLAxiom()
 		, Role(role)
 		{}
 		/// d'tor
-	virtual ~TDLAxiomSingleORole ( void ) { deleteTree(Role); }
+	virtual ~TDLAxiomSingleORole ( void ) {}
 
 		/// access to role
-	const DLTree* getRole ( void ) const { return Role; }
+	const TDLObjectRoleExpression* getRole ( void ) const { return Role; }
 }; // TDLAxiomSingleORole
 
 //------------------------------------------------------------------
@@ -353,19 +343,19 @@ public:		// interface
 class TDLAxiomSingleDRole: public TDLAxiom
 {
 protected:	// members
-	DLTree* Role;
+	const TDLDataRoleExpression* Role;
 
 public:		// interface
 		/// c'tor: create an axiom
-	TDLAxiomSingleDRole ( DLTree* role )
+	TDLAxiomSingleDRole ( const TDLDataRoleExpression* role )
 		: TDLAxiom()
 		, Role(role)
 		{}
 		/// d'tor
-	virtual ~TDLAxiomSingleDRole ( void ) { deleteTree(Role); }
+	virtual ~TDLAxiomSingleDRole ( void ) {}
 
 		/// access to role
-	const DLTree* getRole ( void ) const { return Role; }
+	const TDLDataRoleExpression* getRole ( void ) const { return Role; }
 }; // TDLAxiomSingleDRole
 
 //------------------------------------------------------------------
@@ -374,21 +364,21 @@ public:		// interface
 class TDLAxiomRoleInverse: public TDLAxiomSingleORole
 {
 protected:	// members
-	DLTree* InvRole;
+	const TDLObjectRoleExpression* InvRole;
 
 public:		// interface
 		/// c'tor: create an axiom
-	TDLAxiomRoleInverse ( DLTree* dirRole, DLTree* invRole )
+	TDLAxiomRoleInverse ( const TDLObjectRoleExpression* dirRole, const TDLObjectRoleExpression* invRole )
 		: TDLAxiomSingleORole(dirRole)
 		, InvRole(invRole)
 		{}
 		/// d'tor
-	virtual ~TDLAxiomRoleInverse ( void ) { deleteTree(InvRole); }
+	virtual ~TDLAxiomRoleInverse ( void ) {}
 		/// accept method for the visitor pattern
 	void accept ( DLAxiomVisitor& visitor ) { visitor.visit(*this); }
 
 		/// access to role
-	const DLTree* getInvRole ( void ) const { return InvRole; }
+	const TDLObjectRoleExpression* getInvRole ( void ) const { return InvRole; }
 }; // TDLAxiomRoleInverse
 
 //------------------------------------------------------------------
@@ -397,21 +387,21 @@ public:		// interface
 class TDLAxiomORoleSubsumption: public TDLAxiomSingleORole
 {
 protected:	// members
-	DLTree* SubRole;
+	const TDLObjectRoleComplexExpression* SubRole;
 
 public:		// interface
 		/// c'tor: create an axiom
-	TDLAxiomORoleSubsumption ( DLTree* subRole, DLTree* supRole )
+	TDLAxiomORoleSubsumption ( const TDLObjectRoleComplexExpression* subRole, const TDLObjectRoleExpression* supRole )
 		: TDLAxiomSingleORole(supRole)
 		, SubRole(subRole)
 		{}
 		/// d'tor
-	virtual ~TDLAxiomORoleSubsumption ( void ) { deleteTree(SubRole); }
+	virtual ~TDLAxiomORoleSubsumption ( void ) {}
 		/// accept method for the visitor pattern
 	void accept ( DLAxiomVisitor& visitor ) { visitor.visit(*this); }
 
 		/// access to role
-	const DLTree* getSubRole ( void ) const { return SubRole; }
+	const TDLObjectRoleComplexExpression* getSubRole ( void ) const { return SubRole; }
 }; // TDLAxiomORoleSubsumption
 
 //------------------------------------------------------------------
@@ -420,21 +410,21 @@ public:		// interface
 class TDLAxiomDRoleSubsumption: public TDLAxiomSingleDRole
 {
 protected:	// members
-	DLTree* SubRole;
+	const TDLDataRoleExpression* SubRole;
 
 public:		// interface
 		/// c'tor: create an axiom
-	TDLAxiomDRoleSubsumption ( DLTree* subRole, DLTree* supRole )
+	TDLAxiomDRoleSubsumption ( const TDLDataRoleExpression* subRole, const TDLDataRoleExpression* supRole )
 		: TDLAxiomSingleDRole(supRole)
 		, SubRole(subRole)
 		{}
 		/// d'tor
-	virtual ~TDLAxiomDRoleSubsumption ( void ) { deleteTree(SubRole); }
+	virtual ~TDLAxiomDRoleSubsumption ( void ) {}
 		/// accept method for the visitor pattern
 	void accept ( DLAxiomVisitor& visitor ) { visitor.visit(*this); }
 
 		/// access to role
-	const DLTree* getSubRole ( void ) const { return SubRole; }
+	const TDLDataRoleExpression* getSubRole ( void ) const { return SubRole; }
 }; // TDLAxiomDRoleSubsumption
 
 //------------------------------------------------------------------
@@ -443,21 +433,21 @@ public:		// interface
 class TDLAxiomORoleDomain: public TDLAxiomSingleORole
 {
 protected:	// members
-	DLTree* Domain;
+	const TDLConceptExpression* Domain;
 
 public:		// interface
 		/// c'tor: create an axiom
-	TDLAxiomORoleDomain ( DLTree* role, DLTree* domain )
+	TDLAxiomORoleDomain ( const TDLObjectRoleExpression* role, const TDLConceptExpression* domain )
 		: TDLAxiomSingleORole(role)
 		, Domain(domain)
 		{}
 		/// d'tor; nothing to do as Domain is consumed
-	virtual ~TDLAxiomORoleDomain ( void ) { deleteTree(Domain); }
+	virtual ~TDLAxiomORoleDomain ( void ) {}
 		/// accept method for the visitor pattern
 	void accept ( DLAxiomVisitor& visitor ) { visitor.visit(*this); }
 
 		/// access
-	const DLTree* getDomain ( void ) const { return Domain; }
+	const TDLConceptExpression* getDomain ( void ) const { return Domain; }
 }; // TDLAxiomORoleDomain
 
 //------------------------------------------------------------------
@@ -466,21 +456,21 @@ public:		// interface
 class TDLAxiomDRoleDomain: public TDLAxiomSingleDRole
 {
 protected:	// members
-	DLTree* Domain;
+	const TDLConceptExpression* Domain;
 
 public:		// interface
 		/// c'tor: create an axiom
-	TDLAxiomDRoleDomain ( DLTree* role, DLTree* domain )
+	TDLAxiomDRoleDomain ( const TDLDataRoleExpression* role, const TDLConceptExpression* domain )
 		: TDLAxiomSingleDRole(role)
 		, Domain(domain)
 		{}
 		/// d'tor; nothing to do as Domain is consumed
-	virtual ~TDLAxiomDRoleDomain ( void ) { deleteTree(Domain); }
+	virtual ~TDLAxiomDRoleDomain ( void ) {}
 		/// accept method for the visitor pattern
 	void accept ( DLAxiomVisitor& visitor ) { visitor.visit(*this); }
 
 		/// access
-	const DLTree* getDomain ( void ) const { return Domain; }
+	const TDLConceptExpression* getDomain ( void ) const { return Domain; }
 }; // TDLAxiomDRoleDomain
 
 //------------------------------------------------------------------
@@ -489,21 +479,21 @@ public:		// interface
 class TDLAxiomORoleRange: public TDLAxiomSingleORole
 {
 protected:	// members
-	DLTree* Range;
+	const TDLConceptExpression* Range;
 
 public:		// interface
 		/// c'tor: create an axiom
-	TDLAxiomORoleRange ( DLTree* role, DLTree* range )
+	TDLAxiomORoleRange ( const TDLObjectRoleExpression* role, const TDLConceptExpression* range )
 		: TDLAxiomSingleORole(role)
 		, Range(range)
 		{}
 		/// d'tor; nothing to do as Domain is consumed
-	virtual ~TDLAxiomORoleRange ( void ) { deleteTree(Range); }
+	virtual ~TDLAxiomORoleRange ( void ) {}
 		/// accept method for the visitor pattern
 	void accept ( DLAxiomVisitor& visitor ) { visitor.visit(*this); }
 
 		/// access
-	const DLTree* getRange ( void ) const { return Range; }
+	const TDLConceptExpression* getRange ( void ) const { return Range; }
 }; // TDLAxiomORoleRange
 
 //------------------------------------------------------------------
@@ -512,21 +502,21 @@ public:		// interface
 class TDLAxiomDRoleRange: public TDLAxiomSingleDRole
 {
 protected:	// members
-	DLTree* Range;
+	const TDLDataExpression* Range;
 
 public:		// interface
 		/// c'tor: create an axiom
-	TDLAxiomDRoleRange ( DLTree* role, DLTree* range )
+	TDLAxiomDRoleRange ( const TDLDataRoleExpression* role, const TDLDataExpression* range )
 		: TDLAxiomSingleDRole(role)
 		, Range(range)
 		{}
 		/// d'tor; nothing to do as Domain is consumed
-	virtual ~TDLAxiomDRoleRange ( void ) { deleteTree(Range); }
+	virtual ~TDLAxiomDRoleRange ( void ) {}
 		/// accept method for the visitor pattern
 	void accept ( DLAxiomVisitor& visitor ) { visitor.visit(*this); }
 
 		/// access
-	const DLTree* getRange ( void ) const { return Range; }
+	const TDLDataExpression* getRange ( void ) const { return Range; }
 }; // TDLAxiomDRoleRange
 
 //------------------------------------------------------------------
@@ -536,7 +526,7 @@ class TDLAxiomRoleTransitive: public TDLAxiomSingleORole
 {
 public:		// interface
 		/// c'tor: create an axiom
-	TDLAxiomRoleTransitive ( DLTree* role )
+	TDLAxiomRoleTransitive ( const TDLObjectRoleExpression* role )
 		: TDLAxiomSingleORole(role)
 		{}
 		/// d'tor;
@@ -552,7 +542,7 @@ class TDLAxiomRoleReflexive: public TDLAxiomSingleORole
 {
 public:		// interface
 		/// c'tor: create an axiom
-	TDLAxiomRoleReflexive ( DLTree* role )
+	TDLAxiomRoleReflexive ( const TDLObjectRoleExpression* role )
 		: TDLAxiomSingleORole(role)
 		{}
 		/// d'tor;
@@ -568,7 +558,7 @@ class TDLAxiomRoleIrreflexive: public TDLAxiomSingleORole
 {
 public:		// interface
 		/// c'tor: create an axiom
-	TDLAxiomRoleIrreflexive ( DLTree* role )
+	TDLAxiomRoleIrreflexive ( const TDLObjectRoleExpression* role )
 		: TDLAxiomSingleORole(role)
 		{}
 		/// d'tor;
@@ -584,7 +574,7 @@ class TDLAxiomRoleSymmetric: public TDLAxiomSingleORole
 {
 public:		// interface
 		/// c'tor: create an axiom
-	TDLAxiomRoleSymmetric ( DLTree* role )
+	TDLAxiomRoleSymmetric ( const TDLObjectRoleExpression* role )
 		: TDLAxiomSingleORole(role)
 		{}
 		/// d'tor;
@@ -600,7 +590,7 @@ class TDLAxiomRoleAntiSymmetric: public TDLAxiomSingleORole
 {
 public:		// interface
 		/// c'tor: create an axiom
-	TDLAxiomRoleAntiSymmetric ( DLTree* role )
+	TDLAxiomRoleAntiSymmetric ( const TDLObjectRoleExpression* role )
 		: TDLAxiomSingleORole(role)
 		{}
 		/// d'tor;
@@ -616,7 +606,7 @@ class TDLAxiomORoleFunctional: public TDLAxiomSingleORole
 {
 public:		// interface
 		/// c'tor: create an axiom
-	TDLAxiomORoleFunctional ( DLTree* role )
+	TDLAxiomORoleFunctional ( const TDLObjectRoleExpression* role )
 		: TDLAxiomSingleORole(role)
 		{}
 		/// d'tor;
@@ -632,7 +622,7 @@ class TDLAxiomDRoleFunctional: public TDLAxiomSingleDRole
 {
 public:		// interface
 		/// c'tor: create an axiom
-	TDLAxiomDRoleFunctional ( DLTree* role )
+	TDLAxiomDRoleFunctional ( const TDLDataRoleExpression* role )
 		: TDLAxiomSingleDRole(role)
 		{}
 		/// d'tor;
@@ -648,7 +638,7 @@ class TDLAxiomRoleInverseFunctional: public TDLAxiomSingleORole
 {
 public:		// interface
 		/// c'tor: create an axiom
-	TDLAxiomRoleInverseFunctional ( DLTree* role )
+	TDLAxiomRoleInverseFunctional ( const TDLObjectRoleExpression* role )
 		: TDLAxiomSingleORole(role)
 		{}
 		/// d'tor;
@@ -668,21 +658,21 @@ public:		// interface
 class TDLAxiomConceptInclusion: public TDLAxiom
 {
 protected:	// members
-	DLTree* Sub;
-	DLTree* Sup;
+	const TDLConceptExpression* Sub;
+	const TDLConceptExpression* Sup;
 
 public:		// interface
 		/// c'tor: create an axiom
-	TDLAxiomConceptInclusion ( DLTree* sub, DLTree* sup ) : TDLAxiom(), Sub(sub), Sup(sup) {}
+	TDLAxiomConceptInclusion ( const TDLConceptExpression* sub, const TDLConceptExpression* sup ) : TDLAxiom(), Sub(sub), Sup(sup) {}
 		/// d'tor
-	virtual ~TDLAxiomConceptInclusion ( void ) { deleteTree(Sub); deleteTree(Sup); }
+	virtual ~TDLAxiomConceptInclusion ( void ) {}
 		/// accept method for the visitor pattern
 	void accept ( DLAxiomVisitor& visitor ) { visitor.visit(*this); }
 
 		/// access
-	const DLTree* getSubC ( void ) const { return Sub; }
+	const TDLConceptExpression* getSubC ( void ) const { return Sub; }
 		/// access
-	const DLTree* getSupC ( void ) const { return Sup; }
+	const TDLConceptExpression* getSupC ( void ) const { return Sup; }
 }; // TDLAxiomConceptInclusion
 
 //------------------------------------------------------------------
@@ -691,16 +681,16 @@ public:		// interface
 class TDLAxiomIndividual: public TDLAxiom
 {
 protected:	// members
-	DLTree* I;
+	const TDLIndividualExpression* I;
 
 public:		// interface
 		/// c'tor: create an axiom
-	TDLAxiomIndividual ( DLTree* i ) : TDLAxiom(), I(i) {}
+	TDLAxiomIndividual ( const TDLIndividualExpression* i ) : TDLAxiom(), I(i) {}
 		/// d'tor
-	virtual ~TDLAxiomIndividual ( void ) { deleteTree(I); }
+	virtual ~TDLAxiomIndividual ( void ) {}
 
 		/// access
-	const DLTree* getIndividual ( void ) const { return I; }
+	const TDLIndividualExpression* getIndividual ( void ) const { return I; }
 }; // TDLAxiomIndividual
 
 //------------------------------------------------------------------
@@ -709,18 +699,18 @@ public:		// interface
 class TDLAxiomInstanceOf: public TDLAxiomIndividual
 {
 protected:	// members
-	DLTree* C;
+	const TDLConceptExpression* C;
 
 public:		// interface
 		/// c'tor: create an axiom
-	TDLAxiomInstanceOf ( DLTree* i, DLTree* c ) : TDLAxiomIndividual(i), C(c) {}
+	TDLAxiomInstanceOf ( const TDLIndividualExpression* i, const TDLConceptExpression* c ) : TDLAxiomIndividual(i), C(c) {}
 		/// d'tor
-	virtual ~TDLAxiomInstanceOf ( void ) { deleteTree(C); }
+	virtual ~TDLAxiomInstanceOf ( void ) {}
 		/// accept method for the visitor pattern
 	void accept ( DLAxiomVisitor& visitor ) { visitor.visit(*this); }
 
 		/// access
-	const DLTree* getC ( void ) const { return C; }
+	const TDLConceptExpression* getC ( void ) const { return C; }
 }; // TDLAxiomInstanceOf
 
 //------------------------------------------------------------------
@@ -729,21 +719,25 @@ public:		// interface
 class TDLAxiomRelatedTo: public TDLAxiomIndividual
 {
 protected:	// members
-	DLTree* R;
-	DLTree* J;
+	const TDLObjectRoleExpression* R;
+	const TDLIndividualExpression* J;
 
 public:		// interface
 		/// c'tor: create an axiom
-	TDLAxiomRelatedTo ( DLTree* i, DLTree* r, DLTree* j ) : TDLAxiomIndividual(i), R(r), J(j) {}
+	TDLAxiomRelatedTo ( const TDLIndividualExpression* i, const TDLObjectRoleExpression* r, const TDLIndividualExpression* j )
+		: TDLAxiomIndividual(i)
+		, R(r)
+		, J(j)
+		{}
 		/// d'tor
-	virtual ~TDLAxiomRelatedTo ( void ) { deleteTree(R); deleteTree(J); }
+	virtual ~TDLAxiomRelatedTo ( void ) {}
 		/// accept method for the visitor pattern
 	void accept ( DLAxiomVisitor& visitor ) { visitor.visit(*this); }
 
 		/// access
-	const DLTree* getRelation ( void ) const { return R; }
+	const TDLObjectRoleExpression* getRelation ( void ) const { return R; }
 		/// access
-	const DLTree* getRelatedIndividual ( void ) const { return J; }
+	const TDLIndividualExpression* getRelatedIndividual ( void ) const { return J; }
 }; // TDLAxiomRelatedTo
 
 //------------------------------------------------------------------
@@ -752,21 +746,25 @@ public:		// interface
 class TDLAxiomRelatedToNot: public TDLAxiomIndividual
 {
 protected:	// members
-	DLTree* R;
-	DLTree* J;
+	const TDLObjectRoleExpression* R;
+	const TDLIndividualExpression* J;
 
 public:		// interface
 		/// c'tor: create an axiom
-	TDLAxiomRelatedToNot ( DLTree* i, DLTree* r, DLTree* j ) : TDLAxiomIndividual(i), R(r), J(j) {}
+	TDLAxiomRelatedToNot ( const TDLIndividualExpression* i, const TDLObjectRoleExpression* r, const TDLIndividualExpression* j )
+		: TDLAxiomIndividual(i)
+		, R(r)
+		, J(j)
+		{}
 		/// d'tor
-	virtual ~TDLAxiomRelatedToNot ( void ) { deleteTree(R); deleteTree(J); }
+	virtual ~TDLAxiomRelatedToNot ( void ) {}
 		/// accept method for the visitor pattern
 	void accept ( DLAxiomVisitor& visitor ) { visitor.visit(*this); }
 
 		/// access
-	const DLTree* getRelation ( void ) const { return R; }
+	const TDLObjectRoleExpression* getRelation ( void ) const { return R; }
 		/// access
-	const DLTree* getRelatedIndividual ( void ) const { return J; }
+	const TDLIndividualExpression* getRelatedIndividual ( void ) const { return J; }
 }; // TDLAxiomRelatedToNot
 
 //------------------------------------------------------------------
@@ -775,21 +773,25 @@ public:		// interface
 class TDLAxiomValueOf: public TDLAxiomIndividual
 {
 protected:	// members
-	DLTree* A;
-	DLTree* V;
+	const TDLDataRoleExpression* A;
+	const TDLDataValue* V;
 
 public:		// interface
 		/// c'tor: create an axiom
-	TDLAxiomValueOf ( DLTree* i, DLTree* a, DLTree* v ) : TDLAxiomIndividual(i), A(a), V(v) {}
+	TDLAxiomValueOf ( const TDLIndividualExpression* i, const TDLDataRoleExpression* a, const TDLDataValue* v )
+		: TDLAxiomIndividual(i)
+		, A(a)
+		, V(v)
+		{}
 		/// d'tor
-	virtual ~TDLAxiomValueOf ( void ) { deleteTree(A); deleteTree(V); }
+	virtual ~TDLAxiomValueOf ( void ) {}
 		/// accept method for the visitor pattern
 	void accept ( DLAxiomVisitor& visitor ) { visitor.visit(*this); }
 
 		/// access to role
-	const DLTree* getAttribute ( void ) const { return A; }
+	const TDLDataRoleExpression* getAttribute ( void ) const { return A; }
 		/// access to value
-	const DLTree* getValue ( void ) const { return V; }
+	const TDLDataValue* getValue ( void ) const { return V; }
 }; // TDLAxiomValueOf
 
 //------------------------------------------------------------------
@@ -798,21 +800,25 @@ public:		// interface
 class TDLAxiomValueOfNot: public TDLAxiomIndividual
 {
 protected:	// members
-	DLTree* A;
-	DLTree* V;
+	const TDLDataRoleExpression* A;
+	const TDLDataValue* V;
 
 public:		// interface
 		/// c'tor: create an axiom
-	TDLAxiomValueOfNot ( DLTree* i, DLTree* a, DLTree* v ) : TDLAxiomIndividual(i), A(a), V(v) {}
+	TDLAxiomValueOfNot ( const TDLIndividualExpression* i, const TDLDataRoleExpression* a, const TDLDataValue* v )
+		: TDLAxiomIndividual(i)
+		, A(a)
+		, V(v)
+		{}
 		/// d'tor
-	virtual ~TDLAxiomValueOfNot ( void ) { deleteTree(A); deleteTree(V); }
+	virtual ~TDLAxiomValueOfNot ( void ) {}
 		/// accept method for the visitor pattern
 	void accept ( DLAxiomVisitor& visitor ) { visitor.visit(*this); }
 
 		/// access to role
-	const DLTree* getAttribute ( void ) const { return A; }
+	const TDLDataRoleExpression* getAttribute ( void ) const { return A; }
 		/// access to value
-	const DLTree* getValue ( void ) const { return V; }
+	const TDLDataValue* getValue ( void ) const { return V; }
 }; // TDLAxiomValueOfNot
 
 

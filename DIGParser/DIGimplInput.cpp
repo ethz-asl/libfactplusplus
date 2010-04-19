@@ -245,7 +245,8 @@ void DIGParseHandlers :: startConcept ( DIGTag tag, AttributeList& attributes )
 	case digAtLeast:
 		if ( parm_num == NULL )
 			throwAttributeAbsence ( "num", tag );
-		workStack.push ( new DLTree ( TLexeme (NUM,n) ) );
+		// FIXME!! revisit later
+		workStack.push ( NULL /*new DLTree ( TLexeme (NUM,n) )*/ );
 		return;
 
 	// n-argument staff
@@ -255,6 +256,7 @@ void DIGParseHandlers :: startConcept ( DIGTag tag, AttributeList& attributes )
 		workStack.push(NULL);	// put stopper into stack
 		return;
 
+#if 0
 	// value staff
 	case digIVal:
 	case digSVal:
@@ -304,6 +306,7 @@ void DIGParseHandlers :: startConcept ( DIGTag tag, AttributeList& attributes )
 		workStack.push(tryDataValue(min,x));
 		workStack.push(tryDataValue(max,x));	// max is on top!
 		return;
+#endif
 
 	// unsupported stuff
 	case digChain:
@@ -421,13 +424,13 @@ void DIGParseHandlers :: endConcept ( DIGTag tag )
 	case digNot:	// top := NOT (top)
 		if ( workStack.empty() )
 			throwArgumentAbsence ( "concept", tag );
-		workStack.top() = pEM->Not(workStack.top());
+		workStack.top() = pEM->Not(dynamic_cast<TConceptExpr*>(workStack.top()));
 		return;
 
 	case digInverse:
 		if ( workStack.empty() )
 			throwArgumentAbsence ( "role", tag );
-		workStack.top() = pEM->Inverse(workStack.top());
+		workStack.top() = pEM->Inverse(dynamic_cast<TORoleExpr*>(workStack.top()));
 		return;
 
 	case digSome:
@@ -458,10 +461,10 @@ void DIGParseHandlers :: endConcept ( DIGTag tag )
 		workStack.pop();
 		if ( workStack.empty() )
 			throwArgumentAbsence ( "number", tag );
-		DLTree* pN = workStack.top();	// n
-		fpp_assert ( pN->Element() == NUM );
-		unsigned int n = pN->Element().getData();
-		deleteTree(pN);
+//		DLTree* pN = workStack.top();	// n
+//		fpp_assert ( pN->Element() == NUM );
+		unsigned int n = 0;//pN->Element().getData();
+//		deleteTree(pN);
 
 		// create \?e n R.C
 		workStack.top() = tag == digAtMost
@@ -491,6 +494,7 @@ void DIGParseHandlers :: endConcept ( DIGTag tag )
 		workStack.top() = tag == digAnd ? pEM->And() : tag == digOr ? pEM->Or() : pEM->OneOf();
 		return;
 
+#if 0
 	// data staff
 	case digIVal:
 		workStack.push(tryDataValue(data,pKernel->getDataTypeCenter().getNumberType()));
@@ -584,6 +588,7 @@ void DIGParseHandlers :: endConcept ( DIGTag tag )
 
 		return;
 	}
+#endif
 	// unsupported stuff
 	case digChain:
 		// throw (Unsupported)
@@ -710,17 +715,16 @@ void DIGParseHandlers :: endAxiom ( DIGTag tag )
 	{
 		if ( workStack.empty() )
 			throwArgumentAbsence ( "role", "concept", tag );
-		TExpr* C = workStack.top();
+		TConceptExpr* C = dynamic_cast<TConceptExpr*>(workStack.top());
 		workStack.pop();
 		if ( workStack.empty() )
 			throwArgumentAbsence ( "role", "concept", tag );
-		TExpr* R = workStack.top();
+		TORoleExpr* R = dynamic_cast<TORoleExpr*>(workStack.top());
 		workStack.pop();
-		ERROR_IF ( isDataRole(R)
-			? pKernel->setDRange ( dynamic_cast<TDRoleExpr*>(R), dynamic_cast<TDataExpr*>(C) )
-			: pKernel->setORange ( dynamic_cast<TORoleExpr*>(R), dynamic_cast<TConceptExpr*>(C) ) );
+		ERROR_IF ( pKernel->setORange ( R, C ) );
 		return;
 	}
+#if 0
 	case digRangeInt:
 	case digRangeStr:
 	{
@@ -733,6 +737,7 @@ void DIGParseHandlers :: endAxiom ( DIGTag tag )
 											pKernel->getDataTypeCenter().getStringType() ) );
 		return;
 	}
+#endif
 	case digTransitive:
 	{
 		if ( workStack.empty() )
@@ -746,7 +751,7 @@ void DIGParseHandlers :: endAxiom ( DIGTag tag )
 	{
 		if ( workStack.empty() )
 			throwArgumentAbsence ( "role", tag );
-		TExpr* R = workStack.top();
+		TRoleExpr* R = dynamic_cast<TRoleExpr*>(workStack.top());
 		workStack.pop();
 		ERROR_IF ( isDataRole(R)
 			? pKernel->setDFunctional(dynamic_cast<TDRoleExpr*>(R))
@@ -791,7 +796,7 @@ void DIGParseHandlers :: endAxiom ( DIGTag tag )
 		workStack.pop();
 		if ( workStack.empty() )
 			throwArgumentAbsence ( "individual, data property", "data value", tag );
-		TORoleExpr* A = dynamic_cast<TDRoleExpr*>(workStack.top());
+		TDRoleExpr* A = dynamic_cast<TDRoleExpr*>(workStack.top());
 		workStack.pop();
 		if ( workStack.empty() )
 			throwArgumentAbsence ( "individual, data property", "data value", tag );

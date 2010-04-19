@@ -70,46 +70,20 @@ void DLLispParser :: parseCommand ( void )
 	case DISJOINT_R:
 	case INVERSE:
 	{
-		TRoleExpr* left = (t == IMPLIES_R) ? getComplexRoleExpression() : getRoleExpression();
-		TRoleExpr* right = getRoleExpression();
-		bool data = isDataRole(left);
-
-		try
-		{
-			if ( t == INVERSE )
-				Kernel->setInverseRoles ( left, right );
-			else if ( t == IMPLIES_R )
+		TRoleExpr* R = (t == IMPLIES_R) ? getComplexRoleExpression() : getRoleExpression();
+		if ( isDataRole(R) )
+			tellRoleAxiom ( t, dynamic_cast<TDRoleExpr*>(R), getDRoleExpression() );
+		else if ( t != IMPLIES_R )
+			tellRoleAxiom ( t, dynamic_cast<TORoleExpr*>(R), getORoleExpression() );
+		else	// implies_R
+			try
 			{
-				if ( data )
-					Kernel->impliesDRoles ( left, right );
-				else
-					Kernel->impliesORoles ( left, right );
+				Kernel->impliesORoles ( dynamic_cast<TORoleComplexExpr*>(R), getORoleExpression() );
 			}
-			else
-			{	// make N-ary arg
-				EManager->newArgList();
-				EManager->addArg(left);
-				EManager->addArg(right);
-				if ( data )
-				{
-					if ( t == DISJOINT_R )
-						Kernel->disjointDRoles();
-					else
-						Kernel->equalDRoles();
-				}
-				else
-				{
-					if ( t == DISJOINT_R )
-						Kernel->disjointORoles();
-					else
-						Kernel->equalORoles();
-				}
+			catch ( EFaCTPlusPlus ex )
+			{
+				parseError(ex.what());
 			}
-		}
-		catch ( EFaCTPlusPlus ex )
-		{
-			parseError(ex.what());
-		}
 		break;
 	}
 
@@ -119,51 +93,36 @@ void DLLispParser :: parseCommand ( void )
 	case IRREFLEXIVE:
 	case SYMMETRIC:
 	case ANTISYMMETRIC:
+	{
+		TRoleExpr* R = getRoleExpression();
+		if ( isDataRole(R) )
+			tellRoleAxiom ( t, dynamic_cast<TDRoleExpr*>(R), NULL );
+		else
+			tellRoleAxiom ( t, dynamic_cast<TORoleExpr*>(R), NULL );
+		break;
+	}
+
 	case ROLERANGE:
 	case ROLEDOMAIN:
 	{
-		DLTree* R = getRoleExpression();
-		bool data = isDataRole(R);
-
+		TRoleExpr* R = getRoleExpression();
 		try
 		{
-			switch (t)
+			if ( isDataRole(R) )
 			{
-			case FUNCTIONAL:
-				if ( data )
-					Kernel->setDFunctional(R);
+				TDRoleExpr* S = dynamic_cast<TDRoleExpr*>(R);
+				if ( t == ROLERANGE )
+					Kernel->setDRange ( S, getDataExpression() );
 				else
-					Kernel->setOFunctional(R);
-				break;
-			case TRANSITIVE:
-				Kernel->setTransitive(R);
-				break;
-			case REFLEXIVE:
-				Kernel->setReflexive(R);
-				break;
-			case IRREFLEXIVE:
-				Kernel->setIrreflexive(R);
-				break;
-			case SYMMETRIC:
-				Kernel->setSymmetric(R);
-				break;
-			case ANTISYMMETRIC:
-				Kernel->setAntiSymmetric(R);
-				break;
-			case ROLERANGE:
-				if ( data )
-					Kernel->setDRange ( R, getDataExpression() );
+					Kernel->setDDomain ( S, getConceptExpression() );
+			}
+			else
+			{
+				TORoleExpr* S = dynamic_cast<TORoleExpr*>(R);
+				if ( t == ROLERANGE )
+					Kernel->setORange ( S, getConceptExpression() );
 				else
-					Kernel->setORange ( R, getConceptExpression() );
-				break;
-			case ROLEDOMAIN:
-				if ( data )
-					Kernel->setDDomain ( R, getConceptExpression() );
-				else
-					Kernel->setODomain ( R, getConceptExpression() );
-				break;
-			default:
-				fpp_unreachable();
+					Kernel->setODomain ( S, getConceptExpression() );
 			}
 		}
 		catch ( EFaCTPlusPlus ex )
@@ -256,7 +215,7 @@ void DLLispParser :: parseCommand ( void )
 		if ( t == PATTR )
 			try
 			{
-				Kernel->setOFunctional(clone(Name));
+				Kernel->setOFunctional(Name);
 			}
 			catch ( EFaCTPlusPlus ex )
 			{
@@ -279,6 +238,94 @@ void DLLispParser :: parseCommand ( void )
 	}
 
 	MustBeM ( RBRACK );	// skip bracket
+}
+
+/// generate object role axiom between R and S according to the operation TAG
+void
+DLLispParser :: tellRoleAxiom ( Token tag, TORoleExpr* R, TORoleExpr* S )
+{
+	try
+	{
+		switch(tag)
+		{
+		case INVERSE:
+			Kernel->setInverseRoles ( R, S );
+			break;
+
+		case DISJOINT_R:
+		case EQUAL_R:
+			EManager->newArgList();
+			EManager->addArg(R);
+			EManager->addArg(S);
+			if ( tag == DISJOINT_R )
+				Kernel->disjointORoles();
+			else
+				Kernel->equalORoles();
+			break;
+
+		case FUNCTIONAL:
+			Kernel->setOFunctional(R);
+			break;
+		case TRANSITIVE:
+			Kernel->setTransitive(R);
+			break;
+		case REFLEXIVE:
+			Kernel->setReflexive(R);
+			break;
+		case IRREFLEXIVE:
+			Kernel->setIrreflexive(R);
+			break;
+		case SYMMETRIC:
+			Kernel->setSymmetric(R);
+			break;
+		case ANTISYMMETRIC:
+			Kernel->setAntiSymmetric(R);
+			break;
+
+		default:
+			fpp_unreachable();
+		}
+	}
+	catch ( EFaCTPlusPlus ex )
+	{
+		parseError(ex.what());
+	}
+}
+/// generate data role axiom between R and S according to the operation TAG
+void
+DLLispParser :: tellRoleAxiom ( Token tag, TDRoleExpr* R, TDRoleExpr* S )
+{
+	try
+	{
+		switch(tag)
+		{
+		case IMPLIES_R:
+			Kernel->impliesDRoles ( R, S );
+			break;
+
+		case DISJOINT_R:
+		case EQUAL_R:
+			EManager->newArgList();
+			EManager->addArg(R);
+			EManager->addArg(S);
+			if ( tag == DISJOINT_R )
+				Kernel->disjointDRoles();
+			else
+				Kernel->equalDRoles();
+			break;
+
+		case FUNCTIONAL:
+			Kernel->setDFunctional(R);
+			break;
+
+		default:
+			fpp_unreachable();
+		}
+	}
+	catch ( EFaCTPlusPlus ex )
+	{
+		parseError(ex.what());
+	}
 }
 
 void DLLispParser :: parseConceptList ( bool singletonsOnly )
@@ -308,7 +355,7 @@ void DLLispParser :: parseRoleArguments ( TORoleExpr* R )
 			{
 				try
 				{	// only object roles can have arguments
-					Kernel->impliesORoles ( clone(R), getORoleExpression() );
+					Kernel->impliesORoles ( R, getORoleExpression() );
 				}
 				catch ( EFaCTPlusPlus ex )
 				{
@@ -323,7 +370,7 @@ void DLLispParser :: parseRoleArguments ( TORoleExpr* R )
 
 			try
 			{
-				Kernel->setTransitive(clone(R));
+				Kernel->setTransitive(R);
 			}
 			catch ( EFaCTPlusPlus ex )
 			{
@@ -334,9 +381,6 @@ void DLLispParser :: parseRoleArguments ( TORoleExpr* R )
 		}
 		else
 			parseError ( "use either :parents or :transitive command in role description" );
-
-	// R is not needed anymore
-	deleteTree(R);
 }
 
 DLLispParser::TConceptExpr*
@@ -515,6 +559,7 @@ DLLispParser :: getComplexRoleExpression ( void )
 	Token keyword = scan.getExpressionKeyword();
 	NextLex();	// skip keyword
 	TORoleComplexExpr* ret = NULL;
+	TORoleExpr* R;
 	switch ( keyword )
 	{
 	case INV:	// inverse of a simple role
@@ -527,12 +572,12 @@ DLLispParser :: getComplexRoleExpression ( void )
 		ret = EManager->Compose();
 		break;
 	case PROJINTO:	// role projection operator, parse simple role and concept
-		ret = getORoleExpression();
-		ret = EManager->ProjectInto ( ret, getConceptExpression() );
+		R = getORoleExpression();
+		ret = EManager->ProjectInto ( R, getConceptExpression() );
 		break;
 	case PROJFROM:	// role projection operator, parse simple role and concept
-		ret = getORoleExpression();
-		ret = EManager->ProjectFrom ( ret, getConceptExpression() );
+		R = getORoleExpression();
+		ret = EManager->ProjectFrom ( R, getConceptExpression() );
 		break;
 	default:
 		MustBe ( INV, "unknown expression in complex role constructor" );
@@ -564,6 +609,7 @@ DLLispParser :: getDataExpression ( void )
 
 	switch (T)
 	{
+#if 0
 	case DTGT:
 		left = getDataExpression();
 		MustBeM(RBRACK);
@@ -592,6 +638,7 @@ DLLispParser :: getDataExpression ( void )
 		Kernel->getDataTypeCenter().applyFacet ( right,
 			Kernel->getDataTypeCenter().getMaxInclusiveFacet(left) );
 		return right;
+#endif
 
 	case NOT:
 		left = getDataExpression();
@@ -612,6 +659,7 @@ DLLispParser :: getDataExpression ( void )
 		NextLex();	// skip ')'
 		return T == AND ? EManager->DataAnd() : T == OR ? EManager->DataOr() : EManager->DataOneOf();
 
+#if 0
 	case STRING:	// expression (string <value>)
 	case NUMBER:	// expression (number <value>)
 	case REAL:		// expression (real <value>)
@@ -630,7 +678,7 @@ DLLispParser :: getDataExpression ( void )
 
 		NextLex();
 		return getDTValue(left);
-
+#endif
 	default:	// error
 		parseError ( "Unknown data constructor" );
 		return NULL;	// FSCO

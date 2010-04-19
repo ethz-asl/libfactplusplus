@@ -27,19 +27,15 @@ class TExpressionTranslator: public DLExpressionVisitor
 protected:	// members
 		/// tree corresponding to a processing expression
 	DLTree* tree;
-
-	TNameSet<TTreeNamedEntry>	// for now
-		NS_C,
-		NS_I,
-		NS_OR,
-		NS_DR;
+		/// TBox to get access to the named entities
+	TBox& KB;
 
 #define THROW_UNSUPPORTED(name) \
 	throw EFaCTPlusPlus("Unsupported expression '" name "' in transformation")
 
 public:		// interface
 		/// empty c'tor
-	TExpressionTranslator ( void ) : tree(NULL) {}
+	TExpressionTranslator ( TBox& kb ) : tree(NULL), KB(kb) {}
 		/// empty d'tor
 	~TExpressionTranslator ( void ) { deleteTree(tree); }
 
@@ -50,7 +46,7 @@ public:		// visitor interface
 	// concept expressions
 	virtual void visit ( const TDLConceptTop& expr ATTR_UNUSED ) { tree = new DLTree(TOP); }
 	virtual void visit ( const TDLConceptBottom& expr ATTR_UNUSED ) { tree = new DLTree(BOTTOM); }
-	virtual void visit ( const TDLConceptName& expr ) { tree = new DLTree(TLexeme(CNAME,NS_C.insert(expr.getName()))); }
+	virtual void visit ( const TDLConceptName& expr ) { tree = new DLTree(TLexeme(CNAME,KB.getConcept(expr.getName()))); }
 	virtual void visit ( const TDLConceptNot& expr ) { expr.getC()->accept(*this); tree = createSNFNot(*this); }
 	virtual void visit ( const TDLConceptAnd& expr )
 	{
@@ -175,12 +171,12 @@ public:		// visitor interface
 	}
 
 	// individual expressions
-	virtual void visit ( const TDLIndividualName& expr ) { tree = new DLTree(TLexeme(INAME,NS_I.insert(expr.getName()))); }
+	virtual void visit ( const TDLIndividualName& expr ) { tree = new DLTree(TLexeme(INAME,KB.getIndividual(expr.getName()))); }
 
 	// object role expressions
 	virtual void visit ( const TDLObjectRoleTop& expr ATTR_UNUSED ) { THROW_UNSUPPORTED("top object role"); }
 	virtual void visit ( const TDLObjectRoleBottom& expr ATTR_UNUSED ) { THROW_UNSUPPORTED("bottom object role"); }
-	virtual void visit ( const TDLObjectRoleName& expr ) { tree = new DLTree(TLexeme(RNAME,NS_OR.insert(expr.getName()))); }
+	virtual void visit ( const TDLObjectRoleName& expr ) { tree = new DLTree(TLexeme(RNAME,KB.getORM()->ensureRoleName(expr.getName()))); }
 	virtual void visit ( const TDLObjectRoleInverse& expr ) { expr.getOR()->accept(*this); tree = createInverse(*this); }
 	virtual void visit ( const TDLObjectRoleChain& expr )
 	{
@@ -219,7 +215,7 @@ public:		// visitor interface
 	// data role expressions
 	virtual void visit ( const TDLDataRoleTop& expr ATTR_UNUSED ) { THROW_UNSUPPORTED("top data role");  }
 	virtual void visit ( const TDLDataRoleBottom& expr ATTR_UNUSED ) { THROW_UNSUPPORTED("bottom data role"); }
-	virtual void visit ( const TDLDataRoleName& expr ) { tree = new DLTree(TLexeme(DNAME,NS_DR.insert(expr.getName()))); }
+	virtual void visit ( const TDLDataRoleName& expr ) { tree = new DLTree(TLexeme(DNAME,KB.getDRM()->ensureRoleName(expr.getName()))); }
 
 	// data expressions
 	virtual void visit ( const TDLDataTop& expr ATTR_UNUSED ) { tree = new DLTree(TOP); }

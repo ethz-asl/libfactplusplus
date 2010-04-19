@@ -968,7 +968,7 @@ public:
 			TConcept* fc = getAuxConcept();
 			Fairness.push_back(fc);
 			// make an axiom: C [= FC
-			addSubsumeAxiom ( clone(*beg), getTree(fc) );
+			addSubsumeAxiom ( *beg, getTree(fc) );
 		}
 	}
 

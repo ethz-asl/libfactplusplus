@@ -101,14 +101,21 @@ protected:	// methods
 		/// @return datavalue of a data type TYPE with an Id of a just scanned name
 	TDataValueExpr* getDTValue ( TDataExpr* type )
 	{
+		return NULL;
+#if 0
 		TDataValueExpr* ret = Kernel->getDataTypeCenter().getDataValue(scan.GetName(),type);
 		NextLex();
 		deleteTree(type);
 		return ret;
+#endif
 	}
 
 		/// check whether expression R is data role
-	bool isDataRole ( TRoleExpr* R ) const { return R->Element().getToken() == DNAME; }
+	bool isDataRole ( const TRoleExpr* R ) const { return dynamic_cast<const TDRoleExpr*>(R) != NULL; }
+		/// generate object role axiom between R and S according to the operation TAG
+	void tellRoleAxiom ( Token tag, TORoleExpr* R, TORoleExpr* S );
+		/// generate data role axiom between R and S according to the operation TAG
+	void tellRoleAxiom ( Token tag, TDRoleExpr* R, TDRoleExpr* S );
 		/// get role expression, ie (data)role or its inverse
 	TRoleExpr* getRoleExpression ( void );
 		/// get object role expression, ie object role, OR constant or their inverse

@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2009 by Dmitry Tsarkov
+Copyright (C) 2003-2010 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -324,9 +324,9 @@ void TBox :: processDisjointC ( ea_iterator beg, ea_iterator end )
 	for ( ; beg < end; ++beg )
 		if ( isName(*beg) &&
 			 static_cast<const TConcept*>((*beg)->Element().getNE())->isPrimitive() )
-			prim.push_back(clone(*beg));
+			prim.push_back(*beg);
 		else
-			rest.push_back(clone(*beg));
+			rest.push_back(*beg);
 
 	// both primitive concept and others are in DISJ statement
 	if ( !prim.empty() && !rest.empty() )
@@ -352,9 +352,10 @@ void TBox :: processDisjointC ( ea_iterator beg, ea_iterator end )
 
 void TBox :: processEquivalentC ( ea_iterator beg, ea_iterator end )
 {
-	// FIXME!! rewrite it with the only iterator
-	for ( ea_iterator q = beg+1; q < end; ++beg, ++q )
-		addEqualityAxiom ( clone(*beg), clone(*q) );
+	for ( ; beg+1 < end; ++beg )
+		addEqualityAxiom ( *beg, clone(*(beg+1)) );
+	// now beg+1 == end, so beg points to the last element
+	deleteTree(*beg);
 }
 
 //-----------------------------------------------------------------------------
@@ -366,7 +367,10 @@ void TBox :: processDifferent ( ea_iterator beg, ea_iterator end )
 	SingletonVector acc;
 	for ( ; beg < end; ++beg )
 		if ( isIndividual(*beg) )	// only nominals in DIFFERENT command
-			acc.push_back(static_cast<TIndividual*>((*beg)->Element().getNE()));
+		{
+			acc.push_back(toIndividual((*beg)->Element().getNE()));
+			deleteTree(*beg);
+		}
 		else
 			throw EFaCTPlusPlus("Only individuals allowed in processDifferent()");
 
@@ -383,13 +387,14 @@ void TBox :: processSame ( ea_iterator beg, ea_iterator end )
 	if ( !isIndividual(*beg) )	// only nominals in SAME command
 		throw EFaCTPlusPlus("Only individuals allowed in processSame()");
 
-	// FIXME!! rewrite it with the only iterator
-	for ( ea_iterator q = beg+1; q < end; ++beg, ++q )
+	for ( ; beg+1 < end; ++beg )
 	{
-		if ( !isIndividual(*q) )
+		if ( !isIndividual(*(beg+1)) )
 			throw EFaCTPlusPlus("Only individuals allowed in processSame()");
-		addEqualityAxiom ( clone(*beg), clone(*q) );
+		addEqualityAxiom ( *beg, clone(*(beg+1)) );
 	}
+	// now beg+1 == end, so beg points to the last element
+	deleteTree(*beg);
 }
 
 //-----------------------------------------------------------------------------
@@ -418,6 +423,8 @@ void TBox :: processDisjointR ( ea_iterator beg, ea_iterator end )
 		// FIXME: this could be done more optimal...
 		for ( q = p+1; q < end; ++q )
 			RM->addDisjointRoles ( r, resolveRole(*q) );
+
+		deleteTree(*p);
 	}
 }
 
@@ -425,10 +432,13 @@ void TBox :: processEquivalentR ( ea_iterator beg, ea_iterator end )
 {
 	if ( beg != end )
 	{
-		RoleMaster& RM = resolveRole(*beg)->isDataRole() ? DRM : ORM;
+		RoleMaster& RM = *getRM(resolveRole(*beg));
 		for ( ; beg != end-1; ++beg )
+		{
 			RM.addRoleSynonym ( resolveRole(*beg), resolveRole(*(beg+1)) );
+			deleteTree(*beg);
+		}
+		deleteTree(*beg);
 	}
 }
-
 

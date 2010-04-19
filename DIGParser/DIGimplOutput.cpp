@@ -279,32 +279,28 @@ void DIGParseHandlers :: endAsk ( DIGTag tag )
 		{
 			if ( workStack.empty() )
 				throwArgumentAbsence ( "concept", tag );
-			TConceptExpr* p = dynamic_cast<TConceptExpr*>(workStack.top());
+			TExpr* p = workStack.top();
 			workStack.pop();
 
 			if ( tag == digSubsumes )
-				ASK_QUERY ( ret = pKernel->isSubsumedBy ( q, p ) );
+				ASK_QUERY ( ret = pKernel->isSubsumedBy ( q, dynamic_cast<TConceptExpr*>(p) ) );
 			else if ( tag == digInstance )
-				ASK_QUERY ( ret = pKernel->isInstance ( p, q ) );
+				ASK_QUERY ( ret = pKernel->isInstance ( dynamic_cast<TIndividualExpr*>(p), q ) );
 			else	// ( name == "disjoint" )
-				ASK_QUERY ( ret = pKernel->isDisjoint ( p, q ) );
-
-			deleteTree(p);
+				ASK_QUERY ( ret = pKernel->isDisjoint ( dynamic_cast<TConceptExpr*>(p), q ) );
 		}
 
 		simpleXMLEntry ( fail?"error":(ret?"true":"false"), *o, curId.c_str() );
 
-		deleteTree(q);
 		return;
 	}
 	case digCParents:			// concept hierarchy
 	case digCChildren:
 	case digCAncestors:
 	case digCDescendants:
-	case digTypes:
 	{
 		if ( workStack.empty() )
-			throwArgumentAbsence ( "concept or individual", tag );
+			throwArgumentAbsence ( "concept", tag );
 
 		TConceptExpr* p = dynamic_cast<TConceptExpr*>(workStack.top());
 		workStack.pop();
@@ -321,10 +317,26 @@ void DIGParseHandlers :: endAsk ( DIGTag tag )
 			ASK_QUERY ( pKernel->getAncestors ( p, actor ) );
 		else if ( tag == digCDescendants )
 			ASK_QUERY ( pKernel->getDescendants ( p, actor ) );
-		else if ( tag == digTypes )
-			ASK_QUERY ( pKernel->getDirectTypes ( p, actor ) );
 
-		deleteTree(p);
+		if ( fail )	// error
+			ERROR_400;
+
+		return;
+	}
+	case digTypes:
+	{
+		if ( workStack.empty() )
+			throwArgumentAbsence ( "individual", tag );
+
+		TIndividualExpr* p = dynamic_cast<TIndividualExpr*>(workStack.top());
+		workStack.pop();
+		ConceptActor actor ( *o, curId.c_str() );
+
+		// if were any errors during concept expression construction
+		if ( wasError )
+			fail = true;
+		else
+			ASK_QUERY ( pKernel->getDirectTypes ( p, actor ) );
 
 		if ( fail )	// error
 			ERROR_400;
@@ -343,8 +355,6 @@ void DIGParseHandlers :: endAsk ( DIGTag tag )
 			fail = true;
 		else
 			ASK_QUERY ( pKernel->getEquivalents ( p, actor ) );
-
-		deleteTree(p);
 
 		if ( fail )	// error
 			ERROR_400;
@@ -375,8 +385,6 @@ void DIGParseHandlers :: endAsk ( DIGTag tag )
 		else if ( tag == digRDescendants )
 			ASK_QUERY ( pKernel->getRDescendants ( p, actor ) );
 
-		deleteTree(p);
-
 		if ( fail )	// error
 			ERROR_400;
 
@@ -394,8 +402,6 @@ void DIGParseHandlers :: endAsk ( DIGTag tag )
 			fail = true;
 		else
 			ASK_QUERY ( pKernel->getREquivalents ( p, actor ) );
-
-		deleteTree(p);
 
 		if ( fail )	// error
 			ERROR_400;
@@ -416,8 +422,6 @@ void DIGParseHandlers :: endAsk ( DIGTag tag )
 			fail = true;
 		else
 			ASK_QUERY ( pKernel->getInstances ( p, actor ) );
-
-		deleteTree(p);
 
 		if ( fail )
 			ERROR_400;
@@ -441,9 +445,6 @@ void DIGParseHandlers :: endAsk ( DIGTag tag )
 			fail = true;
 		else
 			ASK_QUERY ( pKernel->getRoleFillers ( I, R, Js ) );
-
-		deleteTree(I);
-		deleteTree(R);
 
 		if ( fail )
 			ERROR_400;
@@ -469,8 +470,6 @@ void DIGParseHandlers :: endAsk ( DIGTag tag )
 			fail = true;
 		else
 			ASK_QUERY ( pKernel->getRelatedIndividuals ( R, Is, Js ) );
-
-		deleteTree(R);
 
 		if ( fail )
 			ERROR_400;

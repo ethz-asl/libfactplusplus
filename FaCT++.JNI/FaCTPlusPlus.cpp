@@ -39,9 +39,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "JNIActor.h"
 #include "JNIMonitor.h"
 
-/// remember (and clear) references for the RO trees
-MMKernel* curKernel = NULL;
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -50,10 +47,6 @@ extern "C" {
 #	define TRACE_JNI(func) std::cerr << "JNI Kernel " << getK(env,obj) << " Call " << func << "\n"
 #	define TRACE_ARG(env,obj,arg) do {	\
 		getK(env,obj);					\
-		TExpr* p = getROExpr(env,arg);	\
-		if ( !curKernel->pRefRecorder->in(p) )	\
-			std::cerr << "argument not in the ref-set: "; \
-		std::cerr << p << "\n";	\
 		} while(0)
 #else
 #	define TRACE_JNI(func) (void)NULL
@@ -83,7 +76,9 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_initKe
 		ThrowGen ( env, "Can't get 'KernelId' field" );
 
 	// create new kernel and save it in an FaCTPlusPlus object
-	env->SetLongField ( obj, fid, (jlong)(curKernel=new MMKernel()) );
+	ReasoningKernel* Kernel = new ReasoningKernel();
+	Kernel->newKB();
+	env->SetLongField ( obj, fid, (jlong)Kernel );
 	TRACE_JNI("initKernel");
 
 #ifdef _USE_LOGGING
@@ -101,8 +96,7 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_delete
   (JNIEnv * env, jobject obj)
 {
 	TRACE_JNI("deleteKernel");
-	getK(env,obj);
-	delete curKernel;
+	delete getK(env,obj);
 }
 
 /*
@@ -114,7 +108,6 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_clearK
   (JNIEnv * env, jobject obj)
 {
 	TRACE_JNI("clearKernel");
-	curKernel->pRefRecorder->clear();
 	getK(env,obj)->clearKB();
 }
 
@@ -300,7 +293,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
 	TRACE_JNI("getBuiltInDataType");
 	JString name(env,str);
 	std::string DTName(name());
-
+#if 0
 	// FIXME!! Data Top
 	if ( DTName == "http://www.w3.org/2000/01/rdf-schema#Literal" )
 		return DataType ( env, getK(env,obj)->getDataTypeCenter().getStringType() );
@@ -324,7 +317,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
 
 	if ( DTName == "http://www.w3.org/2001/XMLSchema#boolean" )
 		return DataType ( env, getK(env,obj)->getDataTypeCenter().getDataType("bool"));
-
+#endif
 	std::stringstream err;
 	err << "Unsupported datatype '" << DTName.c_str() << "'";
 	Throw ( env, err.str().c_str() );
@@ -342,6 +335,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
 	TRACE_JNI("getDataSubType");
 	JString name(env,str);
 	jobject ret = (jobject)0;
+#if 0
 	try
 	{
 		ret = DataTypeExpression ( env, getK(env,obj)->getDataTypeCenter().
@@ -351,6 +345,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
 	{
 		Throw ( env, "FaCT++ Kernel: Can not register new data type" );
 	}
+#endif
 	return ret;
 }
 
@@ -388,7 +383,8 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
 {
 	TRACE_JNI("getRestrictedDataType");
 	DataTypeCenter& center = getK(env,obj)->getDataTypeCenter();
-
+	Throw ( env, "FaCT++ Kernel: unsupported operation" );
+#if 0
 	// create new DTExpression of the type ARG1 and add both facets to it
 	DLTree* type = getDataExpr(env,arg1);
 	DLTree* ret = center.getDataExpr(type);
@@ -396,6 +392,8 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
 	ret = center.applyFacet(ret,getFacet(env,arg2));
 
 	return DataTypeExpression(env,ret);
+#endif
+	return 0;
 }
 
 /*
@@ -459,7 +457,11 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
   (JNIEnv * env, jobject obj, jobject arg)
 {
 	TRACE_JNI("getMinExclusiveFacet");
+	Throw ( env, "FaCT++ Kernel: unsupported operation" );
+	return NULL;
+#if 0
 	return Facet ( env, getK(env,obj)->getDataTypeCenter().getMinExclusiveFacet(getDataValueExpr(env,arg)) );
+#endif
 }
 
 /*
@@ -471,7 +473,11 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
   (JNIEnv * env, jobject obj, jobject arg)
 {
 	TRACE_JNI("getMaxExclusiveFacet");
+	Throw ( env, "FaCT++ Kernel: unsupported operation" );
+	return NULL;
+#if 0
 	return Facet ( env, getK(env,obj)->getDataTypeCenter().getMaxExclusiveFacet(getDataValueExpr(env,arg)) );
+#endif
 }
 
 /*
@@ -483,7 +489,11 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
   (JNIEnv * env, jobject obj, jobject arg)
 {
 	TRACE_JNI("getMinInclusiveFacet");
+	Throw ( env, "FaCT++ Kernel: unsupported operation" );
+	return NULL;
+#if 0
 	return Facet ( env, getK(env,obj)->getDataTypeCenter().getMinInclusiveFacet(getDataValueExpr(env,arg)) );
+#endif
 }
 
 /*
@@ -495,7 +505,11 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
   (JNIEnv * env, jobject obj, jobject arg)
 {
 	TRACE_JNI("getMaxInclusiveFacet");
+	Throw ( env, "FaCT++ Kernel: unsupported operation" );
+	return NULL;
+#if 0
 	return Facet ( env, getK(env,obj)->getDataTypeCenter().getMaxInclusiveFacet(getDataValueExpr(env,arg)) );
+#endif
 }
 
 /*
@@ -570,6 +584,9 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
 {
 	TRACE_JNI("getDataValue");
 	JString name(env,str);
+	Throw ( env, "FaCT++ Kernel: unsupported operation" );
+	return NULL;
+#if 0
 	jobject ret = (jobject)0;
 	try
 	{
@@ -581,6 +598,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
 		Throw ( env, "FaCT++ Kernel: Can not register new data value" );
 	}
 	return ret;
+#endif
 }
 
 /*
@@ -784,7 +802,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
   (JNIEnv * env, jobject obj)
 {
 	TRACE_JNI("getPropertyComposition");
-	return ObjectProperty ( env, getEM(env,obj)->Compose() );
+	return ObjectComplex ( env, getEM(env,obj)->Compose() );
 }
 
 /*
@@ -1843,12 +1861,16 @@ JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlu
 	TRACE_JNI("askRelatedValues");
 	TRACE_ARG(env,obj,arg1);
 	TRACE_ARG(env,obj,arg2);
+	Throw ( env, "FaCT++ Kernel: unsupported operation" );
+	return NULL;
+#if 0
 	ReasoningKernel::NamesVector Js;
 	PROCESS_ASK_QUERY ( getK(env,obj)->getRoleFillers ( getROIndividualExpr(env,arg1), getRODRoleExpr(env,arg2), Js ),"askRelatedValues");
 	std::vector<TExpr*> acc;
 	for ( ReasoningKernel::NamesVector::const_iterator p = Js.begin(), p_end = Js.end(); p < p_end; ++p )
 		acc.push_back(new TExpr(TLexeme(DATAEXPR,const_cast<TNamedEntry*>(*p))));
 	return buildArray ( env, acc, cnDataValuePointer() );
+#endif
 }
 
 /*
@@ -1863,9 +1885,13 @@ JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_ha
 	TRACE_ARG(env,obj,arg1);
 	TRACE_ARG(env,obj,arg2);
 	TRACE_ARG(env,obj,arg3);
+	Throw ( env, "FaCT++ Kernel: unsupported operation" );
+	return NULL;
+#if 0
 	bool ret = false;
 	PROCESS_ASK_QUERY ( ret=getK(env,obj)->isRelated ( getROIndividualExpr(env,arg1), getRODRoleExpr(env,arg2), getROIndividualExpr(env,arg3) ),"hasDataPropertyRelationship");
 	return ret;
+#endif
 }
 
 /*
@@ -1988,7 +2014,7 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_initAr
   (JNIEnv * env, jobject obj)
 {
 	TRACE_JNI("initArgList");
-	getK(env,obj)->newArgList();
+	getEM(env,obj)->newArgList();
 }
 
 /*
@@ -2001,7 +2027,7 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_addArg
 {
 	TRACE_JNI("addArg");
 	TRACE_ARG(env,obj,arg);
-	getK(env,obj)->addArg(getExpr(env,arg));
+	getEM(env,obj)->addArg(getExpr(env,arg));
 }
 
 /*

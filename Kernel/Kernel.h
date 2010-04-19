@@ -28,10 +28,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ReasonerNom.h"
 #include "ifOptions.h"
 #include "DLConceptTaxonomy.h"	// for getRelatives()
+#include "tExpressionManager.h"
+#include "tExpressionTranslator.h"
 #include "tOntology.h"
-
-class ReasoningKernel;
-typedef ReasoningKernel TExpressionManager;
 
 class ReasoningKernel
 {
@@ -56,23 +55,23 @@ public:	// types interface
 	*/
 
 		/// general expression
-	typedef DLTree TExpr;
+	typedef TDLExpression TExpr;
 		/// concept expression
-	typedef DLTree TConceptExpr;
+	typedef TDLConceptExpression TConceptExpr;
 		/// individual expression
-	typedef DLTree TIndividualExpr;
+	typedef TDLIndividualExpression TIndividualExpr;
 		/// role expression
-	typedef DLTree TRoleExpr;
+	typedef TDLRoleExpression TRoleExpr;
 		/// object role complex expression (including role chains and projections)
-	typedef DLTree TORoleComplexExpr;
+	typedef TDLObjectRoleComplexExpression TORoleComplexExpr;
 		/// object role expression
-	typedef DLTree TORoleExpr;
+	typedef TDLObjectRoleExpression TORoleExpr;
 		/// data role expression
-	typedef DLTree TDRoleExpr;
+	typedef TDLDataRoleExpression TDRoleExpr;
 		/// data expression
-	typedef DLTree TDataExpr;
+	typedef TDLDataExpression TDataExpr;
 		/// data value expression
-	typedef DLTree TDataValueExpr;
+	typedef TDLDataValue TDataValueExpr;
 
 	// name sets
 
@@ -117,10 +116,12 @@ protected:	// members
 	TBox* pTBox;
 		/// DataType center
 	DataTypeCenter DTCenter;
-		/// set of queues for the n-ary expressions/commands
-	TNAryQueue<DLTree> NAryQueue;
+		/// Expression manager for the interface
+	TExpressionManager EManager;
 		/// set of axioms
 	TOntology Ontology;
+		/// expression translator to work with queries
+	TExpressionTranslator* pET;
 
 	// reasoning cache
 
@@ -150,9 +151,6 @@ protected:	// methods
 
 	// register all necessary options in local option set
 	bool initOptions ( void );
-		/// register the pointer that is go outside the kernel
-		// do nothing for now
-	DLTree* regPointer ( DLTree* arg ) { return arg; }
 
 		/// get status of the KB
 	KBStatus getStatus ( void ) const
@@ -164,8 +162,15 @@ protected:	// methods
 		/// process KB wrt STATUS
 	void processKB ( KBStatus status );
 
+		/// get DLTree corresponding to an expression EXPR
+	DLTree* e ( const TExpr* expr )
+	{
+		fpp_assert ( pET != NULL );
+		expr->accept(*pET);
+		return *pET;
+	}
 		/// checks if current query is cached
-	bool isCached ( const TConceptExpr* query ) const
+	bool isCached ( const DLTree* query ) const
 		{ return ( cachedQuery == NULL ? false : equalTrees ( cachedQuery, query ) ); }
 		/// set up cache for query, performing additional (re-)classification if necessary
 	void setUpCache ( const TConceptExpr* query, cacheStatus level );
@@ -190,7 +195,7 @@ protected:	// methods
 		return I->getRelatedCache(R);
 	}
 
-		/// @return true iff C is satisfiable
+/*		/// @return true iff C is satisfiable
 	bool checkSat ( const DLTree* C )
 	{
 		preprocessKB();	// ensure KB is ready to answer the query
@@ -208,7 +213,7 @@ protected:	// methods
 			return getTBox()->isSubHolds ( getTBox()->getCI(C), getTBox()->getCI(D) );
 
 		return !checkSat ( TreeDeleter ( createSNFAnd ( clone(C), createSNFNot(clone(D)) ) ) );
-	}
+	}*/
 
 	// get access to internal structures
 
@@ -256,18 +261,26 @@ protected:	// methods
 
 	// transformation methods
 
-		/// get individual by a DLTree
-	TIndividual* getIndividual ( const TIndividualExpr* i, const char* reason ATTR_UNUSED )
+		/// get individual by the TIndividualExpr
+	TIndividual* getIndividual ( const TIndividualExpr* i, const char* reason )
 	{
-		if ( !getTBox()->isIndividual(i) )
+		try
+		{
+			TreeDeleter I = e(i);
+			if ( I == NULL )
+				throw EFaCTPlusPlus(reason);
+			return static_cast<TIndividual*>(getTBox()->getCI(I));
+		}
+		catch(...)
+		{
 			throw EFaCTPlusPlus(reason);
-		return static_cast<TIndividual*>(getTBox()->getCI(i));
+		}
 	}
-		/// get role by the DLTree
-	TRole* getRole ( const TRoleExpr* r, const char* reason ) const
+		/// get role by the TRoleExpr
+	TRole* getRole ( const TRoleExpr* r, const char* reason )
 	{
-		try { return resolveRole(r); }
-		catch ( EFaCTPlusPlus e ) { throw EFaCTPlusPlus(reason); }
+		try { return resolveRole(TreeDeleter(e(r))); }
+		catch(...) { throw EFaCTPlusPlus(reason); }
 	}
 
 	//----------------------------------------------
@@ -343,7 +356,7 @@ public:	// general staff
 	const DataTypeCenter& getDataTypeCenter ( void ) const { return DTCenter; }
 
 		/// get access to an expression manager
-	TExpressionManager* getExpressionManager ( void ) { return this; }
+	TExpressionManager* getExpressionManager ( void ) { return &EManager; }
 
 public:
 	//******************************************
@@ -358,6 +371,7 @@ public:
 
 		pTBox = new TBox ( getOptions(), DTCenter );
 		pTBox->setTestTimeout(OpTimeout);
+		pET = new TExpressionTranslator(*pTBox);
 		initCacheAndFlags();
 #	ifdef OWLAPI3
 		declare(ObjectRole("http://www.w3.org/2002/07/owl#topObjectProperty"));
@@ -372,6 +386,8 @@ public:
 	{
 		delete pTBox;
 		pTBox = NULL;
+		delete pET;
+		pET = NULL;
 		deleteTree(cachedQuery);
 		cachedQuery = NULL;
 		Ontology.clear();
@@ -385,122 +401,6 @@ public:
 			return true;
 		return releaseKB () || newKB ();
 	}
-
-	//-------------------------------------------------------------------
-	//--	DL expressions. DL syntax, not DIG/OWL
-	//-------------------------------------------------------------------
-
-		/// start new argument list for n-ary concept expressions/axioms
-	void newArgList ( void ) { NAryQueue.openArgList(); }
-		/// add an element C to the most recent open argument list
-	void addArg ( TExpr* C ) { NAryQueue.addArg(C); }
-
-	//-------------------------------------------------------------------
-	//--	Concept expressions
-	//-------------------------------------------------------------------
-
-		/// @return TOP
-	TConceptExpr* Top ( void ) { return regPointer( new DLTree(TOP) ); }
-		/// @return BOTTOM
-	TConceptExpr* Bottom ( void ) { return regPointer ( new DLTree(BOTTOM) ); }
-		/// @return concept corresponding to NAME
-	TConceptExpr* Concept ( const std::string& name ) { return regPointer ( new DLTree ( TLexeme ( CNAME, getTBox()->getConcept(name) ) ) ); }
-		/// @return ~C
-	TConceptExpr* Not ( TConceptExpr* C ) { return regPointer(createSNFNot(C)); }
-		/// @return C/\D
-	TConceptExpr* And ( TConceptExpr* C, TConceptExpr* D ) { return regPointer ( createSNFAnd ( C, D ) ); }
-		/// @return C1/\.../\Cn
-	TConceptExpr* And ( void ) { return regPointer(getTBox()->processAnd(NAryQueue.getLastArgList())); }
-		/// @return C1\/...\/Cn
-	TConceptExpr* Or ( void ) { return regPointer(getTBox()->processOr(NAryQueue.getLastArgList())); }
-		/// @return \E R.C
-	TConceptExpr* Exists ( TORoleExpr* R, TConceptExpr* C ) { return regPointer ( createSNFExists ( R, C ) ); }
-		/// @return \E R.D
-//	TConceptExpr* Exists ( TDRoleExpr* R, TDataExpr* D ) { return regPointer ( createSNFExists ( R, D ) ); }
-		/// @return \A R.C
-	TConceptExpr* Forall ( TORoleExpr* R, TConceptExpr* C ) { return regPointer ( createSNFForall ( R, C ) ); }
-		/// @return \A R.D
-//	TConceptExpr* Forall ( TDRoleExpr* R, TDataExpr* D ) { return regPointer ( createSNFForall ( R, D ) ); }
-		/// @return \E R.I for individual value I
-	TConceptExpr* Value ( TORoleExpr* R, TIndividualExpr* I ) { return regPointer ( createSNFExists ( R, I ) ); }
-		/// @return \E R.V for data value I
-//	TConceptExpr* Value ( TORoleExpr* R, TDataValueExpr* V ) { return regPointer ( createSNFExists ( R, V ) ); }
-		/// @return <= n R.C
-	TConceptExpr* MaxCardinality ( unsigned int n, TORoleExpr* R, TConceptExpr* C ) { return regPointer ( createSNFLE ( n, R, C ) ); }
-		/// @return >= n R.C
-	TConceptExpr* MinCardinality ( unsigned int n, TORoleExpr* R, TConceptExpr* C ) { return regPointer ( createSNFGE ( n, R, C ) ); }
-		/// @return = n R.C
-	TConceptExpr* Cardinality ( unsigned int n, TORoleExpr* R, TConceptExpr* C )
-	{
-		DLTree* tMin = createSNFLE ( n, clone(R), clone(C) );
-		DLTree* tMax = createSNFGE ( n, R, C );
-		return regPointer ( createSNFAnd ( tMin, tMax ) );
-	}
-		/// @return <= n R.D
-//	TConceptExpr* MaxCardinality ( unsigned int n, TORoleExpr* R, TDataExpr* D ) { return regPointer ( createSNFLE ( n, R, D ) ); }
-		/// @return >= n R.D
-//	TConceptExpr* MinCardinality ( unsigned int n, TORoleExpr* R, TDataExpr* D ) { return regPointer ( createSNFGE ( n, R, D ) ); }
-		/// @return = n R.D
-/*	TConceptExpr* Cardinality ( unsigned int n, TORoleExpr* R, TDataExpr* D )
-	{
-		DLTree* tMin = createSNFLE ( n, clone(R), clone(D) );
-		DLTree* tMax = createSNFGE ( n, R, D );
-		return regPointer ( createSNFAnd ( tMin, tMax ) );
-	}*/
-		/// @return \E R.Self
-	TConceptExpr* SelfReference ( TORoleExpr* R ) { return regPointer ( new DLTree ( REFLEXIVE, R ) ); }
-		/// @return one-of construction for the arguments in NAryQueue
-	TConceptExpr* OneOf ( void ) { return regPointer ( getTBox()->processOneOf ( NAryQueue.getLastArgList(), /*data=*/false ) ); }
-		/// @return concept {I} for the individual I
-	TConceptExpr* OneOf ( TIndividualExpr* I )
-	{
-		getExpressionManager()->newArgList();
-		getExpressionManager()->addArg(I);
-		return OneOf();
-	}
-
-	//-------------------------------------------------------------------
-	//--	(Data)Role expressions
-	//-------------------------------------------------------------------
-
-		/// @return object role corresponding to NAME
-	TORoleExpr* ObjectRole ( const std::string& name ) { return regPointer ( new DLTree ( TLexeme ( RNAME, getORM()->ensureRoleName(name) ) ) ); }
-		/// @return data role corresponding to NAME
-	TDRoleExpr* DataRole ( const std::string& name ) { return regPointer ( new DLTree ( TLexeme ( DNAME, getDRM()->ensureRoleName(name) ) ) ); }
-		/// @return universal role
-//	ComplexRole UniversalRole ( void ) const { return new DLTree(UROLE); }
-		/// @return R^-
-	TORoleExpr* Inverse ( TORoleExpr* R ) { return regPointer(createInverse(R)); }
-		/// @return R1*...*Rn
-	TORoleComplexExpr* Compose ( void ) { return regPointer(getTBox()->processRComposition(NAryQueue.getLastArgList())); }
-		/// @return project R into C
-	TORoleComplexExpr* ProjectInto ( TORoleExpr* R, TConceptExpr* C ) { return regPointer ( new DLTree ( TLexeme(PROJINTO), R, C ) ); }
-		/// @return project R from C
-	TORoleComplexExpr* ProjectFrom ( TORoleExpr* R, TConceptExpr* C ) { return regPointer ( new DLTree ( TLexeme(PROJFROM), R, C ) ); }
-
-	//-------------------------------------------------------------------
-	//--	individual expressions
-	//-------------------------------------------------------------------
-
-		/// @return individual corresponding to NAME
-	TIndividualExpr* Individual ( const std::string& name ) { return regPointer ( new DLTree ( TLexeme ( INAME, getTBox()->getIndividual(name) ) ) ); }
-
-	//-------------------------------------------------------------------
-	//--	data expressions (data values and types are obtained by DataTypeCenter
-	//-------------------------------------------------------------------
-
-		/// @return data TOP
-	TDataExpr* DataTop ( void ) { return regPointer ( new DLTree(TOP) ); }
-		/// @return data BOTTOM
-	TDataExpr* DataBottom ( void ) { return regPointer ( new DLTree(BOTTOM) ); }
-		/// @return data negation
-	TDataExpr* DataNot ( TDataExpr* E ) { return regPointer(createSNFNot(E)); }
-		/// @return conjunction of data expressions
-	TDataExpr* DataAnd ( void ) { return regPointer(getTBox()->processAnd(NAryQueue.getLastArgList())); }
-		/// @return disjunction of data expressions
-	TDataExpr* DataOr ( void ) { return regPointer(getTBox()->processOr(NAryQueue.getLastArgList())); }
-		/// @return {v_1,...,v_n} constructor for the data values in NAryQueue
-	TDataExpr* DataOneOf ( void ) { return regPointer ( getTBox()->processOneOf ( NAryQueue.getLastArgList(), /*data=*/true ) ); }
 
 	//----------------------------------------------------
 	//	TELLS interface
@@ -518,10 +418,10 @@ public:
 		{ return Ontology.add ( new TDLAxiomConceptInclusion ( C, D ) ); }
 		/// axiom C1 = ... = Cn
 	TDLAxiom* equalConcepts ( void )
-		{ return Ontology.add ( new TDLAxiomEquivalentConcepts(NAryQueue.getLastArgList()) ); }
+		{ return Ontology.add ( new TDLAxiomEquivalentConcepts(getExpressionManager()->getArgList()) ); }
 		/// axiom C1 != ... != Cn
 	TDLAxiom* disjointConcepts ( void )
-		{ return Ontology.add ( new TDLAxiomDisjointConcepts(NAryQueue.getLastArgList()) ); }
+		{ return Ontology.add ( new TDLAxiomDisjointConcepts(getExpressionManager()->getArgList()) ); }
 
 
 	// Role axioms
@@ -537,16 +437,16 @@ public:
 		{ return Ontology.add ( new TDLAxiomDRoleSubsumption ( R, S ) ); }
 		/// axiom R1 = R2 = ...
 	TDLAxiom* equalORoles ( void )
-		{ return Ontology.add ( new TDLAxiomEquivalentORoles(NAryQueue.getLastArgList()) ); }
+		{ return Ontology.add ( new TDLAxiomEquivalentORoles(getExpressionManager()->getArgList()) ); }
 		/// axiom R1 = R2 = ...
 	TDLAxiom* equalDRoles ( void )
-		{ return Ontology.add ( new TDLAxiomEquivalentDRoles(NAryQueue.getLastArgList()) ); }
+		{ return Ontology.add ( new TDLAxiomEquivalentDRoles(getExpressionManager()->getArgList()) ); }
 		/// axiom R1 != R2 != ...
 	TDLAxiom* disjointORoles ( void )
-		{ return Ontology.add ( new TDLAxiomDisjointORoles(NAryQueue.getLastArgList()) ); }
+		{ return Ontology.add ( new TDLAxiomDisjointORoles(getExpressionManager()->getArgList()) ); }
 		/// axiom R1 != R2 != ...
 	TDLAxiom* disjointDRoles ( void )
-		{ return Ontology.add ( new TDLAxiomDisjointDRoles(NAryQueue.getLastArgList()) ); }
+		{ return Ontology.add ( new TDLAxiomDisjointDRoles(getExpressionManager()->getArgList()) ); }
 
 		/// Domain (R C)
 	TDLAxiom* setODomain ( TORoleExpr* R, TConceptExpr* C )
@@ -606,13 +506,13 @@ public:
 		{ return Ontology.add ( new TDLAxiomValueOfNot(I,A,V) ); }
 		/// same individuals
 	TDLAxiom* processSame ( void )
-		{ return Ontology.add ( new TDLAxiomSameIndividuals(NAryQueue.getLastArgList()) ); }
+		{ return Ontology.add ( new TDLAxiomSameIndividuals(getExpressionManager()->getArgList()) ); }
 		/// different individuals
 	TDLAxiom* processDifferent ( void )
-		{ return Ontology.add ( new TDLAxiomDifferentIndividuals(NAryQueue.getLastArgList()) ); }
+		{ return Ontology.add ( new TDLAxiomDifferentIndividuals(getExpressionManager()->getArgList()) ); }
 		/// let all concept expressions in the ArgQueue to be fairness constraints
 	TDLAxiom* setFairnessConstraint ( void )
-		{ return Ontology.add ( new TDLAxiomFairnessConstraint(NAryQueue.getLastArgList()) ); }
+		{ return Ontology.add ( new TDLAxiomFairnessConstraint(getExpressionManager()->getArgList()) ); }
 
 		/// retract an axiom
 	void retract ( TDLAxiom* axiom ) { axiom->setUsed(false); }
@@ -670,8 +570,17 @@ public:
 
 	// role info retrieval
 
-		/// @return true iff role is functional
-	bool isFunctional ( const TRoleExpr* R )
+		/// @return true iff object role is functional
+	bool isFunctional ( const TORoleExpr* R )
+	{
+		preprocessKB();	// ensure KB is ready to answer the query
+		if ( isUniversalRole(R) )
+			return false;	// universal role is not functional
+
+		return getRole ( R, "Role expression expected in isFunctional()" )->isFunctional();
+	}
+		/// @return true iff data role is functional
+	bool isFunctional ( const TDRoleExpr* R )
 	{
 		preprocessKB();	// ensure KB is ready to answer the query
 		if ( isUniversalRole(R) )
@@ -699,7 +608,7 @@ public:
 			getRole ( R, "Role expression expected in isDisjointRoles()" ),
 			getRole ( S, "Role expression expected in isDisjointRoles()" ) );
 	}
-/*		/// @return true iff two roles are disjoint
+		/// @return true iff two roles are disjoint
 	bool isDisjointRoles ( const TDRoleExpr* R, const TDRoleExpr* S )
 	{
 		preprocessKB();	// ensure KB is ready to answer the query
@@ -710,7 +619,7 @@ public:
 			getRole ( R, "Role expression expected in isDisjointRoles()" ),
 			getRole ( S, "Role expression expected in isDisjointRoles()" ) );
 	}
-*/
+
 	// TBox info retriveal
 
 	// apply actor.apply() to all concept names
@@ -754,19 +663,36 @@ public:
 		/// @return true iff C is satisfiable
 	bool isSatisfiable ( const TConceptExpr* C )
 	{
-		return checkSat(C);
+		preprocessKB();	// ensure KB is ready to answer the query
+
+		// check whether the satisfiability of a named concept is checked
+		// FIXME!! check for TOP/BOTTOM later
+		const TDLConceptName* CN = dynamic_cast<const TDLConceptName*>(C);
+		if ( CN != NULL )
+			return getTBox()->isSatisfiable(getTBox()->getConcept(CN->getName()));
+
+		setUpCache ( C, csSat );
+		return getTBox()->isSatisfiable(cachedConcept);
 	}
 		/// @return true iff C [= D holds
 	bool isSubsumedBy ( const TConceptExpr* C, const TConceptExpr* D )
 	{
-		return checkSub ( C, D );
+		preprocessKB();	// ensure KB is ready to answer the query
+		// check whether the subsumption between named concepts is checked
+		// FIXME!! check for TOP/BOTTOM later
+		const TDLConceptName* CN = dynamic_cast<const TDLConceptName*>(C);
+		const TDLConceptName* DN = dynamic_cast<const TDLConceptName*>(D);
+		if ( CN != NULL && DN != NULL )
+			return getTBox()->isSubHolds ( getTBox()->getConcept(CN->getName()), getTBox()->getConcept(DN->getName()) );
+
+		return !isSatisfiable ( NULL/*TreeDeleter ( And ( clone(C), Not(clone(D)) ) )*/ );
 	}
 		/// @return true iff C is disjoint with D
 	bool isDisjoint ( const TConceptExpr* C, const TConceptExpr* D )
-		{ return !checkSat ( TreeDeleter ( And ( clone(C), clone(D) ) ) ); }
+		{ return !isSatisfiable ( NULL/*TreeDeleter ( And ( clone(C), clone(D) ) )*/ ); }
 		/// @return true iff C is equivalent to D
 	bool isEquivalent ( const TConceptExpr* C, const TConceptExpr* D )
-		{ return checkSub ( C, D ) && checkSub ( D, C ); }
+		{ return isSubsumedBy ( C, D ) && isSubsumedBy ( D, C ); }
 
 	// concept hierarchy
 
@@ -874,7 +800,7 @@ public:
 	void getRoleDomain ( const TRoleExpr* r, Actor& actor )
 	{
 		classifyKB();	// ensure KB is ready to answer the query
-		setUpCache ( TreeDeleter(Exists(clone(r),Top())), csClassified );
+		setUpCache ( NULL/*TreeDeleter(Exists(clone(r),Top()))*/, csClassified );
 		// gets an exact domain is named concept; otherwise, set of the most specific concepts
 		cachedVertex->getRelativesInfo</*needCurrent=*/true, /*onlyDirect=*/true,
 									   /*upDirection=*/true>(actor);
@@ -883,7 +809,7 @@ public:
 		/// apply actor::apply() to all NC that are in the range of [complex] R
 	template<class Actor>
 	void getRoleRange ( const TRoleExpr* r, Actor& actor )
-		{ getRoleDomain ( TreeDeleter(Inverse(clone(r))), actor ); }
+		{ getRoleDomain ( NULL/*TreeDeleter(Inverse(clone(r)))*/, actor ); }
 
 	// instances
 
@@ -922,21 +848,21 @@ public:
 	void getDirectTypes ( const TIndividualExpr* I, Actor& actor )
 	{
 		realiseKB();	// ensure KB is ready to answer the query
-		getParents ( I, actor );
+		getParents ( getExpressionManager()->OneOf(I), actor );
 	}
 		/// apply actor::apply() to all concept ancestors of an individual I
 	template<class Actor>
 	void getTypes ( const TIndividualExpr* I, Actor& actor )
 	{
 		realiseKB();	// ensure KB is ready to answer the query
-		getAncestors ( I, actor );
+		getAncestors ( getExpressionManager()->OneOf(I), actor );
 	}
 		/// apply actor::apply() to all synonyms of an individual I
 	template<class Actor>
 	void getSameAs ( const TIndividualExpr* I, Actor& actor )
 	{
 		realiseKB();	// ensure KB is ready to answer the query
-		getEquivalents ( I, actor );
+		getEquivalents ( getExpressionManager()->OneOf(I), actor );
 	}
 		/// @return true iff I and J refer to the same individual
 	bool isSameIndividuals ( const TIndividualExpr* I, const TIndividualExpr* J )
@@ -951,7 +877,7 @@ public:
 	{
 		realiseKB();	// ensure KB is ready to answer the query
 		getIndividual ( I, "individual name expected in the isInstance()" );
-		return isSubsumedBy ( I, C );
+		return isSubsumedBy ( getExpressionManager()->OneOf(I), C );
 	}
 		/// @return in Rs all (DATA)-roles R s.t. (I,x):R; add inverses if NEEDI is true
 	void getRelatedRoles ( const TIndividualExpr* I, NamesVector& Rs, bool data, bool needI );

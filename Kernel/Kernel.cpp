@@ -38,6 +38,7 @@ static bool KernelFirstRun = true;
 
 ReasoningKernel :: ReasoningKernel ( void )
 	: pTBox (NULL)
+	, pET(NULL)
 	, cachedQuery(NULL)
 	, OpTimeout(0)
 {
@@ -138,11 +139,14 @@ Realise:	// do realisation
 //* caching support
 //******************************************
 void
-ReasoningKernel :: setUpCache ( const TConceptExpr* query, cacheStatus level )
+ReasoningKernel :: setUpCache ( const TConceptExpr* Query, cacheStatus level )
 {
+	DLTree* query = e(Query);
+
 	// check if the query is already cached
 	if ( isCached (query) )
 	{	// ... with the same level -- nothing to do
+		deleteTree(query);
 		if ( level <= cacheLevel )
 			return;
 		else
@@ -165,7 +169,7 @@ ReasoningKernel :: setUpCache ( const TConceptExpr* query, cacheStatus level )
 
 	// change current query
 	deleteTree(cachedQuery);
-	cachedQuery = clone (query);
+	cachedQuery = query;
 
 needSetup:
 	// clean cached info
@@ -265,9 +269,10 @@ ReasoningKernel :: buildRelatedCache ( TIndividual* I, const TRole* R )
 	// now fills the query
 	RIActor actor;
 	// ask for instances of \exists R^-.{i}
-	TreeDeleter query ( Exists (
-		(R->getId() > 0) ? Inverse(ObjectRole(R->getName())) : ObjectRole(R->inverse()->getName()),
-		Individual(I->getName()) ) );
+	TORoleExpr* InvR = R->getId() > 0
+		? getExpressionManager()->Inverse(getExpressionManager()->ObjectRole(R->getName()))
+		: getExpressionManager()->ObjectRole(R->inverse()->getName());
+	TConceptExpr* query = getExpressionManager()->Value ( InvR, getExpressionManager()->Individual(I->getName()) );
 	getInstances ( query, actor );
 	return actor.getAcc();
 }

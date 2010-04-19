@@ -115,7 +115,7 @@ void testSat ( const std::string& names, ReasoningKernel& Kernel )
 	while ( (sat = getNextName(sc,Kernel)) != NULL )
 	{
 		bool result = false;
-		if ( sat->Element().getToken() == TOP )
+		if ( static_cast<TDLConceptTop*>(sat) == NULL )
 			result = Kernel.isKBConsistent();
 		else
 			TryReasoning ( result = Kernel.isSatisfiable(sat) );
@@ -124,7 +124,6 @@ void testSat ( const std::string& names, ReasoningKernel& Kernel )
 		if ( !result )
 			std::cout << "un";
 		std::cout << "satisfiable w.r.t. TBox\n";
-		deleteTree(sat);
 	}
 }
 
@@ -146,9 +145,7 @@ void testSub ( const std::string& names1, const std::string& names2, ReasoningKe
 			if ( !result )
 				std::cout << " NOT";
 			std::cout << " holds w.r.t. TBox\n";
-			deleteTree(sup);
 		}
-		deleteTree(sub);
 	}
 }
 

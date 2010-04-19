@@ -20,6 +20,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #define TONTOLOGYLOADER_H
 
 #include "tOntology.h"
+#include "tExpressionTranslator.h"
 #include "dlTBox.h"
 
 class TOntologyLoader: public DLAxiomVisitor
@@ -27,27 +28,46 @@ class TOntologyLoader: public DLAxiomVisitor
 protected:	// members
 		/// KB to load the ontology
 	TBox& kb;
+		/// Transforms TDLExpression hierarchy to the DLTree*
+	TExpressionTranslator ETrans;
 		/// temporary vector for arguments of TBox n-ary axioms
 	std::vector<DLTree*> ArgList;
 
 protected:	// methods
-		/// get role by the DLTree; throw exception if unable
-	static TRole* getRole ( const DLTree* r, const char* reason )
+		/// get DLTree corresponding to an expression EXPR
+	DLTree* e ( const TDLExpression* expr )
 	{
-		try { return resolveRole(r); }
+		expr->accept(ETrans);
+		return ETrans;
+	}
+		/// get role by the DLTree; throw exception if unable
+	TRole* getRole ( const TDLRoleExpression* r, const char* reason )
+	{
+		try
+		{
+			return resolveRole(TreeDeleter(e(r)));
+		}
 		catch ( EFaCTPlusPlus e ) { throw EFaCTPlusPlus(reason); }
 	}
 		/// get an individual be the DLTree; throw exception if unable
-	TIndividual* getIndividual ( const DLTree* I, const char* reason ) const
+	TIndividual* getIndividual ( const TDLIndividualExpression* I, const char* reason )
 	{
-		if ( !kb.isIndividual(I) )
+		try
+		{
+			TreeDeleter i = e(I);
+			if ( i == NULL )
+				throw EFaCTPlusPlus(reason);
+			return static_cast<TIndividual*>(kb.getCI(i));
+		}
+		catch(...)
+		{
 			throw EFaCTPlusPlus(reason);
-		return static_cast<TIndividual*>(I->Element().getNE());
+		}
 	}
-		/// ensure that the expression E has its named entities linked to the KB ones
-	void ensureNames ( const DLTree* E )
+		/// ensure that the expression EXPR has its named entities linked to the KB ones
+	void ensureNames ( const TDLExpression* Expr )
 	{
-		fpp_assert ( E != NULL );	// FORNOW
+		fpp_assert ( Expr != NULL );	// FORNOW
 	}
 		/// prepare arguments for the [begin,end) interval
 	template<class Iterator>
@@ -57,12 +77,16 @@ protected:	// methods
 		for ( ; begin != end; ++begin )
 		{
 			ensureNames(*begin);
-			ArgList.push_back(*begin);
+			ArgList.push_back(e(*begin));
 		}
 	}
 
 public:		// visitor interface
-	virtual void visit ( TDLAxiomDeclaration& axiom ) { ensureNames(axiom.getDeclaration()); }
+	virtual void visit ( TDLAxiomDeclaration& axiom )
+	{
+		ensureNames(axiom.getDeclaration());
+		TreeDeleter(e(axiom.getDeclaration()));	// register names in the KB
+	}
 
 	// n-ary axioms
 
@@ -127,7 +151,7 @@ public:		// visitor interface
 		ensureNames(axiom.getRole());
 		ensureNames(axiom.getSubRole());
 		TRole* R = getRole ( axiom.getRole(), "Role expression expected in Object Roles Subsumption axiom" );
-		kb.getRM(R)->addRoleParent ( clone(axiom.getSubRole()), R );
+		kb.getRM(R)->addRoleParent ( e(axiom.getSubRole()), R );
 	}
 	virtual void visit ( TDLAxiomDRoleSubsumption& axiom )
 	{
@@ -135,31 +159,31 @@ public:		// visitor interface
 		ensureNames(axiom.getSubRole());
 		TRole* R = getRole ( axiom.getRole(), "Role expression expected in Data Roles Subsumption axiom" );
 		TRole* S = getRole ( axiom.getSubRole(), "Role expression expected in Data Roles Subsumption axiom" );
-		kb.getRM(R)->addRoleParent ( S, R );
+		kb.getDRM()->addRoleParent ( S, R );
 	}
 	virtual void visit ( TDLAxiomORoleDomain& axiom )
 	{
 		ensureNames(axiom.getRole());
 		ensureNames(axiom.getDomain());
-		getRole ( axiom.getRole(), "Role expression expected in Object Role Domain axiom" )->setDomain(clone(axiom.getDomain()));
+		getRole ( axiom.getRole(), "Role expression expected in Object Role Domain axiom" )->setDomain(e(axiom.getDomain()));
 	}
 	virtual void visit ( TDLAxiomDRoleDomain& axiom )
 	{
 		ensureNames(axiom.getRole());
 		ensureNames(axiom.getDomain());
-		getRole ( axiom.getRole(), "Role expression expected in Data Role Domain axiom" )->setDomain(clone(axiom.getDomain()));
+		getRole ( axiom.getRole(), "Role expression expected in Data Role Domain axiom" )->setDomain(e(axiom.getDomain()));
 	}
 	virtual void visit ( TDLAxiomORoleRange& axiom )
 	{
 		ensureNames(axiom.getRole());
 		ensureNames(axiom.getRange());
-		getRole ( axiom.getRole(), "Role expression expected in Object Role Range axiom" )->setRange(clone(axiom.getRange()));
+		getRole ( axiom.getRole(), "Role expression expected in Object Role Range axiom" )->setRange(e(axiom.getRange()));
 	}
 	virtual void visit ( TDLAxiomDRoleRange& axiom )
 	{
 		ensureNames(axiom.getRole());
 		ensureNames(axiom.getRange());
-		getRole ( axiom.getRole(), "Role expression expected in Data Role Range axiom" )->setRange(clone(axiom.getRange()));
+		getRole ( axiom.getRole(), "Role expression expected in Data Role Range axiom" )->setRange(e(axiom.getRange()));
 	}
 	virtual void visit ( TDLAxiomRoleTransitive& axiom )
 	{
@@ -179,7 +203,7 @@ public:		// visitor interface
 		if ( isUniversalRole(axiom.getRole()) )	// KB became inconsistent
 			throw EFPPInconsistentKB();
 		getRole ( axiom.getRole(), "Role expression expected in Role Irreflexivity axiom" )
-			->setDomain(createSNFNot(new DLTree(REFLEXIVE,clone(axiom.getRole()))));
+			->setDomain(createSNFNot(new DLTree(REFLEXIVE,e(axiom.getRole()))));
 	}
 	virtual void visit ( TDLAxiomRoleSymmetric& axiom )
 	{
@@ -226,14 +250,18 @@ public:		// visitor interface
 	{
 		ensureNames(axiom.getSubC());
 		ensureNames(axiom.getSupC());
-		kb.addSubsumeAxiom ( clone(axiom.getSubC()), clone(axiom.getSupC()) );
+		DLTree* C = e(axiom.getSubC());
+		DLTree* D = e(axiom.getSupC());
+		kb.addSubsumeAxiom ( C, D );
 	}
 	virtual void visit ( TDLAxiomInstanceOf& axiom )
 	{
 		ensureNames(axiom.getIndividual());
 		ensureNames(axiom.getC());
 		getIndividual ( axiom.getIndividual(), "Individual expected in Instance axiom" );
-		kb.addSubsumeAxiom ( clone(axiom.getIndividual()), clone(axiom.getC()) );
+		DLTree* I = e(axiom.getIndividual());
+		DLTree* C = e(axiom.getC());
+		kb.addSubsumeAxiom ( I, C );
 	}
 	virtual void visit ( TDLAxiomRelatedTo& axiom )
 	{
@@ -258,8 +286,8 @@ public:		// visitor interface
 		getIndividual ( axiom.getRelatedIndividual(), "Individual expected in Related To Not axiom" );
 		// make an axiom i:AR.\neg{j}
 		kb.addSubsumeAxiom (
-				clone(axiom.getIndividual()),
-				createSNFForall ( clone(axiom.getRelation()), createSNFNot(clone(axiom.getRelatedIndividual())) ) );
+				e(axiom.getIndividual()),
+				createSNFForall ( e(axiom.getRelation()), createSNFNot(e(axiom.getRelatedIndividual())) ) );
 	}
 	virtual void visit ( TDLAxiomValueOf& axiom )
 	{
@@ -269,8 +297,8 @@ public:		// visitor interface
 		// FIXME!! think about ensuring the value
 		// make an axiom i:EA.V
 		kb.addSubsumeAxiom (
-				clone(axiom.getIndividual()),
-				createSNFExists ( clone(axiom.getAttribute()), clone(axiom.getValue())) );
+				e(axiom.getIndividual()),
+				createSNFExists ( e(axiom.getAttribute()), e(axiom.getValue())) );
 	}
 	virtual void visit ( TDLAxiomValueOfNot& axiom )
 	{
@@ -282,12 +310,12 @@ public:		// visitor interface
 			throw EFPPInconsistentKB();
 		// make an axiom i:AA.\neg V
 		kb.addSubsumeAxiom (
-				clone(axiom.getIndividual()),
-				createSNFForall ( clone(axiom.getAttribute()), createSNFNot(clone(axiom.getValue()))) );
+				e(axiom.getIndividual()),
+				createSNFForall ( e(axiom.getAttribute()), createSNFNot(e(axiom.getValue()))) );
 	}
 
 public:		// interface
-	TOntologyLoader ( TBox& KB ) : kb(KB) {}
+	TOntologyLoader ( TBox& KB ) : kb(KB), ETrans(KB) {}
 	virtual ~TOntologyLoader ( void ) {}
 
 		/// load ontology to a given KB

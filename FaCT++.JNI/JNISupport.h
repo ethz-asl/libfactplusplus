@@ -21,8 +21,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <jni.h>
 
-#include "tRefRecorder.h"
-
 //-------------------------------------------------------------
 // class names for different Java classes corresponding to FaCT++ structures
 //-------------------------------------------------------------
@@ -78,31 +76,6 @@ public:
 	~JString ( void ) { env->ReleaseStringUTFChars(str,buf); }
 	const char* operator() ( void ) const { return buf; }
 }; // JString
-
-/// kernel with a memory management component
-class MMKernel
-{
-public:		// members
-	ReasoningKernel* pKernel;
-	TRefRecorder* pRefRecorder;
-public:		// interface
-		/// c'tor
-	MMKernel ( void )
-	{
-		pKernel = new ReasoningKernel();
-		pKernel->newKB();
-		pRefRecorder = new TRefRecorder();
-	}
-		/// d'tor
-	~MMKernel ( void )
-	{
-		delete pRefRecorder;
-		delete pKernel;
-	}
-}; // MMKernel
-
-// current kernel + reference recorder
-extern MMKernel* curKernel;
 
 /// throw exception with a given signature
 inline
@@ -177,8 +150,7 @@ ReasoningKernel* getK ( JNIEnv * env, jobject obj )
 		return NULL;
 	}
 
-	curKernel = (MMKernel*)id;
-	return curKernel->pKernel;
+	return (ReasoningKernel*)id;
 }
 
 /// get the expression manager corresponding local kernel
@@ -238,8 +210,7 @@ jlong getPointer ( JNIEnv * env, jobject obj )
 // macro to expand into the accessor function that transforms pointer into appropriate type
 #define ACCESSOR(Name)	\
 inline T ## Name* get ## Name ( JNIEnv * env, jobject obj ) {	\
-	/* FIXME!! that's overkill but it is easiest way for now */	\
-	return clone((DLTree*)getPointer(env,obj)); }
+	return dynamic_cast<T ## Name*>((TExpr*)getPointer(env,obj)); }
 
 // accessors for different expression types
 ACCESSOR(Expr)
@@ -307,19 +278,6 @@ jlong getId ( DLTree* p )
 	}
 }
 
-// add DLTree* references to a recorder
-template<class T>
-inline
-void registerPointer ( T* p ATTR_UNUSED ) {}
-
-template<>
-inline
-void registerPointer ( DLTree* p )
-{
-	fpp_assert ( curKernel != NULL );
-	curKernel->pRefRecorder->add(p);
-}
-
 template<class T>
 jobject retObject ( JNIEnv * env, T* t, const char* className )
 {
@@ -328,10 +286,6 @@ jobject retObject ( JNIEnv * env, T* t, const char* className )
 		Throw ( env, "Incorrect operand by FaCT++ Kernel" );
 		return (jobject)0;
 	}
-
-	// all references that are passed to objects become read-only:
-	// they either being cloned, or used as a const*
-	registerPointer(t);
 
 	jclass classPointer = env->FindClass(className);
 
@@ -403,6 +357,12 @@ jobject Individual ( JNIEnv * env, TIndividualExpr* t )
 
 inline
 jobject ObjectProperty ( JNIEnv * env, TORoleExpr* t )
+{
+	return retObject ( env, t, cnObjectPropertyPointer() );
+}
+
+inline
+jobject ObjectComplex ( JNIEnv * env, TORoleComplexExpr* t )
 {
 	return retObject ( env, t, cnObjectPropertyPointer() );
 }
