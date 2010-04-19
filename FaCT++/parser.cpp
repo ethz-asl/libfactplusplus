@@ -38,7 +38,10 @@ void DLLispParser :: parseCommand ( void )
 	Token t = scan.getCommandKeyword();
 	NextLex ();
 
-	if ( t == SUBSUMES || t == EQUAL_C )
+	switch (t)
+	{
+	case SUBSUMES:
+	case EQUAL_C:
 	{
 		TConceptExpr* left = getConceptExpression();
 		TConceptExpr* right = getConceptExpression();
@@ -49,7 +52,7 @@ void DLLispParser :: parseCommand ( void )
 				Kernel->impliesConcepts ( left, right );
 			else
 			{
-				EManager->openArgList();
+				EManager->newArgList();
 				EManager->addArg(left);
 				EManager->addArg(right);
 				Kernel->equalConcepts();
@@ -59,12 +62,13 @@ void DLLispParser :: parseCommand ( void )
 		{
 			parseError(ex.what());
 		}
-
-		MustBeM ( RBRACK );
-		return;
+		break;
 	}
 
-	if ( t == IMPLIES_R || t == EQUAL_R || t == DISJOINT_R || t == INVERSE )
+	case IMPLIES_R:
+	case EQUAL_R:
+	case DISJOINT_R:
+	case INVERSE:
 	{
 		TRoleExpr* left = (t == IMPLIES_R) ? getComplexRoleExpression() : getRoleExpression();
 		TRoleExpr* right = getRoleExpression();
@@ -83,7 +87,7 @@ void DLLispParser :: parseCommand ( void )
 			}
 			else
 			{	// make N-ary arg
-				EManager->openArgList();
+				EManager->newArgList();
 				EManager->addArg(left);
 				EManager->addArg(right);
 				if ( data )
@@ -106,19 +110,17 @@ void DLLispParser :: parseCommand ( void )
 		{
 			parseError(ex.what());
 		}
-
-		MustBeM ( RBRACK );
-		return;
+		break;
 	}
 
-	if ( t == FUNCTIONAL ||
-		 t == TRANSITIVE ||
-		 t == REFLEXIVE ||
-		 t == IRREFLEXIVE ||
-		 t == SYMMETRIC ||
-		 t == ANTISYMMETRIC ||
-		 t == ROLERANGE ||
-		 t == ROLEDOMAIN )
+	case FUNCTIONAL:
+	case TRANSITIVE:
+	case REFLEXIVE:
+	case IRREFLEXIVE:
+	case SYMMETRIC:
+	case ANTISYMMETRIC:
+	case ROLERANGE:
+	case ROLEDOMAIN:
 	{
 		DLTree* R = getRoleExpression();
 		bool data = isDataRole(R);
@@ -168,17 +170,14 @@ void DLLispParser :: parseCommand ( void )
 		{
 			parseError(ex.what());
 		}
-
-		MustBeM ( RBRACK );
-		return;
+		break;
 	}
 
 	// disjoint-like operator
-	if ( t == DISJOINT ||
-		 t == FAIRNESS ||
-		 t == DIFFERENT ||
-		 t == SAME )
-	{
+	case DISJOINT:
+	case FAIRNESS:
+	case DIFFERENT:
+	case SAME:
 		parseConceptList ( /*singletonsOnly=*/ (t != DISJOINT) && (t != FAIRNESS) );
 		try
 		{
@@ -204,24 +203,20 @@ void DLLispParser :: parseCommand ( void )
 		{
 			parseError(ex.what());
 		}
-	}
+		break;
 
-	// not GCI -- first argument is a name determined by an axiom
-	DLTree* Name = NULL;
-
-	// set up creation mode
-	switch (t)
-	{
 	case PCONCEPT:
-		Name = getConcept();
+	{
+		TConceptExpr* Name = getConcept();
 		if ( Current != RBRACK )
 			Kernel->impliesConcepts ( Name, getConceptExpression() );
 		else
 			Kernel->declare(Name);
 		break;
+	}
 
 	case CONCEPT:
-		EManager->openArgList();
+		EManager->newArgList();
 		EManager->addArg(getConcept());
 		EManager->addArg(getConceptExpression());
 		Kernel->equalConcepts();
@@ -232,49 +227,48 @@ void DLLispParser :: parseCommand ( void )
 		break;
 
 	case INSTANCE:
-		Name = getSingleton();
+	{
+		TIndividualExpr* Name = getSingleton();
 		Kernel->instanceOf ( Name, getConceptExpression() );
 		break;
+	}
 
 	case RELATED:			// command is (Related id1 R id2);
-	try {
-		TIndividualExpr* id1 = getSingleton();
-		TORoleExpr* R = getORoleExpression();
-		MustBe (ID);	// second indiv.
-		TIndividualExpr* id2 = getSingleton();
-		Kernel->relatedTo ( id1, R, id2 );
-		break;
-	}
-	catch ( EFaCTPlusPlus ex )
-	{
-		parseError(ex.what());
-	}
-
-	case PROLE:
-		Name = getObjectRole();
-		if ( Current != RBRACK )
-			parseRoleArguments(Name);
-		else
-			Kernel->declare(Name);
-		break;
-
-	case PATTR:
-		Name = getObjectRole();
-
 		try
 		{
-			Kernel->setOFunctional(clone(Name));
+			TIndividualExpr* id1 = getSingleton();
+			TORoleExpr* R = getORoleExpression();
+			MustBe (ID);	// second indiv.
+			TIndividualExpr* id2 = getSingleton();
+			Kernel->relatedTo ( id1, R, id2 );
 		}
 		catch ( EFaCTPlusPlus ex )
 		{
 			parseError(ex.what());
 		}
-
-		if ( Current == RBRACK )
-			Kernel->declare(Name);
-		else
-			parseRoleArguments(Name);
 		break;
+
+	case PROLE:
+	case PATTR:
+	{
+		TORoleExpr* Name = getObjectRole();
+
+		if ( t == PATTR )
+			try
+			{
+				Kernel->setOFunctional(clone(Name));
+			}
+			catch ( EFaCTPlusPlus ex )
+			{
+				parseError(ex.what());
+			}
+
+		if ( Current != RBRACK )
+			parseRoleArguments(Name);
+		else
+			Kernel->declare(Name);
+		break;
+	}
 
 	case DATAROLE:		// register data role
 		Kernel->declare(getDataRole());
@@ -289,11 +283,14 @@ void DLLispParser :: parseCommand ( void )
 
 void DLLispParser :: parseConceptList ( bool singletonsOnly )
 {
-	EManager->openArgList();
+	EManager->newArgList();
 
 	// continue with all concepts
 	while ( Current != RBRACK )
-		EManager->addArg ( singletonsOnly ? getSingleton() : getConceptExpression() );
+		if ( singletonsOnly )
+			EManager->addArg(getSingleton());
+		else
+			EManager->addArg(getConceptExpression());
 
 	// skip RBRACK
 	MustBeM (RBRACK);
@@ -309,10 +306,9 @@ void DLLispParser :: parseRoleArguments ( TORoleExpr* R )
 
 			while ( Current != RBRACK )
 			{
-				TORoleExpr* S = getORoleExpression();
 				try
 				{	// only object roles can have arguments
-					Kernel->impliesORoles ( clone(R), S );
+					Kernel->impliesORoles ( clone(R), getORoleExpression() );
 				}
 				catch ( EFaCTPlusPlus ex )
 				{
@@ -441,7 +437,7 @@ DLLispParser :: getComplexConceptExpression ( void )
 		R = getORoleExpression();
 		// skip right bracket
 		MustBeM(RBRACK);
-		return Kernel->SelfReference(dynamic_cast<TORoleExpr*>(R));
+		return EManager->SelfReference(dynamic_cast<TORoleExpr*>(R));
 
 	case NOT:
 		C = getConceptExpression();
@@ -451,7 +447,7 @@ DLLispParser :: getComplexConceptExpression ( void )
 
 	case AND:
 	case OR:	// multiple And's/Or's
-		EManager->openArgList();
+		EManager->newArgList();
 		do
 		{
 			EManager->addArg(getConceptExpression());
@@ -525,7 +521,7 @@ DLLispParser :: getComplexRoleExpression ( void )
 		ret = EManager->Inverse(getORoleExpression());
 		break;
 	case RCOMPOSITION:	// role composition expression = list of simple roles
-		EManager->openArgList();
+		EManager->newArgList();
 		while ( Current != RBRACK )
 			EManager->addArg(getORoleExpression());
 		ret = EManager->Compose();
@@ -536,7 +532,7 @@ DLLispParser :: getComplexRoleExpression ( void )
 		break;
 	case PROJFROM:	// role projection operator, parse simple role and concept
 		ret = getORoleExpression();
-		ret = Kernel->ProjectFrom ( ret, getConceptExpression() );
+		ret = EManager->ProjectFrom ( ret, getConceptExpression() );
 		break;
 	default:
 		MustBe ( INV, "unknown expression in complex role constructor" );
@@ -606,7 +602,7 @@ DLLispParser :: getDataExpression ( void )
 	case DONEOF:
 	case AND:
 	case OR:	// multiple And's/Or's
-		EManager->openArgList();
+		EManager->newArgList();
 		do
 		{
 			EManager->addArg(getDataExpression());

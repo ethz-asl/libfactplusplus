@@ -307,7 +307,7 @@ public:		// types
 		/// RW iterator over base type
 	typedef typename ArgumentArray::const_iterator iterator;
 		/// input array type
-	typedef std::vector<TDLExpression*> ExpressionArray;
+	typedef std::vector<const TDLExpression*> ExpressionArray;
 		/// RW input iterator
 	typedef ExpressionArray::const_iterator i_iterator;
 

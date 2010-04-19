@@ -32,6 +32,7 @@ TExpressionManager::TExpressionManager ( void )
 
 TExpressionManager::~TExpressionManager ( void )
 {
+	clear();
 	delete CTop;
 	delete CBottom;
 	delete ORTop;

@@ -164,8 +164,8 @@ public:		// interface
 		role->Inverse->addParent(parent->Inverse);
 	}
 
-		/// add parent for the input role or role composition
-	void addRoleParent ( const DLTree* role, TRole* parent );
+		/// add parent for the input role or role composition; delete ROLE afterwards
+	void addRoleParent ( DLTree* role, TRole* parent );
 		/// add synonym to existing role
 	void addRoleSynonym ( TRole* role, TRole* syn )
 	{

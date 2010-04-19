@@ -1988,7 +1988,7 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_initAr
   (JNIEnv * env, jobject obj)
 {
 	TRACE_JNI("initArgList");
-	getK(env,obj)->openArgList();
+	getK(env,obj)->newArgList();
 }
 
 /*

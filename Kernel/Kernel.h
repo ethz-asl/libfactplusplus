@@ -391,7 +391,7 @@ public:
 	//-------------------------------------------------------------------
 
 		/// start new argument list for n-ary concept expressions/axioms
-	void openArgList ( void ) { NAryQueue.openArgList(); }
+	void newArgList ( void ) { NAryQueue.openArgList(); }
 		/// add an element C to the most recent open argument list
 	void addArg ( TExpr* C ) { NAryQueue.addArg(C); }
 
@@ -454,7 +454,7 @@ public:
 		/// @return concept {I} for the individual I
 	TConceptExpr* OneOf ( TIndividualExpr* I )
 	{
-		getExpressionManager()->openArgList();
+		getExpressionManager()->newArgList();
 		getExpressionManager()->addArg(I);
 		return OneOf();
 	}

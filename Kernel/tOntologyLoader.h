@@ -127,14 +127,15 @@ public:		// visitor interface
 		ensureNames(axiom.getRole());
 		ensureNames(axiom.getSubRole());
 		TRole* R = getRole ( axiom.getRole(), "Role expression expected in Object Roles Subsumption axiom" );
-		kb.getRM(R)->addRoleParent ( axiom.getSubRole(), R );
+		kb.getRM(R)->addRoleParent ( clone(axiom.getSubRole()), R );
 	}
 	virtual void visit ( TDLAxiomDRoleSubsumption& axiom )
 	{
 		ensureNames(axiom.getRole());
 		ensureNames(axiom.getSubRole());
 		TRole* R = getRole ( axiom.getRole(), "Role expression expected in Data Roles Subsumption axiom" );
-		kb.getRM(R)->addRoleParent ( axiom.getSubRole(), R );
+		TRole* S = getRole ( axiom.getSubRole(), "Role expression expected in Data Roles Subsumption axiom" );
+		kb.getRM(R)->addRoleParent ( S, R );
 	}
 	virtual void visit ( TDLAxiomORoleDomain& axiom )
 	{
@@ -185,8 +186,8 @@ public:		// visitor interface
 		ensureNames(axiom.getRole());
 		if ( !isUniversalRole(axiom.getRole()) )
 		{
-			TRole* invR = getRole ( axiom.getRole(), "Role expression expected in Role Symmetry axiom" )->inverse();
-			kb.getRM(invR)->addRoleParent ( axiom.getRole(), invR );
+			TRole* R = getRole ( axiom.getRole(), "Role expression expected in Role Symmetry axiom" );
+			kb.getORM()->addRoleParent ( R, R->inverse() );
 		}
 	}
 	virtual void visit ( TDLAxiomRoleAntiSymmetric& axiom )
@@ -195,7 +196,7 @@ public:		// visitor interface
 		if ( isUniversalRole(axiom.getRole()) )	// KB became inconsistent
 			throw EFPPInconsistentKB();
 		TRole* R = getRole ( axiom.getRole(), "Role expression expected in Role AntiSymmetry axiom" );
-		kb.getRM(R)->addDisjointRoles ( R, R->inverse() );
+		kb.getORM()->addDisjointRoles ( R, R->inverse() );
 	}
 	virtual void visit ( TDLAxiomORoleFunctional& axiom )
 	{
@@ -266,8 +267,6 @@ public:		// visitor interface
 		ensureNames(axiom.getAttribute());
 		getIndividual ( axiom.getIndividual(), "Individual expected in Value Of axiom" );
 		// FIXME!! think about ensuring the value
-		if ( isUniversalRole(axiom.getAttribute()) )	// data role can't be universal
-			throw EFPPInconsistentKB();
 		// make an axiom i:EA.V
 		kb.addSubsumeAxiom (
 				clone(axiom.getIndividual()),
@@ -279,7 +278,7 @@ public:		// visitor interface
 		ensureNames(axiom.getAttribute());
 		getIndividual ( axiom.getIndividual(), "Individual expected in Value Of Not axiom" );
 		// FIXME!! think about ensuring the value
-		if ( isUniversalRole(axiom.getAttribute()) )	// data role can't be universal
+		if ( isUniversalRole(axiom.getAttribute()) )	// inconsistent ontology
 			throw EFPPInconsistentKB();
 		// make an axiom i:AA.\neg V
 		kb.addSubsumeAxiom (

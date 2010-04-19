@@ -472,7 +472,7 @@ void DIGParseHandlers :: endConcept ( DIGTag tag )
 	case digAnd:
 	case digOr:
 	case digISet:
-		pEM->openArgList();
+		pEM->newArgList();
 
 		if ( workStack.empty() )
 			throwCorruptedStack(tag);
@@ -633,7 +633,7 @@ void DIGParseHandlers :: endAxiom ( DIGTag tag )
 	case digEqualC:
 		if ( workStack.empty() )
 			throwArgumentAbsence ( "two concept expressions", tag );
-		pEM->openArgList();
+		pEM->newArgList();
 		pEM->addArg(workStack.top());
 		workStack.pop();
 		if ( workStack.empty() )
@@ -643,7 +643,7 @@ void DIGParseHandlers :: endAxiom ( DIGTag tag )
 		ERROR_IF ( pKernel->equalConcepts() );
 		return;
 	case digDisjointAxiom:
-		pEM->openArgList();
+		pEM->newArgList();
 
 		if ( workStack.empty() )
 			throwCorruptedStack(tag);
@@ -681,7 +681,7 @@ void DIGParseHandlers :: endAxiom ( DIGTag tag )
 		if ( workStack.empty() )
 			throwArgumentAbsence ( "two role expressions", tag );
 		bool data = isDataRole(workStack.top());
-		pEM->openArgList();
+		pEM->newArgList();
 		pEM->addArg(workStack.top());
 		workStack.pop();
 		if ( workStack.empty() )

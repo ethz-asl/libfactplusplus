@@ -23,6 +23,18 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "tNameSet.h"
 #include "tNAryQueue.h"
 
+inline bool
+isUniversalRole ( const TDLObjectRoleExpression* R )
+{
+	return dynamic_cast<const TDLObjectRoleTop*>(R) != NULL;
+}
+
+inline bool
+isUniversalRole ( const TDLDataRoleExpression* R )
+{
+	return dynamic_cast<const TDLDataRoleTop*>(R) != NULL;
+}
+
 /// manager to work with all DL expressions in the kernel
 class TExpressionManager
 {
@@ -39,7 +51,7 @@ protected:	// members
 	TNameSet<TDLDataTypeName> NS_DT;
 
 		/// n-ary queue for arguments
-	TNAryQueue<TDLExpression> ArgQueue;
+	TNAryQueue<const TDLExpression> ArgQueue;
 
 		/// TOP concept
 	TDLConceptTop* CTop;
@@ -80,9 +92,9 @@ public:		// interface
 		/// opens new argument list
 	void newArgList ( void ) { ArgQueue.openArgList(); }
 		/// add argument ARG to the current argument list
-	void addArg ( TDLExpression* arg ) { ArgQueue.addArg(arg); }
+	void addArg ( const TDLExpression* arg ) { ArgQueue.addArg(arg); }
 		/// get the latest argument list
-	const std::vector<TDLExpression*>& getArgList ( void ) { return ArgQueue.getLastArgList(); }
+	const std::vector<const TDLExpression*>& getArgList ( void ) { return ArgQueue.getLastArgList(); }
 
 	// create expressions methods
 
@@ -103,7 +115,7 @@ public:		// interface
 		/// get an n-ary one-of expression; take the arguments from the last argument list
 	TDLConceptExpression* OneOf ( void ) { return record(new TDLConceptOneOf(getArgList())); }
 		/// @return concept {I} for the individual I
-	TDLConceptExpression* OneOf ( TDLIndividualExpression* I ) { newArgList(); addArg(I); return OneOf(); }
+	TDLConceptExpression* OneOf ( const TDLIndividualExpression* I ) { newArgList(); addArg(I); return OneOf(); }
 
 		/// get self-reference restriction of an object role R
 	TDLConceptExpression* SelfReference ( TDLObjectRoleExpression* R ) { return record(new TDLConceptObjectSelf(R)); }
