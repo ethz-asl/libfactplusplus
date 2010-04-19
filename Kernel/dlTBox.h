@@ -952,10 +952,6 @@ public:
 	void processDisjointR ( ea_iterator beg, ea_iterator end );
 	void processSame ( ea_iterator beg, ea_iterator end );
 	void processDifferent ( ea_iterator beg, ea_iterator end );
-	DLTree* processAnd ( const ExpressionArray& v );
-	DLTree* processOr ( const ExpressionArray& v );
-	DLTree* processOneOf ( const ExpressionArray& v, bool data );
-	DLTree* processRComposition ( const ExpressionArray& v );
 
 		/// @return true if KB contains fairness constraints
 	bool hasFC ( void ) const { return !Fairness.empty(); }
