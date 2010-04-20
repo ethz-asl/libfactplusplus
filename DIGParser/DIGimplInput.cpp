@@ -245,8 +245,7 @@ void DIGParseHandlers :: startConcept ( DIGTag tag, AttributeList& attributes )
 	case digAtLeast:
 		if ( parm_num == NULL )
 			throwAttributeAbsence ( "num", tag );
-		// FIXME!! revisit later
-		workStack.push ( NULL /*new DLTree ( TLexeme (NUM,n) )*/ );
+		numStack.push(n);
 		return;
 
 	// n-argument staff
@@ -451,6 +450,9 @@ void DIGParseHandlers :: endConcept ( DIGTag tag )
 	case digAtMost:
 	case digAtLeast:	// top := \?e n R.C [now top = ... R C]
 	{
+		fpp_assert ( !numStack.empty() );
+		unsigned int n = numStack.top();
+		numStack.pop();
 		if ( workStack.empty() )
 			throwArgumentAbsence ( "concept", "role", tag );
 		TConceptExpr* C = dynamic_cast<TConceptExpr*>(workStack.top());
@@ -458,14 +460,9 @@ void DIGParseHandlers :: endConcept ( DIGTag tag )
 		if ( workStack.empty() )
 			throwArgumentAbsence ( "concept", "role", tag );
 		TORoleExpr* R = dynamic_cast<TORoleExpr*>(workStack.top());
-		workStack.pop();
 		if ( workStack.empty() )
 			throwArgumentAbsence ( "number", tag );
-//		DLTree* pN = workStack.top();	// n
-//		fpp_assert ( pN->Element() == NUM );
-		unsigned int n = 0;//pN->Element().getData();
-//		deleteTree(pN);
-
+		
 		// create \?e n R.C
 		workStack.top() = tag == digAtMost
 			? pEM->MaxCardinality ( n, R, C )

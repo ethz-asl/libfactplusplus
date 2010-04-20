@@ -169,6 +169,8 @@ protected:
 
 		/// internal stack for the parsing operations
 	std::stack<TExpr*> workStack;
+		/// internal stack for numbers from QCRs
+	std::stack<unsigned int> numStack;
 
 	/// local id name for current ask
 	std::string curId;
