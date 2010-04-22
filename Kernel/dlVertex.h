@@ -183,7 +183,7 @@ protected:	// members
 		/// main operation in concept expression
 		// WARNING: the Visual Studio C++ compiler treat this as a signed integer,
 		// so I've added extra bit to stay in the unsigned field
-	DagTag Op : 5;	// 15 types
+	DagTag Op : 6;	// 17 types
 		/// aux field for DFS in presence of cycles
 	bool VisitedPos : 1;
 		/// aux field for DFS in presence of cycles
@@ -197,7 +197,7 @@ protected:	// members
 		/// true iff node is involved in cycle
 	bool inCycleNeg : 1;
 		/// padding
-	unsigned unused : 5;
+	unsigned unused : 4;
 
 public:		// interface
 		/// default c'tor
