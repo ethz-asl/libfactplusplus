@@ -139,12 +139,10 @@ Realise:	// do realisation
 //* caching support
 //******************************************
 void
-ReasoningKernel :: setUpCache ( const TConceptExpr* Query, cacheStatus level )
+ReasoningKernel :: setUpCache ( DLTree* query, cacheStatus level )
 {
-	DLTree* query = e(Query);
-
 	// check if the query is already cached
-	if ( isCached (query) )
+	if ( cachedQuery && equalTrees ( cachedQuery, query ) )
 	{	// ... with the same level -- nothing to do
 		deleteTree(query);
 		if ( level <= cacheLevel )

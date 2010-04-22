@@ -169,11 +169,8 @@ protected:	// methods
 		expr->accept(*pET);
 		return *pET;
 	}
-		/// checks if current query is cached
-	bool isCached ( const DLTree* query ) const
-		{ return ( cachedQuery == NULL ? false : equalTrees ( cachedQuery, query ) ); }
 		/// set up cache for query, performing additional (re-)classification if necessary
-	void setUpCache ( const TConceptExpr* query, cacheStatus level );
+	void setUpCache ( DLTree* query, cacheStatus level );
 		/// clear cache and flags
 	void initCacheAndFlags ( void )
 	{
@@ -195,25 +192,25 @@ protected:	// methods
 		return I->getRelatedCache(R);
 	}
 
-/*		/// @return true iff C is satisfiable
-	bool checkSat ( const DLTree* C )
+		/// @return true iff C is satisfiable
+	bool checkSat ( DLTree* C )
 	{
 		preprocessKB();	// ensure KB is ready to answer the query
 		if ( isCN(C) )
-			return getTBox()->isSatisfiable(getTBox()->getCI(C));
+			return getTBox()->isSatisfiable(getTBox()->getCI(TreeDeleter(C)));
 
 		setUpCache ( C, csSat );
 		return getTBox()->isSatisfiable(cachedConcept);
 	}
 		/// @return true iff C [= D holds
-	bool checkSub ( const DLTree* C, const DLTree* D )
+	bool checkSub ( DLTree* C, DLTree* D )
 	{
 		preprocessKB();	// ensure KB is ready to answer the query
 		if ( isCN(C) && isCN(D) )
-			return getTBox()->isSubHolds ( getTBox()->getCI(C), getTBox()->getCI(D) );
+			return getTBox()->isSubHolds ( getTBox()->getCI(TreeDeleter(C)), getTBox()->getCI(TreeDeleter(D)) );
 
-		return !checkSat ( TreeDeleter ( createSNFAnd ( clone(C), createSNFNot(clone(D)) ) ) );
-	}*/
+		return !checkSat ( createSNFAnd ( C, createSNFNot(D) ) );
+	}
 
 	// get access to internal structures
 
@@ -661,35 +658,11 @@ public:
 	// single satisfiability
 
 		/// @return true iff C is satisfiable
-	bool isSatisfiable ( const TConceptExpr* C )
-	{
-		preprocessKB();	// ensure KB is ready to answer the query
-
-		// check whether the satisfiability of a named concept is checked
-		// FIXME!! check for TOP/BOTTOM later
-		const TDLConceptName* CN = dynamic_cast<const TDLConceptName*>(C);
-		if ( CN != NULL )
-			return getTBox()->isSatisfiable(getTBox()->getConcept(CN->getName()));
-
-		setUpCache ( C, csSat );
-		return getTBox()->isSatisfiable(cachedConcept);
-	}
+	bool isSatisfiable ( const TConceptExpr* C ) { return checkSat(e(C)); }
 		/// @return true iff C [= D holds
-	bool isSubsumedBy ( const TConceptExpr* C, const TConceptExpr* D )
-	{
-		preprocessKB();	// ensure KB is ready to answer the query
-		// check whether the subsumption between named concepts is checked
-		// FIXME!! check for TOP/BOTTOM later
-		const TDLConceptName* CN = dynamic_cast<const TDLConceptName*>(C);
-		const TDLConceptName* DN = dynamic_cast<const TDLConceptName*>(D);
-		if ( CN != NULL && DN != NULL )
-			return getTBox()->isSubHolds ( getTBox()->getConcept(CN->getName()), getTBox()->getConcept(DN->getName()) );
-
-		return !isSatisfiable ( NULL/*TreeDeleter ( And ( clone(C), Not(clone(D)) ) )*/ );
-	}
-		/// @return true iff C is disjoint with D
-	bool isDisjoint ( const TConceptExpr* C, const TConceptExpr* D )
-		{ return !isSatisfiable ( NULL/*TreeDeleter ( And ( clone(C), clone(D) ) )*/ ); }
+	bool isSubsumedBy ( const TConceptExpr* C, const TConceptExpr* D ) { return checkSub ( e(C), e(D) ); }
+		/// @return true iff C is disjoint with D; that is, C [= \not D holds
+	bool isDisjoint ( const TConceptExpr* C, const TConceptExpr* D ) { return checkSub ( e(C), createSNFNot(e(D)) ); }
 		/// @return true iff C is equivalent to D
 	bool isEquivalent ( const TConceptExpr* C, const TConceptExpr* D )
 		{ return isSubsumedBy ( C, D ) && isSubsumedBy ( D, C ); }
@@ -701,7 +674,7 @@ public:
 	void getParents ( const TConceptExpr* C, Actor& actor )
 	{
 		classifyKB();	// ensure KB is ready to answer the query
-		setUpCache ( C, csClassified );
+		setUpCache ( e(C), csClassified );
 		cachedVertex->getRelativesInfo</*needCurrent=*/false, /*onlyDirect=*/true,
 									   /*upDirection=*/true>(actor);
 	}
@@ -710,7 +683,7 @@ public:
 	void getChildren ( const TConceptExpr* C, Actor& actor )
 	{
 		classifyKB();	// ensure KB is ready to answer the query
-		setUpCache ( C, csClassified );
+		setUpCache ( e(C), csClassified );
 		cachedVertex->getRelativesInfo</*needCurrent=*/false, /*onlyDirect=*/true,
 									   /*upDirection=*/false>(actor);
 	}
@@ -719,7 +692,7 @@ public:
 	void getAncestors ( const TConceptExpr* C, Actor& actor )
 	{
 		classifyKB();	// ensure KB is ready to answer the query
-		setUpCache ( C, csClassified );
+		setUpCache ( e(C), csClassified );
 		cachedVertex->getRelativesInfo</*needCurrent=*/false, /*onlyDirect=*/false,
 									   /*upDirection=*/true>(actor);
 	}
@@ -728,7 +701,7 @@ public:
 	void getDescendants ( const TConceptExpr* C, Actor& actor )
 	{
 		classifyKB();	// ensure KB is ready to answer the query
-		setUpCache ( C, csClassified );
+		setUpCache ( e(C), csClassified );
 		cachedVertex->getRelativesInfo</*needCurrent=*/false, /*onlyDirect=*/false,
 									   /*upDirection=*/false>(actor);
 	}
@@ -737,7 +710,7 @@ public:
 	void getEquivalents ( const TConceptExpr* C, Actor& actor )
 	{
 		classifyKB();	// ensure KB is ready to answer the query
-		setUpCache ( C, csClassified );
+		setUpCache ( e(C), csClassified );
 		actor.apply(*cachedVertex);
 	}
 
@@ -800,7 +773,7 @@ public:
 	void getRoleDomain ( const TRoleExpr* r, Actor& actor )
 	{
 		classifyKB();	// ensure KB is ready to answer the query
-		setUpCache ( NULL/*TreeDeleter(Exists(clone(r),Top()))*/, csClassified );
+		setUpCache ( createSNFExists ( e(r), new DLTree(TOP) ), csClassified );
 		// gets an exact domain is named concept; otherwise, set of the most specific concepts
 		cachedVertex->getRelativesInfo</*needCurrent=*/true, /*onlyDirect=*/true,
 									   /*upDirection=*/true>(actor);
@@ -808,8 +781,8 @@ public:
 
 		/// apply actor::apply() to all NC that are in the range of [complex] R
 	template<class Actor>
-	void getRoleRange ( const TRoleExpr* r, Actor& actor )
-		{ getRoleDomain ( NULL/*TreeDeleter(Inverse(clone(r)))*/, actor ); }
+	void getRoleRange ( const TORoleExpr* r, Actor& actor )
+		{ getRoleDomain ( getExpressionManager()->Inverse(r), actor ); }
 
 	// instances
 
@@ -818,7 +791,7 @@ public:
 	void getDirectInstances ( const TConceptExpr* C, Actor& actor )
 	{
 		realiseKB();	// ensure KB is ready to answer the query
-		setUpCache ( C, csClassified );
+		setUpCache ( e(C), csClassified );
 
 		// implement 1-level check by hand
 
@@ -838,7 +811,7 @@ public:
 	void getInstances ( const TConceptExpr* C, Actor& actor )
 	{	// FIXME!! check for Racer's/IS approach
 		realiseKB();	// ensure KB is ready to answer the query
-		setUpCache ( C, csClassified );
+		setUpCache ( e(C), csClassified );
 		cachedVertex->getRelativesInfo</*needCurrent=*/true, /*onlyDirect=*/false,
 									   /*upDirection=*/false>(actor);
 	}
