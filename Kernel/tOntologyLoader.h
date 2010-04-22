@@ -150,8 +150,9 @@ public:		// visitor interface
 	{
 		ensureNames(axiom.getRole());
 		ensureNames(axiom.getSubRole());
+		DLTree* Sub = e(axiom.getSubRole());
 		TRole* R = getRole ( axiom.getRole(), "Role expression expected in Object Roles Subsumption axiom" );
-		kb.getRM(R)->addRoleParent ( e(axiom.getSubRole()), R );
+		kb.getRM(R)->addRoleParent ( Sub, R );
 	}
 	virtual void visit ( TDLAxiomDRoleSubsumption& axiom )
 	{
@@ -269,10 +270,12 @@ public:		// visitor interface
 		ensureNames(axiom.getRelation());
 		ensureNames(axiom.getRelatedIndividual());
 		if ( !isUniversalRole(axiom.getRelation()) )	// nothing to do for universal role
-			kb.RegisterIndividualRelation (
-				getIndividual ( axiom.getIndividual(), "Individual expected in Related To axiom" ),
-				getRole ( axiom.getRelation(), "Role expression expected in Related To axiom" ),
-				getIndividual ( axiom.getRelatedIndividual(), "Individual expected in Related To axiom" ) );
+		{
+			TIndividual* I = getIndividual ( axiom.getIndividual(), "Individual expected in Related To axiom" );
+			TRole* R = getRole ( axiom.getRelation(), "Role expression expected in Related To axiom" );
+			TIndividual* J = getIndividual ( axiom.getRelatedIndividual(), "Individual expected in Related To axiom" );
+			kb.RegisterIndividualRelation ( I, R, J );
+		}
 	}
 	virtual void visit ( TDLAxiomRelatedToNot& axiom )
 	{
