@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2008-2009 by Dmitry Tsarkov
+Copyright (C) 2008-2010 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -21,6 +21,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <vector>
 #include "tDLAxiom.h"
+#include "tExpressionManager.h"
 
 /// define ontology as a set of axioms
 class TOntology
@@ -34,6 +35,8 @@ public:		// types
 protected:	// members
 		/// all the axioms
 	TAxiomArray Axioms;
+		/// expression manager that builds all the expressions for the axioms
+	TExpressionManager EManager;
 		/// id to be given to the next axiom
 	unsigned int axiomId;
 		/// index of the 1st unprocessed axiom
@@ -63,10 +66,15 @@ public:		// interface
 		for ( iterator p = Axioms.begin(), p_end = Axioms.end(); p < p_end; ++p )
 			delete *p;
 		Axioms.clear();
+		EManager.clear();
 		axiomToProcess = 0;
 	}
 
+		/// get access to an expression manager
+	TExpressionManager* getExpressionManager ( void ) { return &EManager; }
+
 	// iterators
+
 		/// RW begin() for the whole ontology
 	iterator begin ( void ) { return Axioms.begin(); }
 		/// RW end() for the whole ontology

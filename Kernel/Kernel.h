@@ -28,7 +28,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ReasonerNom.h"
 #include "ifOptions.h"
 #include "DLConceptTaxonomy.h"	// for getRelatives()
-#include "tExpressionManager.h"
 #include "tExpressionTranslator.h"
 #include "tOntology.h"
 
@@ -116,8 +115,6 @@ protected:	// members
 	TBox* pTBox;
 		/// DataType center
 	DataTypeCenter DTCenter;
-		/// Expression manager for the interface
-	TExpressionManager EManager;
 		/// set of axioms
 	TOntology Ontology;
 		/// expression translator to work with queries
@@ -353,7 +350,7 @@ public:	// general staff
 	const DataTypeCenter& getDataTypeCenter ( void ) const { return DTCenter; }
 
 		/// get access to an expression manager
-	TExpressionManager* getExpressionManager ( void ) { return &EManager; }
+	TExpressionManager* getExpressionManager ( void ) { return Ontology.getExpressionManager(); }
 
 public:
 	//******************************************
