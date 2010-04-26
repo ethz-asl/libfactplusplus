@@ -30,6 +30,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "dumpDIG.h"
 #include "logging.h"
 
+// uncomment the following line to print currently checking subsumption
+//#define FPP_DEBUG_PRINT_CURRENT_SUBSUMPTION
+
 TBox :: TBox ( const ifOptionSet* Options, const DataTypeCenter& dtCenter )
 	: DLHeap(Options)
 	, stdReasoner(NULL)
@@ -297,6 +300,10 @@ bool
 TBox :: isSubHolds ( const TConcept* pConcept, const TConcept* qConcept )
 {
 	fpp_assert ( pConcept != NULL && qConcept != NULL );
+
+#ifdef FPP_DEBUG_PRINT_CURRENT_SUBSUMPTION
+	std::cerr << "Checking '" << pConcept->getName() << "' [= '" << qConcept->getName() << "'\n";
+#endif
 
 	// logging the startpoint
 	if ( LLM.isWritable(llBegSat) )

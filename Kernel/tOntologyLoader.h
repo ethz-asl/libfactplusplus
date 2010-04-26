@@ -318,7 +318,9 @@ public:		// visitor interface
 	}
 
 public:		// interface
+		/// init c'tor
 	TOntologyLoader ( TBox& KB ) : kb(KB), ETrans(KB) {}
+		/// empty d'tor
 	virtual ~TOntologyLoader ( void ) {}
 
 		/// load ontology to a given KB
