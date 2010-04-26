@@ -185,8 +185,8 @@ protected:	// members
 
 		/// taxonomy structure of a TBox
 	DLConceptTaxonomy* pTax;
-		/// DataType center: reference to a Kernel' one
-	const DataTypeCenter& DTCenter;
+		/// DataType center
+	DataTypeCenter DTCenter;
 		/// set of reasoning options
 	const ifOptionSet* pOptions;
 		/// status of the KB
@@ -811,9 +811,9 @@ protected:	// methods
 	void dumpAllRoles ( dumpInterface* dump ) const;
 
 public:
-		/// C'tor
-	TBox ( const ifOptionSet* Options, const DataTypeCenter& dtCenter );
-		/// D'tor
+		/// init c'tor
+	TBox ( const ifOptionSet* Options );
+		/// d'tor
 	~TBox ( void );
 
 		/// get RW access to used Role Master
@@ -828,6 +828,10 @@ public:
 	RoleMaster* getRM ( const TRole* R ) { return R->isDataRole() ? getDRM() : getORM(); }
 		/// get RO access to the RoleMaster depending of the R
 	const RoleMaster* getRM ( const TRole* R ) const { return R->isDataRole() ? getDRM() : getORM(); }
+		/// get RW access to a DT center
+	DataTypeCenter& getDataTypeCenter ( void ) { return DTCenter; }
+		/// get RO access to a DT center
+	const DataTypeCenter& getDataTypeCenter ( void ) const { return DTCenter; }
 
 		/// set the value of a test timeout in milliseconds to VALUE
 	void setTestTimeout ( unsigned long value );
@@ -1017,9 +1021,6 @@ public:
 	DLConceptTaxonomy* getTaxonomy ( void ) { return pTax; }
 	/// get (READ-ONLY) access to internal Taxonomy of concepts
 	const DLConceptTaxonomy* getTaxonomy ( void ) const { return pTax; }
-
-		/// get (RO) access to the DataType center
-	const DataTypeCenter& getDataTypeCenter ( void ) const { return DTCenter; }
 
 		/// set given structure as a progress monitor
 	void setProgressMonitor ( TProgressMonitor* pMon ) { delete pMonitor; pMonitor = pMon; }

@@ -22,6 +22,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "tDLExpression.h"
 #include "tNameSet.h"
 #include "tNAryQueue.h"
+#include "tDataTypeManager.h"
 
 inline bool
 isUniversalRole ( const TDLObjectRoleExpression* R )
@@ -48,7 +49,7 @@ protected:	// members
 		/// nameset for data roles
 	TNameSet<TDLDataRoleName> NS_DR;
 		/// nameset for data types
-	TNameSet<TDLDataTypeName> NS_DT;
+	TDataTypeManager NS_DT;
 
 		/// n-ary queue for arguments
 	TNAryQueue<const TDLExpression> ArgQueue;
@@ -83,6 +84,9 @@ public:		// interface
 	TExpressionManager ( void );
 		/// d'tor
 	~TExpressionManager ( void );
+
+		// get access to the data type manager
+	TDataTypeManager* getDataTypeManager ( void ) { return &NS_DT; }
 
 		/// clear the ontology
 	void clear ( void );

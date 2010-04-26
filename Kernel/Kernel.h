@@ -113,8 +113,6 @@ protected:	// types
 protected:	// members
 		/// local TBox (to be created)
 	TBox* pTBox;
-		/// DataType center
-	DataTypeCenter DTCenter;
 		/// set of axioms
 	TOntology Ontology;
 		/// expression translator to work with queries
@@ -340,17 +338,10 @@ public:	// general staff
 		/// load internal state of the Kernel from a file NAME
 	void Load ( const char* name );
 
-	//******************************************
-	//* DataTypes access
-	//******************************************
-
-		/// get RW access to a DT center
-	DataTypeCenter& getDataTypeCenter ( void ) { return DTCenter; }
-		/// get RO access to a DT center
-	const DataTypeCenter& getDataTypeCenter ( void ) const { return DTCenter; }
-
 		/// get access to an expression manager
 	TExpressionManager* getExpressionManager ( void ) { return Ontology.getExpressionManager(); }
+		/// get access to a DT manager
+	TDataTypeManager* getDataTypeManager ( void ) { return getExpressionManager()->getDataTypeManager(); }
 
 public:
 	//******************************************
@@ -363,7 +354,7 @@ public:
 		if ( pTBox != NULL )
 			return true;
 
-		pTBox = new TBox ( getOptions(), DTCenter );
+		pTBox = new TBox(getOptions());
 		pTBox->setTestTimeout(OpTimeout);
 		pET = new TExpressionTranslator(*pTBox);
 		initCacheAndFlags();
@@ -552,7 +543,6 @@ public:
 		delete pTBox;
 		pTBox = NULL;
 		newKB();
-		DTCenter.clearTypes();
 		realiseKB();
 	}
 		/// re-classification of the changed ontology

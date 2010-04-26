@@ -462,7 +462,7 @@ void DIGParseHandlers :: endConcept ( DIGTag tag )
 		TORoleExpr* R = dynamic_cast<TORoleExpr*>(workStack.top());
 		if ( workStack.empty() )
 			throwArgumentAbsence ( "number", tag );
-		
+
 		// create \?e n R.C
 		workStack.top() = tag == digAtMost
 			? pEM->MaxCardinality ( n, R, C )
@@ -721,20 +721,17 @@ void DIGParseHandlers :: endAxiom ( DIGTag tag )
 		ERROR_IF ( pKernel->setORange ( R, C ) );
 		return;
 	}
-#if 0
 	case digRangeInt:
 	case digRangeStr:
 	{
 		if ( workStack.empty() )
 			throwArgumentAbsence ( "data property", tag );
 		TDRoleExpr* R = dynamic_cast<TDRoleExpr*>(workStack.top());
+		TDataTypeManager* M = pKernel->getDataTypeManager();
 		workStack.pop();
-		ERROR_IF ( pKernel->setDRange ( R, tag == digRangeInt ?
-											pKernel->getDataTypeCenter().getNumberType() :
-											pKernel->getDataTypeCenter().getStringType() ) );
+		ERROR_IF ( pKernel->setDRange ( R, tag == digRangeInt ? getIntDataType(M) : getStrDataType(M) ) );
 		return;
 	}
-#endif
 	case digTransitive:
 	{
 		if ( workStack.empty() )

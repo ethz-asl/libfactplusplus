@@ -659,16 +659,16 @@ DLLispParser :: getDataExpression ( void )
 		NextLex();	// skip ')'
 		return T == AND ? EManager->DataAnd() : T == OR ? EManager->DataOr() : EManager->DataOneOf();
 
-#if 0
 	case STRING:	// expression (string <value>)
 	case NUMBER:	// expression (number <value>)
 	case REAL:		// expression (real <value>)
 	case BOOL:
-		left =	(T == STRING) ? Kernel->getDataTypeCenter().getStringType():
-				(T == NUMBER) ? Kernel->getDataTypeCenter().getNumberType():
-				(T == REAL ) ? Kernel->getDataTypeCenter().getRealType():
-				(T == BOOL ) ? Kernel->getDataTypeCenter().getBoolType():
-				NULL;	// error, but this can not happens
+	{
+		TDataTypeManager* M = Kernel->getDataTypeManager();
+		left =	(T == STRING) ? getStrDataType(M):
+				(T == NUMBER) ? getIntDataType(M):
+				(T == REAL ) ? getRealDataType(M):
+				getBoolDataType(M);
 
 		if ( Current == RBRACK )	// just datatype
 		{
@@ -676,9 +676,12 @@ DLLispParser :: getDataExpression ( void )
 			return left;
 		}
 
+#if 0
 		NextLex();
 		return getDTValue(left);
 #endif
+	}
+
 	default:	// error
 		parseError ( "Unknown data constructor" );
 		return NULL;	// FSCO

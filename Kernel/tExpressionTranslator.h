@@ -20,6 +20,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #define TEXPRESSIONTRANSLATOR_H
 
 #include "tDLExpression.h"
+#include "tDataTypeManager.h"
 #include "dlTBox.h"
 
 class TExpressionTranslator: public DLExpressionVisitor
@@ -220,7 +221,20 @@ public:		// visitor interface
 	// data expressions
 	virtual void visit ( const TDLDataTop& expr ATTR_UNUSED ) { tree = new DLTree(TOP); }
 	virtual void visit ( const TDLDataBottom& expr ATTR_UNUSED ) { tree = new DLTree(BOTTOM); }
-	virtual void visit ( const TDLDataTypeName& expr ) {}
+	virtual void visit ( const TDLDataTypeName& expr )
+	{
+		DataTypeCenter& DTC = KB.getDataTypeCenter();
+		if ( isStrDataType(&expr) )
+			tree = DTC.getStringType();
+		else if ( isIntDataType(&expr) )
+			tree = DTC.getNumberType();
+		else if ( isRealDataType(&expr) )
+			tree = DTC.getRealType();
+		else if ( isBoolDataType(&expr) )
+			tree = DTC.getBoolType();	// get-by-name("bool")??
+		else
+			THROW_UNSUPPORTED("data type name");
+	}
 	virtual void visit ( const TDLDataValue& expr ) {}
 	virtual void visit ( const TDLDataNot& expr ) { expr.getExpr()->accept(*this); tree = createSNFNot(*this); }
 	virtual void visit ( const TDLDataAnd& expr )

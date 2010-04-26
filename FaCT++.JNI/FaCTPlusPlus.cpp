@@ -293,31 +293,31 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
 	TRACE_JNI("getBuiltInDataType");
 	JString name(env,str);
 	std::string DTName(name());
-#if 0
+	TDataTypeManager* M = getK(env,obj)->getDataTypeManager();
 	// FIXME!! Data Top
 	if ( DTName == "http://www.w3.org/2000/01/rdf-schema#Literal" )
-		return DataType ( env, getK(env,obj)->getDataTypeCenter().getStringType() );
+		return DataType ( env, getStrDataType(M) );
 
 	if ( DTName == "http://www.w3.org/2001/XMLSchema#string" )
-		return DataType ( env, getK(env,obj)->getDataTypeCenter().getStringType() );
+		return DataType ( env, getStrDataType(M) );
 	if ( DTName == "http://www.w3.org/2001/XMLSchema#anyURI" )
-		return DataType ( env, getK(env,obj)->getDataTypeCenter().getStringType() );
+		return DataType ( env, getStrDataType(M) );
 
 	if ( DTName == "http://www.w3.org/2001/XMLSchema#integer" )
-		return DataType ( env, getK(env,obj)->getDataTypeCenter().getNumberType());
+		return DataType ( env, getIntDataType(M) );
 	if ( DTName == "http://www.w3.org/2001/XMLSchema#int" )
-		return DataType ( env, getK(env,obj)->getDataTypeCenter().getNumberType());
+		return DataType ( env, getIntDataType(M) );
 	if ( DTName == "http://www.w3.org/2001/XMLSchema#nonNegativeInteger" )
-		return DataType ( env, getK(env,obj)->getDataTypeCenter().getNumberType());
+		return DataType ( env, getIntDataType(M) );
 
 	if ( DTName == "http://www.w3.org/2001/XMLSchema#float" )
-		return DataType ( env, getK(env,obj)->getDataTypeCenter().getRealType());
+		return DataType ( env, getRealDataType(M) );
 	if ( DTName == "http://www.w3.org/2001/XMLSchema#double" )
-		return DataType ( env, getK(env,obj)->getDataTypeCenter().getRealType());
+		return DataType ( env, getRealDataType(M) );
 
 	if ( DTName == "http://www.w3.org/2001/XMLSchema#boolean" )
-		return DataType ( env, getK(env,obj)->getDataTypeCenter().getDataType("bool"));
-#endif
+		return DataType ( env, getBoolDataType(M) );
+
 	std::stringstream err;
 	err << "Unsupported datatype '" << DTName.c_str() << "'";
 	Throw ( env, err.str().c_str() );
@@ -382,9 +382,9 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
   (JNIEnv * env, jobject obj, jobject arg1, jobject arg2)
 {
 	TRACE_JNI("getRestrictedDataType");
-	DataTypeCenter& center = getK(env,obj)->getDataTypeCenter();
 	Throw ( env, "FaCT++ Kernel: unsupported operation" );
 #if 0
+	DataTypeCenter& center = getK(env,obj)->getDataTypeCenter();
 	// create new DTExpression of the type ARG1 and add both facets to it
 	DLTree* type = getDataExpr(env,arg1);
 	DLTree* ret = center.getDataExpr(type);

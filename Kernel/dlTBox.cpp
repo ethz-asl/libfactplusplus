@@ -33,13 +33,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 // uncomment the following line to print currently checking subsumption
 //#define FPP_DEBUG_PRINT_CURRENT_SUBSUMPTION
 
-TBox :: TBox ( const ifOptionSet* Options, const DataTypeCenter& dtCenter )
+TBox :: TBox ( const ifOptionSet* Options )
 	: DLHeap(Options)
 	, stdReasoner(NULL)
 	, nomReasoner(NULL)
 	, pMonitor(NULL)
 	, pTax (NULL)
-	, DTCenter(dtCenter)
 	, pOptions (Options)
 	, Status(kbLoading)
 	, curFeature(NULL)
