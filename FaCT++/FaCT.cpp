@@ -65,28 +65,25 @@ ReasoningKernel::TConceptExpr*
 getNextName ( TsScanner& sc, ReasoningKernel& Kernel )
 {
 	TExpressionManager* pEM = Kernel.getExpressionManager();
-	for(;;)
-	{
-		if ( sc.GetLex() == LEXEOF )
-			return NULL;
-		Token t = sc.getNameKeyword();
+	if ( sc.GetLex() == LEXEOF )
+		return NULL;
+	Token t = sc.getNameKeyword();
 
-		if ( t != ID )
-			return t == TOP ? pEM->Top() : pEM->Bottom();
+	if ( t != ID )
+		return t == TOP ? pEM->Top() : pEM->Bottom();
+	try
+	{
+		return pEM->Concept(sc.GetName());
+	}
+	catch ( EFPPCantRegName )
+	{
 		try
 		{
-			return pEM->Concept(sc.GetName());
+			return pEM->OneOf(pEM->Individual(sc.GetName()));
 		}
 		catch ( EFPPCantRegName )
 		{
-			try
-			{
-				return pEM->OneOf(pEM->Individual(sc.GetName()));
-			}
-			catch ( EFPPCantRegName )
-			{
-				std::cout << "Query name " << sc.GetName() << " is undefined in TBox\n";
-			}
+			std::cout << "Query name " << sc.GetName() << " is undefined in TBox\n";
 		}
 	}
 }
@@ -115,7 +112,7 @@ void testSat ( const std::string& names, ReasoningKernel& Kernel )
 	while ( (sat = getNextName(sc,Kernel)) != NULL )
 	{
 		bool result = false;
-		if ( static_cast<TDLConceptTop*>(sat) == NULL )
+		if ( dynamic_cast<const TDLConceptTop*>(sat) != NULL )
 			result = Kernel.isKBConsistent();
 		else
 			TryReasoning ( result = Kernel.isSatisfiable(sat) );

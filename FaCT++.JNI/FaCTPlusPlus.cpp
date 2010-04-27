@@ -584,21 +584,16 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
 {
 	TRACE_JNI("getDataValue");
 	JString name(env,str);
-	Throw ( env, "FaCT++ Kernel: unsupported operation" );
-	return NULL;
-#if 0
 	jobject ret = (jobject)0;
 	try
 	{
-		ret = DataValue ( env, getK(env,obj)->getDataTypeCenter().
-							   getDataValue ( name(), getDataExpr(env,type) ) );
+		ret = DataValue ( env, getDataTypeExpr(env,type)->getValue(name()) );
 	}
 	catch (EFPPCantRegName)
 	{
 		Throw ( env, "FaCT++ Kernel: Can not register new data value" );
 	}
 	return ret;
-#endif
 }
 
 /*

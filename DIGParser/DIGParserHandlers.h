@@ -146,6 +146,8 @@ protected:	// typedefs
 	typedef ReasoningKernel::TDRoleExpr TDRoleExpr;
 		/// data expression
 	typedef ReasoningKernel::TDataExpr TDataExpr;
+		/// data type expression
+	typedef ReasoningKernel::TDataTypeExpr TDataTypeExpr;
 		/// data value expression
 	typedef ReasoningKernel::TDataValueExpr TDataValueExpr;
 
@@ -295,13 +297,15 @@ protected:	// methods
 		}
 		return x;
 	}
-		/// return data value of a type TYPE by given name; throw exception if unable
-	TDataValueExpr* tryDataValue ( const std::string& name, TDataExpr* type )
+		/// return data value of a string type by a given NAME
+	TDataValueExpr* tryStrDataValue ( const std::string& name )
 	{
-		return NULL;
-#if 0
-		return pKernel->getDataTypeCenter().getDataValue(name,type);
-#endif
+		return getStrDataType(pKernel->getDataTypeManager())->getValue(name);
+	}
+		/// return data value of an integer type by a given NAME
+	TDataValueExpr* tryIntDataValue ( const std::string& name )
+	{
+		return getIntDataType(pKernel->getDataTypeManager())->getValue(name);
 	}
 		/// check whether expression R is data role
 	bool isDataRole ( const TExpr* R ) const { return dynamic_cast<const TDRoleExpr*>(R) != NULL; }

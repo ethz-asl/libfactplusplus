@@ -54,6 +54,8 @@ typedef ReasoningKernel::TORoleExpr TORoleExpr;
 typedef ReasoningKernel::TDRoleExpr TDRoleExpr;
 	/// data expression
 typedef ReasoningKernel::TDataExpr TDataExpr;
+	/// data type expression
+typedef ReasoningKernel::TDataTypeExpr TDataTypeExpr;
 	/// data value expression
 typedef ReasoningKernel::TDataValueExpr TDataValueExpr;
 
@@ -223,6 +225,10 @@ ACCESSOR(DRoleExpr)
 ACCESSOR(DataExpr)
 ACCESSOR(DataValueExpr)
 
+// ACCESSOR(DataTypeExpr) -- doesn't work as DTE is not a const typedef
+inline TDataTypeExpr* getDataTypeExpr ( JNIEnv * env, jobject obj )
+	{ return const_cast<TDataTypeExpr*>(dynamic_cast<const TDataTypeExpr*>((TExpr*)getPointer(env,obj))); }
+
 #undef ACCESSOR
 
 // macro to expand into the RO accessor function that transforms pointer into appropriate type
@@ -239,6 +245,7 @@ ACCESSOR(ORoleComplexExpr)
 ACCESSOR(ORoleExpr)
 ACCESSOR(DRoleExpr)
 ACCESSOR(DataExpr)
+ACCESSOR(DataTypeExpr)
 ACCESSOR(DataValueExpr)
 
 #undef ACCESSOR

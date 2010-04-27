@@ -235,7 +235,13 @@ public:		// visitor interface
 		else
 			THROW_UNSUPPORTED("data type name");
 	}
-	virtual void visit ( const TDLDataValue& expr ) {}
+	virtual void visit ( const TDLDataValue& expr )
+	{
+		expr.getExpr()->accept(*this);	// process type
+		DLTree* type = *this;
+		tree = KB.getDataTypeCenter().getDataValue(expr.getName(),type);
+		deleteTree(type);
+	}
 	virtual void visit ( const TDLDataNot& expr ) { expr.getExpr()->accept(*this); tree = createSNFNot(*this); }
 	virtual void visit ( const TDLDataAnd& expr )
 	{

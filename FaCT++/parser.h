@@ -43,6 +43,8 @@ protected:	// typedefs
 	typedef ReasoningKernel::TDRoleExpr TDRoleExpr;
 		/// data expression
 	typedef ReasoningKernel::TDataExpr TDataExpr;
+		/// data type expression
+	typedef ReasoningKernel::TDataTypeExpr TDataTypeExpr;
 		/// data value expression
 	typedef ReasoningKernel::TDataValueExpr TDataValueExpr;
 
@@ -99,15 +101,11 @@ protected:	// methods
 		return ret;
 	}
 		/// @return datavalue of a data type TYPE with an Id of a just scanned name
-	TDataValueExpr* getDTValue ( TDataExpr* type )
+	TDataValueExpr* getDTValue ( TDataTypeExpr* type )
 	{
-		return NULL;
-#if 0
-		TDataValueExpr* ret = Kernel->getDataTypeCenter().getDataValue(scan.GetName(),type);
+		TDataValueExpr* ret = type->getValue(scan.GetName());
 		NextLex();
-		deleteTree(type);
 		return ret;
-#endif
 	}
 
 		/// check whether expression R is data role

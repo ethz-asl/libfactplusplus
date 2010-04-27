@@ -23,6 +23,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <string>
 
 #include "eFaCTPlusPlus.h"
+#include "fpp_assert.h"
+#include "tNameSet.h"
 
 // forward declaration for all expression classes: necessary for the visitor pattern
 class TDLExpression;
@@ -1179,6 +1181,12 @@ public:		// interface
 class TDLDataValue: public TDLDataExpression, public TNamedEntity, public TDataExpressionArg<TDLDataTypeName>
 {
 public:		// interface
+		/// fake c'tor (to make TNameSet happy); shouldn't be called
+	TDLDataValue ( const std::string& value )
+		: TDLDataExpression()
+		, TNamedEntity(value)
+		, TDataExpressionArg<TDLDataTypeName>(NULL)
+		{ fpp_unreachable(); }
 		/// init c'tor
 	TDLDataValue ( const std::string& value, const TDLDataTypeName* T )
 		: TDLDataExpression()
@@ -1273,15 +1281,50 @@ public:		// interface
 
 // data type is defined here as they are more complex than the rest
 
+//------------------------------------------------------------------
+/// data type implementation for the DL expressions
+//------------------------------------------------------------------
+class TDLDataType
+{
+protected:	// classes
+		/// class to create a new entry with a given data type as a parameter
+	class DVCreator: public TNameCreator<TDLDataValue>
+	{
+	protected:	// members
+			/// type for all the values
+		const TDLDataTypeName* type;
+	public:		// interface
+			/// init c'tor
+		DVCreator ( const TDLDataTypeName* t ) : type(t) {}
+			/// empty d'tor
+		virtual ~DVCreator ( void ) {}
+			/// create new value of a given type
+		virtual TDLDataValue* makeEntry ( const std::string& name ) const { return new TDLDataValue(name,type); }
+	}; // DVCreator
+
+protected:	// members
+		/// all the values of the datatype
+	TNameSet<TDLDataValue> Values;
+
+public:		// interface
+		/// empty c'tor
+	TDLDataType ( const TDLDataTypeName* type ) : Values(new DVCreator(type)) {}
+		/// empty d'tor
+	~TDLDataType ( void ) {}
+
+		/// get new data value of the given type
+	const TDLDataValue* getValue ( const std::string& name ) { return Values.insert(name); }
+}; // TDLDataType
+
 
 //------------------------------------------------------------------
 ///	named data type expression
 //------------------------------------------------------------------
-class TDLDataTypeName: public TDLDataExpression, public TNamedEntity
+class TDLDataTypeName: public TDLDataExpression, public TDLDataType, public TNamedEntity
 {
 public:		// interface
 		/// init c'tor
-	TDLDataTypeName ( const std::string& name ) : TDLDataExpression(), TNamedEntity(name) {}
+	TDLDataTypeName ( const std::string& name ) : TDLDataExpression(), TDLDataType(this), TNamedEntity(name) {}
 		/// empty d'tor
 	virtual ~TDLDataTypeName ( void ) {}
 

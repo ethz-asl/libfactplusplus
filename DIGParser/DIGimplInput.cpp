@@ -255,7 +255,6 @@ void DIGParseHandlers :: startConcept ( DIGTag tag, AttributeList& attributes )
 		workStack.push(NULL);	// put stopper into stack
 		return;
 
-#if 0
 	// value staff
 	case digIVal:
 	case digSVal:
@@ -266,6 +265,7 @@ void DIGParseHandlers :: startConcept ( DIGTag tag, AttributeList& attributes )
 	case digDefined:
 		return;
 
+#if 0
 	// int datatype constructors
 	case digIntMin:
 	case digIntMax:
@@ -491,15 +491,14 @@ void DIGParseHandlers :: endConcept ( DIGTag tag )
 		workStack.top() = tag == digAnd ? pEM->And() : tag == digOr ? pEM->Or() : pEM->OneOf();
 		return;
 
-#if 0
 	// data staff
 	case digIVal:
-		workStack.push(tryDataValue(data,pKernel->getDataTypeCenter().getNumberType()));
+		workStack.push(tryIntDataValue(data));
 		useData = false;	// stop saving data
 		return;
 
 	case digSVal:
-		workStack.push(tryDataValue(data,pKernel->getDataTypeCenter().getStringType()));
+		workStack.push(tryStrDataValue(data));
 		useData = false;	// stop saving data
 		return;
 
@@ -507,9 +506,10 @@ void DIGParseHandlers :: endConcept ( DIGTag tag )
 	case digDefined:
 		if ( workStack.empty() )
 			throwArgumentAbsence ( "data property", tag );
-		workStack.top() = pEM->Exists ( workStack.top(), pEM->Top() );
+		workStack.top() = pEM->Exists ( dynamic_cast<TDRoleExpr*>(workStack.top()), pEM->DataTop() );
 		return;
 
+#if 0
 	// min/max data restrictions
 	case digStrMin:
 	case digStrMax:
