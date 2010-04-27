@@ -54,23 +54,25 @@ public:	// types interface
 	*/
 
 		/// general expression
-	typedef TDLExpression TExpr;
+	typedef const TDLExpression TExpr;
 		/// concept expression
-	typedef TDLConceptExpression TConceptExpr;
+	typedef const TDLConceptExpression TConceptExpr;
 		/// individual expression
-	typedef TDLIndividualExpression TIndividualExpr;
+	typedef const TDLIndividualExpression TIndividualExpr;
 		/// role expression
-	typedef TDLRoleExpression TRoleExpr;
+	typedef const TDLRoleExpression TRoleExpr;
 		/// object role complex expression (including role chains and projections)
-	typedef TDLObjectRoleComplexExpression TORoleComplexExpr;
+	typedef const TDLObjectRoleComplexExpression TORoleComplexExpr;
 		/// object role expression
-	typedef TDLObjectRoleExpression TORoleExpr;
+	typedef const TDLObjectRoleExpression TORoleExpr;
 		/// data role expression
-	typedef TDLDataRoleExpression TDRoleExpr;
+	typedef const TDLDataRoleExpression TDRoleExpr;
 		/// data expression
-	typedef TDLDataExpression TDataExpr;
+	typedef const TDLDataExpression TDataExpr;
+		/// data type expression
+	typedef TDLDataTypeName TDataTypeExpr;
 		/// data value expression
-	typedef TDLDataValue TDataValueExpr;
+	typedef const TDLDataValue TDataValueExpr;
 
 	// name sets
 
