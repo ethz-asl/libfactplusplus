@@ -1105,14 +1105,18 @@ TBox :: initSingletonCache ( BipolarPointer p )
 }
 
 inline const modelCacheInterface*
-TBox :: initCache ( TConcept* pConcept )
+TBox :: initCache ( const TConcept* pConcept, bool sub )
 {
-	const modelCacheInterface* cache = DLHeap.getCache(pConcept->pName);
+	BipolarPointer bp = sub ? inverse(pConcept->pName) : pConcept->pName;
+	const modelCacheInterface* cache = DLHeap.getCache(bp);
 
 	if ( cache == NULL )
 	{
-		prepareFeatures ( pConcept, NULL );
-		cache = getReasoner()->createCache(pConcept->pName);
+		if ( sub )
+			prepareFeatures ( NULL, pConcept );
+		else
+			prepareFeatures ( pConcept, NULL );
+		cache = getReasoner()->createCache(bp);
 		clearFeatures();
 	}
 
@@ -1123,10 +1127,8 @@ TBox :: initCache ( TConcept* pConcept )
 inline enum modelCacheState
 TBox :: testCachedNonSubsumption ( const TConcept* p, const TConcept* q )
 {
-	const modelCacheInterface* pCache = initCache(const_cast<TConcept*>(p));
-	prepareFeatures ( NULL, q );	// make appropriate conditions for reasoning
-	const modelCacheInterface* nCache = getReasoner()->createCache(inverse(q->pName));
-	clearFeatures();
+	const modelCacheInterface* pCache = initCache ( p, /*sub=*/false );
+	const modelCacheInterface* nCache = initCache ( q, /*sub=*/true );
 	return pCache->canMerge(nCache);
 }
 
