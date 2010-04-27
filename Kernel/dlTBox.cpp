@@ -301,7 +301,7 @@ TBox :: isSubHolds ( const TConcept* pConcept, const TConcept* qConcept )
 	fpp_assert ( pConcept != NULL && qConcept != NULL );
 
 #ifdef FPP_DEBUG_PRINT_CURRENT_SUBSUMPTION
-	std::cerr << "Checking '" << pConcept->getName() << "' [= '" << qConcept->getName() << "'\n";
+	std::cerr << "Checking '" << pConcept->getName() << "' [= '" << qConcept->getName() << "'...";
 #endif
 
 	// logging the startpoint
@@ -315,6 +315,10 @@ TBox :: isSubHolds ( const TConcept* pConcept, const TConcept* qConcept )
 	prepareFeatures ( pConcept, qConcept );
 	bool result = !getReasoner()->runSat ( pConcept->resolveId(), (qConcept ? inverse(qConcept->resolveId()) : bpTOP) );
 	clearFeatures();
+
+#ifdef FPP_DEBUG_PRINT_CURRENT_SUBSUMPTION
+	std::cerr << " done\n";
+#endif
 
 	CHECK_LL_RETURN_VALUE(llSatResult,result);
 

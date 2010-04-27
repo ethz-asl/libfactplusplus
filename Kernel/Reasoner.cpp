@@ -24,6 +24,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 //#define __DEBUG_SAVE_RESTORE
 // comment the line out for flushing LL after dumping significant piece of info
 //#define __DEBUG_FLUSH_LL
+// uncomment the following line to debug cascaded caching
+//#define TMP_CACHE_DEBUG
 
 #ifdef USE_REASONING_STATISTICS
 AccumulatedStatistic* AccumulatedStatistic::root = NULL;
@@ -521,8 +523,6 @@ bool DlSatTester :: applyReflexiveRoles ( DlCompletionTree* node, const DepSet& 
 	return false;
 }
 
-//#define TMP_CACHE_DEBUG
-
 const modelCacheInterface* DlSatTester :: createCache ( BipolarPointer p )
 {
 	fpp_assert ( isValid(p) );	// safety check
@@ -534,7 +534,7 @@ const modelCacheInterface* DlSatTester :: createCache ( BipolarPointer p )
 		return cache;
 
 #ifdef TMP_CACHE_DEBUG
-	std::cout << "\nCCache for " << p << ":";
+	std::cerr << "\nCCache for " << p << ":";
 #endif
 	prepareCascadedCache(p);
 
@@ -555,7 +555,7 @@ DlSatTester :: prepareCascadedCache ( BipolarPointer p )
 	if ( inProcess.find(p) != inProcess.end() )
 	{
 #	ifdef TMP_CACHE_DEBUG
-		std::cout << " cycle with " << p << ";";
+		std::cerr << " cycle with " << p << ";";
 #	endif
 		return;
 	}
@@ -593,7 +593,7 @@ DlSatTester :: prepareCascadedCache ( BipolarPointer p )
 			return;
 		inProcess.insert(p);
 #	ifdef TMP_CACHE_DEBUG
-		std::cout << " expanding " << p << ";";
+		std::cerr << " expanding " << p << ";";
 #	endif
 		prepareCascadedCache ( pos ? v.getC() : inverse(v.getC()) );
 		inProcess.erase(p);
@@ -612,7 +612,7 @@ DlSatTester :: prepareCascadedCache ( BipolarPointer p )
 		{
 			inProcess.insert(x);
 #		ifdef TMP_CACHE_DEBUG
-			std::cout << " caching " << x << ";";
+			std::cerr << " caching " << x << ";";
 #		endif
 			createCache(x);
 			inProcess.erase(x);
@@ -624,7 +624,7 @@ DlSatTester :: prepareCascadedCache ( BipolarPointer p )
 		{
 			inProcess.insert(x);
 #		ifdef TMP_CACHE_DEBUG
-			std::cout << " caching range(" << v.getRole()->getName() << ") = " << x << ";";
+			std::cerr << " caching range(" << v.getRole()->getName() << ") = " << x << ";";
 #		endif
 			createCache(x);
 			inProcess.erase(x);
@@ -641,9 +641,6 @@ DlSatTester :: prepareCascadedCache ( BipolarPointer p )
 	}
 }
 
-// do not need cache debug anymore
-#undef TMP_CACHE_DEBUG
-
 /// build cache for given DAG node using SAT tests; @return cache
 const modelCacheInterface*
 DlSatTester :: buildCache ( BipolarPointer p )
@@ -658,7 +655,15 @@ DlSatTester :: buildCache ( BipolarPointer p )
 #	endif
 	}
 
+#ifdef TMP_CACHE_DEBUG
+	std::cerr << " building cache for " << p << "...";
+#endif
+
 	bool sat = runSat(p);
+
+#ifdef TMP_CACHE_DEBUG
+	std::cerr << " done";
+#endif
 
 	// unsat => P -> \bot
 	if ( !sat && LLM.isWritable(llAlways) )
