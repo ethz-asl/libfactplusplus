@@ -22,6 +22,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <vector>
 #include <string>
 
+#include "globaldef.h"
 #include "eFaCTPlusPlus.h"
 #include "fpp_assert.h"
 #include "tNameSet.h"
@@ -142,6 +143,63 @@ public:		// visitor interface
 	// other methods
 	virtual ~DLExpressionVisitor ( void ) {}
 }; // DLExpressionVisitor
+
+/// empty visitor for DL expressions implementation
+class DLExpressionVisitorEmpty
+{
+public:		// visitor interface
+	// concept expressions
+	virtual void visit ( const TDLConceptTop& expr ATTR_UNUSED ) {}
+	virtual void visit ( const TDLConceptBottom& expr ATTR_UNUSED ) {}
+	virtual void visit ( const TDLConceptName& expr ATTR_UNUSED ) {}
+	virtual void visit ( const TDLConceptNot& expr ATTR_UNUSED ) {}
+	virtual void visit ( const TDLConceptAnd& expr ATTR_UNUSED ) {}
+	virtual void visit ( const TDLConceptOr& expr ATTR_UNUSED ) {}
+	virtual void visit ( const TDLConceptOneOf& expr ATTR_UNUSED ) {}
+	virtual void visit ( const TDLConceptObjectSelf& expr ATTR_UNUSED ) {}
+	virtual void visit ( const TDLConceptObjectValue& expr ATTR_UNUSED ) {}
+	virtual void visit ( const TDLConceptObjectExists& expr ATTR_UNUSED ) {}
+	virtual void visit ( const TDLConceptObjectForall& expr ATTR_UNUSED ) {}
+	virtual void visit ( const TDLConceptObjectMinCardinality& expr ATTR_UNUSED ) {}
+	virtual void visit ( const TDLConceptObjectMaxCardinality& expr ATTR_UNUSED ) {}
+	virtual void visit ( const TDLConceptObjectExactCardinality& expr ATTR_UNUSED ) {}
+	virtual void visit ( const TDLConceptDataValue& expr ATTR_UNUSED ) {}
+	virtual void visit ( const TDLConceptDataExists& expr ATTR_UNUSED ) {}
+	virtual void visit ( const TDLConceptDataForall& expr ATTR_UNUSED ) {}
+	virtual void visit ( const TDLConceptDataMinCardinality& expr ATTR_UNUSED ) {}
+	virtual void visit ( const TDLConceptDataMaxCardinality& expr ATTR_UNUSED ) {}
+	virtual void visit ( const TDLConceptDataExactCardinality& expr ATTR_UNUSED ) {}
+
+	// individual expr ATTR_UNUSEDessions
+	virtual void visit ( const TDLIndividualName& expr ATTR_UNUSED ) {}
+
+	// object role expr ATTR_UNUSEDessions
+	virtual void visit ( const TDLObjectRoleTop& expr ATTR_UNUSED ) {}
+	virtual void visit ( const TDLObjectRoleBottom& expr ATTR_UNUSED ) {}
+	virtual void visit ( const TDLObjectRoleName& expr ATTR_UNUSED ) {}
+	virtual void visit ( const TDLObjectRoleInverse& expr ATTR_UNUSED ) {}
+	virtual void visit ( const TDLObjectRoleChain& expr ATTR_UNUSED ) {}
+	virtual void visit ( const TDLObjectRoleProjectionFrom& expr ATTR_UNUSED ) {}
+	virtual void visit ( const TDLObjectRoleProjectionInto& expr ATTR_UNUSED ) {}
+
+	// data role expr ATTR_UNUSEDessions
+	virtual void visit ( const TDLDataRoleTop& expr ATTR_UNUSED ) {}
+	virtual void visit ( const TDLDataRoleBottom& expr ATTR_UNUSED ) {}
+	virtual void visit ( const TDLDataRoleName& expr ATTR_UNUSED ) {}
+
+	// data expr ATTR_UNUSEDessions
+	virtual void visit ( const TDLDataTop& expr ATTR_UNUSED ) {}
+	virtual void visit ( const TDLDataBottom& expr ATTR_UNUSED ) {}
+	virtual void visit ( const TDLDataTypeName& expr ATTR_UNUSED ) {}
+	virtual void visit ( const TDLDataValue& expr ATTR_UNUSED ) {}
+	virtual void visit ( const TDLDataNot& expr ATTR_UNUSED ) {}
+	virtual void visit ( const TDLDataAnd& expr ATTR_UNUSED ) {}
+	virtual void visit ( const TDLDataOr& expr ATTR_UNUSED ) {}
+	virtual void visit ( const TDLDataOneOf& expr ATTR_UNUSED ) {}
+
+	// other methods
+	virtual ~DLExpressionVisitorEmpty ( void ) {}
+}; // DLExpressionVisitorEmpty
 
 
 /// base class for the DL expression, which include concept-, (data)role-, individual-, and data ones
