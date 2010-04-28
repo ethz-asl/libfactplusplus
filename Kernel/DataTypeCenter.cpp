@@ -23,8 +23,6 @@ DataTypeCenter :: ~DataTypeCenter ( void )
 {
 	for ( iterator p = begin(), p_end = end(); p < p_end; ++p )
 		delete *p;
-	for ( TFacets::iterator q = Facets.begin(), q_end = Facets.end(); q < q_end; ++q )
-		delete *q;
 }
 
 TDataType*

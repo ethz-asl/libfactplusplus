@@ -36,15 +36,9 @@ public:	// interface
 		/// iterator (RO) to access types
 	typedef TypesVector::const_iterator const_iterator;
 
-protected:	// types
-		/// type for set of facets
-	typedef std::vector<TDataInterval*> TFacets;
-
 protected:	// members
 		/// vector of registered data types; initially contains unrestricted NUMBER and STRING
 	TypesVector Types;
-		/// all the facets w/o grouping by type
-	TFacets Facets;
 
 protected:	// methods
 		/// register new data type
@@ -93,14 +87,6 @@ protected:	// methods
 		/// get TDE by a given DLTree
 	static TDataEntry* unwrap ( const DLTree* t ) { return static_cast<TDataEntry*>(t->Element().getNE()); }
 
-		/// get new Facet
-	TDataInterval* getNewFacet ( void )
-	{
-		TDataInterval* ret = new TDataInterval;
-		Facets.push_back(ret);
-		return ret;
-	}
-
 public:		// interface
 		// c'tor: create NUMBER and STRING datatypes
 	DataTypeCenter ( void )
@@ -134,9 +120,6 @@ public:		// interface
 
 		return wrap(type->get(name));	// may throw
 	}
-		/// return registered data expression of the type, defined by SAMPLE;
-	DLTree* getDataExpr ( const DLTree* sample ) const
-		{ return wrap(getTypeBySample(unwrap(sample))->getExpr()); }
 		/// get datatype by its name
 	DLTree* getDataType ( const std::string& name )
 		{ return wrap(getTypeByName(name)->getType()); }
@@ -144,47 +127,17 @@ public:		// interface
 	DLTree* getDataType ( const std::string& name ATTR_UNUSED, DLTree* expr )
 		{ return expr; }
 
-		/// apply FACET to a data expression EXPR
-	DLTree* applyFacet ( DLTree* expr, const TDataInterval* facet ) const
+		/// facet for >=/>/</<=
+	DLTree* getIntervalFacetExpr ( DLTree* val, bool min, bool excl )
 	{
-		unwrap(expr)->getFacet()->update(*facet);
-		return expr;
-	}
-		/// apply facet, obtained from TYPE to a data expression EXPR
-	DLTree* applyFacet ( DLTree* expr, const DLTree* type ) const
-		{ return applyFacet ( expr, unwrap(type)->getFacet() ); }
-
-	//------------------------------------------------------------
-	//	Facets interface. Every facet is actually an appropriate Type's expression
-	//	with given restriction
-	//------------------------------------------------------------
-		/// facet for >=
-	TDataInterval* getMinInclusiveFacet ( DLTree* value )
-	{
-		TDataInterval* ret = getNewFacet();
-		ret->updateMin ( /*excl=*/false, unwrap(value)->getComp() );
-		return ret;
-	}
-		/// facet for >
-	TDataInterval* getMinExclusiveFacet ( DLTree* value )
-	{
-		TDataInterval* ret = getNewFacet();
-		ret->updateMin ( /*excl=*/true, unwrap(value)->getComp() );
-		return ret;
-	}
-		/// facet for <=
-	TDataInterval* getMaxInclusiveFacet ( DLTree* value )
-	{
-		TDataInterval* ret = getNewFacet();
-		ret->updateMax ( /*excl=*/false, unwrap(value)->getComp() );
-		return ret;
-	}
-		/// facet for <
-	TDataInterval* getMaxExclusiveFacet ( DLTree* value )
-	{
-		TDataInterval* ret = getNewFacet();
-		ret->updateMax ( /*excl=*/true, unwrap(value)->getComp() );
-		return ret;
+		/// get value as an DTE
+		TDataEntry* value = unwrap(val);
+		// create new (unnamed) expression
+		TDataEntry* ret = getTypeBySample(value)->getExpr();
+		// apply appropriate facet to it
+		ret->getFacet()->update ( min, excl, value->getComp() );
+		deleteTree(val);
+		return wrap(ret);
 	}
 
 	// reasoning interface
