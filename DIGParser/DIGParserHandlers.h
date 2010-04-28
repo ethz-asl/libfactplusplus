@@ -300,12 +300,12 @@ protected:	// methods
 		/// return data value of a string type by a given NAME
 	TDataValueExpr* tryStrDataValue ( const std::string& name )
 	{
-		return getStrDataType(pKernel->getDataTypeManager())->getValue(name);
+		return pEM->DataValue ( name, pEM->getStrDataType() );
 	}
 		/// return data value of an integer type by a given NAME
 	TDataValueExpr* tryIntDataValue ( const std::string& name )
 	{
-		return getIntDataType(pKernel->getDataTypeManager())->getValue(name);
+		return pEM->DataValue ( name, pEM->getIntDataType() );
 	}
 		/// check whether expression R is data role
 	bool isDataRole ( const TExpr* R ) const { return dynamic_cast<const TDRoleExpr*>(R) != NULL; }

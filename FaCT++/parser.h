@@ -103,7 +103,7 @@ protected:	// methods
 		/// @return datavalue of a data type TYPE with an Id of a just scanned name
 	TDataValueExpr* getDTValue ( TDataTypeExpr* type )
 	{
-		TDataValueExpr* ret = type->getValue(scan.GetName());
+		TDataValueExpr* ret = EManager->DataValue ( scan.GetName(), type );
 		NextLex();
 		return ret;
 	}

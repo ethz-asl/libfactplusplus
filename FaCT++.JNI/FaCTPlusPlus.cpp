@@ -293,30 +293,30 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
 	TRACE_JNI("getBuiltInDataType");
 	JString name(env,str);
 	std::string DTName(name());
-	TDataTypeManager* M = getK(env,obj)->getDataTypeManager();
+	TExpressionManager* EM = getEM(env,obj);
 	// FIXME!! Data Top
 	if ( DTName == "http://www.w3.org/2000/01/rdf-schema#Literal" )
-		return DataType ( env, getStrDataType(M) );
+		return DataType ( env, EM->getStrDataType() );
 
 	if ( DTName == "http://www.w3.org/2001/XMLSchema#string" )
-		return DataType ( env, getStrDataType(M) );
+		return DataType ( env, EM->getStrDataType() );
 	if ( DTName == "http://www.w3.org/2001/XMLSchema#anyURI" )
-		return DataType ( env, getStrDataType(M) );
+		return DataType ( env, EM->getStrDataType() );
 
 	if ( DTName == "http://www.w3.org/2001/XMLSchema#integer" )
-		return DataType ( env, getIntDataType(M) );
+		return DataType ( env, EM->getIntDataType() );
 	if ( DTName == "http://www.w3.org/2001/XMLSchema#int" )
-		return DataType ( env, getIntDataType(M) );
+		return DataType ( env, EM->getIntDataType() );
 	if ( DTName == "http://www.w3.org/2001/XMLSchema#nonNegativeInteger" )
-		return DataType ( env, getIntDataType(M) );
+		return DataType ( env, EM->getIntDataType() );
 
 	if ( DTName == "http://www.w3.org/2001/XMLSchema#float" )
-		return DataType ( env, getRealDataType(M) );
+		return DataType ( env, EM->getRealDataType() );
 	if ( DTName == "http://www.w3.org/2001/XMLSchema#double" )
-		return DataType ( env, getRealDataType(M) );
+		return DataType ( env, EM->getRealDataType() );
 
 	if ( DTName == "http://www.w3.org/2001/XMLSchema#boolean" )
-		return DataType ( env, getBoolDataType(M) );
+		return DataType ( env, EM->getBoolDataType() );
 
 	std::stringstream err;
 	err << "Unsupported datatype '" << DTName.c_str() << "'";
@@ -587,7 +587,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
 	jobject ret = (jobject)0;
 	try
 	{
-		ret = DataValue ( env, getDataTypeExpr(env,type)->getValue(name()) );
+		ret = DataValue ( env, getEM(env,obj)->DataValue ( name(), getDataTypeExpr(env,type) ) );
 	}
 	catch (EFPPCantRegName)
 	{

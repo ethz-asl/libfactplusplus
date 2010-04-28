@@ -36,6 +36,18 @@ isUniversalRole ( const TDLDataRoleExpression* R )
 	return dynamic_cast<const TDLDataRoleTop*>(R) != NULL;
 }
 
+inline TDLDataTypeName* getBasicDataType ( TDLDataTypeExpression* type )
+{
+	TDLDataTypeName* ret = dynamic_cast<TDLDataTypeName*>(type);
+	if ( ret == NULL )
+	{
+		TDLDataTypeRestriction* hostType = dynamic_cast<TDLDataTypeRestriction*>(type);
+		fpp_assert ( hostType != NULL );
+		ret = const_cast<TDLDataTypeName*>(hostType->getExpr());
+	}
+	return ret;
+}
+
 /// manager to work with all DL expressions in the kernel
 class TExpressionManager
 {
@@ -84,9 +96,6 @@ public:		// interface
 	TExpressionManager ( void );
 		/// d'tor
 	~TExpressionManager ( void );
-
-		// get access to the data type manager
-	TDataTypeManager* getDataTypeManager ( void ) { return &NS_DT; }
 
 		/// clear the ontology
 	void clear ( void );
@@ -200,10 +209,22 @@ public:		// interface
 	TDLDataExpression* DataTop ( void ) const { return DTop; }
 		/// get BOTTOM data element
 	TDLDataExpression* DataBottom ( void ) const { return DBottom; }
+
 		/// get named data type
-	TDLDataExpression* DataType ( const std::string& name ) { return NS_DT.insert(name); }
-		/// get data value with given VALUE and TYPE
-	TDLDataExpression* DataValue ( const std::string& value, TDLDataTypeName* type ) { return record(new TDLDataValue(value,type)); }
+	TDLDataTypeName* DataType ( const std::string& name ) { return NS_DT.insert(name); }
+		/// get basic string data type
+	TDLDataTypeName* getStrDataType ( void ) { return DataType(TDataTypeManager::getStrTypeName()); }
+		/// get basic integer data type
+	TDLDataTypeName* getIntDataType ( void ) { return DataType(TDataTypeManager::getIntTypeName()); }
+		/// get basic floating point data type
+	TDLDataTypeName* getRealDataType ( void ) { return DataType(TDataTypeManager::getRealTypeName()); }
+		/// get basic boolean data type
+	TDLDataTypeName* getBoolDataType ( void ) { return DataType(TDataTypeManager::getBoolTypeName()); }
+
+		/// get data value with given VALUE and TYPE;
+		// FIXME!! now change the type to the basic type of the given one
+		// That is, value of a type positiveInteger will be of a type Integer
+	const TDLDataValue* DataValue ( const std::string& value, TDLDataTypeExpression* type ) { return getBasicDataType(type)->getValue1(value); }
 		/// get negation of a data expression E
 	TDLDataExpression* DataNot ( const TDLDataExpression* E ) { return record(new TDLDataNot(E)); }
 		/// get an n-ary data conjunction expression; take the arguments from the last argument list

@@ -235,6 +235,18 @@ public:		// visitor interface
 		else
 			THROW_UNSUPPORTED("data type name");
 	}
+	virtual void visit ( const TDLDataTypeRestriction& expr )
+	{
+		DLTree* acc = new DLTree(TOP);
+
+		for ( TDLDataTypeRestriction::iterator p = expr.begin(), p_end = expr.end(); p != p_end; ++p )
+		{
+			(*p)->accept(*this);
+			acc = createSNFAnd ( acc, *this );
+		}
+
+		tree = acc;
+	}
 	virtual void visit ( const TDLDataValue& expr )
 	{
 		expr.getExpr()->accept(*this);	// process type

@@ -80,12 +80,15 @@ class    TDLDataRoleName;
 class  TDLDataExpression;
 class   TDLDataTop;
 class   TDLDataBottom;
-class   TDLDataTypeName;
+class   TDLDataTypeExpression;
+class    TDLDataTypeName;
+class    TDLDataTypeRestriction;
 class   TDLDataValue;
 class   TDLDataNot;
 class   TDLDataAnd;
 class   TDLDataOr;
 class   TDLDataOneOf;
+class   TDLFacetExpression;
 
 /// general visitor for DL expressions
 class DLExpressionVisitor
@@ -134,6 +137,7 @@ public:		// visitor interface
 	virtual void visit ( const TDLDataTop& expr ) = 0;
 	virtual void visit ( const TDLDataBottom& expr ) = 0;
 	virtual void visit ( const TDLDataTypeName& expr ) = 0;
+	virtual void visit ( const TDLDataTypeRestriction& expr ) = 0;
 	virtual void visit ( const TDLDataValue& expr ) = 0;
 	virtual void visit ( const TDLDataNot& expr ) = 0;
 	virtual void visit ( const TDLDataAnd& expr ) = 0;
@@ -170,10 +174,10 @@ public:		// visitor interface
 	virtual void visit ( const TDLConceptDataMaxCardinality& expr ATTR_UNUSED ) {}
 	virtual void visit ( const TDLConceptDataExactCardinality& expr ATTR_UNUSED ) {}
 
-	// individual expr ATTR_UNUSEDessions
+	// individual expressions
 	virtual void visit ( const TDLIndividualName& expr ATTR_UNUSED ) {}
 
-	// object role expr ATTR_UNUSEDessions
+	// object role expressions
 	virtual void visit ( const TDLObjectRoleTop& expr ATTR_UNUSED ) {}
 	virtual void visit ( const TDLObjectRoleBottom& expr ATTR_UNUSED ) {}
 	virtual void visit ( const TDLObjectRoleName& expr ATTR_UNUSED ) {}
@@ -182,15 +186,16 @@ public:		// visitor interface
 	virtual void visit ( const TDLObjectRoleProjectionFrom& expr ATTR_UNUSED ) {}
 	virtual void visit ( const TDLObjectRoleProjectionInto& expr ATTR_UNUSED ) {}
 
-	// data role expr ATTR_UNUSEDessions
+	// data role expressions
 	virtual void visit ( const TDLDataRoleTop& expr ATTR_UNUSED ) {}
 	virtual void visit ( const TDLDataRoleBottom& expr ATTR_UNUSED ) {}
 	virtual void visit ( const TDLDataRoleName& expr ATTR_UNUSED ) {}
 
-	// data expr ATTR_UNUSEDessions
+	// data expressions
 	virtual void visit ( const TDLDataTop& expr ATTR_UNUSED ) {}
 	virtual void visit ( const TDLDataBottom& expr ATTR_UNUSED ) {}
 	virtual void visit ( const TDLDataTypeName& expr ATTR_UNUSED ) {}
+	virtual void visit ( const TDLDataTypeRestriction& expr ATTR_UNUSED ) {}
 	virtual void visit ( const TDLDataValue& expr ATTR_UNUSED ) {}
 	virtual void visit ( const TDLDataNot& expr ATTR_UNUSED ) {}
 	virtual void visit ( const TDLDataAnd& expr ATTR_UNUSED ) {}
@@ -1234,22 +1239,56 @@ public:		// interface
 }; // TDLDataBottom
 
 //------------------------------------------------------------------
+///	general data type expression
+//------------------------------------------------------------------
+class TDLDataTypeExpression: public TDLDataExpression
+{
+public:		// interface
+		/// empty c'tor
+	TDLDataTypeExpression ( void ) : TDLDataExpression() {}
+		/// empty d'tor
+	virtual ~TDLDataTypeExpression ( void ) {}
+
+		/// accept method for the visitor pattern
+	void accept ( DLExpressionVisitor& visitor ) const = 0;
+}; // TDLDataTypeExpression
+
+//------------------------------------------------------------------
+///	restricted data type expression
+//------------------------------------------------------------------
+class TDLDataTypeRestriction: public TDLDataTypeExpression, public TDataExpressionArg<TDLDataTypeName>, public TDLNAryExpression<TDLFacetExpression>
+{
+public:		// interface
+		/// init c'tor
+	TDLDataTypeRestriction ( const TDLDataTypeName* T )
+		: TDLDataTypeExpression()
+		, TDataExpressionArg<TDLDataTypeName>(T)
+		, TDLNAryExpression<TDLFacetExpression>("facet expression","Datatype restriction")
+		{}
+		/// empty d'tor
+	virtual ~TDLDataTypeRestriction ( void ) {}
+
+		/// accept method for the visitor pattern
+	void accept ( DLExpressionVisitor& visitor ) const { visitor.visit(*this); }
+}; // TDLDataTypeRestriction
+
+//------------------------------------------------------------------
 ///	data value expression
 //------------------------------------------------------------------
-class TDLDataValue: public TDLDataExpression, public TNamedEntity, public TDataExpressionArg<TDLDataTypeName>
+class TDLDataValue: public TDLDataExpression, public TNamedEntity, public TDataExpressionArg<TDLDataTypeExpression>
 {
 public:		// interface
 		/// fake c'tor (to make TNameSet happy); shouldn't be called
 	TDLDataValue ( const std::string& value )
 		: TDLDataExpression()
 		, TNamedEntity(value)
-		, TDataExpressionArg<TDLDataTypeName>(NULL)
+		, TDataExpressionArg<TDLDataTypeExpression>(NULL)
 		{ fpp_unreachable(); }
 		/// init c'tor
-	TDLDataValue ( const std::string& value, const TDLDataTypeName* T )
+	TDLDataValue ( const std::string& value, const TDLDataTypeExpression* T )
 		: TDLDataExpression()
 		, TNamedEntity(value)
-		, TDataExpressionArg<TDLDataTypeName>(T)
+		, TDataExpressionArg<TDLDataTypeExpression>(T)
 		{}
 		/// empty d'tor
 	virtual ~TDLDataValue ( void ) {}
@@ -1336,6 +1375,24 @@ public:		// interface
 	void accept ( DLExpressionVisitor& visitor ) const { visitor.visit(*this); }
 }; // TDLDataOneOf
 
+//------------------------------------------------------------------
+///	general data facet expression
+//------------------------------------------------------------------
+class TDLFacetExpression: public TDLDataExpression, public TDataExpressionArg<TDLDataValue>
+{
+public:		// interface
+		/// init c'tor: create facet from a given value V
+	TDLFacetExpression ( const TDLDataValue* V )
+		: TDLDataExpression()
+		, TDataExpressionArg<TDLDataValue>(V)
+		{}
+		/// empty d'tor
+	virtual ~TDLFacetExpression ( void ) {}
+
+		/// accept method for the visitor pattern
+	void accept ( DLExpressionVisitor& visitor ) const = 0;
+}; // TDLFacetExpression
+
 
 // data type is defined here as they are more complex than the rest
 
@@ -1350,10 +1407,10 @@ protected:	// classes
 	{
 	protected:	// members
 			/// type for all the values
-		const TDLDataTypeName* type;
+		const TDLDataTypeExpression* type;
 	public:		// interface
 			/// init c'tor
-		DVCreator ( const TDLDataTypeName* t ) : type(t) {}
+		DVCreator ( const TDLDataTypeExpression* t ) : type(t) {}
 			/// empty d'tor
 		virtual ~DVCreator ( void ) {}
 			/// create new value of a given type
@@ -1366,23 +1423,23 @@ protected:	// members
 
 public:		// interface
 		/// empty c'tor
-	TDLDataType ( const TDLDataTypeName* type ) : Values(new DVCreator(type)) {}
+	TDLDataType ( const TDLDataTypeExpression* type ) : Values(new DVCreator(type)) {}
 		/// empty d'tor
 	~TDLDataType ( void ) {}
 
 		/// get new data value of the given type
-	const TDLDataValue* getValue ( const std::string& name ) { return Values.insert(name); }
+	const TDLDataValue* getValue1 ( const std::string& name ) { return Values.insert(name); }
 }; // TDLDataType
 
 
 //------------------------------------------------------------------
 ///	named data type expression
 //------------------------------------------------------------------
-class TDLDataTypeName: public TDLDataExpression, public TDLDataType, public TNamedEntity
+class TDLDataTypeName: public TDLDataTypeExpression, public TDLDataType, public TNamedEntity
 {
 public:		// interface
 		/// init c'tor
-	TDLDataTypeName ( const std::string& name ) : TDLDataExpression(), TDLDataType(this), TNamedEntity(name) {}
+	TDLDataTypeName ( const std::string& name ) : TDLDataTypeExpression(), TDLDataType(this), TNamedEntity(name) {}
 		/// empty d'tor
 	virtual ~TDLDataTypeName ( void ) {}
 

@@ -727,9 +727,8 @@ void DIGParseHandlers :: endAxiom ( DIGTag tag )
 		if ( workStack.empty() )
 			throwArgumentAbsence ( "data property", tag );
 		TDRoleExpr* R = dynamic_cast<TDRoleExpr*>(workStack.top());
-		TDataTypeManager* M = pKernel->getDataTypeManager();
 		workStack.pop();
-		ERROR_IF ( pKernel->setDRange ( R, tag == digRangeInt ? getIntDataType(M) : getStrDataType(M) ) );
+		ERROR_IF ( pKernel->setDRange ( R, tag == digRangeInt ? pEM->getIntDataType() : pEM->getStrDataType() ) );
 		return;
 	}
 	case digTransitive:

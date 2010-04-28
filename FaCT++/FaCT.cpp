@@ -65,25 +65,28 @@ ReasoningKernel::TConceptExpr*
 getNextName ( TsScanner& sc, ReasoningKernel& Kernel )
 {
 	TExpressionManager* pEM = Kernel.getExpressionManager();
-	if ( sc.GetLex() == LEXEOF )
-		return NULL;
-	Token t = sc.getNameKeyword();
+	for (;;)
+	{
+		if ( sc.GetLex() == LEXEOF )
+			return NULL;
+		Token t = sc.getNameKeyword();
 
-	if ( t != ID )
-		return t == TOP ? pEM->Top() : pEM->Bottom();
-	try
-	{
-		return pEM->Concept(sc.GetName());
-	}
-	catch ( EFPPCantRegName )
-	{
+		if ( t != ID )
+			return t == TOP ? pEM->Top() : pEM->Bottom();
 		try
 		{
-			return pEM->OneOf(pEM->Individual(sc.GetName()));
+			return pEM->Concept(sc.GetName());
 		}
 		catch ( EFPPCantRegName )
 		{
-			std::cout << "Query name " << sc.GetName() << " is undefined in TBox\n";
+			try
+			{
+				return pEM->OneOf(pEM->Individual(sc.GetName()));
+			}
+			catch ( EFPPCantRegName )
+			{
+				std::cout << "Query name " << sc.GetName() << " is undefined in TBox\n";
+			}
 		}
 	}
 }

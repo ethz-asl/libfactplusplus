@@ -115,6 +115,7 @@ public:		// visitor interface
 	virtual void visit ( const TDLDataTop& expr ATTR_UNUSED ) { o << " *TOP*"; }
 	virtual void visit ( const TDLDataBottom& expr ATTR_UNUSED ) { o << " *BOTTOM*"; }
 	virtual void visit ( const TDLDataTypeName& expr ) { o << " (" << expr.getName() << ")"; }
+	virtual void visit ( const TDLDataTypeRestriction& expr ) { BR b(o,"and"); printArray(expr); }
 	virtual void visit ( const TDLDataValue& expr ) { o << " (" << expr.getExpr()->getName() << " " << expr.getName() << ")"; }
 	virtual void visit ( const TDLDataNot& expr ) { BR b(o,"not"); expr.getExpr()->accept(*this); }
 	virtual void visit ( const TDLDataAnd& expr ) { BR b(o,"and"); printArray(expr); }

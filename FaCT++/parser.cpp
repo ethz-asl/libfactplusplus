@@ -664,12 +664,11 @@ DLLispParser :: getDataExpression ( void )
 	case REAL:		// expression (real <value>)
 	case BOOL:
 	{
-		TDataTypeManager* M = Kernel->getDataTypeManager();
 		TDataTypeExpr* type =
-				(T == STRING) ? getStrDataType(M):
-				(T == NUMBER) ? getIntDataType(M):
-				(T == REAL ) ? getRealDataType(M):
-				getBoolDataType(M);
+				(T == STRING) ? EManager->getStrDataType():
+				(T == NUMBER) ? EManager->getIntDataType():
+				(T == REAL ) ? EManager->getRealDataType():
+				EManager->getBoolDataType();
 
 		if ( Current == RBRACK )	// just datatype
 		{
