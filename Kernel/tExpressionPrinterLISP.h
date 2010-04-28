@@ -117,7 +117,8 @@ public:		// visitor interface
 	virtual void visit ( const TDLDataTypeName& expr ) { o << " (" << expr.getName() << ")"; }
 		// no need to use a type of a restriction here, as all contains in constants
 	virtual void visit ( const TDLDataTypeRestriction& expr ) { BR b(o,"and"); printArray(expr); }
-	virtual void visit ( const TDLDataValue& expr ) { o << " (" << expr.getExpr()->getName() << " " << expr.getName() << ")"; }
+	virtual void visit ( const TDLDataValue& expr )
+		{ o << " (" << getBasicDataType(const_cast<TDLDataTypeExpression*>(expr.getExpr()))->getName() << " " << expr.getName() << ")"; }
 	virtual void visit ( const TDLDataNot& expr ) { BR b(o,"not"); expr.getExpr()->accept(*this); }
 	virtual void visit ( const TDLDataAnd& expr ) { BR b(o,"and"); printArray(expr); }
 	virtual void visit ( const TDLDataOr& expr ) { BR b(o,"or"); printArray(expr); }

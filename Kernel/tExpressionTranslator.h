@@ -131,7 +131,13 @@ public:		// visitor interface
 		DLTree* GE = createSNFGE ( expr.getNumber(), R, C );
 		tree = createSNFAnd ( GE, LE );
 	}
-	virtual void visit ( const TDLConceptDataValue& expr ATTR_UNUSED ) { THROW_UNSUPPORTED("data value"); }
+	virtual void visit ( const TDLConceptDataValue& expr )
+	{
+		expr.getDR()->accept(*this);
+		DLTree* R = *this;
+		expr.getExpr()->accept(*this);
+		tree = createSNFExists ( R, *this );
+	}
 	virtual void visit ( const TDLConceptDataExists& expr )
 	{
 		expr.getDR()->accept(*this);

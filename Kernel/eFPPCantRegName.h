@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2006-2009 by Dmitry Tsarkov
+Copyright (C) 2006-2010 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -16,8 +16,8 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef _EFPPCANTREGNAME_H
-#define _EFPPCANTREGNAME_H
+#ifndef EFPPCANTREGNAME_H
+#define EFPPCANTREGNAME_H
 
 #include <string>
 
@@ -29,11 +29,14 @@ class EFPPCantRegName: public EFaCTPlusPlus
 public:		// members
 		/// error string
 	std::string str;
+		/// name string
+	std::string Name;
 
 public:		// interface
 		/// c'tor: create an output string
 	EFPPCantRegName ( const std::string& name, const std::string& type ) throw()
 		: EFaCTPlusPlus()
+		, Name(name)
 	{
 		str = "Unable to register '";
 		str += name;
@@ -43,7 +46,10 @@ public:		// interface
 	}
 		/// empty d'tor
 	virtual ~EFPPCantRegName ( void ) throw() {}
-}; // CantRegName
+
+		/// get access to the unregistered name
+	const char* getName ( void ) const { return Name.c_str(); }
+}; // EFPPCantRegName
 
 #endif
 

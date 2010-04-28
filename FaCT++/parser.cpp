@@ -283,7 +283,7 @@ DLLispParser :: tellRoleAxiom ( Token tag, TORoleExpr* R, TORoleExpr* S )
 			break;
 
 		default:
-			fpp_unreachable();
+			parseError("Unrecognised object role command");
 		}
 	}
 	catch ( EFaCTPlusPlus ex )
@@ -319,7 +319,7 @@ DLLispParser :: tellRoleAxiom ( Token tag, TDRoleExpr* R, TDRoleExpr* S )
 			break;
 
 		default:
-			fpp_unreachable();
+			parseError("Unrecognised data role command");
 		}
 	}
 	catch ( EFaCTPlusPlus ex )

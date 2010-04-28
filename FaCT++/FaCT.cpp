@@ -96,6 +96,9 @@ getNextName ( TsScanner& sc, ReasoningKernel& Kernel )
 	do {								\
 		try { action; }					\
 		catch ( EFPPInconsistentKB ) {}	\
+		catch ( EFPPCantRegName crn )	\
+		{ std::cout << "Query name " << crn.getName()		\
+			<< " is undefined in TBox\n"; }					\
 		catch ( EFPPNonSimpleRole nsr )	\
 		{ std::cerr << "WARNING: KB is incorrect: " 		\
 			<< nsr.what() << ". Query is NOT processed\n";	\
