@@ -27,7 +27,7 @@ class DataTypeReasoner;
 
 class DataTypeCenter
 {
-public:	// interface
+protected:	// interface
 		/// vector of DATATYPEs
 	typedef std::vector<TDataType*> TypesVector;
 

@@ -28,6 +28,8 @@ class TDataType: public TNECollection<TDataEntry>
 protected:	// members
 		/// data type
 	TDataEntry* Type;
+		/// data type
+	std::vector<TDataEntry*> Expr;
 
 private:	// no copy
 		/// no copy c'tor
@@ -44,8 +46,13 @@ public:		// interface
 	TDataType ( const std::string& name )
 		: TNECollection<TDataEntry>(name)
 		{ Type = new TDataEntry(name); }
-		/// d'tor: delete data type entry
-	virtual ~TDataType ( void ) { delete Type; }
+		/// d'tor: delete data type entry and all the expressions
+	virtual ~TDataType ( void )
+	{
+		for ( std::vector<TDataEntry*>::iterator p = Expr.begin(), p_end = Expr.end(); p != p_end; ++p )
+			delete *p;
+		delete Type;
+	}
 
 	// access to the type
 
@@ -59,7 +66,9 @@ public:		// interface
 	{
 		if ( isLocked() )
 			return NULL;	// FIXME!! exception later
-		return registerElem(new TDataEntry("expr"));
+		TDataEntry* ret = registerElem(new TDataEntry("expr"));
+		Expr.push_back(ret);
+		return ret;
 	}
 }; // TDataType
 
