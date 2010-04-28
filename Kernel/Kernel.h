@@ -73,6 +73,8 @@ public:	// types interface
 	typedef TDLDataTypeExpression TDataTypeExpr;
 		/// data value expression
 	typedef const TDLDataValue TDataValueExpr;
+		/// data facet expression
+	typedef const TDLFacetExpression TFacetExpr;
 
 	// name sets
 
@@ -342,8 +344,6 @@ public:	// general staff
 
 		/// get access to an expression manager
 	TExpressionManager* getExpressionManager ( void ) { return Ontology.getExpressionManager(); }
-		/// get access to a DT manager
-//	TDataTypeManager* getDataTypeManager ( void ) { return getExpressionManager()->getDataTypeManager(); }
 
 public:
 	//******************************************

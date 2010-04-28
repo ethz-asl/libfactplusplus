@@ -221,10 +221,24 @@ public:		// interface
 		/// get basic boolean data type
 	TDLDataTypeName* getBoolDataType ( void ) { return DataType(TDataTypeManager::getBoolTypeName()); }
 
+		/// get basic boolean data type
+	TDLDataTypeRestriction* RestrictedType ( TDLDataTypeExpression* type, const TDLFacetExpression* facet )
+	{
+		TDLDataTypeRestriction* ret = dynamic_cast<TDLDataTypeRestriction*>(type);
+		if ( ret == NULL )
+		{	// get a type and build an appropriate restriction of it
+			TDLDataTypeName* hostType = dynamic_cast<TDLDataTypeName*>(type);
+			fpp_assert ( hostType != NULL );
+			ret = record(new TDLDataTypeRestriction(hostType));
+		}
+		ret->add(facet);
+		return ret;
+	}
+
 		/// get data value with given VALUE and TYPE;
 		// FIXME!! now change the type to the basic type of the given one
 		// That is, value of a type positiveInteger will be of a type Integer
-	const TDLDataValue* DataValue ( const std::string& value, TDLDataTypeExpression* type ) { return getBasicDataType(type)->getValue1(value); }
+	const TDLDataValue* DataValue ( const std::string& value, TDLDataTypeExpression* type ) { return getBasicDataType(type)->getValue(value); }
 		/// get negation of a data expression E
 	TDLDataExpression* DataNot ( const TDLDataExpression* E ) { return record(new TDLDataNot(E)); }
 		/// get an n-ary data conjunction expression; take the arguments from the last argument list
@@ -233,6 +247,16 @@ public:		// interface
 	TDLDataExpression* DataOr ( void ) { return record(new TDLDataOr(getArgList())); }
 		/// get an n-ary data one-of expression; take the arguments from the last argument list
 	TDLDataExpression* DataOneOf ( void ) { return record(new TDLDataOneOf(getArgList())); }
+
+		/// get minInclusive facet with a given VALUE
+	const TDLFacetExpression* FacetMinInclusive ( const TDLDataValue* V ) { return record(new TDLFacetMinInclusive(V)); }
+		/// get minExclusive facet with a given VALUE
+	const TDLFacetExpression* FacetMinExclusive ( const TDLDataValue* V ) { return record(new TDLFacetMinExclusive(V)); }
+		/// get maxInclusive facet with a given VALUE
+	const TDLFacetExpression* FacetMaxInclusive ( const TDLDataValue* V ) { return record(new TDLFacetMaxInclusive(V)); }
+		/// get maxExclusive facet with a given VALUE
+	const TDLFacetExpression* FacetMaxExclusive ( const TDLDataValue* V ) { return record(new TDLFacetMaxExclusive(V)); }
+
 }; // TExpressionManager
 
 #endif

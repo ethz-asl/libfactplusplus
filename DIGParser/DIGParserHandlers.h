@@ -150,6 +150,8 @@ protected:	// typedefs
 	typedef ReasoningKernel::TDataTypeExpr TDataTypeExpr;
 		/// data value expression
 	typedef ReasoningKernel::TDataValueExpr TDataValueExpr;
+		/// data facet expression
+	typedef const TDLFacetExpression TFacetExpr;
 
 protected:
 	/// stream with results of query processing

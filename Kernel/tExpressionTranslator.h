@@ -292,6 +292,40 @@ public:		// visitor interface
 		tree = acc;
 	}
 
+	// facets
+	virtual void visit ( const TDLFacetMinInclusive& expr )
+	{
+		expr.getExpr()->accept(*this);
+		DLTree* value = *this;
+		DataTypeCenter& DTC = KB.getDataTypeCenter();
+		tree = DTC.getDataExpr(value);
+		tree = DTC.applyFacet ( tree, DTC.getMinInclusiveFacet(value) );
+	}
+	virtual void visit ( const TDLFacetMinExclusive& expr )
+	{
+		expr.getExpr()->accept(*this);
+		DLTree* value = *this;
+		DataTypeCenter& DTC = KB.getDataTypeCenter();
+		tree = DTC.getDataExpr(value);
+		tree = DTC.applyFacet ( tree, DTC.getMinExclusiveFacet(value) );
+	}
+	virtual void visit ( const TDLFacetMaxInclusive& expr )
+	{
+		expr.getExpr()->accept(*this);
+		DLTree* value = *this;
+		DataTypeCenter& DTC = KB.getDataTypeCenter();
+		tree = DTC.getDataExpr(value);
+		tree = DTC.applyFacet ( tree, DTC.getMaxInclusiveFacet(value) );
+	}
+	virtual void visit ( const TDLFacetMaxExclusive& expr )
+	{
+		expr.getExpr()->accept(*this);
+		DLTree* value = *this;
+		DataTypeCenter& DTC = KB.getDataTypeCenter();
+		tree = DTC.getDataExpr(value);
+		tree = DTC.applyFacet ( tree, DTC.getMaxExclusiveFacet(value) );
+	}
+
 #undef THROW_UNSUPPORTED
 }; // TExpressionTranslator
 

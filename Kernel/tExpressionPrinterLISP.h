@@ -115,12 +115,19 @@ public:		// visitor interface
 	virtual void visit ( const TDLDataTop& expr ATTR_UNUSED ) { o << " *TOP*"; }
 	virtual void visit ( const TDLDataBottom& expr ATTR_UNUSED ) { o << " *BOTTOM*"; }
 	virtual void visit ( const TDLDataTypeName& expr ) { o << " (" << expr.getName() << ")"; }
+		// no need to use a type of a restriction here, as all contains in constants
 	virtual void visit ( const TDLDataTypeRestriction& expr ) { BR b(o,"and"); printArray(expr); }
 	virtual void visit ( const TDLDataValue& expr ) { o << " (" << expr.getExpr()->getName() << " " << expr.getName() << ")"; }
 	virtual void visit ( const TDLDataNot& expr ) { BR b(o,"not"); expr.getExpr()->accept(*this); }
 	virtual void visit ( const TDLDataAnd& expr ) { BR b(o,"and"); printArray(expr); }
 	virtual void visit ( const TDLDataOr& expr ) { BR b(o,"or"); printArray(expr); }
 	virtual void visit ( const TDLDataOneOf& expr ) { BR b(o,"d-one-of"); printArray(expr); }
+
+	// facets
+	virtual void visit ( const TDLFacetMinInclusive& expr ) { BR b(o,"ge"); expr.getExpr()->accept(*this); }
+	virtual void visit ( const TDLFacetMinExclusive& expr ) { BR b(o,"gt"); expr.getExpr()->accept(*this); }
+	virtual void visit ( const TDLFacetMaxInclusive& expr ) { BR b(o,"le"); expr.getExpr()->accept(*this); }
+	virtual void visit ( const TDLFacetMaxExclusive& expr ) { BR b(o,"lt"); expr.getExpr()->accept(*this); }
 
 #undef THROW_UNSUPPORTED
 }; // TLISPExpressionPrinter

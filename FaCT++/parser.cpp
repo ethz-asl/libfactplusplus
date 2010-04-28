@@ -603,49 +603,58 @@ DLLispParser :: getDataExpression ( void )
 
 	MustBeM(LBRACK);	// always complex expression
 	Token T = scan.getExpressionKeyword();
-	TDataExpr *left = NULL, *right = NULL;
 
 	NextLex ();
 
 	switch (T)
 	{
-#if 0
-	case DTGT:
-		left = getDataExpression();
+	case DTGT:	// facet ">"
+	{
+		TDataValueExpr* value = dynamic_cast<TDataValueExpr*>(getDataExpression());
 		MustBeM(RBRACK);
-		right = Kernel->getDataTypeCenter().getDataExpr(left);
-		Kernel->getDataTypeCenter().applyFacet ( right,
-			Kernel->getDataTypeCenter().getMinExclusiveFacet(left) );
-		return right;
-	case DTGE:
-		left = getDataExpression();
+		if ( value == NULL )
+			parseError("Data value expected");
+		// the type of the expression is taken from value; it is basic type, so it is safe to make it RW
+		TDataTypeExpr* type = const_cast<TDataTypeExpr*>(value->getExpr());
+		return EManager->RestrictedType ( type, EManager->FacetMinExclusive(value) );
+	}
+	case DTGE:	// facet ">="
+	{
+		TDataValueExpr* value = dynamic_cast<TDataValueExpr*>(getDataExpression());
 		MustBeM(RBRACK);
-		right = Kernel->getDataTypeCenter().getDataExpr(left);
-		Kernel->getDataTypeCenter().applyFacet ( right,
-			Kernel->getDataTypeCenter().getMinInclusiveFacet(left) );
-		return right;
-	case DTLT:
-		left = getDataExpression();
+		if ( value == NULL )
+			parseError("Data value expected");
+		// the type of the expression is taken from value; it is basic type, so it is safe to make it RW
+		TDataTypeExpr* type = const_cast<TDataTypeExpr*>(value->getExpr());
+		return EManager->RestrictedType ( type, EManager->FacetMinInclusive(value) );
+	}
+	case DTLT:	// facet "<"
+	{
+		TDataValueExpr* value = dynamic_cast<TDataValueExpr*>(getDataExpression());
 		MustBeM(RBRACK);
-		right = Kernel->getDataTypeCenter().getDataExpr(left);
-		Kernel->getDataTypeCenter().applyFacet ( right,
-			Kernel->getDataTypeCenter().getMaxExclusiveFacet(left) );
-		return right;
-	case DTLE:
-		left = getDataExpression();
+		if ( value == NULL )
+			parseError("Data value expected");
+		// the type of the expression is taken from value; it is basic type, so it is safe to make it RW
+		TDataTypeExpr* type = const_cast<TDataTypeExpr*>(value->getExpr());
+		return EManager->RestrictedType ( type, EManager->FacetMaxExclusive(value) );
+	}
+	case DTLE:	// facet "<="
+	{
+		TDataValueExpr* value = dynamic_cast<TDataValueExpr*>(getDataExpression());
 		MustBeM(RBRACK);
-		right = Kernel->getDataTypeCenter().getDataExpr(left);
-		Kernel->getDataTypeCenter().applyFacet ( right,
-			Kernel->getDataTypeCenter().getMaxInclusiveFacet(left) );
-		return right;
-#endif
-
+		if ( value == NULL )
+			parseError("Data value expected");
+		// the type of the expression is taken from value; it is basic type, so it is safe to make it RW
+		TDataTypeExpr* type = const_cast<TDataTypeExpr*>(value->getExpr());
+		return EManager->RestrictedType ( type, EManager->FacetMaxInclusive(value) );
+	}
 	case NOT:
-		left = getDataExpression();
+	{
+		TDataExpr* expr = getDataExpression();
 		// skip right bracket
 		MustBeM ( RBRACK );
-		return EManager->DataNot(left);
-
+		return EManager->DataNot(expr);
+	}
 	case DONEOF:
 	case AND:
 	case OR:	// multiple And's/Or's

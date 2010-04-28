@@ -89,6 +89,15 @@ class   TDLDataAnd;
 class   TDLDataOr;
 class   TDLDataOneOf;
 class   TDLFacetExpression;
+class    TDLFacetMinInclusive;
+class    TDLFacetMinExclusive;
+class    TDLFacetMaxInclusive;
+class    TDLFacetMaxExclusive;
+//class    TDLFacetLength;
+//class    TDLFacetMinLength;
+//class    TDLFacetMaxLength;
+//class    TDLFacetPattern;
+//class    TDLFacetLangRange;
 
 /// general visitor for DL expressions
 class DLExpressionVisitor
@@ -143,6 +152,12 @@ public:		// visitor interface
 	virtual void visit ( const TDLDataAnd& expr ) = 0;
 	virtual void visit ( const TDLDataOr& expr ) = 0;
 	virtual void visit ( const TDLDataOneOf& expr ) = 0;
+
+	// facets
+	virtual void visit ( const TDLFacetMinInclusive& expr ) = 0;
+	virtual void visit ( const TDLFacetMinExclusive& expr ) = 0;
+	virtual void visit ( const TDLFacetMaxInclusive& expr ) = 0;
+	virtual void visit ( const TDLFacetMaxExclusive& expr ) = 0;
 
 	// other methods
 	virtual ~DLExpressionVisitor ( void ) {}
@@ -201,6 +216,12 @@ public:		// visitor interface
 	virtual void visit ( const TDLDataAnd& expr ATTR_UNUSED ) {}
 	virtual void visit ( const TDLDataOr& expr ATTR_UNUSED ) {}
 	virtual void visit ( const TDLDataOneOf& expr ATTR_UNUSED ) {}
+
+	// facets
+	virtual void visit ( const TDLFacetMinInclusive& expr ATTR_UNUSED ) {}
+	virtual void visit ( const TDLFacetMinExclusive& expr ATTR_UNUSED ) {}
+	virtual void visit ( const TDLFacetMaxInclusive& expr ATTR_UNUSED ) {}
+	virtual void visit ( const TDLFacetMaxExclusive& expr ATTR_UNUSED ) {}
 
 	// other methods
 	virtual ~DLExpressionVisitorEmpty ( void ) {}
@@ -1393,6 +1414,66 @@ public:		// interface
 	void accept ( DLExpressionVisitor& visitor ) const = 0;
 }; // TDLFacetExpression
 
+//------------------------------------------------------------------
+///	min-inclusive facet expression
+//------------------------------------------------------------------
+class TDLFacetMinInclusive: public TDLFacetExpression
+{
+public:		// interface
+		/// init c'tor
+	TDLFacetMinInclusive ( const TDLDataValue* V ) : TDLFacetExpression(V) {}
+		/// empty d'tor
+	virtual ~TDLFacetMinInclusive ( void ) {}
+
+		/// accept method for the visitor pattern
+	void accept ( DLExpressionVisitor& visitor ) const { visitor.visit(*this); }
+}; // TDLFacetMinInclusive
+
+//------------------------------------------------------------------
+///	min-exclusive facet expression
+//------------------------------------------------------------------
+class TDLFacetMinExclusive: public TDLFacetExpression
+{
+public:		// interface
+		/// init c'tor
+	TDLFacetMinExclusive ( const TDLDataValue* V ) : TDLFacetExpression(V) {}
+		/// empty d'tor
+	virtual ~TDLFacetMinExclusive ( void ) {}
+
+		/// accept method for the visitor pattern
+	void accept ( DLExpressionVisitor& visitor ) const { visitor.visit(*this); }
+}; // TDLFacetMinExclusive
+
+//------------------------------------------------------------------
+///	max-inclusive facet expression
+//------------------------------------------------------------------
+class TDLFacetMaxInclusive: public TDLFacetExpression
+{
+public:		// interface
+		/// init c'tor
+	TDLFacetMaxInclusive ( const TDLDataValue* V ) : TDLFacetExpression(V) {}
+		/// empty d'tor
+	virtual ~TDLFacetMaxInclusive ( void ) {}
+
+		/// accept method for the visitor pattern
+	void accept ( DLExpressionVisitor& visitor ) const { visitor.visit(*this); }
+}; // TDLFacetMaxInclusive
+
+//------------------------------------------------------------------
+///	max-exclusive facet expression
+//------------------------------------------------------------------
+class TDLFacetMaxExclusive: public TDLFacetExpression
+{
+public:		// interface
+		/// init c'tor
+	TDLFacetMaxExclusive ( const TDLDataValue* V ) : TDLFacetExpression(V) {}
+		/// empty d'tor
+	virtual ~TDLFacetMaxExclusive ( void ) {}
+
+		/// accept method for the visitor pattern
+	void accept ( DLExpressionVisitor& visitor ) const { visitor.visit(*this); }
+}; // TDLFacetMaxExclusive
+
 
 // data type is defined here as they are more complex than the rest
 
@@ -1428,7 +1509,7 @@ public:		// interface
 	~TDLDataType ( void ) {}
 
 		/// get new data value of the given type
-	const TDLDataValue* getValue1 ( const std::string& name ) { return Values.insert(name); }
+	const TDLDataValue* getValue ( const std::string& name ) { return Values.insert(name); }
 }; // TDLDataType
 
 

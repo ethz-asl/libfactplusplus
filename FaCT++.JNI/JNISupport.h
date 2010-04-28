@@ -58,6 +58,8 @@ typedef ReasoningKernel::TDataExpr TDataExpr;
 typedef ReasoningKernel::TDataTypeExpr TDataTypeExpr;
 	/// data value expression
 typedef ReasoningKernel::TDataValueExpr TDataValueExpr;
+	/// data facet expression
+typedef const TDLFacetExpression TFacetExpr;
 
 //-------------------------------------------------------------
 // Support functions
@@ -224,6 +226,7 @@ ACCESSOR(ORoleExpr)
 ACCESSOR(DRoleExpr)
 ACCESSOR(DataExpr)
 ACCESSOR(DataValueExpr)
+ACCESSOR(FacetExpr)
 
 // ACCESSOR(DataTypeExpr) -- doesn't work as DTE is not a const typedef
 inline TDataTypeExpr* getDataTypeExpr ( JNIEnv * env, jobject obj )
@@ -247,14 +250,9 @@ ACCESSOR(DRoleExpr)
 ACCESSOR(DataExpr)
 ACCESSOR(DataTypeExpr)
 ACCESSOR(DataValueExpr)
+ACCESSOR(FacetExpr)
 
 #undef ACCESSOR
-
-inline
-TDataInterval* getFacet ( JNIEnv * env, jobject obj )
-{
-	return (TDataInterval*)getPointer(env,obj);
-}
 
 inline
 TDLAxiom* getAxiom ( JNIEnv * env, jobject obj )
@@ -399,7 +397,7 @@ jobject DataValue ( JNIEnv * env, TDataValueExpr* t )
 }
 
 inline
-jobject Facet ( JNIEnv * env, TDataInterval* t )
+jobject Facet ( JNIEnv * env, TFacetExpr* t )
 {
 	return retObject ( env, t, "Luk/ac/manchester/cs/factplusplus/DataTypeFacet;" );
 }

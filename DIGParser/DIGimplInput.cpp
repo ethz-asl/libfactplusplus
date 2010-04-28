@@ -167,7 +167,6 @@ void DIGParseHandlers :: startConcept ( DIGTag tag, AttributeList& attributes )
 
 	int n = 0;
 	string name, val, min, max;
-	TExpr* x;
 
 	if ( parm_name != NULL )
 		name = StrX (parm_name).localForm();
@@ -205,10 +204,11 @@ void DIGParseHandlers :: startConcept ( DIGTag tag, AttributeList& attributes )
 	case digFeature:
 		if ( parm_name == NULL )
 			throwAttributeAbsence ( "name", tag );
-		x = tryRoleName(name);
 		try
 		{
-			pKernel->setOFunctional(dynamic_cast<TORoleExpr*>(x));
+			TORoleExpr* role = tryRoleName(name);
+			pKernel->setOFunctional(role);
+			workStack.push(role);
 		}
 		catch(...)
 		{
@@ -218,7 +218,6 @@ void DIGParseHandlers :: startConcept ( DIGTag tag, AttributeList& attributes )
 			reason += "' undefined";
 			outWarning ( 99, "Undefined name", reason.c_str() );
 		}
-		workStack.push(x);
 		return;
 
 	case digAttribute:
@@ -265,47 +264,41 @@ void DIGParseHandlers :: startConcept ( DIGTag tag, AttributeList& attributes )
 	case digDefined:
 		return;
 
-#if 0
 	// int datatype constructors
 	case digIntMin:
 	case digIntMax:
 	case digIntEquals:
-		x = pKernel->getDataTypeCenter().getNumberType();
 		if ( parm_val == NULL )
 			throwAttributeAbsence ( "val", tag );
-		workStack.push(tryDataValue(val,x));
+		workStack.push(tryIntDataValue(val));
 		return;
 
 	case digIntRange:
-		x = pKernel->getDataTypeCenter().getNumberType();
 		if ( parm_min == NULL )
 			throwAttributeAbsence ( "min", tag );
 		if ( parm_max == NULL )
 			throwAttributeAbsence ( "max", tag );
-		workStack.push(tryDataValue(min,x));
-		workStack.push(tryDataValue(max,x));	// max is on top!
+		workStack.push(tryIntDataValue(min));
+		workStack.push(tryIntDataValue(max));	// max is on top!
 		return;
 
 	// string datatype constructors
 	case digStrMin:
 	case digStrMax:
 	case digStrEquals:
-		x = pKernel->getDataTypeCenter().getStringType();
 		if ( parm_val == NULL )
 			throwAttributeAbsence ( "val", tag );
-		workStack.push(tryDataValue(val,x));
+		workStack.push(tryStrDataValue(val));
 		return;
 
 	case digStrRange:
-		x = pKernel->getDataTypeCenter().getStringType();
 		if ( parm_min == NULL )
 			throwAttributeAbsence ( "min", tag );
 		if ( parm_max == NULL )
 			throwAttributeAbsence ( "max", tag );
-		workStack.push(tryDataValue(min,x));
-		workStack.push(tryDataValue(max,x));	// max is on top!
+		workStack.push(tryStrDataValue(min));
+		workStack.push(tryStrDataValue(max));	// max is on top!
 		return;
-#endif
 
 	// unsupported stuff
 	case digChain:
@@ -509,33 +502,34 @@ void DIGParseHandlers :: endConcept ( DIGTag tag )
 		workStack.top() = pEM->Exists ( dynamic_cast<TDRoleExpr*>(workStack.top()), pEM->DataTop() );
 		return;
 
-#if 0
 	// min/max data restrictions
 	case digStrMin:
 	case digStrMax:
 	case digIntMin:	// >= n
 	case digIntMax:	// <= n
 	{
+		// get property
 		if ( workStack.empty() )
 			throwArgumentAbsence ( "role", "data expression", tag );
-		TDRoleExpr* R = dynamic_cast<TDRoleExpr*>(workStack.top());
+		TDRoleExpr* A = dynamic_cast<TDRoleExpr*>(workStack.top());
+		// get initial type
+		TDataTypeExpr* type = ( tag == digIntMin || tag == digIntMax )
+			? pEM->getIntDataType()
+			: pEM->getStrDataType();
+		// get the facet value
 		workStack.pop();
 		if ( workStack.empty() )
 			throwArgumentAbsence ( "role", "data expression", tag );
-		TDataExpr* N = dynamic_cast<TDataExpr*>(workStack.top());
-		// FIXME: throw exception
-		fpp_assert ( N->Element().getToken() == DATAEXPR );
+		TDataValueExpr* value = dynamic_cast<TDataValueExpr*>(workStack.top());
 		workStack.pop();
-		TDataExpr* expr = pKernel->getDataTypeCenter().getDataExpr(N);
-
-		if ( tag==digIntMin||tag==digStrMin )
-			expr = pKernel->getDataTypeCenter().applyFacet ( expr,
-				pKernel->getDataTypeCenter().getMinInclusiveFacet(N) );
-		else
-			expr = pKernel->getDataTypeCenter().applyFacet ( expr,
-				pKernel->getDataTypeCenter().getMaxInclusiveFacet(N) );
-
-		workStack.push( pEM->Exists ( R, expr ) );
+		// build facet
+		TFacetExpr* facet = ( tag == digStrMin || tag == digIntMin )
+			? pEM->FacetMinInclusive(value)
+			: pEM->FacetMaxInclusive(value);
+		// update type
+		type = pEM->RestrictedType ( type, facet );
+		// build a restriction
+		workStack.push( pEM->Exists ( A, type ) );
 		return;
 	}
 
@@ -543,27 +537,32 @@ void DIGParseHandlers :: endConcept ( DIGTag tag )
 	case digStrRange:
 	case digIntRange:
 	{
+		// get property
 		if ( workStack.empty() )
 			throwArgumentAbsence ( "role", "two data expressions", tag );
-		TDRoleExpr* R = dynamic_cast<TDRoleExpr*>(workStack.top());
+		TDRoleExpr* A = dynamic_cast<TDRoleExpr*>(workStack.top());
 		workStack.pop();
+		// get initial type
+		TDataTypeExpr* type = ( tag == digIntRange )
+			? pEM->getIntDataType()
+			: pEM->getStrDataType();
 
+		// add max facet
 		if ( workStack.empty() )
 			throwArgumentAbsence ( "role", "two data expressions", tag );
-		TDataExpr* max = dynamic_cast<TDataExpr*>(workStack.top());
+		TFacetExpr* facet = pEM->FacetMaxInclusive(dynamic_cast<TDataValueExpr*>(workStack.top()));
 		workStack.pop();
-		TDataExpr* expr = pKernel->getDataTypeCenter().getDataExpr(max);
-		expr = pKernel->getDataTypeCenter().applyFacet ( expr,
-			pKernel->getDataTypeCenter().getMaxInclusiveFacet(max) );
+		type = pEM->RestrictedType ( type, facet );
 
+		// add min facet
 		if ( workStack.empty() )
 			throwArgumentAbsence ( "role", "two data expressions", tag );
-		TDataExpr* min = dynamic_cast<TDataExpr*>(workStack.top());
+		facet = pEM->FacetMinInclusive(dynamic_cast<TDataValueExpr*>(workStack.top()));
 		workStack.pop();
-		expr = pKernel->getDataTypeCenter().applyFacet ( expr,
-			pKernel->getDataTypeCenter().getMinInclusiveFacet(min) );
+		type = pEM->RestrictedType ( type, facet );
 
-		workStack.push( pEM->Exists ( R, expr ) );
+		// build a restriction
+		workStack.push( pEM->Exists ( A, type ) );
 		return;
 	}
 
@@ -577,15 +576,13 @@ void DIGParseHandlers :: endConcept ( DIGTag tag )
 		workStack.pop();
 		if ( workStack.empty() )
 			throwArgumentAbsence ( "role", "data expression", tag );
-		TDataExpr* ps = dynamic_cast<TDataExpr*>(workStack.top());
-		// FIXME: throw exception
-		fpp_assert ( ps->Element().getToken() == DATAEXPR );
+		TDataValueExpr* value = dynamic_cast<TDataValueExpr*>(workStack.top());
 		workStack.pop();
-		workStack.push ( pEM->Exists ( A, ps ) );
+		workStack.push ( pEM->Value ( A, value ) );
 
 		return;
 	}
-#endif
+
 	// unsupported stuff
 	case digChain:
 		// throw (Unsupported)

@@ -334,6 +334,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
 {
 	TRACE_JNI("getDataSubType");
 	JString name(env,str);
+	Throw ( env, "FaCT++ Kernel: unsupported operation" );
 	jobject ret = (jobject)0;
 #if 0
 	try
@@ -382,18 +383,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
   (JNIEnv * env, jobject obj, jobject arg1, jobject arg2)
 {
 	TRACE_JNI("getRestrictedDataType");
-	Throw ( env, "FaCT++ Kernel: unsupported operation" );
-#if 0
-	DataTypeCenter& center = getK(env,obj)->getDataTypeCenter();
-	// create new DTExpression of the type ARG1 and add both facets to it
-	DLTree* type = getDataExpr(env,arg1);
-	DLTree* ret = center.getDataExpr(type);
-	ret = center.applyFacet(ret,type);
-	ret = center.applyFacet(ret,getFacet(env,arg2));
-
-	return DataTypeExpression(env,ret);
-#endif
-	return 0;
+	return DataTypeExpression ( env, getEM(env,obj)->RestrictedType ( getDataTypeExpr(env,arg1), getFacetExpr(env,arg2) ) );
 }
 
 /*
@@ -457,11 +447,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
   (JNIEnv * env, jobject obj, jobject arg)
 {
 	TRACE_JNI("getMinExclusiveFacet");
-	Throw ( env, "FaCT++ Kernel: unsupported operation" );
-	return NULL;
-#if 0
-	return Facet ( env, getK(env,obj)->getDataTypeCenter().getMinExclusiveFacet(getDataValueExpr(env,arg)) );
-#endif
+	return Facet ( env, getEM(env,obj)->FacetMinExclusive(getDataValueExpr(env,arg)) );
 }
 
 /*
@@ -473,11 +459,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
   (JNIEnv * env, jobject obj, jobject arg)
 {
 	TRACE_JNI("getMaxExclusiveFacet");
-	Throw ( env, "FaCT++ Kernel: unsupported operation" );
-	return NULL;
-#if 0
-	return Facet ( env, getK(env,obj)->getDataTypeCenter().getMaxExclusiveFacet(getDataValueExpr(env,arg)) );
-#endif
+	return Facet ( env, getEM(env,obj)->FacetMaxExclusive(getDataValueExpr(env,arg)) );
 }
 
 /*
@@ -489,11 +471,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
   (JNIEnv * env, jobject obj, jobject arg)
 {
 	TRACE_JNI("getMinInclusiveFacet");
-	Throw ( env, "FaCT++ Kernel: unsupported operation" );
-	return NULL;
-#if 0
-	return Facet ( env, getK(env,obj)->getDataTypeCenter().getMinInclusiveFacet(getDataValueExpr(env,arg)) );
-#endif
+	return Facet ( env, getEM(env,obj)->FacetMinInclusive(getDataValueExpr(env,arg)) );
 }
 
 /*
@@ -505,11 +483,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
   (JNIEnv * env, jobject obj, jobject arg)
 {
 	TRACE_JNI("getMaxInclusiveFacet");
-	Throw ( env, "FaCT++ Kernel: unsupported operation" );
-	return NULL;
-#if 0
-	return Facet ( env, getK(env,obj)->getDataTypeCenter().getMaxInclusiveFacet(getDataValueExpr(env,arg)) );
-#endif
+	return Facet ( env, getEM(env,obj)->FacetMaxExclusive(getDataValueExpr(env,arg)) );
 }
 
 /*
