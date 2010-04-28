@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2005-2009 by Dmitry Tsarkov
+Copyright (C) 2005-2010 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -25,15 +25,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 /// class for representing general data type
 class TDataType: public TNECollection<TDataEntry>
 {
-protected:	// types
-		/// set of facets
-	typedef std::vector<TDataInterval*> TFacets;
-
 protected:	// members
 		/// data type
 	TDataEntry* Type;
-		/// internal facets
-	TFacets Facets;
 
 private:	// no copy
 		/// no copy c'tor
@@ -50,22 +44,8 @@ public:		// interface
 	TDataType ( const std::string& name )
 		: TNECollection<TDataEntry>(name)
 		{ Type = new TDataEntry(name); }
-		/// d'tor: delete data type entry and all the facets
-	virtual ~TDataType ( void )
-	{
-		for ( TFacets::iterator p = Facets.begin(), p_end = Facets.end(); p < p_end; ++p )
-			delete *p;
-
-		delete Type;
-	}
-
-		/// clear the BPs for all the entries
-	void clearType ( void )
-	{
-		for ( iterator p = begin(); p != end(); ++p )
-			(*p)->setBP(bpINVALID);
-		Type->setBP(bpINVALID);
-	}
+		/// d'tor: delete data type entry
+	virtual ~TDataType ( void ) { delete Type; }
 
 	// access to the type
 
@@ -80,13 +60,6 @@ public:		// interface
 		if ( isLocked() )
 			return NULL;	// FIXME!! exception later
 		return registerElem(new TDataEntry("expr"));
-	}
-		/// get new Facet
-	TDataInterval* getFacet ( void )
-	{
-		TDataInterval* ret = new TDataInterval;
-		Facets.push_back(ret);
-		return ret;
 	}
 }; // TDataType
 

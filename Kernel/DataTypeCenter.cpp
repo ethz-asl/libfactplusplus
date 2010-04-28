@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2009 by Dmitry Tsarkov
+Copyright (C) 2003-2010 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -23,6 +23,8 @@ DataTypeCenter :: ~DataTypeCenter ( void )
 {
 	for ( iterator p = begin(), p_end = end(); p < p_end; ++p )
 		delete *p;
+	for ( TFacets::iterator q = Facets.begin(), q_end = Facets.end(); q < q_end; ++q )
+		delete *q;
 }
 
 TDataType*
@@ -46,13 +48,6 @@ DataTypeCenter :: setLocked ( bool val )
 
 	for ( iterator p = begin(), p_end = end(); p < p_end; ++p )
 		(*p)->setLocked(val);
-}
-
-void
-DataTypeCenter :: clearTypes ( void )
-{
-	for ( const_iterator p = begin(), p_end = end(); p < p_end; ++p )
-		(*p)->clearType();
 }
 
 void

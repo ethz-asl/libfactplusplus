@@ -36,9 +36,15 @@ public:	// interface
 		/// iterator (RO) to access types
 	typedef TypesVector::const_iterator const_iterator;
 
+protected:	// types
+		/// type for set of facets
+	typedef std::vector<TDataInterval*> TFacets;
+
 protected:	// members
 		/// vector of registered data types; initially contains unrestricted NUMBER and STRING
 	TypesVector Types;
+		/// all the facets w/o grouping by type
+	TFacets Facets;
 
 protected:	// methods
 		/// register new data type
@@ -87,9 +93,13 @@ protected:	// methods
 		/// get TDE by a given DLTree
 	static TDataEntry* unwrap ( const DLTree* t ) { return static_cast<TDataEntry*>(t->Element().getNE()); }
 
-		/// return registered facet of the type, defined by SAMPLE;
-	TDataInterval* getFacet ( const DLTree* sample ) const
-		{ return getTypeBySample(unwrap(sample))->getFacet(); }
+		/// get new Facet
+	TDataInterval* getNewFacet ( void )
+	{
+		TDataInterval* ret = new TDataInterval;
+		Facets.push_back(ret);
+		return ret;
+	}
 
 public:		// interface
 		// c'tor: create NUMBER and STRING datatypes
@@ -149,38 +159,36 @@ public:		// interface
 	//	with given restriction
 	//------------------------------------------------------------
 		/// facet for >=
-	TDataInterval* getMinInclusiveFacet ( DLTree* value ) const
+	TDataInterval* getMinInclusiveFacet ( DLTree* value )
 	{
-		TDataInterval* ret = getFacet(value);
+		TDataInterval* ret = getNewFacet();
 		ret->updateMin ( /*excl=*/false, unwrap(value)->getComp() );
 		return ret;
 	}
 		/// facet for >
-	TDataInterval* getMinExclusiveFacet ( DLTree* value ) const
+	TDataInterval* getMinExclusiveFacet ( DLTree* value )
 	{
-		TDataInterval* ret = getFacet(value);
+		TDataInterval* ret = getNewFacet();
 		ret->updateMin ( /*excl=*/true, unwrap(value)->getComp() );
 		return ret;
 	}
 		/// facet for <=
-	TDataInterval* getMaxInclusiveFacet ( DLTree* value ) const
+	TDataInterval* getMaxInclusiveFacet ( DLTree* value )
 	{
-		TDataInterval* ret = getFacet(value);
+		TDataInterval* ret = getNewFacet();
 		ret->updateMax ( /*excl=*/false, unwrap(value)->getComp() );
 		return ret;
 	}
 		/// facet for <
-	TDataInterval* getMaxExclusiveFacet ( DLTree* value ) const
+	TDataInterval* getMaxExclusiveFacet ( DLTree* value )
 	{
-		TDataInterval* ret = getFacet(value);
+		TDataInterval* ret = getNewFacet();
 		ret->updateMax ( /*excl=*/true, unwrap(value)->getComp() );
 		return ret;
 	}
 
 	// reasoning interface
 
-		/// clear IR of types
-	void clearTypes ( void );
 		/// init DT reasoner
 	void initDataTypeReasoner ( DataTypeReasoner& DTReasoner ) const;
 		/// lock/unlock types for additional elements
