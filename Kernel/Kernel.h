@@ -122,6 +122,17 @@ protected:	// members
 		/// expression translator to work with queries
 	TExpressionTranslator* pET;
 
+	// Top/Bottom role names: if set, they will appear in all hierarchy-related output
+
+		/// top object role name
+	std::string TopORoleName;
+		/// bottom object role name
+	std::string BotORoleName;
+		/// top data role name
+	std::string TopDRoleName;
+		/// bottom data role name
+	std::string BotDRoleName;
+
 	// reasoning cache
 
 		/// cache level
@@ -316,6 +327,14 @@ public:	// general staff
 	void setProgressMonitor ( TProgressMonitor* pMon ) { getTBox()->setProgressMonitor(pMon); }
 		/// set verbose output (ie, default progress monitor, concept and role taxonomies
 	void useVerboseOutput ( void ) { getTBox()->useVerboseOutput(); }
+		/// set top/bottom role names to use them in the related output
+	void setTopBottomRoleNames ( const char* topORoleName, const char* botORoleName, const char* topDRoleName, const char* botDRoleName )
+	{
+		TopORoleName = topORoleName;
+		BotORoleName = botORoleName;
+		TopDRoleName = topDRoleName;
+		BotDRoleName = botDRoleName;
+	}
 
 		/// dump query processing TIME, reasoning statistics and a (preprocessed) TBox
 	void writeReasoningResult ( std::ostream& o, float time ) const
@@ -360,12 +379,15 @@ public:
 		pTBox->setTestTimeout(OpTimeout);
 		pET = new TExpressionTranslator(*pTBox);
 		initCacheAndFlags();
-#	ifdef OWLAPI3
-		declare(ObjectRole("http://www.w3.org/2002/07/owl#topObjectProperty"));
-		declare(ObjectRole("http://www.w3.org/2002/07/owl#bottomObjectProperty"));
-		declare(DataRole("http://www.w3.org/2002/07/owl#topDataProperty"));
-		declare(DataRole("http://www.w3.org/2002/07/owl#bottomDataProperty"));
-#	endif
+
+		if ( TopORoleName != "" )
+		{	// declare top/bottom role names
+			TExpressionManager* pEM = getExpressionManager();
+			declare(pEM->ObjectRole(TopORoleName));
+			declare(pEM->ObjectRole(BotORoleName));
+			declare(pEM->DataRole(TopDRoleName));
+			declare(pEM->DataRole(BotDRoleName));
+		}
 		return false;
 	}
 		/// delete existed KB

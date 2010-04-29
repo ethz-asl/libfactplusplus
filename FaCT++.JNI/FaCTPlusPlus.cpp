@@ -18,9 +18,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <sstream>
 
-// use OWL API v3 settings
-//#define OWLAPI3
-
 // switch tracing on
 //#define JNI_TRACING
 
@@ -111,6 +108,22 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_clearK
 	getK(env,obj)->clearKB();
 }
 
+/*
+ * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
+ * Method:    setTopBottomPropertyNames
+ * Signature: (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+ */
+JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_setTopBottomPropertyNames
+  (JNIEnv * env, jobject obj, jstring ton, jstring bon, jstring tdn, jstring bdn)
+{
+	TRACE_JNI("setTopBottomPropertyNames");
+	JString topObjectName(env,ton);
+	JString botObjectName(env,bon);
+	JString topDataName(env,tdn);
+	JString botDataName(env,bdn);
+	getK(env,obj)->setTopBottomRoleNames ( topObjectName(), botObjectName(), topDataName(), botDataName() );
+}
+
 
 //-------------------------------------------------------------
 // Concept/role/datatype language
@@ -163,8 +176,6 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
 	return ret;
 }
 
-#ifdef OWLAPI3
-
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
  * Method:    getTopObjectProperty
@@ -188,7 +199,6 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
 	TRACE_JNI("getBottomObjectProperty");
 	return ObjectProperty ( env, getOName(env,obj,"http://www.w3.org/2002/07/owl#bottomObjectProperty") );
 }
-#endif
 
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
@@ -212,7 +222,6 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
 	return ret;
 }
 
-#ifdef OWLAPI3
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
  * Method:    getTopDataProperty
@@ -236,7 +245,6 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
 	TRACE_JNI("getBottomDataProperty");
 	return DataProperty ( env, getDName(env,obj,"http://www.w3.org/2002/07/owl#bottomDataProperty") );
 }
-#endif
 
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
@@ -514,13 +522,13 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
 
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
- * Method:    getNot
+ * Method:    getDataNot
  * Signature: (Luk/ac/manchester/cs/factplusplus/DataTypeExpressionPointer;)Luk/ac/manchester/cs/factplusplus/DataTypeExpressionPointer;
  */
-JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_getNot
+JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_getDataNot
   (JNIEnv * env, jobject obj, jobject arg)
 {
-	TRACE_JNI("getNot");
+	TRACE_JNI("getDataNot");
 	return DataTypeExpression ( env, getEM(env,obj)->DataNot(getDataExpr(env,arg)) );
 }
 
