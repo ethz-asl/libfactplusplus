@@ -44,7 +44,7 @@ public class FaCTPlusPlusReasoner extends OWLReasonerBase {
 
     public static final String REASONER_NAME = "FaCT++";
 
-    public static final Version VERSION = new Version(2, 0, 0, 0);
+    public static final Version VERSION = new Version(1, 4, 0, 0);
 
     private boolean interrupted = false;
 

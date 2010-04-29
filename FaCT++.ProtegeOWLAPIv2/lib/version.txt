@@ -1,1 +1,1 @@
-FaCT++ based on release of version 1.3.0 (June 1, 2009)
+FaCT++ based on release of version 1.4.0 (April 30, 2010)
