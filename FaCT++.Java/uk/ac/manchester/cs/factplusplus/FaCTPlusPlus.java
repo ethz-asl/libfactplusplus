@@ -60,6 +60,15 @@ public class FaCTPlusPlus {
     public native void clearKernel() throws FaCTPlusPlusException;
 
     /**
+     * Set the names of Top/Bottom data and object properties.
+     * The call of this method automatically means that the 
+     * OWL API v3 (and higher) is used. Without this call,
+     * Top/Bottom properties would not appear in the query
+     * results.
+     */
+    public native void setTopBottomPropertyNames(String topObjectName, String botObjectName, String topDataName, String botDataName);
+
+    /**
      * Causes the whole taxonomy to be computed.
      * @throws FaCTPlusPlusException
      */
@@ -169,7 +178,7 @@ public class FaCTPlusPlus {
 
 
 
-    public native DataTypeExpressionPointer getNot(DataTypeExpressionPointer d) throws FaCTPlusPlusException;
+    public native DataTypeExpressionPointer getDataNot(DataTypeExpressionPointer d) throws FaCTPlusPlusException;
 
 
     /**

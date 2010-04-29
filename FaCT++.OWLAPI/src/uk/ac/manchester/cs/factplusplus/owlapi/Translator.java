@@ -549,7 +549,7 @@ public class Translator implements OWLDescriptionVisitor, OWLEntityVisitor, OWLP
             lastDataTypeExpressionPointer = owlDataRange2DataTypeExpressionPointerMap.get(node);
             if (lastDataTypeExpressionPointer == null){
                 node.getDataRange().accept(this);
-                lastDataTypeExpressionPointer = faCTPlusPlus.getNot(getLastDataTypeExpressionPointer());
+                lastDataTypeExpressionPointer = faCTPlusPlus.getDataNot(getLastDataTypeExpressionPointer());
                 owlDataRange2DataTypeExpressionPointerMap.put(node, lastDataTypeExpressionPointer);
                 dataTypeExpressionPointerMap.put(lastDataTypeExpressionPointer, node);
             }

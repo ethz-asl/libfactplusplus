@@ -12,7 +12,7 @@ import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.util.*;
 /*
- * Copyright (C) 2009, University of Manchester
+ * Copyright (C) 2009-2010, University of Manchester
  *
  * Modifications to the initial code base are copyright of their
  * respective authors, or their employers as appropriate.  Authorship
@@ -66,6 +66,11 @@ public class FaCTPlusPlusReasoner extends OWLReasonerBase {
 
     public FaCTPlusPlusReasoner(OWLOntology rootOntology, OWLReasonerConfiguration configuration, BufferingMode bufferingMode) {
         super(rootOntology, configuration, bufferingMode);
+	kernel.setTopBottomPropertyNames(
+		"http://www.w3.org/2002/07/owl#topObjectProperty",
+		"http://www.w3.org/2002/07/owl#bottomObjectProperty",
+		"http://www.w3.org/2002/07/owl#topDataProperty",
+		"http://www.w3.org/2002/07/owl#bottomDataProperty");
         loadReasonerAxioms();
         kernel.setProgressMonitor(new ProgressMonitorAdapter());
         kernel.setOperationTimeout(configuration.getTimeOut());
@@ -691,7 +696,7 @@ public class FaCTPlusPlusReasoner extends OWLReasonerBase {
         }
 
         public DataTypeExpressionPointer visit(OWLDataComplementOf node) {
-            return kernel.getNot(node.getDataRange().accept(this));
+            return kernel.getDataNot(node.getDataRange().accept(this));
         }
 
         public DataTypeExpressionPointer visit(OWLDataIntersectionOf node) {
