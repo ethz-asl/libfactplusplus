@@ -342,7 +342,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
 {
 	TRACE_JNI("getDataSubType");
 	JString name(env,str);
-	Throw ( env, "FaCT++ Kernel: unsupported operation" );
+	Throw ( env, "FaCT++ Kernel: unsupported operation 'getDataSubType'" );
 	jobject ret = (jobject)0;
 #if 0
 	try
@@ -403,7 +403,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
   (JNIEnv * env, jobject obj, jobject arg)
 {
 	TRACE_JNI("getLength");
-	Throw ( env, "FaCT++ Kernel: unsupported operation" );
+	Throw ( env, "FaCT++ Kernel: unsupported facet 'getLength'" );
 	return NULL;
 }
 
@@ -416,7 +416,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
   (JNIEnv * env, jobject obj, jobject arg)
 {
 	TRACE_JNI("getMinLength");
-	Throw ( env, "FaCT++ Kernel: unsupported operation" );
+	Throw ( env, "FaCT++ Kernel: unsupported facet 'getMinLength'" );
 	return NULL;
 }
 
@@ -429,7 +429,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
   (JNIEnv * env, jobject obj, jobject arg)
 {
 	TRACE_JNI("getMaxLength");
-	Throw ( env, "FaCT++ Kernel: unsupported operation" );
+	Throw ( env, "FaCT++ Kernel: unsupported facet 'getMaxLength'" );
 	return NULL;
 }
 
@@ -442,7 +442,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
   (JNIEnv * env, jobject obj, jobject arg)
 {
 	TRACE_JNI("getPattern");
-	Throw ( env, "FaCT++ Kernel: unsupported operation" );
+	Throw ( env, "FaCT++ Kernel: unsupported facet 'getPattern'" );
 	return NULL;
 }
 
@@ -503,7 +503,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
   (JNIEnv * env, jobject obj, jobject arg)
 {
 	TRACE_JNI("getTotalDigitsFacet");
-	Throw ( env, "FaCT++ Kernel: unsupported operation" );
+	Throw ( env, "FaCT++ Kernel: unsupported facet 'getTotalDigitsFacet'" );
 	return NULL;
 }
 
@@ -516,7 +516,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
   (JNIEnv * env, jobject obj, jobject arg)
 {
 	TRACE_JNI("getFractionDigitsFacet");
-	Throw ( env, "FaCT++ Kernel: unsupported operation" );
+	Throw ( env, "FaCT++ Kernel: unsupported facet 'getFractionDigitsFacet'" );
 	return NULL;
 }
 
@@ -791,7 +791,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
   (JNIEnv * env, jobject obj)
 {
 	TRACE_JNI("getDataPropertyKey");
-	Throw ( env, "FaCT++ Kernel: unsupported operation" );
+	Throw ( env, "FaCT++ Kernel: unsupported operation 'getDataPropertyKey'" );
 	return NULL;
 }
 
@@ -805,7 +805,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
   (JNIEnv * env, jobject obj)
 {
 	TRACE_JNI("getObjectPropertyKey");
-	Throw ( env, "FaCT++ Kernel: unsupported operation" );
+	Throw ( env, "FaCT++ Kernel: unsupported operation 'getObjectPropertyKey'" );
 	return NULL;
 }
 
@@ -909,7 +909,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tel
   (JNIEnv * env, jobject obj, jobject arg)
 {
 	TRACE_JNI("tellDatatypeDeclaration");
-	Throw ( env, "FaCT++ Kernel: unsupported operation" );
+	Throw ( env, "FaCT++ Kernel: unsupported operation 'tellDatatypeDeclaration'" );
 	return NULL;
 }
 
@@ -956,7 +956,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tel
   (JNIEnv * env, jobject obj, jobject cls, jobject dataprops, jobject objectprops)
 {
 	TRACE_JNI("tellHasKey");
-	Throw ( env, "FaCT++ Kernel: unsupported operation" );
+	Throw ( env, "FaCT++ Kernel: unsupported operation 'tellHasKey'" );
 	return NULL;
 }
 
@@ -1438,7 +1438,7 @@ JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_is
 {
 	TRACE_JNI("isObjectPropertyEmpty");
 	TRACE_ARG(env,obj,arg);
-	Throw ( env, "FaCT++ Kernel: unsupported operation" );
+	Throw ( env, "FaCT++ Kernel: unsupported operation 'isObjectPropertyEmpty'" );
 	return false;
 }
 
@@ -1559,7 +1559,7 @@ JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_is
 {
 	TRACE_JNI("isObjectPropertySymmetric");
 	TRACE_ARG(env,obj,arg);
-	Throw ( env, "FaCT++ Kernel: unsupported operation" );
+	Throw ( env, "FaCT++ Kernel: unsupported operation 'isObjectPropertySymmetric'" );
 	return false;
 }
 
@@ -1573,7 +1573,7 @@ JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_is
 {
 	TRACE_JNI("isObjectPropertyAntiSymmetric");
 	TRACE_ARG(env,obj,arg);
-	Throw ( env, "FaCT++ Kernel: unsupported operation" );
+	Throw ( env, "FaCT++ Kernel: unsupported operation 'isObjectPropertyAntiSymmetric'" );
 	return false;
 }
 
@@ -1587,7 +1587,7 @@ JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_is
 {
 	TRACE_JNI("isObjectPropertyTransitive");
 	TRACE_ARG(env,obj,arg);
-	Throw ( env, "FaCT++ Kernel: unsupported operation" );
+	Throw ( env, "FaCT++ Kernel: unsupported operation 'isObjectPropertyTransitive'" );
 	return false;
 }
 
@@ -1601,7 +1601,7 @@ JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_is
 {
 	TRACE_JNI("isObjectPropertyReflexive");
 	TRACE_ARG(env,obj,arg);
-	Throw ( env, "FaCT++ Kernel: unsupported operation" );
+	Throw ( env, "FaCT++ Kernel: unsupported operation 'isObjectPropertyReflexive'" );
 	return false;
 }
 
@@ -1615,7 +1615,7 @@ JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_is
 {
 	TRACE_JNI("isObjectPropertyIrreflexive");
 	TRACE_ARG(env,obj,arg);
-	Throw ( env, "FaCT++ Kernel: unsupported operation" );
+	Throw ( env, "FaCT++ Kernel: unsupported operation 'isObjectPropertyIrreflexive'" );
 	return false;
 }
 
@@ -1645,7 +1645,7 @@ JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_is
 {
 	TRACE_JNI("isDataPropertyEmpty");
 	TRACE_ARG(env,obj,arg);
-	Throw ( env, "FaCT++ Kernel: unsupported operation" );
+	Throw ( env, "FaCT++ Kernel: unsupported operation 'isDataPropertyEmpty'" );
 	return false;
 }
 
@@ -1721,7 +1721,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_ask
 {
 	TRACE_JNI("askDataPropertyRange");
 	TRACE_ARG(env,obj,arg);
-	Throw ( env, "FaCT++ Kernel: unsupported operation" );
+	Throw ( env, "FaCT++ Kernel: unsupported operation 'askDataPropertyRange'" );
 	return NULL;
 }
 
@@ -1838,7 +1838,7 @@ JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlu
 	TRACE_JNI("askRelatedValues");
 	TRACE_ARG(env,obj,arg1);
 	TRACE_ARG(env,obj,arg2);
-	Throw ( env, "FaCT++ Kernel: unsupported operation" );
+	Throw ( env, "FaCT++ Kernel: unsupported operation 'askRelatedValues'" );
 	return NULL;
 #if 0
 	ReasoningKernel::NamesVector Js;
@@ -1862,7 +1862,7 @@ JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_ha
 	TRACE_ARG(env,obj,arg1);
 	TRACE_ARG(env,obj,arg2);
 	TRACE_ARG(env,obj,arg3);
-	Throw ( env, "FaCT++ Kernel: unsupported operation" );
+	Throw ( env, "FaCT++ Kernel: unsupported operation 'hasDataPropertyRelationship'" );
 	return NULL;
 #if 0
 	bool ret = false;
