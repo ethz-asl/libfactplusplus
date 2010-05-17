@@ -457,7 +457,7 @@ bool ReasoningKernel :: initOptions ( void )
 	// register "testTimeout" option -- 21/08/09
 	if ( KernelOptions.RegisterOption (
 		"testTimeout",
-		"Option 'testTimeout' sets timeout for a single reasoning test in seconds.",
+		"Option 'testTimeout' sets timeout for a single reasoning test in milliseconds.",
 		ifOption::iotInt,
 		"0"
 		) )

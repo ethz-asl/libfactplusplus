@@ -211,6 +211,12 @@ int main ( int argc, char *argv[] )
 		error ( "LeveLogger: couldn't open logging file" );
 #endif
 
+	// init timeout option
+	unsigned long testTimeout = Kernel.getOptions()->getInt("testTimeout");
+	Kernel.setOperationTimeout(testTimeout);
+	if ( LLM.isWritable(llAlways) )
+		LL << "Init testTimeout = " << testTimeout << "\n";
+
 	// Create a TBox...
 	Kernel.newKB ();
 	DLLispParser TBoxParser ( &iTBox, &Kernel );

@@ -728,7 +728,7 @@ bool DlSatTester :: checkSatisfiability ( void )
 			loop = 0;
 			if ( tBox.isCancelled() )
 				return false;
-			if ( testTimeout && (float)testTimer > testTimeout )
+			if ( testTimeout && 1000*(float)testTimer >= testTimeout )
 				throw EFPPTimeout();
 		}
 		// here curNode/curConcept are set

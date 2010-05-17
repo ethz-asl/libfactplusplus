@@ -895,7 +895,7 @@ public:
 	}
 		/// set blocking method for a session
 	void setBlockingMethod ( bool hasInverse, bool hasQCR ) { CGraph.setBlockingMethod ( hasInverse, hasQCR ); }
-		/// set SAT test timeout
+		/// set SAT test timeout in milliseconds
 	void setTestTimeout ( unsigned int ms ) { testTimeout = ms; }
 
 		/// return [singleton] cache for given concept implementation
