@@ -46,5 +46,6 @@ SOURCES = \
           SaveLoad.cpp\
           ReasonerNom.cpp\
           tExpressionManager.cpp\
+          CascadedCache.cpp\
 
 include ../Makefile.include
