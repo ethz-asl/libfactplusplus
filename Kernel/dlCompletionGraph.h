@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2005-2009 by Dmitry Tsarkov
+Copyright (C) 2005-2010 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -245,7 +245,9 @@ protected:	// methods
 		// see tModal* for example
 		if ( sessionHasInverseRoles )
 			return true;
-		return node->isAffected();
+		// if node is affected -- it can be unblocked;
+		// if blocker became blocked itself -- the same
+		return node->isAffected() || node->isIllegallyDBlocked();
 	}
 
 	// helpers for the graph printing
