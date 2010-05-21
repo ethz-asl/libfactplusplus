@@ -3,7 +3,7 @@
 #
 
 # -- DO NOT CHANGE THE REST OF FILE --
-SUBDIRS = Kernel FaCT++ FaCT++.JNI DIGParser FaCT++.DIG FaCT++.Server
+SUBDIRS = Kernel FaCT++ FaCT++.JNI
 
 include Makefile.include
 
