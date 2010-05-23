@@ -79,7 +79,7 @@ public:	// types interface
 	// name sets
 
 		/// set of arbitrary named expressions
-	typedef TBox::NamesVector NamesVector;
+	typedef std::vector<const TNamedEntry*> NamesVector;
 		// IndividualSet is just set of named individual expressions
 	typedef NamesVector IndividualSet;
 
@@ -867,25 +867,8 @@ public:
 	void getRelatedRoles ( const TIndividualExpr* I, NamesVector& Rs, bool data, bool needI );
 		/// set RESULT into set of J's such that R(I,J)
 	void getRoleFillers ( const TIndividualExpr* I, const TORoleExpr* R, IndividualSet& Result );
-		/// set RESULT into set of (I,J)'s such that R(I,J)
-	void getRelatedIndividuals ( const TORoleExpr* R, IndividualSet& Is, IndividualSet& Js )
-	{
-		realiseKB();	// ensure KB is ready to answer the query
-		getTBox()->getRelatedIndividuals (
-			getRole ( R, "Role expression expected in the getRelatedIndividuals()" ),
-			Is, Js );
-	}
 		/// set RESULT into set of J's such that R(I,J)
 	bool isRelated ( const TIndividualExpr* I, const TORoleExpr* R, const TIndividualExpr* J );
-	// ???
-	// ??? getToldValues ( const IndividualName I, const RoleName A );	// FIXME!! unsupported
-
-	// extra DIG operations
-		/// implement absorbedPrimitiveConceptDefinitions DIG extension
-	void absorbedPrimitiveConceptDefinitions ( std::ostream& o ) const
-		{ getTBox()->absorbedPrimitiveConceptDefinitions(o); }
-		/// implement unabsorbed DIG extension
-	void unabsorbed ( std::ostream& o ) const { getTBox()->unabsorbed(o); }
 }; // ReasoningKernel
 
 //----------------------------------------------------

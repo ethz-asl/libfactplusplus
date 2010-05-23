@@ -29,7 +29,6 @@ SOURCES = \
 		  tConcept.cpp\
 		  dumpInterface.cpp\
 		  dumpLisp.cpp\
-		  dumpDIG.cpp\
 		  dlCompletionGraph.cpp\
 		  Relevance.cpp\
 		  BuildDAG.cpp\

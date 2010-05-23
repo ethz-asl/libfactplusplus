@@ -74,8 +74,6 @@ protected:	// types
 	typedef std::vector<TRelated*> RelatedCollection;
 		/// type for a collection of DIFFERENT individuals
 	typedef std::vector<SingletonVector> DifferentIndividuals;
-		/// return type for a set of names
-	typedef std::vector<const TNamedEntry*> NamesVector;
 
 		/// class for simple rules like Ch :- Cb1, Cbi, CbN; all C are primitive named concepts
 	class TSimpleRule
@@ -1118,13 +1116,6 @@ public:
 	void Save ( std::ostream& o ) const;
 		/// load the KB from given stream wrt STATUS
 	void Load ( std::istream& o, KBStatus status );
-
-		/// implement DIG-like RelatedIndividuals query; @return Is and Js st (I,J):R
-	void getRelatedIndividuals ( TRole* R, NamesVector& Is, NamesVector& Js ) const;
-		/// implement absorbedPrimitiveConceptDefinitions DIG extension
-	void absorbedPrimitiveConceptDefinitions ( std::ostream& o ) const;
-		/// implement unabsorbed DIG extension
-	void unabsorbed ( std::ostream& o ) const;
 }; // TBox
 
 #endif

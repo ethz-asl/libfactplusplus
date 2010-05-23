@@ -27,7 +27,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "DLConceptTaxonomy.h"
 #include "procTimer.h"
 #include "dumpLisp.h"
-#include "dumpDIG.h"
 #include "logging.h"
 
 // uncomment the following line to print currently checking subsumption
@@ -609,50 +608,5 @@ void TBox :: PrintConcept ( std::ostream& o, const TConcept* p ) const
 
 		o << "\n";
 	}
-}
-
-//-----------------------------------------------------------------------------
-//--		DIG interface extension
-//-----------------------------------------------------------------------------
-
-	/// implement DIG-like RelatedIndividuals query; @return Is and Js st (I,J):R
-void
-TBox :: getRelatedIndividuals ( TRole* r, NamesVector& Is, NamesVector& Js ) const
-{
-	Is.clear();
-	Js.clear();
-	TRole* R = resolveSynonym(r);
-
-	// for all related triples
-	// check if triple is labelled by a sub-role of R
-	for ( RelatedCollection::const_iterator p = RelatedI.begin(), p_end = RelatedI.end(); p < p_end; ++p )
-	{
-		const TRelated& rel = **p;
-		if ( *R >= *rel.getRole() )
-		{
-			Is.push_back(rel.a);
-			Js.push_back(rel.b);
-		}
-	}
-}
-
-void TBox :: absorbedPrimitiveConceptDefinitions ( std::ostream& o ) const
-{
-	dumpDIG DIG(o);
-
-	for ( c_const_iterator pc = c_begin(); pc != c_end(); ++pc )
-		if ( (*pc)->isPrimitive() )
-		{
-			o << "\n<absorbedPrimitiveConceptDefinition>";
-			DIG.dumpConcept(*pc);
-			dumpExpression ( &DIG, (*pc)->pBody );
-			o << "\n</absorbedPrimitiveConceptDefinition>";
-		}
-}
-
-void TBox :: unabsorbed ( std::ostream& o ) const
-{
-	dumpDIG DIG(o);
-	dumpExpression ( &DIG, getTG() );
 }
 
