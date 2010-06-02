@@ -105,6 +105,11 @@ protected:	// members
 		/// pointer to currently classified entry
 	const ClassifiableEntry* curEntry;
 
+		/// number of tested entryes
+	unsigned int nEntries;
+		/// number of completely-defined entries
+	unsigned long nCDEntries;
+
 		/// optimisation flag: if entry is completely defined by it's told subsumers, no other classification required
 	bool useCompletelyDefined;
 
@@ -112,11 +117,6 @@ protected:	// members
 	bool willInsertIntoTaxonomy;
 		/// behaviour flag: if true, delete temporary vertex
 	bool deleteCurrent;
-
-		/// number of tested entryes
-	unsigned int nEntries;
-		/// number of completely-defined entries
-	unsigned long nCDEntries;
 
 		/// stack for Taxonomy creation
 	SearchableStack <ClassifiableEntry*> waitStack;
@@ -235,11 +235,11 @@ public:		// interface
 	Taxonomy ( const ClassifiableEntry* pTop, const ClassifiableEntry* pBottom )
 		: Current (NULL)
 		, curEntry(NULL)
+		, nEntries(0)
+		, nCDEntries(0)
 		, useCompletelyDefined (false)
 		, willInsertIntoTaxonomy (true)
 		, deleteCurrent (false)
-		, nEntries (0)
-		, nCDEntries (0)
 	{
 		Graph.push_back (new TaxonomyVertex(pBottom));	// bottom
 		Graph.push_back (new TaxonomyVertex(pTop));		// top

@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2009 by Dmitry Tsarkov
+Copyright (C) 2003-2010 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -16,8 +16,8 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef __IFOPTIONS_H
-#define __IFOPTIONS_H
+#ifndef IFOPTIONS_H
+#define IFOPTIONS_H
 
 /********************************************************\
 |* Interface for the options management for the FaCT++  *|
@@ -51,16 +51,16 @@ protected:	// members
 	std::string optionName;
 		/// informal descriprion
 	std::string optionDescription;
-		// type of value: bool, int or text
-	ioType type;
-		/// boolean value [relevant iff (type == iotBool)]
-	bool bValue;
-		/// integer value [relevant iff (type == iotInt)]
-	int iValue;
+		/// default value (name of type)
+	std::string defaultValue;
 		/// textual value [relevant iff (type == iotText)]
 	std::string tValue;
-		// default value (name of type)
-	std::string defaultValue;
+		/// type of value: bool, int or text
+	ioType type;
+		/// integer value [relevant iff (type == iotInt)]
+	int iValue;
+		/// boolean value [relevant iff (type == iotBool)]
+	bool bValue;
 
 public:		// interface
 		/// c'tor (init all values including proper ?Value)
@@ -94,10 +94,10 @@ public:		// interface
 // implementation of class ifOption
 
 inline ifOption :: ifOption ( const std::string& name, const std::string& desc, ioType t, const std::string& defVal )
-	: optionName (name)
-	, optionDescription (desc)
-	, type (t)
-	, defaultValue (defVal)
+	: optionName(name)
+	, optionDescription(desc)
+	, defaultValue(defVal)
+	, type(t)
 {
 	setAValue (defVal);
 }

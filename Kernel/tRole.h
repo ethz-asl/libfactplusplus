@@ -56,9 +56,6 @@ public:		// types
 	typedef std::vector<bool> RoleBitMap;
 
 protected:	// members
-		/// pointer to role's functional definition DAG entry (or just TOP)
-	BipolarPointer Functional;
-
 		/// role that are inverse of given one
 	TRole* Inverse;
 
@@ -66,6 +63,9 @@ protected:	// members
 	DLTree* pDomain;
 		/// Domain of role as a pointer to DAG entry
 	BipolarPointer bpDomain;
+
+		/// pointer to role's functional definition DAG entry (or just TOP)
+	BipolarPointer Functional;
 
 		/// is role relevant to current query
 	TLabeller::LabType rel;
@@ -431,10 +431,10 @@ inline TRole* resolveRole ( const DLTree* t ) { return resolveSynonym(resolveRol
 //--------------------------------------------------
 inline TRole :: TRole ( const std::string& name )
 	: ClassifiableEntry(name)
-	, Functional (bpINVALID)
 	, Inverse(NULL)
 	, pDomain(NULL)
 	, bpDomain(bpINVALID)
+	, Functional(bpINVALID)
 	, rel(0)
 {
 	setCompletelyDefined (true);	// role hierarchy is completely defined by it's parents

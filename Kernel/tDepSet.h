@@ -160,6 +160,18 @@ public:		// interface
 	}
 }; // TDepSetManager
 
+/// merge this element with ELEM; use Manager for this
+inline TDepSetElement*
+TDepSetElement :: merge ( TDepSetElement* elem )
+{
+#ifdef ENABLE_CHECKING
+	if ( elem == NULL )
+		return this;
+	fpp_assert ( Manager == elem->Manager );
+#endif
+	return Manager->merge ( this, elem );
+}
+
 class TDepSet
 {
 protected:	// members
@@ -237,17 +249,5 @@ public:		// interface
 		}
 	}
 }; // TDepSet
-
-/// merge this element with ELEM; use Manager for this
-inline TDepSetElement*
-TDepSetElement :: merge ( TDepSetElement* elem )
-{
-#ifdef ENABLE_CHECKING
-	if ( elem == NULL )
-		return this;
-	fpp_assert ( Manager == elem->Manager );
-#endif
-	return Manager->merge ( this, elem );
-}
 
 #endif
