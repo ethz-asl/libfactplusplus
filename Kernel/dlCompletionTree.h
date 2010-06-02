@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2009 by Dmitry Tsarkov
+Copyright (C) 2003-2010 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -16,8 +16,8 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef _DLCOMPLETIONTREE_H
-#define _DLCOMPLETIONTREE_H
+#ifndef DLCOMPLETIONTREE_H
+#define DLCOMPLETIONTREE_H
 
 #include <vector>
 #include <iostream>
@@ -59,7 +59,7 @@ protected:	// internal classes
 			/// curLevel of the Node structure
 		unsigned int curLevel;
 			/// amount of neighbours
-		size_t nNeighbours;
+		unsigned int nNeighbours;
 
 	private:	// protection from copying
 			/// no assignment
@@ -151,8 +151,6 @@ protected:	// members
 	TSaveList<SaveState> saves;
 		/// ID of node (used in print)
 	unsigned int id;
-		/// level of a nominal node; 0 means blockable one
-	CTNominalLevel nominalLevel;
 		/// concept that init the newly created node
 	BipolarPointer Init;
 
@@ -178,6 +176,9 @@ protected:	// members
 	unsigned int affected : 1;
 		/// the rest
 	unsigned int unused : 27;
+
+		/// level of a nominal node; 0 means blockable one
+	CTNominalLevel nominalLevel;
 
 private:	// methods
 		/// no copy c'tor
