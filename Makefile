@@ -32,3 +32,4 @@ fpp_dig: digparser
 .PHONY: fpp_server
 fpp_server: digparser
 	make -C FaCT++.Server
+

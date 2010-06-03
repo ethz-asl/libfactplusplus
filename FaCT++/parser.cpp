@@ -597,7 +597,7 @@ DLLispParser :: getDataExpression ( void )
 		{	// Top/Bottom; can not be name
 		case TOP: NextLex(); return EManager->DataTop();
 		case BOTTOM: NextLex(); return EManager->DataBottom();
-		default: parseError ( "Unknown concept constructor" ); return NULL;
+		default: parseError ( "Unknown data constructor" ); return NULL;
 		}
 	}
 
