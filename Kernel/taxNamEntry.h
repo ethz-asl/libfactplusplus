@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2009 by Dmitry Tsarkov
+Copyright (C) 2003-2010 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -16,8 +16,8 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef _TAXNAMENTRY_H
-#define _TAXNAMENTRY_H
+#ifndef TAXNAMENTRY_H
+#define TAXNAMENTRY_H
 
 #include <vector>
 
@@ -44,6 +44,8 @@ protected:	// members
 	linkSet toldSubsumers;
 		/// pointer to synonym (entry which contains whole information the same as current)
 	ClassifiableEntry* pSynonym;
+		/// index as a vertex in the SubsumptionMap
+	unsigned int Index;
 
 private:	// no copy
 		/// no copy c'tor
@@ -102,6 +104,13 @@ public:		// interface
 		for ( Iterator p = begin; p < end; ++p )
 			addParentIfNew(*p);
 	}
+
+	// index interface
+
+		/// get the index value
+	unsigned int index ( void ) const { return Index; }
+		/// set the index value
+	void setIndex ( unsigned int ind ) { Index = ind; }
 
 	// synonym interface
 

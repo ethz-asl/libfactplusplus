@@ -29,12 +29,16 @@ TriRelation :: init ( unsigned int n )
 	M.insert ( M.end(), n, bZero );
 	MStar.insert ( MStar.end(), n, bZero );
 	MMinus.insert ( MMinus.end(), n, bZero );
+#ifndef FPP_NO_DELETE_EDGE
 	N.insert ( N.end(), n, nZero );
+#endif
 	M_c.insert ( M_c.end(), n, nZero );
 
 	// every node is in it's own component
 	V_c.insert ( V_c.end(), n, true );
+#ifndef FPP_NO_DELETE_EDGE
 	e_c.insert ( e_c.end(), n, 0 );
+#endif
 
 	C_c.resize(n);
 	for ( Vertex i = 0; i < n; ++i )
@@ -55,19 +59,27 @@ TriRelation :: init ( unsigned int n )
 TriRelation::Vertex
 TriRelation :: newVertex ( void )
 {
+#ifdef FPP_DEBUG_TRI_RELATION
+	std::cerr << "New vertex " << last << "\n";
+#endif
+
 	// make existing arrays bigger
 	for ( unsigned int i = 0; i < last; ++i )
 	{
 		M[i].push_back(false);
 		MStar[i].push_back(false);
 		MMinus[i].push_back(false);
+#	ifndef FPP_NO_DELETE_EDGE
 		N[i].push_back(0);
+#	endif
 		M_c[i].push_back(0);
 	}
 
 	// every node is in it's own component
 	V_c.push_back(true);
+#ifndef FPP_NO_DELETE_EDGE
 	e_c.push_back(0);
+#endif
 
 	C_c.resize(last+1);
 	L.push_back(last);
@@ -83,7 +95,9 @@ TriRelation :: newVertex ( void )
 	M.push_back(bZero);
 	MStar.push_back(bZero);
 	MMinus.push_back(bZero);
+#ifndef FPP_NO_DELETE_EDGE
 	N.push_back(nZero);
+#endif
 	M_c.push_back(nZero);
 
 	// empty successors/predecessors
@@ -101,13 +115,23 @@ TriRelation :: insertNew ( Vertex i, Vertex j )
 	setM(i,j);
 	Vertex Li = L[i], Lj = L[j];
 
+#ifdef FPP_DEBUG_TRI_RELATION
+	std::cerr << "Insert new R(" << i << "," << j << "):";
+#endif
+
 	// the link is in the same component
 	if ( Li == Lj )
 	{
+#	ifdef FPP_DEBUG_TRI_RELATION
+		std::cerr << " in the same component\n";
+#	endif
+
 		adjustEc(i,j);
+#	ifndef FPP_NO_DELETE_EDGE
 		for ( Vertex k = 0; k < size(); ++k )
 			if ( RStar(k,i) )
 				++N[k][j];
+#	endif
 		return false;
 	}
 	// the link is between components
@@ -117,17 +141,19 @@ TriRelation :: insertNew ( Vertex i, Vertex j )
 	for ( Vertex k = 0; k < size(); ++k )
 		if ( V_c[k] && RStar(k,i) )
 		{
+#		ifndef FPP_NO_DELETE_EDGE
 			for ( nvec::iterator p = C_c[k].begin(), p_end = C_c[k].end(); p < p_end; ++p )
 				++N[k][j];
+#		endif
 			if ( RStar(k,j) )
 			{	// there is path from k to j as well
 				if ( (k != Li) && (k != Lj) )
-					MMinus[k][Lj] = 0;
+					MMinus[k][Lj] = false;
 			}
 			else
 			{
 				if ( k == Li )
-					MMinus[Li][Lj] = 1;
+					MMinus[Li][Lj] = true;
 				redStack.push_back(Lj);
 				adapt(k);
 			}
@@ -136,17 +162,31 @@ TriRelation :: insertNew ( Vertex i, Vertex j )
 	// join components if a new cycle happen
 	if ( newCycle )
 		joinComponents(j);
+
+#ifdef FPP_DEBUG_TRI_RELATION
+	std::cerr << "\n";
+#endif
+
 	return newCycle;
 }
 
 void
 TriRelation :: adapt ( Vertex k )
 {
+#ifdef FPP_DEBUG_TRI_RELATION
+	std::cerr << " adapt(" << k << ")";
+#endif
+
 	nvec::iterator ki, mi, li, ki_end = C_c[k].end(), mi_end, li_end;
 	do
 	{
 		/// L is the red leader
 		Vertex l = redStack.back();
+
+#	ifdef FPP_DEBUG_TRI_RELATION
+		std::cerr << " red(" << l << ")";
+#	endif
+
 		// unmark l
 		redStack.pop_back();
 		li_end = C_c[l].end();
@@ -156,11 +196,13 @@ TriRelation :: adapt ( Vertex k )
 			for ( li = C_c[l].begin(); li < li_end; ++li )
 				MStar[*ki][*li] = true;
 
+#	ifndef FPP_NO_DELETE_EDGE
 		// update input information
 		for ( li = C_c[l].begin(); li < li_end; ++li )
 			for ( mi = S[*li].begin(), mi_end = S[*li].end(); mi < mi_end; ++mi )
 				for ( ki = C_c[k].begin(); ki < ki_end; ++ki )
 					++N[*ki][*mi];
+#	endif
 
 		// check all the successors of L
 		for ( mi = S_c[l].begin(), mi_end = S_c[l].end(); mi < mi_end; ++mi )
@@ -176,6 +218,10 @@ void
 TriRelation :: joinComponents ( Vertex j )
 {
 	nvec::iterator ki, mi, li, ki_end, mi_end, li_end;
+
+#ifdef FPP_DEBUG_TRI_RELATION
+	std::cerr << " join components with " << j << "...";
+#endif
 
 	const Vertex n = size();	// record size
 	nvec La;	// \Lambda
@@ -211,9 +257,11 @@ TriRelation :: joinComponents ( Vertex j )
 	// clear S_c
 	S_c.clear();
 	S_c.resize(n);
+#ifndef FPP_NO_DELETE_EDGE
 	// clear e_c
 	e_c.clear();
 	e_c.insert ( e_c.end(), n, 0 );
+#endif
 
 	// Make M-[k,k+1] = 0 for k, m \in C(l) where l\in V_c and La:
 	for ( li = La.begin(); li != li_end; ++li )
@@ -268,4 +316,8 @@ TriRelation :: joinComponents ( Vertex j )
 		if ( M_c[Li][l0] )			// line 26
 			MMinus[Li][l0] = true;	// line 27
 	}
+
+#ifdef FPP_DEBUG_TRI_RELATION
+	std::cerr << " done";
+#endif
 }

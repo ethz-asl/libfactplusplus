@@ -47,5 +47,6 @@ SOURCES = \
           tExpressionManager.cpp\
           CascadedCache.cpp\
           TriRelation.cpp\
+          tSubsumptionMap.cpp\
 
 include ../Makefile.include

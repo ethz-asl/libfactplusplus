@@ -20,8 +20,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #define TRIRELATION_H
 
 #include <vector>
+#include <iostream>
 
 #include "globaldef.h"
+
+// comment this out when TriRelation would need delete edges
+#define FPP_NO_DELETE_EDGE
+
+// uncomment the following line to debug tri-relation
+//#define FPP_DEBUG_TRI_RELATION
 
 /// class for the binary relation, it's transitive closure and its transitive reduction
 class TriRelation
@@ -29,8 +36,6 @@ class TriRelation
 public:		// typedefs
 		/// typedef for the vertex
 	typedef unsigned int Vertex;
-
-protected:	// internal typedefs
 		/// bit vector
 	typedef std::vector<bool> bvec;
 		/// bit matrix
@@ -49,8 +54,10 @@ protected:	// members
 	bMatrix MStar;
 		/// adjacency matrix for R's transitive reduction R-
 	bMatrix MMinus;
+#ifndef FPP_NO_DELETE_EDGE
 		/// R's input matrix
 	nMatrix N;
+#endif
 		/// successor's relation for R
 	nSet S;
 		/// predecessor's relation for R
@@ -67,8 +74,10 @@ protected:	// members
 	nSet C_c;
 		/// weighted adjacency matrix of the condenced graph
 	nMatrix M_c;
+#ifndef FPP_NO_DELETE_EDGE
 		/// array of links from the vertex landing in the same component
 	nvec e_c;
+#endif
 		/// stack for the red nodes
 	nvec redStack;
 		/// number of verteces
@@ -81,6 +90,7 @@ protected:	// methods
 	void setM ( Vertex x, Vertex y )
 	{
 		M[x][y] = true;
+		MStar[x][y] = true;
 		S[x].push_back(y);
 		P[y].push_back(x);
 	}
@@ -100,9 +110,11 @@ protected:	// methods
 		addCondenced ( P_c[y], x );
 	}
 		/// add an edge from X to Y in the same SCC
-	void adjustEc ( Vertex x ATTR_UNUSED, Vertex y )
+	void adjustEc ( Vertex x ATTR_UNUSED, Vertex y ATTR_UNUSED )
 	{
+#	ifndef FPP_NO_DELETE_EDGE
 		++e_c[y];
+#	endif
 //		S[x].push_back(y);
 	}
 		/// init all the graph structures assuming N verteces and no edges
@@ -130,6 +142,9 @@ public:		// interface
 	{
 		if ( !M[x][y] )
 			return insertNew(x,y);
+#	ifdef FPP_DEBUG_TRI_RELATION
+		std::cerr << "Insert known R(" << x << "," << y << ")\n";
+#	endif
 		return false;
 	}
 
