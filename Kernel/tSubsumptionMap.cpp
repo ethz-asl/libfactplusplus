@@ -81,6 +81,9 @@ TSubsumptionMap :: addVertex ( void )
 void
 TSubsumptionMap :: addNonSub ( Vertex x, Vertex y )
 {
+	fpp_assert ( x < size() );
+	fpp_assert ( y < size() );
+
 	P[x][y] = false;
 
 	if ( P_K[x][y] == false )
@@ -98,6 +101,9 @@ TSubsumptionMap :: addNonSub ( Vertex x, Vertex y )
 bool
 TSubsumptionMap :: addKnoSub ( Vertex x, Vertex y )
 {
+	fpp_assert ( x < size() );
+	fpp_assert ( y < size() );
+
 	if ( K.R(x,y) )
 		return false;	// no new cycles here
 

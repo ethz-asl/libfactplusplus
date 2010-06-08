@@ -48,8 +48,10 @@ TriRelation :: init ( unsigned int n )
 	}
 
 	// empty successors/predecessors
+#ifndef FPP_NO_DELETE_EDGE
 	S.resize(n);
 	P.resize(n);
+#endif
 	S_c.resize(n);
 	P_c.resize(n);
 
@@ -101,8 +103,10 @@ TriRelation :: newVertex ( void )
 	M_c.push_back(nZero);
 
 	// empty successors/predecessors
+#ifndef FPP_NO_DELETE_EDGE
 	S.resize(last);
 	P.resize(last);
+#endif
 	S_c.resize(last);
 	P_c.resize(last);
 

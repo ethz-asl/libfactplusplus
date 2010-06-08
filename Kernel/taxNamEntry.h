@@ -59,6 +59,7 @@ public:		// interface
 		: TNamedEntry ( name )
 		, taxVertex (NULL)
 		, pSynonym (NULL)
+		, Index(0)
 		{}
 		/// D'tor
 	~ClassifiableEntry ( void ) {}

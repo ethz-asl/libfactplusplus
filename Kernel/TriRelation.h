@@ -57,11 +57,11 @@ protected:	// members
 #ifndef FPP_NO_DELETE_EDGE
 		/// R's input matrix
 	nMatrix N;
-#endif
 		/// successor's relation for R
 	nSet S;
 		/// predecessor's relation for R
 	nSet P;
+#endif
 		/// set of verteces of the condencend graph V^c: V_c[v] == true iff v\in V^c
 	bvec V_c;
 		/// map between verteces and SCC representors (leaders)
@@ -91,8 +91,10 @@ protected:	// methods
 	{
 		M[x][y] = true;
 		MStar[x][y] = true;
+#	ifndef FPP_NO_DELETE_EDGE
 		S[x].push_back(y);
 		P[y].push_back(x);
+#	endif
 	}
 		/// add condenced node X to a set of condenced nodes S
 	void addCondenced ( nvec& s, Vertex x )

@@ -71,6 +71,9 @@ public:		// interface
 			addNonSub ( v, BotVertex );
 		p->setIndex(v);
 	}
+		/// size of the matrix
+	unsigned int size ( void ) const { return K.size(); }
+
 		/// add known subsumption between P and Q
 	bool addKnoSub ( const ClassifiableEntry* p, const ClassifiableEntry* q )
 		{ return addKnoSub ( p->index(), q->index() ); }
