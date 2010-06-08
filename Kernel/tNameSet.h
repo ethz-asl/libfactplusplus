@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2009 by Dmitry Tsarkov
+Copyright (C) 2003-2010 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -16,8 +16,8 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef _TNAMESET_H
-#define _TNAMESET_H
+#ifndef TNAMESET_H
+#define TNAMESET_H
 
 #include <string>
 #include <map>
@@ -109,6 +109,8 @@ public:		// interface
 
 		Base.clear();
 	}
+		/// get size of a name set
+	unsigned int size ( void ) const { return Base.size(); }
 }; // TNameSet
 
 #endif

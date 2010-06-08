@@ -100,6 +100,17 @@ public:		// interface
 		/// clear the ontology
 	void clear ( void );
 
+	// entries count
+
+		/// get number of registered concepts
+	unsigned int nConcepts ( void ) const { return NS_C.size(); }
+		/// get number of registered individuals
+	unsigned int nIndividuals ( void ) const { return NS_I.size(); }
+		/// get number of registered object roles
+	unsigned int nORoles ( void ) const { return NS_OR.size(); }
+		/// get number of registered data roles
+	unsigned int nDRoles ( void ) const { return NS_DR.size(); }
+
 	// argument lists
 
 		/// opens new argument list
