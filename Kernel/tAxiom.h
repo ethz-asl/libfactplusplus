@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2009 by Dmitry Tsarkov
+Copyright (C) 2003-2010 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -16,8 +16,8 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef __TAXIOM_H
-#define __TAXIOM_H
+#ifndef TAXIOM_H
+#define TAXIOM_H
 
 #include <vector>
 
@@ -163,7 +163,7 @@ public:		// interface
 		: inUse(false)	// new GCI is NOT in use
 	{
 		for ( const_iterator i = ax.begin(), i_end = ax.end(); i != i_end; ++i )
-			add(clone(*i));
+			Disjuncts.push_back(clone(*i));
 	}
 		/// d'tor: delete elements if AX is not in use
 	~TAxiom ( void )
