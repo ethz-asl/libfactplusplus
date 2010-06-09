@@ -33,6 +33,16 @@ bool DLVertex :: addChild ( BipolarPointer p )
 	if ( p == bpTOP )
 		return false;
 
+	// if adding BOTTOM -- return clash (empty vertex) immediately
+	// this can happen in case of nested simplifications; see bNested1
+	if ( p == bpBOTTOM )
+	{
+clash:	// clash found: clear all stuff; returns true
+		Child.resize(0);
+		Op = dtBad;
+		return true;
+	}
+
 	// find apropiate place to insert
 	unsigned int v = getValue (p);
 
@@ -50,11 +60,7 @@ bool DLVertex :: addChild ( BipolarPointer p )
 	if ( Child [i] == p )	// concept already exists
 		return false;
 	else if ( Child [i] == inverse (p) )
-	{	// clear all stuff; returns true
-		Child. resize (0);
-		Op = dtBad;
-		return true;
-	}
+		goto clash;
 
 	// we need to insert p into set
 	Child.push_back ( Child.back () );
