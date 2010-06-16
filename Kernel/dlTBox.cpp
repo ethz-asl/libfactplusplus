@@ -80,6 +80,10 @@ TBox :: ~TBox ( void )
 	delete pBottom;
 	delete pTemp;
 
+	// right now -- to delete the appropriate tax-vertex; TODO: clear all newly introduced ones
+	if ( defConcept != NULL )
+		removeConcept(defConcept);
+
 	// remove aux structures
 	delete stdReasoner;
 	delete nomReasoner;
@@ -438,6 +442,9 @@ bool TBox :: removeConcept ( TConcept* p )
 	// clear DAG and name indeces (if necessary)
 	if ( isCorrect (p->pName) )
 		DLHeap.removeAfter(p->pName);
+
+	// delete associated taxonomy vertex as it is not done using destructor
+	delete p->getTaxVertex();
 
 	if ( Concepts.Remove(p) )
 		fpp_unreachable();	// can't remove non-last concept

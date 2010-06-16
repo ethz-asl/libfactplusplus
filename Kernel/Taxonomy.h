@@ -115,8 +115,6 @@ protected:	// members
 
 		/// behaviour flag: if true, insert temporary vertex into taxonomy
 	bool willInsertIntoTaxonomy;
-		/// behaviour flag: if true, delete temporary vertex
-	bool deleteCurrent;
 
 		/// stack for Taxonomy creation
 	SearchableStack <ClassifiableEntry*> waitStack;
@@ -133,9 +131,6 @@ protected:	// methods
 		/// initialise aux entry with given concept p
 	void setCurrentEntry ( const ClassifiableEntry* p )
 	{
-		if ( deleteCurrent )
-			delete Current;
-
 		Current = new TaxonomyVertex (p);
 		curEntry = p;
 	}
@@ -239,7 +234,6 @@ public:		// interface
 		, nCDEntries(0)
 		, useCompletelyDefined (false)
 		, willInsertIntoTaxonomy (true)
-		, deleteCurrent (false)
 	{
 		Graph.push_back (new TaxonomyVertex(pBottom));	// bottom
 		Graph.push_back (new TaxonomyVertex(pTop));		// top
@@ -284,11 +278,7 @@ public:		// interface
 		/// set Completely Defined flag
 	void setCompletelyDefined ( bool use ) { useCompletelyDefined = use; }
 		/// set Insert Into Taxonomy flag
-	void setInsertIntoTaxonomy ( bool use )
-	{
-		willInsertIntoTaxonomy = use;
-		deleteCurrent = !use;	// current is just temporary
-	}
+	void setInsertIntoTaxonomy ( bool use ) { willInsertIntoTaxonomy = use; }
 		/// call this method after taxonomy is built
 	void finalise ( void )
 	{	// create links from leaf concepts to bottom

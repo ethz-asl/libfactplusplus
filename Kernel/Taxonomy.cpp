@@ -36,9 +36,6 @@ Taxonomy :: ~Taxonomy ( void )
 {
 	for ( iterator p = Graph.begin(), p_end = Graph.end(); p < p_end; ++p )
 		delete *p;
-
-	if ( deleteCurrent )
-		delete Current;
 }
 
 void Taxonomy :: print ( std::ostream& o ) const
