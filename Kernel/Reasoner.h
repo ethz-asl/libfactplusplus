@@ -883,8 +883,11 @@ public:
 	virtual void prepareReasoner ( void );
 		/// set-up satisfiability task for given pointers and run runSat on it
 	bool runSat ( BipolarPointer p, BipolarPointer q = bpTOP );
-		/// set-up role disjointness task for given roels and run SAT test
+		/// set-up role disjointness task for given roles and run SAT test
 	bool checkDisjointRoles ( const TRole* R, const TRole* S );
+
+		/// get the ROOT node of the completion graph
+	const DlCompletionTree* getRootNode ( void ) const { return CGraph.getActualRoot(); }
 
 		/// init TODO list priority for classification
 	void initToDoPriorities ( const ifOptionSet* OptionSet )
@@ -912,7 +915,7 @@ public:
 	const modelCacheInterface* buildCacheByCGraph ( bool sat ) const
 	{
 		if ( sat )	// here we need actual (not a p-blocked) root of the tree
-			return createModelCache(CGraph.getActualRoot());
+			return createModelCache(getRootNode());
 		else		// unsat => cache is just bottom
 			return createModelCache(bpBOTTOM);
 	}
