@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2006-2007 by Dmitry Tsarkov
+Copyright (C) 2006-2010 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -16,8 +16,8 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef _JNIMONITOR_H
-#define _JNIMONITOR_H
+#ifndef JNIMONITOR_H
+#define JNIMONITOR_H
 
 #include "tProgressMonitor.h"
 #include "JNISupport.h"
@@ -27,7 +27,7 @@ class JNIProgressMonitor: public TProgressMonitor
 protected:
 	JNIEnv* env;
 	jobject javaMonitor;
-	jmethodID sCS, sCC, sF, iC;
+	jmethodID sCS, nC, sF, iC;
 public:
 		/// c'tor: remember object and fill in methods to call
 	JNIProgressMonitor ( JNIEnv* Env, jobject obj )
@@ -41,9 +41,9 @@ public:
 		sCS = env->GetMethodID ( cls, "setClassificationStarted", "(I)V" );
 		if ( sCS == 0 )
 			Throw ( env, "Can't get method setClassificationStarted" );
-		sCC = env->GetMethodID ( cls, "setCurrentClass", "(Ljava/lang/String;)V" );
-		if ( sCC == 0 )
-			Throw ( env, "Can't get method setCurrentClass" );
+		nC = env->GetMethodID ( cls, "nextClass", "()V" );
+		if ( nC == 0 )
+			Throw ( env, "Can't get method nextClass" );
 		sF = env->GetMethodID ( cls, "setFinished", "()V" );
 		if ( sF == 0 )
 			Throw ( env, "Can't get method setFinished" );
@@ -58,8 +58,7 @@ public:
 	virtual void setClassificationStarted ( unsigned int nConcepts )
 		{ env->CallVoidMethod ( javaMonitor, sCS, nConcepts ); }
 		/// informs about beginning of classification of a given CONCEPT
-	virtual void setCurrentClass ( const char* name )
-		{ env->CallVoidMethod ( javaMonitor, sCC, env->NewStringUTF(name) ); }
+	virtual void nextClass ( void ) { env->CallVoidMethod ( javaMonitor, nC ); }
 		/// informs that the reasoning is done
 	virtual void setFinished ( void ) { env->CallVoidMethod ( javaMonitor, sF ); }
 		/// @return true iff reasoner have to be stopped

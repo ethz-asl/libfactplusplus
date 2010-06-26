@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2006 by Dmitry Tsarkov
+Copyright (C) 2006-2010 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -16,10 +16,10 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef _CPM_H
-#define _CPM_H
+#ifndef CPM_H
+#define CPM_H
 
-#include "globaldef.h"
+#include "tProgressMonitor.h"
 #include "cppi.h"
 
 /// console-based progress monitor
@@ -40,7 +40,7 @@ public:
 		/// informs about beginning of classification with number of concepts to be classified
 	virtual void setClassificationStarted ( unsigned int nConcepts ) { ind.setLimit(nConcepts); }
 		/// informs about beginning of classification of a given CONCEPT
-	virtual void setCurrentClass ( const char* name ATTR_UNUSED ) { ind.incIndicator(); }
+	virtual void nextClass ( void ) { ind.incIndicator(); }
 }; // ConsoleProgressMonitor
 
 #endif

@@ -1325,7 +1325,7 @@ public class FaCTPlusPlusReasoner extends OWLReasonerBase {
             getReasonerConfiguration().getProgressMonitor().reasonerTaskProgressChanged(count, classCount);
         }
 
-        public void setCurrentClass(String className) {
+        public void nextClass() {
             count++;
             getReasonerConfiguration().getProgressMonitor().reasonerTaskProgressChanged(count, total);
 

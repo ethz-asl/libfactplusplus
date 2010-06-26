@@ -14,7 +14,7 @@ public interface FaCTPlusPlusProgressMonitor {
 
     public void setClassificationStarted(int classCount);
 
-    public void setCurrentClass(String className);
+    public void nextClass();
 
     public void setFinished();
 

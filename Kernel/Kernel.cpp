@@ -99,7 +99,7 @@ ReasoningKernel :: processKB ( KBStatus status )
 		OntologyLoader.visitOntology(Ontology);
 #	ifdef FPP_DEBUG_DUMP_LISP_ONTOLOGY
 		TLISPOntologyPrinter OntologyPrinter(std::cout);
-		DRoles.fill(OntologyPrinter);
+//		DRoles.fill(OntologyPrinter);
 		OntologyPrinter.visitOntology(Ontology);
 #	endif
 		// after loading ontology became processed completely

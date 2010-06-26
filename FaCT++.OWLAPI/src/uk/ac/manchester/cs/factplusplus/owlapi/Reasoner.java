@@ -1023,7 +1023,7 @@ public class Reasoner extends MonitorableOWLReasonerAdapter implements FaCTPlusP
     }
 
 
-    public void setCurrentClass(String className) {
+    public void nextClass() {
         count++;
         getProgressMonitor().setProgress(count);
     }

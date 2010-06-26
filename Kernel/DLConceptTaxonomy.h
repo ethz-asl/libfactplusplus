@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2009 by Dmitry Tsarkov
+Copyright (C) 2003-2010 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -16,8 +16,8 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef _DLCONCEPTTAXONOMY_H
-#define _DLCONCEPTTAXONOMY_H
+#ifndef DLCONCEPTTAXONOMY_H
+#define DLCONCEPTTAXONOMY_H
 
 #include "Taxonomy.h"
 #include "dlTBox.h"
@@ -145,11 +145,11 @@ protected:	// methods
 	}
 
 		/// actions that to be done BEFORE entry will be classified
-	virtual void preClassificationActions ( ClassifiableEntry* cur )
+	virtual void preClassificationActions ( ClassifiableEntry* cur ATTR_UNUSED )
 	{
 		++nConcepts;
 		if ( pTaxProgress != NULL )
-			pTaxProgress->setCurrentClass(cur->getName());
+			pTaxProgress->nextClass();
 	}
 
 		/// check if it is necessary to log taxonomy action
