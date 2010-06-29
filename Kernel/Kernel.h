@@ -174,6 +174,9 @@ protected:	// methods
 	{
 		if ( pTBox == NULL )
 			return kbEmpty;
+		// if the ontology is changed, it needs to be reclassified
+		if ( Ontology.isChanged() )
+			return kbLoading;
 		return pTBox->getStatus();
 	}
 		/// process KB wrt STATUS
@@ -552,6 +555,12 @@ public:
 	//* ASK part
 	//******************************************
 
+	/*
+	 * Before execution of any query the Kernel make sure that the KB is in an appropriate
+	 * state: Preprocessed, Classified or Realised. If the ontology was changed between asks,
+	 * incremental classification is performed and the corrected result is returned.
+	 */
+
 		/// return consistency status of KB
 	bool isKBConsistent ( void )
 	{
@@ -584,18 +593,7 @@ public:
 		/// try to perform the incremental reasoning on the changed ontology
 	bool tryIncremental ( void );
 		/// force the re-classification of the changed ontology
-	void forceReclassify ( void )
-	{
-		clearTBox();
-		newKB();
-		realiseKB();
-	}
-		/// re-classification of the changed ontology
-	void reclassify ( void )
-	{
-		if ( tryIncremental() )
-			forceReclassify();
-	}
+	void forceReload ( void );
 
 	// role info retrieval
 

@@ -74,7 +74,6 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_initKe
 
 	// create new kernel and save it in an FaCTPlusPlus object
 	ReasoningKernel* Kernel = new ReasoningKernel();
-	Kernel->newKB();
 	env->SetLongField ( obj, fid, (jlong)Kernel );
 	TRACE_JNI("initKernel");
 
@@ -2050,7 +2049,7 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_endCha
   (JNIEnv * env ATTR_UNUSED, jobject obj ATTR_UNUSED)
 {
 	TRACE_JNI("endChanges");
-	PROCESS_ASK_QUERY ( getK(env,obj)->reclassify(), "endChanges" );
+	// do nothing for now
 }
 
 #undef PROCESS_ASK_QUERY

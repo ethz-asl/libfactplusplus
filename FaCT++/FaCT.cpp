@@ -217,8 +217,7 @@ int main ( int argc, char *argv[] )
 	if ( LLM.isWritable(llAlways) )
 		LL << "Init testTimeout = " << testTimeout << "\n";
 
-	// Create a TBox...
-	Kernel.newKB ();
+	// Load the ontology
 	DLLispParser TBoxParser ( &iTBox, &Kernel );
 	Kernel.setVerboseOutput(true);
 

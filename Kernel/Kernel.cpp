@@ -61,8 +61,41 @@ ReasoningKernel :: ReasoningKernel ( void )
 bool
 ReasoningKernel :: tryIncremental ( void )
 {
+	// if no TBox known -- reload
+	if ( pTBox == NULL )
+		return true;
+	// if ontology wasn't change -- no need to reload
+	if ( !Ontology.isChanged() )
+		return false;
+	// else -- check whether incremental is possible
 	// FOR NOW!! switch off incremental reasoning while the JNI is unstable (as it is the only user ATM)
 	return true;
+}
+
+/// force the re-classification of the changed ontology
+void
+ReasoningKernel :: forceReload ( void )
+{
+	// reset TBox
+	clearTBox();
+	newKB();
+
+	// Protege (as the only user of non-trivial monitors with reload) does not accept multiple usage of a monitor
+	// so switch it off after the 1st usage
+	pMonitor = NULL;
+
+	// (re)load ontology
+	TOntologyLoader OntologyLoader(*getTBox());
+	OntologyLoader.visitOntology(Ontology);
+
+#ifdef FPP_DEBUG_DUMP_LISP_ONTOLOGY
+	TLISPOntologyPrinter OntologyPrinter(std::cout);
+//	DRoles.fill(OntologyPrinter);
+	OntologyPrinter.visitOntology(Ontology);
+#endif
+
+	// after loading ontology became processed completely
+	Ontology.setProcessed();
 }
 
 void
@@ -85,6 +118,7 @@ ReasoningKernel :: processKB ( KBStatus status )
 	// here we have to do something: let's decide what to do
 	switch ( getStatus() )
 	{
+	case kbEmpty:
 	case kbLoading:		break;	// need to do the whole cycle -- just after the switch
 	case kbCChecked:	goto Classify;	// do classification
 	case kbClassified:	goto Realise;	// do realisation
@@ -95,18 +129,9 @@ ReasoningKernel :: processKB ( KBStatus status )
 	// start with loading and preprocessing -- here might be a failures
 	reasoningFailed = true;
 
-	// load the axioms from the ontology
-	{
-		TOntologyLoader OntologyLoader(*getTBox());
-		OntologyLoader.visitOntology(Ontology);
-#	ifdef FPP_DEBUG_DUMP_LISP_ONTOLOGY
-		TLISPOntologyPrinter OntologyPrinter(std::cout);
-//		DRoles.fill(OntologyPrinter);
-		OntologyPrinter.visitOntology(Ontology);
-#	endif
-		// after loading ontology became processed completely
-		Ontology.setProcessed();
-	}
+	// load the axioms from the ontology to the TBox
+	if ( tryIncremental() )
+		forceReload();
 
 	// do the consistency check
 	pTBox->isConsistent();
@@ -143,6 +168,10 @@ Realise:	// do realisation
 void
 ReasoningKernel :: setUpCache ( DLTree* query, cacheStatus level )
 {
+	// if KB was changed since it was classified,
+	// we should catch it before
+	fpp_assert ( !Ontology.isChanged() );
+
 	// check if the query is already cached
 	if ( cachedQuery && equalTrees ( cachedQuery, query ) )
 	{	// ... with the same level -- nothing to do
@@ -157,14 +186,6 @@ ReasoningKernel :: setUpCache ( DLTree* query, cacheStatus level )
 			else
 				goto needClassify;
 		}
-	}
-
-	// if KB was changed since it was classified -- error (inclremental classification is not supported)
-	if ( Ontology.isChanged() )
-	{
-		// invalidate cache
-		cacheLevel = csEmpty;
-		throw EFaCTPlusPlus("FaCT++ Kernel: incremental classification not supported");
 	}
 
 	// change current query

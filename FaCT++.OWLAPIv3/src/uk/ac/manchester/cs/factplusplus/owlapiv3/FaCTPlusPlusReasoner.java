@@ -64,6 +64,8 @@ public class FaCTPlusPlusReasoner extends OWLReasonerBase {
 
     private EntailmentChecker entailmentChecker = new EntailmentChecker();
 
+	private Map<OWLAxiom, AxiomPointer> axiom2PtrMap = new HashMap<OWLAxiom, AxiomPointer>();
+
     public FaCTPlusPlusReasoner(OWLOntology rootOntology, OWLReasonerConfiguration configuration, BufferingMode bufferingMode) {
         super(rootOntology, configuration, bufferingMode);
 	kernel.setTopBottomPropertyNames(
@@ -76,11 +78,36 @@ public class FaCTPlusPlusReasoner extends OWLReasonerBase {
         kernel.setOperationTimeout(configuration.getTimeOut());
     }
 
-    @Override
+	///////////////////////////////////////////////////////////////////////////
+	//
+	//  load/retract axioms
+	//
+	///////////////////////////////////////////////////////////////////////////
+
+	private void loadAxiom(OWLAxiom axiom) {
+		final AxiomPointer axiomPointer = axiom.accept(axiomTranslator);
+		
+		if (axiomPointer != null) {
+                axiom2PtrMap.put(axiom, axiomPointer);
+        }
+    }
+	
+	private void retractAxiom(OWLAxiom axiom) throws FaCTPlusPlusException {
+		final AxiomPointer ptr = axiom2PtrMap.get(axiom);
+		if (ptr != null) {
+			kernel.retract(ptr);
+			axiom2PtrMap.remove(axiom);
+		}
+    }
+	
+	@Override
     protected void handleChanges(Set<OWLAxiom> addAxioms, Set<OWLAxiom> removeAxioms) {
-        // TODO: Incremental stuff!
-        // At the moment we just wipe everything out and reload the reasoner axioms
-        loadReasonerAxioms();
+		kernel.startChanges();
+		for ( OWLAxiom ax_a: addAxioms )
+			loadAxiom(ax_a);
+		for ( OWLAxiom ax_r: removeAxioms )
+			retractAxiom(ax_r);
+        kernel.endChanges();
     }
 
     private void loadReasonerAxioms() {
@@ -93,9 +120,10 @@ public class FaCTPlusPlusReasoner extends OWLReasonerBase {
         objectPropertyTranslator = new ObjectPropertyTranslator();
         dataPropertyTranslator = new DataPropertyTranslator();
         individualTranslator = new IndividualTranslator();
+		axiom2PtrMap.clear();
         
         for (OWLAxiom ax : getReasonerAxioms()) {
-            ax.accept(axiomTranslator);
+            loadAxiom(ax);
         }
         getReasonerConfiguration().getProgressMonitor().reasonerTaskStopped();
     }
