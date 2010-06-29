@@ -35,15 +35,7 @@ public class QuietProgressMonitor implements FaCTPlusPlusProgressMonitor {
     }
 
 
-    public void setCurrentClass(String className) {
-    }
-
-
-    public void setRealisationStarted(int individualCount) {
-    }
-
-
-    public void setCurrentIndividual(String individualName) {
+    public void nextClass() {
     }
 
 
