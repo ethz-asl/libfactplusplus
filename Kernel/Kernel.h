@@ -212,7 +212,6 @@ protected:	// methods
 		/// @return true iff C is satisfiable
 	bool checkSat ( DLTree* C )
 	{
-		preprocessKB();	// ensure KB is ready to answer the query
 		if ( isCN(C) )
 			return getTBox()->isSatisfiable(getTBox()->getCI(TreeDeleter(C)));
 
@@ -222,7 +221,6 @@ protected:	// methods
 		/// @return true iff C [= D holds
 	bool checkSub ( DLTree* C, DLTree* D )
 	{
-		preprocessKB();	// ensure KB is ready to answer the query
 		if ( isCN(C) && isCN(D) )
 			return getTBox()->isSubHolds ( getTBox()->getCI(TreeDeleter(C)), getTBox()->getCI(TreeDeleter(D)) );
 
@@ -692,14 +690,14 @@ public:
 	// single satisfiability
 
 		/// @return true iff C is satisfiable
-	bool isSatisfiable ( const TConceptExpr* C ) { return checkSat(e(C)); }
+	bool isSatisfiable ( const TConceptExpr* C ) { preprocessKB(); return checkSat(e(C)); }
 		/// @return true iff C [= D holds
-	bool isSubsumedBy ( const TConceptExpr* C, const TConceptExpr* D ) { return checkSub ( e(C), e(D) ); }
+	bool isSubsumedBy ( const TConceptExpr* C, const TConceptExpr* D ) { preprocessKB(); return checkSub ( e(C), e(D) ); }
 		/// @return true iff C is disjoint with D; that is, C [= \not D holds
-	bool isDisjoint ( const TConceptExpr* C, const TConceptExpr* D ) { return checkSub ( e(C), createSNFNot(e(D)) ); }
+	bool isDisjoint ( const TConceptExpr* C, const TConceptExpr* D ) { preprocessKB(); return checkSub ( e(C), createSNFNot(e(D)) ); }
 		/// @return true iff C is equivalent to D
 	bool isEquivalent ( const TConceptExpr* C, const TConceptExpr* D )
-		{ return isSubsumedBy ( C, D ) && isSubsumedBy ( D, C ); }
+		{ preprocessKB(); return isSubsumedBy ( C, D ) && isSubsumedBy ( D, C ); }
 
 	// concept hierarchy
 
