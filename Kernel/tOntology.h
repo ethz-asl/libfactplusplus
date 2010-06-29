@@ -41,24 +41,36 @@ protected:	// members
 	unsigned int axiomId;
 		/// index of the 1st unprocessed axiom
 	size_t axiomToProcess;
+		/// true iff ontology was changed
+	bool changed;
 
 public:		// interface
 		/// empty c'tor
-	TOntology ( void ) : axiomId(0), axiomToProcess(0) {}
+	TOntology ( void ) : axiomId(0), axiomToProcess(0), changed(false) {}
 		/// d'tor
 	~TOntology ( void ) { clear(); }
 
 		/// @return true iff the ontology was changed since its last load
-	bool isChanged ( void ) const { return axiomToProcess != Axioms.size(); }
+	bool isChanged ( void ) const { return changed; }
 		/// set the processed marker to the end of the ontology
-	void setProcessed ( void ) { axiomToProcess = Axioms.size(); }
+	void setProcessed ( void ) { axiomToProcess = Axioms.size(); changed = false; }
 
 		/// add given axiom to the ontology
 	TDLAxiom* add ( TDLAxiom* p )
 	{
 		p->setId(++axiomId);
 		Axioms.push_back(p);
+		changed = true;
 		return p;
+	}
+		/// retract given axiom to the ontology
+	void retract ( TDLAxiom* p )
+	{
+		if ( p->getId() <= Axioms.size() && Axioms[p->getId()-1] == p )
+		{
+			changed = true;
+			p->setUsed(false);
+		}
 	}
 		/// clear the ontology
 	void clear ( void )
@@ -68,6 +80,7 @@ public:		// interface
 		Axioms.clear();
 		EManager.clear();
 		axiomToProcess = 0;
+		changed = false;
 	}
 
 		/// get access to an expression manager

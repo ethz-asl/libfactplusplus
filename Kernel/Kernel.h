@@ -548,7 +548,7 @@ public:
 		{ return Ontology.add ( new TDLAxiomFairnessConstraint(getExpressionManager()->getArgList()) ); }
 
 		/// retract an axiom
-	void retract ( TDLAxiom* axiom ) { axiom->setUsed(false); }
+	void retract ( TDLAxiom* axiom ) { Ontology.retract(axiom); }
 
 	//******************************************
 	//* ASK part
