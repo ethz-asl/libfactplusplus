@@ -220,7 +220,7 @@ int main ( int argc, char *argv[] )
 	// Create a TBox...
 	Kernel.newKB ();
 	DLLispParser TBoxParser ( &iTBox, &Kernel );
-	Kernel.useVerboseOutput();
+	Kernel.setVerboseOutput(true);
 
 	// parsing input TBox
 	std::cerr << "Loading KB...";

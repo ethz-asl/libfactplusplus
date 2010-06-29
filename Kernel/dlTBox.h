@@ -1024,8 +1024,8 @@ public:
 	void setProgressMonitor ( TProgressMonitor* pMon ) { delete pMonitor; pMonitor = pMon; }
 		/// check that reasoning progress was cancelled by external application
 	bool isCancelled ( void ) const { return pMonitor != NULL && pMonitor->isCancelled(); }
-		/// set verbose output (ie, default progress monitor, concept and role taxonomies
-	void useVerboseOutput ( void ) { verboseOutput = true; }
+		/// set verbose output (ie, default progress monitor, concept and role taxonomies) wrt given VALUE
+	void setVerboseOutput ( bool value ) { verboseOutput = value; }
 
 	/// create (and DAG-ify) temporary concept via its definition
 	TConcept* createTempConcept ( const DLTree* desc );

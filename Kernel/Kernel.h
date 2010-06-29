@@ -133,6 +133,15 @@ protected:	// members
 		/// bottom data role name
 	std::string BotDRoleName;
 
+	// values to propagate to the new KB in case of clearance
+
+		/// progress monitor (if any)
+	TProgressMonitor* pMonitor;
+		/// timeout value
+	unsigned long OpTimeout;
+		/// tell reasoner to use verbose output
+	bool verboseOutput;
+
 	// reasoning cache
 
 		/// cache level
@@ -148,8 +157,6 @@ protected:	// members
 
 		/// set if TBox throws an exception during preprocessing/classification
 	bool reasoningFailed;
-		/// timeout value
-	unsigned long OpTimeout;
 
 private:	// no copy
 		/// no copy c'tor
@@ -234,6 +241,16 @@ protected:	// methods
 	TBox* getTBox ( void ) { checkTBox(); return pTBox; }
 		/// get RO access to TBox
 	const TBox* getTBox ( void ) const { checkTBox(); return pTBox; }
+		/// clear TBox and related structures; keep ontology in place
+	void clearTBox ( void )
+	{
+		delete pTBox;
+		pTBox = NULL;
+		delete pET;
+		pET = NULL;
+		deleteTree(cachedQuery);
+		cachedQuery = NULL;
+	}
 
 		/// get RW access to Object RoleMaster from TBox
 	RoleMaster* getORM ( void ) { return getTBox()->getORM(); }
@@ -324,9 +341,19 @@ public:	// general staff
 	bool isKBRealised ( void ) const { return getStatus() >= kbRealised; }
 
 		/// set Progress monitor to control the classification process
-	void setProgressMonitor ( TProgressMonitor* pMon ) { getTBox()->setProgressMonitor(pMon); }
-		/// set verbose output (ie, default progress monitor, concept and role taxonomies
-	void useVerboseOutput ( void ) { getTBox()->useVerboseOutput(); }
+	void setProgressMonitor ( TProgressMonitor* pMon )
+	{
+		pMonitor = pMon;
+		if ( pTBox != NULL )
+			pTBox->setProgressMonitor(pMon);
+	}
+		/// set verbose output (ie, default progress monitor, concept and role taxonomies) wrt given VALUE
+	void setVerboseOutput ( bool value )
+	{
+		verboseOutput = value;
+		if ( pTBox != NULL )
+			pTBox->setVerboseOutput(value);
+	}
 		/// set top/bottom role names to use them in the related output
 	void setTopBottomRoleNames ( const char* topORoleName, const char* botORoleName, const char* topDRoleName, const char* botDRoleName )
 	{
@@ -377,6 +404,8 @@ public:
 
 		pTBox = new TBox(getOptions());
 		pTBox->setTestTimeout(OpTimeout);
+		pTBox->setProgressMonitor(pMonitor);
+		pTBox->setVerboseOutput(verboseOutput);
 		pET = new TExpressionTranslator(*pTBox);
 		initCacheAndFlags();
 
@@ -393,12 +422,7 @@ public:
 		/// delete existed KB
 	bool releaseKB ( void )
 	{
-		delete pTBox;
-		pTBox = NULL;
-		delete pET;
-		pET = NULL;
-		deleteTree(cachedQuery);
-		cachedQuery = NULL;
+		clearTBox();
 		Ontology.clear();
 
 		return false;
@@ -564,8 +588,7 @@ public:
 		/// force the re-classification of the changed ontology
 	void forceReclassify ( void )
 	{
-		delete pTBox;
-		pTBox = NULL;
+		clearTBox();
 		newKB();
 		realiseKB();
 	}

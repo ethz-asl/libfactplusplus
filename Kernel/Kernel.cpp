@@ -39,8 +39,10 @@ static bool KernelFirstRun = true;
 ReasoningKernel :: ReasoningKernel ( void )
 	: pTBox (NULL)
 	, pET(NULL)
-	, cachedQuery(NULL)
+	, pMonitor(NULL)
 	, OpTimeout(0)
+	, verboseOutput(false)
+	, cachedQuery(NULL)
 {
 	// Intro
 	if ( KernelFirstRun )
