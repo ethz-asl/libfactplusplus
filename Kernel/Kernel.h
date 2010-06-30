@@ -326,8 +326,14 @@ protected:	// methods
 	void LoadKB ( std::istream& i );
 
 public:	// general staff
+		/// default c'tor
 	ReasoningKernel ( void );
-	~ReasoningKernel ( void );
+		/// d'tor
+	~ReasoningKernel ( void )
+	{
+		clearTBox();
+		delete pMonitor;
+	}
 
 	ifOptionSet* getOptions ( void ) { return &KernelOptions; }
 	const ifOptionSet* getOptions ( void ) const { return &KernelOptions; }
@@ -344,17 +350,19 @@ public:	// general staff
 		/// set Progress monitor to control the classification process
 	void setProgressMonitor ( TProgressMonitor* pMon )
 	{
+		delete pMonitor;
 		pMonitor = pMon;
 		if ( pTBox != NULL )
 			pTBox->setProgressMonitor(pMon);
 	}
-		/// set verbose output (ie, default progress monitor, concept and role taxonomies) wrt given VALUE
+		/// set verbose output (ie, concept and role taxonomies) wrt given VALUE
 	void setVerboseOutput ( bool value )
 	{
 		verboseOutput = value;
 		if ( pTBox != NULL )
 			pTBox->setVerboseOutput(value);
 	}
+
 		/// set top/bottom role names to use them in the related output
 	void setTopBottomRoleNames ( const char* topORoleName, const char* botORoleName, const char* topDRoleName, const char* botDRoleName )
 	{
@@ -889,14 +897,5 @@ public:
 		/// set RESULT into set of J's such that R(I,J)
 	bool isRelated ( const TIndividualExpr* I, const TORoleExpr* R, const TIndividualExpr* J );
 }; // ReasoningKernel
-
-//----------------------------------------------------
-//	ReasoningKernel implementation
-//----------------------------------------------------
-
-inline ReasoningKernel :: ~ReasoningKernel ( void )
-{
-	releaseKB ();
-}
 
 #endif

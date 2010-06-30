@@ -87,7 +87,6 @@ TBox :: ~TBox ( void )
 	// remove aux structures
 	delete stdReasoner;
 	delete nomReasoner;
-	delete pMonitor;
 	delete pTax;
 	delete RCCache;
 }

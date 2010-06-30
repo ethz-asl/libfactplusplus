@@ -27,6 +27,7 @@ Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #include "logging.h"
 
 #include "Kernel.h"
+#include "cpm.h"
 
 TsProcTimer totalTimer, wTimer;
 Configuration Config;
@@ -220,6 +221,7 @@ int main ( int argc, char *argv[] )
 	// Load the ontology
 	DLLispParser TBoxParser ( &iTBox, &Kernel );
 	Kernel.setVerboseOutput(true);
+	Kernel.setProgressMonitor(new ConsoleProgressMonitor);
 
 	// parsing input TBox
 	std::cerr << "Loading KB...";

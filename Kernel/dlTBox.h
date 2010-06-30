@@ -1021,7 +1021,7 @@ public:
 	const DLConceptTaxonomy* getTaxonomy ( void ) const { return pTax; }
 
 		/// set given structure as a progress monitor
-	void setProgressMonitor ( TProgressMonitor* pMon ) { delete pMonitor; pMonitor = pMon; }
+	void setProgressMonitor ( TProgressMonitor* pMon ) { pMonitor = pMon; }
 		/// check that reasoning progress was cancelled by external application
 	bool isCancelled ( void ) const { return pMonitor != NULL && pMonitor->isCancelled(); }
 		/// set verbose output (ie, default progress monitor, concept and role taxonomies) wrt given VALUE

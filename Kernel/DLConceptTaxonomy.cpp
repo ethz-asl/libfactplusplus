@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2009 by Dmitry Tsarkov
+Copyright (C) 2003-2010 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -25,7 +25,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "procTimer.h"
 #include "globaldef.h"
 #include "logging.h"
-#include "cpm.h"
 
 using namespace std;
 
@@ -292,9 +291,6 @@ void TBox :: createTaxonomy ( bool needIndividual )
 		nItems += fillArrays ( i_begin(), i_end() );
 
 	// taxonomy progress
-	if ( !pMonitor && verboseOutput )
-		setProgressMonitor(new ConsoleProgressMonitor);
-
 	if ( pMonitor )
 	{
 		pMonitor->setClassificationStarted(nItems);
