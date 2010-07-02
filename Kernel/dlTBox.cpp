@@ -392,14 +392,38 @@ void TBox :: readConfig ( const ifOptionSet* Options )
 #undef addBoolOption
 }
 
-/// create (and DAG-ify) temporary concept via its definition
-TConcept* TBox :: createTempConcept ( const DLTree* desc )
+/// remove concept from TBox by given EXTERNAL id. WARNING!! tested only for TempConcept!!!
+void
+TBox :: removeConcept ( TConcept* p )
+{
+	fpp_assert ( p == defConcept);
+
+	// clear DAG and name indeces (if necessary)
+	if ( isCorrect(p->pName) )
+		DLHeap.removeAfter(p->pName);
+
+	// delete associated taxonomy vertex as it is not done using destructor
+	delete p->getTaxVertex();
+
+	if ( Concepts.Remove(p) )
+		fpp_unreachable();	// can't remove non-last concept
+}
+
+void
+TBox :: clearQueryConcept ( void )
+{
+	removeConcept(defConcept);
+}
+
+/// create (and DAG-ify) query concept via its definition
+TConcept*
+TBox :: createQueryConcept ( const DLTree* desc )
 {
 	static const char* const defConceptName = "FaCT++.default";
 
 	// clear the default concept def=desc
 	if ( defConcept != NULL )
-		removeConcept (defConcept);
+		clearQueryConcept();
 //	else
 	{
 		// we have to add this concept in any cases. So change undefined names mode
@@ -433,26 +457,9 @@ TConcept* TBox :: createTempConcept ( const DLTree* desc )
 	return defConcept;
 }
 
-/// remove concept from TBox by given EXTERNAL id. @return true in case of failure. WARNING!! tested only for TempConcept!!!
-bool TBox :: removeConcept ( TConcept* p )
-{
-	fpp_assert ( p == defConcept);
-
-	// clear DAG and name indeces (if necessary)
-	if ( isCorrect (p->pName) )
-		DLHeap.removeAfter(p->pName);
-
-	// delete associated taxonomy vertex as it is not done using destructor
-	delete p->getTaxVertex();
-
-	if ( Concepts.Remove(p) )
-		fpp_unreachable();	// can't remove non-last concept
-
-	return false;
-}
-
-/// classify temporary concept
-bool TBox :: classifyTempConcept ( void )
+/// classify query concept
+void
+TBox :: classifyQueryConcept ( void )
 {
 	// prepare told subsumers for classification; as it is non-primitive, it is not CD
 	defConcept->initToldSubsumers();
@@ -466,9 +473,8 @@ bool TBox :: classifyTempConcept ( void )
 
 	// classify the concept
 	pTax->classifyEntry (defConcept);
-
-	return false;
 }
+
 
 /// dump QUERY processing time, reasoning statistics and a (preprocessed) TBox
 void

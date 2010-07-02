@@ -400,8 +400,8 @@ protected:	// methods
 		p->initToldSubsumers();
 	}
 
-	/// remove concept from TBox by given EXTERNAL id. @return true in case of failure. WARNING!! tested only for TempConcept!!!
-	bool removeConcept ( TConcept* p );
+		/// remove concept from TBox by given EXTERNAL id. WARNING!! tested only for TempConcept!!!
+	void removeConcept ( TConcept* p );
 
 //-----------------------------------------------------------------------------
 //--		support for n-ary predicates
@@ -1027,10 +1027,12 @@ public:
 		/// set verbose output (ie, default progress monitor, concept and role taxonomies) wrt given VALUE
 	void setVerboseOutput ( bool value ) { verboseOutput = value; }
 
-	/// create (and DAG-ify) temporary concept via its definition
-	TConcept* createTempConcept ( const DLTree* desc );
-	/// classify temporary concept
-	bool classifyTempConcept ( void );
+		/// create (and DAG-ify) query concept via its definition
+	TConcept* createQueryConcept ( const DLTree* query );
+		/// classify query concept
+	void classifyQueryConcept ( void );
+		/// delete all query-related stuff
+	void clearQueryConcept ( void );
 
 //-----------------------------------------------------------------------------
 //--		public reasoning interface

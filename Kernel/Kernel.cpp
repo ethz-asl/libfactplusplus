@@ -223,7 +223,7 @@ needSetup:
 	// we are preprocessed here
 
 	// case of complex query
-	cachedConcept = getTBox()->createTempConcept(query);
+	cachedConcept = getTBox()->createQueryConcept(query);
 	cacheLevel = level;
 
 needClassify:	// classification only needed for complex expression
@@ -231,7 +231,7 @@ needClassify:	// classification only needed for complex expression
 	if ( level == csClassified )
 	{
 		classifyKB();
-		getTBox()->classifyTempConcept();
+		getTBox()->classifyQueryConcept();
 		// cached concept now have to be classified
 		fpp_assert ( cachedConcept->isClassified() );
 		cachedVertex = cachedConcept->getTaxVertex();
