@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2009 by Dmitry Tsarkov
+Copyright (C) 2003-2010 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -183,13 +183,23 @@ void DlCompletionGraph :: Print ( std::ostream& o )
 	CGPFlag.swap(temp);
 
 	const_iterator p = begin(), p_end = end();
+	unsigned int i = 1;	// node id
+
+	// mark all nominals as already printed: they full subtries will be output with a nominal cloud
+	for ( ++p; p < p_end && (*p)->isNominalNode(); ++p, ++i )
+		CGPFlag[i] = true;
 
 	// print tree starting from the root node
+	p = begin();
 	PrintNode ( *p, o );
 
 	// if there are nominals in the graph -- print the nominal cloud
 	for ( ++p; p < p_end && (*p)->isNominalNode(); ++p )
+	{
+		// print given nominal node in full
+		CGPFlag[(*p)->getId()] = false;
 		PrintNode ( *p, o );
+	}
 	o << "\n";
 }
 
