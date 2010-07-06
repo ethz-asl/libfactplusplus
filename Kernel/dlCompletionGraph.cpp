@@ -207,11 +207,12 @@ void
 DlCompletionGraph :: PrintEdge ( DlCompletionTree::const_edge_iterator edge, const DlCompletionTree* parent, std::ostream& o )
 {
 	const DlCompletionTree* node = (*edge)->getArcEnd();
+	bool succEdge = (*edge)->isSuccEdge();
 
 	PrintIndent(o);
-	for ( DlCompletionTree::const_edge_iterator p = edge; p != parent->end(); ++p )
-		if ( (*p)->isSuccEdge() && (*p)->getArcEnd() == node )
-			o << " ", (*p)->Print(o);		// print edge's label
+	for ( ; edge != parent->end(); ++edge )
+		if ( (*edge)->getArcEnd() == node && (*edge)->isSuccEdge() == succEdge )
+			o << " ", (*edge)->Print(o);		// print edge's label
 
 	if ( node == parent )	// print loop
 	{
@@ -245,10 +246,13 @@ DlCompletionGraph :: PrintNode ( const DlCompletionTree* node, std::ostream& o )
 
 	CGPFlag[node->getId()] = true;	// mark node printed
 
+	// we want to print incoming edges for the nominal cloud
+	bool wantPred = node->isNominalNode();
+
 	// print all children
 	++CGPIndent;
 	for ( DlCompletionTree::const_edge_iterator p = node->begin(); p != node->end(); ++p )
-		if ( (*p)->isSuccEdge() )
+		if ( (*p)->isSuccEdge() || ( wantPred && (*p)->getArcEnd()->isNominalNode() ) )
 			PrintEdge ( p, node, o );
 	--CGPIndent;
 }
