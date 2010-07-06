@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2009 by Dmitry Tsarkov
+Copyright (C) 2003-2010 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -944,6 +944,7 @@ tacticUsage DlSatTester :: commonTacticBodyLE ( const DLVertex& cur )	// for <=n
 
 	incStat(nLeCalls);
 	BipolarPointer C = cur.getC();
+	const TRole* R = cur.getRole();
 
 	tacticUsage ret = utUnusable;
 
@@ -966,10 +967,10 @@ applyCh:
 
 	// check if we have Qualified NR
 	if ( C != bpTOP )
-		switchResult ( ret, commonTacticBodyChoose ( cur.getRole(), C ) );
+		switchResult ( ret, commonTacticBodyChoose ( R, C ) );
 
 	// check whether we need to apply NN rule first
-	if ( isNNApplicable ( cur.getRole(), C, /*stopper=*/curConcept.bp()+cur.getNumberLE() ) )
+	if ( isNNApplicable ( R, C, /*stopper=*/curConcept.bp()+cur.getNumberLE() ) )
 	{
 applyNN:
 		return commonTacticBodyNN(cur);	// after application <=-rule would be checked again
@@ -987,7 +988,7 @@ applyNN:
 		{
 			DepSet dep;
 			// check the amount of neighbours we have
-			findNeighbours ( cur.getRole(), C, dep );
+			findNeighbours ( R, C, dep );
 
 			// if the number of R-neighbours satisfies condition -- nothing to do
 			if ( EdgesToMerge.size() <= cur.getNumberLE() )
@@ -1052,6 +1053,10 @@ applyLE:	// skip init, because here we are after restoring
 		curDep.add(from->getDep());
 
 		switchResult ( ret, Merge ( from->getArcEnd(), to->getArcEnd(), curDep ) );
+		// it might be the case (see bIssue28) that after the merge there is an R-neigbour
+		// that have neither C or ~C in its label (it was far in the nominal cloud)
+		if ( C != bpTOP )
+			switchResult ( ret, commonTacticBodyChoose ( R, C ) );
 	}
 }
 
