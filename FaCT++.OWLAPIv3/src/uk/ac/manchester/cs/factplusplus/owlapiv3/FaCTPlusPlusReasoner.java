@@ -168,7 +168,7 @@ public class FaCTPlusPlusReasoner extends OWLReasonerBase {
         }
     }
 
-    public boolean isSatisfiable(OWLClassExpression classExpression) throws ReasonerInterruptedException, TimeOutException, ClassExpressionNotInProfileException, UndeclaredEntitiesException, InconsistentOntologyException {
+    public boolean isSatisfiable(OWLClassExpression classExpression) throws ReasonerInterruptedException, TimeOutException, ClassExpressionNotInProfileException, InconsistentOntologyException {
         checkConsistency();
         return kernel.isClassSatisfiable(toClassPointer(classExpression));
     }
@@ -178,7 +178,7 @@ public class FaCTPlusPlusReasoner extends OWLReasonerBase {
         return getBottomClassNode();
     }
 
-    public boolean isEntailed(OWLAxiom axiom) throws ReasonerInterruptedException, UnsupportedEntailmentTypeException, TimeOutException, AxiomNotInProfileException, UndeclaredEntitiesException {
+    public boolean isEntailed(OWLAxiom axiom) throws ReasonerInterruptedException, UnsupportedEntailmentTypeException, TimeOutException, AxiomNotInProfileException {
         Boolean entailed = axiom.accept(entailmentChecker);
         if (entailed == null) {
             throw new UnsupportedEntailmentTypeException(axiom);
@@ -186,7 +186,7 @@ public class FaCTPlusPlusReasoner extends OWLReasonerBase {
         return entailed;
     }
 
-    public boolean isEntailed(Set<? extends OWLAxiom> axioms) throws ReasonerInterruptedException, UnsupportedEntailmentTypeException, TimeOutException, AxiomNotInProfileException, UndeclaredEntitiesException {
+    public boolean isEntailed(Set<? extends OWLAxiom> axioms) throws ReasonerInterruptedException, UnsupportedEntailmentTypeException, TimeOutException, AxiomNotInProfileException {
         checkConsistency();
         for (OWLAxiom ax : axioms) {
             if (!isEntailed(ax)) {
@@ -215,12 +215,12 @@ public class FaCTPlusPlusReasoner extends OWLReasonerBase {
         return classExpressionTranslator.getNodeSetFromPointers(kernel.askSubClasses(toClassPointer(ce), direct));
     }
 
-    public NodeSet<OWLClass> getSuperClasses(OWLClassExpression ce, boolean direct) throws InconsistentOntologyException, ClassExpressionNotInProfileException, UndeclaredEntitiesException, ReasonerInterruptedException, TimeOutException {
+    public NodeSet<OWLClass> getSuperClasses(OWLClassExpression ce, boolean direct) throws InconsistentOntologyException, ClassExpressionNotInProfileException, ReasonerInterruptedException, TimeOutException {
         checkConsistency();
         return classExpressionTranslator.getNodeSetFromPointers(kernel.askSuperClasses(toClassPointer(ce), direct));
     }
 
-    public Node<OWLClass> getEquivalentClasses(OWLClassExpression ce) throws InconsistentOntologyException, ClassExpressionNotInProfileException, UndeclaredEntitiesException, ReasonerInterruptedException, TimeOutException {
+    public Node<OWLClass> getEquivalentClasses(OWLClassExpression ce) throws InconsistentOntologyException, ClassExpressionNotInProfileException, ReasonerInterruptedException, TimeOutException {
         checkConsistency();
         ClassPointer[] pointers = kernel.askEquivalentClasses(toClassPointer(ce));
         return classExpressionTranslator.getNodeFromPointers(pointers);
@@ -243,39 +243,39 @@ public class FaCTPlusPlusReasoner extends OWLReasonerBase {
         return getEquivalentObjectProperties(getOWLDataFactory().getOWLBottomObjectProperty());
     }
 
-    public NodeSet<OWLObjectProperty> getSubObjectProperties(OWLObjectPropertyExpression pe, boolean direct) throws InconsistentOntologyException, UndeclaredEntitiesException, ReasonerInterruptedException, TimeOutException {
+    public NodeSet<OWLObjectProperty> getSubObjectProperties(OWLObjectPropertyExpression pe, boolean direct) throws InconsistentOntologyException, ReasonerInterruptedException, TimeOutException {
         checkConsistency();
         return objectPropertyTranslator.getNodeSetFromPointers(kernel.askSubObjectProperties(toObjectPropertyPointer(pe), direct));
     }
 
-    public NodeSet<OWLObjectProperty> getSuperObjectProperties(OWLObjectPropertyExpression pe, boolean direct) throws InconsistentOntologyException, UndeclaredEntitiesException, ReasonerInterruptedException, TimeOutException {
+    public NodeSet<OWLObjectProperty> getSuperObjectProperties(OWLObjectPropertyExpression pe, boolean direct) throws InconsistentOntologyException, ReasonerInterruptedException, TimeOutException {
         checkConsistency();
         return objectPropertyTranslator.getNodeSetFromPointers(kernel.askSuperObjectProperties(toObjectPropertyPointer(pe), direct));
     }
 
-    public Node<OWLObjectProperty> getEquivalentObjectProperties(OWLObjectPropertyExpression pe) throws InconsistentOntologyException, UndeclaredEntitiesException, ReasonerInterruptedException, TimeOutException {
+    public Node<OWLObjectProperty> getEquivalentObjectProperties(OWLObjectPropertyExpression pe) throws InconsistentOntologyException, ReasonerInterruptedException, TimeOutException {
         checkConsistency();
         return objectPropertyTranslator.getNodeFromPointers(kernel.askEquivalentObjectProperties(toObjectPropertyPointer(pe)));
     }
 
-    public NodeSet<OWLObjectProperty> getDisjointObjectProperties(OWLObjectPropertyExpression pe, boolean direct) throws InconsistentOntologyException, UndeclaredEntitiesException, ReasonerInterruptedException, TimeOutException {
+    public NodeSet<OWLObjectProperty> getDisjointObjectProperties(OWLObjectPropertyExpression pe, boolean direct) throws InconsistentOntologyException, ReasonerInterruptedException, TimeOutException {
         checkConsistency();
         // TODO:
         return new OWLObjectPropertyNodeSet();
     }
 
-    public Node<OWLObjectProperty> getInverseObjectProperties(OWLObjectPropertyExpression pe) throws InconsistentOntologyException, UndeclaredEntitiesException, ReasonerInterruptedException, TimeOutException {
+    public Node<OWLObjectProperty> getInverseObjectProperties(OWLObjectPropertyExpression pe) throws InconsistentOntologyException, ReasonerInterruptedException, TimeOutException {
         checkConsistency();
         return objectPropertyTranslator.getNodeFromPointers(kernel.askEquivalentObjectProperties(toObjectPropertyPointer(pe.getInverseProperty())));
     }
 
-    public NodeSet<OWLClass> getObjectPropertyDomains(OWLObjectPropertyExpression pe, boolean direct) throws InconsistentOntologyException, UndeclaredEntitiesException, ReasonerInterruptedException, TimeOutException {
+    public NodeSet<OWLClass> getObjectPropertyDomains(OWLObjectPropertyExpression pe, boolean direct) throws InconsistentOntologyException, ReasonerInterruptedException, TimeOutException {
         checkConsistency();
         ClassPointer subClass = toClassPointer(getOWLDataFactory().getOWLObjectSomeValuesFrom(pe, getOWLDataFactory().getOWLThing()));
         return classExpressionTranslator.getNodeSetFromPointers(kernel.askSuperClasses(subClass, direct));
     }
 
-    public NodeSet<OWLClass> getObjectPropertyRanges(OWLObjectPropertyExpression pe, boolean direct) throws InconsistentOntologyException, UndeclaredEntitiesException, ReasonerInterruptedException, TimeOutException {
+    public NodeSet<OWLClass> getObjectPropertyRanges(OWLObjectPropertyExpression pe, boolean direct) throws InconsistentOntologyException, ReasonerInterruptedException, TimeOutException {
         checkConsistency();
         return getSuperClasses(getOWLDataFactory().getOWLObjectSomeValuesFrom(pe.getInverseProperty(), getOWLDataFactory().getOWLThing()), direct);
     }
@@ -290,59 +290,59 @@ public class FaCTPlusPlusReasoner extends OWLReasonerBase {
         return getEquivalentDataProperties(getOWLDataFactory().getOWLBottomDataProperty());
     }
 
-    public NodeSet<OWLDataProperty> getSubDataProperties(OWLDataProperty pe, boolean direct) throws InconsistentOntologyException, UndeclaredEntitiesException, ReasonerInterruptedException, TimeOutException {
+    public NodeSet<OWLDataProperty> getSubDataProperties(OWLDataProperty pe, boolean direct) throws InconsistentOntologyException, ReasonerInterruptedException, TimeOutException {
         checkConsistency();
         return dataPropertyTranslator.getNodeSetFromPointers(kernel.askSubDataProperties(toDataPropertyPointer(pe), direct));
     }
 
-    public NodeSet<OWLDataProperty> getSuperDataProperties(OWLDataProperty pe, boolean direct) throws InconsistentOntologyException, UndeclaredEntitiesException, ReasonerInterruptedException, TimeOutException {
+    public NodeSet<OWLDataProperty> getSuperDataProperties(OWLDataProperty pe, boolean direct) throws InconsistentOntologyException, ReasonerInterruptedException, TimeOutException {
         checkConsistency();
         return dataPropertyTranslator.getNodeSetFromPointers(kernel.askSuperDataProperties(toDataPropertyPointer(pe), direct));
     }
 
-    public Node<OWLDataProperty> getEquivalentDataProperties(OWLDataProperty pe) throws InconsistentOntologyException, UndeclaredEntitiesException, ReasonerInterruptedException, TimeOutException {
+    public Node<OWLDataProperty> getEquivalentDataProperties(OWLDataProperty pe) throws InconsistentOntologyException, ReasonerInterruptedException, TimeOutException {
         checkConsistency();
         return dataPropertyTranslator.getNodeFromPointers(kernel.askEquivalentDataProperties(toDataPropertyPointer(pe)));
     }
 
-    public NodeSet<OWLDataProperty> getDisjointDataProperties(OWLDataPropertyExpression pe, boolean direct) throws InconsistentOntologyException, UndeclaredEntitiesException, ReasonerInterruptedException, TimeOutException {
+    public NodeSet<OWLDataProperty> getDisjointDataProperties(OWLDataPropertyExpression pe, boolean direct) throws InconsistentOntologyException, ReasonerInterruptedException, TimeOutException {
         checkConsistency();
         // TODO:
         return new OWLDataPropertyNodeSet();
     }
 
-    public NodeSet<OWLClass> getDataPropertyDomains(OWLDataProperty pe, boolean direct) throws InconsistentOntologyException, UndeclaredEntitiesException, ReasonerInterruptedException, TimeOutException {
+    public NodeSet<OWLClass> getDataPropertyDomains(OWLDataProperty pe, boolean direct) throws InconsistentOntologyException, ReasonerInterruptedException, TimeOutException {
         checkConsistency();
         return getSuperClasses(getOWLDataFactory().getOWLDataSomeValuesFrom(getOWLDataFactory().getOWLTopDataProperty(), getOWLDataFactory().getTopDatatype()), direct);
     }
 
-    public NodeSet<OWLClass> getTypes(OWLNamedIndividual ind, boolean direct) throws InconsistentOntologyException, UndeclaredEntitiesException, ReasonerInterruptedException, TimeOutException {
+    public NodeSet<OWLClass> getTypes(OWLNamedIndividual ind, boolean direct) throws InconsistentOntologyException, ReasonerInterruptedException, TimeOutException {
         checkConsistency();
         return classExpressionTranslator.getNodeSetFromPointers(kernel.askIndividualTypes(toIndividualPointer(ind), direct));
     }
 
-    public NodeSet<OWLNamedIndividual> getInstances(OWLClassExpression ce, boolean direct) throws InconsistentOntologyException, ClassExpressionNotInProfileException, UndeclaredEntitiesException, ReasonerInterruptedException, TimeOutException {
+    public NodeSet<OWLNamedIndividual> getInstances(OWLClassExpression ce, boolean direct) throws InconsistentOntologyException, ClassExpressionNotInProfileException, ReasonerInterruptedException, TimeOutException {
         checkConsistency();
         return translateIndividualPointersToNodeSet(kernel.askInstances(toClassPointer(ce), direct));
     }
 
-    public NodeSet<OWLNamedIndividual> getObjectPropertyValues(OWLNamedIndividual ind, OWLObjectPropertyExpression pe) throws InconsistentOntologyException, UndeclaredEntitiesException, ReasonerInterruptedException, TimeOutException {
+    public NodeSet<OWLNamedIndividual> getObjectPropertyValues(OWLNamedIndividual ind, OWLObjectPropertyExpression pe) throws InconsistentOntologyException, ReasonerInterruptedException, TimeOutException {
         checkConsistency();
         return translateIndividualPointersToNodeSet(kernel.askRelatedIndividuals(toIndividualPointer(ind), toObjectPropertyPointer(pe)));
     }
 
-    public Set<OWLLiteral> getDataPropertyValues(OWLNamedIndividual ind, OWLDataProperty pe) throws InconsistentOntologyException, UndeclaredEntitiesException, ReasonerInterruptedException, TimeOutException {
+    public Set<OWLLiteral> getDataPropertyValues(OWLNamedIndividual ind, OWLDataProperty pe) throws InconsistentOntologyException, ReasonerInterruptedException, TimeOutException {
         // TODO:
         checkConsistency();
         return Collections.emptySet();
     }
 
-    public Node<OWLNamedIndividual> getSameIndividuals(OWLNamedIndividual ind) throws InconsistentOntologyException, UndeclaredEntitiesException, ReasonerInterruptedException, TimeOutException {
+    public Node<OWLNamedIndividual> getSameIndividuals(OWLNamedIndividual ind) throws InconsistentOntologyException, ReasonerInterruptedException, TimeOutException {
         checkConsistency();
         return individualTranslator.getNodeFromPointers(kernel.askSameAs(toIndividualPointer(ind)));
     }
 
-    public NodeSet<OWLNamedIndividual> getDifferentIndividuals(OWLNamedIndividual ind) throws InconsistentOntologyException, UndeclaredEntitiesException, ReasonerInterruptedException, TimeOutException {
+    public NodeSet<OWLNamedIndividual> getDifferentIndividuals(OWLNamedIndividual ind) throws InconsistentOntologyException, ReasonerInterruptedException, TimeOutException {
         checkConsistency();
         OWLClassExpression ce = getOWLDataFactory().getOWLObjectOneOf(ind).getObjectComplementOf();
         return getInstances(ce, false);

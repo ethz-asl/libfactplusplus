@@ -1,71 +1,48 @@
-<?xml version = "1.0" encoding = "utf-8"?>
-<project name = "factpp" default = "compile" basedir = "..">
+<project default="distribution">
 
-    <property name = "src.dir" value = "${factpp.dir}/src"/>
+    <property name="factplusplus.version" value="1.4.0.1"/>
+    <property name="builddir" value="../out"/>
+    <property name="classesdir" value="${builddir}/classes"/>
+    <property name="distdir" value="${builddir}/dist"/>
+    <property name="libdir" value="lib"/>
 
-    <!-- =================================================================== -->
-    <!-- Classpath declaration - used in the "compile" target -->
-    <!-- =================================================================== -->
-    <path id = "local.classpath">    
-        <path refid="osgi.libs"/>
-        <pathelement path="${commonlibs.jar}"/>
-        <path refid="commonlibs.classpath"/>
-        <pathelement path="${core.jar}"/>
-        <path refid="core.classpath"/>
-        <pathelement path="${owleditor.jar}"/>
-        <path refid="owlapi.classpath"/>
-        <path refid="factpp.classpath"/>
+    <path id="path.libraries">
+        <fileset id="fileset.libraries" dir="${distdir}">
+            <include name="*.jar"/>
+        </fileset>
+    </path> 
+    <path id="protege.path.libraries">
+	<pathelement path="/Users/tsarkov/work/Protege-4.1/bundles/org.protege.editor.core.application.jar"/>
+	<fileset dir="/Users/tsarkov/work/Protege-4.1/plugins/">
+	    <include name="*.jar"/>
+	</fileset>
     </path>
-
-    <!-- =================================================================== -->
-    <!-- INIT -->
-    <!-- =================================================================== -->
-    <target name = "init">
-        <echo message="---------------Building the Fact++ Plugin -------------"/>
+    <target name="compile">
+        <mkdir dir="${builddir}"/>
+        <mkdir dir="${classesdir}"/>
+        <javac srcdir="." destdir="${classesdir}">
+            <classpath refid="path.libraries"/>
+	    <classpath refid="protege.path.libraries"/>
+        </javac>
+    </target>
+    <target name="distribution" depends="compile">
+        <mkdir dir="${distdir}"/>
         <tstamp/>
-        <mkdir dir = "${factpp.classes}"/>
-    </target>  
-
-    <!-- =================================================================== -->
-    <!-- COMPILE -->
-    <!-- =================================================================== -->
-    <target name = "compile" depends = "init">    
-            <javac srcdir = "${src.dir}" destdir = "${factpp.classes}" 
-                   debug="${debug}" source = "${source}" 
-                   includeAntRuntime = "${includeAntRuntime}">
-                <classpath refid = "local.classpath"/>
-            </javac>
+        <jar basedir="${classesdir}" jarfile="${distdir}/factplusplus-P41-${factplusplus.version}.jar">
+            <manifest>
+                <attribute name="Built-By" value="${user.name}"/>
+                <attribute name="Build-Date" value="${TODAY}"/>
+                <attribute name="Version" value="${factplusplus.version}"/>
+            </manifest>
+        </jar>
+        <mkdir dir="${distdir}/lib"/>
+        <copy todir="${distdir}/lib">
+            <fileset refid="fileset.libraries"/>
+        </copy>
     </target>
-    
-    <!-- =================================================================== -->
-    <!-- BND -->
-    <!-- =================================================================== -->
-    <target name = "bnd"/>
-
-    <target name="copy.resources" depends="init">
-		<copy todir="${factpp.classes}" file="${factpp.dir}/plugin.xml"/>
-		  <copy todir="${factpp.classes}/lib">
-			<fileset dir="${factpp.dir}/lib"/>
-		  </copy>
+    <target name="header" depends="compile">
+	<javah classpath="${classesdir}" destdir="${builddir}" force="yes">
+	    <class name="uk.ac.manchester.cs.factplusplus.FaCTPlusPlus"/>
+	</javah>
     </target>
-
-    <!-- ===================================================================================== -->
-    <!-- SRC.BUNDLE - create a bundle with sources for developers -->
-    <!-- ===================================================================================== -->
-    <target name="src.bundle" depends="copy.resources,compile">
-		<zip destfile="${factpp.classes}/${factpp.name}src.zip">
-			<fileset dir="${src.dir}"/>
-		  </zip>
-		  <antcall target="bundle"/>
-    </target>
-
-    <!-- ===================================================================================== -->
-    <!-- BUNDLE - create the distribution JAR file that goes in the OSGi "plugins" directory -->
-    <!-- ===================================================================================== -->
-    <target name = "bundle" depends = "compile,copy.resources">
-		<jar basedir = "${factpp.classes}" destfile = "${factpp.jar}" manifest = "${factpp.dir}/META-INF/MANIFEST.MF"/>
-    </target>
-
-    <target name = "junit"/>
-        
 </project>
