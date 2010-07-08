@@ -308,6 +308,12 @@ protected:	// methods
 		catch(...) { throw EFaCTPlusPlus(reason); }
 	}
 
+		/// get taxonomy vertext of the property wrt it's name
+	TaxonomyVertex* getTaxVertex ( TRole* R )
+	{
+		return R->getTaxVertex();
+	}
+
 	//----------------------------------------------
 	//-- save/load support; implementation in SaveLoad.cpp
 	//----------------------------------------------
@@ -699,11 +705,10 @@ public:
 	{
 		preprocessKB();	// ensure KB is ready to answer the query
 		TRole* R = getRole ( r, "Role expression expected in getSupRoles()" );
-		TaxonomyVertex* p = R->getTaxVertex();	// need this for compiler
 		if ( direct )
-			p->getRelativesInfo</*needCurrent=*/false, /*onlyDirect=*/true, /*upDirection=*/true>(actor);
+			getTaxVertex(R)->getRelativesInfo</*needCurrent=*/false, /*onlyDirect=*/true, /*upDirection=*/true>(actor);
 		else
-			p->getRelativesInfo</*needCurrent=*/false, /*onlyDirect=*/false, /*upDirection=*/true>(actor);
+			getTaxVertex(R)->getRelativesInfo</*needCurrent=*/false, /*onlyDirect=*/false, /*upDirection=*/true>(actor);
 	}
 		/// apply actor::apply() to all DIRECT sub-roles of [complex] R
 	template<class Actor>
@@ -711,11 +716,10 @@ public:
 	{
 		preprocessKB();	// ensure KB is ready to answer the query
 		TRole* R = getRole ( r, "Role expression expected in getSubRoles()" );
-		TaxonomyVertex* p = R->getTaxVertex();	// need this for compiler
 		if ( direct )
-			p->getRelativesInfo</*needCurrent=*/false, /*onlyDirect=*/true, /*upDirection=*/false>(actor);
+			getTaxVertex(R)->getRelativesInfo</*needCurrent=*/false, /*onlyDirect=*/true, /*upDirection=*/false>(actor);
 		else
-			p->getRelativesInfo</*needCurrent=*/false, /*onlyDirect=*/false, /*upDirection=*/false>(actor);
+			getTaxVertex(R)->getRelativesInfo</*needCurrent=*/false, /*onlyDirect=*/false, /*upDirection=*/false>(actor);
 	}
 		/// apply actor::apply() to all synonyms of [complex] R
 	template<class Actor>
@@ -723,8 +727,7 @@ public:
 	{
 		preprocessKB();	// ensure KB is ready to answer the query
 		TRole* R = getRole ( r, "Role expression expected in getEquivalentRoles()" );
-		TaxonomyVertex* p = R->getTaxVertex();	// need this for compiler
-		actor.apply(*p);
+		actor.apply(*getTaxVertex(R));
 	}
 
 	// domain and range as a set of named concepts
