@@ -411,21 +411,12 @@ public:
 		if ( pTBox != NULL )
 			return true;
 
-		pTBox = new TBox(getOptions());
+		pTBox = new TBox ( getOptions(), TopORoleName, BotORoleName, TopDRoleName, BotDRoleName );
 		pTBox->setTestTimeout(OpTimeout);
 		pTBox->setProgressMonitor(pMonitor);
 		pTBox->setVerboseOutput(verboseOutput);
 		pET = new TExpressionTranslator(*pTBox);
 		initCacheAndFlags();
-
-		if ( TopORoleName != "" )
-		{	// declare top/bottom role names
-			TExpressionManager* pEM = getExpressionManager();
-			declare(pEM->ObjectRole(TopORoleName));
-			declare(pEM->ObjectRole(BotORoleName));
-			declare(pEM->DataRole(TopDRoleName));
-			declare(pEM->DataRole(BotDRoleName));
-		}
 		return false;
 	}
 		/// delete existed KB

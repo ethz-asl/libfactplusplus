@@ -112,10 +112,10 @@ protected:	// methods
 
 public:		// interface
 		/// the only c'tor
-	RoleMaster ( bool dataRoles )
+	RoleMaster ( bool dataRoles, const std::string& TopRoleName, const std::string& BotRoleName )
 		: newRoleId(1)
-		, emptyRole("emptyRole")
-		, universalRole("universalRole")
+		, emptyRole(BotRoleName == "" ? "emptyRole" : BotRoleName)
+		, universalRole(TopRoleName == "" ? "universalRole" : TopRoleName)
 		, roleNS()
 		, DataRoles(dataRoles)
 		, useUndefinedNames(true)

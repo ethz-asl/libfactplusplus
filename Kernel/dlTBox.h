@@ -810,7 +810,11 @@ protected:	// methods
 
 public:
 		/// init c'tor
-	TBox ( const ifOptionSet* Options );
+	TBox ( const ifOptionSet* Options,
+		   const std::string& TopORoleName,
+		   const std::string& BotORoleName,
+		   const std::string& TopDRoleName,
+		   const std::string& BotDRoleName );
 		/// d'tor
 	~TBox ( void );
 

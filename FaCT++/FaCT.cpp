@@ -162,6 +162,7 @@ int main ( int argc, char *argv[] )
 
 	// define [more-or-less] global Kernel
 	ReasoningKernel Kernel;
+	Kernel.setTopBottomRoleNames ( "*UROLE*", "*EROLE*", "*UDROLE*", "*EDROLE*" );
 
 	// parse options
 	if ( argc > 3 || argc < 2 )
