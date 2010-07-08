@@ -126,9 +126,11 @@ public:		// interface
 		// setup empty role
 		emptyRole.setId(0);
 		emptyRole.setInverse(&emptyRole);
+		emptyRole.setDataRole(dataRoles);
 		// setup universal role
 		universalRole.setId(0);
 		universalRole.setInverse(&universalRole);
+		universalRole.setDataRole(dataRoles);
 
 		// create roles taxonomy
 		pTax = new Taxonomy ( &universalRole, &emptyRole );
@@ -139,6 +141,13 @@ public:		// interface
 		/// create role entry with given name
 	TNamedEntry* ensureRoleName ( const std::string& name ) throw(EFPPCantRegName)
 	{
+		// check for the Top/Bottom names
+		if ( name == emptyRole.getName() )
+			return &emptyRole;
+		if ( name == universalRole.getName() )
+			return &universalRole;
+
+		// new name from NS
 		TRole* p = roleNS.insert(name);
 		// check what happens
 		if ( p == NULL )			// role registration attempt failed
