@@ -655,44 +655,6 @@ public:
 			getRole ( S, "Role expression expected in isDisjointRoles()" ) );
 	}
 
-	// TBox info retriveal
-
-	// apply actor.apply() to all concept names
-	template<class Actor>
-	void getAllConcepts ( Actor& actor )
-	{
-		classifyKB();	// ensure KB is ready to answer the query
-		TaxonomyVertex* p = getCTaxonomy()->getTop();	// need for successful compilation
-		p->getRelativesInfo</*needCurrent=*/true, /*onlyDirect=*/false, /*upDirection=*/false>(actor);
-	}
-
-	// apply actor.apply() to all object rolenames
-	template<class Actor>
-	void getAllORoles ( Actor& actor )
-	{
-		preprocessKB();	// ensure KB is ready to answer the query
-		TaxonomyVertex* p = getORTaxonomy()->getBottom();	// need for successful compilation
-		p->getRelativesInfo</*needCurrent=*/false, /*onlyDirect=*/false, /*upDirection=*/true>(actor);
-	}
-
-	// apply actor.apply() to all object rolenames
-	template<class Actor>
-	void getAllDRoles ( Actor& actor )
-	{
-		preprocessKB();	// ensure KB is ready to answer the query
-		TaxonomyVertex* p = getDRTaxonomy()->getBottom();	// need for successful compilation
-		p->getRelativesInfo</*needCurrent=*/false, /*onlyDirect=*/false, /*upDirection=*/true>(actor);
-	}
-
-	// apply actor.apply() to all individual names
-	template<class Actor>
-	void getAllIndividuals ( Actor& actor )
-	{
-		realiseKB();	// ensure KB is ready to answer the query
-		TaxonomyVertex* p = getCTaxonomy()->getTop();	// need for successful compilation
-		p->getRelativesInfo</*needCurrent=*/true, /*onlyDirect=*/false, /*upDirection=*/false>(actor);
-	}
-
 	// single satisfiability
 
 		/// @return true iff C is satisfiable
