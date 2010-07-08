@@ -95,6 +95,11 @@ void RoleMaster :: initAncDesc ( void )
 		if ( !(*p)->isSynonym() )
 			(*p)->preprocessAllCompositions();
 
+	// make all roles w/o told subsumers have Role TOP instead
+	for ( p = begin(); p < p_end; ++p )
+		if ( !(*p)->isSynonym() && !(*p)->hasToldSubsumers() )
+			(*p)->addParent(&universalRole);
+
 	// stage 2: perform classification
 	pTax->setCompletelyDefined(true);
 

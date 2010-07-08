@@ -713,7 +713,7 @@ protected:	// methods
 		/// set given role relevant wrt current TBox
 	void setRelevant1 ( TRole* p );
 		/// set given role relevant wrt current TBox if not checked yet
-	void setRelevant ( TRole* p ) { if ( !isRelevant(p) ) setRelevant1(p); }
+	void setRelevant ( TRole* p ) { if ( p->getId() != 0 && !isRelevant(p) ) setRelevant1(p); }
 
 		/// set given DAG entry relevant wrt current TBox
 	void setRelevant ( BipolarPointer p );

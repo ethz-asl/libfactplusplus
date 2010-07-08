@@ -226,6 +226,8 @@ public:
 	~AddRoleActor ( void ) {}
 	bool apply ( const TaxonomyVertex& v )
 	{
+		if ( v.getPrimer()->getId() == 0 )
+			return false;
 		rset.push_back(const_cast<TRole*>(static_cast<const TRole*>(v.getPrimer())));
 		return true;
 	}
