@@ -660,45 +660,31 @@ public:
 
 	// concept hierarchy
 
-		/// apply actor::apply() to all direct parents of [complex] C (with possible synonyms)
+		/// apply actor::apply() to all DIRECT super-concepts of [complex] C
 	template<class Actor>
-	void getParents ( const TConceptExpr* C, Actor& actor )
+	void getSupConcepts ( const TConceptExpr* C, bool direct, Actor& actor )
 	{
 		classifyKB();	// ensure KB is ready to answer the query
 		setUpCache ( e(C), csClassified );
-		cachedVertex->getRelativesInfo</*needCurrent=*/false, /*onlyDirect=*/true,
-									   /*upDirection=*/true>(actor);
+		if ( direct )
+			cachedVertex->getRelativesInfo</*needCurrent=*/false, /*onlyDirect=*/true, /*upDirection=*/true>(actor);
+		else
+			cachedVertex->getRelativesInfo</*needCurrent=*/false, /*onlyDirect=*/false, /*upDirection=*/true>(actor);
 	}
-		/// apply Actor::apply() to all direct children of [complex] C (with possible synonyms)
+		/// apply actor::apply() to all DIRECT sub-concepts of [complex] C
 	template<class Actor>
-	void getChildren ( const TConceptExpr* C, Actor& actor )
+	void getSubConcepts ( const TConceptExpr* C, bool direct, Actor& actor )
 	{
 		classifyKB();	// ensure KB is ready to answer the query
 		setUpCache ( e(C), csClassified );
-		cachedVertex->getRelativesInfo</*needCurrent=*/false, /*onlyDirect=*/true,
-									   /*upDirection=*/false>(actor);
-	}
-		/// apply actor::apply() to all parents of [complex] C (with possible synonyms)
-	template<class Actor>
-	void getAncestors ( const TConceptExpr* C, Actor& actor )
-	{
-		classifyKB();	// ensure KB is ready to answer the query
-		setUpCache ( e(C), csClassified );
-		cachedVertex->getRelativesInfo</*needCurrent=*/false, /*onlyDirect=*/false,
-									   /*upDirection=*/true>(actor);
-	}
-		/// apply actor::apply() to all children of [complex] C (with possible synonyms)
-	template<class Actor>
-	void getDescendants ( const TConceptExpr* C, Actor& actor )
-	{
-		classifyKB();	// ensure KB is ready to answer the query
-		setUpCache ( e(C), csClassified );
-		cachedVertex->getRelativesInfo</*needCurrent=*/false, /*onlyDirect=*/false,
-									   /*upDirection=*/false>(actor);
+		if ( direct )
+			cachedVertex->getRelativesInfo</*needCurrent=*/false, /*onlyDirect=*/true, /*upDirection=*/false>(actor);
+		else
+			cachedVertex->getRelativesInfo</*needCurrent=*/false, /*onlyDirect=*/false, /*upDirection=*/false>(actor);
 	}
 		/// apply actor::apply() to all synonyms of [complex] C
 	template<class Actor>
-	void getEquivalents ( const TConceptExpr* C, Actor& actor )
+	void getEquivalentConcepts ( const TConceptExpr* C, Actor& actor )
 	{
 		classifyKB();	// ensure KB is ready to answer the query
 		setUpCache ( e(C), csClassified );
@@ -707,73 +693,57 @@ public:
 
 	// role hierarchy
 
-	// all direct parents of R (with possible synonyms)
+		/// apply actor::apply() to all DIRECT super-roles of [complex] R
 	template<class Actor>
-	void getRParents ( const TRoleExpr* r, Actor& actor )
+	void getSupRoles ( const TRoleExpr* r, bool direct, Actor& actor )
 	{
 		preprocessKB();	// ensure KB is ready to answer the query
-		TRole* R = getRole ( r, "Role expression expected in getRParents()" );
+		TRole* R = getRole ( r, "Role expression expected in getSupRoles()" );
 		TaxonomyVertex* p = R->getTaxVertex();	// need this for compiler
-		p->getRelativesInfo</*needCurrent=*/false, /*onlyDirect=*/true, /*upDirection=*/true>(actor);
+		if ( direct )
+			p->getRelativesInfo</*needCurrent=*/false, /*onlyDirect=*/true, /*upDirection=*/true>(actor);
+		else
+			p->getRelativesInfo</*needCurrent=*/false, /*onlyDirect=*/false, /*upDirection=*/true>(actor);
 	}
-
-	// all direct children of R (with possible synonyms)
+		/// apply actor::apply() to all DIRECT sub-roles of [complex] R
 	template<class Actor>
-	void getRChildren ( const TRoleExpr* r, Actor& actor )
+	void getSubRoles ( const TRoleExpr* r, bool direct, Actor& actor )
 	{
 		preprocessKB();	// ensure KB is ready to answer the query
-		TRole* R = getRole ( r, "Role expression expected in getRChildren()" );
+		TRole* R = getRole ( r, "Role expression expected in getSubRoles()" );
 		TaxonomyVertex* p = R->getTaxVertex();	// need this for compiler
-		p->getRelativesInfo</*needCurrent=*/false, /*onlyDirect=*/true, /*upDirection=*/false>(actor);
+		if ( direct )
+			p->getRelativesInfo</*needCurrent=*/false, /*onlyDirect=*/true, /*upDirection=*/false>(actor);
+		else
+			p->getRelativesInfo</*needCurrent=*/false, /*onlyDirect=*/false, /*upDirection=*/false>(actor);
 	}
-
-	// all parents of R (with possible synonyms)
-	template<class Actor>
-	void getRAncestors ( const TRoleExpr* r, Actor& actor )
-	{
-		preprocessKB();	// ensure KB is ready to answer the query
-		TRole* R = getRole ( r, "Role expression expected in getRAncestors()" );
-		TaxonomyVertex* p = R->getTaxVertex();	// need this for compiler
-		p->getRelativesInfo</*needCurrent=*/false, /*onlyDirect=*/false, /*upDirection=*/true>(actor);
-	}
-
-	// all children of R (with possible synonyms)
-	template<class Actor>
-	void getRDescendants ( const TRoleExpr* r, Actor& actor )
-	{
-		preprocessKB();	// ensure KB is ready to answer the query
-		TRole* R = getRole ( r, "Role expression expected in getRDescendants()" );
-		TaxonomyVertex* p = R->getTaxVertex();	// need this for compiler
-		p->getRelativesInfo</*needCurrent=*/false, /*onlyDirect=*/false, /*upDirection=*/false>(actor);
-	}
-
 		/// apply actor::apply() to all synonyms of [complex] R
 	template<class Actor>
-	void getREquivalents ( const TRoleExpr* r, Actor& actor )
+	void getEquivalentRoles ( const TRoleExpr* r, Actor& actor )
 	{
 		preprocessKB();	// ensure KB is ready to answer the query
-		TRole* R = getRole ( r, "Role expression expected in getREquivalents()" );
+		TRole* R = getRole ( r, "Role expression expected in getEquivalentRoles()" );
 		TaxonomyVertex* p = R->getTaxVertex();	// need this for compiler
 		actor.apply(*p);
 	}
 
 	// domain and range as a set of named concepts
 
-		/// apply actor::apply() to all NC that are in the domain of [complex] R
+		/// apply actor::apply() to all DIRECT NC that are in the domain of [complex] R
 	template<class Actor>
-	void getRoleDomain ( const TRoleExpr* r, Actor& actor )
+	void getRoleDomain ( const TRoleExpr* r, bool direct, Actor& actor )
 	{
 		classifyKB();	// ensure KB is ready to answer the query
 		setUpCache ( createSNFExists ( e(r), new DLTree(TOP) ), csClassified );
-		// gets an exact domain is named concept; otherwise, set of the most specific concepts
-		cachedVertex->getRelativesInfo</*needCurrent=*/true, /*onlyDirect=*/true,
-									   /*upDirection=*/true>(actor);
+		if ( direct )	// gets an exact domain is named concept; otherwise, set of the most specific concepts
+			cachedVertex->getRelativesInfo</*needCurrent=*/true, /*onlyDirect=*/true, /*upDirection=*/true>(actor);
+		else			// gets all named classes that are in the domain of a role
+			cachedVertex->getRelativesInfo</*needCurrent=*/true, /*onlyDirect=*/false, /*upDirection=*/true>(actor);
 	}
-
-		/// apply actor::apply() to all NC that are in the range of [complex] R
+		/// apply actor::apply() to all DIRECT NC that are in the range of [complex] R
 	template<class Actor>
-	void getRoleRange ( const TORoleExpr* r, Actor& actor )
-		{ getRoleDomain ( getExpressionManager()->Inverse(r), actor ); }
+	void getRoleRange ( const TORoleExpr* r, bool direct, Actor& actor )
+		{ getRoleDomain ( getExpressionManager()->Inverse(r), direct, actor ); }
 
 	// instances
 
@@ -807,26 +777,19 @@ public:
 									   /*upDirection=*/false>(actor);
 	}
 
-		/// apply actor::apply() to all direct concept parents of an individual I
+		/// apply actor::apply() to all DIRECT concepts that are types of an individual I
 	template<class Actor>
-	void getDirectTypes ( const TIndividualExpr* I, Actor& actor )
+	void getTypes ( const TIndividualExpr* I, bool direct, Actor& actor )
 	{
 		realiseKB();	// ensure KB is ready to answer the query
-		getParents ( getExpressionManager()->OneOf(I), actor );
-	}
-		/// apply actor::apply() to all concept ancestors of an individual I
-	template<class Actor>
-	void getTypes ( const TIndividualExpr* I, Actor& actor )
-	{
-		realiseKB();	// ensure KB is ready to answer the query
-		getAncestors ( getExpressionManager()->OneOf(I), actor );
+		getSupConcepts ( getExpressionManager()->OneOf(I), direct, actor );
 	}
 		/// apply actor::apply() to all synonyms of an individual I
 	template<class Actor>
 	void getSameAs ( const TIndividualExpr* I, Actor& actor )
 	{
 		realiseKB();	// ensure KB is ready to answer the query
-		getEquivalents ( getExpressionManager()->OneOf(I), actor );
+		getEquivalentConcepts ( getExpressionManager()->OneOf(I), actor );
 	}
 		/// @return true iff I and J refer to the same individual
 	bool isSameIndividuals ( const TIndividualExpr* I, const TIndividualExpr* J )
