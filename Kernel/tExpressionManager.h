@@ -23,6 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "tNameSet.h"
 #include "tNAryQueue.h"
 #include "tDataTypeManager.h"
+#include "tHeadTailCache.h"
 
 inline bool
 isUniversalRole ( const TDLObjectRoleExpression* R )
@@ -51,6 +52,28 @@ inline TDLDataTypeName* getBasicDataType ( TDLDataTypeExpression* type )
 /// manager to work with all DL expressions in the kernel
 class TExpressionManager
 {
+protected:	// types
+		/// Cache for the inverse roles
+	class TInverseRoleCache : public THeadTailCache<TDLObjectRoleExpression, const TDLObjectRoleExpression>
+	{
+	protected:	// members
+			/// host expression manager
+		TExpressionManager* pManager;
+
+	protected:	// methods
+			/// the way to create an object by a given tail
+		virtual TDLObjectRoleExpression* build ( const TDLObjectRoleExpression* tail );
+		
+	public:		// interface
+			/// empty c'tor
+		TInverseRoleCache ( TExpressionManager* p ) : THeadTailCache<TDLObjectRoleExpression, const TDLObjectRoleExpression>(), pManager(p) {}
+			/// empty d'tor
+		virtual ~TInverseRoleCache ( void ) {}
+
+			/// clear the cache
+		void clear ( void ) { Map.clear(); }
+	}; // TInverseRoleCache
+
 protected:	// members
 		/// nameset for concepts
 	TNameSet<TDLConceptName> NS_C;
@@ -85,6 +108,9 @@ protected:	// members
 
 		/// record all the references
 	std::vector<TDLExpression*> RefRecorder;
+
+		/// cache for the role inverses
+	TInverseRoleCache InverseRoleCache;
 
 protected:	// methods
 		/// record the reference; @return the argument
@@ -195,7 +221,7 @@ public:		// interface
 		/// get named object role
 	TDLObjectRoleExpression* ObjectRole ( const std::string& name ) { return NS_OR.insert(name); }
 		/// get an inverse of a given object role expression R
-	TDLObjectRoleExpression* Inverse ( const TDLObjectRoleExpression* R ) { return record(new TDLObjectRoleInverse(R)); }
+	TDLObjectRoleExpression* Inverse ( const TDLObjectRoleExpression* R ) { return InverseRoleCache.get(R); }
 		/// get a role chain corresponding to R1 o ... o Rn; take the arguments from the last argument list
 	TDLObjectRoleComplexExpression* Compose ( void ) { return record(new TDLObjectRoleChain(getArgList())); }
 		/// get a expression corresponding to R projected from C
@@ -269,5 +295,11 @@ public:		// interface
 	const TDLFacetExpression* FacetMaxExclusive ( const TDLDataValue* V ) { return record(new TDLFacetMaxExclusive(V)); }
 
 }; // TExpressionManager
+
+inline TDLObjectRoleExpression*
+TExpressionManager::TInverseRoleCache::build ( const TDLObjectRoleExpression* tail )
+{
+	return pManager->record(new TDLObjectRoleInverse(tail));
+}
 
 #endif

@@ -27,6 +27,7 @@ TExpressionManager::TExpressionManager ( void )
 	, DRBottom(new TDLDataRoleBottom)
 	, DTop(new TDLDataTop)
 	, DBottom(new TDLDataBottom)
+	, InverseRoleCache(this)
 {
 }
 
@@ -51,6 +52,7 @@ TExpressionManager::clear ( void )
 	NS_I.clear();
 	NS_OR.clear();
 	NS_DR.clear();
+	InverseRoleCache.clear();
 	// delete all the recorded references
 	for ( std::vector<TDLExpression*>::iterator p = RefRecorder.begin(), p_end = RefRecorder.end(); p < p_end; ++p )
 		delete *p;
