@@ -110,6 +110,9 @@ public:		// interface
 		/// d'tor: delete all the cached dep-sets and the head element
 	~TDepSetCache ( void )
 	{
+		// don't delete tails as they are referenced outside
+		for ( iterator p = Map.begin(), p_end = Map.end(); p != p_end; ++p )
+			delete p->second;
 		delete HeadDepSet;
 	}
 

@@ -44,13 +44,8 @@ protected:	// methods
 public:		// interface
 		/// empty c'tor
 	THeadTailCache ( void ) {}
-		/// d'tor: delete all cached elements
-	virtual ~THeadTailCache ( void )
-	{
-		// don't delete tails as they are referenced outside
-		for ( iterator p = Map.begin(), p_end = Map.end(); p != p_end; ++p )
-			delete p->second;
-	}
+		/// empty d'tor
+	virtual ~THeadTailCache ( void ) {}
 
 		/// get an object corresponding to Head.Tail
 	HeadType* get ( TailType* tail )
