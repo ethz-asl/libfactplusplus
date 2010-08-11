@@ -44,36 +44,6 @@ RoleAutomaton :: ~RoleAutomaton ( void )
 }
 
 void
-RoleAutomaton :: addTransition ( RAState state, RATransition* trans )
-{
-	for ( trans_iterator q = Base[state].begin(); q != Base[state].end(); ++q )
-		if ( (*q)->final() == trans->final() )
-		{
-			// merge transitions
-			(*q)->add(*trans);
-			delete trans;
-			return;
-		}
-
-	// no such transition found -- insert this one
-	Base[state].push_back(trans);
-}
-
-void
-RoleAutomaton :: addTransition ( RAState from, RAState to, const TRole* r )
-{
-	for ( trans_iterator q = Base[from].begin(); q != Base[from].end(); ++q )
-		if ( (*q)->final() == to )
-		{
-			(*q)->add(r);
-			return;
-		}
-
-	// no such transition found -- insert this one
-	Base[from].push_back(new RATransition ( to, r ));
-}
-
-void
 RoleAutomaton :: addCopy ( const RoleAutomaton& RA )
 {
 	for ( RAState i = 0; i < RA.size(); ++i )
@@ -105,7 +75,7 @@ RoleAutomaton :: initMap ( unsigned int RASize, RAState fRA )
 	map[1] = iRA = fRA;
 
 	// fills the rest of map
-	for ( int i = 2; i < RASize; ++i )
+	for ( unsigned int i = 2; i < RASize; ++i )
 		map[i] = ++newState;
 
 	// reserve enough space for the new automaton

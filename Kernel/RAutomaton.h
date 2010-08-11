@@ -122,20 +122,52 @@ protected:	// methods
 		if ( state >= Base.size() )
 			Base.resize(state+1);
 	}
-		/// add TRANSition leading from a given STATE; all states are known to fit the ton
-	void addTransition ( RAState state, RATransition* trans );
+
+		/// find the existing transition between FROM and TO; @return end() if none found
+	trans_iterator findTransition ( RAState from, RAState to )
+	{
+		trans_iterator p = Base[from].begin(), p_end= Base[from].end();
+		for ( ; p != p_end; ++p )
+			if ( (*p)->final() == to )
+				return p;
+		return p_end;
+	}
+		/// add TRANSition leading from a state FROM; all states are known to fit the ton
+	void addTransition ( RAState from, RATransition* trans )
+	{
+		TTransitions& T = Base[from];
+		trans_iterator p = findTransition ( from, trans->final() );
+		if ( p == T.end() )
+			T.push_back(trans);
+		else	// merge transitions
+		{
+			(*p)->add(*trans);
+			delete trans;
+		}
+	}
 		/// add transition from a state FROM to a state TO labelled with R
-	void addTransition ( RAState from, RAState to, const TRole* r );
+	void addTransition ( RAState from, RAState to, const TRole* r )
+	{
+		TTransitions& T = Base[from];
+		trans_iterator p = findTransition ( from, to );
+		if ( p == T.end() )
+			T.push_back(new RATransition ( to, r ));
+		else	// merge transitions
+			(*p)->add(r);
+	}
+
 		/// make the internal chain transition (between chainState and TO)
 	void nextChainTransition ( RAState to )
 	{
 		addTransition ( iRA, new RATransition(to) );
 		iRA = to;
 	}
+
 		/// add copy of the RA to given one; use internal MAP to renumber the states
 	void addCopy ( const RoleAutomaton& RA );
 		/// init internal map according to RA size and final (FRA) states
 	void initMap ( unsigned int RASize, RAState fRA );
+
 		/// print all transitions from a single STATE
 	void printTransitions ( std::ostream& o, RAState state ) const;
 
