@@ -412,7 +412,7 @@ void TRole :: completeAutomaton ( SetOfRoles& RInProcess )
 
 	// check for the transitivity
 	if ( isTransitive() )
-		A.addTransitionSafe ( 1, new RATransition(0) );
+		A.addTransitionSafe ( A.final(), new RATransition(A.initial()) );
 
 	// add automata for complex role inclusions
 	for ( std::vector<roleSet>::iterator q = subCompositions.begin(); q != subCompositions.end(); ++q )

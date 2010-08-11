@@ -146,12 +146,6 @@ protected:	// methods
 		checkTransition ( from, trans->final() );
 		Base[from].push_back(trans);
 	}
-		/// add transition from a state FROM to a state TO labelled with R
-	void addTransition ( RAState from, RAState to, const TRole* r )
-	{
-		checkTransition ( from, to );
-		Base[from].push_back(new RATransition ( to, r ));
-	}
 
 		/// make the internal chain transition (between chainState and TO)
 	void nextChainTransition ( RAState to )
@@ -214,13 +208,6 @@ public:		// interface
 		ensureState(state);
 		ensureState(trans->final());
 		addTransition ( state, trans );
-	}
-		/// add transition from a state FROM to a state TO labelled with R; check whether all states are correct
-	void addTransitionSafe ( RAState from, RAState to, const TRole* r )
-	{
-		ensureState(from);
-		ensureState(to);
-		addTransition ( from, to, r );
 	}
 
 	// chain automaton creation

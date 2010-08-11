@@ -116,7 +116,7 @@ protected:	// methods
 	void preprocessComposition ( roleSet& RS ) throw(EFPPCycleInRIA);
 		/// add transition to automaton with the role
 	void addTrivialTransition ( const TRole* r )
-		{ A.addTransitionSafe ( A.initial(), A.final(), r ); }
+		{ A.addTransitionSafe ( A.initial(), new RATransition ( A.final(), r ) ); }
 		/// add automaton of a sub-role to a given one
 	void addSubRoleAutomaton ( const TRole* R )
 	{
