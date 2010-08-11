@@ -69,10 +69,16 @@ RoleAutomaton :: initMap ( unsigned int RASize, RAState fRA )
 	// fills the final state; if it is not known -- adjust newState
 	if ( fRA >= size() )
 	{
-		fpp_assert ( fRA == size() );
+		fRA = size();	// make sure we don't create an extra unused state
 		++newState;
 	}
-	map[1] = iRA = fRA;
+	map[1] = fRA;
+
+	// check transitions as it may turns out to be a single transition
+	checkTransition ( iRA, fRA );
+
+	// set new initial state
+	iRA = fRA;
 
 	// fills the rest of map
 	for ( unsigned int i = 2; i < RASize; ++i )
@@ -86,10 +92,12 @@ RoleAutomaton :: initMap ( unsigned int RASize, RAState fRA )
 bool
 RoleAutomaton :: addToChain ( const RoleAutomaton& RA, bool oSafe, RAState fRA )
 {
-	bool needFinalTrans = ( fRA < size() );
+	bool needFinalTrans = ( fRA < size() && !RA.isOSafe() );
 	// we can skip transition if chaining automata are i- and o-safe
-	nextChainTransition(newState());
-	initMap ( RA.size(), size() );	// right now we need the last transition anyway
+	if ( !oSafe && !RA.isISafe() )
+		nextChainTransition(newState());
+	// check whether we need an output transition
+	initMap ( RA.size(), needFinalTrans ? size() : fRA );
 	addCopy(RA);
 	if ( needFinalTrans )
 		nextChainTransition(fRA);
