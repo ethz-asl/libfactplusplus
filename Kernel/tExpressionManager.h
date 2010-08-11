@@ -63,7 +63,7 @@ protected:	// types
 	protected:	// methods
 			/// the way to create an object by a given tail
 		virtual TDLObjectRoleExpression* build ( const TDLObjectRoleExpression* tail );
-		
+
 	public:		// interface
 			/// empty c'tor
 		TInverseRoleCache ( TExpressionManager* p ) : THeadTailCache<TDLObjectRoleExpression, const TDLObjectRoleExpression>(), pManager(p) {}

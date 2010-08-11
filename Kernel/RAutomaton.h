@@ -16,8 +16,8 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef _RAUTOMATON_H
-#define _RAUTOMATON_H
+#ifndef RAUTOMATON_H
+#define RAUTOMATON_H
 
 #include <vector>
 #include <iostream>
@@ -108,10 +108,10 @@ public:		// types interface
 protected:	// members
 		/// all transitions of the automaton, groupped by a starting state
 	AutoBase Base;
-		/// first state of the (temporary) chain of the automata; set by initChain()
-	RAState chainBeg;
+		/// maps original automata state into the new ones (used in copyRA)
+	std::vector<unsigned int> map;
 		/// final state of the (temporary) chain of the automata; set by addToChain()
-	RAState chainEnd;
+	RAState chainState;
 		/// flag for the automaton to be completed
 	bool Complete;
 
@@ -126,17 +126,17 @@ protected:	// methods
 	void addTransition ( RAState state, RATransition* trans );
 		/// add transition from a state FROM to a state TO labelled with R
 	void addTransition ( RAState from, RAState to, const TRole* r );
-		/// add copy of the RA to given one; @return 1st state of the copy
-	RAState addCopy ( const RoleAutomaton& RA );
-
+		/// add copy of the RA to given one; use internal MAP to renumber the states
+	void addCopy ( const RoleAutomaton& RA );
+		/// init internal map according to RA size and final (FRA) states
+	void initMap ( unsigned int RASize, RAState fRA );
 		/// print all transitions from a single STATE
 	void printTransitions ( std::ostream& o, RAState state ) const;
 
 public:		// interface
 		/// empty c'tor
 	RoleAutomaton ( void )
-		: chainBeg(0)
-		, chainEnd(0)
+		: chainState(0)
 		, Complete(false)
 	{
 		ensureState(1);
@@ -188,26 +188,23 @@ public:		// interface
 
 	// chain automaton creation
 
-		/// init the chain of the automata that would end up with add*RA()
-	void initChain ( const RoleAutomaton& RA )
+		/// make initial transition of the chain
+	void initChainTransition ( RAState from ) { chainState = from; }
+		/// make the internal chain transition (between chainState and TO)
+	void nextChainTransition ( RAState to )
 	{
-		chainBeg = addCopy(RA);	// copy RA here
-		chainEnd = chainBeg+1;	// remember the end of the chain
+		addTransition ( chainState, new RATransition(to) );
+		chainState = to;
 	}
-		/// add an Automaton to the chain that would end up with add*RA()
-	void addToChain ( const RoleAutomaton& RA )
+		/// add an Automaton to the chain that would start from the 
+	void addToChain ( const RoleAutomaton& RA, RAState fRA )
 	{
-		RAState newBeg = addCopy(RA);	// copy RA here
-		addTransition ( chainEnd, new RATransition(newBeg) );
-		chainEnd = newBeg+1;	// remember the end of the chain
+		nextChainTransition(newState());
+		initMap ( RA.size(), fRA );
+		addCopy(RA);
 	}
-
-	// chain automaton resolving
-
-		/// make transition between FROM and the beginning of the chain
-	void initChainTransition ( RAState from ) { addTransition ( from, new RATransition(chainBeg) ); }
-		/// make transition between the end of the chain and TO
-	void finishChainTransition ( RAState to ) { addTransition ( chainEnd, new RATransition(to) ); }
+		/// add an Automaton to the chain with a default final state
+	void addToChain ( const RoleAutomaton& RA ) { addToChain ( RA, size()+1 ); }
 
 	// add single RA
 
@@ -216,9 +213,9 @@ public:		// interface
 		/// add RA from a subrole to given one
 	void addRA ( const RoleAutomaton& RA )
 	{
-		initChain(RA);
 		initChainTransition(initial());
-		finishChainTransition(final());
+		addToChain ( RA );
+		nextChainTransition(final());
 	}
 
 		/// return number of distinct states

@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2006 by Dmitry Tsarkov
+Copyright (C) 2006-2010 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -73,21 +73,43 @@ RoleAutomaton :: addTransition ( RAState from, RAState to, const TRole* r )
 	Base[from].push_back(new RATransition ( to, r ));
 }
 
-RAState
+void
 RoleAutomaton :: addCopy ( const RoleAutomaton& RA )
 {
-	RAState oldSize = size();
-	ensureState(oldSize+RA.size()-1);	// enough to fill RA
-
 	for ( RAState i = 0; i < RA.size(); ++i )
-		for ( const_trans_iterator p = RA.begin(i); p != RA.end(i); ++p )
+		for ( const_trans_iterator p = RA.begin(i), p_end = RA.end(i); p != p_end; ++p )
 		{
-			RATransition* trans = new RATransition((*p)->final()+oldSize);
+			RATransition* trans = new RATransition(map[(*p)->final()]);
 			trans->add(**p);
-			Base[i+oldSize].push_back(trans);
+			Base[map[i]].push_back(trans);
 		}
+}
 
-	return oldSize;
+/// init internal map according to RA size, with new initial state from chainState and final (FRA) states
+void
+RoleAutomaton :: initMap ( unsigned int RASize, RAState fRA )
+{
+	map.resize(RASize);
+	// new state in the automaton
+	RAState newState = size()-1;
+
+	// fill initial state; it is always known in the automata
+	map[0] = chainState;
+
+	// fills the final state; if it is not known -- adjust newState
+	if ( fRA >= size() )
+	{
+		fpp_assert ( fRA == size() );
+		++newState;
+	}
+	map[1] = chainState = fRA;
+
+	// fills the rest of map
+	for ( int i = 2; i < RASize; ++i )
+		map[i] = ++newState;
+
+	// reserve enough space for the new automaton
+	ensureState(newState);
 }
 
 void

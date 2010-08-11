@@ -158,13 +158,13 @@ protected:	// methods
 		}
 
 		// create a chain
-		A.initChain ( completeAutomatonByRole ( *p, RInProcess ) );
-		while ( ++p != p_end )
-			A.addToChain ( completeAutomatonByRole ( *p, RInProcess ) );
-
-		// connect a chain to an automaton
 		A.initChainTransition(from);
-		A.finishChainTransition(to);
+		do
+		{
+			A.addToChain ( completeAutomatonByRole ( *p, RInProcess ) );
+		} while ( ++p != p_end );
+		// connect a chain to an automaton
+		A.nextChainTransition(to);
 	}
 
 		/// check (and correct) case whether R != S for R [= S
