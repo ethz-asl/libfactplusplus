@@ -82,16 +82,19 @@ RoleAutomaton :: initMap ( unsigned int RASize, RAState fRA )
 	ensureState(newState);
 }
 
-/// add an Automaton to the chain that would start from the iRA
-void
-RoleAutomaton :: addToChain ( const RoleAutomaton& RA, RAState fRA )
+/// add an Automaton to the chain that would start from the iRA; OSAFE shows the safety of a previous automaton in a chain
+bool
+RoleAutomaton :: addToChain ( const RoleAutomaton& RA, bool oSafe, RAState fRA )
 {
 	bool needFinalTrans = ( fRA < size() );
+	// we can skip transition if chaining automata are i- and o-safe
 	nextChainTransition(newState());
 	initMap ( RA.size(), size() );	// right now we need the last transition anyway
 	addCopy(RA);
 	if ( needFinalTrans )
 		nextChainTransition(fRA);
+
+	return RA.isOSafe();
 }
 
 void

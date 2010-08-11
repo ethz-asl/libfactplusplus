@@ -454,10 +454,11 @@ TRole :: addSubCompositionAutomaton ( const roleSet& RS, SetOfRoles& RInProcess 
 	fpp_assert ( p <= p_last );
 
 	// create a chain
+	bool oSafe = false;	// we couldn't assume that the current role automaton is i- or o-safe
 	A.initChain(from);
 	for ( ; p != p_last; ++p )
-		A.addToChain ( completeAutomatonByRole ( *p, RInProcess ) );
+		oSafe = A.addToChain ( completeAutomatonByRole ( *p, RInProcess ), oSafe );
 
 	// add the last automaton to chain
-	A.addToChain ( completeAutomatonByRole ( *p, RInProcess ), to );
+	A.addToChain ( completeAutomatonByRole ( *p, RInProcess ), oSafe, to );
 }

@@ -112,6 +112,10 @@ protected:	// members
 	std::vector<unsigned int> map;
 		/// initial state of the next automaton in chain
 	RAState iRA;
+		/// flag whether automaton is input safe
+	bool ISafe;
+		/// flag whether automaton is output safe
+	bool OSafe;
 		/// flag for the automaton to be completed
 	bool Complete;
 
@@ -123,14 +127,29 @@ protected:	// methods
 			Base.resize(state+1);
 	}
 
+		/// state that the automaton is i-unsafe
+	void setIUnsafe ( void ) { ISafe = false; }
+		/// state that the automaton is o-unsafe
+	void setOUnsafe ( void ) { OSafe = false; }
+		/// check whether transition between FROM and TO breaks safety
+	void checkTransition ( RAState from, RAState to )
+	{
+		if ( from == final() )
+			setOUnsafe();
+		if ( to == initial() )
+			setIUnsafe();
+	}
+
 		/// add TRANSition leading from a state FROM; all states are known to fit the ton
 	void addTransition ( RAState from, RATransition* trans )
 	{
+		checkTransition ( from, trans->final() );
 		Base[from].push_back(trans);
 	}
 		/// add transition from a state FROM to a state TO labelled with R
 	void addTransition ( RAState from, RAState to, const TRole* r )
 	{
+		checkTransition ( from, to );
 		Base[from].push_back(new RATransition ( to, r ));
 	}
 
@@ -153,6 +172,8 @@ public:		// interface
 		/// empty c'tor
 	RoleAutomaton ( void )
 		: iRA(0)
+		, ISafe(true)
+		, OSafe(true)
 		, Complete(false)
 	{
 		ensureState(1);
@@ -206,10 +227,17 @@ public:		// interface
 
 		/// make the beginning of the chain
 	void initChain ( RAState from ) { iRA = from; }
-		/// add an Automaton to the chain that would start from the iRA
-	void addToChain ( const RoleAutomaton& RA, RAState fRA );
+		/// add an Automaton to the chain that would start from the iRA; OSAFE shows the safety of a previous automaton in a chain
+	bool addToChain ( const RoleAutomaton& RA, bool oSafe, RAState fRA );
 		/// add an Automaton to the chain with a default final state
-	void addToChain ( const RoleAutomaton& RA ) { addToChain ( RA, size()+1 ); }
+	bool addToChain ( const RoleAutomaton& RA, bool oSafe ) { return addToChain ( RA, oSafe, size()+1 ); }
+
+	// i/o safety
+
+		/// get the i-safe value
+	bool isISafe ( void ) const { return ISafe; }
+		/// get the o-safe value
+	bool isOSafe ( void ) const { return OSafe; }
 
 	// add single RA
 
@@ -219,7 +247,7 @@ public:		// interface
 	void addRA ( const RoleAutomaton& RA )
 	{
 		initChain(initial());
-		addToChain ( RA, final() );
+		addToChain ( RA, /*oSafe=*/false, final() );
 	}
 
 		/// return number of distinct states
