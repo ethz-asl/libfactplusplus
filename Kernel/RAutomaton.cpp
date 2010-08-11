@@ -94,7 +94,7 @@ RoleAutomaton :: initMap ( unsigned int RASize, RAState fRA )
 	RAState newState = size()-1;
 
 	// fill initial state; it is always known in the automata
-	map[0] = chainState;
+	map[0] = iRA;
 
 	// fills the final state; if it is not known -- adjust newState
 	if ( fRA >= size() )
@@ -102,7 +102,7 @@ RoleAutomaton :: initMap ( unsigned int RASize, RAState fRA )
 		fpp_assert ( fRA == size() );
 		++newState;
 	}
-	map[1] = chainState = fRA;
+	map[1] = iRA = fRA;
 
 	// fills the rest of map
 	for ( int i = 2; i < RASize; ++i )

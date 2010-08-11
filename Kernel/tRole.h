@@ -143,7 +143,7 @@ protected:	// methods
 			return;
 
 		// tune iterators and states
-		roleSet::const_iterator p = RS.begin(), p_end = RS.end();
+		roleSet::const_iterator p = RS.begin(), p_last = RS.end() - 1;
 		RAState from = A.initial(), to = A.final();
 
 		if ( resolveSynonym(RS.front()) == this )
@@ -153,18 +153,20 @@ protected:	// methods
 		}
 		else if ( resolveSynonym(RS.back()) == this )
 		{
-			--p_end;
+			--p_last;
 			to = A.initial();
 		}
 
+		// make sure the role chain contain at least one element
+		fpp_assert ( p <= p_last );
+
 		// create a chain
-		A.initChainTransition(from);
-		do
-		{
+		A.initChain(from);
+		for ( ; p != p_last; ++p )
 			A.addToChain ( completeAutomatonByRole ( *p, RInProcess ) );
-		} while ( ++p != p_end );
-		// connect a chain to an automaton
-		A.nextChainTransition(to);
+
+		// add the last automaton to chain
+		A.addToChain ( completeAutomatonByRole ( *p, RInProcess ), to );
 	}
 
 		/// check (and correct) case whether R != S for R [= S

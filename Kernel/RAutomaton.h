@@ -110,8 +110,8 @@ protected:	// members
 	AutoBase Base;
 		/// maps original automata state into the new ones (used in copyRA)
 	std::vector<unsigned int> map;
-		/// final state of the (temporary) chain of the automata; set by addToChain()
-	RAState chainState;
+		/// initial state of the next automaton in chain
+	RAState iRA;
 		/// flag for the automaton to be completed
 	bool Complete;
 
@@ -126,6 +126,12 @@ protected:	// methods
 	void addTransition ( RAState state, RATransition* trans );
 		/// add transition from a state FROM to a state TO labelled with R
 	void addTransition ( RAState from, RAState to, const TRole* r );
+		/// make the internal chain transition (between chainState and TO)
+	void nextChainTransition ( RAState to )
+	{
+		addTransition ( iRA, new RATransition(to) );
+		iRA = to;
+	}
 		/// add copy of the RA to given one; use internal MAP to renumber the states
 	void addCopy ( const RoleAutomaton& RA );
 		/// init internal map according to RA size and final (FRA) states
@@ -136,7 +142,7 @@ protected:	// methods
 public:		// interface
 		/// empty c'tor
 	RoleAutomaton ( void )
-		: chainState(0)
+		: iRA(0)
 		, Complete(false)
 	{
 		ensureState(1);
@@ -188,20 +194,17 @@ public:		// interface
 
 	// chain automaton creation
 
-		/// make initial transition of the chain
-	void initChainTransition ( RAState from ) { chainState = from; }
-		/// make the internal chain transition (between chainState and TO)
-	void nextChainTransition ( RAState to )
-	{
-		addTransition ( chainState, new RATransition(to) );
-		chainState = to;
-	}
-		/// add an Automaton to the chain that would start from the 
+		/// make the beginning of the chain
+	void initChain ( RAState from ) { iRA = from; }
+		/// add an Automaton to the chain that would start from the iRA
 	void addToChain ( const RoleAutomaton& RA, RAState fRA )
 	{
+		bool needFinalTrans = ( fRA < size() );
 		nextChainTransition(newState());
-		initMap ( RA.size(), fRA );
+		initMap ( RA.size(), size() );	// right now we need the last transition anyway
 		addCopy(RA);
+		if ( needFinalTrans )
+			nextChainTransition(fRA);
 	}
 		/// add an Automaton to the chain with a default final state
 	void addToChain ( const RoleAutomaton& RA ) { addToChain ( RA, size()+1 ); }
@@ -213,9 +216,8 @@ public:		// interface
 		/// add RA from a subrole to given one
 	void addRA ( const RoleAutomaton& RA )
 	{
-		initChainTransition(initial());
-		addToChain ( RA );
-		nextChainTransition(final());
+		initChain(initial());
+		addToChain ( RA, final() );
 	}
 
 		/// return number of distinct states
