@@ -137,37 +137,7 @@ protected:	// methods
 		return R->getAutomaton();
 	}
 		/// add automaton for a role composition
-	void addSubCompositionAutomaton ( const roleSet& RS, SetOfRoles& RInProcess )
-	{
-		if ( RS.empty() )	// fallout from transitivity axiom
-			return;
-
-		// tune iterators and states
-		roleSet::const_iterator p = RS.begin(), p_last = RS.end() - 1;
-		RAState from = A.initial(), to = A.final();
-
-		if ( resolveSynonym(RS.front()) == this )
-		{
-			++p;
-			from = A.final();
-		}
-		else if ( resolveSynonym(RS.back()) == this )
-		{
-			--p_last;
-			to = A.initial();
-		}
-
-		// make sure the role chain contain at least one element
-		fpp_assert ( p <= p_last );
-
-		// create a chain
-		A.initChain(from);
-		for ( ; p != p_last; ++p )
-			A.addToChain ( completeAutomatonByRole ( *p, RInProcess ) );
-
-		// add the last automaton to chain
-		A.addToChain ( completeAutomatonByRole ( *p, RInProcess ), to );
-	}
+	void addSubCompositionAutomaton ( const roleSet& RS, SetOfRoles& RInProcess );
 
 		/// check (and correct) case whether R != S for R [= S
 	void checkHierarchicalDisjoint ( TRole* R );

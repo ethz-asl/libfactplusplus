@@ -82,6 +82,18 @@ RoleAutomaton :: initMap ( unsigned int RASize, RAState fRA )
 	ensureState(newState);
 }
 
+/// add an Automaton to the chain that would start from the iRA
+void
+RoleAutomaton :: addToChain ( const RoleAutomaton& RA, RAState fRA )
+{
+	bool needFinalTrans = ( fRA < size() );
+	nextChainTransition(newState());
+	initMap ( RA.size(), size() );	// right now we need the last transition anyway
+	addCopy(RA);
+	if ( needFinalTrans )
+		nextChainTransition(fRA);
+}
+
 void
 RoleAutomaton :: printTransitions ( std::ostream& o, RAState state ) const
 {

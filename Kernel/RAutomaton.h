@@ -123,37 +123,15 @@ protected:	// methods
 			Base.resize(state+1);
 	}
 
-		/// find the existing transition between FROM and TO; @return end() if none found
-	trans_iterator findTransition ( RAState from, RAState to )
-	{
-		trans_iterator p = Base[from].begin(), p_end= Base[from].end();
-		for ( ; p != p_end; ++p )
-			if ( (*p)->final() == to )
-				return p;
-		return p_end;
-	}
 		/// add TRANSition leading from a state FROM; all states are known to fit the ton
 	void addTransition ( RAState from, RATransition* trans )
 	{
-		TTransitions& T = Base[from];
-		trans_iterator p = findTransition ( from, trans->final() );
-		if ( p == T.end() )
-			T.push_back(trans);
-		else	// merge transitions
-		{
-			(*p)->add(*trans);
-			delete trans;
-		}
+		Base[from].push_back(trans);
 	}
 		/// add transition from a state FROM to a state TO labelled with R
 	void addTransition ( RAState from, RAState to, const TRole* r )
 	{
-		TTransitions& T = Base[from];
-		trans_iterator p = findTransition ( from, to );
-		if ( p == T.end() )
-			T.push_back(new RATransition ( to, r ));
-		else	// merge transitions
-			(*p)->add(r);
+		Base[from].push_back(new RATransition ( to, r ));
 	}
 
 		/// make the internal chain transition (between chainState and TO)
@@ -229,15 +207,7 @@ public:		// interface
 		/// make the beginning of the chain
 	void initChain ( RAState from ) { iRA = from; }
 		/// add an Automaton to the chain that would start from the iRA
-	void addToChain ( const RoleAutomaton& RA, RAState fRA )
-	{
-		bool needFinalTrans = ( fRA < size() );
-		nextChainTransition(newState());
-		initMap ( RA.size(), size() );	// right now we need the last transition anyway
-		addCopy(RA);
-		if ( needFinalTrans )
-			nextChainTransition(fRA);
-	}
+	void addToChain ( const RoleAutomaton& RA, RAState fRA );
 		/// add an Automaton to the chain with a default final state
 	void addToChain ( const RoleAutomaton& RA ) { addToChain ( RA, size()+1 ); }
 
