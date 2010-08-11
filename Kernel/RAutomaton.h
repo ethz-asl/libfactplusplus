@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2006-2007 by Dmitry Tsarkov
+Copyright (C) 2006-2010 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -148,70 +148,6 @@ public:		// interface
 		/// d'tor
 	~RoleAutomaton ( void );
 
-	// automaton's construction
-
-		/// add TRANSition leading from a given STATE; check whether all states are correct
-	void addTransitionSafe ( RAState state, RATransition* trans )
-	{
-		ensureState(state);
-		ensureState(trans->final());
-		addTransition ( state, trans );
-	}
-		/// add transition from a state FROM to a state TO labelled with R; check whether all states are correct
-	void addTransitionSafe ( RAState from, RAState to, const TRole* r )
-	{
-		ensureState(from);
-		ensureState(to);
-		addTransition ( from, to, r );
-	}
-
-	// add single RA
-
-		/// add RA from simple subrole to given one
-	void addSimpleRA ( const RoleAutomaton& RA ) { (*begin(0))->add(**RA.begin(0)); }
-		/// add RA from a subrole to given one
-	void addRA ( const RoleAutomaton& RA ) { initChain(RA); addChainRA(); }
-
-	// chain automaton creation
-
-		/// init the chain of the automata that would end up with add*RA()
-	void initChain ( const RoleAutomaton& RA )
-	{
-		chainBeg = addCopy(RA);	// copy RA here
-		chainEnd = chainBeg+1;	// remember the end of the chain
-	}
-		/// add an Automaton to the chain that would end up with add*RA()
-	void addToChain ( const RoleAutomaton& RA )
-	{
-		RAState newBeg = addCopy(RA);	// copy RA here
-		addTransition ( chainEnd, new RATransition(newBeg) );
-		chainEnd = newBeg+1;	// remember the end of the chain
-	}
-
-	// chain automaton resolving
-
-		/// add RA made by *Chain() methods to given one
-	void addChainRA ( void )
-	{
-		// create links beg(A)->beg(chain)-....->end(chain)->end(A)
-		addTransition ( initial(), new RATransition(chainBeg) );
-		addTransition ( chainEnd, new RATransition(final()) );
-	}
-		/// add RA made by *Chain() methods for R*chain[=R
-	void addRBegRA ( void )
-	{
-		// create links end(A)->beg(chain)-....->end(chain)->end(A)
-		addTransition ( final(), new RATransition(chainBeg) );
-		addTransition ( chainEnd, new RATransition(final()) );
-	}
-		/// add RA made by *Chain() methods for chain*R[=R
-	void addREndRA ( void )
-	{
-		// create links beg(A)->beg(chain)-....->end(chain)->beg(A)
-		addTransition ( initial(), new RATransition(chainBeg) );
-		addTransition ( chainEnd, new RATransition(initial()) );
-	}
-
 	// access to states
 
 		/// get the initial state
@@ -232,6 +168,58 @@ public:		// interface
 	const_trans_iterator begin ( RAState state ) const { return Base[state].begin(); }
 		/// get the last (multi-)transition starting in STATE
 	const_trans_iterator end ( RAState state ) const { return Base[state].end(); }
+
+	// automaton's construction
+
+		/// add TRANSition leading from a given STATE; check whether all states are correct
+	void addTransitionSafe ( RAState state, RATransition* trans )
+	{
+		ensureState(state);
+		ensureState(trans->final());
+		addTransition ( state, trans );
+	}
+		/// add transition from a state FROM to a state TO labelled with R; check whether all states are correct
+	void addTransitionSafe ( RAState from, RAState to, const TRole* r )
+	{
+		ensureState(from);
+		ensureState(to);
+		addTransition ( from, to, r );
+	}
+
+	// chain automaton creation
+
+		/// init the chain of the automata that would end up with add*RA()
+	void initChain ( const RoleAutomaton& RA )
+	{
+		chainBeg = addCopy(RA);	// copy RA here
+		chainEnd = chainBeg+1;	// remember the end of the chain
+	}
+		/// add an Automaton to the chain that would end up with add*RA()
+	void addToChain ( const RoleAutomaton& RA )
+	{
+		RAState newBeg = addCopy(RA);	// copy RA here
+		addTransition ( chainEnd, new RATransition(newBeg) );
+		chainEnd = newBeg+1;	// remember the end of the chain
+	}
+
+	// chain automaton resolving
+
+		/// make transition between FROM and the beginning of the chain
+	void initChainTransition ( RAState from ) { addTransition ( from, new RATransition(chainBeg) ); }
+		/// make transition between the end of the chain and TO
+	void finishChainTransition ( RAState to ) { addTransition ( chainEnd, new RATransition(to) ); }
+
+	// add single RA
+
+		/// add RA from simple subrole to given one
+	void addSimpleRA ( const RoleAutomaton& RA ) { (*begin(0))->add(**RA.begin(0)); }
+		/// add RA from a subrole to given one
+	void addRA ( const RoleAutomaton& RA )
+	{
+		initChain(RA);
+		initChainTransition(initial());
+		finishChainTransition(final());
+	}
 
 		/// return number of distinct states
 	unsigned int size ( void ) const { return Base.size(); }

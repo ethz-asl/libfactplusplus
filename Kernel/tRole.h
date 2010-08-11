@@ -136,34 +136,35 @@ protected:	// methods
 		R->completeAutomaton(RInProcess);
 		return R->getAutomaton();
 	}
-		/// init non-empty chain of role automata
-	template<class Iterator>
-	void createChain ( Iterator begin, Iterator end, SetOfRoles& RInProcess )
-	{
-		A.initChain(completeAutomatonByRole ( *begin, RInProcess ));
-		for ( Iterator p = begin+1; p != end; ++p )
-			A.addToChain(completeAutomatonByRole ( *p, RInProcess ));
-	}
 		/// add automaton for a role composition
 	void addSubCompositionAutomaton ( const roleSet& RS, SetOfRoles& RInProcess )
 	{
 		if ( RS.empty() )	// fallout from transitivity axiom
 			return;
+
+		// tune iterators and states
+		roleSet::const_iterator p = RS.begin(), p_end = RS.end();
+		RAState from = A.initial(), to = A.final();
+
 		if ( resolveSynonym(RS.front()) == this )
 		{
-			createChain ( RS.begin()+1, RS.end(), RInProcess );
-			A.addRBegRA();
+			++p;
+			from = A.final();
 		}
 		else if ( resolveSynonym(RS.back()) == this )
 		{
-			createChain ( RS.begin(), RS.end()-1, RInProcess );
-			A.addREndRA();
+			--p_end;
+			to = A.initial();
 		}
-		else
-		{
-			createChain ( RS.begin(), RS.end(), RInProcess );
-			A.addChainRA();
-		}
+
+		// create a chain
+		A.initChain ( completeAutomatonByRole ( *p, RInProcess ) );
+		while ( ++p != p_end )
+			A.addToChain ( completeAutomatonByRole ( *p, RInProcess ) );
+
+		// connect a chain to an automaton
+		A.initChainTransition(from);
+		A.finishChainTransition(to);
 	}
 
 		/// check (and correct) case whether R != S for R [= S
