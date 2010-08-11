@@ -211,7 +211,7 @@ void TRole :: Print ( std::ostream& o ) const
 	if ( getTRange() != NULL )
 		o << " Range=(" << getBPRange() << ")=" << getTRange();
 
-	o << "\nAutomaton:";
+	o << "\nAutomaton (size " << A.size() << "): " << ( A.isISafe() ? "I" : "i" ) << ( A.isOSafe() ? "O" : "o" );
 	A.Print(o);
 	o << "\n";
 }
