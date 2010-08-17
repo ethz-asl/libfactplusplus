@@ -205,7 +205,7 @@ void Taxonomy :: setToldSubsumers ( void )
 		if ( LLM.isWritable(llTSList) && needLogging() )
 			LL << " '" << (*p)->getName() << "'";
 
-		(*p)->getTaxVertex()->propagateValueUp(true);
+		propagateTrueUp((*p)->getTaxVertex());
 	}
 
 	if ( !ksStack.top()->p_empty() && LLM.isWritable(llTSList) && needLogging() )
@@ -216,6 +216,43 @@ void Taxonomy :: setToldSubsumers ( void )
 			LL << " '" << (*q)->getName() << "'";
 	}
 }
+
+void
+Taxonomy :: propagateTrueUp ( TaxonomyVertex* node )
+{
+	// if taxonomy class already checked -- do nothing
+	if ( node->isValued() )
+	{
+		fpp_assert ( node->getValue() );
+		return;
+	}
+
+	// overwise -- value it...
+	node->setValued(true);
+
+	// ... and value all parents
+	for ( iterator p = node->begin(/*upDirection=*/true), p_end = node->end(/*upDirection=*/true); p < p_end; ++p )
+		propagateTrueUp(*p);
+}
+
+void
+Taxonomy :: propagateOneCommon ( TaxonomyVertex* node, TaxonomyLink& visited )
+{
+	// checked if node already was visited this session
+	if ( node->isChecked() )
+		return;
+
+	// mark node visited
+	node->setChecked();
+	node->setCommon();
+	visited.push_back(node);
+
+	// mark all children
+	for ( iterator p = node->begin(/*upDirection=*/false), p_end = node->end(/*upDirection=*/false); p < p_end; ++p )
+		propagateOneCommon ( *p, visited );
+}
+
+
 
 //-----------------------------------------------------------------
 //--	DFS-based classification methods

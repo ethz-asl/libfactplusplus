@@ -219,6 +219,10 @@ protected:	// methods
 	void classifyTop ( void );
 		/// deal with a TS cycle.
 	void classifyCycle ( void );
+		/// propagate the TRUE value of the KS subsumption up the taxonomy
+	void propagateTrueUp ( TaxonomyVertex* node );
+		/// propagate common value from NODE to all its descendants; save VISITED nodes
+	void propagateOneCommon ( TaxonomyVertex* node, TaxonomyLink& visited );
 
 	ss_iterator told_begin ( void ) { return ksStack.top()->s_begin(); }
 	ss_iterator told_end ( void ) { return ksStack.top()->s_end(); }

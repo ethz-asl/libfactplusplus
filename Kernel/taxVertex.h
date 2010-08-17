@@ -119,13 +119,6 @@ public:		// flags interface
 	syn_iterator begin_syn ( void ) const { return synonyms.begin(); }
 	syn_iterator end_syn ( void ) const { return synonyms.end(); }
 
-	// propagate different values through label
-
-		/// propagate VALUE to the parents
-	void propagateValueUp ( const bool value );
-		/// propagate common value to all descendants; save visited nodes in VISITED
-	void propagateOne ( TaxonomyLink& visited );
-
 public:
 		/// the only c'tor
 	TaxonomyVertex ( const ClassifiableEntry* p )

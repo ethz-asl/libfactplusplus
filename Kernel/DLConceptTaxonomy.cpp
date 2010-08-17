@@ -179,7 +179,7 @@ bool DLConceptTaxonomy :: propagateUp ( void )
 	unsigned int nCommon = 1;	// number of common parents
 
 	// define possible successors of the node
-	(*p)->propagateOne(Common);
+	propagateOneCommon ( *p, Common );
 	clearCheckedLabel();
 
 	for ( ++p; p < p_end; ++p )
@@ -191,7 +191,7 @@ bool DLConceptTaxonomy :: propagateUp ( void )
 
 		++nCommon;
 		aux.clear();
-		(*p)->propagateOne(aux);
+		propagateOneCommon ( *p, aux );
 		clearCheckedLabel();
 
 		// clear all non-common nodes that are in Common (visited on a previous run)

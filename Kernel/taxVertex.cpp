@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2009 by Dmitry Tsarkov
+Copyright (C) 2003-2010 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -25,41 +25,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 TLabeller TaxonomyVertex :: checkLab;
 TLabeller TaxonomyVertex :: valuedLab;
-
-void TaxonomyVertex :: propagateValueUp ( const bool value )
-{
-	const bool upDirection = false;		// going down (for the top-bottom search)
-
-	// if taxonomy class already checked -- do nothing
-	if ( isValued() )
-	{
-		fpp_assert ( getValue() == value );
-		return;
-	}
-
-	// overwise -- value it...
-	setValued(value);
-
-	// ... and value all parents
-	for ( iterator p = begin(!upDirection), p_end = end(!upDirection); p < p_end; ++p )
-		(*p)->propagateValueUp(value);
-}
-
-void TaxonomyVertex :: propagateOne ( TaxonomyLink& visited )
-{
-	// checked if node already was visited this session
-	if ( isChecked() )
-		return;
-
-	// mark node visited
-	setChecked();
-	setCommon();
-	visited.push_back(this);
-
-	// mark all children
-	for ( iterator p = begin(/*upDirection=*/false), p_end = end(/*upDirection=*/false); p < p_end; ++p )
-		(*p)->propagateOne(visited);
-}
 
 // removes given pointer from neigh.
 bool TaxonomyVertex :: removeLink ( bool upDirection, TaxonomyVertex* p )
