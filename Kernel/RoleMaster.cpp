@@ -110,7 +110,7 @@ void RoleMaster :: initAncDesc ( void )
 	// stage 3: fills ancestor/descendants using taxonomy
 	for ( p = begin(); p != p_end; ++p )
 		if ( !(*p)->isSynonym() )
-			(*p)->initADbyTaxonomy(Roles.size());
+			(*p)->initADbyTaxonomy ( pTax, Roles.size() );
 
 	// complete role automaton's info
 	for ( p = begin(); p != p_end; ++p )

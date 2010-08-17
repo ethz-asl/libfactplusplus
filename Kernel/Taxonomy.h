@@ -226,7 +226,29 @@ protected:	// methods
 		/// check if it is necessary to log taxonomy action
 	virtual bool needLogging ( void ) const { return false; }
 
+		/// apply ACTOR to subgraph starting from NODE as defined by flags
+	template<bool onlyDirect, bool upDirection, class Actor>
+	void getRelativesInfoRec ( TaxonomyVertex* node, Actor& actor )
+	{
+		// recursive applicability checking
+		if ( node->isChecked() )
+			return;
+
+		// label node as visited
+		node->setChecked();
+
+		// if current node processed OK and there is no need to continue -- exit
+		// if node is NOT processed for some reasons -- go to another level
+		if ( actor.apply(*node) && onlyDirect )
+			return;
+
+		// apply method to the proper neighbours with proper parameters
+		for ( iterator p = node->begin(upDirection), p_end = node->end(upDirection); p != p_end; ++p )
+			getRelativesInfoRec<onlyDirect, upDirection> ( *p, actor );
+	}
+
 public:		// interface
+		/// init c'tor
 	Taxonomy ( const ClassifiableEntry* pTop, const ClassifiableEntry* pBottom )
 		: Current (NULL)
 		, curEntry(NULL)
@@ -238,7 +260,7 @@ public:		// interface
 		Graph.push_back (new TaxonomyVertex(pBottom));	// bottom
 		Graph.push_back (new TaxonomyVertex(pTop));		// top
 	}
-
+		/// d'tor
 	virtual ~Taxonomy ( void );
 
 	//------------------------------------------------------------------------------
@@ -259,10 +281,27 @@ public:		// interface
 		/// iterator for the Top of the taxonomy
 	const_iterator itop ( void ) const { return begin()+1; }
 
-	/// special access to TOP of taxonomy
+		/// special access to TOP of taxonomy
 	TaxonomyVertex* getTop ( void ) const { return *itop(); }
-	/// special access to BOTTOM of taxonomy
+		/// special access to BOTTOM of taxonomy
 	TaxonomyVertex* getBottom ( void ) const { return *ibottom(); }
+
+		/// apply ACTOR to subgraph starting from NODE as defined by flags;
+	template<bool needCurrent, bool onlyDirect, bool upDirection, class Actor>
+	void getRelativesInfo ( TaxonomyVertex* node, Actor& actor )
+	{
+		// if current node processed OK and there is no need to continue -- exit
+		// this is the helper to the case like getDomain():
+		//   if there is a named concept that represent's a domain -- that's what we need
+		if ( needCurrent )
+			if ( actor.apply(*node) && onlyDirect )
+				return;
+
+		for ( iterator p = node->begin(upDirection), p_end = node->end(upDirection); p != p_end; ++p )
+			getRelativesInfoRec<onlyDirect, upDirection> ( *p, actor );
+
+		clearCheckedLabel();
+	}
 
 	//------------------------------------------------------------------------------
 	//--	classification interface
@@ -270,7 +309,9 @@ public:		// interface
 
 		/// classify given entry: general method is by DFS
 	void classifyEntry ( ClassifiableEntry* p );
-		/// clear all labels from Taxonomy verteces
+		/// clear the CHECKED label from all the taxonomy vertex
+	void clearCheckedLabel ( void ) { TaxonomyVertex::clearChecked(); }
+ 		/// clear all labels from Taxonomy verteces
 	void clearLabels ( void ) { TaxonomyVertex::clearAllLabels(); }
 
 	// flags interface

@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2009 by Dmitry Tsarkov
+Copyright (C) 2003-2010 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -16,8 +16,8 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef _TAXVERTEX_H
-#define _TAXVERTEX_H
+#ifndef TAXVERTEX_H
+#define TAXVERTEX_H
 
 #include <vector>
 #include <iostream>
@@ -119,27 +119,6 @@ public:		// flags interface
 	syn_iterator begin_syn ( void ) const { return synonyms.begin(); }
 	syn_iterator end_syn ( void ) const { return synonyms.end(); }
 
-		/// apply Actor to subgraph starting from current node and defined by flags
-	template<bool onlyDirect, bool upDirection, class Actor>
-	void getRelativesInfoRec ( Actor& actor )
-	{
-		// recursive applicability checking
-		if ( isChecked() )
-			return;
-
-		// label node as visited
-		setChecked();
-
-		// if current node processed OK and there is no need to continue -- exit
-		// if node is NOT processed for some reasons -- go to another level
-		if ( actor.apply(*this) && onlyDirect )
-			return;
-
-		// apply method to the proper neighbours with proper parameters
-		for ( iterator p = begin(upDirection), p_end = end(upDirection); p != p_end; ++p )
-			(*p)->getRelativesInfoRec<onlyDirect, upDirection>(actor);
-	}
-
 	// propagate different values through label
 
 		/// propagate VALUE to the parents
@@ -216,25 +195,6 @@ public:
 		/// clear all links in a given direction
 	void clearLinks ( bool upDirection ) { neigh(upDirection).clear(); }
 
-		/** apply Actor to subgraph starting from current node and defined by flags;
-			clear the labels afterwards
-		*/
-	template<bool needCurrent, bool onlyDirect, bool upDirection, class Actor>
-	void getRelativesInfo ( Actor& actor )
-	{
-		// if current node processed OK and there is no need to continue -- exit
-		// this is the helper to the case like getDomain():
-		//   if there is a named concept that represent's a domain -- that's what we need
-		if ( needCurrent )
-			if ( actor.apply(*this) && onlyDirect )
-				return;
-
-		for ( iterator p = begin(upDirection), p_end = end(upDirection); p != p_end; ++p )
-			(*p)->getRelativesInfoRec<onlyDirect, upDirection>(actor);
-
-		clearChecked();
-	}
-
 		/// print entry name and its synonyms (if any)
 	void printSynonyms ( std::ostream& o ) const;
 		/// print neighbours of a vertex in given direction
@@ -260,4 +220,4 @@ public:
 	void LoadNeighbours ( std::istream& i );
 }; // TaxonomyVertex
 
-#endif // _TAXVERTEX_H
+#endif // TAXVERTEX_H

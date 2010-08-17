@@ -263,21 +263,21 @@ protected:	// methods
 	const RoleMaster* getDRM ( void ) const { return getTBox()->getDRM(); }
 
 		/// get access to the concept hierarchy
-	const Taxonomy* getCTaxonomy ( void ) const
+	Taxonomy* getCTaxonomy ( void )
 	{
 		if ( !isKBClassified() )
 			throw EFaCTPlusPlus("No access to concept taxonomy: ontology not classified");
 		return getTBox()->getTaxonomy();
 	}
 		/// get access to the object role hierarchy
-	const Taxonomy* getORTaxonomy ( void ) const
+	Taxonomy* getORTaxonomy ( void )
 	{
 		if ( !isKBPreprocessed() )
 			throw EFaCTPlusPlus("No access to the object role taxonomy: ontology not preprocessed");
 		return getORM()->getTaxonomy();
 	}
 		/// get access to the data role hierarchy
-	const Taxonomy* getDRTaxonomy ( void ) const
+	Taxonomy* getDRTaxonomy ( void )
 	{
 		if ( !isKBPreprocessed() )
 			throw EFaCTPlusPlus("No access to the data role taxonomy: ontology not preprocessed");
@@ -308,7 +308,12 @@ protected:	// methods
 		catch(...) { throw EFaCTPlusPlus(reason); }
 	}
 
-		/// get taxonomy vertext of the property wrt it's name
+		/// get taxonomy of the property wrt it's name
+	Taxonomy* getTaxonomy ( TRole* R )
+	{
+		return R->isDataRole() ? getDRTaxonomy() : getORTaxonomy();
+	}
+		/// get taxonomy vertex of the property wrt it's name
 	TaxonomyVertex* getTaxVertex ( TRole* R )
 	{
 		return R->getTaxVertex();
@@ -673,9 +678,9 @@ public:
 		classifyKB();	// ensure KB is ready to answer the query
 		setUpCache ( e(C), csClassified );
 		if ( direct )
-			cachedVertex->getRelativesInfo</*needCurrent=*/false, /*onlyDirect=*/true, /*upDirection=*/true>(actor);
+			getCTaxonomy()->getRelativesInfo</*needCurrent=*/false, /*onlyDirect=*/true, /*upDirection=*/true> ( cachedVertex, actor );
 		else
-			cachedVertex->getRelativesInfo</*needCurrent=*/false, /*onlyDirect=*/false, /*upDirection=*/true>(actor);
+			getCTaxonomy()->getRelativesInfo</*needCurrent=*/false, /*onlyDirect=*/false, /*upDirection=*/true> ( cachedVertex, actor );
 	}
 		/// apply actor::apply() to all DIRECT sub-concepts of [complex] C
 	template<class Actor>
@@ -684,9 +689,9 @@ public:
 		classifyKB();	// ensure KB is ready to answer the query
 		setUpCache ( e(C), csClassified );
 		if ( direct )
-			cachedVertex->getRelativesInfo</*needCurrent=*/false, /*onlyDirect=*/true, /*upDirection=*/false>(actor);
+			getCTaxonomy()->getRelativesInfo</*needCurrent=*/false, /*onlyDirect=*/true, /*upDirection=*/false> ( cachedVertex, actor );
 		else
-			cachedVertex->getRelativesInfo</*needCurrent=*/false, /*onlyDirect=*/false, /*upDirection=*/false>(actor);
+			getCTaxonomy()->getRelativesInfo</*needCurrent=*/false, /*onlyDirect=*/false, /*upDirection=*/false> ( cachedVertex, actor );
 	}
 		/// apply actor::apply() to all synonyms of [complex] C
 	template<class Actor>
@@ -706,9 +711,9 @@ public:
 		preprocessKB();	// ensure KB is ready to answer the query
 		TRole* R = getRole ( r, "Role expression expected in getSupRoles()" );
 		if ( direct )
-			getTaxVertex(R)->getRelativesInfo</*needCurrent=*/false, /*onlyDirect=*/true, /*upDirection=*/true>(actor);
+			getTaxonomy(R)->getRelativesInfo</*needCurrent=*/false, /*onlyDirect=*/true, /*upDirection=*/true> ( getTaxVertex(R), actor );
 		else
-			getTaxVertex(R)->getRelativesInfo</*needCurrent=*/false, /*onlyDirect=*/false, /*upDirection=*/true>(actor);
+			getTaxonomy(R)->getRelativesInfo</*needCurrent=*/false, /*onlyDirect=*/false, /*upDirection=*/true> ( getTaxVertex(R), actor );
 	}
 		/// apply actor::apply() to all DIRECT sub-roles of [complex] R
 	template<class Actor>
@@ -717,9 +722,9 @@ public:
 		preprocessKB();	// ensure KB is ready to answer the query
 		TRole* R = getRole ( r, "Role expression expected in getSubRoles()" );
 		if ( direct )
-			getTaxVertex(R)->getRelativesInfo</*needCurrent=*/false, /*onlyDirect=*/true, /*upDirection=*/false>(actor);
+			getTaxonomy(R)->getRelativesInfo</*needCurrent=*/false, /*onlyDirect=*/true, /*upDirection=*/false> ( getTaxVertex(R), actor );
 		else
-			getTaxVertex(R)->getRelativesInfo</*needCurrent=*/false, /*onlyDirect=*/false, /*upDirection=*/false>(actor);
+			getTaxonomy(R)->getRelativesInfo</*needCurrent=*/false, /*onlyDirect=*/false, /*upDirection=*/false> ( getTaxVertex(R), actor );
 	}
 		/// apply actor::apply() to all synonyms of [complex] R
 	template<class Actor>
@@ -739,9 +744,9 @@ public:
 		classifyKB();	// ensure KB is ready to answer the query
 		setUpCache ( createSNFExists ( e(r), new DLTree(TOP) ), csClassified );
 		if ( direct )	// gets an exact domain is named concept; otherwise, set of the most specific concepts
-			cachedVertex->getRelativesInfo</*needCurrent=*/true, /*onlyDirect=*/true, /*upDirection=*/true>(actor);
+			getCTaxonomy()->getRelativesInfo</*needCurrent=*/true, /*onlyDirect=*/true, /*upDirection=*/true> ( cachedVertex, actor );
 		else			// gets all named classes that are in the domain of a role
-			cachedVertex->getRelativesInfo</*needCurrent=*/true, /*onlyDirect=*/false, /*upDirection=*/true>(actor);
+			getCTaxonomy()->getRelativesInfo</*needCurrent=*/true, /*onlyDirect=*/false, /*upDirection=*/true> ( cachedVertex, actor );
 	}
 		/// apply actor::apply() to all DIRECT NC that are in the range of [complex] R
 	template<class Actor>
@@ -776,8 +781,7 @@ public:
 	{	// FIXME!! check for Racer's/IS approach
 		realiseKB();	// ensure KB is ready to answer the query
 		setUpCache ( e(C), csClassified );
-		cachedVertex->getRelativesInfo</*needCurrent=*/true, /*onlyDirect=*/false,
-									   /*upDirection=*/false>(actor);
+		getCTaxonomy()->getRelativesInfo</*needCurrent=*/true, /*onlyDirect=*/false, /*upDirection=*/false> ( cachedVertex, actor );
 	}
 
 		/// apply actor::apply() to all DIRECT concepts that are types of an individual I

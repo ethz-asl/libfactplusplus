@@ -180,7 +180,7 @@ bool DLConceptTaxonomy :: propagateUp ( void )
 
 	// define possible successors of the node
 	(*p)->propagateOne(Common);
-	TaxonomyVertex::clearChecked();
+	clearCheckedLabel();
 
 	for ( ++p; p < p_end; ++p )
 	{
@@ -192,7 +192,7 @@ bool DLConceptTaxonomy :: propagateUp ( void )
 		++nCommon;
 		aux.clear();
 		(*p)->propagateOne(aux);
-		TaxonomyVertex::clearChecked();
+		clearCheckedLabel();
 
 		// clear all non-common nodes that are in Common (visited on a previous run)
 		TaxonomyLink::iterator q, q_end;

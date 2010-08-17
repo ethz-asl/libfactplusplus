@@ -37,6 +37,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 class TBox;
 class RoleMaster;
+class Taxonomy;
 
 /// Define class with all information about DL role
 class TRole: public ClassifiableEntry
@@ -340,7 +341,7 @@ public:		// interface
 			preprocessComposition(*q);
 	}
 		/// init ancestors and descendants using Taxonomy
-	void initADbyTaxonomy ( unsigned int ADMapSize );
+	void initADbyTaxonomy ( Taxonomy* pTax, unsigned int ADMapSize );
 		/// init other fields that requires Anc/Desc for all roles
 	void postProcess ( void );
 		/// fills role composition by given TREE

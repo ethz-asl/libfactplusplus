@@ -21,7 +21,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <algorithm>
 
 #include "tRole.h"
-#include "taxVertex.h"
+#include "Taxonomy.h"
 
 void TRole :: fillsComposition ( roleSet& Composition, const DLTree* tree ) const
 {
@@ -234,7 +234,7 @@ public:
 }; // AddRoleActor
 
 /// init ancestors and descendants using Taxonomy
-void TRole :: initADbyTaxonomy ( unsigned int nRoles )
+void TRole :: initADbyTaxonomy ( Taxonomy* pTax, unsigned int nRoles )
 {
 	fpp_assert ( isClassified() );	// safety check
 	fpp_assert ( Ancestor.empty() && Descendant.empty() );
@@ -243,12 +243,10 @@ void TRole :: initADbyTaxonomy ( unsigned int nRoles )
 
 	// fills ancestors by the taxonomy
 	AddRoleActor anc(Ancestor);
-	getTaxVertex()->getRelativesInfo</*needCurrent=*/false, /*onlyDirect=*/false,
-									 /*upDirection=*/true>(anc);
+	pTax->getRelativesInfo</*needCurrent=*/false, /*onlyDirect=*/false, /*upDirection=*/true> ( getTaxVertex(), anc );
 	// fills descendants by the taxonomy
 	AddRoleActor desc(Descendant);
-	getTaxVertex()->getRelativesInfo</*needCurrent=*/false, /*onlyDirect=*/false,
-									 /*upDirection=*/false>(desc);
+	pTax->getRelativesInfo</*needCurrent=*/false, /*onlyDirect=*/false, /*upDirection=*/false> ( getTaxVertex(), desc );
 
 	// determine Simple attribute
 	initSimple();
