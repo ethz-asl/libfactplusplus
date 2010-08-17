@@ -364,17 +364,26 @@ public class FaCTPlusPlusReasoner extends OWLReasonerBase {
 
         protected Map<P, E> pointer2EntityMap = new HashMap<P, E>();
 
+        protected void fillEntityPointerMaps ( E entity, P pointer ) {
+            entity2PointerMap.put(entity, pointer);
+            pointer2EntityMap.put(pointer, entity);
+        }
+
         protected OWLEntityTranslator() {
             E topEntity = getTopEntity();
             if (topEntity != null) {
-                entity2PointerMap.put(topEntity, getTopEntityPointer());
-                pointer2EntityMap.put(getTopEntityPointer(), topEntity);
+                fillEntityPointerMaps(topEntity, getTopEntityPointer());
             }
             E bottomEntity = getBottomEntity();
             if (bottomEntity != null) {
-                entity2PointerMap.put(bottomEntity, getBottomEntityPointer());
-                pointer2EntityMap.put(getBottomEntityPointer(), bottomEntity);
+                fillEntityPointerMaps(bottomEntity, getBottomEntityPointer());
             }
+        }
+
+        protected P registerNewEntity(E entity) {
+            P pointer = createPointerForEntity(entity);
+            fillEntityPointerMaps(entity, pointer);
+            return pointer;
         }
 
         public E getEntityFromPointer(P pointer) {
@@ -391,9 +400,7 @@ public class FaCTPlusPlusReasoner extends OWLReasonerBase {
             else {
                 P pointer = entity2PointerMap.get(entity);
                 if (pointer == null) {
-                    pointer = createPointerForEntity(entity);
-                    entity2PointerMap.put(entity, pointer);
-                    pointer2EntityMap.put(pointer, entity);
+                    pointer = registerNewEntity(entity);
                 }
                 return pointer;
             }
