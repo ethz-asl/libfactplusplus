@@ -305,6 +305,9 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
 	if ( DTName == "http://www.w3.org/2000/01/rdf-schema#Literal" )
 		return DataType ( env, EM->getStrDataType() );
 
+	if ( DTName == "http://www.w3.org/1999/02/22-rdf-syntax-ns#PlainLiteral" )
+		return DataType ( env, EM->getStrDataType() );
+
 	if ( DTName == "http://www.w3.org/2001/XMLSchema#string" )
 		return DataType ( env, EM->getStrDataType() );
 	if ( DTName == "http://www.w3.org/2001/XMLSchema#anyURI" )
