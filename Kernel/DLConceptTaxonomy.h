@@ -83,10 +83,10 @@ protected:	// methods
 	{
 		++nSubCalls;
 
-		if ( cur->isValued() )
+		if ( cur->isValued(valueLabel) )
 			return cur->getValue();
 		else
-			return cur->setValued(enhancedSubs1(upDirection, cur));
+			return cur->setValued ( enhancedSubs1 ( upDirection, cur ), valueLabel );
 	}
 		/// explicetely test appropriate subsumption relation
 	bool testSubsumption ( bool upDirection, TaxonomyVertex* cur );

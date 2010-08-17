@@ -100,6 +100,8 @@ protected:	// members
 		/// array of taxonomy verteces
 	SetOfVertex Graph;
 
+		/// labellers for marking taxonomy
+	TLabeller checkLabel, valueLabel;
 		/// aux. vertex to be included to taxonomy
 	TaxonomyVertex* Current;
 		/// pointer to currently classified entry
@@ -235,11 +237,11 @@ protected:	// methods
 	void getRelativesInfoRec ( TaxonomyVertex* node, Actor& actor )
 	{
 		// recursive applicability checking
-		if ( node->isChecked() )
+		if ( node->isChecked(checkLabel) )
 			return;
 
 		// label node as visited
-		node->setChecked();
+		node->setChecked(checkLabel);
 
 		// if current node processed OK and there is no need to continue -- exit
 		// if node is NOT processed for some reasons -- go to another level
@@ -314,9 +316,9 @@ public:		// interface
 		/// classify given entry: general method is by DFS
 	void classifyEntry ( ClassifiableEntry* p );
 		/// clear the CHECKED label from all the taxonomy vertex
-	void clearCheckedLabel ( void ) { TaxonomyVertex::clearChecked(); }
+	void clearCheckedLabel ( void ) { checkLabel.newLab(); }
  		/// clear all labels from Taxonomy verteces
-	void clearLabels ( void ) { TaxonomyVertex::clearAllLabels(); }
+	void clearLabels ( void ) { checkLabel.newLab(); valueLabel.newLab(); }
 
 	// flags interface
 

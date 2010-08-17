@@ -116,7 +116,7 @@ void DLConceptTaxonomy :: print ( std::ostream& o ) const
 void DLConceptTaxonomy :: searchBaader ( bool upDirection, TaxonomyVertex* cur )
 {
 	// label 'visited'
-	cur->setChecked();
+	cur->setChecked(checkLabel);
 
 	++nSearchCalls;
 	bool noPosSucc = true;
@@ -125,15 +125,15 @@ void DLConceptTaxonomy :: searchBaader ( bool upDirection, TaxonomyVertex* cur )
 	for ( TaxonomyVertex::iterator p = cur->begin(upDirection), p_end = cur->end(upDirection); p < p_end; ++p )
 		if ( enhancedSubs ( upDirection, *p ) )
 		{
-			if ( !(*p)->isChecked() )
+			if ( !(*p)->isChecked(checkLabel) )
 				searchBaader ( upDirection, *p );
 
 			noPosSucc = false;
 		}
 
 	// in case current node is unchecked (no BOTTOM node) -- check it explicitely
-	if ( !cur->isValued() )
-		cur->setValued ( testSubsumption ( upDirection, cur ) );
+	if ( !cur->isValued(valueLabel) )
+		cur->setValued ( testSubsumption ( upDirection, cur ), valueLabel );
 
 	// mark labelled leaf node as a parent
 	if ( noPosSucc && cur->getValue() )

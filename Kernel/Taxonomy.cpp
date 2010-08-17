@@ -112,8 +112,8 @@ void Taxonomy :: generalTwoPhaseClassification ( void )
 	// run TD phase if necessary (ie, entry is completely defined)
 	if ( needTopDown() )
 	{
-		getTop()->setValued(true);		// C [= TOP == true
-		getBottom()->setValued(false);	// C [= BOT == false (catched by UNSAT)
+		getTop()->setValued ( true, valueLabel );		// C [= TOP == true
+		getBottom()->setValued ( false, valueLabel );	// C [= BOT == false (catched by UNSAT)
 		runTopDown();
 	}
 
@@ -127,7 +127,7 @@ void Taxonomy :: generalTwoPhaseClassification ( void )
 	// run BU if necessary
 	if ( needBottomUp() )
 	{
-		getBottom()->setValued(true);	// BOT [= C == true
+		getBottom()->setValued ( true, valueLabel );	// BOT [= C == true
 		runBottomUp();
 	}
 
@@ -176,7 +176,7 @@ void Taxonomy :: setNonRedundantCandidates ( void )
 
 		// if a child is labelled, remove it from parents candidates
 		for ( ; q < q_end; ++q )
-			if ( (*q)->isValued() )
+			if ( (*q)->isValued(valueLabel) )
 			{
 #			ifdef WARN_EXTRA_SUBSUMPTION
 				std::cout << "\nCTAX!!: Definition (implies '" << curEntry->getName()
@@ -221,14 +221,14 @@ void
 Taxonomy :: propagateTrueUp ( TaxonomyVertex* node )
 {
 	// if taxonomy class already checked -- do nothing
-	if ( node->isValued() )
+	if ( node->isValued(valueLabel) )
 	{
 		fpp_assert ( node->getValue() );
 		return;
 	}
 
 	// overwise -- value it...
-	node->setValued(true);
+	node->setValued ( true, valueLabel );
 
 	// ... and value all parents
 	for ( iterator p = node->begin(/*upDirection=*/true), p_end = node->end(/*upDirection=*/true); p < p_end; ++p )
@@ -239,11 +239,11 @@ void
 Taxonomy :: propagateOneCommon ( TaxonomyVertex* node, TaxonomyLink& visited )
 {
 	// checked if node already was visited this session
-	if ( node->isChecked() )
+	if ( node->isChecked(checkLabel) )
 		return;
 
 	// mark node visited
-	node->setChecked();
+	node->setChecked(checkLabel);
 	node->setCommon();
 	visited.push_back(node);
 
@@ -251,8 +251,6 @@ Taxonomy :: propagateOneCommon ( TaxonomyVertex* node, TaxonomyLink& visited )
 	for ( iterator p = node->begin(/*upDirection=*/false), p_end = node->end(/*upDirection=*/false); p < p_end; ++p )
 		propagateOneCommon ( *p, visited );
 }
-
-
 
 //-----------------------------------------------------------------
 //--	DFS-based classification methods

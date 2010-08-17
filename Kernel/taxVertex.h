@@ -47,9 +47,6 @@ protected:	// members
 		/// synonyms of the sample entry
 	EqualNames synonyms;
 
-		/// labellers for marking taxonomy
-	static TLabeller checkLab, valuedLab;
-
 	// labels for different purposes. all for 2 directions: top-down and bottom-up search
 
 		/// flag if given vertex was checked; connected with checkLab
@@ -76,15 +73,15 @@ protected:	// methods
 public:		// flags interface
 
 	// checked part
-	bool isChecked ( void ) const { return checkLab.isLabelled(theChecked); }
-	void setChecked ( void ) { checkLab.set(theChecked); }
+	bool isChecked ( const TLabeller& checkLab ) const { return checkLab.isLabelled(theChecked); }
+	void setChecked ( const TLabeller& checkLab ) { checkLab.set(theChecked); }
 
 	// value part
-	bool isValued ( void ) const { return valuedLab.isLabelled(theValued); }
+	bool isValued ( const TLabeller& valueLab ) const { return valueLab.isLabelled(theValued); }
 	bool getValue ( void ) const { return checkValue; }
-	bool setValued ( bool val )
+	bool setValued ( bool val, const TLabeller& valueLab )
 	{
-		valuedLab.set(theValued);
+		valueLab.set(theValued);
 		checkValue = val;
 		return val;
 	}
@@ -102,15 +99,11 @@ public:		// flags interface
 		return false;
 	}
 
-		/// clear checked flag
-	static void clearChecked ( void ) { checkLab.newLab(); }
-		/// clear all flags
-	static void clearAllLabels ( void ) { clearChecked(); valuedLab.newLab(); }
 		/// put initial values on the flags
 	void initFlags ( void )
 	{
-		checkLab.clear(theChecked);
-		valuedLab.clear(theValued);
+		TLabeller::clear(theChecked);
+		TLabeller::clear(theValued);
 		clearCommon();
 	}
 

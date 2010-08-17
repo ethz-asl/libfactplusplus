@@ -23,9 +23,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "taxVertex.h"
 #include "logging.h"
 
-TLabeller TaxonomyVertex :: checkLab;
-TLabeller TaxonomyVertex :: valuedLab;
-
 // removes given pointer from neigh.
 bool TaxonomyVertex :: removeLink ( bool upDirection, TaxonomyVertex* p )
 {
