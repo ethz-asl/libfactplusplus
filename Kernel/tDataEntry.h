@@ -178,7 +178,7 @@ class TDataEntry: public TNamedEntry
 {
 private:	// members
 		/// label to use in relevant-only checks
-	TLabeller::LabType rel;
+	TLabeller::LabelType rel;
 
 protected:	// members
 		/// corresponding type (Type has NULL in the field)

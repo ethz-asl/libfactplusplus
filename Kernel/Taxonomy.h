@@ -316,9 +316,9 @@ public:		// interface
 		/// classify given entry: general method is by DFS
 	void classifyEntry ( ClassifiableEntry* p );
 		/// clear the CHECKED label from all the taxonomy vertex
-	void clearCheckedLabel ( void ) { checkLabel.newLab(); }
+	void clearCheckedLabel ( void ) { checkLabel.newLabel(); }
  		/// clear all labels from Taxonomy verteces
-	void clearLabels ( void ) { checkLabel.newLab(); valueLabel.newLab(); }
+	void clearLabels ( void ) { checkLabel.newLabel(); valueLabel.newLabel(); }
 
 	// flags interface
 

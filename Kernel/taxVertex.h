@@ -50,9 +50,9 @@ protected:	// members
 	// labels for different purposes. all for 2 directions: top-down and bottom-up search
 
 		/// flag if given vertex was checked; connected with checkLab
-	TLabeller::LabType theChecked;
+	TLabeller::LabelType theChecked;
 		/// flag if given vertex has value; connected with valuedLab
-	TLabeller::LabType theValued;
+	TLabeller::LabelType theValued;
 		/// number of common parents of a node
 	unsigned int common;
 		/// satisfiability value of a valued vertex

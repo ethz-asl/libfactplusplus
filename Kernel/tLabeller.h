@@ -30,15 +30,15 @@ class TLabeller
 {
 private:	// internal type definition
 		/// type of a counter
-	typedef TCounter<unsigned int> LabCounter;
+	typedef TCounter<unsigned int> LabelCounter;
 
 public:		// type interface
 		/// define integral type of a label
-	typedef LabCounter::IntType LabType;
+	typedef LabelCounter::IntType LabelType;
 
 protected:	// members
 		/// counter
-	LabCounter counter;
+	LabelCounter counter;
 
 public:		// interface
 		/// init c'tor
@@ -57,7 +57,7 @@ public:		// interface
 	// operations with Labeller
 
 		/// create a new label value
-	void newLab ( void )
+	void newLabel ( void )
 	{
 		counter.inc();
 		fpp_assert ( counter.val() != 0 );
@@ -66,11 +66,11 @@ public:		// interface
 	// operations with Labels
 
 		/// set given label's value to the counter's one
-	void set ( LabType& lab ) const { lab = counter.val(); }
+	void set ( LabelType& lab ) const { lab = counter.val(); }
 		/// clear given label's value (independent of a labeller)
-	static void clear ( LabType& lab ) { lab = 0; }
+	static void clear ( LabelType& lab ) { lab = 0; }
 		/// check if given label is labelled
-	bool isLabelled ( const LabType& lab ) const { return (lab == counter.val()); }
+	bool isLabelled ( const LabelType& lab ) const { return (lab == counter.val()); }
 }; // TLabeller
 
 #endif

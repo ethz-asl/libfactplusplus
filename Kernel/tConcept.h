@@ -69,7 +69,7 @@ class TConcept: public ClassifiableEntry
 {
 private:	// members
 		/// label to use in relevant-only checks
-	TLabeller::LabType rel;
+	TLabeller::LabelType rel;
 
 protected:	// types
 		/// set of extra rules

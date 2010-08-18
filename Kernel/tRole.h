@@ -69,7 +69,7 @@ protected:	// members
 	BipolarPointer Functional;
 
 		/// is role relevant to current query
-	TLabeller::LabType rel;
+	TLabeller::LabelType rel;
 
 #ifdef RKG_USE_SORTED_REASONING
 		/// label of a domain (inverse role is used for a range label)

@@ -761,7 +761,7 @@ protected:	// methods
 		markGCIsRelevant();
 	}
 		/// clear all relevance info
-	void clearRelevanceInfo ( void ) { relevance.newLab(); }
+	void clearRelevanceInfo ( void ) { relevance.newLabel(); }
 		/// gather relevance statistic for the whole KB
 	void gatherRelevanceInfo ( void );
 		/// put relevance information to a concept's data
