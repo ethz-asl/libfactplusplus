@@ -167,6 +167,8 @@ public:		// interface
 	TRole* inverse ( void ) { fpp_assert (Inverse != NULL); return resolveSynonym(Inverse); }
 		/// get inverse of given role (const version)
 	const TRole* inverse ( void ) const { fpp_assert (Inverse != NULL); return resolveSynonym(Inverse); }
+		/// get real inverse of a role (RO)
+	const TRole* realInverse ( void ) const { fpp_assert (Inverse != NULL); return Inverse; }
 		/// set inverse to given role
 	void setInverse ( TRole* p ) { fpp_assert (Inverse == NULL); Inverse = p; }
 
