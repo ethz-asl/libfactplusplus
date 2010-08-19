@@ -50,6 +50,16 @@ extern "C" {
 #	define TRACE_ARG(env,obj,arg) (void)NULL
 #endif
 
+/*
+ * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
+ * Method:    initMethodsFieldsIDs
+ * Signature: ()V
+ */
+JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_initMethodsFieldsIDs
+  (JNIEnv * env, jclass cls)
+{
+}
+
 //-------------------------------------------------------------
 // Kernel management (like newKB/curKB/releaseKB)
 //-------------------------------------------------------------

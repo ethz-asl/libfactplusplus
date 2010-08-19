@@ -24,7 +24,14 @@ public class FaCTPlusPlus {
 	    { System.loadLibrary("FaCTPlusPlusJNI"); }
 	else
 	    { System.load(System.getProperty("factpp.jni.path")); }
+	// init all the IDs used 
+	initMethodsFieldsIDs();
     }
+
+    /**
+     * Used to initialise methods and fields that will be used by the native implementation
+     */
+    private static native void initMethodsFieldsIDs();
 
     /**
      * Set internally on the native side - DO NOT ALTER!
