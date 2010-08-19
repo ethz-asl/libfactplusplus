@@ -11,20 +11,14 @@ package uk.ac.manchester.cs.factplusplus;
  */
 public class Pointer {
 
-    private long id = 0;
-
     private long node = 0;
-
-    public long getId() {
-        return id;
-    }
 
     public long getNode() {
         return node;
     }
 
     public int hashCode() {
-        return (int)(id != 0 ? id : node);
+        return (int)node;
     }
 
     public boolean equals(Object obj) {
@@ -32,15 +26,10 @@ public class Pointer {
             return false;
         }
 
-        if(id != 0) {
-            return ((Pointer) obj).id == id;
-        }
-        else {
-            return ((Pointer) obj).node == node;
-        }
+        return ((Pointer) obj).node == node;
     }
 
     public String toString() {
-        return "[" + id + ", " + node + "]";
+        return "[" + node + "]";
     }
 }

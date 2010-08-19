@@ -136,10 +136,7 @@ ReasoningKernel* getK ( JNIEnv * env, jobject obj )
 
 	// this is a pointer -- should not be NULL
 	if ( id == 0 )
-	{
 		Throw ( env, "Uninitialized FaCT++ kernel found" );
-		return NULL;
-	}
 
 	return (ReasoningKernel*)id;
 }
@@ -247,31 +244,8 @@ TDLAxiom* getAxiom ( JNIEnv * env, jobject obj )
 	return (TDLAxiom*)getPointer(env,obj);
 }
 
-// check it pointer is a named concept
-template<class T>
 inline
-jlong getId ( T* p ATTR_UNUSED ) { return 0; }
-
-// specialisation for the DLTree
-template<>
-inline
-jlong getId ( DLTree* p )
-{
-	switch ( p->Element().getToken() )
-	{
-	case TOP:		return 1;
-	case BOTTOM:	return -1;
-	case NAME:
-#	ifdef JNI_TRACING
-		std::cerr << "ID for " << TokenName(p->Element().getToken()) << p << ": " << (jlong)p->Element().getNE() << "\n";
-#	endif
-		return (jlong)p->Element().getNE();
-	default:		return 0;
-	}
-}
-
-template<class T>
-jobject retObject ( JNIEnv * env, T* t, const char* className )
+jobject retObject ( JNIEnv * env, const void* t, const char* className )
 {
 	if ( t == NULL )
 	{
@@ -314,23 +288,6 @@ jobject retObject ( JNIEnv * env, T* t, const char* className )
 
 	// put the value to return
 	env->SetLongField ( obj, fid, (jlong)t );
-
-	// set unique name (if necessary)
-	jlong id = getId(t);
-
-	if ( id )	// t is a DLTree*
-	{
-		fid = env->GetFieldID ( classPointer, "id", "J" );
-
-		if ( fid == 0 )
-		{
-			Throw ( env, "Can't get 'id' field" );
-			return (jobject)0;
-		}
-
-		// put the value to return
-		env->SetLongField ( obj, fid, id );
-	}
 
 	return obj;
 }
