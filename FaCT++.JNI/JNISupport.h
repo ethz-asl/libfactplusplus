@@ -124,28 +124,15 @@ void ThrowRIC ( JNIEnv* env, const char* reason )
 	ThrowExc ( env, reason, "Luk/ac/manchester/cs/factplusplus/RoleInclusionCycleException;" );
 }
 
+/// field for Kernel's ID
+extern "C" jfieldID KernelFID;
+
 /// get Kernel local to given object
 // as a side effect sets up curKernel
 inline
 ReasoningKernel* getK ( JNIEnv * env, jobject obj )
 {
-	jclass classThis = env->GetObjectClass(obj);
-
-	if ( classThis == 0 )
-	{
-		Throw ( env, "Can't get class of 'this'" );
-		return NULL;
-	}
-
-	jfieldID fid = env->GetFieldID ( classThis, "KernelId", "J" );
-
-	if ( fid == 0 )
-	{
-		Throw ( env, "Can't get 'KernelId' field" );
-		return NULL;
-	}
-
-	jlong id = env->GetLongField ( obj, fid );
+	jlong id = env->GetLongField ( obj, KernelFID );
 
 	// this is a pointer -- should not be NULL
 	if ( id == 0 )

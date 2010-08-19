@@ -50,6 +50,13 @@ extern "C" {
 #	define TRACE_ARG(env,obj,arg) (void)NULL
 #endif
 
+//-------------------------------------------------------------
+// Different fields/method IDs and their setup
+//-------------------------------------------------------------
+
+/// field for Kernel's ID
+jfieldID KernelFID;
+
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
  * Method:    initMethodsFieldsIDs
@@ -58,6 +65,13 @@ extern "C" {
 JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_initMethodsFieldsIDs
   (JNIEnv * env, jclass cls)
 {
+	KernelFID = env->GetFieldID ( cls, "KernelId", "J" );
+
+	if ( KernelFID == 0 )
+	{
+		Throw ( env, "Can't get 'KernelId' field" );
+		return;
+	}
 }
 
 //-------------------------------------------------------------
@@ -72,19 +86,9 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_initMe
 JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_initKernel
   (JNIEnv * env, jobject obj)
 {
-	jclass classThis = env->GetObjectClass(obj);
-
-	if ( classThis == 0 )
-		ThrowGen ( env, "Can't get class of 'this'" );
-
-	jfieldID fid = env->GetFieldID ( classThis, "KernelId", "J" );
-
-	if ( fid == 0 )
-		ThrowGen ( env, "Can't get 'KernelId' field" );
-
 	// create new kernel and save it in an FaCTPlusPlus object
 	ReasoningKernel* Kernel = new ReasoningKernel();
-	env->SetLongField ( obj, fid, (jlong)Kernel );
+	env->SetLongField ( obj, KernelFID, (jlong)Kernel );
 	TRACE_JNI("initKernel");
 
 #ifdef _USE_LOGGING
