@@ -57,6 +57,18 @@ extern "C" {
 /// field for Kernel's ID
 jfieldID KernelFID;
 
+/// IDs for different Java interface classes
+TClassFieldMethodIDs
+	ClassPointer,
+	IndividualPointer,
+	ObjectPropertyPointer,
+	DataPropertyPointer,
+	DataTypePointer,
+	DataTypeExpressionPointer,
+	DataValuePointer,
+	DataTypeFacet,
+	AxiomPointer;
+
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
  * Method:    initMethodsFieldsIDs
@@ -72,6 +84,17 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_initMe
 		Throw ( env, "Can't get 'KernelId' field" );
 		return;
 	}
+
+	// init IDs for different classes
+	ClassPointer.init(env,"[Luk/ac/manchester/cs/factplusplus/ClassPointer;");
+	IndividualPointer.init(env,"[Luk/ac/manchester/cs/factplusplus/IndividualPointer;");
+	ObjectPropertyPointer.init(env,"[Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;");
+	DataPropertyPointer.init(env,"[Luk/ac/manchester/cs/factplusplus/DataPropertyPointer;");
+	DataTypePointer.init(env,"[Luk/ac/manchester/cs/factplusplus/DataTypePointer;");
+	DataTypeExpressionPointer.init(env,"[Luk/ac/manchester/cs/factplusplus/DataTypeExpressionPointer;");
+	DataValuePointer.init(env,"[Luk/ac/manchester/cs/factplusplus/DataValuePointer;");
+	DataTypeFacet.init(env,"[Luk/ac/manchester/cs/factplusplus/DataTypeFacet;");
+	AxiomPointer.init(env,"[Luk/ac/manchester/cs/factplusplus/AxiomPointer;");
 }
 
 //-------------------------------------------------------------
@@ -1803,7 +1826,7 @@ JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlu
 	std::vector<TExpr*> acc;
 	for ( ReasoningKernel::NamesVector::const_iterator p = Rs.begin(), p_end = Rs.end(); p < p_end; ++p )
 		acc.push_back(getOName(env,obj,(*p)->getName()));
-	return buildArray ( env, acc, cnObjectPropertyPointer() );
+	return buildArray ( env, acc, ObjectPropertyPointer );
 }
 
 /*
@@ -1822,7 +1845,7 @@ JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlu
 	std::vector<TExpr*> acc;
 	for ( ReasoningKernel::NamesVector::const_iterator p = Js.begin(), p_end = Js.end(); p < p_end; ++p )
 		acc.push_back(getIName(env,obj,(*p)->getName()));
-	return buildArray ( env, acc, cnIndividualPointer() );
+	return buildArray ( env, acc, IndividualPointer );
 }
 
 /*
@@ -1840,7 +1863,7 @@ JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlu
 	std::vector<TExpr*> acc;
 	for ( ReasoningKernel::NamesVector::const_iterator p = Rs.begin(), p_end = Rs.end(); p < p_end; ++p )
 		acc.push_back(getDName(env,obj,(*p)->getName()));
-	return buildArray ( env, acc, cnDataPropertyPointer() );
+	return buildArray ( env, acc, DataPropertyPointer );
 }
 
 /*
@@ -1862,7 +1885,7 @@ JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlu
 	std::vector<TExpr*> acc;
 	for ( ReasoningKernel::NamesVector::const_iterator p = Js.begin(), p_end = Js.end(); p < p_end; ++p )
 		acc.push_back(new TExpr(TLexeme(DATAEXPR,const_cast<TNamedEntry*>(*p))));
-	return buildArray ( env, acc, cnDataValuePointer() );
+	return buildArray ( env, acc, DataValuePointer );
 #endif
 }
 

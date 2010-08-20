@@ -48,7 +48,7 @@ protected:	// members
 protected:	// methods
 		/// create vector of Java objects by given SynVector
 	jobjectArray getArray ( const SynVector& vec ) const
-		{ return buildArray ( env, vec, AccessPolicy::getClassName() ); }
+		{ return buildArray ( env, vec, AccessPolicy::getIDs() ); }
 		/// try current entry
 	void tryEntry ( const ClassifiableEntry* p )
 	{
@@ -73,10 +73,8 @@ public:		// interface
 	{
 		if ( AccessPolicy::needPlain() )
 			return getArray(plain);
-		std::string objArrayName("[");
-		objArrayName += AccessPolicy::getClassName();
-		jclass objClass = env->FindClass(objArrayName.c_str());
-		jobjectArray ret = env->NewObjectArray ( acc.size(), objClass, NULL );
+		jclass ArrayClassID = env->FindClass(AccessPolicy::getIDs().ArrayClassName);
+		jobjectArray ret = env->NewObjectArray ( acc.size(), ArrayClassID, NULL );
 		for ( unsigned int i = 0; i < acc.size(); ++i )
 			env->SetObjectArrayElement ( ret, i, getArray(acc[i]) );
 		return ret;
@@ -111,7 +109,7 @@ public:		// interface
 class ClassPolicy
 {
 public:
-	static const char* getClassName ( void ) { return cnClassPointer(); }
+	static const TClassFieldMethodIDs& getIDs ( void ) { return ClassPointer; }
 	static bool applicable ( const ClassifiableEntry* p )
 		{ return !static_cast<const TConcept*>(p)->isSingleton(); }
 	static bool needPlain ( void ) { return false; }
@@ -137,7 +135,7 @@ template<bool plain>
 class IndividualPolicy
 {
 public:
-	static const char* getClassName ( void ) { return cnIndividualPointer(); }
+	static const TClassFieldMethodIDs& getIDs ( void ) { return IndividualPointer; }
 	static bool applicable ( const ClassifiableEntry* p )
 		{ return static_cast<const TConcept*>(p)->isSingleton(); }
 	static bool needPlain ( void ) { return plain; }
@@ -149,7 +147,7 @@ public:
 class ObjectPropertyPolicy
 {
 public:
-	static const char* getClassName ( void ) { return cnObjectPropertyPointer(); }
+	static const TClassFieldMethodIDs& getIDs ( void ) { return ObjectPropertyPointer; }
 	static bool applicable ( const ClassifiableEntry* p ) { return p->getId() > 0; }
 	static bool needPlain ( void ) { return false; }
 	static TExpr* buildTree ( TExpressionManager* EM, const ClassifiableEntry* p )
@@ -160,7 +158,7 @@ public:
 class DataPropertyPolicy
 {
 public:
-	static const char* getClassName ( void ) { return cnDataPropertyPointer(); }
+	static const TClassFieldMethodIDs& getIDs ( void ) { return DataPropertyPointer; }
 	static bool applicable ( const ClassifiableEntry* p ) { return p->getId() > 0; }
 	static bool needPlain ( void ) { return false; }
 	static TExpr* buildTree ( TExpressionManager* EM, const ClassifiableEntry* p )

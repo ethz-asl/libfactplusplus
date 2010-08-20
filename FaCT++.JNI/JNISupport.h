@@ -145,6 +145,68 @@ ReasoningKernel* getK ( JNIEnv * env, jobject obj )
 inline
 TExpressionManager* getEM ( JNIEnv * env, jobject obj ) { return getK(env,obj)->getExpressionManager(); }
 
+//------------------------------------------------------
+// Keeps class names and field IDs for different Java classes in FaCT++ interface
+//------------------------------------------------------
+
+/// keep class, Node field and c'tor of an interface class
+class TClassFieldMethodIDs
+{
+public:		// members
+		/// class name
+	const char* ClassName;
+		/// array class type
+	const char* ArrayClassName;
+		/// c'tor type
+	jmethodID CtorID;
+		/// 'node' field
+	jfieldID NodeFID;
+
+public:		// interface
+		/// init values by class name
+	void init ( JNIEnv* env, const char* arrayClassName )
+	{
+		ArrayClassName = arrayClassName;
+		ClassName = ArrayClassName+1;
+		jclass ClassID = env->FindClass(ClassName);
+		if ( ClassID == 0 )
+		{
+			Throw ( env, "Can't get class for Pointer" );
+			return;
+		}
+
+		CtorID = env->GetMethodID ( ClassID, "<init>", "()V" );
+		if ( CtorID == 0 )
+		{
+			Throw ( env, "Can't get c'tor for Pointer" );
+			return;
+		}
+
+		NodeFID = env->GetFieldID ( ClassID, "node", "J" );
+		if ( NodeFID == 0 )
+		{
+			Throw ( env, "Can't get 'node' field" );
+			return;
+		}
+	}
+}; // TClassFieldMethodIDs
+
+/// IDs for different Java interface classes
+extern
+#ifdef __cplusplus
+		"C"
+#endif
+TClassFieldMethodIDs
+	ClassPointer,
+	IndividualPointer,
+	ObjectPropertyPointer,
+	DataPropertyPointer,
+	DataTypePointer,
+	DataTypeExpressionPointer,
+	DataValuePointer,
+	DataTypeFacet,
+	AxiomPointer;
+
 // get trees for the names in the unified way
 
 /// get tree for the class name by the EM and the name
@@ -245,7 +307,7 @@ TDLAxiom* getAxiom ( JNIEnv * env, jobject obj )
 }
 
 inline
-jobject retObject ( JNIEnv * env, const void* t, const char* className )
+jobject retObject ( JNIEnv * env, const void* t, const TClassFieldMethodIDs& ID )
 {
 	if ( t == NULL )
 	{
@@ -253,41 +315,20 @@ jobject retObject ( JNIEnv * env, const void* t, const char* className )
 		return (jobject)0;
 	}
 
-	jclass classPointer = env->FindClass(className);
-
-	if ( classPointer == 0 )
+	jclass ClassID = env->FindClass(ID.ClassName);
+	if ( ClassID == 0 )
 	{
 		Throw ( env, "Can't get class for Pointer" );
-		return (jobject)0;
-	}
-
-	jmethodID methodCtor = env->GetMethodID ( classPointer, "<init>", "()V" );
-
-	if ( methodCtor == 0 )
-	{
-		Throw ( env, "Can't get c'tor for Pointer" );
-		return (jobject)0;
+		return 0;
 	}
 
 	// create an object to return
-	jobject obj = env->NewObject ( classPointer, methodCtor );
+	jobject obj = env->NewObject ( ClassID, ID.CtorID );
 
 	if ( obj == 0 )
-	{
 		Throw ( env, "Can't create Pointer object" );
-		return (jobject)0;
-	}
-
-	jfieldID fid = env->GetFieldID ( classPointer, "node", "J" );
-
-	if ( fid == 0 )
-	{
-		Throw ( env, "Can't get 'node' field" );
-		return (jobject)0;
-	}
-
-	// put the value to return
-	env->SetLongField ( obj, fid, (jlong)t );
+	else	// set the return value
+		env->SetLongField ( obj, ID.NodeFID, (jlong)t );
 
 	return obj;
 }
@@ -295,71 +336,71 @@ jobject retObject ( JNIEnv * env, const void* t, const char* className )
 inline
 jobject Class ( JNIEnv * env, TConceptExpr* t )
 {
-	return retObject ( env, t, cnClassPointer() );
+	return retObject ( env, t, ClassPointer );
 }
 
 inline
 jobject Individual ( JNIEnv * env, TIndividualExpr* t )
 {
-	return retObject ( env, t, cnIndividualPointer() );
+	return retObject ( env, t, IndividualPointer );
 }
 
 inline
 jobject ObjectProperty ( JNIEnv * env, TORoleExpr* t )
 {
-	return retObject ( env, t, cnObjectPropertyPointer() );
+	return retObject ( env, t, ObjectPropertyPointer );
 }
 
 inline
 jobject ObjectComplex ( JNIEnv * env, TORoleComplexExpr* t )
 {
-	return retObject ( env, t, cnObjectPropertyPointer() );
+	return retObject ( env, t, ObjectPropertyPointer );
 }
 
 inline
 jobject DataProperty ( JNIEnv * env, TDRoleExpr* t )
 {
-	return retObject ( env, t, cnDataPropertyPointer() );
+	return retObject ( env, t, DataPropertyPointer );
 }
 
 inline
 jobject DataType ( JNIEnv * env, TDataExpr* t )
 {
-	return retObject ( env, t, cnDataTypePointer() );
+	return retObject ( env, t, DataTypePointer );
 }
 
 inline
 jobject DataTypeExpression ( JNIEnv * env, TDataExpr* t )
 {
-	return retObject ( env, t, cnDataTypeExpressionPointer() );
+	return retObject ( env, t, DataTypeExpressionPointer );
 }
 
 inline
 jobject DataValue ( JNIEnv * env, TDataValueExpr* t )
 {
-	return retObject ( env, t, cnDataValuePointer() );
+	return retObject ( env, t, DataValuePointer );
 }
 
 inline
 jobject Facet ( JNIEnv * env, TFacetExpr* t )
 {
-	return retObject ( env, t, "Luk/ac/manchester/cs/factplusplus/DataTypeFacet;" );
+	return retObject ( env, t, DataTypeFacet );
 }
 
 inline
 jobject Axiom ( JNIEnv * env, TDLAxiom* t )
 {
-	return retObject ( env, t, "Luk/ac/manchester/cs/factplusplus/AxiomPointer;" );
+	return retObject ( env, t, AxiomPointer );
 }
 
 /// create vector of Java objects of class CLASSNAME by given VEC
 inline
-jobjectArray buildArray ( JNIEnv* env, const std::vector<TExpr*>& vec, const char* className )
+jobjectArray buildArray ( JNIEnv* env, const std::vector<TExpr*>& vec, const TClassFieldMethodIDs& ID )
 {
-	jclass objClass = env->FindClass(className);
-	jobjectArray ret = env->NewObjectArray ( vec.size(), objClass, NULL );
+	jclass ClassID = env->FindClass(ID.ClassName);
+	jobjectArray ret = env->NewObjectArray ( vec.size(), ClassID, NULL );
 	for ( unsigned int i = 0; i < vec.size(); ++i )
-		env->SetObjectArrayElement ( ret, i, retObject ( env, vec[i], className ) );
+		env->SetObjectArrayElement ( ret, i, retObject ( env, vec[i], ID ) );
 	return ret;
 }
 
