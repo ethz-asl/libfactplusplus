@@ -146,6 +146,21 @@ protected:	// methods
 		checkTransition ( from, trans->final() );
 		Base[from].push_back(trans);
 	}
+		/// add TRANSition leading from a state FROM; if there is such link, just copy labels
+	void addTransitionIfNew ( RAState from, RATransition* trans )
+	{
+		TTransitions& From = Base[from];
+		RAState to = trans->final();
+		for ( trans_iterator p = From.begin(), p_end = From.end(); p != p_end; ++p )
+			if ( (*p)->final() == to )
+			{	// found existing transition
+				(*p)->add(*trans);
+				delete trans;
+				return;
+			}
+		// new transition
+		addTransition ( from, trans );
+	}
 
 		/// make the internal chain transition (between chainState and TO)
 	void nextChainTransition ( RAState to )

@@ -49,9 +49,13 @@ RoleAutomaton :: addCopy ( const RoleAutomaton& RA )
 	for ( RAState i = 0; i < RA.size(); ++i )
 		for ( const_trans_iterator p = RA.begin(i), p_end = RA.end(i); p != p_end; ++p )
 		{
-			RATransition* trans = new RATransition(map[(*p)->final()]);
+			RAState to = (*p)->final();
+			RATransition* trans = new RATransition(map[to]);
 			trans->add(**p);
-			Base[map[i]].push_back(trans);
+			if ( to == 1 )	// try to merge transitions going to the final state
+				addTransitionIfNew ( map[i], trans );
+			else
+				Base[map[i]].push_back(trans);
 		}
 }
 
