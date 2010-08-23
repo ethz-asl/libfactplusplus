@@ -389,16 +389,18 @@ tacticUsage DlSatTester :: commonTacticBodyAllComplex ( const DLVertex& cur )
 {
 	tacticUsage ret = utUnusable;
 
-	const RoleAutomaton& A = cur.getRole()->getAutomaton();
+	const TRole* R = cur.getRole();
+	const RoleAutomaton& A = R->getAutomaton();
 	const DepSet& dep = curConcept.getDep();
 	BipolarPointer C = curConcept.bp();
 	unsigned int state = cur.getState();
 	RoleAutomaton::const_trans_iterator q, end = A.end(state);
 
 	// apply all empty transitions
-	for ( q = A.begin(state); q != end; ++q )
-		if ( (*q)->empty() )
-			switchResult ( ret, addToDoEntry ( curNode, C-state+(*q)->final(), dep, "e" ) );
+	if ( R->mayFireEmptyTransition(state) )
+		for ( q = A.begin(state); q != end; ++q )
+			if ( (*q)->empty() )
+				switchResult ( ret, addToDoEntry ( curNode, C-state+(*q)->final(), dep, "e" ) );
 
 	// apply final-state rule
 	if ( state == 1 )
@@ -409,7 +411,8 @@ tacticUsage DlSatTester :: commonTacticBodyAllComplex ( const DLVertex& cur )
 
 	// check all neighbours
 	for ( DlCompletionTree::const_edge_iterator p = curNode->begin(), p_end = curNode->end(); p < p_end; ++p )
-		switchResult ( ret, applyAutomaton ( (*p), A, state, C, dep ) );
+		if ( R->mayFireTransition ( state, (*p)->getRole() ) )
+			switchResult ( ret, applyAutomaton ( (*p), A, state, C, dep ) );
 
 	return ret;
 }
@@ -418,7 +421,8 @@ tacticUsage DlSatTester :: commonTacticBodyAllSimple ( const DLVertex& cur )
 {
 	tacticUsage ret = utUnusable;
 
-	const RoleAutomaton& A = cur.getRole()->getAutomaton();
+	const TRole* R = cur.getRole();
+	const RoleAutomaton& A = R->getAutomaton();
 	const DepSet& dep = curConcept.getDep();
 	BipolarPointer C = cur.getC();
 
@@ -427,7 +431,8 @@ tacticUsage DlSatTester :: commonTacticBodyAllSimple ( const DLVertex& cur )
 
 	// check all neighbours
 	for ( DlCompletionTree::const_edge_iterator p = curNode->begin(), p_end = curNode->end(); p < p_end; ++p )
-		switchResult ( ret, applySimpleAutomaton ( (*p), A, C, dep ) );
+		if ( R->mayFireTransition ( 0, (*p)->getRole() ) )
+			switchResult ( ret, applySimpleAutomaton ( (*p), A, C, dep ) );
 
 	return ret;
 }
@@ -442,9 +447,6 @@ tacticUsage DlSatTester :: applyAutomaton ( const DlCompletionTreeArc* edge,
 											RAState state, BipolarPointer C,
 											const DepSet& dep, const char* reason )
 {
-	if ( edge->isIBlocked() )
-		return utUnusable;
-
 	RoleAutomaton::const_trans_iterator q, end = A.end(state);
 	const TRole* R = edge->getRole();
 	DlCompletionTree* node = edge->getArcEnd();
@@ -465,9 +467,6 @@ tacticUsage DlSatTester :: applySimpleAutomaton ( const DlCompletionTreeArc* edg
 												  BipolarPointer C,
 												  const DepSet& dep, const char* reason )
 {
-	if ( edge->isIBlocked() )
-		return utUnusable;
-
 	// simple automaton has the only (meta-)transition
 	if ( (*A.begin(0))->applicable(edge->getRole()) )
 		return addToDoEntry ( edge->getArcEnd(), C, dep+edge->getDep(), reason );
