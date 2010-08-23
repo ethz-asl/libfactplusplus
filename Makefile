@@ -3,7 +3,7 @@
 #
 
 # -- DO NOT CHANGE THE REST OF FILE --
-SUBDIRS = Kernel FaCT++ FaCT++.JNI
+SUBDIRS = Kernel FaCT++ FaCT++.JNI Test
 
 include Makefile.include
 

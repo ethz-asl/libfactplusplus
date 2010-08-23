@@ -245,7 +245,7 @@ public:		// interface
 		/// check whether the transitivity of a role is known
 	bool isTransitivityKnown ( void ) const { return Transitivity.isKnown(); }
 		/// set the transitivity of both role and it's inverse
-	void setBothTransitive ( void ) { Transitivity.setValue(true); inverse()->Transitivity.setValue(true); }
+	void setBothTransitive ( bool value = true ) { Transitivity.setValue(value); inverse()->Transitivity.setValue(value); }
 
 	// relevance
 

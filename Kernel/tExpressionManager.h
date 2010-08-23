@@ -37,6 +37,18 @@ isUniversalRole ( const TDLDataRoleExpression* R )
 	return dynamic_cast<const TDLDataRoleTop*>(R) != NULL;
 }
 
+inline bool
+isEmptyRole ( const TDLObjectRoleExpression* R )
+{
+	return dynamic_cast<const TDLObjectRoleBottom*>(R) != NULL;
+}
+
+inline bool
+isEmptyRole ( const TDLDataRoleExpression* R )
+{
+	return dynamic_cast<const TDLDataRoleBottom*>(R) != NULL;
+}
+
 inline TDLDataTypeName* getBasicDataType ( TDLDataTypeExpression* type )
 {
 	TDLDataTypeName* ret = dynamic_cast<TDLDataTypeName*>(type);

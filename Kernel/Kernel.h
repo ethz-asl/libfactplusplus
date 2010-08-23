@@ -230,6 +230,18 @@ protected:	// methods
 		return !checkSat ( createSNFAnd ( C, createSNFNot(D) ) );
 	}
 
+	// helper methods to query properties of roles
+
+		/// @return true if R is transitive wrt ontology
+	bool checkTransitivity ( DLTree* R )
+	{
+		// R is transitive iff \ER.\ER.C and \AR.\not C is unsatisfiable
+		DLTree* tmp = createSNFExists ( clone(R), createSNFNot(getTBox()->getFreshConcept()) );
+		tmp = createSNFExists ( clone(R), tmp );
+		tmp = createSNFAnd ( tmp, createSNFForall ( R, getTBox()->getFreshConcept() ) );
+		return !checkSat(tmp);
+	}
+
 	// get access to internal structures
 
 		/// @throw an exception if no TBox found
@@ -613,6 +625,8 @@ public:
 		preprocessKB();	// ensure KB is ready to answer the query
 		if ( isUniversalRole(R) )
 			return false;	// universal role is not functional
+		if ( isEmptyRole(R) )
+			return true;	// empty role is functional
 
 		return getRole ( R, "Role expression expected in isFunctional()" )->isFunctional();
 	}
@@ -622,6 +636,8 @@ public:
 		preprocessKB();	// ensure KB is ready to answer the query
 		if ( isUniversalRole(R) )
 			return false;	// universal role is not functional
+		if ( isEmptyRole(R) )
+			return true;	// empty role is functional
 
 		return getRole ( R, "Role expression expected in isFunctional()" )->isFunctional();
 	}
@@ -631,8 +647,24 @@ public:
 		preprocessKB();	// ensure KB is ready to answer the query
 		if ( isUniversalRole(R) )
 			return false;	// universal role is not functional
+		if ( isEmptyRole(R) )
+			return true;	// empty role is functional
 
 		return getRole ( R, "Role expression expected in isInverseFunctional()" )->inverse()->isFunctional();
+	}
+		/// @return true iff role is transitive
+	bool isTransitive ( const TORoleExpr* R )
+	{
+		preprocessKB();	// ensure KB is ready to answer the query
+		if ( isUniversalRole(R) )
+			return true;	// universal role is transitive
+		if ( isEmptyRole(R) )
+			return true;	// empty role is transitive
+
+		TRole* r = getRole ( R, "Role expression expected in isTransitive()" );
+		if ( !r->isTransitivityKnown() )	// calculate transitivity
+			r->setBothTransitive(checkTransitivity(e(R)));
+		return r->isTransitive();
 	}
 		/// @return true iff two roles are disjoint
 	bool isDisjointRoles ( const TORoleExpr* R, const TORoleExpr* S )

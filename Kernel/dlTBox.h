@@ -888,6 +888,8 @@ public:
 			return new DLTree(BOTTOM);
 		return new DLTree ( TLexeme ( isIndividual(C) ? INAME : CNAME, C ) );
 	}
+		/// get fresh concept
+	DLTree* getFreshConcept ( void ) const { return new DLTree ( TLexeme ( CNAME, pTemp ) ); }
 
 	// n-ary absorption support
 

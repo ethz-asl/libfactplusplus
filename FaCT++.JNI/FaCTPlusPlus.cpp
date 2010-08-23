@@ -1626,8 +1626,9 @@ JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_is
 {
 	TRACE_JNI("isObjectPropertyTransitive");
 	TRACE_ARG(env,obj,arg);
-	Throw ( env, "FaCT++ Kernel: unsupported operation 'isObjectPropertyTransitive'" );
-	return false;
+	bool ret = false;
+	PROCESS_ASK_QUERY ( ret=getK(env,obj)->isTransitive ( getROORoleExpr(env,arg) ),"isObjectPropertyTransitive");
+	return ret;
 }
 
 /*
