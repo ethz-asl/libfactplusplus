@@ -94,6 +94,9 @@ protected:	// members
 		/// automaton for role
 	RoleAutomaton A;
 
+		/// flag to show that this role needs special R&D processing
+	bool SpecialDomain;
+
 protected:	// methods
 	// support for Anc/Desc filling and such
 
@@ -412,6 +415,7 @@ inline TRole :: TRole ( const std::string& name )
 	, bpDomain(bpINVALID)
 	, Functional(bpINVALID)
 	, rel(0)
+	, SpecialDomain(false)
 {
 	setCompletelyDefined (true);	// role hierarchy is completely defined by it's parents
 	addTrivialTransition (this);

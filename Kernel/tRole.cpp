@@ -433,6 +433,9 @@ TRole :: addSubCompositionAutomaton ( const roleSet& RS, SetOfRoles& RInProcess 
 	if ( RS.empty() )	// fallout from transitivity axiom
 		return;
 
+	// here we need a special treatment for R&D
+	SpecialDomain = true;
+
 	// tune iterators and states
 	roleSet::const_iterator p = RS.begin(), p_last = RS.end() - 1;
 	RAState from = A.initial(), to = A.final();
