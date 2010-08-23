@@ -228,11 +228,20 @@ public:		// interface
 	// functionality
 
 		/// test if role is functional (ie, have some functional ancestors)
-	bool isFunctional ( void ) const { return !TopFunc.empty(); }
+	bool isFunctional ( void ) const { return Functionality.getValue(); }
+		/// check whether the functionality of a role is known
+	bool isFunctionalityKnown ( void ) const { return Functionality.isKnown(); }
 		/// check if the role is topmost-functional (ie, has no functional ancestors)
 	bool isTopFunc ( void ) const { return isFunctional() && *TopFunc.begin() == this; }
-		/// mark node (topmost) functional
-	void setFunctional ( void ) { if ( TopFunc.empty() ) TopFunc.push_back(this); }
+		/// set role functionality value
+	void setFunctional ( bool value ) { Functionality.setValue(value); }
+		/// mark role (topmost) functional
+	void setFunctional ( void )
+	{
+		if ( TopFunc.empty() )
+			TopFunc.push_back(this);
+		setFunctional(true);
+	}
 		/// set functional attribute to given value (functional DAG vertex)
 	void setFunctional ( BipolarPointer fNode ) { Functional = fNode; }
 		/// get the Functional DAG vertex

@@ -315,6 +315,9 @@ void TRole :: initTopFunc ( void )
 	for ( iterator p = begin_anc(); p != end_anc(); ++p )
 		if ( (*p)->isRealTopFunc() )
 			TopFunc.push_back(*p);
+
+	if ( !TopFunc.empty() )
+		Functionality.setValue(true);
 }
 
 // disjoint-related implementation

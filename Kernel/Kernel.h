@@ -232,6 +232,21 @@ protected:	// methods
 
 	// helper methods to query properties of roles
 
+		/// @return true if R is functional wrt ontology
+	bool checkFunctionality ( DLTree* R )
+	{
+		// R is transitive iff \ER.C and \ER.\not C is unsatisfiable
+		DLTree* tmp = createSNFExists ( clone(R), createSNFNot(getTBox()->getFreshConcept()) );
+		tmp = createSNFAnd ( tmp, createSNFExists ( R, getTBox()->getFreshConcept() ) );
+		return !checkSat(tmp);
+	}
+		/// @return true if R is functional; set the value for R if necessary
+	bool getFunctionality ( TRole* R )
+	{
+		if ( !R->isFunctionalityKnown() )	// calculate functionality
+			R->setFunctional ( checkFunctionality ( new DLTree ( TLexeme ( R->isDataRole() ? DNAME : RNAME, R ) ) ) );
+		return R->isFunctional();
+	}
 		/// @return true if R is transitive wrt ontology
 	bool checkTransitivity ( DLTree* R )
 	{
@@ -628,7 +643,7 @@ public:
 		if ( isEmptyRole(R) )
 			return true;	// empty role is functional
 
-		return getRole ( R, "Role expression expected in isFunctional()" )->isFunctional();
+		return getFunctionality ( getRole ( R, "Role expression expected in isFunctional()" ) );
 	}
 		/// @return true iff data role is functional
 	bool isFunctional ( const TDRoleExpr* R )
@@ -639,7 +654,7 @@ public:
 		if ( isEmptyRole(R) )
 			return true;	// empty role is functional
 
-		return getRole ( R, "Role expression expected in isFunctional()" )->isFunctional();
+		return getFunctionality ( getRole ( R, "Role expression expected in isFunctional()" ) );
 	}
 		/// @return true iff role is inverse-functional
 	bool isInverseFunctional ( const TORoleExpr* R )
@@ -650,7 +665,7 @@ public:
 		if ( isEmptyRole(R) )
 			return true;	// empty role is functional
 
-		return getRole ( R, "Role expression expected in isInverseFunctional()" )->inverse()->isFunctional();
+		return getFunctionality ( getRole ( R, "Role expression expected in isInverseFunctional()" )->inverse() );
 	}
 		/// @return true iff role is transitive
 	bool isTransitive ( const TORoleExpr* R )
