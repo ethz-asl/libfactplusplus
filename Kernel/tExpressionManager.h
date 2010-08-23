@@ -172,8 +172,14 @@ public:		// interface
 	TDLConceptExpression* Not ( const TDLConceptExpression* C ) { return record(new TDLConceptNot(C)); }
 		/// get an n-ary conjunction expression; take the arguments from the last argument list
 	TDLConceptExpression* And ( void ) { return record(new TDLConceptAnd(getArgList())); }
+		/// @return C and D
+	TDLConceptExpression* And ( const TDLConceptExpression* C, const TDLConceptExpression* D )
+		{ newArgList(); addArg(C); addArg(D); return And(); }
 		/// get an n-ary disjunction expression; take the arguments from the last argument list
 	TDLConceptExpression* Or ( void ) { return record(new TDLConceptOr(getArgList())); }
+		/// @return C or D
+	TDLConceptExpression* Or ( const TDLConceptExpression* C, const TDLConceptExpression* D )
+		{ newArgList(); addArg(C); addArg(D); return Or(); }
 		/// get an n-ary one-of expression; take the arguments from the last argument list
 	TDLConceptExpression* OneOf ( void ) { return record(new TDLConceptOneOf(getArgList())); }
 		/// @return concept {I} for the individual I
