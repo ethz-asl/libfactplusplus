@@ -45,9 +45,36 @@ class TRole: public ClassifiableEntry
 	friend class RoleMaster;
 
 private:	// no copy
+		/// no empty c'tor
 	TRole ();
+		/// no copy c'tor
 	TRole ( const TRole& );
+		/// no assignment
 	TRole& operator = ( const TRole& );
+
+protected:	// types
+		/// Class for values that can change wrt ontology
+	class TKnownValue
+	{
+	protected:	// members
+			/// flag value
+		bool value;
+			/// whether flag set or not
+		bool known;
+
+	public:		// interface
+			/// init c'tor
+		TKnownValue ( bool val = false ) : value(val), known(false) {}
+			/// empty d'tor
+		~TKnownValue ( void ) {}
+
+			/// @return true iff the value is known to be set
+		bool isKnown ( void ) const { return known; }
+			/// @return the value
+		bool getValue ( void ) const { return value; }
+			/// set the value; it is now known
+		void setValue ( bool val ) { value = val; known = true; }
+	}; // TKnownValue
 
 public:		// types
 	typedef std::vector<TRole*> roleSet;
@@ -94,6 +121,18 @@ protected:	// members
 		/// automaton for role
 	RoleAutomaton A;
 
+		/// value for functionality
+	TKnownValue Functionality;
+		/// value for symmetry
+	TKnownValue Symmetry;
+		/// value for asymmetricity
+	TKnownValue Asymmetry;
+		/// value for transitivity
+	TKnownValue Transitivity;
+		/// value for reflexivity
+	TKnownValue Reflexivity;
+		/// value for reflexivity
+	TKnownValue Irreflexivity;
 		/// flag to show that this role needs special R&D processing
 	bool SpecialDomain;
 
@@ -179,16 +218,12 @@ public:		// interface
 
 		/// register a Simple flag (not simple if role or any of its sub-roles is transitive)
 	FPP_ADD_FLAG(Simple,0x10);
-		/// transitivity flag
-	FPP_ADD_FLAG(Transitive,0x20);
-		/// set the transitivity of both role and it's inverse
-	void setBothTransitive ( void ) { setTransitive(); inverse()->setTransitive(); }
+		/// distinguish data- and non-data role
+	FPP_ADD_FLAG(DataRole,0x20);
 		/// reflexivity flag
 	FPP_ADD_FLAG(Reflexive,0x40);
 		/// set the reflexivity of both role and its inverse
 	void setBothReflexive ( void ) { setReflexive(); inverse()->setReflexive(); }
-		/// distinguish data- and non-data role
-	FPP_ADD_FLAG(DataRole,0x80);
 
 	// functionality
 
@@ -202,6 +237,15 @@ public:		// interface
 	void setFunctional ( BipolarPointer fNode ) { Functional = fNode; }
 		/// get the Functional DAG vertex
 	BipolarPointer getFunctional ( void ) const { return Functional; }
+
+	// transitivity
+
+		/// check whether the role is transitive
+	bool isTransitive ( void ) const { return Transitivity.getValue(); }
+		/// check whether the transitivity of a role is known
+	bool isTransitivityKnown ( void ) const { return Transitivity.isKnown(); }
+		/// set the transitivity of both role and it's inverse
+	void setBothTransitive ( void ) { Transitivity.setValue(true); inverse()->Transitivity.setValue(true); }
 
 	// relevance
 

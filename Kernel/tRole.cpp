@@ -377,7 +377,7 @@ TRole :: preprocessComposition ( roleSet& RS ) throw(EFPPCycleInRIA)
 				if ( last == 1 )	// transitivity
 				{
 					RS.clear();
-					setTransitive();
+					setBothTransitive();
 					return;
 				}
 				else					// wrong (undecidable) axiom
