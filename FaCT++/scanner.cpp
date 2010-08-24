@@ -280,8 +280,8 @@ Token TsScanner :: getCommandKeyword ( void ) const
 	if ( isKeyword ("symmetric") )
 		return SYMMETRIC;
 
-	if ( isKeyword ("antisymmetric") )
-		return ANTISYMMETRIC;
+	if ( isKeyword ("asymmetric") )
+		return ASYMMETRIC;
 
 	if ( isKeyword ("range") )
 		return ROLERANGE;

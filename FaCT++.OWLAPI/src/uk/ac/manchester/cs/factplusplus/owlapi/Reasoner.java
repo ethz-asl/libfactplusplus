@@ -889,12 +889,12 @@ public class Reasoner extends MonitorableOWLReasonerAdapter implements FaCTPlusP
     }
 
 
-    public boolean isAntiSymmetric(OWLObjectProperty property) throws OWLReasonerException {
+    public boolean isAsymmetric(OWLObjectProperty property) throws OWLReasonerException {
         try {
             autoSynchronise();
             translatorUtils.checkParams(property);
 
-            return getReasoner().isObjectPropertyAntiSymmetric(translator.translate(property));
+            return getReasoner().isObjectPropertyAsymmetric(translator.translate(property));
         }
         catch (Exception e) {
             throw new FaCTPlusPlusReasonerException(e);

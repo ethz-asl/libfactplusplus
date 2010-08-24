@@ -1123,13 +1123,13 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tel
 
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
- * Method:    tellAntiSymmetricObjectProperty
+ * Method:    tellAsymmetricObjectProperty
  * Signature: (Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;)Luk/ac/manchester/cs/factplusplus/AxiomPointer;
  */
-JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellAntiSymmetricObjectProperty
+JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellAsymmetricObjectProperty
   (JNIEnv * env, jobject obj, jobject arg)
 {
-	PROCESS_QUERY ( getK(env,obj)->setAntiSymmetric(getORoleExpr(env,arg)), "tellAntiSymmetricObjectProperty" );
+	PROCESS_QUERY ( getK(env,obj)->setAsymmetric(getORoleExpr(env,arg)), "tellAsymmetricObjectProperty" );
 }
 
 /*
@@ -1598,22 +1598,24 @@ JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_is
 {
 	TRACE_JNI("isObjectPropertySymmetric");
 	TRACE_ARG(env,obj,arg);
-	Throw ( env, "FaCT++ Kernel: unsupported operation 'isObjectPropertySymmetric'" );
-	return false;
+	bool ret = false;
+	PROCESS_ASK_QUERY ( ret=getK(env,obj)->isSymmetric ( getROORoleExpr(env,arg) ),"isObjectPropertySymmetric");
+	return ret;
 }
 
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
- * Method:    isObjectPropertyAntiSymmetric
+ * Method:    isObjectPropertyAsymmetric
  * Signature: (Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;)Z
  */
-JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_isObjectPropertyAntiSymmetric
+JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_isObjectPropertyAsymmetric
   (JNIEnv * env, jobject obj, jobject arg)
 {
-	TRACE_JNI("isObjectPropertyAntiSymmetric");
+	TRACE_JNI("isObjectPropertyAsymmetric");
 	TRACE_ARG(env,obj,arg);
-	Throw ( env, "FaCT++ Kernel: unsupported operation 'isObjectPropertyAntiSymmetric'" );
-	return false;
+	bool ret = false;
+	PROCESS_ASK_QUERY ( ret=getK(env,obj)->isAsymmetric ( getROORoleExpr(env,arg) ),"isObjectPropertyAsymmetric");
+	return ret;
 }
 
 /*

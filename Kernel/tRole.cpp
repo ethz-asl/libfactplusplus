@@ -50,7 +50,7 @@ void TRole :: addFeaturesToSynonym ( void )
 
 	// copy transitivity
 	if ( isTransitive() )
-		syn->setBothTransitive ();
+		syn->setTransitive ();
 
 	// copy reflexivity
 	if ( isReflexive() )
@@ -380,7 +380,7 @@ TRole :: preprocessComposition ( roleSet& RS ) throw(EFPPCycleInRIA)
 				if ( last == 1 )	// transitivity
 				{
 					RS.clear();
-					setBothTransitive();
+					setTransitive();
 					return;
 				}
 				else					// wrong (undecidable) axiom

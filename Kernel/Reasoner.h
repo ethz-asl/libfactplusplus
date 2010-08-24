@@ -1016,15 +1016,19 @@ DlSatTester :: checkDisjointRoles ( const TRole* R, const TRole* S )
 	if ( initNewNode ( CGraph.getRoot(), dummy, bpTOP ) == utClash )
 		return true;
 	// ... add edges with R and S...
+	curNode = CGraph.getRoot();
 	DlCompletionTreeArc* edgeR = createOneNeighbour ( R, dummy );
-	DlCompletionTreeArc* edgeS = CGraph.addRoleLabel ( CGraph.getRoot(), edgeR->getArcEnd(), /*linkToParent=*/false, S, dummy );
+	DlCompletionTreeArc* edgeS = createOneNeighbour ( S, dummy );
 	// init new nodes/edges. No need to apply restrictions, as no reasoning have been done yet.
 	if ( initNewNode ( edgeR->getArcEnd(), dummy, bpTOP ) == utClash
+		 || initNewNode ( edgeS->getArcEnd(), dummy, bpTOP ) == utClash
 		 || setupEdge ( edgeR, dummy, /*flags=*/0 ) == utClash
-		 || setupEdge ( edgeS, dummy, /*flags=*/0 ) == utClash )
+		 || setupEdge ( edgeS, dummy, /*flags=*/0 ) == utClash
+		 || Merge ( edgeS->getArcEnd(), edgeR->getArcEnd(), dummy ) == utClash )
 		return true;
 
 	// 2 roles are disjoint if current setting is unsatisfiable
+	curNode = NULL;
 	return !runSat();
 }
 

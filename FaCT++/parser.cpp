@@ -92,7 +92,7 @@ void DLLispParser :: parseCommand ( void )
 	case REFLEXIVE:
 	case IRREFLEXIVE:
 	case SYMMETRIC:
-	case ANTISYMMETRIC:
+	case ASYMMETRIC:
 	{
 		TRoleExpr* R = getRoleExpression();
 		if ( isDataRole(R) )
@@ -278,8 +278,8 @@ DLLispParser :: tellRoleAxiom ( Token tag, TORoleExpr* R, TORoleExpr* S )
 		case SYMMETRIC:
 			Kernel->setSymmetric(R);
 			break;
-		case ANTISYMMETRIC:
-			Kernel->setAntiSymmetric(R);
+		case ASYMMETRIC:
+			Kernel->setAsymmetric(R);
 			break;
 
 		default:
@@ -514,7 +514,6 @@ DLLispParser :: getComplexConceptExpression ( void )
 DLLispParser::TDRoleExpr*
 DLLispParser :: getDRoleExpression ( void )
 {
-	// FIXME!! later on -- add DataRoleTop/bottom
 	MustBe ( ID, "Data role name expected" );
 	return getDataRole();
 }

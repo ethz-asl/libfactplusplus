@@ -254,7 +254,25 @@ public:		// interface
 		/// check whether the transitivity of a role is known
 	bool isTransitivityKnown ( void ) const { return Transitivity.isKnown(); }
 		/// set the transitivity of both role and it's inverse
-	void setBothTransitive ( bool value = true ) { Transitivity.setValue(value); inverse()->Transitivity.setValue(value); }
+	void setTransitive ( bool value = true ) { Transitivity.setValue(value); inverse()->Transitivity.setValue(value); }
+
+	// symmetry
+
+		/// check whether the role is symmetric
+	bool isSymmetric ( void ) const { return Symmetry.getValue(); }
+		/// check whether the symmetry of a role is known
+	bool isSymmetryKnown ( void ) const { return Symmetry.isKnown(); }
+		/// set the symmetry of both role and it's inverse
+	void setSymmetric ( bool value = true ) { Symmetry.setValue(value); inverse()->Symmetry.setValue(value); }
+
+	// asymmetry
+
+		/// check whether the role is asymmetric
+	bool isAsymmetric ( void ) const { return Asymmetry.getValue(); }
+		/// check whether the asymmetry of a role is known
+	bool isAsymmetryKnown ( void ) const { return Asymmetry.isKnown(); }
+		/// set the asymmetry of both role and it's inverse
+	void setAsymmetric ( bool value = true ) { Asymmetry.setValue(value); inverse()->Asymmetry.setValue(value); }
 
 	// relevance
 

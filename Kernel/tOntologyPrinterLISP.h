@@ -86,7 +86,7 @@ public:		// visitor interface
 	virtual void visit ( TDLAxiomRoleReflexive& axiom ) { *this << "(reflexive" << axiom.getRole() << ")\n"; }
 	virtual void visit ( TDLAxiomRoleIrreflexive& axiom ) { *this << "(irreflexive" << axiom.getRole() << ")\n"; }
 	virtual void visit ( TDLAxiomRoleSymmetric& axiom ) { *this << "(symmetric" << axiom.getRole() << ")\n"; }
-	virtual void visit ( TDLAxiomRoleAntiSymmetric& axiom ) { *this << "(antisymmetric" << axiom.getRole() << ")\n"; }
+	virtual void visit ( TDLAxiomRoleAsymmetric& axiom ) { *this << "(asymmetric" << axiom.getRole() << ")\n"; }
 	virtual void visit ( TDLAxiomORoleFunctional& axiom ) { *this << "(functional" << axiom.getRole() << ")\n"; }
 	virtual void visit ( TDLAxiomDRoleFunctional& axiom ) { *this << "(functional" << axiom.getRole() << ")\n"; }
 	virtual void visit ( TDLAxiomRoleInverseFunctional& axiom ) { *this << "(functional (inv" << axiom.getRole() << "))\n"; }

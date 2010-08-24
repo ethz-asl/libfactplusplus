@@ -921,7 +921,7 @@ public class FaCTPlusPlusReasoner extends OWLReasonerBase {
         }
 
         public AxiomPointer visit(OWLAsymmetricObjectPropertyAxiom axiom) {
-            return kernel.tellAntiSymmetricObjectProperty(toObjectPropertyPointer(axiom.getProperty()));
+            return kernel.tellAsymmetricObjectProperty(toObjectPropertyPointer(axiom.getProperty()));
         }
 
         public AxiomPointer visit(OWLReflexiveObjectPropertyAxiom axiom) {
@@ -1145,7 +1145,7 @@ public class FaCTPlusPlusReasoner extends OWLReasonerBase {
         }
 
         public Boolean visit(OWLAsymmetricObjectPropertyAxiom axiom) {
-            return kernel.isObjectPropertyAntiSymmetric(toObjectPropertyPointer(axiom.getProperty()));
+            return kernel.isObjectPropertyAsymmetric(toObjectPropertyPointer(axiom.getProperty()));
         }
 
         public Boolean visit(OWLReflexiveObjectPropertyAxiom axiom) {

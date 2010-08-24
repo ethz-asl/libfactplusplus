@@ -339,7 +339,7 @@ public class FaCTPlusPlus {
 
     public native AxiomPointer tellSymmetricObjectProperty(ObjectPropertyPointer s) throws FaCTPlusPlusException;
 
-    public native AxiomPointer tellAntiSymmetricObjectProperty(ObjectPropertyPointer s) throws FaCTPlusPlusException;
+    public native AxiomPointer tellAsymmetricObjectProperty(ObjectPropertyPointer s) throws FaCTPlusPlusException;
 
     public native AxiomPointer tellReflexiveObjectProperty(ObjectPropertyPointer s) throws FaCTPlusPlusException;
 
@@ -436,7 +436,7 @@ public class FaCTPlusPlus {
 
     public native boolean isObjectPropertySymmetric(ObjectPropertyPointer r) throws FaCTPlusPlusException;
 
-    public native boolean isObjectPropertyAntiSymmetric(ObjectPropertyPointer r) throws FaCTPlusPlusException;
+    public native boolean isObjectPropertyAsymmetric(ObjectPropertyPointer r) throws FaCTPlusPlusException;
 
     public native boolean isObjectPropertyTransitive(ObjectPropertyPointer r) throws FaCTPlusPlusException;
 

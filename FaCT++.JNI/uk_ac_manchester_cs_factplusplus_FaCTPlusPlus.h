@@ -625,10 +625,10 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tel
 
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
- * Method:    tellAntiSymmetricObjectProperty
+ * Method:    tellAsymmetricObjectProperty
  * Signature: (Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;)Luk/ac/manchester/cs/factplusplus/AxiomPointer;
  */
-JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellAntiSymmetricObjectProperty
+JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellAsymmetricObjectProperty
   (JNIEnv *, jobject, jobject);
 
 /*
@@ -889,10 +889,10 @@ JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_is
 
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
- * Method:    isObjectPropertyAntiSymmetric
+ * Method:    isObjectPropertyAsymmetric
  * Signature: (Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;)Z
  */
-JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_isObjectPropertyAntiSymmetric
+JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_isObjectPropertyAsymmetric
   (JNIEnv *, jobject, jobject);
 
 /*

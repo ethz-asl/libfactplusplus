@@ -45,7 +45,7 @@ class TDLAxiomRoleTransitive;
 class TDLAxiomRoleReflexive;
 class TDLAxiomRoleIrreflexive;
 class TDLAxiomRoleSymmetric;
-class TDLAxiomRoleAntiSymmetric;
+class TDLAxiomRoleAsymmetric;
 class TDLAxiomORoleFunctional;
 class TDLAxiomDRoleFunctional;
 class TDLAxiomRoleInverseFunctional;
@@ -86,7 +86,7 @@ public:		// visitor interface
 	virtual void visit ( TDLAxiomRoleReflexive& axiom ) = 0;
 	virtual void visit ( TDLAxiomRoleIrreflexive& axiom ) = 0;
 	virtual void visit ( TDLAxiomRoleSymmetric& axiom ) = 0;
-	virtual void visit ( TDLAxiomRoleAntiSymmetric& axiom ) = 0;
+	virtual void visit ( TDLAxiomRoleAsymmetric& axiom ) = 0;
 	virtual void visit ( TDLAxiomORoleFunctional& axiom ) = 0;
 	virtual void visit ( TDLAxiomDRoleFunctional& axiom ) = 0;
 	virtual void visit ( TDLAxiomRoleInverseFunctional& axiom ) = 0;
@@ -584,20 +584,20 @@ public:		// interface
 }; // TDLAxiomRoleSymmetric
 
 //------------------------------------------------------------------
-///	Role anti-symmetry axiom
+///	Role asymmetry axiom
 //------------------------------------------------------------------
-class TDLAxiomRoleAntiSymmetric: public TDLAxiomSingleORole
+class TDLAxiomRoleAsymmetric: public TDLAxiomSingleORole
 {
 public:		// interface
 		/// c'tor: create an axiom
-	TDLAxiomRoleAntiSymmetric ( const TDLObjectRoleExpression* role )
+	TDLAxiomRoleAsymmetric ( const TDLObjectRoleExpression* role )
 		: TDLAxiomSingleORole(role)
 		{}
 		/// d'tor;
-	virtual ~TDLAxiomRoleAntiSymmetric ( void ) {}
+	virtual ~TDLAxiomRoleAsymmetric ( void ) {}
 		/// accept method for the visitor pattern
 	void accept ( DLAxiomVisitor& visitor ) { visitor.visit(*this); }
-}; // TDLAxiomRoleAntiSymmetric
+}; // TDLAxiomRoleAsymmetric
 
 //------------------------------------------------------------------
 ///	Object Role functionality axiom

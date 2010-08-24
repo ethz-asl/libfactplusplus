@@ -458,7 +458,7 @@ public class AxiomLoader implements OWLAxiomVisitor {
     public void visit(OWLAntiSymmetricObjectPropertyAxiom axiom) {
         try {
             axiom.getProperty().accept(translator);
-            lastAxiom = faCTPlusPlus.tellAntiSymmetricObjectProperty(translator.getLastObjectPropertyPointer());
+            lastAxiom = faCTPlusPlus.tellAsymmetricObjectProperty(translator.getLastObjectPropertyPointer());
         }
         catch (Exception e) {
             throw new FaCTPlusPlusRuntimeException(e);

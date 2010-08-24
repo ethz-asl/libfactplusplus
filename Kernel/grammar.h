@@ -21,8 +21,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 //  Grammar for FaCT++
 //
 //-------------------------------------------------------------------------
-#ifndef __GRAMMAR_HPP
-#define __GRAMMAR_HPP
+#ifndef GRAMMAR_H
+#define GRAMMAR_H
 
 // constants for symbols
 enum Token {
@@ -99,7 +99,7 @@ enum Token {
 	REFLEXIVE,
 	IRREFLEXIVE,
 	SYMMETRIC,
-	ANTISYMMETRIC,
+	ASYMMETRIC,
 	ROLERANGE,
 	ROLEDOMAIN,
 

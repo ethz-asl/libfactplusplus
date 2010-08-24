@@ -256,6 +256,14 @@ protected:	// methods
 		tmp = createSNFAnd ( tmp, createSNFForall ( R, getTBox()->getFreshConcept() ) );
 		return !checkSat(tmp);
 	}
+		/// @return true if R is symmetric wrt ontology
+	bool checkSymmetry ( DLTree* R )
+	{
+		// R is symmetric iff C and \ER.\AR.(not C) is unsatisfiable
+		DLTree* tmp = createSNFForall ( clone(R), createSNFNot(getTBox()->getFreshConcept()) );
+		tmp = createSNFAnd ( getTBox()->getFreshConcept(), createSNFExists ( R, tmp ) );
+		return !checkSat(tmp);
+	}
 
 	// get access to internal structures
 
@@ -544,9 +552,9 @@ public:
 		/// Symmetric (R): R [= R^-
 	TDLAxiom* setSymmetric ( TORoleExpr* R )
 		{ return Ontology.add ( new TDLAxiomRoleSymmetric(R) ); }
-		/// AntySymmetric (R): disjoint(R,R^-)
-	TDLAxiom* setAntiSymmetric ( TORoleExpr* R )
-		{ return Ontology.add ( new TDLAxiomRoleAntiSymmetric(R) ); }
+		/// Asymmetric (R): disjoint(R,R^-)
+	TDLAxiom* setAsymmetric ( TORoleExpr* R )
+		{ return Ontology.add ( new TDLAxiomRoleAsymmetric(R) ); }
 		/// Functional (R)
 	TDLAxiom* setOFunctional ( TORoleExpr* R )
 		{ return Ontology.add ( new TDLAxiomORoleFunctional(R) ); }
@@ -678,16 +686,45 @@ public:
 
 		TRole* r = getRole ( R, "Role expression expected in isTransitive()" );
 		if ( !r->isTransitivityKnown() )	// calculate transitivity
-			r->setBothTransitive(checkTransitivity(e(R)));
+			r->setTransitive(checkTransitivity(e(R)));
 		return r->isTransitive();
+	}
+		/// @return true iff role is symmetric
+	bool isSymmetric ( const TORoleExpr* R )
+	{
+		preprocessKB();	// ensure KB is ready to answer the query
+		if ( isUniversalRole(R) )
+			return true;	// universal role is symmetric
+		if ( isEmptyRole(R) )
+			return true;	// empty role is symmetric
+
+		TRole* r = getRole ( R, "Role expression expected in isSymmetric()" );
+		if ( !r->isSymmetryKnown() )	// calculate symmetry
+			r->setSymmetric(checkSymmetry(e(R)));
+		return r->isSymmetric();
+	}
+		/// @return true iff role is asymmetric
+	bool isAsymmetric ( const TORoleExpr* R )
+	{
+		preprocessKB();	// ensure KB is ready to answer the query
+		if ( isUniversalRole(R) )
+			return false;	// universal role is not asymmetric
+		if ( isEmptyRole(R) )
+			return true;	// empty role is symmetric
+
+		TRole* r = getRole ( R, "Role expression expected in isAsymmetric()" );
+		if ( !r->isAsymmetryKnown() )	// calculate asymmetry
+			r->setAsymmetric(getTBox()->isDisjointRoles(r,r->inverse()));
+		return r->isAsymmetric();
 	}
 		/// @return true iff two roles are disjoint
 	bool isDisjointRoles ( const TORoleExpr* R, const TORoleExpr* S )
 	{
 		preprocessKB();	// ensure KB is ready to answer the query
-		// FIXME!! add check for the empty role
 		if ( isUniversalRole(R) || isUniversalRole(S) )
 			return false;	// universal role is not disjoint with anything
+		if ( isEmptyRole(R) || isEmptyRole(S) )
+			return true;	// empty role is disjoint with everything
 		return getTBox()->isDisjointRoles (
 			getRole ( R, "Role expression expected in isDisjointRoles()" ),
 			getRole ( S, "Role expression expected in isDisjointRoles()" ) );
@@ -696,9 +733,10 @@ public:
 	bool isDisjointRoles ( const TDRoleExpr* R, const TDRoleExpr* S )
 	{
 		preprocessKB();	// ensure KB is ready to answer the query
-		// FIXME!! add check for the empty role
 		if ( isUniversalRole(R) || isUniversalRole(S) )
 			return false;	// universal role is not disjoint with anything
+		if ( isEmptyRole(R) || isEmptyRole(S) )
+			return true;	// empty role is disjoint with everything
 		return getTBox()->isDisjointRoles (
 			getRole ( R, "Role expression expected in isDisjointRoles()" ),
 			getRole ( S, "Role expression expected in isDisjointRoles()" ) );

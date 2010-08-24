@@ -190,7 +190,7 @@ public:		// visitor interface
 	{
 		ensureNames(axiom.getRole());
 		if ( !isUniversalRole(axiom.getRole()) )	// universal role always transitive
-			getRole ( axiom.getRole(), "Role expression expected in Role Transitivity axiom" )->setBothTransitive();
+			getRole ( axiom.getRole(), "Role expression expected in Role Transitivity axiom" )->setTransitive();
 	}
 	virtual void visit ( TDLAxiomRoleReflexive& axiom )
 	{
@@ -212,15 +212,17 @@ public:		// visitor interface
 		if ( !isUniversalRole(axiom.getRole()) )
 		{
 			TRole* R = getRole ( axiom.getRole(), "Role expression expected in Role Symmetry axiom" );
+			R->setSymmetric(true);
 			kb.getORM()->addRoleParent ( R, R->inverse() );
 		}
 	}
-	virtual void visit ( TDLAxiomRoleAntiSymmetric& axiom )
+	virtual void visit ( TDLAxiomRoleAsymmetric& axiom )
 	{
 		ensureNames(axiom.getRole());
 		if ( isUniversalRole(axiom.getRole()) )	// KB became inconsistent
 			throw EFPPInconsistentKB();
-		TRole* R = getRole ( axiom.getRole(), "Role expression expected in Role AntiSymmetry axiom" );
+		TRole* R = getRole ( axiom.getRole(), "Role expression expected in Role Asymmetry axiom" );
+		R->setAsymmetric(true);
 		kb.getORM()->addDisjointRoles ( R, R->inverse() );
 	}
 	virtual void visit ( TDLAxiomORoleFunctional& axiom )
