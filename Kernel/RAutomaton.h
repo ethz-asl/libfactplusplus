@@ -153,8 +153,9 @@ public:		// interface
 	bool addToExisting ( const RATransition* trans )
 	{
 		RAState to = trans->final();
+		bool tEmpty = trans->empty();
 		for ( iterator p = Base.begin(), p_end = Base.end(); p != p_end; ++p )
-			if ( (*p)->final() == to )
+			if ( (*p)->final() == to && (*p)->empty() == tEmpty )
 			{	// found existing transition
 				(*p)->add(*trans);
 				return true;
