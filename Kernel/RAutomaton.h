@@ -93,15 +93,102 @@ public:		// interface
 	void Print ( std::ostream& o, RAState from ) const;
 }; // RATransition
 
+/// class to represent transitions from a single state in an automaton
+class RAStateTransitions
+{
+protected:	// types
+		/// keep all the transitions
+	typedef std::vector<RATransition*> RTBase;
+		/// RW iterators
+	typedef RTBase::iterator iterator;
+
+public:		// type interface
+		/// RO iterators
+	typedef RTBase::const_iterator const_iterator;
+
+protected:	// members
+		/// all transitions
+	RTBase Base;
+		/// check whether there is an empty transition going from this state
+	bool EmptyTransition;
+
+protected:	// methods
+		/// RW begin
+	iterator begin ( void ) { return Base.begin(); }
+		/// RW end
+	iterator end ( void ) { return Base.end(); }
+
+public:		// interface
+		/// empty c'tor
+	RAStateTransitions ( void ) : EmptyTransition(false) {}
+		/// copy c'tor
+	RAStateTransitions ( const RAStateTransitions& trans ) : EmptyTransition(trans.EmptyTransition)
+	{
+		for ( const_iterator p = trans.begin(), p_end = trans.end(); p != p_end; ++p )
+			Base.push_back(new RATransition(**p));
+	}
+		/// assignment
+	RAStateTransitions& operator = ( const RAStateTransitions& trans )
+	{
+		for ( const_iterator p = trans.begin(), p_end = trans.end(); p != p_end; ++p )
+			Base.push_back(new RATransition(**p));
+		EmptyTransition = trans.EmptyTransition;
+		return *this;
+	}
+		/// d'tor: delete all transitions
+	~RAStateTransitions ( void )
+	{
+		for ( iterator p = begin(), p_end = end(); p != p_end; ++p )
+			delete *p;
+	}
+
+		/// add a transition from a given state
+	void add ( RATransition* trans )
+	{
+		Base.push_back(trans);
+		if ( trans->empty() )
+			EmptyTransition = true;
+	}
+		/// add information from TRANS to existing transition between the same states. @return false if no such transition found
+	bool addToExisting ( const RATransition* trans )
+	{
+		RAState to = trans->final();
+		for ( iterator p = Base.begin(), p_end = Base.end(); p != p_end; ++p )
+			if ( (*p)->final() == to )
+			{	// found existing transition
+				(*p)->add(*trans);
+				return true;
+			}
+		// no transition from->to found
+		return false;
+	}
+		/// @return true iff there are no transitions from this state
+	bool empty ( void ) const { return Base.empty(); }
+		/// @return true iff there is an empty transition from the state
+	bool hasEmptyTransition ( void ) const { return EmptyTransition; }
+
+	// RO access
+
+		/// RO begin
+	const_iterator begin ( void ) const { return Base.begin(); }
+		/// RO end
+	const_iterator end ( void ) const { return Base.end(); }
+
+		/// print all the transitions starting from the state FROM
+	void Print ( std::ostream& o, RAState from ) const
+	{
+		for ( const_iterator p = begin(), p_end = end(); p != p_end; ++p )
+			(*p)->Print ( o, from );
+	}
+}; // RAStateTransitions
+
 /// automaton for the role in RIQ-like languages
 class RoleAutomaton
 {
 public:		// types interface
-	typedef std::vector<RATransition*> TTransitions;
-	typedef TTransitions::iterator trans_iterator;
-	typedef TTransitions::const_iterator const_trans_iterator;
+	typedef RAStateTransitions::const_iterator const_trans_iterator;
 
-	typedef std::vector<TTransitions> AutoBase;
+	typedef std::vector<RAStateTransitions> AutoBase;
 	typedef AutoBase::iterator iterator;
 	typedef AutoBase::const_iterator const_iterator;
 
@@ -144,24 +231,8 @@ protected:	// methods
 	void addTransition ( RAState from, RATransition* trans )
 	{
 		checkTransition ( from, trans->final() );
-		Base[from].push_back(trans);
+		Base[from].add(trans);
 	}
-		/// add TRANSition leading from a state FROM; if there is such link, just copy labels
-	void addTransitionIfNew ( RAState from, RATransition* trans )
-	{
-		TTransitions& From = Base[from];
-		RAState to = trans->final();
-		for ( trans_iterator p = From.begin(), p_end = From.end(); p != p_end; ++p )
-			if ( (*p)->final() == to )
-			{	// found existing transition
-				(*p)->add(*trans);
-				delete trans;
-				return;
-			}
-		// new transition
-		addTransition ( from, trans );
-	}
-
 		/// make the internal chain transition (between chainState and TO)
 	void nextChainTransition ( RAState to )
 	{
@@ -173,9 +244,6 @@ protected:	// methods
 	void addCopy ( const RoleAutomaton& RA );
 		/// init internal map according to RA size and final (FRA) states
 	void initMap ( unsigned int RASize, RAState fRA );
-
-		/// print all transitions from a single STATE
-	void printTransitions ( std::ostream& o, RAState state ) const;
 
 public:		// interface
 		/// empty c'tor
@@ -191,8 +259,8 @@ public:		// interface
 	RoleAutomaton ( const RoleAutomaton& RA );
 		/// assignment
 	RoleAutomaton& operator= ( const RoleAutomaton& RA );
-		/// d'tor
-	~RoleAutomaton ( void );
+		/// empty d'tor
+	~RoleAutomaton ( void ) {}
 
 	// access to states
 
@@ -263,7 +331,11 @@ public:		// interface
 	void complete ( void ) { Complete = true; }
 
 		/// print an automaton
-	void Print ( std::ostream& o ) const;
+	void Print ( std::ostream& o ) const
+	{
+		for ( RAState state = 0; state < Base.size(); ++state )
+			Base[state].Print ( o, state );
+	}
 }; // RoleAutomaton
 
 #endif

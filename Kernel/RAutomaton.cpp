@@ -36,27 +36,28 @@ RATransition::Print ( std::ostream& o, RAState from ) const
 	o << " -> " << final();
 }
 
-RoleAutomaton :: ~RoleAutomaton ( void )
-{
-	for ( iterator p = Base.begin(); p != Base.end(); ++p )
-		for ( trans_iterator q = p->begin(); q != p->end(); ++q )
-			delete *q;
-}
-
 void
 RoleAutomaton :: addCopy ( const RoleAutomaton& RA )
 {
 	for ( RAState i = 0; i < RA.size(); ++i )
+	{
+		RAState from = map[i];
+		RAStateTransitions& RST = Base[from];
+
 		for ( const_trans_iterator p = RA.begin(i), p_end = RA.end(i); p != p_end; ++p )
 		{
 			RAState to = (*p)->final();
 			RATransition* trans = new RATransition(map[to]);
+			checkTransition ( from, trans->final() );
 			trans->add(**p);
-			if ( to == 1 )	// try to merge transitions going to the final state
-				addTransitionIfNew ( map[i], trans );
+
+			// try to merge transitions going to the original final state
+			if ( to == 1 && RST.addToExisting(trans) )
+				delete trans;
 			else
-				Base[map[i]].push_back(trans);
+				RST.add(trans);
 		}
+	}
 }
 
 /// init internal map according to RA size, with new initial state from chainState and final (FRA) states
@@ -107,20 +108,4 @@ RoleAutomaton :: addToChain ( const RoleAutomaton& RA, bool oSafe, RAState fRA )
 		nextChainTransition(fRA);
 
 	return RA.isOSafe();
-}
-
-void
-RoleAutomaton :: printTransitions ( std::ostream& o, RAState state ) const
-{
-	const TTransitions& trans = Base[state];
-
-	for ( TTransitions::const_iterator p = trans.begin(); p != trans.end(); ++p )
-		(*p)->Print ( o, state );
-}
-
-void
-RoleAutomaton :: Print ( std::ostream& o ) const
-{
-	for ( RAState state = 0; state < Base.size(); ++state )
-		printTransitions ( o, state );
 }
