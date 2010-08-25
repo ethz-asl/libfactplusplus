@@ -203,11 +203,11 @@ bool DlCompletionTree :: B1 ( const DlCompletionTree* p ) const
 }
 
 	/// check if B2 holds for (AS C) a simple automaton A for S
-bool DlCompletionTree :: B2 ( const RoleAutomaton& A, BipolarPointer C ) const
+bool DlCompletionTree :: B2 ( const RAStateTransitions& RST, BipolarPointer C ) const
 {
 	const DlCompletionTree* parent = getParentNode();
 	const CGLabel& parLab = parent->label();
-	RATransition* trans = *A.begin(0);
+	RATransition* trans = *RST.begin();
 	TRY_B(2);
 
 	for ( const_edge_iterator p = begin(), p_end = end(); p < p_end; ++p )
@@ -226,11 +226,11 @@ bool DlCompletionTree :: B2 ( const RoleAutomaton& A, BipolarPointer C ) const
 }
 
 	/// check if B2 holds for C=(AS{n} X) a complex automaton A for S
-bool DlCompletionTree :: B2 ( const RoleAutomaton& A, BipolarPointer C, RAState n ) const
+bool DlCompletionTree :: B2 ( const RAStateTransitions& RST, BipolarPointer C, RAState n ) const
 {
 	const DlCompletionTree* parent = getParentNode();
 	const CGLabel& parLab = parent->label();
-	RoleAutomaton::const_trans_iterator q, q_end = A.end(n);
+	RAStateTransitions::const_iterator q, q_end = RST.end();
 	TRY_B(2);
 
 	for ( const_edge_iterator p = begin(), p_end = end(); p < p_end; ++p )
@@ -239,7 +239,7 @@ bool DlCompletionTree :: B2 ( const RoleAutomaton& A, BipolarPointer C, RAState 
 			continue;
 		const TRole* R = (*p)->getRole();
 
-		for ( q = A.begin(n); q != q_end; ++q )
+		for ( q = RST.begin(); q != q_end; ++q )
 			if ( (*q)->applicable(R) )
 				if ( !parLab.containsCC(C-n+(*q)->final()) )
 				{

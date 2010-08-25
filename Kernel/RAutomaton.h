@@ -22,6 +22,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <vector>
 #include <iostream>
 
+#include "fpp_assert.h"
+
 class TRole;
 
 /// state of the role automaton
@@ -186,16 +188,9 @@ public:		// interface
 /// automaton for the role in RIQ-like languages
 class RoleAutomaton
 {
-public:		// types interface
-	typedef RAStateTransitions::const_iterator const_trans_iterator;
-
-	typedef std::vector<RAStateTransitions> AutoBase;
-	typedef AutoBase::iterator iterator;
-	typedef AutoBase::const_iterator const_iterator;
-
 protected:	// members
 		/// all transitions of the automaton, groupped by a starting state
-	AutoBase Base;
+	std::vector<RAStateTransitions> Base;
 		/// maps original automata state into the new ones (used in copyRA)
 	std::vector<unsigned int> map;
 		/// initial state of the next automaton in chain
@@ -277,12 +272,8 @@ public:		// interface
 		return ret;
 	}
 
-	// iterators
-
-		/// get the 1st (multi-)transition starting in STATE
-	const_trans_iterator begin ( RAState state ) const { return Base[state].begin(); }
-		/// get the last (multi-)transition starting in STATE
-	const_trans_iterator end ( RAState state ) const { return Base[state].end(); }
+		/// get access to the transitions starting from STATE
+	const RAStateTransitions& operator [] ( RAState state ) const { return Base[state]; }
 
 	// automaton's construction
 
@@ -313,7 +304,11 @@ public:		// interface
 	// add single RA
 
 		/// add RA from simple subrole to given one
-	void addSimpleRA ( const RoleAutomaton& RA ) { (*begin(0))->add(**RA.begin(0)); }
+	void addSimpleRA ( const RoleAutomaton& RA )
+	{
+		bool ok = Base[initial()].addToExisting(*RA[initial()].begin());
+		fpp_assert(ok);
+	}
 		/// add RA from a subrole to given one
 	void addRA ( const RoleAutomaton& RA )
 	{

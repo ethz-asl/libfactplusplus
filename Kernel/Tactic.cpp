@@ -390,15 +390,15 @@ tacticUsage DlSatTester :: commonTacticBodyAllComplex ( const DLVertex& cur )
 	tacticUsage ret = utUnusable;
 
 	const TRole* R = cur.getRole();
-	const RoleAutomaton& A = R->getAutomaton();
 	const DepSet& dep = curConcept.getDep();
 	BipolarPointer C = curConcept.bp();
 	unsigned int state = cur.getState();
-	RoleAutomaton::const_trans_iterator q, end = A.end(state);
+	const RAStateTransitions& RST = R->getAutomaton()[state];
+	RAStateTransitions::const_iterator q, end = RST.end();
 
 	// apply all empty transitions
 	if ( R->mayFireEmptyTransition(state) )
-		for ( q = A.begin(state); q != end; ++q )
+		for ( q = RST.begin(); q != end; ++q )
 			if ( (*q)->empty() )
 				switchResult ( ret, addToDoEntry ( curNode, C-state+(*q)->final(), dep, "e" ) );
 
@@ -412,7 +412,7 @@ tacticUsage DlSatTester :: commonTacticBodyAllComplex ( const DLVertex& cur )
 	// check all neighbours
 	for ( DlCompletionTree::const_edge_iterator p = curNode->begin(), p_end = curNode->end(); p < p_end; ++p )
 		if ( R->mayFireTransition ( state, (*p)->getRole() ) )
-			switchResult ( ret, applyAutomaton ( (*p), A, state, C, dep ) );
+			switchResult ( ret, applyTransitions ( (*p), RST, state, C, dep ) );
 
 	return ret;
 }
@@ -422,7 +422,7 @@ tacticUsage DlSatTester :: commonTacticBodyAllSimple ( const DLVertex& cur )
 	tacticUsage ret = utUnusable;
 
 	const TRole* R = cur.getRole();
-	const RoleAutomaton& A = R->getAutomaton();
+	const RAStateTransitions& RST = R->getAutomaton()[0];
 	const DepSet& dep = curConcept.getDep();
 	BipolarPointer C = cur.getC();
 
@@ -432,7 +432,7 @@ tacticUsage DlSatTester :: commonTacticBodyAllSimple ( const DLVertex& cur )
 	// check all neighbours
 	for ( DlCompletionTree::const_edge_iterator p = curNode->begin(), p_end = curNode->end(); p < p_end; ++p )
 		if ( R->mayFireTransition ( 0, (*p)->getRole() ) )
-			switchResult ( ret, applySimpleAutomaton ( (*p), A, C, dep ) );
+			switchResult ( ret, applySimpleTransitions ( (*p), RST, C, dep ) );
 
 	return ret;
 }
@@ -442,18 +442,18 @@ tacticUsage DlSatTester :: commonTacticBodyAllSimple ( const DLVertex& cur )
 //-------------------------------------------------------------------------------
 
 /** Perform expansion of (C=\AR{state}.X).DEP to an EDGE with a given reason */
-tacticUsage DlSatTester :: applyAutomaton ( const DlCompletionTreeArc* edge,
-											const RoleAutomaton& A,
+tacticUsage DlSatTester :: applyTransitions ( const DlCompletionTreeArc* edge,
+											const RAStateTransitions& RST,
 											RAState state, BipolarPointer C,
 											const DepSet& dep, const char* reason )
 {
-	RoleAutomaton::const_trans_iterator q, end = A.end(state);
+	RAStateTransitions::const_iterator q, end = RST.end();
 	const TRole* R = edge->getRole();
 	DlCompletionTree* node = edge->getArcEnd();
 	tacticUsage ret = utUnusable;
 
 	// try to apply all transitions to edge
-	for ( q = A.begin(state); q != end; ++q )
+	for ( q = RST.begin(); q != end; ++q )
 		if ( (*q)->applicable(R) )
 			switchResult ( ret,
 				addToDoEntry ( node, C-state+(*q)->final(), dep+edge->getDep(), reason ) );
@@ -462,13 +462,13 @@ tacticUsage DlSatTester :: applyAutomaton ( const DlCompletionTreeArc* edge,
 }
 
 /** Perform expansion of (\AR.C).DEP to an EDGE for simple R with a given reason */
-tacticUsage DlSatTester :: applySimpleAutomaton ( const DlCompletionTreeArc* edge,
-												  const RoleAutomaton& A,
+tacticUsage DlSatTester :: applySimpleTransitions ( const DlCompletionTreeArc* edge,
+												  const RAStateTransitions& RST,
 												  BipolarPointer C,
 												  const DepSet& dep, const char* reason )
 {
 	// simple automaton has the only (meta-)transition
-	if ( (*A.begin(0))->applicable(edge->getRole()) )
+	if ( (*RST.begin())->applicable(edge->getRole()) )
 		return addToDoEntry ( edge->getArcEnd(), C, dep+edge->getDep(), reason );
 
 	return utUnusable;
@@ -834,11 +834,11 @@ tacticUsage DlSatTester :: applyUniversalNR ( DlCompletionTree* Node,
 				break;
 
 			if ( vR->isSimple() )
-				switchResult ( ret, applySimpleAutomaton ( arcSample, vR->getAutomaton(),
-													 	   v.getC(), p->getDep()+dep, "ae" ) );
+				switchResult ( ret, applySimpleTransitions ( arcSample, vR->getAutomaton()[0],
+													 		 v.getC(), p->getDep()+dep, "ae" ) );
 			else
-				switchResult ( ret, applyAutomaton ( arcSample, vR->getAutomaton(),
-													 v.getState(), p->bp(), p->getDep()+dep, "ae" ) );
+				switchResult ( ret, applyTransitions ( arcSample, vR->getAutomaton()[v.getState()],
+													   v.getState(), p->bp(), p->getDep()+dep, "ae" ) );
 			break;
 
 		case dtLE:

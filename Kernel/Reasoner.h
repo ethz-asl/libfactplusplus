@@ -713,16 +713,16 @@ protected:	// methods
 		return utClash;
 	}
 
-		/** Perform expansion of (C=\AR{state}.X).DEP to an EDGE with a given reason */
-	tacticUsage applyAutomaton ( const DlCompletionTreeArc* edge,
-								 const RoleAutomaton& A,
-								 RAState state, BipolarPointer C,
-								 const DepSet& dep, const char* reason = NULL );
-		/** Perform expansion of (\AR.C).DEP to an EDGE for simple R with a given reason */
-	tacticUsage applySimpleAutomaton ( const DlCompletionTreeArc* edge,
-									   const RoleAutomaton& A,
-									   BipolarPointer C, const DepSet& dep,
-									   const char* reason = NULL );
+		/** Perform expansion of (C=\AR{state}.X).DEP with RST=A[state] to an EDGE with a given reason */
+	tacticUsage applyTransitions ( const DlCompletionTreeArc* edge,
+								   const RAStateTransitions& RST,
+								   RAState state, BipolarPointer C,
+								   const DepSet& dep, const char* reason = NULL );
+		/** Perform expansion of (\AR.C).DEP with RST=A[0] to an EDGE for simple R with a given reason */
+	tacticUsage applySimpleTransitions ( const DlCompletionTreeArc* edge,
+										 const RAStateTransitions& RST,
+										 BipolarPointer C, const DepSet& dep,
+										 const char* reason = NULL );
 
 	// support for the projection
 

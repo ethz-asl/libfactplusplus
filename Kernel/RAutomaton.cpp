@@ -43,8 +43,12 @@ RoleAutomaton :: addCopy ( const RoleAutomaton& RA )
 	{
 		RAState from = map[i];
 		RAStateTransitions& RST = Base[from];
+		const RAStateTransitions& RSTOrig = RA[i];
 
-		for ( const_trans_iterator p = RA.begin(i), p_end = RA.end(i); p != p_end; ++p )
+		if ( RSTOrig.empty() )
+			continue;
+
+		for ( RAStateTransitions::const_iterator p = RSTOrig.begin(), p_end = RSTOrig.end(); p != p_end; ++p )
 		{
 			RAState to = (*p)->final();
 			RATransition* trans = new RATransition(map[to]);

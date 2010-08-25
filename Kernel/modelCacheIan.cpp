@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2009 by Dmitry Tsarkov
+Copyright (C) 2003-2010 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -68,13 +68,11 @@ void modelCacheIan :: processConcept ( const DLVertex& cur, BipolarPointer bp, b
 void
 modelCacheIan :: processAutomaton ( const DLVertex& cur )
 {
-	const RoleAutomaton& A = cur.getRole()->getAutomaton();
-	RAState state = cur.getState();
+	const RAStateTransitions& RST = cur.getRole()->getAutomaton()[cur.getState()];
 
 	// for every transition starting from a given state,
 	// add the role that is accepted by a transition
-	for ( RoleAutomaton::const_trans_iterator
-		  i = A.begin(state), i_end = A.end(state); i < i_end; ++i )
+	for ( RAStateTransitions::const_iterator i = RST.begin(), i_end = RST.end(); i < i_end; ++i )
 		for ( RATransition::const_iterator r = (*i)->begin(), r_end = (*i)->end(); r < r_end; ++r )
 			forallRoles.insert(*r);
 }
