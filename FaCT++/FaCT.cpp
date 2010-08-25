@@ -222,7 +222,8 @@ int main ( int argc, char *argv[] )
 	// Load the ontology
 	DLLispParser TBoxParser ( &iTBox, &Kernel );
 	Kernel.setVerboseOutput(true);
-	Kernel.setProgressMonitor(new ConsoleProgressMonitor);
+	TProgressMonitor* pMon = new ConsoleProgressMonitor;
+	Kernel.setProgressMonitor(pMon);
 
 	// parsing input TBox
 	std::cerr << "Loading KB...";
@@ -271,6 +272,7 @@ int main ( int argc, char *argv[] )
 	totalTimer.Stop ();
 	OutTime (std::cout);
 	OutTime (Out);
+	delete pMon;
 
 	}
 	catch ( EFaCTPlusPlus e )
