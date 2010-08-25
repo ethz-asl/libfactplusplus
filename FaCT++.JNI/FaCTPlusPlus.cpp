@@ -1643,8 +1643,9 @@ JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_is
 {
 	TRACE_JNI("isObjectPropertyReflexive");
 	TRACE_ARG(env,obj,arg);
-	Throw ( env, "FaCT++ Kernel: unsupported operation 'isObjectPropertyReflexive'" );
-	return false;
+	bool ret = false;
+	PROCESS_ASK_QUERY ( ret=getK(env,obj)->isReflexive ( getROORoleExpr(env,arg) ),"isObjectPropertyReflexive");
+	return ret;
 }
 
 /*
@@ -1657,8 +1658,9 @@ JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_is
 {
 	TRACE_JNI("isObjectPropertyIrreflexive");
 	TRACE_ARG(env,obj,arg);
-	Throw ( env, "FaCT++ Kernel: unsupported operation 'isObjectPropertyIrreflexive'" );
-	return false;
+	bool ret = false;
+	PROCESS_ASK_QUERY ( ret=getK(env,obj)->isIrreflexive ( getROORoleExpr(env,arg) ),"isObjectPropertyIrreflexive");
+	return ret;
 }
 
 /*

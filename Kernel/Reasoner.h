@@ -885,6 +885,8 @@ public:
 	bool runSat ( BipolarPointer p, BipolarPointer q = bpTOP );
 		/// set-up role disjointness task for given roles and run SAT test
 	bool checkDisjointRoles ( const TRole* R, const TRole* S );
+		/// set-up role irreflexivity task for R and run SAT test
+	bool checkIrreflexivity ( const TRole* R );
 
 		/// get the ROOT node of the completion graph
 	const DlCompletionTree* getRootNode ( void ) const { return CGraph.getActualRoot(); }
@@ -1028,6 +1030,29 @@ DlSatTester :: checkDisjointRoles ( const TRole* R, const TRole* S )
 		return true;
 
 	// 2 roles are disjoint if current setting is unsatisfiable
+	curNode = NULL;
+	return !runSat();
+}
+
+inline bool
+DlSatTester :: checkIrreflexivity ( const TRole* R )
+{
+	prepareReasoner();
+
+	// use general method to init node...
+	DepSet dummy;
+	if ( initNewNode ( CGraph.getRoot(), dummy, bpTOP ) == utClash )
+		return true;
+	// ... add an R-loop
+	curNode = CGraph.getRoot();
+	DlCompletionTreeArc* edgeR = createOneNeighbour ( R, dummy );
+	// init new nodes/edges. No need to apply restrictions, as no reasoning have been done yet.
+	if ( initNewNode ( edgeR->getArcEnd(), dummy, bpTOP ) == utClash
+		 || setupEdge ( edgeR, dummy, /*flags=*/0 ) == utClash
+		 || Merge ( edgeR->getArcEnd(), CGraph.getRoot(), dummy ) == utClash )
+		return true;
+
+	// R is irreflexive if current setting is unsatisfiable
 	curNode = NULL;
 	return !runSat();
 }

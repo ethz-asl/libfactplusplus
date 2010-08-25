@@ -196,15 +196,16 @@ public:		// visitor interface
 	{
 		ensureNames(axiom.getRole());
 		if ( !isUniversalRole(axiom.getRole()) )	// universal role always reflexive
-			getRole ( axiom.getRole(), "Role expression expected in Role Reflexivity axiom" )->setBothReflexive();
+			getRole ( axiom.getRole(), "Role expression expected in Role Reflexivity axiom" )->setReflexive(true);
 	}
 	virtual void visit ( TDLAxiomRoleIrreflexive& axiom )
 	{
 		ensureNames(axiom.getRole());
 		if ( isUniversalRole(axiom.getRole()) )	// KB became inconsistent
 			throw EFPPInconsistentKB();
-		getRole ( axiom.getRole(), "Role expression expected in Role Irreflexivity axiom" )
-			->setDomain(createSNFNot(new DLTree(REFLEXIVE,e(axiom.getRole()))));
+		TRole* R = getRole ( axiom.getRole(), "Role expression expected in Role Irreflexivity axiom" );
+		R->setDomain(createSNFNot(new DLTree(REFLEXIVE,e(axiom.getRole()))));
+		R->setIrreflexive(true);
 	}
 	virtual void visit ( TDLAxiomRoleSymmetric& axiom )
 	{

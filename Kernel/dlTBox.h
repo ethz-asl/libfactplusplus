@@ -1075,6 +1075,8 @@ public:
 	bool isSameIndividuals ( const TIndividual* a, const TIndividual* b );
 		/// check if 2 roles are disjoint
 	bool isDisjointRoles ( const TRole* R, const TRole* S );
+		/// check if the role R is irreflexive
+	bool isIrreflexive ( const TRole* R );
 
 		/// fills cache entry for given concept; SUB means that the concept is on the right side of a subsumption test
 	const modelCacheInterface* initCache ( const TConcept* pConcept, bool sub = false );

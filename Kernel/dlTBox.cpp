@@ -354,7 +354,7 @@ TBox :: isDisjointRoles ( const TRole* R, const TRole* S )
 {
 	fpp_assert ( R != NULL && S != NULL );
 
-	// object roles are disjoint with data toles
+	// object roles are disjoint with data roles
 	if ( R->isDataRole() != S->isDataRole() )
 		return true;
 	// prepare feature that are KB features
@@ -362,6 +362,24 @@ TBox :: isDisjointRoles ( const TRole* R, const TRole* S )
 	curFeature = &KBFeatures;
 	getReasoner()->setBlockingMethod ( isIRinQuery(), isNRinQuery() );
 	bool result = getReasoner()->checkDisjointRoles ( R, S );
+	clearFeatures();
+	return result;
+}
+
+/// check if the role R is irreflexive
+bool
+TBox :: isIrreflexive ( const TRole* R )
+{
+	fpp_assert ( R != NULL );
+
+	// data roles are irreflexive
+	if ( R->isDataRole() )
+		return true;
+	// prepare feature that are KB features
+	// FIXME!! overkill, but fine for now as it is sound
+	curFeature = &KBFeatures;
+	getReasoner()->setBlockingMethod ( isIRinQuery(), isNRinQuery() );
+	bool result = getReasoner()->checkIrreflexivity(R);
 	clearFeatures();
 	return result;
 }

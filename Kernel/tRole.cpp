@@ -54,7 +54,7 @@ void TRole :: addFeaturesToSynonym ( void )
 
 	// copy reflexivity
 	if ( isReflexive() )
-		syn->setBothReflexive ();
+		syn->setReflexive();
 
 	// copy data type
 	if ( isDataRole() )

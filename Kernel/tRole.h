@@ -220,10 +220,6 @@ public:		// interface
 	FPP_ADD_FLAG(Simple,0x10);
 		/// distinguish data- and non-data role
 	FPP_ADD_FLAG(DataRole,0x20);
-		/// reflexivity flag
-	FPP_ADD_FLAG(Reflexive,0x40);
-		/// set the reflexivity of both role and its inverse
-	void setBothReflexive ( void ) { setReflexive(); inverse()->setReflexive(); }
 
 	// functionality
 
@@ -273,6 +269,24 @@ public:		// interface
 	bool isAsymmetryKnown ( void ) const { return Asymmetry.isKnown(); }
 		/// set the asymmetry of both role and it's inverse
 	void setAsymmetric ( bool value = true ) { Asymmetry.setValue(value); inverse()->Asymmetry.setValue(value); }
+
+	// reflexivity
+
+		/// check whether the role is reflexive
+	bool isReflexive ( void ) const { return Reflexivity.getValue(); }
+		/// check whether the reflexivity of a role is known
+	bool isReflexivityKnown ( void ) const { return Reflexivity.isKnown(); }
+		/// set the reflexivity of both role and it's inverse
+	void setReflexive ( bool value = true ) { Reflexivity.setValue(value); inverse()->Reflexivity.setValue(value); }
+
+	// irreflexivity
+
+		/// check whether the role is irreflexive
+	bool isIrreflexive ( void ) const { return Irreflexivity.getValue(); }
+		/// check whether the irreflexivity of a role is known
+	bool isIrreflexivityKnown ( void ) const { return Irreflexivity.isKnown(); }
+		/// set the irreflexivity of both role and it's inverse
+	void setIrreflexive ( bool value = true ) { Irreflexivity.setValue(value); inverse()->Irreflexivity.setValue(value); }
 
 	// relevance
 

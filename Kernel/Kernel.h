@@ -264,6 +264,14 @@ protected:	// methods
 		tmp = createSNFAnd ( getTBox()->getFreshConcept(), createSNFExists ( R, tmp ) );
 		return !checkSat(tmp);
 	}
+		/// @return true if R is reflexive wrt ontology
+	bool checkReflexivity ( DLTree* R )
+	{
+		// R is reflexive iff C and \AR.(not C) is unsatisfiable
+		DLTree* tmp = createSNFForall ( R, createSNFNot(getTBox()->getFreshConcept()) );
+		tmp = createSNFAnd ( getTBox()->getFreshConcept(), tmp );
+		return !checkSat(tmp);
+	}
 
 	// get access to internal structures
 
@@ -716,6 +724,34 @@ public:
 		if ( !r->isAsymmetryKnown() )	// calculate asymmetry
 			r->setAsymmetric(getTBox()->isDisjointRoles(r,r->inverse()));
 		return r->isAsymmetric();
+	}
+		/// @return true iff role is reflexive
+	bool isReflexive ( const TORoleExpr* R )
+	{
+		preprocessKB();	// ensure KB is ready to answer the query
+		if ( isUniversalRole(R) )
+			return true;	// universal role is reflexive
+		if ( isEmptyRole(R) )
+			return false;	// empty role is not reflexive
+
+		TRole* r = getRole ( R, "Role expression expected in isReflexive()" );
+		if ( !r->isReflexivityKnown() )	// calculate reflexivity
+			r->setReflexive(checkReflexivity(e(R)));
+		return r->isReflexive();
+	}
+		/// @return true iff role is irreflexive
+	bool isIrreflexive ( const TORoleExpr* R )
+	{
+		preprocessKB();	// ensure KB is ready to answer the query
+		if ( isUniversalRole(R) )
+			return false;	// universal role is not irreflexive
+		if ( isEmptyRole(R) )
+			return true;	// empty role is irreflexive
+
+		TRole* r = getRole ( R, "Role expression expected in isIrreflexive()" );
+		if ( !r->isIrreflexivityKnown() )	// calculate irreflexivity
+			r->setIrreflexive(getTBox()->isIrreflexive(r));
+		return r->isIrreflexive();
 	}
 		/// @return true iff two roles are disjoint
 	bool isDisjointRoles ( const TORoleExpr* R, const TORoleExpr* S )
