@@ -272,6 +272,14 @@ protected:	// methods
 		tmp = createSNFAnd ( getTBox()->getFreshConcept(), tmp );
 		return !checkSat(tmp);
 	}
+		/// @return true if R [= S wrt ontology
+	bool checkRoleSubsumption ( DLTree* R, DLTree* S )
+	{
+		// R [= S iff \ER.C and \AS.(not C) is unsatisfiable
+		DLTree* tmp = createSNFForall ( S, createSNFNot(getTBox()->getFreshConcept()) );
+		tmp = createSNFAnd ( createSNFExists ( R, getTBox()->getFreshConcept() ), tmp );
+		return !checkSat(tmp);
+	}
 
 	// get access to internal structures
 
@@ -752,6 +760,24 @@ public:
 		if ( !r->isIrreflexivityKnown() )	// calculate irreflexivity
 			r->setIrreflexive(getTBox()->isIrreflexive(r));
 		return r->isIrreflexive();
+	}
+		/// @return true if R is a sub-role of S
+	bool isSubRoles ( const TORoleExpr* R, const TORoleExpr* S )
+	{
+		preprocessKB();	// ensure KB is ready to answer the query
+		if ( isEmptyRole(R) || isUniversalRole(S) )
+			return true;	// \bot [= X [= \top
+		if ( isUniversalRole(R) && isEmptyRole(S) )
+			return false;	// as \top [= \bot leads to inconsistent ontology
+
+		// told case first
+		if ( *getRole ( R, "Role expression expected in isSubRoles()" ) <=
+			 *getRole ( S, "Role expression expected in isSubRoles()" ) )
+			return true;
+		// check the general case
+		// FIXME!! cache it later
+		DLTree* r = e(R), *s = e(S);
+		return checkRoleSubsumption ( r, s );
 	}
 		/// @return true iff two roles are disjoint
 	bool isDisjointRoles ( const TORoleExpr* R, const TORoleExpr* S )
