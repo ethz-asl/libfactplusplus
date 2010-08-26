@@ -798,10 +798,11 @@ public:
 	{
 		classifyKB();	// ensure KB is ready to answer the query
 		setUpCache ( e(C), csClassified );
+		Taxonomy* tax = getCTaxonomy();
 		if ( direct )
-			getCTaxonomy()->getRelativesInfo</*needCurrent=*/false, /*onlyDirect=*/true, /*upDirection=*/true> ( cachedVertex, actor );
+			tax->getRelativesInfo</*needCurrent=*/false, /*onlyDirect=*/true, /*upDirection=*/true> ( cachedVertex, actor );
 		else
-			getCTaxonomy()->getRelativesInfo</*needCurrent=*/false, /*onlyDirect=*/false, /*upDirection=*/true> ( cachedVertex, actor );
+			tax->getRelativesInfo</*needCurrent=*/false, /*onlyDirect=*/false, /*upDirection=*/true> ( cachedVertex, actor );
 	}
 		/// apply actor::apply() to all DIRECT sub-concepts of [complex] C
 	template<class Actor>
@@ -809,10 +810,11 @@ public:
 	{
 		classifyKB();	// ensure KB is ready to answer the query
 		setUpCache ( e(C), csClassified );
+		Taxonomy* tax = getCTaxonomy();
 		if ( direct )
-			getCTaxonomy()->getRelativesInfo</*needCurrent=*/false, /*onlyDirect=*/true, /*upDirection=*/false> ( cachedVertex, actor );
+			tax->getRelativesInfo</*needCurrent=*/false, /*onlyDirect=*/true, /*upDirection=*/false> ( cachedVertex, actor );
 		else
-			getCTaxonomy()->getRelativesInfo</*needCurrent=*/false, /*onlyDirect=*/false, /*upDirection=*/false> ( cachedVertex, actor );
+			tax->getRelativesInfo</*needCurrent=*/false, /*onlyDirect=*/false, /*upDirection=*/false> ( cachedVertex, actor );
 	}
 		/// apply actor::apply() to all synonyms of [complex] C
 	template<class Actor>
@@ -831,10 +833,11 @@ public:
 	{
 		preprocessKB();	// ensure KB is ready to answer the query
 		TRole* R = getRole ( r, "Role expression expected in getSupRoles()" );
+		Taxonomy* tax = getTaxonomy(R);
 		if ( direct )
-			getTaxonomy(R)->getRelativesInfo</*needCurrent=*/false, /*onlyDirect=*/true, /*upDirection=*/true> ( getTaxVertex(R), actor );
+			tax->getRelativesInfo</*needCurrent=*/false, /*onlyDirect=*/true, /*upDirection=*/true> ( getTaxVertex(R), actor );
 		else
-			getTaxonomy(R)->getRelativesInfo</*needCurrent=*/false, /*onlyDirect=*/false, /*upDirection=*/true> ( getTaxVertex(R), actor );
+			tax->getRelativesInfo</*needCurrent=*/false, /*onlyDirect=*/false, /*upDirection=*/true> ( getTaxVertex(R), actor );
 	}
 		/// apply actor::apply() to all DIRECT sub-roles of [complex] R
 	template<class Actor>
@@ -842,10 +845,11 @@ public:
 	{
 		preprocessKB();	// ensure KB is ready to answer the query
 		TRole* R = getRole ( r, "Role expression expected in getSubRoles()" );
+		Taxonomy* tax = getCTaxonomy();
 		if ( direct )
-			getTaxonomy(R)->getRelativesInfo</*needCurrent=*/false, /*onlyDirect=*/true, /*upDirection=*/false> ( getTaxVertex(R), actor );
+			tax->getRelativesInfo</*needCurrent=*/false, /*onlyDirect=*/true, /*upDirection=*/false> ( getTaxVertex(R), actor );
 		else
-			getTaxonomy(R)->getRelativesInfo</*needCurrent=*/false, /*onlyDirect=*/false, /*upDirection=*/false> ( getTaxVertex(R), actor );
+			tax->getRelativesInfo</*needCurrent=*/false, /*onlyDirect=*/false, /*upDirection=*/false> ( getTaxVertex(R), actor );
 	}
 		/// apply actor::apply() to all synonyms of [complex] R
 	template<class Actor>
@@ -864,10 +868,11 @@ public:
 	{
 		classifyKB();	// ensure KB is ready to answer the query
 		setUpCache ( createSNFExists ( e(r), new DLTree(TOP) ), csClassified );
+		Taxonomy* tax = getCTaxonomy();
 		if ( direct )	// gets an exact domain is named concept; otherwise, set of the most specific concepts
-			getCTaxonomy()->getRelativesInfo</*needCurrent=*/true, /*onlyDirect=*/true, /*upDirection=*/true> ( cachedVertex, actor );
+			tax->getRelativesInfo</*needCurrent=*/true, /*onlyDirect=*/true, /*upDirection=*/true> ( cachedVertex, actor );
 		else			// gets all named classes that are in the domain of a role
-			getCTaxonomy()->getRelativesInfo</*needCurrent=*/true, /*onlyDirect=*/false, /*upDirection=*/true> ( cachedVertex, actor );
+			tax->getRelativesInfo</*needCurrent=*/true, /*onlyDirect=*/false, /*upDirection=*/true> ( cachedVertex, actor );
 	}
 		/// apply actor::apply() to all DIRECT NC that are in the range of [complex] R
 	template<class Actor>
@@ -902,7 +907,8 @@ public:
 	{	// FIXME!! check for Racer's/IS approach
 		realiseKB();	// ensure KB is ready to answer the query
 		setUpCache ( e(C), csClassified );
-		getCTaxonomy()->getRelativesInfo</*needCurrent=*/true, /*onlyDirect=*/false, /*upDirection=*/false> ( cachedVertex, actor );
+		Taxonomy* tax = getCTaxonomy();
+		tax->getRelativesInfo</*needCurrent=*/true, /*onlyDirect=*/false, /*upDirection=*/false> ( cachedVertex, actor );
 	}
 
 		/// apply actor::apply() to all DIRECT concepts that are types of an individual I
