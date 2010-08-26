@@ -179,6 +179,7 @@ public class FaCTPlusPlusReasoner extends OWLReasonerBase {
     }
 
     public boolean isEntailed(OWLAxiom axiom) throws ReasonerInterruptedException, UnsupportedEntailmentTypeException, TimeOutException, AxiomNotInProfileException {
+        checkConsistency();
         Boolean entailed = axiom.accept(entailmentChecker);
         if (entailed == null) {
             throw new UnsupportedEntailmentTypeException(axiom);
