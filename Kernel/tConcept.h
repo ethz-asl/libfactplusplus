@@ -16,8 +16,8 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef _TCONCEPT_H
-#define _TCONCEPT_H
+#ifndef TCONCEPT_H
+#define TCONCEPT_H
 
 #include <set>
 
@@ -296,7 +296,8 @@ public:
 
 inline BipolarPointer TConcept :: resolveId ( void ) const
 {
-	if ( getId() == -1 )	// it is special concept: Top or Bottom
+	// check for Top/Bottom
+	if ( pName == bpINVALID )
 		return pBody;
 
 	if ( isSynonym() )	// resolve synonyms
