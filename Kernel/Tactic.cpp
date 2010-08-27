@@ -399,8 +399,12 @@ tacticUsage DlSatTester :: commonTacticBodyAllComplex ( const DLVertex& cur )
 	// apply all empty transitions
 	if ( R->mayFireEmptyTransition(state) )
 		for ( q = RST.begin(); q != end; ++q )
+		{
+			incStat(nAutoEmptyLookups);
+
 			if ( (*q)->empty() )
 				switchResult ( ret, addToDoEntry ( curNode, C-state+(*q)->final(), dep, "e" ) );
+		}
 
 	// apply final-state rule
 	if ( state == 1 )
@@ -454,9 +458,12 @@ tacticUsage DlSatTester :: applyTransitions ( const DlCompletionTreeArc* edge,
 
 	// try to apply all transitions to edge
 	for ( q = RST.begin(); q != end; ++q )
+	{
+		incStat(nAutoTransLookups);
 		if ( (*q)->applicable(R) )
 			switchResult ( ret,
 				addToDoEntry ( node, C-state+(*q)->final(), dep+edge->getDep(), reason ) );
+	}
 
 	return ret;
 }
@@ -468,6 +475,7 @@ tacticUsage DlSatTester :: applySimpleTransitions ( const DlCompletionTreeArc* e
 												  const DepSet& dep, const char* reason )
 {
 	// simple automaton has the only (meta-)transition
+	incStat(nAutoTransLookups);
 	if ( (*RST.begin())->applicable(edge->getRole()) )
 		return addToDoEntry ( edge->getArcEnd(), C, dep+edge->getDep(), reason );
 

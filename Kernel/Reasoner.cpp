@@ -727,6 +727,9 @@ void DlSatTester :: logStatisticData ( std::ostream& o, bool needLocal ) const
 	nNNCalls.Print		( o, needLocal, "\nThere were made ", " NN rule application" );
 	nMergeCalls.Print	( o, needLocal, "\nThere were made ", " merging operations" );
 
+	nAutoEmptyLookups.Print	( o, needLocal, "\nThere were made ", " RA empty transition lookups" );
+	nAutoTransLookups.Print	( o, needLocal, "\nThere were made ", " RA applicable transition lookups" );
+
 	nSRuleAdd.Print		( o, needLocal, "\nThere were made ", " simple rule additions" );
 	nSRuleFire.Print	( o, needLocal, "\n       of which ", " simple rules fired" );
 

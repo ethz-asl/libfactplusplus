@@ -274,6 +274,9 @@ protected:	// members
 		nNNCalls,
 		nMergeCalls,
 
+		nAutoEmptyLookups,
+		nAutoTransLookups,
+
 		nSRuleAdd,
 		nSRuleFire,
 
