@@ -871,7 +871,7 @@ public:
 	{
 		preprocessKB();	// ensure KB is ready to answer the query
 		TRole* R = getRole ( r, "Role expression expected in getSubRoles()" );
-		Taxonomy* tax = getCTaxonomy();
+		Taxonomy* tax = getTaxonomy(R);
 		if ( direct )
 			tax->getRelativesInfo</*needCurrent=*/false, /*onlyDirect=*/true, /*upDirection=*/false> ( getTaxVertex(R), actor );
 		else
