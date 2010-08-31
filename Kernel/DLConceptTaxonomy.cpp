@@ -218,38 +218,8 @@ DLConceptTaxonomy :: clearCommon ( void )
 }
 
 /********************************************************\
-|* 			Implementation of class Reasoner			*|
+|* 			Implementation of class TBox				*|
 \********************************************************/
-
-// vectors for Completely defined, Non-CD and Non-primitive concepts
-TBox::ConceptVector arrayCD, arrayNoCD, arrayNP;
-
-template<class Iterator>
-unsigned int fillArrays ( Iterator begin, Iterator end )
-{
-	unsigned int n = 0;
-	for ( Iterator p = begin; p < end; ++p )
-	{
-		if ( (*p)->isNonClassifiable() )
-			continue;
-		++n;
-		switch ( (*p)->getClassTag() )
-		{
-		case cttTrueCompletelyDefined:
-			arrayCD.push_back(*p);
-			break;
-		default:
-			arrayNoCD.push_back(*p);
-			break;
-		case cttNonPrimitive:
-		case cttHasNonPrimitiveTS:
-			arrayNP.push_back(*p);
-			break;
-		}
-	}
-
-	return n;
-}
 
 void TBox :: createTaxonomy ( bool needIndividual )
 {

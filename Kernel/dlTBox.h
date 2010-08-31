@@ -181,6 +181,8 @@ protected:	// members
 		/// progress monitor
 	TProgressMonitor* pMonitor;
 
+		/// vectors for Completely defined, Non-CD and Non-primitive concepts
+	ConceptVector arrayCD, arrayNoCD, arrayNP;
 		/// taxonomy structure of a TBox
 	DLConceptTaxonomy* pTax;
 		/// DataType center
@@ -635,6 +637,33 @@ protected:	// methods
 	void initTaxonomy ( void );				// implemented in DLConceptTaxonomy.h
 		/// creating taxonomy for given TBox; include individuals if necessary
 	void createTaxonomy ( bool needIndividuals );
+		/// distribute all elements in [begin,end) range wtr theif tags
+	template<class Iterator>
+	unsigned int fillArrays ( Iterator begin, Iterator end )
+	{
+		unsigned int n = 0;
+		for ( Iterator p = begin; p < end; ++p )
+		{
+			if ( (*p)->isNonClassifiable() )
+				continue;
+			++n;
+			switch ( (*p)->getClassTag() )
+			{
+				case cttTrueCompletelyDefined:
+					arrayCD.push_back(*p);
+					break;
+				default:
+					arrayNoCD.push_back(*p);
+					break;
+				case cttNonPrimitive:
+				case cttHasNonPrimitiveTS:
+					arrayNP.push_back(*p);
+					break;
+			}
+		}
+
+		return n;
+	}
 		/// classify all concepts from given COLLECTION with given CD value
 	void classifyConcepts ( const ConceptVector& collection, bool curCompletelyDefined, const char* type );
 
