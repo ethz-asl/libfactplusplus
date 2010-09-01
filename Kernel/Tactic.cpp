@@ -415,7 +415,7 @@ tacticUsage DlSatTester :: commonTacticBodyAllComplex ( const DLVertex& cur )
 
 	// check all neighbours
 	for ( DlCompletionTree::const_edge_iterator p = curNode->begin(), p_end = curNode->end(); p < p_end; ++p )
-		if ( R->mayFireTransition ( state, (*p)->getRole() ) )
+		if ( RST.recognise((*p)->getRole()) )
 			switchResult ( ret, applyTransitions ( (*p), RST, state, C, dep ) );
 
 	return ret;
@@ -435,7 +435,7 @@ tacticUsage DlSatTester :: commonTacticBodyAllSimple ( const DLVertex& cur )
 
 	// check all neighbours
 	for ( DlCompletionTree::const_edge_iterator p = curNode->begin(), p_end = curNode->end(); p < p_end; ++p )
-		if ( R->mayFireTransition ( 0, (*p)->getRole() ) )
+		if ( RST.recognise((*p)->getRole()) )
 			switchResult ( ret, applySimpleTransitions ( (*p), RST, C, dep ) );
 
 	return ret;

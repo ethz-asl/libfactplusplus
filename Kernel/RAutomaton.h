@@ -23,6 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <iostream>
 
 #include "fpp_assert.h"
+#include "tFastSet.h"
 
 class TRole;
 
@@ -111,6 +112,10 @@ public:		// type interface
 protected:	// members
 		/// all transitions
 	RTBase Base;
+		/// set of all roles that can be applied by one of the transitions
+	TFastSet<unsigned int> ApplicableRoles;
+		/// state from which all the transition starts
+	RAState from;
 		/// check whether there is an empty transition going from this state
 	bool EmptyTransition;
 
@@ -144,6 +149,13 @@ public:		// interface
 			delete *p;
 	}
 
+		/// set up state transitions: no more additions to the structure
+	void setup ( RAState state, unsigned int nRoles )
+	{
+		from = state;
+		ApplicableRoles.resize(nRoles);
+	}
+
 		/// add a transition from a given state
 	void add ( RATransition* trans )
 	{
@@ -165,6 +177,7 @@ public:		// interface
 		// no transition from->to found
 		return false;
 	}
+
 		/// @return true iff there are no transitions from this state
 	bool empty ( void ) const { return Base.empty(); }
 		/// @return true iff there is an empty transition from the state
@@ -176,9 +189,13 @@ public:		// interface
 	const_iterator begin ( void ) const { return Base.begin(); }
 		/// RO end
 	const_iterator end ( void ) const { return Base.end(); }
+		/// get FROM state
+	RAState getFrom ( void ) const { return from; }
+		/// check whether one of the transitions accept R
+	bool recognise ( const TRole* R ) const { return R != NULL; }
 
 		/// print all the transitions starting from the state FROM
-	void Print ( std::ostream& o, RAState from ) const
+	void Print ( std::ostream& o ) const
 	{
 		for ( const_iterator p = begin(), p_end = end(); p != p_end; ++p )
 			(*p)->Print ( o, from );
@@ -274,6 +291,12 @@ public:		// interface
 
 		/// get access to the transitions starting from STATE
 	const RAStateTransitions& operator [] ( RAState state ) const { return Base[state]; }
+		/// set up all transitions passing number of roles
+	void setup ( unsigned int nRoles )
+	{
+		for ( RAState i = 0; i < Base.size(); ++i )
+			Base[i].setup ( i, nRoles );
+	}
 
 	// automaton's construction
 
@@ -330,7 +353,7 @@ public:		// interface
 	void Print ( std::ostream& o ) const
 	{
 		for ( RAState state = 0; state < Base.size(); ++state )
-			Base[state].Print ( o, state );
+			Base[state].Print(o);
 	}
 }; // RoleAutomaton
 

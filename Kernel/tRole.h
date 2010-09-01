@@ -194,8 +194,8 @@ public:		// interface
 		/// get (unsigned) unique index of the role
 	unsigned int getIndex ( void ) const
 	{
-		int i = getId();
-		return i > 0 ? 2*i : -2*i+1;
+		int i = 2*getId();
+		return i > 0 ? i : 1-i;
 	}
 
 	// synonym operations
@@ -413,8 +413,6 @@ public:		// interface
 	}
 		/// get access to a RA for the role
 	const RoleAutomaton& getAutomaton ( void ) const { return A; }
-		/// check whether role automaton may recognize R in state STATE
-	bool mayFireTransition ( RAState state ATTR_UNUSED, const TRole* R ) const { return R != NULL; }
 
 	// completing internal constructions
 
@@ -439,10 +437,11 @@ public:		// interface
 		/// fills role composition by given TREE
 	void fillsComposition ( roleSet& Composition, const DLTree* tree ) const;
 		/// complete role automaton
-	void completeAutomaton ( void )
+	void completeAutomaton ( unsigned int nRoles )
 	{
 		SetOfRoles RInProcess;
 		completeAutomaton(RInProcess);
+		A.setup(nRoles);
 	}
 		/// check whether role description is consistent
 	void consistent ( void ) throw(EFPPNonSimpleRole)

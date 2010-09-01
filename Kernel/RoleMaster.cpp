@@ -72,6 +72,7 @@ void RoleMaster :: addRoleParent ( DLTree* tree, TRole* parent )
 void RoleMaster :: initAncDesc ( void )
 {
 	iterator p, p_end = end();
+	unsigned int nRoles = Roles.size();
 
 	// stage 0.1: eliminate told cycles
 	for ( p = begin(); p != p_end; ++p )
@@ -110,12 +111,12 @@ void RoleMaster :: initAncDesc ( void )
 	// stage 3: fills ancestor/descendants using taxonomy
 	for ( p = begin(); p != p_end; ++p )
 		if ( !(*p)->isSynonym() )
-			(*p)->initADbyTaxonomy ( pTax, Roles.size() );
+			(*p)->initADbyTaxonomy ( pTax, nRoles );
 
 	// complete role automaton's info
 	for ( p = begin(); p != p_end; ++p )
 		if ( !(*p)->isSynonym() )
-			(*p)->completeAutomaton();
+			(*p)->completeAutomaton(nRoles);
 
 	// prepare taxonomy to the real usage
 	pTax->finalise();
