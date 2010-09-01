@@ -1,5 +1,5 @@
 # global optimisation options
-GCC_OPT_OPT = -finline-limit=1200 -ffast-math -W -Wall -Wextra -O3 -fomit-frame-pointer
+GCC_OPT_OPT = -finline-limit=1200 -ffast-math -W -Wall -Wextra -O3 -fomit-frame-pointer -fPIC
 
 # GCC 3.3 optimisation options that are not included in -O3
 GCC_33_OPT = -ftracer -fgcse-sm
