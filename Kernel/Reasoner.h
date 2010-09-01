@@ -721,11 +721,6 @@ protected:	// methods
 								   const RAStateTransitions& RST,
 								   RAState state, BipolarPointer C,
 								   const DepSet& dep, const char* reason = NULL );
-		/** Perform expansion of (\AR.C).DEP with RST=A[0] to an EDGE for simple R with a given reason */
-	tacticUsage applySimpleTransitions ( const DlCompletionTreeArc* edge,
-										 const RAStateTransitions& RST,
-										 BipolarPointer C, const DepSet& dep,
-										 const char* reason = NULL );
 
 	// support for the projection
 

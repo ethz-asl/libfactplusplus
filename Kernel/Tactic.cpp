@@ -433,10 +433,10 @@ tacticUsage DlSatTester :: commonTacticBodyAllSimple ( const DLVertex& cur )
 	// check whether automaton applicable to any edges
 	incStat(nAllCalls);
 
-	// check all neighbours
+	// check all neighbours; as the role is simple then recognise() == applicable()
 	for ( DlCompletionTree::const_edge_iterator p = curNode->begin(), p_end = curNode->end(); p < p_end; ++p )
 		if ( RST.recognise((*p)->getRole()) )
-			switchResult ( ret, applySimpleTransitions ( (*p), RST, C, dep ) );
+			switchResult ( ret, addToDoEntry ( (*p)->getArcEnd(), C, dep+(*p)->getDep() ) );
 
 	return ret;
 }
@@ -466,20 +466,6 @@ tacticUsage DlSatTester :: applyTransitions ( const DlCompletionTreeArc* edge,
 	}
 
 	return ret;
-}
-
-/** Perform expansion of (\AR.C).DEP to an EDGE for simple R with a given reason */
-tacticUsage DlSatTester :: applySimpleTransitions ( const DlCompletionTreeArc* edge,
-												  const RAStateTransitions& RST,
-												  BipolarPointer C,
-												  const DepSet& dep, const char* reason )
-{
-	// simple automaton has the only (meta-)transition
-	incStat(nAutoTransLookups);
-	if ( (*RST.begin())->applicable(edge->getRole()) )
-		return addToDoEntry ( edge->getArcEnd(), C, dep+edge->getDep(), reason );
-
-	return utUnusable;
 }
 
 //-------------------------------------------------------------------------------
@@ -839,16 +825,22 @@ tacticUsage DlSatTester :: applyUniversalNR ( DlCompletionTree* Node,
 			break;
 
 		case dtForall:
+		{
 			if ( (flags & redoForall) == 0 )
 				break;
 
-			if ( vR->isSimple() )
-				switchResult ( ret, applySimpleTransitions ( arcSample, vR->getAutomaton()[0],
-													 		 v.getC(), p->getDep()+dep, "ae" ) );
+			/// check whether transition is possible
+			const RAStateTransitions& RST = vR->getAutomaton()[v.getState()];
+			if ( !RST.recognise(R) )
+				break;
+
+			if ( vR->isSimple() )	// R is recognised so just add the final state!
+				switchResult ( ret, addToDoEntry ( arcSample->getArcEnd(), v.getC(), dep+p->getDep(), "ae" ) );
 			else
 				switchResult ( ret, applyTransitions ( arcSample, vR->getAutomaton()[v.getState()],
 													   v.getState(), p->bp(), p->getDep()+dep, "ae" ) );
 			break;
+		}
 
 		case dtLE:
 			if ( isFunctionalVertex(v) )
