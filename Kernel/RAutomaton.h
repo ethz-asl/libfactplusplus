@@ -150,11 +150,7 @@ public:		// interface
 	}
 
 		/// set up state transitions: no more additions to the structure
-	void setup ( RAState state, unsigned int nRoles )
-	{
-		from = state;
-		ApplicableRoles.resize(nRoles);
-	}
+	void setup ( RAState state, unsigned int nRoles );
 
 		/// add a transition from a given state
 	void add ( RATransition* trans )
@@ -164,19 +160,7 @@ public:		// interface
 			EmptyTransition = true;
 	}
 		/// add information from TRANS to existing transition between the same states. @return false if no such transition found
-	bool addToExisting ( const RATransition* trans )
-	{
-		RAState to = trans->final();
-		bool tEmpty = trans->empty();
-		for ( iterator p = Base.begin(), p_end = Base.end(); p != p_end; ++p )
-			if ( (*p)->final() == to && (*p)->empty() == tEmpty )
-			{	// found existing transition
-				(*p)->add(*trans);
-				return true;
-			}
-		// no transition from->to found
-		return false;
-	}
+	bool addToExisting ( const RATransition* trans );
 
 		/// @return true iff there are no transitions from this state
 	bool empty ( void ) const { return Base.empty(); }
@@ -191,8 +175,8 @@ public:		// interface
 	const_iterator end ( void ) const { return Base.end(); }
 		/// get FROM state
 	RAState getFrom ( void ) const { return from; }
-		/// check whether one of the transitions accept R
-	bool recognise ( const TRole* R ) const { return R != NULL; }
+		/// check whether one of the transitions accept R; implementation is in tRole.h
+	bool recognise ( const TRole* R ) const;
 
 		/// print all the transitions starting from the state FROM
 	void Print ( std::ostream& o ) const

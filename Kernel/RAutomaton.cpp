@@ -19,6 +19,34 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "RAutomaton.h"
 #include "tRole.h"
 
+/// set up state transitions: no more additions to the structure
+void
+RAStateTransitions :: setup ( RAState state, unsigned int nRoles )
+{
+	from = state;
+	ApplicableRoles.ensureMaxSetSize(nRoles);
+	// fills the set of recognisable roles
+	for ( const_iterator p = begin(), p_end = end(); p != p_end; ++p )
+		for ( RATransition::const_iterator q = (*p)->begin(), q_end = (*p)->end(); q != q_end; ++q )
+			ApplicableRoles.add((*q)->getIndex());
+}
+
+/// add information from TRANS to existing transition between the same states. @return false if no such transition found
+bool
+RAStateTransitions :: addToExisting ( const RATransition* trans )
+{
+	RAState to = trans->final();
+	bool tEmpty = trans->empty();
+	for ( iterator p = Base.begin(), p_end = Base.end(); p != p_end; ++p )
+		if ( (*p)->final() == to && (*p)->empty() == tEmpty )
+		{	// found existing transition
+			(*p)->add(*trans);
+			return true;
+		}
+	// no transition from->to found
+	return false;
+}
+
 void
 RATransition::Print ( std::ostream& o, RAState from ) const
 {

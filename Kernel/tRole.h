@@ -517,4 +517,12 @@ inline TRole :: ~TRole ( void )
 	}
 }
 
+//--------------------------------------------------
+//	RAStateTransitions implementation depending on TRole
+//--------------------------------------------------
+
+/// check whether one of the transitions accept R; implementation is in tRole.h
+inline bool
+RAStateTransitions :: recognise ( const TRole* R ) const { return R != NULL && ApplicableRoles.in(R->getIndex()); }
+
 #endif
