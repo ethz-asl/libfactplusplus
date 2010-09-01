@@ -811,7 +811,7 @@ DlSatTester :: setupEdge ( DlCompletionTreeArc* pA, const DepSet& dep, unsigned 
 
 tacticUsage DlSatTester :: applyUniversalNR ( DlCompletionTree* Node,
 											  const DlCompletionTreeArc* arcSample,
-											  const DepSet& dep, unsigned int flags )
+											  const DepSet& dep_, unsigned int flags )
 {
 	// check whether a flag is set
 	if ( flags == 0 )
@@ -819,6 +819,7 @@ tacticUsage DlSatTester :: applyUniversalNR ( DlCompletionTree* Node,
 
 	tacticUsage ret = utUnusable;
 	const TRole* R = arcSample->getRole();
+	DepSet dep = dep_ + arcSample->getDep();
 
 	for ( DlCompletionTree::const_label_iterator
 		  p = Node->beginl_cc(), p_end = Node->endl_cc(); p != p_end; ++p )
