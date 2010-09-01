@@ -415,8 +415,6 @@ public:		// interface
 	const RoleAutomaton& getAutomaton ( void ) const { return A; }
 		/// check whether role automaton may recognize R in state STATE
 	bool mayFireTransition ( RAState state ATTR_UNUSED, const TRole* R ) const { return R != NULL; }
-		/// check whether there are empty transitions from the state STATE
-	bool mayFireEmptyTransition ( RAState state ATTR_UNUSED ) const { return true; }
 
 	// completing internal constructions
 

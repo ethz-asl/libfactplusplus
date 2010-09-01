@@ -397,7 +397,7 @@ tacticUsage DlSatTester :: commonTacticBodyAllComplex ( const DLVertex& cur )
 	RAStateTransitions::const_iterator q, end = RST.end();
 
 	// apply all empty transitions
-	if ( R->mayFireEmptyTransition(state) )
+	if ( RST.hasEmptyTransition() )
 		for ( q = RST.begin(); q != end; ++q )
 		{
 			incStat(nAutoEmptyLookups);
