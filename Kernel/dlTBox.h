@@ -726,6 +726,8 @@ protected:	// methods
 		o << "Axioms:\nT [=";
 		PrintDagEntry ( o, T_G );
 	}
+		/// print KB features to LL
+	void printFeatures ( void ) const;
 
 //-----------------------------------------------------------------------------
 //--		 save/load support; implementation in SaveLoad.cpp

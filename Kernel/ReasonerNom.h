@@ -32,8 +32,6 @@ TBox :: initReasoner ( void )
 	{
 		fpp_assert ( nomReasoner == NULL );
 
-		GCIs.setReflexive(ORM.hasReflexiveRoles());
-
 		stdReasoner = new DlSatTester ( *this, pOptions );
 		stdReasoner->setTestTimeout(testTimeout);
 

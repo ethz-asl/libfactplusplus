@@ -132,7 +132,6 @@ void TBox :: gatherRelevanceInfo ( void )
 	bSize = DLHeap.size()-2;
 
 	curFeature = NULL;
-	KBFeatures.writeState();
 
 	float cRatio, bRatio = 0, logCSize = 1, logBSize = 1, sqCSize = 1, sqBSize = 1;
 	if ( cSize > 10 )

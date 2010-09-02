@@ -126,6 +126,9 @@ void TBox :: Preprocess ( void )
 	gatherRelevanceInfo();
 	END_PASS();
 
+	// here it is safe to print KB features (all are known; the last one was in Relevance)
+	printFeatures();
+
 	// GALEN-like flag is known here, so we can set OR defaults
 	BEGIN_PASS("Set defaults for OR orderings");
 	DLHeap.setOrderDefaults (

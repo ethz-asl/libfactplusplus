@@ -50,6 +50,9 @@ void TBox :: buildDAG ( void )
 	T_G = tree2dag(GCI);
 	deleteTree(GCI);
 
+	// mark GCI flags
+	GCIs.setReflexive(ORM.hasReflexiveRoles());
+
 	// builds functional labels for roles
 	for ( p = ORM.begin(), p_end = ORM.end(); p < p_end; ++p )
 		if ( !(*p)->isSynonym() && (*p)->isTopFunc() )

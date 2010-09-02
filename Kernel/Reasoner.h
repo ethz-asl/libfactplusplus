@@ -229,7 +229,7 @@ protected:	// members
 	TFastSet<unsigned int> pUsed, nUsed;
 
 		/// GCI-related KB flags
-	TKBFlags GCIs;
+	const TKBFlags& GCIs;
 
 		/// record nodes that were processed during Cascaded Cache construction
 	std::set<BipolarPointer> inProcess;

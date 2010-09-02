@@ -640,3 +640,13 @@ void TBox :: PrintConcept ( std::ostream& o, const TConcept* p ) const
 	}
 }
 
+void
+TBox :: printFeatures ( void ) const
+{
+	KBFeatures.writeState();
+
+	if ( LLM.isWritable(llAlways) )
+		LL << "KB contains " << (GCIs.isGCI() ? "" : "NO ") << "GCIs\nKB contains "
+		   << (GCIs.isReflexive() ? "" : "NO ") << "reflexive roles\nKB contains "
+		   << (GCIs.isRnD() ? "" : "NO ") << "range and domain restrictions\n";
+}
