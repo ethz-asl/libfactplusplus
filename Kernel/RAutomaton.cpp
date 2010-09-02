@@ -21,9 +21,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 /// set up state transitions: no more additions to the structure
 void
-RAStateTransitions :: setup ( RAState state, unsigned int nRoles )
+RAStateTransitions :: setup ( RAState state, unsigned int nRoles, bool data )
 {
 	from = state;
+	DataRole = data;
 	ApplicableRoles.ensureMaxSetSize(nRoles);
 	// fills the set of recognisable roles
 	for ( const_iterator p = begin(), p_end = end(); p != p_end; ++p )

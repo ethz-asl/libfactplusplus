@@ -441,7 +441,7 @@ public:		// interface
 	{
 		SetOfRoles RInProcess;
 		completeAutomaton(RInProcess);
-		A.setup(nRoles);
+		A.setup ( nRoles, isDataRole() );
 	}
 		/// check whether role description is consistent
 	void consistent ( void ) throw(EFPPNonSimpleRole)
@@ -523,6 +523,6 @@ inline TRole :: ~TRole ( void )
 
 /// check whether one of the transitions accept R; implementation is in tRole.h
 inline bool
-RAStateTransitions :: recognise ( const TRole* R ) const { return R != NULL && ApplicableRoles.in(R->getIndex()); }
+RAStateTransitions :: recognise ( const TRole* R ) const { return R != NULL && R->isDataRole() == DataRole && ApplicableRoles.in(R->getIndex()); }
 
 #endif

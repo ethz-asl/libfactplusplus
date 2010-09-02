@@ -118,6 +118,8 @@ protected:	// members
 	RAState from;
 		/// check whether there is an empty transition going from this state
 	bool EmptyTransition;
+		/// flag whether the role is data or not (valid only for simple automata)
+	bool DataRole;
 
 protected:	// methods
 		/// RW begin
@@ -150,7 +152,7 @@ public:		// interface
 	}
 
 		/// set up state transitions: no more additions to the structure
-	void setup ( RAState state, unsigned int nRoles );
+	void setup ( RAState state, unsigned int nRoles, bool data );
 
 		/// add a transition from a given state
 	void add ( RATransition* trans )
@@ -276,10 +278,10 @@ public:		// interface
 		/// get access to the transitions starting from STATE
 	const RAStateTransitions& operator [] ( RAState state ) const { return Base[state]; }
 		/// set up all transitions passing number of roles
-	void setup ( unsigned int nRoles )
+	void setup ( unsigned int nRoles, bool data )
 	{
 		for ( RAState i = 0; i < Base.size(); ++i )
-			Base[i].setup ( i, nRoles );
+			Base[i].setup ( i, nRoles, data );
 	}
 
 	// automaton's construction
