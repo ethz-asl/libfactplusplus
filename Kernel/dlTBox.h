@@ -515,7 +515,7 @@ protected:	// methods
 
 		/// build a roles taxonomy and a DAG
 	void Preprocess ( void );
-		/// absorb all axioms and set hasGCI
+		/// absorb all axioms
 	void AbsorbAxioms ( void )
 	{
 		unsigned int nSynonyms = countSynonyms();

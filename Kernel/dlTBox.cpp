@@ -246,7 +246,15 @@ TBox :: performConsistencyCheck ( void )
 		ret = nomReasoner->consistentNominalCloud();
 	}
 	else
+	{
 		ret = isSatisfiable(pTop);
+		// setup cache for GCI
+		if ( GCIs.isGCI() )
+		{
+			DLHeap.setCache ( T_G, stdReasoner->buildCacheByCGraph(ret) );
+			DLHeap.setCache ( inverse(T_G), new modelCacheConst(/*sat=*/false) );
+		}
+	}
 
 	pt.Stop();
 	consistTime = pt;
