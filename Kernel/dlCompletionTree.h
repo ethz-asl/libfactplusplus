@@ -37,8 +37,19 @@ class DlCompletionGraph;
 
 //#include "SmallObj.h"
 
-extern void printBlockingStat ( std::ostream& o );
-extern void clearBlockingStat ( void );
+#ifdef _USE_LOGGING	// don't gather statistics w/o logging
+#	define USE_BLOCKING_STATISTICS
+#endif
+
+#ifdef USE_BLOCKING_STATISTICS
+	extern void printBlockingStat1 ( std::ostream& o );
+	extern void clearBlockingStat1 ( void );
+#	define printBlockingStat(O) printBlockingStat1(O)
+#	define clearBlockingStat() clearBlockingStat1()
+#else
+#	define printBlockingStat(O) (void)NULL
+#	define clearBlockingStat() (void)NULL
+#endif
 
 /// level of CTree's nominal node
 typedef unsigned short CTNominalLevel;

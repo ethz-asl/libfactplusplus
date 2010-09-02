@@ -21,10 +21,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Reasoner.h"
 #include "logging.h"
 
+#ifdef USE_BLOCKING_STATISTICS
 // statistic for calling blocking
 unsigned long tries[6], fails[6], nSucc, failedRule;
 
-void printBlockingStat ( std::ostream& o )
+void printBlockingStat1 ( std::ostream& o )
 {
 	if ( *tries == 0 )	// nothing to inform
 		return;
@@ -40,12 +41,13 @@ void printBlockingStat ( std::ostream& o )
 	}
 }
 
-void clearBlockingStat ( void )
+void clearBlockingStat1 ( void )
 {
 	for ( int i = 5; i >= 0; --i )
 		tries[i] = fails[i] = 0;
 	nSucc = failedRule = 0;
 }
+#endif
 
 // universal Blocked-By method
 bool
@@ -74,11 +76,13 @@ DlCompletionGraph :: isBlockedBy ( const DlCompletionTree* node, const DlComplet
 	else
 		ret = node->isBlockedBy_SH(blocker);
 
+#ifdef USE_BLOCKING_STATISTICS
 	if ( ret )
 		++nSucc;
 	else
 		if ( LLM.isWritable(llGTA) )
 			LL << " fb" << failedRule << "(" << node->getId() << "," << blocker->getId() << ")";
+#endif
 
 	return ret;
 }
@@ -187,8 +191,13 @@ bool DlCompletionTree :: isCBlockedBy ( const DLDag& dag, const DlCompletionTree
 //--    (with probably several links to it). So we should check all of them
 //----------------------------------------------------------------------
 
-#define TRY_B(i)		++tries[i-1]
-#define FAIL_B(i)		failedRule = i, ++fails[i-1]
+#ifdef USE_BLOCKING_STATISTICS
+#	define TRY_B(i)		++tries[i-1]
+#	define FAIL_B(i)	failedRule = i, ++fails[i-1]
+#else
+#	define TRY_B(i)		(void)NULL
+#	define FAIL_B(i)	(void)NULL
+#endif
 
 	/// check if B1 holds for a given vertex (p is a candidate for blocker)
 bool DlCompletionTree :: B1 ( const DlCompletionTree* p ) const
