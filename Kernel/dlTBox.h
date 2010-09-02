@@ -519,7 +519,7 @@ protected:	// methods
 	void AbsorbAxioms ( void )
 	{
 		unsigned int nSynonyms = countSynonyms();
-		GCIs.setGCI(Axioms.absorb());
+		Axioms.absorb();
 		if ( countSynonyms() > nSynonyms )
 			replaceAllSynonyms();
 		if ( Axioms.wasRoleAbsorptionApplied() )

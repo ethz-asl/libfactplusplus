@@ -51,6 +51,7 @@ void TBox :: buildDAG ( void )
 	deleteTree(GCI);
 
 	// mark GCI flags
+	GCIs.setGCI(T_G != bpTOP);
 	GCIs.setReflexive(ORM.hasReflexiveRoles());
 
 	// builds functional labels for roles
