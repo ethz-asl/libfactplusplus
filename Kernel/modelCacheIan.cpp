@@ -118,7 +118,8 @@ modelCacheState modelCacheIan :: canMerge ( const modelCacheInterface* p ) const
 
 
 template <class T>
-bool set_contains ( const std::set<T>& s, T value )
+inline bool
+set_contains ( const std::set<T>& s, T value )
 {
 	return s.find(value) != s.end();
 }

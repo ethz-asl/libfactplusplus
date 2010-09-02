@@ -245,6 +245,10 @@ protected:	// members
 	unsigned int auxConceptID;
 		/// how many times nominals were found during translation to DAG; local to BuildDAG
 	unsigned int nNominalReferences;
+		/// number of relevant calls to named concepts; local to relevance
+	unsigned long nRelevantCCalls;
+		/// number of relevant calls to concept expressions; local to relevance
+	unsigned long nRelevantBCalls;
 
 		/// searchable stack for the told subsumers
 	std::set<TConcept*> CInProcess;

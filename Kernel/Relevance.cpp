@@ -19,11 +19,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <cmath>
 #include "dlTBox.h"
 
-/// number of relevant calls to named concepts
-unsigned long nRelevantCCalls;
-/// number of relevant calls to concept expressions
-unsigned long nRelevantBCalls;
-
 void TBox :: setRelevant ( BipolarPointer p )
 {
 	fpp_assert ( isValid(p) );
