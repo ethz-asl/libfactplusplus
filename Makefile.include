@@ -83,7 +83,7 @@ $(BUILD_DIR):
 
 # Set C++ compilers and linker
 
-override CXX := ccache g++$(GCC_SUFFIX) $(OS_DEF)
+override CXX := g++$(GCC_SUFFIX) $(OS_DEF)
 
 # Library building tools
 
