@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2009 by Dmitry Tsarkov
+Copyright (C) 2003-2010 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -202,16 +202,15 @@ bool DlCompletionTree :: B1 ( const DlCompletionTree* p ) const
 	return false;
 }
 
-	/// check if B2 holds for (AS C) a simple automaton A for S
-bool DlCompletionTree :: B2 ( const RAStateTransitions& RST, BipolarPointer C ) const
+bool
+DlCompletionTree :: B2Simple ( const RAStateTransitions& RST, BipolarPointer C ) const
 {
 	const DlCompletionTree* parent = getParentNode();
 	const CGLabel& parLab = parent->label();
-	RATransition* trans = *RST.begin();
 	TRY_B(2);
 
 	for ( const_edge_iterator p = begin(), p_end = end(); p < p_end; ++p )
-		if ( !(*p)->isIBlocked() && (*p)->getArcEnd() == parent && trans->applicable((*p)->getRole()) )
+		if ( !(*p)->isIBlocked() && (*p)->getArcEnd() == parent && RST.recognise((*p)->getRole()) )
 		{
 			if ( !parLab.contains(C) )
 			{
@@ -225,8 +224,8 @@ bool DlCompletionTree :: B2 ( const RAStateTransitions& RST, BipolarPointer C ) 
 	return true;
 }
 
-	/// check if B2 holds for C=(AS{n} X) a complex automaton A for S
-bool DlCompletionTree :: B2 ( const RAStateTransitions& RST, BipolarPointer C, RAState n ) const
+bool
+DlCompletionTree :: B2Complex ( const RAStateTransitions& RST, BipolarPointer C ) const
 {
 	const DlCompletionTree* parent = getParentNode();
 	const CGLabel& parLab = parent->label();
@@ -238,10 +237,12 @@ bool DlCompletionTree :: B2 ( const RAStateTransitions& RST, BipolarPointer C, R
 		if ( (*p)->isIBlocked() || (*p)->getArcEnd() != parent )
 			continue;
 		const TRole* R = (*p)->getRole();
+		if ( !RST.recognise(R) )
+			continue;
 
 		for ( q = RST.begin(); q != q_end; ++q )
 			if ( (*q)->applicable(R) )
-				if ( !parLab.containsCC(C-n+(*q)->final()) )
+				if ( !parLab.containsCC(C+(*q)->final()) )
 				{
 					FAIL_B(2);
 					return false;

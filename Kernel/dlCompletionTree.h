@@ -206,25 +206,25 @@ protected:	// methods
 		/// check if B1 holds for a given vertex (p is a candidate for blocker)
 	bool B1 ( const DlCompletionTree* p ) const;
 		/// check if B2 holds for (AS C) with transitions RST from A[0] using a simple automaton A for S
-	bool B2 ( const RAStateTransitions& RST, BipolarPointer C ) const;
+	bool B2Simple ( const RAStateTransitions& RST, BipolarPointer C ) const;
 		/// check if B2 holds for C=(AS{n} X) with transitions RST from A[n] using a complex automaton A for S
-	bool B2 ( const RAStateTransitions& RST, BipolarPointer C, RAState n ) const;
+	bool B2Complex ( const RAStateTransitions& RST, BipolarPointer C ) const;
 		/// check if B2 holds for given DL vertex with C=V
 	bool B2 ( const DLVertex& v, BipolarPointer C ) const
 	{
 #	ifdef ENABLE_CHECKING
 		fpp_assert ( hasParent() );	// safety
 #	endif
-		const RoleAutomaton& RA = v.getRole()->getAutomaton();
+		const RAStateTransitions& RST = v.getRole()->getAutomaton()[v.getState()];
 		if ( v.getRole()->isSimple() )
-			return B2 ( RA[RA.initial()], v.getC() );
+			return B2Simple ( RST, v.getC() );
 		else
 		{
-			RAState state = v.getState();
-			const RAStateTransitions& RST = RA[state];
 			if ( RST.empty() )	// no possible applications
 				return true;
-			return B2 ( RST, C, state );
+			if ( RST.isSingleton() )
+				return B2Simple ( RST, C-v.getState()+RST.getTransitionEnd() );
+			return B2Complex ( RST, C-v.getState() );
 		}
 	}
 		/// check if B3 holds for (<= n S.C)\in w' (p is a candidate for blocker)
