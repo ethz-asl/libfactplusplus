@@ -33,20 +33,28 @@ void TBox :: buildDAG ( void )
 	for ( TSimpleRules::iterator q = SimpleRules.begin(), q_end = SimpleRules.end(); q < q_end; ++q )
 		(*q)->bpHead = tree2dag((*q)->tHead);
 
-	// build all GCIs
-	DLTree* GCI = Axioms.getGCI();
-	T_G = tree2dag(GCI);
-	deleteTree(GCI);
-
 	// builds Roles range and domain
 	initRangeDomain(ORM);
 	initRangeDomain(DRM);
 
+	RoleMaster::iterator p, p_end;
+
+	// build all GCIs
+	DLTree* GCI = Axioms.getGCI();
+/*
+	// add special domains to the GCIs
+	for ( p = ORM.begin(), p_end = ORM.end(); p < p_end; ++p )
+		if ( !(*p)->isSynonym() && (*p)->hasSpecialDomain() )
+			GCI = createSNFAnd ( GCI, clone((*p)->getTSpecialDomain()) );
+*/
+	T_G = tree2dag(GCI);
+	deleteTree(GCI);
+
 	// builds functional labels for roles
-	for ( RoleMaster::iterator p = ORM.begin(), p_end = ORM.end(); p < p_end; ++p )
+	for ( p = ORM.begin(), p_end = ORM.end(); p < p_end; ++p )
 		if ( !(*p)->isSynonym() && (*p)->isTopFunc() )
 			(*p)->setFunctional ( atmost2dag ( 1, *p, bpTOP ) );
-	for ( RoleMaster::iterator p = DRM.begin(), p_end = DRM.end(); p < p_end; ++p )
+	for ( p = DRM.begin(), p_end = DRM.end(); p < p_end; ++p )
 		if ( !(*p)->isSynonym() && (*p)->isTopFunc() )
 			(*p)->setFunctional ( atmost2dag ( 1, *p, bpTOP ) );
 
@@ -68,19 +76,25 @@ void TBox :: initRangeDomain ( RoleMaster& RM )
 	for ( p = RM.begin(); p < p_end; ++p )
 		if ( !(*p)->isSynonym() )
 		{
+			TRole* R = *p;
 #		ifdef RKG_UPDATE_RND_FROM_SUPERROLES
 			// add R&D from super-roles (do it AFTER axioms are transformed into R&D)
-			(*p)->collectDomainFromSupers();
+			R->collectDomainFromSupers();
 #		endif
 
-			DLTree* dom = (*p)->getTDomain();
+			DLTree* dom = R->getTDomain();
 			if ( dom )
 			{
-				(*p)->setBPDomain(tree2dag(dom));
+				R->setBPDomain(tree2dag(dom));
 				GCIs.setRnD();
 			}
 			else
-				(*p)->setBPDomain(bpTOP);
+				R->setBPDomain(bpTOP);
+
+			// special domain for R is AR.Range
+			R->initSpecialDomain();
+			if ( R->hasSpecialDomain() )
+				R->setSpecialDomain(tree2dag(R->getTSpecialDomain()));
 		}
 }
 

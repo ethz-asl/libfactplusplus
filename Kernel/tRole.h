@@ -89,8 +89,12 @@ protected:	// members
 
 		/// Domain of role as a concept description; default NULL
 	DLTree* pDomain;
+		/// Domain of role as a concept description; default NULL
+	DLTree* pSpecialDomain;
 		/// Domain of role as a pointer to DAG entry
 	BipolarPointer bpDomain;
+		/// domain in the form AR.Range for the complex roles
+	BipolarPointer bpSpecialDomain;
 
 		/// pointer to role's functional definition DAG entry (or just TOP)
 	BipolarPointer Functional;
@@ -184,6 +188,18 @@ protected:	// methods
 
 		/// check (and correct) case whether R != S for R [= S
 	void checkHierarchicalDisjoint ( TRole* R );
+		/// check whether there is a sub-property with special domain; propagate this
+	void checkSpecialDomain ( void )
+	{
+		if ( hasSpecialDomain() )
+			return;
+		for ( iterator p = begin_desc(), p_end = end_desc(); p != p_end; ++p )
+			if ( (*p)->hasSpecialDomain() )
+			{
+				SpecialDomain = true;
+				return;
+			}
+	}
 
 public:		// interface
 		/// the only c'tor
@@ -329,6 +345,9 @@ public:		// interface
 		/// get range-as-a-tree of the role
 	DLTree* getTRange ( void ) const { return inverse()->pDomain; }
 
+		/// get special-domain-as-a-tree
+	DLTree* getTSpecialDomain ( void ) { return pSpecialDomain; }
+
 #ifdef RKG_UPDATE_RND_FROM_SUPERROLES
 		/// merge to Domain all domains from super-roles
 	void collectDomainFromSupers ( void )
@@ -344,6 +363,24 @@ public:		// interface
 	BipolarPointer getBPDomain ( void ) const { return bpDomain; }
 		/// get range-as-a-bipointer of the role
 	BipolarPointer getBPRange ( void ) const { return inverse()->bpDomain; }
+		/// @return true iff role has a special domain
+	bool hasSpecialDomain ( void ) const { return SpecialDomain; }
+		/// init special domain; call this only after *ALL* the domains are known
+	void initSpecialDomain ( void )
+	{
+		checkSpecialDomain();
+
+		if ( !hasSpecialDomain() || getTRange() == NULL )
+			pSpecialDomain = new DLTree(TOP);
+		else
+			pSpecialDomain = createSNFForall ( new DLTree ( TLexeme ( RNAME, this ) ), clone(getTRange()) );
+	}
+		/// set the special domain value
+	void setSpecialDomain ( BipolarPointer bp ) { bpSpecialDomain = bp; }
+		/// get special domain value
+	BipolarPointer getSpecialDomain ( void ) const { return bpSpecialDomain; }
+		/// get special range value
+	BipolarPointer getSpecialRange ( void ) const { return inverse()->bpSpecialDomain; }
 
 	// disjoint roles
 
@@ -498,7 +535,9 @@ inline TRole :: TRole ( const std::string& name )
 	: ClassifiableEntry(name)
 	, Inverse(NULL)
 	, pDomain(NULL)
+	, pSpecialDomain(NULL)
 	, bpDomain(bpINVALID)
+	, bpSpecialDomain(bpINVALID)
 	, Functional(bpINVALID)
 	, rel(0)
 	, SpecialDomain(false)
@@ -510,6 +549,7 @@ inline TRole :: TRole ( const std::string& name )
 inline TRole :: ~TRole ( void )
 {
 	deleteTree(pDomain);
+	deleteTree(pSpecialDomain);
 	if ( Inverse != NULL && Inverse != this )
 	{
 		Inverse->Inverse = NULL;
