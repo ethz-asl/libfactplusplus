@@ -389,11 +389,10 @@ tacticUsage DlSatTester :: commonTacticBodyAllComplex ( const DLVertex& cur )
 {
 	tacticUsage ret = utUnusable;
 
-	const TRole* R = cur.getRole();
 	const DepSet& dep = curConcept.getDep();
-	BipolarPointer C = curConcept.bp();
 	unsigned int state = cur.getState();
-	const RAStateTransitions& RST = R->getAutomaton()[state];
+	BipolarPointer C = curConcept.bp()-state;	// corresponds to AR{0}.X
+	const RAStateTransitions& RST = cur.getRole()->getAutomaton()[state];
 	RAStateTransitions::const_iterator q, end = RST.end();
 
 	// apply all empty transitions
@@ -403,7 +402,7 @@ tacticUsage DlSatTester :: commonTacticBodyAllComplex ( const DLVertex& cur )
 			incStat(nAutoEmptyLookups);
 
 			if ( (*q)->empty() )
-				switchResult ( ret, addToDoEntry ( curNode, C-state+(*q)->final(), dep, "e" ) );
+				switchResult ( ret, addToDoEntry ( curNode, C+(*q)->final(), dep, "e" ) );
 		}
 
 	// apply final-state rule
@@ -416,7 +415,7 @@ tacticUsage DlSatTester :: commonTacticBodyAllComplex ( const DLVertex& cur )
 	// check all neighbours
 	for ( DlCompletionTree::const_edge_iterator p = curNode->begin(), p_end = curNode->end(); p < p_end; ++p )
 		if ( RST.recognise((*p)->getRole()) )
-			switchResult ( ret, applyTransitions ( (*p), RST, state, C, dep ) );
+			switchResult ( ret, applyTransitions ( (*p), RST, C, dep+(*p)->getDep() ) );
 
 	return ret;
 }
@@ -425,8 +424,7 @@ tacticUsage DlSatTester :: commonTacticBodyAllSimple ( const DLVertex& cur )
 {
 	tacticUsage ret = utUnusable;
 
-	const TRole* R = cur.getRole();
-	const RAStateTransitions& RST = R->getAutomaton()[0];
+	const RAStateTransitions& RST = cur.getRole()->getAutomaton()[0];
 	const DepSet& dep = curConcept.getDep();
 	BipolarPointer C = cur.getC();
 
@@ -448,12 +446,16 @@ tacticUsage DlSatTester :: commonTacticBodyAllSimple ( const DLVertex& cur )
 /** Perform expansion of (C=\AR{state}.X).DEP to an EDGE with a given reason */
 tacticUsage DlSatTester :: applyTransitions ( const DlCompletionTreeArc* edge,
 											const RAStateTransitions& RST,
-											RAState state, BipolarPointer C,
+											BipolarPointer C,
 											const DepSet& dep, const char* reason )
 {
+	DlCompletionTree* node = edge->getArcEnd();
+	// fast lane: the single transition which is applicable
+	if ( RST.isSingleton() )
+		return addToDoEntry ( node, C+RST.getTransitionEnd(), dep, reason );
+
 	RAStateTransitions::const_iterator q, end = RST.end();
 	const TRole* R = edge->getRole();
-	DlCompletionTree* node = edge->getArcEnd();
 	tacticUsage ret = utUnusable;
 
 	// try to apply all transitions to edge
@@ -461,8 +463,7 @@ tacticUsage DlSatTester :: applyTransitions ( const DlCompletionTreeArc* edge,
 	{
 		incStat(nAutoTransLookups);
 		if ( (*q)->applicable(R) )
-			switchResult ( ret,
-				addToDoEntry ( node, C-state+(*q)->final(), dep+edge->getDep(), reason ) );
+			switchResult ( ret, addToDoEntry ( node, C+(*q)->final(), dep, reason ) );
 	}
 
 	return ret;
@@ -837,8 +838,7 @@ tacticUsage DlSatTester :: applyUniversalNR ( DlCompletionTree* Node,
 			if ( vR->isSimple() )	// R is recognised so just add the final state!
 				switchResult ( ret, addToDoEntry ( arcSample->getArcEnd(), v.getC(), dep+p->getDep(), "ae" ) );
 			else
-				switchResult ( ret, applyTransitions ( arcSample, vR->getAutomaton()[v.getState()],
-													   v.getState(), p->bp(), p->getDep()+dep, "ae" ) );
+				switchResult ( ret, applyTransitions ( arcSample, RST, p->bp()-v.getState(), dep+p->getDep(), "ae" ) );
 			break;
 		}
 

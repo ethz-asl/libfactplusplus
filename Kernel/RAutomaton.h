@@ -179,6 +179,10 @@ public:		// interface
 	RAState getFrom ( void ) const { return from; }
 		/// check whether one of the transitions accept R; implementation is in tRole.h
 	bool recognise ( const TRole* R ) const;
+		/// @return true iff there is only one transition
+	bool isSingleton ( void ) const { return Base.size() == 1; }
+		/// @return final state of the 1st transition; used for singletons
+	RAState getTransitionEnd ( void ) const { return Base.front()->final(); }
 
 		/// print all the transitions starting from the state FROM
 	void Print ( std::ostream& o ) const

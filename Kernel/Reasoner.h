@@ -716,11 +716,9 @@ protected:	// methods
 		return utClash;
 	}
 
-		/** Perform expansion of (C=\AR{state}.X).DEP with RST=A[state] to an EDGE with a given reason */
-	tacticUsage applyTransitions ( const DlCompletionTreeArc* edge,
-								   const RAStateTransitions& RST,
-								   RAState state, BipolarPointer C,
-								   const DepSet& dep, const char* reason = NULL );
+		/** Perform expansion of (C=\AR{0}.X).DEP wrt RST to an EDGE with a given reason */
+	tacticUsage applyTransitions ( const DlCompletionTreeArc* edge, const RAStateTransitions& RST,
+								   BipolarPointer C, const DepSet& dep, const char* reason = NULL );
 
 	// support for the projection
 
