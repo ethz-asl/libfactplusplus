@@ -41,12 +41,12 @@ void TBox :: buildDAG ( void )
 
 	// build all GCIs
 	DLTree* GCI = Axioms.getGCI();
-/*
+
 	// add special domains to the GCIs
 	for ( p = ORM.begin(), p_end = ORM.end(); p < p_end; ++p )
 		if ( !(*p)->isSynonym() && (*p)->hasSpecialDomain() )
 			GCI = createSNFAnd ( GCI, clone((*p)->getTSpecialDomain()) );
-*/
+
 	T_G = tree2dag(GCI);
 	deleteTree(GCI);
 

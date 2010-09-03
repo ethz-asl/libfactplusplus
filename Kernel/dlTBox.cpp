@@ -235,7 +235,7 @@ TBox :: performConsistencyCheck ( void )
 
 	TConcept* test = ( NCFeatures.hasSingletons() ? *i_begin() : NULL );
 	prepareFeatures ( test, NULL );
-	DlSatTester* Reasoner = getReasoner();
+//	DlSatTester* Reasoner = getReasoner();
 	bool ret = false;
 
 	if ( test )
@@ -252,7 +252,8 @@ TBox :: performConsistencyCheck ( void )
 	// setup cache for GCI
 	if ( GCIs.isGCI() )
 	{
-		DLHeap.setCache ( T_G, Reasoner->buildCacheByCGraph(ret) );
+		// there is no much win to have it together with special-domains-as-GCIs ATM.
+//		DLHeap.setCache ( T_G, Reasoner->buildCacheByCGraph(ret) );
 		DLHeap.setCache ( inverse(T_G), new modelCacheConst(/*sat=*/false) );
 	}
 
