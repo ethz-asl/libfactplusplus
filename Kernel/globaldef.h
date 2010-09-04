@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2009 by Dmitry Tsarkov
+Copyright (C) 2003-2010 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -16,23 +16,24 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef _GLOBALDEF_H
-#define _GLOBALDEF_H
+#ifndef GLOBALDEF_H
+#define GLOBALDEF_H
 
 // global definitions for FaCT++ Reasoning Kernel
 
-// define unused attribute for parameters
+// define unused attribute for parameters and (un)likely macro for conditions
 #if defined(__GNUC__) && (__GNUC__ >= 4)
 #	define ATTR_UNUSED __attribute__((unused))
+#	define likely(cond) __builtin_expect((cond),1)
+#	define unlikely(cond) __builtin_expect((cond),0)
 #else
 #	define ATTR_UNUSED
+#	define likely(cond) (cond)
+#	define unlikely(cond) (cond)
 #endif
 
 // uncomment this to have a DAG usage statistics printed
 //#define RKG_PRINT_DAG_USAGE
-
-// uncomment this to have a DIG-passed information printed
-#define RKG_PRINT_DIG_MESSAGES
 
 // uncomment this to have sorted ontology reasoning
 #define RKG_USE_SORTED_REASONING

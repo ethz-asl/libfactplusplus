@@ -82,7 +82,7 @@ protected:	// methods
 	bool enhancedSubs2 ( bool upDirection, TaxonomyVertex* cur )
 	{
 		// if bottom-up search and CUR is not a successor of checking entity -- return false
-		if ( upDirection && !cur->isCommon() )
+		if ( unlikely(upDirection && !cur->isCommon()) )
 			return false;
 		return enhancedSubs1 ( upDirection, cur );
 	}
