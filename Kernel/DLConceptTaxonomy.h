@@ -78,6 +78,14 @@ protected:	// methods
 	void searchBaader ( bool upDirection, TaxonomyVertex* cur );
 		/// ENHANCED_SUBS procedure from Baader et al paper
 	bool enhancedSubs1 ( bool upDirection, TaxonomyVertex* cur );
+		/// short-cuf from ENHANCED_SUBS
+	bool enhancedSubs2 ( bool upDirection, TaxonomyVertex* cur )
+	{
+		// if bottom-up search and CUR is not a successor of checking entity -- return false
+		if ( upDirection && !cur->isCommon() )
+			return false;
+		return enhancedSubs1 ( upDirection, cur );
+	}
 		// wrapper for the ENHANCED_SUBS
 	inline bool enhancedSubs ( bool upDirection, TaxonomyVertex* cur )
 	{
@@ -86,7 +94,7 @@ protected:	// methods
 		if ( cur->isValued(valueLabel) )
 			return cur->getValue();
 		else
-			return cur->setValued ( enhancedSubs1 ( upDirection, cur ), valueLabel );
+			return cur->setValued ( enhancedSubs2 ( upDirection, cur ), valueLabel );
 	}
 		/// explicetely test appropriate subsumption relation
 	bool testSubsumption ( bool upDirection, TaxonomyVertex* cur );

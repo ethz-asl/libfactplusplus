@@ -144,11 +144,6 @@ bool DLConceptTaxonomy :: enhancedSubs1 ( bool upDirection, TaxonomyVertex* cur 
 {
 	++nNonTrivialSubCalls;
 
-	// for going up only
-	// if not successor of up -- return false
-	if ( upDirection && !cur->isCommon() )
-		return false;
-
 	// need to be valued -- check all parents
 	// propagate false
 	for ( TaxonomyVertex::iterator p = cur->begin(!upDirection), p_end = cur->end(!upDirection); p < p_end; ++p )
