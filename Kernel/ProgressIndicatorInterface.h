@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2008 by Dmitry Tsarkov
+Copyright (C) 2003-2010 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -16,16 +16,24 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef _PROGRESSINDICATORINTERFACE_H
-#define _PROGRESSINDICATORINTERFACE_H
+#ifndef PROGRESSINDICATORINTERFACE_H
+#define PROGRESSINDICATORINTERFACE_H
 
+/// interface of the progress indicator
 class ProgressIndicatorInterface
 {
-protected:
+protected:	// members
+		/// limit of the progress: indicate [0..uLimit]
 	unsigned long uLimit;
+		/// current value of an indicator
 	unsigned long uCurrent;
 
+protected:	// methods
+		/// initial exposure method: can be overriden in derived classes
+	virtual void initExposure ( void ) {}
+		/// indicate current value somehow
 	virtual void expose ( void ) = 0;
+		/// check whether the limit is reached
 	bool checkMax ( void )
 	{
 		if ( uCurrent > uLimit )
@@ -37,13 +45,16 @@ protected:
 			return false;
 	}
 
-public:
+public:		// interface
+		/// empty c'tor
 	ProgressIndicatorInterface ( void ) : uLimit (0), uCurrent (0) {}
+		/// init c'tor
 	ProgressIndicatorInterface ( unsigned long limit ) : uCurrent (0)
 		{ setLimit (limit); }
+		/// empty d'tor
 	virtual ~ProgressIndicatorInterface ( void ) {}
 
-	void setLimit ( unsigned long limit ) { uLimit = limit; reset(); }
+		/// set indicator to a given VALUE
 	void setIndicator ( unsigned long value )
 	{
 		if ( uCurrent != value )
@@ -53,18 +64,12 @@ public:
 			expose ();
 		}
 	}
-	void incIndicator ( unsigned long delta = 1 );
+		/// increment current value of an indicator to DELTA steps
+	void incIndicator ( unsigned long delta = 1 ) { setIndicator(uCurrent+delta); }
+		/// set indicator to 0
 	void reset ( void ) { setIndicator (0); }
+		/// set the limit of an indicator to a given VALUE
+	void setLimit ( unsigned long limit ) { uLimit = limit; reset(); initExposure(); }
 }; // ProgressIndicatorInterface
-
-inline void ProgressIndicatorInterface::incIndicator ( unsigned long delta )
-{
-	if ( delta != 0 )
-	{
-		uCurrent += delta;
-		checkMax ();
-		expose ();
-	}
-}
 
 #endif

@@ -36,7 +36,7 @@ protected:	// members
 
 protected:	// methods
 		/// initial exposition
-	void initExpose ( void ) { std::cerr << "   0%"; }
+	virtual void initExposure ( void ) { std::cerr << "   0%"; }
 		/// expose current value
 	virtual void expose ( void )
 	{
@@ -59,13 +59,10 @@ public:		// interface
 		{}
 		/// init c'tor
 	CPPI ( unsigned long limit )
-		: ProgressIndicatorInterface()
+		: ProgressIndicatorInterface(limit)
 		, oldPercent(0)
 		, curPercent(0)
-	{
-		initExpose ();
-		setLimit (limit);
-	}
+		{}
 		/// empty d'tor
 	virtual ~CPPI ( void ) {}
 }; // CPPI

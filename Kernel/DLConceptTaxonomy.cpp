@@ -92,10 +92,6 @@ bool DLConceptTaxonomy :: testSub ( const TConcept* p, const TConcept* q )
 
 void DLConceptTaxonomy :: print ( std::ostream& o ) const
 {
-#ifdef __PRINT_FO_WHILE_CLASSIFY
-	o << "There were " << nPrintedTasks << " tasks printed with total time "
-	  << tOutput << " sec\n";
-#endif
 	o << "Totally " << nTries << " subsumption tests was made\nAmong them ";
 
 	unsigned int n = ( nTries ? nTries : 1 );
