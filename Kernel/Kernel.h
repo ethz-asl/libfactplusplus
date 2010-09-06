@@ -280,6 +280,25 @@ protected:	// methods
 		tmp = createSNFAnd ( createSNFExists ( R, getTBox()->getFreshConcept() ), tmp );
 		return !checkSat(tmp);
 	}
+		/// @return true iff the chain contained in the arg-list is a sub-property of R
+	bool checkSubChain ( TRole* R )
+	{
+		// retrieve a role chain
+		typedef const std::vector<const TDLExpression*> TExprVec;
+		TExprVec Chain = getExpressionManager()->getArgList();
+
+		// R1 o ... o Rn [= R iff \ER1.\ER2....\ERn.(notC) and AR.C is unsatisfiable
+		DLTree* tmp = createSNFNot(getTBox()->getFreshConcept());
+		for ( TExprVec::const_reverse_iterator p = Chain.rbegin(), p_end = Chain.rend(); p != p_end; ++p )
+		{
+			TORoleExpr* Ri = dynamic_cast<TORoleExpr*>(*p);
+			if ( Ri == NULL )
+				throw EFaCTPlusPlus("Role expression expected in the role chain construct");
+			tmp = createSNFExists ( e(Ri), tmp );
+		}
+		tmp = createSNFAnd ( tmp, createSNFForall ( new DLTree(TLexeme(RNAME,R)), getTBox()->getFreshConcept() ) );
+		return !checkSat(tmp);
+	}
 
 	// get access to internal structures
 
@@ -802,6 +821,16 @@ public:
 		return getTBox()->isDisjointRoles (
 			getRole ( R, "Role expression expected in isDisjointRoles()" ),
 			getRole ( S, "Role expression expected in isDisjointRoles()" ) );
+	}
+		/// @return true if R is a super-role of a chain holding in the args
+	bool isSubChain ( const TORoleExpr* R )
+	{
+		preprocessKB();	// ensure KB is ready to answer the query
+		if ( isUniversalRole(R) )
+			return true;	// universal role is a super of any chain
+		if ( isEmptyRole(R) )
+			return false;	// empty role is not a super of any chain
+		return checkSubChain ( getRole ( R, "Role expression expected in isSubChain()" ) );
 	}
 
 	// single satisfiability
