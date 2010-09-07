@@ -98,6 +98,10 @@ ReasoningKernel :: forceReload ( void )
 	Ontology.setProcessed();
 }
 
+//-------------------------------------------------
+// Prepare reasoning/query
+//-------------------------------------------------
+
 void
 ReasoningKernel :: processKB ( KBStatus status )
 {
@@ -238,7 +242,61 @@ needClassify:	// classification only needed for complex expression
 	}
 }
 
+//-------------------------------------------------
+// all-disjoint query implementation
+//-------------------------------------------------
+
+bool
+ReasoningKernel :: isDisjointRoles ( void )
+{
+	// grab all roles from the arg-list
+	typedef const std::vector<const TDLExpression*> TExprVec;
+	typedef std::vector<const TRole*> TRoleVec;
+	TExprVec Disj = getExpressionManager()->getArgList();
+	TRoleVec Roles;
+	Roles.reserve(Disj.size());
+
+	for ( TExprVec::const_iterator p = Disj.begin(), p_end = Disj.end(); p != p_end; ++p )
+	{
+		TORoleExpr* ORole = dynamic_cast<TORoleExpr*>(*p);
+		if ( ORole != NULL )
+		{
+			if ( isUniversalRole(ORole) )
+				return false;	// universal role is not disjoint with anything
+			if ( isEmptyRole(ORole) )
+				continue;		// empty role is disjoint with everything
+
+			Roles.push_back ( getRole ( ORole, "Role expression expected in isDisjointRoles()" ) );
+		}
+		else
+		{
+			TDRoleExpr* DRole = dynamic_cast<TDRoleExpr*>(*p);
+			if ( DRole == NULL )
+				throw EFaCTPlusPlus("Role expression expected in isDisjointRoles()");
+
+			if ( isUniversalRole(DRole) )
+				return false;	// universal role is not disjoint with anything
+			if ( isEmptyRole(DRole) )
+				continue;		// empty role is disjoint with everything
+
+			Roles.push_back ( getRole ( DRole, "Role expression expected in isDisjointRoles()" ) );
+		}
+	}
+
+	// test pair-wise disjointness
+	TRoleVec::const_iterator q = Roles.begin(), q_end = Roles.end(), s;
+	for ( ; q != q_end; ++q )
+		for ( s = q+1; s != q_end; ++s )
+			if ( !getTBox()->isDisjointRoles(*q,*s) )
+				return false;
+
+	return true;
+}
+
+//-------------------------------------------------
 // related individuals implementation
+//-------------------------------------------------
+
 class RIActor
 {
 protected:

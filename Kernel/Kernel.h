@@ -798,6 +798,22 @@ public:
 		DLTree* r = e(R), *s = e(S);
 		return checkRoleSubsumption ( r, s );
 	}
+		/// @return true if R is a sub-role of S
+	bool isSubRoles ( const TDRoleExpr* R, const TDRoleExpr* S )
+	{
+		preprocessKB();	// ensure KB is ready to answer the query
+		if ( isEmptyRole(R) || isUniversalRole(S) )
+			return true;	// \bot [= X [= \top
+		if ( isUniversalRole(R) && isEmptyRole(S) )
+			return false;	// as \top [= \bot leads to inconsistent ontology
+
+		// told case first
+		if ( *getRole ( R, "Role expression expected in isSubRoles()" ) <=
+			 *getRole ( S, "Role expression expected in isSubRoles()" ) )
+			return true;
+		// FIXME!! we can hardly do better, but need to think more here
+		return false;
+	}
 		/// @return true iff two roles are disjoint
 	bool isDisjointRoles ( const TORoleExpr* R, const TORoleExpr* S )
 	{
@@ -822,6 +838,8 @@ public:
 			getRole ( R, "Role expression expected in isDisjointRoles()" ),
 			getRole ( S, "Role expression expected in isDisjointRoles()" ) );
 	}
+		/// @return true iff all the roles in a arg-list are pairwise disjoint
+	bool isDisjointRoles ( void );
 		/// @return true if R is a super-role of a chain holding in the args
 	bool isSubChain ( const TORoleExpr* R )
 	{

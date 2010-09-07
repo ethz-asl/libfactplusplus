@@ -1665,17 +1665,61 @@ JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_is
 
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
- * Method:    areObjectPropertiesDisjoint
+ * Method:    isObjectSubPropertyOf
  * Signature: (Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;)Z
  */
-JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_areObjectPropertiesDisjoint
+JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_isObjectSubPropertyOf
   (JNIEnv * env, jobject obj, jobject arg1, jobject arg2)
 {
-	TRACE_JNI("areObjectPropertiesDisjoint");
+	TRACE_JNI("isObjectSubPropertyOf");
 	TRACE_ARG(env,obj,arg1);
 	TRACE_ARG(env,obj,arg2);
 	bool ret = false;
-	PROCESS_ASK_QUERY ( ret=getK(env,obj)->isDisjointRoles ( getROORoleExpr(env,arg1), getROORoleExpr(env,arg2) ),"areObjectPropertiesDisjoint");
+	PROCESS_ASK_QUERY ( ret=getK(env,obj)->isSubRoles ( getROORoleExpr(env,arg1), getROORoleExpr(env,arg2) ),"isObjectSubPropertyOf");
+	return ret;
+}
+/*
+ * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
+ * Method:    isObjectPropertyDisjointWith
+ * Signature: (Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;)Z
+ */
+JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_isObjectPropertyDisjointWith
+  (JNIEnv * env, jobject obj, jobject arg1, jobject arg2)
+{
+	TRACE_JNI("isObjectPropertyDisjointWith");
+	TRACE_ARG(env,obj,arg1);
+	TRACE_ARG(env,obj,arg2);
+	bool ret = false;
+	PROCESS_ASK_QUERY ( ret=getK(env,obj)->isDisjointRoles ( getROORoleExpr(env,arg1), getROORoleExpr(env,arg2) ),"isObjectPropertyDisjointWith");
+	return ret;
+}
+
+/*
+ * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
+ * Method:    isSubPropertyChainOf
+ * Signature: (Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;)Z
+ */
+JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_isSubPropertyChainOf
+  (JNIEnv * env, jobject obj, jobject arg)
+{
+	TRACE_JNI("isSubPropertyChainOf");
+	TRACE_ARG(env,obj,arg);
+	bool ret = false;
+	PROCESS_ASK_QUERY ( ret=getK(env,obj)->isSubChain(getROORoleExpr(env,arg)),"isSubPropertyChainOf");
+	return ret;
+}
+
+/*
+ * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
+ * Method:    arePropertiesDisjoint
+ * Signature: ()Z
+ */
+JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_arePropertiesDisjoint
+  (JNIEnv * env, jobject obj)
+{
+	TRACE_JNI("arePropertiesDisjoint");
+	bool ret = false;
+	PROCESS_ASK_QUERY ( ret=getK(env,obj)->isDisjointRoles(),"arePropertiesDisjoint");
 	return ret;
 }
 
@@ -1786,17 +1830,33 @@ JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_is
 
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
- * Method:    areDataPropertiesDisjoint
- * Signature: (Luk/ac/manchester/cs/factplusplus/DataPropertyPointer;Luk/ac/manchester/cs/factplusplus/DataPropertyPointer;)Z
+ * Method:    isDataSubPropertyOf
+ * Signature: (Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;)Z
  */
-JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_areDataPropertiesDisjoint
+JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_isDataSubPropertyOf
   (JNIEnv * env, jobject obj, jobject arg1, jobject arg2)
 {
-	TRACE_JNI("areDataPropertiesDisjoint");
+	TRACE_JNI("isDataSubPropertyOf");
 	TRACE_ARG(env,obj,arg1);
 	TRACE_ARG(env,obj,arg2);
 	bool ret = false;
-	PROCESS_ASK_QUERY ( ret=getK(env,obj)->isDisjointRoles ( getRODRoleExpr(env,arg1), getRODRoleExpr(env,arg2) ),"areDataPropertiesDisjoint");
+	PROCESS_ASK_QUERY ( ret=getK(env,obj)->isSubRoles ( getRODRoleExpr(env,arg1), getRODRoleExpr(env,arg2) ),"isDataSubPropertyOf");
+	return ret;
+}
+
+/*
+ * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
+ * Method:    isObjectPropertyDisjointWith
+ * Signature: (Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;)Z
+ */
+JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_isDataPropertyDisjointWith
+  (JNIEnv * env, jobject obj, jobject arg1, jobject arg2)
+{
+	TRACE_JNI("isDataPropertyDisjointWith");
+	TRACE_ARG(env,obj,arg1);
+	TRACE_ARG(env,obj,arg2);
+	bool ret = false;
+	PROCESS_ASK_QUERY ( ret=getK(env,obj)->isDisjointRoles ( getRODRoleExpr(env,arg1), getRODRoleExpr(env,arg2) ),"isDataPropertyDisjointWith");
 	return ret;
 }
 

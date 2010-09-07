@@ -1199,12 +1199,23 @@ public class FaCTPlusPlusReasoner extends OWLReasonerBase {
             return true;
         }
 
+		// TODO: this check is incomplete
         public Boolean visit(OWLDisjointDataPropertiesAxiom axiom) {
-            return null;
+			kernel.initArgList();
+			for (OWLDataPropertyExpression p : axiom.getProperties())	{
+				kernel.addArg(toDataPropertyPointer(p));
+			}
+			kernel.closeArgList();
+			return kernel.arePropertiesDisjoint();
         }
 
         public Boolean visit(OWLDisjointObjectPropertiesAxiom axiom) {
-            return null;
+			kernel.initArgList();
+			for (OWLObjectPropertyExpression p : axiom.getProperties())	{
+				kernel.addArg(toObjectPropertyPointer(p));
+			}
+			kernel.closeArgList();
+			return kernel.arePropertiesDisjoint();
         }
 
         public Boolean visit(OWLObjectPropertyRangeAxiom axiom) {
@@ -1220,7 +1231,7 @@ public class FaCTPlusPlusReasoner extends OWLReasonerBase {
         }
 
         public Boolean visit(OWLSubObjectPropertyOfAxiom axiom) {
-            return null;
+            return kernel.isObjectSubPropertyOf(toObjectPropertyPointer(axiom.getSubProperty()), toObjectPropertyPointer(axiom.getSuperProperty()));
         }
 
         public Boolean visit(OWLDisjointUnionAxiom axiom) {
@@ -1248,7 +1259,15 @@ public class FaCTPlusPlusReasoner extends OWLReasonerBase {
         }
 
         public Boolean visit(OWLEquivalentDataPropertiesAxiom axiom) {
-            return null;
+/*	this is not implemented in OWL API
+			for (OWLAxiom ax : axiom.asSubDataPropertyOfAxioms()) {
+                if (!ax.accept(this)) {
+                    return false;
+                }
+            }
+            return true;
+*/
+			return null;
         }
 
         public Boolean visit(OWLClassAssertionAxiom axiom) {
@@ -1283,8 +1302,9 @@ public class FaCTPlusPlusReasoner extends OWLReasonerBase {
             return kernel.isObjectPropertyIrreflexive(toObjectPropertyPointer(axiom.getProperty()));
         }
 
+		// TODO: this is incomplete
         public Boolean visit(OWLSubDataPropertyOfAxiom axiom) {
-            return null;
+            return kernel.isDataSubPropertyOf(toDataPropertyPointer(axiom.getSubProperty()), toDataPropertyPointer(axiom.getSuperProperty()));
         }
 
         public Boolean visit(OWLInverseFunctionalObjectPropertyAxiom axiom) {
@@ -1304,22 +1324,35 @@ public class FaCTPlusPlusReasoner extends OWLReasonerBase {
         }
 
         public Boolean visit(OWLSubPropertyChainOfAxiom axiom) {
-            return null;
+            kernel.initArgList();
+			for (OWLObjectPropertyExpression p : axiom.getPropertyChain())	{
+				kernel.addArg(toObjectPropertyPointer(p));
+			}
+			kernel.closeArgList();
+			return kernel.isSubPropertyChainOf(toObjectPropertyPointer(axiom.getSuperProperty()));
         }
 
         public Boolean visit(OWLInverseObjectPropertiesAxiom axiom) {
-            return null;
+            for (OWLAxiom ax : axiom.asSubObjectPropertyOfAxioms()) {
+                if (!ax.accept(this)) {
+                    return false;
+                }
+            }
+            return true;
         }
 
         public Boolean visit(OWLHasKeyAxiom axiom) {
+			// FIXME!! unsupported by FaCT++ ATM
             return null;
         }
 
         public Boolean visit(OWLDatatypeDefinitionAxiom axiom) {
+			// FIXME!! unsupported by FaCT++ ATM
             return null;
         }
 
         public Boolean visit(SWRLRule rule) {
+			// FIXME!! unsupported by FaCT++ ATM
             return null;
         }
 

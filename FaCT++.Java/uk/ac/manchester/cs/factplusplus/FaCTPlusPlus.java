@@ -444,8 +444,18 @@ public class FaCTPlusPlus {
 
     public native boolean isObjectPropertyIrreflexive(ObjectPropertyPointer r) throws FaCTPlusPlusException;
 
-    public native boolean areObjectPropertiesDisjoint(ObjectPropertyPointer r, ObjectPropertyPointer s) throws FaCTPlusPlusException;
+	// @return true iff R is a sub-property of S
+    public native boolean isObjectSubPropertyOf(ObjectPropertyPointer r, ObjectPropertyPointer s) throws FaCTPlusPlusException;
 
+	// @return true iff R is disjoint with S
+    public native boolean isObjectPropertyDisjointWith(ObjectPropertyPointer r, ObjectPropertyPointer s) throws FaCTPlusPlusException;
+
+	// @return true iff R is a super-property of a chain given in the argument list
+    public native boolean isSubPropertyChainOf(ObjectPropertyPointer r) throws FaCTPlusPlusException;
+
+
+	// @return true iff all the properties in the arg-list are disjoint
+    public native boolean arePropertiesDisjoint() throws FaCTPlusPlusException;
 
 
     public native boolean isDataPropertyEmpty(DataPropertyPointer r) throws FaCTPlusPlusException;
@@ -462,7 +472,11 @@ public class FaCTPlusPlus {
 
     public native boolean isDataPropertyFunctional(DataPropertyPointer r) throws FaCTPlusPlusException;
 
-    public native boolean areDataPropertiesDisjoint(DataPropertyPointer r, DataPropertyPointer s) throws FaCTPlusPlusException;
+	// @return true iff R is a sub-property of S
+    public native boolean isDataSubPropertyOf(DataPropertyPointer r, DataPropertyPointer s) throws FaCTPlusPlusException;
+
+	// @return true iff R is disjoint with S
+    public native boolean isDataPropertyDisjointWith(DataPropertyPointer r, DataPropertyPointer s) throws FaCTPlusPlusException;
 
 
     public native ClassPointer [][] askIndividualTypes(IndividualPointer i, boolean direct) throws FaCTPlusPlusException;
@@ -487,14 +501,6 @@ public class FaCTPlusPlus {
 
     // return instances grouped by the SameAs relation
     public native IndividualPointer [][] askInstancesGrouped(ClassPointer c, boolean direct) throws FaCTPlusPlusException;
-
-
-    /**
-     * This method is deprecated and might be removed in the future releases
-     */
-    public IndividualPointer [] askInstances(ClassPointer c) throws FaCTPlusPlusException {
-        return askInstances(c, false);
-    }
 
     public native IndividualPointer [] askSameAs(IndividualPointer i) throws FaCTPlusPlusException;
 

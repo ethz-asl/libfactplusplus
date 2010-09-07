@@ -921,11 +921,35 @@ JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_is
 
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
- * Method:    areObjectPropertiesDisjoint
+ * Method:    isObjectSubPropertyOf
  * Signature: (Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;)Z
  */
-JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_areObjectPropertiesDisjoint
+JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_isObjectSubPropertyOf
   (JNIEnv *, jobject, jobject, jobject);
+
+/*
+ * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
+ * Method:    isObjectPropertyDisjointWith
+ * Signature: (Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;)Z
+ */
+JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_isObjectPropertyDisjointWith
+  (JNIEnv *, jobject, jobject, jobject);
+
+/*
+ * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
+ * Method:    isSubPropertyChainOf
+ * Signature: (Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;)Z
+ */
+JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_isSubPropertyChainOf
+  (JNIEnv *, jobject, jobject);
+
+/*
+ * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
+ * Method:    arePropertiesDisjoint
+ * Signature: ()Z
+ */
+JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_arePropertiesDisjoint
+  (JNIEnv *, jobject);
 
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
@@ -985,10 +1009,18 @@ JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_is
 
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
- * Method:    areDataPropertiesDisjoint
+ * Method:    isDataSubPropertyOf
  * Signature: (Luk/ac/manchester/cs/factplusplus/DataPropertyPointer;Luk/ac/manchester/cs/factplusplus/DataPropertyPointer;)Z
  */
-JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_areDataPropertiesDisjoint
+JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_isDataSubPropertyOf
+  (JNIEnv *, jobject, jobject, jobject);
+
+/*
+ * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
+ * Method:    isDataPropertyDisjointWith
+ * Signature: (Luk/ac/manchester/cs/factplusplus/DataPropertyPointer;Luk/ac/manchester/cs/factplusplus/DataPropertyPointer;)Z
+ */
+JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_isDataPropertyDisjointWith
   (JNIEnv *, jobject, jobject, jobject);
 
 /*
