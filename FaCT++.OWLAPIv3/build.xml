@@ -1,6 +1,6 @@
 <project default="distribution">
 
-    <property name="factplusplus.version" value="1.4.0.1"/>
+    <property name="factplusplus.version" value="1.4.1"/>
     <property name="builddir" value="../out"/>
     <property name="classesdir" value="${builddir}/classes"/>
     <property name="distdir" value="${builddir}/dist"/>
