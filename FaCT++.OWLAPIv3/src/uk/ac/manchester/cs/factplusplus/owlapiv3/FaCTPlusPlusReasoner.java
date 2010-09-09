@@ -92,7 +92,7 @@ public class FaCTPlusPlusReasoner extends OWLReasonerBase {
         }
     }
 	
-	private void retractAxiom(OWLAxiom axiom) throws FaCTPlusPlusException {
+	private void retractAxiom(OWLAxiom axiom) {
 		final AxiomPointer ptr = axiom2PtrMap.get(axiom);
 		if (ptr != null) {
 			kernel.retract(ptr);
@@ -154,11 +154,27 @@ public class FaCTPlusPlusReasoner extends OWLReasonerBase {
         interrupted = true;
     }
 
-    public void prepareReasoner() throws ReasonerInterruptedException, TimeOutException {
+	// precompute inferences
+
+	public void precomputeInferences(InferenceType... inferenceTypes) throws ReasonerInterruptedException, TimeOutException, InconsistentOntologyException {	
+		// FIXME!! later
         kernel.realise();
     }
 
-    public boolean isConsistent() throws ReasonerInterruptedException, TimeOutException {
+	public boolean isPrecomputed(InferenceType inferenceType) {
+		// FIXME!! later
+		return true;
+	}
+	
+	public Set<InferenceType> getPrecomputableInferenceTypes() {
+		// FIXME!! later
+		return new HashSet<InferenceType>();
+	}
+
+
+	// consistency
+	
+	public boolean isConsistent() throws ReasonerInterruptedException, TimeOutException {
         return kernel.isKBConsistent();
     }
 
@@ -168,17 +184,19 @@ public class FaCTPlusPlusReasoner extends OWLReasonerBase {
         }
     }
 
-    public boolean isSatisfiable(OWLClassExpression classExpression) throws ReasonerInterruptedException, TimeOutException, ClassExpressionNotInProfileException, InconsistentOntologyException {
+    public boolean isSatisfiable(OWLClassExpression classExpression) throws ReasonerInterruptedException, TimeOutException, ClassExpressionNotInProfileException, FreshEntitiesException, InconsistentOntologyException {
         checkConsistency();
         return kernel.isClassSatisfiable(toClassPointer(classExpression));
     }
 
-    public Node<OWLClass> getUnsatisfiableClasses() throws ReasonerInterruptedException, TimeOutException {
+    public Node<OWLClass> getUnsatisfiableClasses() throws ReasonerInterruptedException, TimeOutException, InconsistentOntologyException {
         checkConsistency();
         return getBottomClassNode();
     }
 
-    public boolean isEntailed(OWLAxiom axiom) throws ReasonerInterruptedException, UnsupportedEntailmentTypeException, TimeOutException, AxiomNotInProfileException {
+	// entailments
+
+    public boolean isEntailed(OWLAxiom axiom) throws ReasonerInterruptedException, UnsupportedEntailmentTypeException, TimeOutException, AxiomNotInProfileException, FreshEntitiesException, InconsistentOntologyException {
         checkConsistency();
         Boolean entailed = axiom.accept(entailmentChecker);
         if (entailed == null) {
@@ -187,7 +205,7 @@ public class FaCTPlusPlusReasoner extends OWLReasonerBase {
         return entailed;
     }
 
-    public boolean isEntailed(Set<? extends OWLAxiom> axioms) throws ReasonerInterruptedException, UnsupportedEntailmentTypeException, TimeOutException, AxiomNotInProfileException {
+    public boolean isEntailed(Set<? extends OWLAxiom> axioms) throws ReasonerInterruptedException, UnsupportedEntailmentTypeException, TimeOutException, AxiomNotInProfileException, FreshEntitiesException, InconsistentOntologyException {
         checkConsistency();
         for (OWLAxiom ax : axioms) {
             if (!isEntailed(ax)) {
@@ -198,8 +216,11 @@ public class FaCTPlusPlusReasoner extends OWLReasonerBase {
     }
 
     public boolean isEntailmentCheckingSupported(AxiomType<?> axiomType) {
+		// FIXME!! check later
         return true;
     }
+
+	// classes
 
     public Node<OWLClass> getTopClassNode() {
         checkConsistency();
@@ -211,7 +232,7 @@ public class FaCTPlusPlusReasoner extends OWLReasonerBase {
         return getEquivalentClasses(getOWLDataFactory().getOWLNothing());
     }
 
-    public NodeSet<OWLClass> getSubClasses(OWLClassExpression ce, boolean direct) {
+    public NodeSet<OWLClass> getSubClasses(OWLClassExpression ce, boolean direct) throws ReasonerInterruptedException, TimeOutException, FreshEntitiesException, InconsistentOntologyException {
         checkConsistency();
         return classExpressionTranslator.getNodeSetFromPointers(kernel.askSubClasses(toClassPointer(ce), direct));
     }
@@ -227,45 +248,47 @@ public class FaCTPlusPlusReasoner extends OWLReasonerBase {
         return classExpressionTranslator.getNodeFromPointers(pointers);
     }
 
-    public NodeSet<OWLClass> getDisjointClasses(OWLClassExpression ce, boolean direct) {
+    public NodeSet<OWLClass> getDisjointClasses(OWLClassExpression ce) {
         checkConsistency();
         // TODO:
         // Not supported directly by FaCT++
         return new OWLClassNodeSet();
     }
 
-    public Node<OWLObjectProperty> getTopObjectPropertyNode() {
+	// object properties
+
+    public Node<OWLObjectPropertyExpression> getTopObjectPropertyNode() {
         checkConsistency();
         return getEquivalentObjectProperties(getOWLDataFactory().getOWLTopObjectProperty());
     }
 
-    public Node<OWLObjectProperty> getBottomObjectPropertyNode() {
+    public Node<OWLObjectPropertyExpression> getBottomObjectPropertyNode() {
         checkConsistency();
         return getEquivalentObjectProperties(getOWLDataFactory().getOWLBottomObjectProperty());
     }
 
-    public NodeSet<OWLObjectProperty> getSubObjectProperties(OWLObjectPropertyExpression pe, boolean direct) throws InconsistentOntologyException, ReasonerInterruptedException, TimeOutException {
+    public NodeSet<OWLObjectPropertyExpression> getSubObjectProperties(OWLObjectPropertyExpression pe, boolean direct) throws InconsistentOntologyException, ReasonerInterruptedException, TimeOutException {
         checkConsistency();
         return objectPropertyTranslator.getNodeSetFromPointers(kernel.askSubObjectProperties(toObjectPropertyPointer(pe), direct));
     }
 
-    public NodeSet<OWLObjectProperty> getSuperObjectProperties(OWLObjectPropertyExpression pe, boolean direct) throws InconsistentOntologyException, ReasonerInterruptedException, TimeOutException {
+    public NodeSet<OWLObjectPropertyExpression> getSuperObjectProperties(OWLObjectPropertyExpression pe, boolean direct) throws InconsistentOntologyException, ReasonerInterruptedException, TimeOutException {
         checkConsistency();
         return objectPropertyTranslator.getNodeSetFromPointers(kernel.askSuperObjectProperties(toObjectPropertyPointer(pe), direct));
     }
 
-    public Node<OWLObjectProperty> getEquivalentObjectProperties(OWLObjectPropertyExpression pe) throws InconsistentOntologyException, ReasonerInterruptedException, TimeOutException {
+    public Node<OWLObjectPropertyExpression> getEquivalentObjectProperties(OWLObjectPropertyExpression pe) throws InconsistentOntologyException, ReasonerInterruptedException, TimeOutException {
         checkConsistency();
         return objectPropertyTranslator.getNodeFromPointers(kernel.askEquivalentObjectProperties(toObjectPropertyPointer(pe)));
     }
 
-    public NodeSet<OWLObjectProperty> getDisjointObjectProperties(OWLObjectPropertyExpression pe, boolean direct) throws InconsistentOntologyException, ReasonerInterruptedException, TimeOutException {
+    public NodeSet<OWLObjectPropertyExpression> getDisjointObjectProperties(OWLObjectPropertyExpression pe) throws InconsistentOntologyException, ReasonerInterruptedException, TimeOutException {
         checkConsistency();
         // TODO:
         return new OWLObjectPropertyNodeSet();
     }
 
-    public Node<OWLObjectProperty> getInverseObjectProperties(OWLObjectPropertyExpression pe) throws InconsistentOntologyException, ReasonerInterruptedException, TimeOutException {
+    public Node<OWLObjectPropertyExpression> getInverseObjectProperties(OWLObjectPropertyExpression pe) throws InconsistentOntologyException, ReasonerInterruptedException, TimeOutException {
         checkConsistency();
         return objectPropertyTranslator.getNodeFromPointers(kernel.askEquivalentObjectProperties(toObjectPropertyPointer(pe.getInverseProperty())));
     }
@@ -281,6 +304,8 @@ public class FaCTPlusPlusReasoner extends OWLReasonerBase {
         return getSuperClasses(getOWLDataFactory().getOWLObjectSomeValuesFrom(pe.getInverseProperty(), getOWLDataFactory().getOWLThing()), direct);
     }
 
+	// data properties
+	
     public Node<OWLDataProperty> getTopDataPropertyNode() {
         checkConsistency();
         return getEquivalentDataProperties(getOWLDataFactory().getOWLTopDataProperty());
@@ -306,7 +331,7 @@ public class FaCTPlusPlusReasoner extends OWLReasonerBase {
         return dataPropertyTranslator.getNodeFromPointers(kernel.askEquivalentDataProperties(toDataPropertyPointer(pe)));
     }
 
-    public NodeSet<OWLDataProperty> getDisjointDataProperties(OWLDataPropertyExpression pe, boolean direct) throws InconsistentOntologyException, ReasonerInterruptedException, TimeOutException {
+    public NodeSet<OWLDataProperty> getDisjointDataProperties(OWLDataPropertyExpression pe) throws InconsistentOntologyException, ReasonerInterruptedException, TimeOutException {
         checkConsistency();
         // TODO:
         return new OWLDataPropertyNodeSet();
@@ -317,6 +342,8 @@ public class FaCTPlusPlusReasoner extends OWLReasonerBase {
         return getSuperClasses(getOWLDataFactory().getOWLDataSomeValuesFrom(getOWLDataFactory().getOWLTopDataProperty(), getOWLDataFactory().getTopDatatype()), direct);
     }
 
+	// individuals
+	
     public NodeSet<OWLClass> getTypes(OWLNamedIndividual ind, boolean direct) throws InconsistentOntologyException, ReasonerInterruptedException, TimeOutException {
         checkConsistency();
         return classExpressionTranslator.getNodeSetFromPointers(kernel.askIndividualTypes(toIndividualPointer(ind), direct));
@@ -359,7 +386,7 @@ public class FaCTPlusPlusReasoner extends OWLReasonerBase {
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-    private abstract class OWLEntityTranslator<E extends OWLLogicalEntity, P extends Pointer> {
+    private abstract class OWLEntityTranslator<E extends OWLObject, P extends Pointer> {
 
         private Map<E, P> entity2PointerMap = new HashMap<E, P>();
 
@@ -514,12 +541,15 @@ public class FaCTPlusPlusReasoner extends OWLReasonerBase {
     }
 
     protected DataValuePointer toDataValuePointer(OWLLiteral literal) {
-        if (literal.isOWLTypedLiteral()) {
-            return kernel.getDataValue(literal.getLiteral(), toDataTypePointer(literal.getDatatype()));
-        }
-        else {
-            return kernel.getDataValue(literal.getLiteral(), toDataTypePointer(getOWLDataFactory().getTopDatatype()));
-        }
+		String value = literal.getLiteral();
+		if (literal.isRDFPlainLiteral()) {
+			value = value + "@" + literal.getLang();
+		}
+
+		return kernel.getDataValue(value, toDataTypePointer(literal.getDatatype()));
+		//  else {
+		//      return kernel.getDataValue(literal.getLiteral(), toDataTypePointer(getOWLDataFactory().getTopDatatype()));
+		//  }
     }
 
     private NodeSet<OWLNamedIndividual> translateIndividualPointersToNodeSet(IndividualPointer[] pointers) {
@@ -836,7 +866,7 @@ public class FaCTPlusPlusReasoner extends OWLReasonerBase {
         }
     }
 
-    private class ObjectPropertyTranslator extends OWLEntityTranslator<OWLObjectProperty, ObjectPropertyPointer> {
+    private class ObjectPropertyTranslator extends OWLEntityTranslator<OWLObjectPropertyExpression, ObjectPropertyPointer> {
         @Override
         protected ObjectPropertyPointer getTopEntityPointer() {
             return kernel.getTopObjectProperty();
@@ -846,10 +876,22 @@ public class FaCTPlusPlusReasoner extends OWLReasonerBase {
         protected ObjectPropertyPointer getBottomEntityPointer() {
             return kernel.getBottomObjectProperty();
         }
-
+		// TODO: add implementation of registerNewEntity
+		@Override
+		protected ObjectPropertyPointer registerNewEntity(OWLObjectPropertyExpression entity) {
+			ObjectPropertyPointer pointer = createPointerForEntity(entity);
+			fillEntityPointerMaps(entity, pointer);
+			entity = entity.getInverseProperty().getSimplified();
+			fillEntityPointerMaps(entity,createPointerForEntity(entity));
+			return pointer;
+		}
         @Override
-        protected ObjectPropertyPointer createPointerForEntity(OWLObjectProperty entity) {
-            return kernel.getObjectProperty(entity.toStringID());
+        protected ObjectPropertyPointer createPointerForEntity(OWLObjectPropertyExpression entity) {
+			// FIXME!! think later!!
+			ObjectPropertyPointer p = kernel.getObjectProperty(entity.getNamedProperty().toStringID());
+			if ( entity.isAnonymous() )	// inverse!
+				p = kernel.getInverseProperty(p);
+            return p;
         }
 
         @Override
@@ -863,12 +905,12 @@ public class FaCTPlusPlusReasoner extends OWLReasonerBase {
         }
 
         @Override
-        protected DefaultNode<OWLObjectProperty> createDefaultNode() {
+        protected DefaultNode<OWLObjectPropertyExpression> createDefaultNode() {
             return new OWLObjectPropertyNode();
         }
 
         @Override
-        protected DefaultNodeSet<OWLObjectProperty> createDefaultNodeSet() {
+        protected DefaultNodeSet<OWLObjectPropertyExpression> createDefaultNodeSet() {
             return new OWLObjectPropertyNodeSet();
         }
     }

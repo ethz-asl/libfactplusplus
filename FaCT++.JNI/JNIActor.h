@@ -148,10 +148,14 @@ class ObjectPropertyPolicy
 {
 public:
 	static const TClassFieldMethodIDs& getIDs ( void ) { return ObjectPropertyPointer; }
-	static bool applicable ( const ClassifiableEntry* p ) { return p->getId() > 0; }
+	static bool applicable ( const ClassifiableEntry* p ) { return true; }
 	static bool needPlain ( void ) { return false; }
 	static TExpr* buildTree ( TExpressionManager* EM, const ClassifiableEntry* p )
-		{ return getOName ( EM, p->getName() ); }
+	{
+		return p->getId() >= 0 ?
+			getOName ( EM, p->getName() ) :
+			EM->Inverse(getOName(EM,static_cast<const TRole*>(p)->realInverse()->getName()));
+	}
 }; // ObjectPropertyPolicy
 
 /// policy for data properties
