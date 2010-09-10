@@ -411,13 +411,13 @@ void TRole :: completeAutomaton ( SetOfRoles& RInProcess )
 	for ( iterator p = begin_desc(); p != end_desc(); ++p )
 		(*p)->completeAutomaton(RInProcess);
 
-	// check for the transitivity
-	if ( isTransitive() )
-		A.addTransitionSafe ( A.final(), new RATransition(A.initial()) );
-
 	// add automata for complex role inclusions
 	for ( std::vector<roleSet>::iterator q = subCompositions.begin(); q != subCompositions.end(); ++q )
 		addSubCompositionAutomaton ( *q, RInProcess );
+
+	// check for the transitivity
+	if ( isTransitive() )
+		A.addTransitionSafe ( A.final(), new RATransition(A.initial()) );
 
 	// complete automaton
 	A.complete();
@@ -431,8 +431,11 @@ void TRole :: completeAutomaton ( SetOfRoles& RInProcess )
 
 /// add automaton for a role composition
 void
-TRole :: addSubCompositionAutomaton ( const roleSet& RS, SetOfRoles& RInProcess )
+TRole :: addSubCompositionAutomaton ( roleSet& RS, SetOfRoles& RInProcess )
 {
+	// first preprocess the role chain
+	preprocessComposition(RS);
+
 	if ( RS.empty() )	// fallout from transitivity axiom
 		return;
 
@@ -443,12 +446,12 @@ TRole :: addSubCompositionAutomaton ( const roleSet& RS, SetOfRoles& RInProcess 
 	roleSet::const_iterator p = RS.begin(), p_last = RS.end() - 1;
 	RAState from = A.initial(), to = A.final();
 
-	if ( resolveSynonym(RS.front()) == this )
+	if ( RS.front() == this )
 	{
 		++p;
 		from = A.final();
 	}
-	else if ( resolveSynonym(RS.back()) == this )
+	else if ( RS.back() == this )
 	{
 		--p_last;
 		to = A.initial();

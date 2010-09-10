@@ -183,8 +183,8 @@ protected:	// methods
 		R->completeAutomaton(RInProcess);
 		return R->getAutomaton();
 	}
-		/// add automaton for a role composition
-	void addSubCompositionAutomaton ( const roleSet& RS, SetOfRoles& RInProcess );
+		/// add automaton for a role composition; simplify composition
+	void addSubCompositionAutomaton ( roleSet& RS, SetOfRoles& RInProcess );
 
 		/// check (and correct) case whether R != S for R [= S
 	void checkHierarchicalDisjoint ( TRole* R );
@@ -459,13 +459,6 @@ public:		// interface
 		SetOfRoles RInProcess;
 		roleSet ToldSynonyms;
 		return eliminateToldCycles ( RInProcess, ToldSynonyms );
-	}
-		/// replace RoR [= R with Trans(R)
-	void preprocessAllCompositions ( void ) throw(EFPPCycleInRIA)
-	{
-		for ( std::vector<roleSet>::iterator q = subCompositions.begin(),
-			  q_end = subCompositions.end(); q < q_end; ++q )
-			preprocessComposition(*q);
 	}
 		/// init ancestors and descendants using Taxonomy
 	void initADbyTaxonomy ( Taxonomy* pTax, unsigned int ADMapSize );
