@@ -71,6 +71,13 @@ public:		// interface
 		/// add label of transition TRANS to transition's label
 	void add ( const RATransition& trans )
 		{ label.insert ( label.end(), trans.label.begin(), trans.label.end() ); }
+		/// add label of transition TRANS to transition's label only if they are new
+	void addIfNew ( const RATransition& trans )
+	{
+		for ( const_iterator p = trans.label.begin(), p_end = trans.label.end(); p < p_end; ++p )
+			if ( !applicable(*p) )
+				add(*p);
+	}
 
 	// query the transition
 

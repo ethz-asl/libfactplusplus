@@ -41,7 +41,7 @@ RAStateTransitions :: addToExisting ( const RATransition* trans )
 	for ( iterator p = Base.begin(), p_end = Base.end(); p != p_end; ++p )
 		if ( (*p)->final() == to && (*p)->empty() == tEmpty )
 		{	// found existing transition
-			(*p)->add(*trans);
+			(*p)->addIfNew(*trans);
 			return true;
 		}
 	// no transition from->to found
