@@ -370,8 +370,6 @@ public:		// interface
 		/// init special domain; call this only after *ALL* the domains are known
 	void initSpecialDomain ( void )
 	{
-		checkSpecialDomain();
-
 		if ( !hasSpecialDomain() || getTRange() == NULL )
 			pSpecialDomain = new DLTree(TOP);
 		else

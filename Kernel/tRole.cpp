@@ -424,7 +424,12 @@ void TRole :: completeAutomaton ( SetOfRoles& RInProcess )
 	setFinished(true);
 
 	for ( ClassifiableEntry::iterator p = told_begin(); p < told_end(); ++p )
-		static_cast<TRole*>(resolveSynonym(*p))->addSubRoleAutomaton(this);
+	{
+		TRole* R = static_cast<TRole*>(resolveSynonym(*p));
+		R->addSubRoleAutomaton(this);
+		if ( hasSpecialDomain() )
+			R->SpecialDomain = true;
+	}
 
 	// finish processing role
 	RInProcess.erase(this);
