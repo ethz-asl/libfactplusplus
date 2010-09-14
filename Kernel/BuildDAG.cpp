@@ -87,13 +87,14 @@ void TBox :: initRangeDomain ( RoleMaster& RM )
 #		endif
 
 			DLTree* dom = R->getTDomain();
+			BipolarPointer bp = bpTOP;
 			if ( dom )
 			{
-				R->setBPDomain(tree2dag(dom));
+				bp = tree2dag(dom);
 				GCIs.setRnD();
 			}
-			else
-				R->setBPDomain(bpTOP);
+
+			R->setBPDomain(bp);
 
 			// special domain for R is AR.Range
 			R->initSpecialDomain();

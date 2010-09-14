@@ -397,7 +397,8 @@ TRole :: preprocessComposition ( roleSet& RS ) throw(EFPPCycleInRIA)
 /// complete role automaton
 void TRole :: completeAutomaton ( SetOfRoles& RInProcess )
 {
-	if ( A.isComplete() )
+	// check whether RA is already complete
+	if ( isFinished() )
 		return;
 
 	// if we found a cycle...
@@ -419,8 +420,8 @@ void TRole :: completeAutomaton ( SetOfRoles& RInProcess )
 	if ( isTransitive() )
 		A.addTransitionSafe ( A.final(), new RATransition(A.initial()) );
 
-	// complete automaton
-	A.complete();
+	// here automaton is complete
+	setFinished(true);
 
 	for ( ClassifiableEntry::iterator p = told_begin(); p < told_end(); ++p )
 		static_cast<TRole*>(resolveSynonym(*p))->addSubRoleAutomaton(this);

@@ -339,13 +339,6 @@ public:		// interface
 		/// return number of distinct states
 	unsigned int size ( void ) const { return Base.size(); }
 
-	// completeness of an automaton
-
-		/// check whether automaton is complete
-	bool isComplete ( void ) const { return Complete; }
-		/// complete automaton
-	void complete ( void ) { Complete = true; }
-
 		/// print an automaton
 	void Print ( std::ostream& o ) const
 	{

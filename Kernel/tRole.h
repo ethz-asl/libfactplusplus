@@ -236,6 +236,8 @@ public:		// interface
 	FPP_ADD_FLAG(Simple,0x10);
 		/// distinguish data- and non-data role
 	FPP_ADD_FLAG(DataRole,0x20);
+		/// flag for recursive walks (used in Automaton creation)
+	FPP_ADD_FLAG(Finished,0x40);
 
 	// functionality
 
@@ -554,7 +556,7 @@ inline TRole :: ~TRole ( void )
 //	RAStateTransitions implementation depending on TRole
 //--------------------------------------------------
 
-/// check whether one of the transitions accept R; implementation is in tRole.h
+/// check whether one of the transitions accept R
 inline bool
 RAStateTransitions :: recognise ( const TRole* R ) const { return R != NULL && R->isDataRole() == DataRole && ApplicableRoles.in(R->getIndex()); }
 
