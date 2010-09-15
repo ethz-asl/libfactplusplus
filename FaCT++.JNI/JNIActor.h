@@ -148,7 +148,7 @@ class ObjectPropertyPolicy
 {
 public:
 	static const TClassFieldMethodIDs& getIDs ( void ) { return ObjectPropertyPointer; }
-	static bool applicable ( const ClassifiableEntry* p ) { return true; }
+	static bool applicable ( const ClassifiableEntry* p ATTR_UNUSED ) { return true; }
 	static bool needPlain ( void ) { return false; }
 	static TExpr* buildTree ( TExpressionManager* EM, const ClassifiableEntry* p )
 	{
