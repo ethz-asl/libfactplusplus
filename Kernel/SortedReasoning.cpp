@@ -27,7 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 /// merge label of given role and all its super-roles
 void TRole :: mergeSupersDomain ( void )
 {
-	for ( iterator p = begin_anc(); p != end_anc(); ++p )
+	for ( const_iterator p = begin_anc(), p_end = end_anc(); p != p_end; ++p )
 		domLabel.merge((*p)->domLabel);
 
 	// for reflexive role -- merge domain and range labels
@@ -35,7 +35,7 @@ void TRole :: mergeSupersDomain ( void )
 		domLabel.merge(getRangeLabel());
 
 	// for R1*R2*...*Rn [= R, merge dom(R) with dom(R1) and ran(R) with ran(Rn)
-	for ( std::vector<roleSet>::iterator q = subCompositions.begin(); q != subCompositions.end(); ++q )
+	for ( std::vector<TRoleVec>::iterator q = subCompositions.begin(), q_end = subCompositions.end(); q != q_end; ++q )
 		if ( !q->empty() )
 		{
 			domLabel.merge((*q->begin())->domLabel);
@@ -50,7 +50,7 @@ void DLDag :: mergeSorts ( TRole* R )
 	R->mergeSupersDomain();
 	merge ( R->getDomainLabel(), R->getBPDomain() );
 	// also associate functional nodes (if any)
-	for ( TRole::iterator q = R->begin_topfunc(), q_end = R->end_topfunc(); q != q_end; ++q )
+	for ( TRole::const_iterator q = R->begin_topfunc(), q_end = R->end_topfunc(); q != q_end; ++q )
 		merge ( R->getDomainLabel(), (*q)->getFunctional() );
 }
 

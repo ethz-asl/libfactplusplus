@@ -508,7 +508,7 @@ DlSatTester :: finaliseStatistic ( void )
 
 bool DlSatTester :: applyReflexiveRoles ( DlCompletionTree* node, const DepSet& dep )
 {
-	for ( RoleMaster::roleSet::const_iterator p = ReflexiveRoles.begin(); p != ReflexiveRoles.end(); ++p )
+	for ( TRole::const_iterator p = ReflexiveRoles.begin(), p_end = ReflexiveRoles.end(); p != p_end; ++p )
 	{
 		// create R-loop through the NODE
 		DlCompletionTreeArc* pA = CGraph.addRoleLabel ( node, node, /*isPredEdge=*/false, *p, dep );

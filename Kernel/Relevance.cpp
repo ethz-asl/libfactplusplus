@@ -95,7 +95,7 @@ void TBox :: setRelevant1 ( TRole* p )
 	setRelevant ( p->getBPRange() );
 
 	// all super-roles are also relevant
-	for ( TRole::iterator q = p->begin_anc(); q != p->end_anc(); ++q )
+	for ( TRole::const_iterator q = p->begin_anc(), q_end = p->end_anc(); q != q_end; ++q )
 		setRelevant(*q);
 }
 

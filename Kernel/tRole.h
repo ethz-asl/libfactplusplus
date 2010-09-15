@@ -77,11 +77,14 @@ protected:	// types
 	}; // TKnownValue
 
 public:		// types
-	typedef std::vector<TRole*> roleSet;
-	typedef std::vector<const TRole*> constRoleSet;
-	typedef roleSet::const_iterator iterator;
-	typedef std::set<TRole*> SetOfRoles;
-	typedef std::vector<bool> RoleBitMap;
+		/// vector of roles
+	typedef std::vector<TRole*> TRoleVec;
+		/// RO iterator over role vector
+	typedef TRoleVec::const_iterator const_iterator;
+		/// set of roles
+	typedef std::set<TRole*> TRoleSet;
+		/// bitmap for roles
+	typedef std::vector<bool> TRoleBitMap;
 
 protected:	// members
 		/// role that are inverse of given one
@@ -109,18 +112,18 @@ protected:	// members
 
 	// for later filling
 	// FIXME!! const was removed for Relevance setting
-	roleSet Ancestor, Descendant;
+	TRoleVec Ancestor, Descendant;
 		/// set of the most functional super-roles
-	roleSet TopFunc;
+	TRoleVec TopFunc;
 		/// set of the roles that are disjoint with a given one
-	SetOfRoles Disjoint;
+	TRoleSet Disjoint;
 		/// all compositions in the form R1*R2*\ldots*Rn [= R
-	std::vector<roleSet> subCompositions;
+	std::vector<TRoleVec> subCompositions;
 
 		/// bit-vector of all parents
-	RoleBitMap AncMap;
+	TRoleBitMap AncMap;
 		/// bit-vector of all roles disjoint with current
-	RoleBitMap DJRoles;
+	TRoleBitMap DJRoles;
 
 		/// automaton for role
 	RoleAutomaton A;
@@ -153,14 +156,14 @@ protected:	// methods
 	void initDJMap ( void );
 
 		/// eliminate told role cycle, carrying aux arrays of processed roles and synonyms
-	TRole* eliminateToldCycles ( SetOfRoles& RInProcess, roleSet& ToldSynonyms );
+	TRole* eliminateToldCycles ( TRoleSet& RInProcess, TRoleVec& ToldSynonyms );
 
 	// support for automaton construction
 
 		/// complete role automaton; keep track of processed roles in RINPROCESS
-	void completeAutomaton ( SetOfRoles& RInProcess );
+	void completeAutomaton ( TRoleSet& RInProcess );
 		/// replace RoR [= R with Trans(R), replace synonyms in RS
-	void preprocessComposition ( roleSet& RS ) throw(EFPPCycleInRIA);
+	void preprocessComposition ( TRoleVec& RS ) throw(EFPPCycleInRIA);
 		/// add transition to automaton with the role
 	void addTrivialTransition ( const TRole* r )
 		{ A.addTransitionSafe ( A.initial(), new RATransition ( A.final(), r ) ); }
@@ -176,7 +179,7 @@ protected:	// methods
 			A.addRA(R->getAutomaton());
 	}
 		/// get an automaton by a (possibly synonymical) role
-	const RoleAutomaton& completeAutomatonByRole ( TRole* R, SetOfRoles& RInProcess ) const
+	const RoleAutomaton& completeAutomatonByRole ( TRole* R, TRoleSet& RInProcess ) const
 	{
 		fpp_assert ( !R->isSynonym() );	// no synonyms here
 		fpp_assert ( R != this );		// no case ...*S*... [= S
@@ -184,7 +187,7 @@ protected:	// methods
 		return R->getAutomaton();
 	}
 		/// add automaton for a role composition; simplify composition
-	void addSubCompositionAutomaton ( roleSet& RS, SetOfRoles& RInProcess );
+	void addSubCompositionAutomaton ( TRoleVec& RS, TRoleSet& RInProcess );
 
 		/// check (and correct) case whether R != S for R [= S
 	void checkHierarchicalDisjoint ( TRole* R );
@@ -193,7 +196,7 @@ protected:	// methods
 	{
 		if ( hasSpecialDomain() )
 			return;
-		for ( iterator p = begin_desc(), p_end = end_desc(); p != p_end; ++p )
+		for ( const_iterator p = begin_desc(), p_end = end_desc(); p != p_end; ++p )
 			if ( (*p)->hasSpecialDomain() )
 			{
 				SpecialDomain = true;
@@ -388,7 +391,7 @@ public:		// interface
 	void addDisjointRole ( TRole* R )
 	{
 		Disjoint.insert(R);
-		for ( iterator p = R->begin_desc(), p_end = R->end_desc(); p != p_end; ++p )
+		for ( const_iterator p = R->begin_desc(), p_end = R->end_desc(); p != p_end; ++p )
 		{
 			Disjoint.insert(*p);
 			(*p)->Disjoint.insert(this);
@@ -422,20 +425,20 @@ public:		// interface
 	// iterators
 
 		/// get access to all super-roles via iterator
-	iterator begin_anc ( void ) const { return Ancestor.begin(); }
-	iterator end_anc ( void ) const { return Ancestor.end(); }
+	const_iterator begin_anc ( void ) const { return Ancestor.begin(); }
+	const_iterator end_anc ( void ) const { return Ancestor.end(); }
 		/// get access to all sub-roles via iterator
-	iterator begin_desc ( void ) const { return Descendant.begin(); }
-	iterator end_desc ( void ) const { return Descendant.end(); }
+	const_iterator begin_desc ( void ) const { return Descendant.begin(); }
+	const_iterator end_desc ( void ) const { return Descendant.end(); }
 		/// get access to the func super-roles w/o func parents via iterator
-	iterator begin_topfunc ( void ) const { return TopFunc.begin(); }
-	iterator end_topfunc ( void ) const { return TopFunc.end(); }
+	const_iterator begin_topfunc ( void ) const { return TopFunc.begin(); }
+	const_iterator end_topfunc ( void ) const { return TopFunc.end(); }
 
 		/// fills BITMAP with the role's ancestors
-	void addAncestorsToBitMap ( RoleBitMap& bitmap ) const
+	void addAncestorsToBitMap ( TRoleBitMap& bitmap ) const
 	{
 		fpp_assert ( !bitmap.empty() );	// use only after the size is known
-		for ( iterator p = begin_anc(); p != end_anc(); ++p )
+		for ( const_iterator p = begin_anc(), p_end = end_anc(); p != p_end; ++p )
 			bitmap[(*p)->getIndex()] = true;
 	}
 
@@ -444,7 +447,7 @@ public:		// interface
 		/// add composition to a role
 	void addComposition ( const DLTree* tree )
 	{
-		roleSet RS;
+		TRoleVec RS;
 		fillsComposition ( RS, tree );
 		subCompositions.push_back(RS);
 	}
@@ -456,8 +459,8 @@ public:		// interface
 		/// eliminate told role cycle
 	TRole* eliminateToldCycles ( void )
 	{
-		SetOfRoles RInProcess;
-		roleSet ToldSynonyms;
+		TRoleSet RInProcess;
+		TRoleVec ToldSynonyms;
 		return eliminateToldCycles ( RInProcess, ToldSynonyms );
 	}
 		/// init ancestors and descendants using Taxonomy
@@ -465,11 +468,11 @@ public:		// interface
 		/// init other fields that requires Anc/Desc for all roles
 	void postProcess ( void );
 		/// fills role composition by given TREE
-	void fillsComposition ( roleSet& Composition, const DLTree* tree ) const;
+	void fillsComposition ( TRoleVec& Composition, const DLTree* tree ) const;
 		/// complete role automaton
 	void completeAutomaton ( unsigned int nRoles )
 	{
-		SetOfRoles RInProcess;
+		TRoleSet RInProcess;
 		completeAutomaton(RInProcess);
 		A.setup ( nRoles, isDataRole() );
 	}

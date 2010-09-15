@@ -215,7 +215,7 @@ protected:	// members
 		/// all nominals defined in TBox
 	SingletonVector Nominals;
 		/// all the reflexive roles
-	RoleMaster::roleSet ReflexiveRoles;
+	RoleMaster::TRoleVec ReflexiveRoles;
 
 		/// manager for all the dep-sets corresponding to a graph here
 	TDepSetManager Manager;

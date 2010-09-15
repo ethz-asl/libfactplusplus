@@ -84,7 +84,7 @@ void modelCacheIan :: addExistsRole ( const TRole* R )
 	if ( R->isTopFunc() )	// all other top-funcs would be added later on
 		funcRoles.insert(R);
 
-	for ( TRole::iterator r = R->begin_anc(); r != R->end_anc(); ++r )
+	for ( TRole::const_iterator r = R->begin_anc(), r_end = R->end_anc(); r != r_end; ++r )
 	{
 		existsRoles.insert(*r);
 		if ( (*r)->isTopFunc() )

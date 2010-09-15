@@ -28,20 +28,19 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 class RoleMaster
 {
 public:		// types
-	typedef TRole::roleSet roleSet;
-	typedef TRole::RoleBitMap RoleBitMap;
-
+		/// vector of roles
+	typedef TRole::TRoleVec TRoleVec;
 		/// RW access to roles
-	typedef roleSet::iterator iterator;
+	typedef TRoleVec::iterator iterator;
 		/// RO access to roles
-	typedef roleSet::const_iterator const_iterator;
+	typedef TRoleVec::const_iterator const_iterator;
 
 protected:	// members
 		/// number of the last registered role
 	int newRoleId;
 
 		/// all registered roles
-	roleSet Roles;
+	TRoleVec Roles;
 		/// internal empty role (bottom in the taxonomy)
 	TRole emptyRole;
 		/// internal universal role (top in the taxonomy)
@@ -53,7 +52,7 @@ protected:	// members
 	Taxonomy* pTax;
 
 		/// two halves of disjoint roles axioms
-	roleSet DJRolesA, DJRolesB;
+	TRoleVec DJRolesA, DJRolesB;
 
 		/// flag whether to create data roles or not
 	bool DataRoles;
@@ -218,7 +217,7 @@ public:		// interface
 		/// @return true iff there is a reflexive role
 	bool hasReflexiveRoles ( void ) const;
 		/// put all reflexive roles to a RR array
-	void fillReflexiveRoles ( roleSet& RR ) const;
+	void fillReflexiveRoles ( TRoleVec& RR ) const;
 
 	// output interface
 
@@ -251,7 +250,7 @@ RoleMaster :: hasReflexiveRoles ( void ) const
 }
 
 inline void
-RoleMaster :: fillReflexiveRoles ( roleSet& RR ) const
+RoleMaster :: fillReflexiveRoles ( TRoleVec& RR ) const
 {
 	RR.clear();
 	for  ( const_iterator p = begin(), p_end = end(); p < p_end; ++p )

@@ -506,7 +506,7 @@ tacticUsage DlSatTester :: commonTacticBodySome ( const DLVertex& cur )	// for E
 
 	// check if we have functional role
 	if ( R->isFunctional() )
-		for ( TRole::iterator r = R->begin_topfunc(); r != R->end_topfunc(); ++r )
+		for ( TRole::const_iterator r = R->begin_topfunc(), r_end = R->end_topfunc(); r != r_end; ++r )
 			switch ( tryAddConcept ( curNode->label().getLabel(dtLE), (*r)->getFunctional(), dep ) )
 			{
 			case acrClash:	// addition leads to clash
@@ -873,11 +873,11 @@ DlSatTester :: initHeadOfNewEdge ( DlCompletionTree* node, const TRole* R, const
 {
 	// define return value
 	tacticUsage ret = utUnusable;
-	TRole::iterator r, r_end;
+	TRole::const_iterator r, r_end;
 
 	// if R is functional, then add FR with given DEP-set to NODE
 	if ( R->isFunctional() )
-		for ( r = R->begin_topfunc(), r_end = R->end_topfunc(); r < r_end; ++r )
+		for ( r = R->begin_topfunc(), r_end = R->end_topfunc(); r != r_end; ++r )
 			switchResult ( ret, addToDoEntry ( node, (*r)->getFunctional(), dep, "fr" ) );
 
 	// setup Domain for R

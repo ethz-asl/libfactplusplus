@@ -23,7 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "tRole.h"
 #include "Taxonomy.h"
 
-void TRole :: fillsComposition ( roleSet& Composition, const DLTree* tree ) const
+void TRole :: fillsComposition ( TRoleVec& Composition, const DLTree* tree ) const
 {
 	if ( tree->Element() == RCOMPOSITION )
 	{
@@ -93,7 +93,7 @@ public:
 	}
 }; // TRoleCompare
 
-TRole* TRole :: eliminateToldCycles ( SetOfRoles& RInProcess, roleSet& ToldSynonyms )
+TRole* TRole :: eliminateToldCycles ( TRoleSet& RInProcess, TRoleVec& ToldSynonyms )
 {
 	// skip synonyms
 	if ( isSynonym() )
@@ -195,7 +195,7 @@ void TRole :: Print ( std::ostream& o ) const
 
 	if ( !Disjoint.empty() )
 	{
-		SetOfRoles::const_iterator p = Disjoint.begin(), p_end = Disjoint.end();
+		TRoleSet::const_iterator p = Disjoint.begin(), p_end = Disjoint.end();
 
 		o << " disjoint with {\"" << (*p)->getName();
 
@@ -220,9 +220,9 @@ void TRole :: Print ( std::ostream& o ) const
 class AddRoleActor
 {
 protected:
-	TRole::roleSet& rset;
+	TRole::TRoleVec& rset;
 public:
-	AddRoleActor ( TRole::roleSet& v ) : rset(v) {}
+	AddRoleActor ( TRole::TRoleVec& v ) : rset(v) {}
 	~AddRoleActor ( void ) {}
 	bool apply ( const TaxonomyVertex& v )
 	{
@@ -278,7 +278,7 @@ void TRole :: initSimple ( void )
 	if ( isTransitive() || !subCompositions.empty() )
 		return;
 
-	for ( iterator p = begin_desc(); p != end_desc(); ++p )
+	for ( const_iterator p = begin_desc(); p != end_desc(); ++p )
 		if ( (*p)->isTransitive() || !(*p)->subCompositions.empty() )
 			return;
 
@@ -293,7 +293,7 @@ bool TRole :: isRealTopFunc ( void ) const
 	if ( !isFunctional() )	// all REAL top-funcs have their self-ref in TopFunc already
 		return false;
 	// if any of the parent is self-proclaimed top-func -- this one is not top-func
-	for ( iterator p = begin_anc(); p != end_anc(); ++p )
+	for ( const_iterator p = begin_anc(), p_end = end_anc(); p != p_end; ++p )
 		if ( (*p)->isTopFunc() )
 			return false;
 
@@ -312,7 +312,7 @@ void TRole :: initTopFunc ( void )
 		TopFunc.clear();
 
 	// register all real TFs
-	for ( iterator p = begin_anc(); p != end_anc(); ++p )
+	for ( const_iterator p = begin_anc(), p_end = end_anc(); p != p_end; ++p )
 		if ( (*p)->isRealTopFunc() )
 			TopFunc.push_back(*p);
 
@@ -334,7 +334,7 @@ void TRole :: checkHierarchicalDisjoint ( TRole* R )
 	}
 
 	// check whether a sub-role is disjoint with the given one
-	for ( iterator p = R->begin_desc(), p_end = R->end_desc(); p != p_end; ++p )
+	for ( const_iterator p = R->begin_desc(), p_end = R->end_desc(); p != p_end; ++p )
 		if ( Disjoint.count(*p) )
 		{
 			(*p)->setDomain ( new DLTree(BOTTOM) );
@@ -347,20 +347,20 @@ void TRole :: checkHierarchicalDisjoint ( TRole* R )
 void TRole :: initDJMap ( void )
 {
 	// role R is disjoint with every role S' [= S such that R != S
-	for ( SetOfRoles::iterator q = Disjoint.begin(), q_end = Disjoint.end(); q != q_end; ++q )
+	for ( TRoleSet::iterator q = Disjoint.begin(), q_end = Disjoint.end(); q != q_end; ++q )
 		DJRoles[(*q)->getIndex()] = true;
 }
 
 // automaton-related implementation
 
 void
-TRole :: preprocessComposition ( roleSet& RS ) throw(EFPPCycleInRIA)
+TRole :: preprocessComposition ( TRoleVec& RS ) throw(EFPPCycleInRIA)
 {
 	bool same = false;
 	unsigned int last = RS.size()-1;
 	unsigned int i = 0;	// current element of the composition
 
-	for ( roleSet::iterator p = RS.begin(), p_end = RS.end(); p < p_end; ++p, ++i )
+	for ( TRoleVec::iterator p = RS.begin(), p_end = RS.end(); p != p_end; ++p, ++i )
 	{
 		TRole* R = resolveSynonym(*p);
 
@@ -395,7 +395,7 @@ TRole :: preprocessComposition ( roleSet& RS ) throw(EFPPCycleInRIA)
 }
 
 /// complete role automaton
-void TRole :: completeAutomaton ( SetOfRoles& RInProcess )
+void TRole :: completeAutomaton ( TRoleSet& RInProcess )
 {
 	// check whether RA is already complete
 	if ( isFinished() )
@@ -409,11 +409,11 @@ void TRole :: completeAutomaton ( SetOfRoles& RInProcess )
 	RInProcess.insert(this);
 
 	// make sure that all sub-roles already have completed automata
-	for ( iterator p = begin_desc(); p != end_desc(); ++p )
+	for ( const_iterator p = begin_desc(), p_end = end_desc(); p != p_end; ++p )
 		(*p)->completeAutomaton(RInProcess);
 
 	// add automata for complex role inclusions
-	for ( std::vector<roleSet>::iterator q = subCompositions.begin(); q != subCompositions.end(); ++q )
+	for ( std::vector<TRoleVec>::iterator q = subCompositions.begin(), q_end = subCompositions.end(); q != q_end; ++q )
 		addSubCompositionAutomaton ( *q, RInProcess );
 
 	// check for the transitivity
@@ -423,7 +423,7 @@ void TRole :: completeAutomaton ( SetOfRoles& RInProcess )
 	// here automaton is complete
 	setFinished(true);
 
-	for ( ClassifiableEntry::iterator p = told_begin(); p < told_end(); ++p )
+	for ( ClassifiableEntry::iterator p = told_begin(), p_end = told_end(); p != p_end; ++p )
 	{
 		TRole* R = static_cast<TRole*>(resolveSynonym(*p));
 		R->addSubRoleAutomaton(this);
@@ -437,7 +437,7 @@ void TRole :: completeAutomaton ( SetOfRoles& RInProcess )
 
 /// add automaton for a role composition
 void
-TRole :: addSubCompositionAutomaton ( roleSet& RS, SetOfRoles& RInProcess )
+TRole :: addSubCompositionAutomaton ( TRoleVec& RS, TRoleSet& RInProcess )
 {
 	// first preprocess the role chain
 	preprocessComposition(RS);
@@ -449,7 +449,7 @@ TRole :: addSubCompositionAutomaton ( roleSet& RS, SetOfRoles& RInProcess )
 	SpecialDomain = true;
 
 	// tune iterators and states
-	roleSet::const_iterator p = RS.begin(), p_last = RS.end() - 1;
+	const_iterator p = RS.begin(), p_last = RS.end() - 1;
 	RAState from = A.initial(), to = A.final();
 
 	if ( RS.front() == this )
