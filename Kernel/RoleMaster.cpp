@@ -71,15 +71,15 @@ void RoleMaster :: addRoleParent ( DLTree* tree, TRole* parent )
 
 void RoleMaster :: initAncDesc ( void )
 {
-	iterator p, p_end = end();
+	iterator p, p_begin = begin(), p_end = end();
 	unsigned int nRoles = Roles.size();
 
 	// stage 0.1: eliminate told cycles
-	for ( p = begin(); p != p_end; ++p )
+	for ( p = p_begin; p != p_end; ++p )
 		(*p)->eliminateToldCycles();	// not VERY efficient: quadratic vs (possible) linear
 
 	// setting up all synonyms
-	for ( p = begin(); p != p_end; ++p )
+	for ( p = p_begin; p != p_end; ++p )
 		if ( (*p)->isSynonym() )
 		{
 			(*p)->canonicaliseSynonym();
@@ -87,29 +87,29 @@ void RoleMaster :: initAncDesc ( void )
 		}
 
 	// change all parents that are synonyms to their primers
-	for ( p = begin(); p != p_end; ++p )
+	for ( p = p_begin; p != p_end; ++p )
 		if ( !(*p)->isSynonym() )
 			(*p)->removeSynonymsFromParents();
 
 	// make all roles w/o told subsumers have Role TOP instead
-	for ( p = begin(); p < p_end; ++p )
+	for ( p = p_begin; p < p_end; ++p )
 		if ( !(*p)->isSynonym() && !(*p)->hasToldSubsumers() )
 			(*p)->addParent(&universalRole);
 
 	// stage 2: perform classification
 	pTax->setCompletelyDefined(true);
 
-	for ( p = begin(); p != p_end; ++p )
+	for ( p = p_begin; p != p_end; ++p )
 		if ( !(*p)->isClassified() )
 			pTax->classifyEntry(*p);
 
 	// stage 3: fills ancestor/descendants using taxonomy
-	for ( p = begin(); p != p_end; ++p )
+	for ( p = p_begin; p != p_end; ++p )
 		if ( !(*p)->isSynonym() )
 			(*p)->initADbyTaxonomy ( pTax, nRoles );
 
 	// complete role automaton's info
-	for ( p = begin(); p != p_end; ++p )
+	for ( p = p_begin; p != p_end; ++p )
 		if ( !(*p)->isSynonym() )
 			(*p)->completeAutomaton(nRoles);
 
@@ -130,18 +130,18 @@ void RoleMaster :: initAncDesc ( void )
 			S->inverse()->addDisjointRole(R->inverse());
 		}
 
-		for ( p = begin(); p != p_end; ++p )
+		for ( p = p_begin; p != p_end; ++p )
 			if ( !(*p)->isSynonym() && (*p)->isDisjoint() )
 				(*p)->checkHierarchicalDisjoint();
 	}
 
 	// stage 4: init other fields for the roles. The whole hierarchy is known here
-	for ( p = begin(); p != p_end; ++p )
+	for ( p = p_begin; p != p_end; ++p )
 		if ( !(*p)->isSynonym() )
 			(*p)->postProcess();
 
 	// the last stage: check whether all roles are consistent
-	for ( p = begin(); p != p_end; ++p )
+	for ( p = p_begin; p != p_end; ++p )
 		if ( !(*p)->isSynonym() )
 			(*p)->consistent();
 }
