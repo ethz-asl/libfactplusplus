@@ -246,7 +246,7 @@ protected:	// methods
 		SupConceptActor actor(D);
 		Taxonomy* tax = getCTaxonomy();
 		try { tax->getRelativesInfo</*needCurrent=*/true, /*onlyDirect=*/false, /*upDirection=*/true> ( C->getTaxVertex(), actor ); return false; }
-		catch (...) { return true; }
+		catch (...) { tax->clearCheckedLabel(); return true; }
 	}
 		/// @return true iff C [= D holds
 	bool checkSub ( DLTree* C, DLTree* D )
