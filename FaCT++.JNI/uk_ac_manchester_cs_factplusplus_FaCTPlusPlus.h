@@ -65,6 +65,14 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_realis
 
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
+ * Method:    isRealised
+ * Signature: ()Z
+ */
+JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_isRealised
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
  * Method:    getThing
  * Signature: ()Luk/ac/manchester/cs/factplusplus/ClassPointer;
  */
@@ -817,14 +825,6 @@ JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlu
 
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
- * Method:    isObjectPropertyEmpty
- * Signature: (Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;)Z
- */
-JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_isObjectPropertyEmpty
-  (JNIEnv *, jobject, jobject);
-
-/*
- * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
  * Method:    askSuperObjectProperties
  * Signature: (Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;Z)[[Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;
  */
@@ -953,14 +953,6 @@ JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_ar
 
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
- * Method:    isDataPropertyEmpty
- * Signature: (Luk/ac/manchester/cs/factplusplus/DataPropertyPointer;)Z
- */
-JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_isDataPropertyEmpty
-  (JNIEnv *, jobject, jobject);
-
-/*
- * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
  * Method:    askSuperDataProperties
  * Signature: (Luk/ac/manchester/cs/factplusplus/DataPropertyPointer;Z)[[Luk/ac/manchester/cs/factplusplus/DataPropertyPointer;
  */
@@ -989,14 +981,6 @@ JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlu
  * Signature: (Luk/ac/manchester/cs/factplusplus/DataPropertyPointer;)[[Luk/ac/manchester/cs/factplusplus/ClassPointer;
  */
 JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_askDataPropertyDomain
-  (JNIEnv *, jobject, jobject);
-
-/*
- * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
- * Method:    askDataPropertyRange
- * Signature: (Luk/ac/manchester/cs/factplusplus/DataPropertyPointer;)Luk/ac/manchester/cs/factplusplus/DataTypeExpressionPointer;
- */
-JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_askDataPropertyRange
   (JNIEnv *, jobject, jobject);
 
 /*

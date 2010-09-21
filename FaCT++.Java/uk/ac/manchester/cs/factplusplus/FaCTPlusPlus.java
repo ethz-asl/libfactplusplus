@@ -87,6 +87,10 @@ public class FaCTPlusPlus {
      */
     public native void realise() throws FaCTPlusPlusException;
 
+	/**
+	 *  @return true iff the KB is realised
+	 */
+	public native boolean isRealised();
 
     /**
      * Gets the class corresponding to TOP
@@ -417,9 +421,6 @@ public class FaCTPlusPlus {
     public native ClassPointer [] askEquivalentClasses(ClassPointer c) throws FaCTPlusPlusException;
 
 
-
-    public native boolean isObjectPropertyEmpty(ObjectPropertyPointer r) throws FaCTPlusPlusException;
-
     public native ObjectPropertyPointer [][] askSuperObjectProperties(ObjectPropertyPointer r, boolean direct) throws FaCTPlusPlusException;
 
     public native ObjectPropertyPointer [][] askSubObjectProperties(ObjectPropertyPointer r, boolean direct) throws FaCTPlusPlusException;
@@ -458,8 +459,6 @@ public class FaCTPlusPlus {
     public native boolean arePropertiesDisjoint() throws FaCTPlusPlusException;
 
 
-    public native boolean isDataPropertyEmpty(DataPropertyPointer r) throws FaCTPlusPlusException;
-
     public native DataPropertyPointer [][] askSuperDataProperties(DataPropertyPointer r, boolean direct) throws FaCTPlusPlusException;
 
     public native DataPropertyPointer [][] askSubDataProperties(DataPropertyPointer r, boolean direct) throws FaCTPlusPlusException;
@@ -467,8 +466,6 @@ public class FaCTPlusPlus {
     public native DataPropertyPointer [] askEquivalentDataProperties(DataPropertyPointer r) throws FaCTPlusPlusException;
 
     public native ClassPointer [][] askDataPropertyDomain(DataPropertyPointer r) throws FaCTPlusPlusException;
-
-    public native DataTypeExpressionPointer askDataPropertyRange(DataPropertyPointer r) throws FaCTPlusPlusException;
 
     public native boolean isDataPropertyFunctional(DataPropertyPointer r) throws FaCTPlusPlusException;
 

@@ -1355,6 +1355,18 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_realis
 	PROCESS_ASK_QUERY ( getK(env,obj)->realiseKB(),"classify");
 }
 
+/*
+ * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
+ * Method:    isRealised
+ * Signature: ()Z
+ */
+JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_isRealised
+  (JNIEnv * env, jobject obj)
+{
+	TRACE_JNI("isRealised");
+	return getK(env,obj)->isKBRealised();
+}
+
 
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
@@ -1465,20 +1477,6 @@ JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlu
 	PROCESS_ASK_QUERY (
 		getK(env,obj)->getEquivalentConcepts ( getROConceptExpr(env,arg), actor ),"askEquivalentClasses");
 	return actor.getSynonyms();
-}
-
-/*
- * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
- * Method:    isObjectPropertyEmpty
- * Signature: (Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;)Z
- */
-JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_isObjectPropertyEmpty
-  (JNIEnv * env, jobject obj, jobject arg)
-{
-	TRACE_JNI("isObjectPropertyEmpty");
-	TRACE_ARG(env,obj,arg);
-	Throw ( env, "FaCT++ Kernel: unsupported operation 'isObjectPropertyEmpty'" );
-	return false;
 }
 
 /*
@@ -1725,20 +1723,6 @@ JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_ar
 
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
- * Method:    isDataPropertyEmpty
- * Signature: (Luk/ac/manchester/cs/factplusplus/DataPropertyPointer;)Z
- */
-JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_isDataPropertyEmpty
-  (JNIEnv * env, jobject obj, jobject arg)
-{
-	TRACE_JNI("isDataPropertyEmpty");
-	TRACE_ARG(env,obj,arg);
-	Throw ( env, "FaCT++ Kernel: unsupported operation 'isDataPropertyEmpty'" );
-	return false;
-}
-
-/*
- * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
  * Method:    askSuperDataProperties
  * Signature: (Luk/ac/manchester/cs/factplusplus/DataPropertyPointer;Z)[[Luk/ac/manchester/cs/factplusplus/DataPropertyPointer;
  */
@@ -1797,20 +1781,6 @@ JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlu
 	JTaxonomyActor<ClassPolicy> actor(env,obj);
 	PROCESS_ASK_QUERY ( getK(env,obj)->getRoleDomain ( getRODRoleExpr(env,arg), true, actor ),"askDataPropertyDomain");
 	return actor.getElements();
-}
-
-/*
- * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
- * Method:    askDataPropertyRange
- * Signature: (Luk/ac/manchester/cs/factplusplus/DataPropertyPointer;)Luk/ac/manchester/cs/factplusplus/DataTypeExpressionPointer;
- */
-JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_askDataPropertyRange
-  (JNIEnv * env, jobject obj, jobject arg)
-{
-	TRACE_JNI("askDataPropertyRange");
-	TRACE_ARG(env,obj,arg);
-	Throw ( env, "FaCT++ Kernel: unsupported operation 'askDataPropertyRange'" );
-	return NULL;
 }
 
 /*
