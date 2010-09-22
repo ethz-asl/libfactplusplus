@@ -65,17 +65,25 @@ public class FaCTPlusPlusReasoner extends OWLReasonerBase {
     private EntailmentChecker entailmentChecker = new EntailmentChecker();
 
 	private Map<OWLAxiom, AxiomPointer> axiom2PtrMap = new HashMap<OWLAxiom, AxiomPointer>();
+	
+	private static final Set<InferenceType> SupportedInferenceTypes =
+		new HashSet<InferenceType>(Arrays.asList(
+												 InferenceType.CLASS_ASSERTIONS,
+												 InferenceType.CLASS_HIERARCHY,
+												 InferenceType.DATA_PROPERTY_HIERARCHY,
+												 InferenceType.OBJECT_PROPERTY_HIERARCHY,
+												 InferenceType.SAME_INDIVIDUAL));
 
     public FaCTPlusPlusReasoner(OWLOntology rootOntology, OWLReasonerConfiguration configuration, BufferingMode bufferingMode) {
         super(rootOntology, configuration, bufferingMode);
-	kernel.setTopBottomPropertyNames(
-		"http://www.w3.org/2002/07/owl#topObjectProperty",
-		"http://www.w3.org/2002/07/owl#bottomObjectProperty",
-		"http://www.w3.org/2002/07/owl#topDataProperty",
-		"http://www.w3.org/2002/07/owl#bottomDataProperty");
-        loadReasonerAxioms();
+		kernel.setTopBottomPropertyNames(
+			"http://www.w3.org/2002/07/owl#topObjectProperty",
+			"http://www.w3.org/2002/07/owl#bottomObjectProperty",
+			"http://www.w3.org/2002/07/owl#topDataProperty",
+			"http://www.w3.org/2002/07/owl#bottomDataProperty");
         kernel.setProgressMonitor(new ProgressMonitorAdapter());
         kernel.setOperationTimeout(configuration.getTimeOut());
+        loadReasonerAxioms();
     }
 
 	///////////////////////////////////////////////////////////////////////////
@@ -156,19 +164,24 @@ public class FaCTPlusPlusReasoner extends OWLReasonerBase {
 
 	// precompute inferences
 
-	public void precomputeInferences(InferenceType... inferenceTypes) throws ReasonerInterruptedException, TimeOutException, InconsistentOntologyException {	
-		// FIXME!! later
-        kernel.realise();
+	public void precomputeInferences(InferenceType... inferenceTypes) throws ReasonerInterruptedException, TimeOutException, InconsistentOntologyException {
+		for ( InferenceType it: inferenceTypes )
+			if ( SupportedInferenceTypes.contains(it) ) {
+				kernel.realise();
+				return;
+			}
     }
 
 	public boolean isPrecomputed(InferenceType inferenceType) {
-		// FIXME!! later
+		if ( SupportedInferenceTypes.contains(inferenceType) ) {
+			return kernel.isRealised();
+		}
+
 		return true;
 	}
-	
+
 	public Set<InferenceType> getPrecomputableInferenceTypes() {
-		// FIXME!! later
-		return new HashSet<InferenceType>();
+		return SupportedInferenceTypes;
 	}
 
 
