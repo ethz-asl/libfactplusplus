@@ -192,6 +192,9 @@ public class FaCTPlusPlusReasoner extends OWLReasonerBase {
     }
 
     private void checkConsistency() {
+		if (interrupted) {
+			throw new ReasonerInterruptedException();
+		}
         if (!isConsistent()) {
             throw new InconsistentOntologyException();
         }
