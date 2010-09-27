@@ -100,6 +100,21 @@ public:		// visitor interface
 		prepareArgList(axiom.begin(),axiom.end());
 		kb.processDisjointC(ArgList.begin(),ArgList.end());
 	}
+	virtual void visit ( TDLAxiomDisjointUnion& axiom )
+	{
+		// first make a disjoint axiom
+		prepareArgList(axiom.begin(),axiom.end());
+		kb.processDisjointC(ArgList.begin(),ArgList.end());
+		// now define C as a union-of axiom
+		ArgList.clear();
+		ensureNames(axiom.getC());
+		ArgList.push_back(e(axiom.getC()));
+		DLTree* acc = new DLTree(BOTTOM);
+		for ( TDLAxiomDisjointUnion::iterator p = axiom.begin(), p_end = axiom.end(); p != p_end; ++p )
+			acc = createSNFOr ( acc, e(*p) );
+		ArgList.push_back(acc);
+		kb.processEquivalentC(ArgList.begin(),ArgList.end());
+	}
 	virtual void visit ( TDLAxiomEquivalentORoles& axiom )
 	{
 		prepareArgList(axiom.begin(),axiom.end());

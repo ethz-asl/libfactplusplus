@@ -985,6 +985,17 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tel
 	PROCESS_QUERY ( getK(env,obj)->disjointConcepts(), "tellDisjointClasses" );
 }
 
+/*
+ * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
+ * Method:    tellDisjointUnion
+ * Signature: (Luk/ac/manchester/cs/factplusplus/ClassPointer;)Luk/ac/manchester/cs/factplusplus/AxiomPointer;
+ */
+JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellDisjointUnion
+  (JNIEnv * env, jobject obj, jobject arg)
+{
+	PROCESS_QUERY ( getK(env,obj)->disjointUnion(getConceptExpr(env,arg)), "tellDisjointUnion" );
+}
+
 
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus

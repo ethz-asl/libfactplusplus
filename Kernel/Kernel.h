@@ -555,7 +555,7 @@ public:
 	// Concept axioms
 
 		/// axiom C [= D
-	TDLAxiom* impliesConcepts ( TConceptExpr* C,TConceptExpr* D )
+	TDLAxiom* impliesConcepts ( TConceptExpr* C, TConceptExpr* D )
 		{ return Ontology.add ( new TDLAxiomConceptInclusion ( C, D ) ); }
 		/// axiom C1 = ... = Cn
 	TDLAxiom* equalConcepts ( void )
@@ -563,6 +563,9 @@ public:
 		/// axiom C1 != ... != Cn
 	TDLAxiom* disjointConcepts ( void )
 		{ return Ontology.add ( new TDLAxiomDisjointConcepts(getExpressionManager()->getArgList()) ); }
+		/// axiom C = C1 or ... or Cn; C1 != ... != Cn
+	TDLAxiom* disjointUnion ( TConceptExpr* C )
+		{ return Ontology.add ( new TDLAxiomDisjointUnion ( C, getExpressionManager()->getArgList() ) ); }
 
 
 	// Role axioms

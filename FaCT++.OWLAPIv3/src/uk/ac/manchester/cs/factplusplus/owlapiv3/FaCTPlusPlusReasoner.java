@@ -219,7 +219,7 @@ public class FaCTPlusPlusReasoner extends OWLReasonerBase {
     }
 
     public boolean isEntailed(Set<? extends OWLAxiom> axioms) throws ReasonerInterruptedException, UnsupportedEntailmentTypeException, TimeOutException, AxiomNotInProfileException, FreshEntitiesException, InconsistentOntologyException {
-        checkConsistency();
+        // checkConsistency();	// NO NEED
         for (OWLAxiom ax : axioms) {
             if (!isEntailed(ax)) {
                 return false;
@@ -1065,9 +1065,8 @@ public class FaCTPlusPlusReasoner extends OWLReasonerBase {
         }
 
         public AxiomPointer visit(OWLDisjointUnionAxiom axiom) {
-            axiom.getOWLEquivalentClassesAxiom().accept(this);
-            axiom.getOWLDisjointClassesAxiom().accept(this);
-            return null;
+            translateClassExpressionSet(axiom.getClassExpressions());
+            return kernel.tellDisjointUnion(toClassPointer(axiom.getOWLClass()));
         }
 
         public AxiomPointer visit(OWLDeclarationAxiom axiom) {

@@ -26,6 +26,7 @@ class TDLAxiomDeclaration;
 
 class TDLAxiomEquivalentConcepts;
 class TDLAxiomDisjointConcepts;
+class TDLAxiomDisjointUnion;
 class TDLAxiomEquivalentORoles;
 class TDLAxiomEquivalentDRoles;
 class TDLAxiomDisjointORoles;
@@ -67,6 +68,7 @@ public:		// visitor interface
 
 	virtual void visit ( TDLAxiomEquivalentConcepts& axiom ) = 0;
 	virtual void visit ( TDLAxiomDisjointConcepts& axiom ) = 0;
+	virtual void visit ( TDLAxiomDisjointUnion& axiom ) = 0;
 	virtual void visit ( TDLAxiomEquivalentORoles& axiom ) = 0;
 	virtual void visit ( TDLAxiomEquivalentDRoles& axiom ) = 0;
 	virtual void visit ( TDLAxiomDisjointORoles& axiom ) = 0;
@@ -192,6 +194,30 @@ public:		// interface
 		/// accept method for the visitor pattern
 	void accept ( DLAxiomVisitor& visitor ) { visitor.visit(*this); }
 }; // TDLAxiomDisjointConcepts
+
+//------------------------------------------------------------------
+///	Disjoint Union axiom
+//------------------------------------------------------------------
+class TDLAxiomDisjointUnion: public TDLAxiom, public TDLNAryExpression<TDLConceptExpression>
+{
+protected:	// members
+	const TDLConceptExpression* C;
+
+public:		// interface
+		/// c'tor: create an axiom
+	TDLAxiomDisjointUnion ( const TDLConceptExpression* c, const ExpressionArray& v )
+		: TDLAxiom()
+		, TDLNAryExpression<TDLConceptExpression>("concept expression","disjoint union")
+		, C(c)
+		{ add(v); }
+		/// d'tor
+	virtual ~TDLAxiomDisjointUnion ( void ) {}
+		/// accept method for the visitor pattern
+	void accept ( DLAxiomVisitor& visitor ) { visitor.visit(*this); }
+
+		/// access
+	const TDLConceptExpression* getC ( void ) const { return C; }
+}; // TDLAxiomInstanceOf
 
 //------------------------------------------------------------------
 ///	Object Role equivalence axiom

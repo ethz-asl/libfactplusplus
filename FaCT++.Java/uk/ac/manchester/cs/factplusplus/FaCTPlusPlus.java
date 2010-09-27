@@ -309,6 +309,11 @@ public class FaCTPlusPlus {
      * in the last closed arg list.
      */
     public native AxiomPointer tellDisjointClasses() throws FaCTPlusPlusException;
+    /**
+     * Tells a disjoint union axiom, where defined class in CLS and
+     * whose disjoint classes are in the last closed arg list.
+     */
+    public native AxiomPointer tellDisjointUnion(ClassPointer cls) throws FaCTPlusPlusException;
 
     public native AxiomPointer tellHasKey(ClassPointer cls, DataPropertyPointer dataKey, ObjectPropertyPointer objectKey) throws FaCTPlusPlusException;
 
