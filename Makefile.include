@@ -9,7 +9,7 @@ GCC_34_OPT = $(GCC_33_OPT) -fgcse-las -fpeel-loops
 GCC_40_OPT = $(GCC_34_OPT) -fmodulo-sched -ftree-loop-linear -ftree-loop-im -fweb\
  -ftree-loop-ivcanon -fivopts -ftree-vectorize -fvariable-expansion-in-unroller
 # GCC 4.1 optimisation options that are not included in -O3
-GCC_41_OPT = $(GCC_40_OPT) -funsafe-loop-optimizations -Wunsafe-loop-optimizations
+GCC_41_OPT = $(GCC_40_OPT) -funsafe-loop-optimizations
 # GCC 4.2 optimisation options that are not included in -O3
 GCC_42_OPT = $(GCC_41_OPT)
 # GCC 4.3 optimisation options that are not included in -O3
@@ -37,7 +37,7 @@ endif
 
 # tune some parameters depends on OS
 
-EXEEXT = 
+EXEEXT =
 LIBEXT =
 DLLEXT =
 OS_DEF =
@@ -48,10 +48,10 @@ ifeq ($(OS),LINUX)
 override EXEEXT :=
 override LIBEXT := .a
 override DLLEXT := .so
-override OS_DEF := 
+override OS_DEF :=
 endif
 
-#define Mc OS X flags 
+#define Mc OS X flags
 ifeq ($(OS),MACOSX)
 override EXEEXT :=
 override LIBEXT := .a
@@ -64,7 +64,7 @@ ifeq ($(OS),WINDOWS)
 override EXEEXT := .exe
 override LIBEXT := .lib
 override DLLEXT := .dll
-override OS_DEF := 
+override OS_DEF :=
 endif
 
 # System variables definitions should be expanded immidiately,
@@ -94,8 +94,6 @@ ifdef LIBRARY
 
 ifeq ($(LTYPE),shared)
 override LIBRARY_NAME := lib$(LIBRARY)$(DLLEXT)
-# We support only gcc.
-override CXXFLAGS += -fPIC
 endif
 
 ifeq ($(LTYPE),static)
@@ -130,16 +128,6 @@ override INCLUDES += $(USE_IL:%=-I%)
 override CL_LDFLAGS_LIBS += $(patsubst %,-l%,$(notdir $(USE_IL)))
 # -L flags can't be just added because of rpath logic, so we use $(CL_LDFLAGS_OTHER)
 override CL_IL_DIRS := $(USE_IL:%=-L%)
-
-# static link flags
-#override LD_STATIC_FLAGS := -static-libgcc -Wl,-static
-endif
-
-override LD_STATIC_FLAGS := -static-libgcc
-
-# move xerces-c at the very end
-ifneq ($(filter -lxerces%,$(CL_LDFLAGS_LIBS)),)
-override CL_LDFLAGS_LIBS := $(filter-out -lxerces-c,$(CL_LDFLAGS_LIBS)) -lxerces-c
 endif
 
 #update LD_FLAGS wrt DEFINES
@@ -152,6 +140,9 @@ endif
 ifneq ($(filter -m64,$(DEFINES)),)
 override CL_LDFLAGS_OTHER += -m64
 endif
+ifneq ($(filter -m32,$(DEFINES)),)
+override CL_LDFLAGS_OTHER += -m32
+endif
 ifneq ($(filter -pg,$(DEFINES)),)
 override CL_LDFLAGS_OTHER += -pg
 endif
@@ -160,10 +151,10 @@ override CL_LDFLAGS_OTHER += -fprofile-generate
 endif
 
 # Compute the final LDFLAGS
-override LDFLAGS := $(CL_IL_DIRS) $(LD_STATIC_FLAGS) $(CL_LDFLAGS_DIRS) $(CL_LDFLAGS_LIBS) $(CL_LDFLAGS_OTHER)
+override LDFLAGS := $(CL_IL_DIRS) $(CL_LDFLAGS_DIRS) $(CL_LDFLAGS_LIBS) $(CL_LDFLAGS_OTHER)
 
 # Add $(INCLUDES) and $(DEFINES) to $(CXXFLAGS)
-override CXXFLAGS += $(INCLUDES) $(DEFINES) $(EXTRA_DEF)
+override CXXFLAGS += $(INCLUDES) $(DEFINES)
 
 # make object files based on sources
 override OBJECTS := $(addprefix $(BUILD_DIR)/,$(addsuffix .o,$(basename $(notdir $(SOURCES)))))
@@ -213,12 +204,6 @@ dep: dep_subdirs .deps
 include .deps
 
 # now make libs/executables dependant on the libs they uses
-
-override LIB_DEPS_TMP := $(filter -L%, $(LDFLAGS))
-ifneq ($(LIB_DEPS_TMP),)
-vpath lib%$(DLLEXT) $(LIB_DEPS_TMP:-L%=%)
-vpath lib%$(LIBEXT) $(LIB_DEPS_TMP:-L%=%)
-endif
 
 # here we have all libraries of which current goal depends
 override LIB_DEPS := $(filter -l%, $(LDFLAGS))
