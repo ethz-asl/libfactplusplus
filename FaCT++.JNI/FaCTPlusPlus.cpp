@@ -2140,6 +2140,30 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_endCha
 
 #undef PROCESS_ASK_QUERY
 
+/*
+ * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
+ * Method:    needTracing
+ * Signature: ()V
+ */
+JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_needTracing
+  (JNIEnv * env, jobject obj)
+{
+	TRACE_JNI("needTracing");
+	getK(env,obj)->needTracing();
+}
+
+/*
+ * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
+ * Method:    getTrace
+ * Signature: ()[Luk/ac/manchester/cs/factplusplus/AxiomPointer;
+ */
+JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_getTrace
+  (JNIEnv * env, jobject obj)
+{
+	TRACE_JNI("getTrace");
+	return buildArray ( env, getK(env,obj)->getTrace(), AxiomPointer );
+}
+
 #ifdef __cplusplus
 }
 #endif

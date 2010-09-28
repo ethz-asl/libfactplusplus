@@ -44,7 +44,7 @@ public class FaCTPlusPlusReasoner extends OWLReasonerBase {
 
     public static final String REASONER_NAME = "FaCT++";
 
-    public static final Version VERSION = new Version(1, 4, 0, 0);
+    public static final Version VERSION = new Version(1, 5, 0, 0);
 
     private boolean interrupted = false;
 
@@ -65,6 +65,8 @@ public class FaCTPlusPlusReasoner extends OWLReasonerBase {
     private EntailmentChecker entailmentChecker = new EntailmentChecker();
 
 	private Map<OWLAxiom, AxiomPointer> axiom2PtrMap = new HashMap<OWLAxiom, AxiomPointer>();
+
+	private Map<AxiomPointer, OWLAxiom> ptr2AxiomMap = new HashMap<AxiomPointer, OWLAxiom>();
 	
 	private static final Set<InferenceType> SupportedInferenceTypes =
 		new HashSet<InferenceType>(Arrays.asList(
@@ -94,9 +96,9 @@ public class FaCTPlusPlusReasoner extends OWLReasonerBase {
 
 	private void loadAxiom(OWLAxiom axiom) {
 		final AxiomPointer axiomPointer = axiom.accept(axiomTranslator);
-		
 		if (axiomPointer != null) {
-                axiom2PtrMap.put(axiom, axiomPointer);
+			axiom2PtrMap.put(axiom, axiomPointer);
+			ptr2AxiomMap.put(axiomPointer, axiom);
         }
     }
 	
@@ -105,6 +107,7 @@ public class FaCTPlusPlusReasoner extends OWLReasonerBase {
 		if (ptr != null) {
 			kernel.retract(ptr);
 			axiom2PtrMap.remove(axiom);
+			ptr2AxiomMap.remove(ptr);
 		}
     }
 	
@@ -129,6 +132,7 @@ public class FaCTPlusPlusReasoner extends OWLReasonerBase {
         dataPropertyTranslator = new DataPropertyTranslator();
         individualTranslator = new IndividualTranslator();
 		axiom2PtrMap.clear();
+		ptr2AxiomMap.clear();
         
         for (OWLAxiom ax : getReasonerAxioms()) {
             loadAxiom(ax);
@@ -235,6 +239,22 @@ public class FaCTPlusPlusReasoner extends OWLReasonerBase {
 		// FIXME!! check later
         return true;
     }
+
+	// tracing
+
+	/*
+	 * Return tracing set (set of axioms that were participate in achieving result) for a given entailment.
+	 * Return empty set if the axiom is not entailed.
+	 */
+	public Set<OWLAxiom> getTrace(OWLAxiom axiom) {
+		kernel.needTracing();
+		Set<OWLAxiom> ret = new HashSet<OWLAxiom>();
+		if ( isEntailed(axiom) ) {
+			for ( AxiomPointer ap: kernel.getTrace() )
+				ret.add(ptr2AxiomMap.get(ap));
+		}
+		return ret; 
+	}
 
 	// classes
 

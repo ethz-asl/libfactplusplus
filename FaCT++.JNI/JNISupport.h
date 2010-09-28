@@ -394,8 +394,8 @@ jobject Axiom ( JNIEnv * env, TDLAxiom* t )
 }
 
 /// create vector of Java objects of class CLASSNAME by given VEC
-inline
-jobjectArray buildArray ( JNIEnv* env, const std::vector<TExpr*>& vec, const TClassFieldMethodIDs& ID )
+template<class T>
+jobjectArray buildArray ( JNIEnv* env, const std::vector<T*>& vec, const TClassFieldMethodIDs& ID )
 {
 	jclass ClassID = env->FindClass(ID.ClassName);
 	jobjectArray ret = env->NewObjectArray ( vec.size(), ClassID, NULL );

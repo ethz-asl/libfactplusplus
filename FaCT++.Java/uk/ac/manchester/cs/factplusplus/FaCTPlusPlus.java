@@ -550,4 +550,14 @@ public class FaCTPlusPlus {
     public native void startChanges();
 
     public native void endChanges();
+
+	/**
+	 * Switch on the tracing of the next reasoning operation
+	 */
+	public native void needTracing();
+
+	/**
+	 * get the trace-set (set of axioms) for the last reasoning operation
+	 */
+	public native AxiomPointer[] getTrace();
 }

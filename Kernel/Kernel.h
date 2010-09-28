@@ -137,6 +137,8 @@ protected:	// members
 	TOntology Ontology;
 		/// expression translator to work with queries
 	TExpressionTranslator* pET;
+		/// trace vector for the last operation (set from the TBox trace-sets)
+	std::vector<TDLAxiom*> TraceVec;
 
 	// Top/Bottom role names: if set, they will appear in all hierarchy-related output
 
@@ -173,6 +175,8 @@ protected:	// members
 
 		/// set if TBox throws an exception during preprocessing/classification
 	bool reasoningFailed;
+		/// flag to gather trace information for the next reasoner's call
+	bool NeedTracing;
 
 private:	// no copy
 		/// no copy c'tor
@@ -216,6 +220,7 @@ protected:	// methods
 		cachedConcept = NULL;
 		cachedVertex = NULL;
 		reasoningFailed = false;
+		NeedTracing = false;
 	}
 
 		/// build and set a cache for an individual I wrt role R
@@ -490,6 +495,19 @@ public:	// general staff
 		OpTimeout = value;
 		if ( pTBox != NULL )
 			pTBox->setTestTimeout(value);
+	}
+
+	//----------------------------------------------
+	//-- Tracing support
+	//----------------------------------------------
+
+		/// tells reasoner that the next reasoning operation shall gather the trace
+	void needTracing ( void ) { NeedTracing = true; }
+		/// @return the trace-set of the last reasoning operation
+	const std::vector<TDLAxiom*>& getTrace ( void )
+	{
+		TraceVec.clear();
+		return TraceVec;
 	}
 
 	//----------------------------------------------
