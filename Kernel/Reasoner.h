@@ -551,9 +551,6 @@ protected:	// methods
 		/// add necessary concepts to the NODE of the new edge, labelled with R
 	tacticUsage initHeadOfNewEdge ( DlCompletionTree* node, const TRole* R, const DepSet& dep, const char* reason );
 
-		/// adds T_G to the given node. returns result of addition
-	tacticUsage addTG ( DlCompletionTree* Node, const DepSet& d );
-
 	// support for existential-like rules
 
 		/// @return true iff there is R-neighbour labelled with C
@@ -954,12 +951,6 @@ inline void DlSatTester :: resetSessionFlags ( void )
 }
 
 inline tacticUsage
-DlSatTester :: addTG ( DlCompletionTree* Node, const DepSet& d )
-{
-	return tBox.getTG() != bpTOP ? addToDoEntry ( Node, tBox.getTG(), d ) : utUnusable;
-}
-
-inline tacticUsage
 DlSatTester :: initNewNode ( DlCompletionTree* node, const DepSet& dep, BipolarPointer C )
 {
 	if ( node->isDataNode() )	// creating new data node -- do data check once in the end
@@ -969,7 +960,7 @@ DlSatTester :: initNewNode ( DlCompletionTree* node, const DepSet& dep, BipolarP
 		return utClash;
 	if ( node->isDataNode() )
 		return utDone;
-	if ( addTG ( node, dep ) == utClash )
+	if ( addToDoEntry ( node, tBox.getTG(), dep ) == utClash )
 		return utClash;
 	if ( GCIs.isReflexive() && applyReflexiveRoles ( node, dep ) )
 		return utClash;
