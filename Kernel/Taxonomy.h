@@ -142,9 +142,9 @@ protected:	// methods
 	//-----------------------------------------------------------------
 
 		/// make the only parent -- top
-	void setParentTop ( void ) { Current->addNeighbour ( /*upDirection=*/true, getTop() ); }
+	void setParentTop ( void ) { Current->addNeighbour ( /*upDirection=*/true, getTopVertex() ); }
 		/// make the only child -- bottom
-	void setChildBottom ( void ) { Current->addNeighbour ( /*upDirection=*/false, getBottom() ); }
+	void setChildBottom ( void ) { Current->addNeighbour ( /*upDirection=*/false, getBottomVertex() ); }
 		/// return 1 if current entry is classified as a synonym of already classified one
 	bool classifySynonym ( void );
 
@@ -288,9 +288,9 @@ public:		// interface
 	const_iterator itop ( void ) const { return begin()+1; }
 
 		/// special access to TOP of taxonomy
-	TaxonomyVertex* getTop ( void ) const { return *itop(); }
+	TaxonomyVertex* getTopVertex ( void ) const { return *itop(); }
 		/// special access to BOTTOM of taxonomy
-	TaxonomyVertex* getBottom ( void ) const { return *ibottom(); }
+	TaxonomyVertex* getBottomVertex ( void ) const { return *ibottom(); }
 
 		/// apply ACTOR to subgraph starting from NODE as defined by flags;
 	template<bool needCurrent, bool onlyDirect, bool upDirection, class Actor>
@@ -333,15 +333,15 @@ public:		// interface
 		for ( iterator p = itop(), p_end = end(); p < p_end; ++p )
 			if ( (*p)->noNeighbours(upDirection) )
 			{
-				(*p)->addNeighbour ( upDirection, getBottom() );
-				getBottom()->addNeighbour ( !upDirection, *p );
+				(*p)->addNeighbour ( upDirection, getBottomVertex() );
+				getBottomVertex()->addNeighbour ( !upDirection, *p );
 			}
 	}
 		/// unlink the bottom from the taxonomy
 	void deFinalise ( void )
 	{
 		const bool upDirection = true;
-		TaxonomyVertex* bot = getBottom();
+		TaxonomyVertex* bot = getBottomVertex();
 		for ( TaxonomyVertex::iterator
 				p = bot->begin(upDirection),
 				p_end = bot->end(upDirection);

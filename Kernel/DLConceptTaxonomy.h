@@ -127,7 +127,7 @@ protected:	// methods
 		/// check if it is possible to skip TD phase
 	virtual bool needTopDown ( void ) const;
 		/// explicitely run TD phase
-	virtual void runTopDown ( void ) { searchBaader ( /*upDirection=*/false, getTop() ); }
+	virtual void runTopDown ( void ) { searchBaader ( /*upDirection=*/false, getTopVertex() ); }
 		/// setup BU phase (ie, identify/set children candidates)
 	virtual void setupBottomUp ( void ) {}
 		/// check if it is possible to skip BU phase
@@ -139,7 +139,7 @@ protected:	// methods
 			goto finish;
 		if ( !willInsertIntoTaxonomy )
 		{	// after classification -- bottom set up already
-			searchBaader ( /*upDirection=*/true, getBottom() );
+			searchBaader ( /*upDirection=*/true, getBottomVertex() );
 			goto finish;
 		}
 
@@ -203,12 +203,12 @@ inline bool DLConceptTaxonomy :: isUnsatisfiable ( void )
 	// for unsatisfiable concepts:
 	if ( willInsertIntoTaxonomy )
 	{	// add to BOTTOM
-		getBottom()->addSynonym(p);
+		getBottomVertex()->addSynonym(p);
 		delete Current;
 		Current = NULL;
 	}
 	else
-		const_cast<TConcept*>(p)->setTaxVertex (getBottom());
+		const_cast<TConcept*>(p)->setTaxVertex(getBottomVertex());
 
 	return true;
 }

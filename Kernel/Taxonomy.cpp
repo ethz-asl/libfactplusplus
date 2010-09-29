@@ -46,7 +46,7 @@ void Taxonomy :: print ( std::ostream& o ) const
 
 	for ( const_iterator p = itop(), p_end = end(); p < p_end; ++p )
 		(*p)->print(o);
-	getBottom()->print(o);
+	getBottomVertex()->print(o);
 }
 
 //---------------------------------------------------
@@ -112,8 +112,8 @@ void Taxonomy :: generalTwoPhaseClassification ( void )
 	// run TD phase if necessary (ie, entry is completely defined)
 	if ( needTopDown() )
 	{
-		getTop()->setValued ( true, valueLabel );		// C [= TOP == true
-		getBottom()->setValued ( false, valueLabel );	// C [= BOT == false (catched by UNSAT)
+		getTopVertex()->setValued ( true, valueLabel );		// C [= TOP == true
+		getBottomVertex()->setValued ( false, valueLabel );	// C [= BOT == false (catched by UNSAT)
 		runTopDown();
 	}
 
@@ -127,7 +127,7 @@ void Taxonomy :: generalTwoPhaseClassification ( void )
 	// run BU if necessary
 	if ( needBottomUp() )
 	{
-		getBottom()->setValued ( true, valueLabel );	// BOT [= C == true
+		getBottomVertex()->setValued ( true, valueLabel );	// BOT [= C == true
 		runBottomUp();
 	}
 
