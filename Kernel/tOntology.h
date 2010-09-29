@@ -96,6 +96,9 @@ public:		// interface
 	iterator beginUnprocessed ( void ) { return Axioms.begin()+axiomToProcess; }
 		/// RW end() for the processed part of the ontology
 	iterator endProcessed ( void ) { return beginUnprocessed(); }
+
+		/// size of the ontology
+	size_t size ( void ) const { return Axioms.size(); }
 }; // TOntology
 
 #endif
