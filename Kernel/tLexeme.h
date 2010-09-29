@@ -37,7 +37,7 @@ private:	// members
 
 public:		// interface
 		/// default c'tor for pointers
-	TLexeme ( Token tok = BAD_LEX, TNamedEntry* p = NULL ) : token(tok) { value.pName = p; }
+	TLexeme ( Token tok, TNamedEntry* p = NULL ) : token(tok) { value.pName = p; }
 		/// default c'tor for numbers
 	TLexeme ( Token tok, unsigned int val ) : token(tok) { value.data = val; }
 		/// Copy c'tor
