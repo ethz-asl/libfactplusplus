@@ -38,7 +38,7 @@ DLTree* createInverse ( DLTree* R )
 		return p;
 	}
 	case RNAME:	// role name
-		return new DLTree ( INV, R );
+		return new DLTree ( TLexeme(INV), R );
 	// NOTE!! data roles can have no inverses
 	default:	// error
 		return NULL;
@@ -51,24 +51,25 @@ DLTree* createSNFNot ( DLTree* C )
 	// check for empty argument (possible in OR processing)
 	if ( C == NULL )
 		return NULL;
-	// \not F = T
 	if ( C->Element() == BOTTOM )
-		C->Element() = TOP;
-	// \not T = F
-	else if ( C->Element() == TOP )
-		C->Element() = BOTTOM;
-	// \not\not C = C
-	else if ( C->Element () == NOT )
-	{
+	{	// \not F = T
+		deleteTree(C);
+		return createTop();
+	}
+	if ( C->Element() == TOP )
+	{	// \not T = F
+		deleteTree(C);
+		return createBottom();
+	}
+	if ( C->Element () == NOT )
+	{	// \not\not C = C
 		DLTree* p = clone(C->Left());
 		deleteTree(C);
-		C = p;
+		return p;
 	}
-	// general case
-	else
-		C = new DLTree ( NOT, C );
 
-	return C;
+	// general case
+	return new DLTree ( TLexeme(NOT), C );
 }
 
 	/// create conjunction of given formulas
@@ -95,7 +96,7 @@ DLTree* createSNFAnd ( DLTree* C, DLTree* D )
 	}
 
 	// no simplification possible -- return actual conjunction
-	return new DLTree ( AND, C, D );
+	return new DLTree ( TLexeme(AND), C, D );
 }
 
 static bool
@@ -142,7 +143,7 @@ DLTree* createSNFForall ( DLTree* R, DLTree* C )
 		return C;
 	}
 	else	// no simplification possible
-		return new DLTree ( FORALL, R, C );
+		return new DLTree ( TLexeme(FORALL), R, C );
 }
 
 	/// create at-least (GE) restriction of given formulas (>= n R.C)
@@ -152,7 +153,7 @@ DLTree* createSNFGE ( unsigned int n, DLTree* R, DLTree* C )
 	{		// >= 0 R.C -> T
 		deleteTree(R);
 		deleteTree(C);
-		return new DLTree ( TOP );
+		return createTop();
 	}
 	if ( C->Element() == BOTTOM )
 	{		// >=n R.F -> F

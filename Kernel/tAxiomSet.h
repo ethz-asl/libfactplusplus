@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2008 by Dmitry Tsarkov
+Copyright (C) 2003-2010 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -16,8 +16,8 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef __TAXIOMSET_H
-#define __TAXIOMSET_H
+#ifndef TAXIOMSET_H
+#define TAXIOMSET_H
 
 #include <iostream>
 
@@ -181,7 +181,7 @@ public:		// interface
 		/// get GCI of all non-absorbed axioms
 	DLTree* getGCI ( void ) const
 	{
-		DLTree* ret = new DLTree(TOP);
+		DLTree* ret = createTop();
 		for ( AxiomCollection::const_iterator p = Accum.begin(), p_end = Accum.end(); p != p_end; ++p )
 			ret = createSNFAnd ( ret, (*p)->createAnAxiom() );
 

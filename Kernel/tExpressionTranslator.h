@@ -45,13 +45,13 @@ public:		// interface
 
 public:		// visitor interface
 	// concept expressions
-	virtual void visit ( const TDLConceptTop& expr ATTR_UNUSED ) { tree = new DLTree(TOP); }
-	virtual void visit ( const TDLConceptBottom& expr ATTR_UNUSED ) { tree = new DLTree(BOTTOM); }
+	virtual void visit ( const TDLConceptTop& expr ATTR_UNUSED ) { tree = createTop(); }
+	virtual void visit ( const TDLConceptBottom& expr ATTR_UNUSED ) { tree = createBottom(); }
 	virtual void visit ( const TDLConceptName& expr ) { tree = new DLTree(TLexeme(CNAME,KB.getConcept(expr.getName()))); }
 	virtual void visit ( const TDLConceptNot& expr ) { expr.getC()->accept(*this); tree = createSNFNot(*this); }
 	virtual void visit ( const TDLConceptAnd& expr )
 	{
-		DLTree* acc = new DLTree(TOP);
+		DLTree* acc = createTop();
 
 		for ( TDLConceptAnd::iterator p = expr.begin(), p_end = expr.end(); p != p_end; ++p )
 		{
@@ -63,7 +63,7 @@ public:		// visitor interface
 	}
 	virtual void visit ( const TDLConceptOr& expr )
 	{
-		DLTree* acc = new DLTree(BOTTOM);
+		DLTree* acc = createBottom();
 
 		for ( TDLConceptOr::iterator p = expr.begin(), p_end = expr.end(); p != p_end; ++p )
 		{
@@ -75,7 +75,7 @@ public:		// visitor interface
 	}
 	virtual void visit ( const TDLConceptOneOf& expr )
 	{
-		DLTree* acc = new DLTree(BOTTOM);
+		DLTree* acc = createBottom();
 
 		for ( TDLConceptOneOf::iterator p = expr.begin(), p_end = expr.end(); p != p_end; ++p )
 		{
@@ -85,7 +85,7 @@ public:		// visitor interface
 
 		tree = acc;
 	}
-	virtual void visit ( const TDLConceptObjectSelf& expr ) { expr.getOR()->accept(*this); tree = new DLTree ( REFLEXIVE, *this ); }
+	virtual void visit ( const TDLConceptObjectSelf& expr ) { expr.getOR()->accept(*this); tree = new DLTree ( TLexeme(REFLEXIVE), *this ); }
 	virtual void visit ( const TDLConceptObjectValue& expr )
 	{
 		expr.getOR()->accept(*this);
@@ -225,8 +225,8 @@ public:		// visitor interface
 	virtual void visit ( const TDLDataRoleName& expr ) { tree = new DLTree(TLexeme(DNAME,KB.getDRM()->ensureRoleName(expr.getName()))); }
 
 	// data expressions
-	virtual void visit ( const TDLDataTop& expr ATTR_UNUSED ) { tree = new DLTree(TOP); }
-	virtual void visit ( const TDLDataBottom& expr ATTR_UNUSED ) { tree = new DLTree(BOTTOM); }
+	virtual void visit ( const TDLDataTop& expr ATTR_UNUSED ) { tree = createTop(); }
+	virtual void visit ( const TDLDataBottom& expr ATTR_UNUSED ) { tree = createBottom(); }
 	virtual void visit ( const TDLDataTypeName& expr )
 	{
 		DataTypeCenter& DTC = KB.getDataTypeCenter();
@@ -243,7 +243,7 @@ public:		// visitor interface
 	}
 	virtual void visit ( const TDLDataTypeRestriction& expr )
 	{
-		DLTree* acc = new DLTree(TOP);
+		DLTree* acc = createTop();
 
 		for ( TDLDataTypeRestriction::iterator p = expr.begin(), p_end = expr.end(); p != p_end; ++p )
 		{
@@ -263,7 +263,7 @@ public:		// visitor interface
 	virtual void visit ( const TDLDataNot& expr ) { expr.getExpr()->accept(*this); tree = createSNFNot(*this); }
 	virtual void visit ( const TDLDataAnd& expr )
 	{
-		DLTree* acc = new DLTree(TOP);
+		DLTree* acc = createTop();
 
 		for ( TDLDataAnd::iterator p = expr.begin(), p_end = expr.end(); p != p_end; ++p )
 		{
@@ -275,7 +275,7 @@ public:		// visitor interface
 	}
 	virtual void visit ( const TDLDataOr& expr )
 	{
-		DLTree* acc = new DLTree(BOTTOM);
+		DLTree* acc = createBottom();
 
 		for ( TDLDataOr::iterator p = expr.begin(), p_end = expr.end(); p != p_end; ++p )
 		{
@@ -287,7 +287,7 @@ public:		// visitor interface
 	}
 	virtual void visit ( const TDLDataOneOf& expr )
 	{
-		DLTree* acc = new DLTree(BOTTOM);
+		DLTree* acc = createBottom();
 
 		for ( TDLDataOneOf::iterator p = expr.begin(), p_end = expr.end(); p != p_end; ++p )
 		{

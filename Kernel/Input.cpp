@@ -61,7 +61,7 @@ TBox :: applyAxiomCToCN ( DLTree* D, DLTree*& CN )
 	if ( C == pBottom )
 	{
 		deleteTree(CN);
-		CN = new DLTree(BOTTOM);
+		CN = createBottom();
 		return false;
 	}
 
@@ -90,7 +90,7 @@ TBox :: applyAxiomCNToC ( DLTree*& CN, DLTree* D )
 	if ( C == pTop )
 	{
 		deleteTree(CN);
-		CN = new DLTree(TOP);
+		CN = createTop();
 		return false;
 	}
 

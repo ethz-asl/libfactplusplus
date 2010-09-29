@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2009 by Dmitry Tsarkov
+Copyright (C) 2003-2010 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -90,7 +90,7 @@ unsigned int TAxiom :: absorbIntoConcept ( TBox& KB )
 	// locate concept
 	TConcept* Concept = getConcept(*bestConcept);
 
-	replace ( new DLTree(TOP), bestConcept );
+	replace ( createTop(), bestConcept );
 
 #ifdef RKG_DEBUG_ABSORPTION
 	std::cout << " C-Absorb GCI to concept " << Concept->getName() << ": ";
@@ -140,7 +140,7 @@ unsigned int TAxiom :: absorbIntoDomain ( void )
 	{
 		Role = resolveRole ( (*bestSome)->Left()->Left() );
 		// replace the SOME concept expression with TOP
-		replace ( new DLTree(TOP), bestSome );
+		replace ( createTop(), bestSome );
 	}
 	else
 		// FIXME!! as for now: just take the 1st concept name

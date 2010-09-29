@@ -328,7 +328,7 @@ void TRole :: checkHierarchicalDisjoint ( TRole* R )
 	// if element is disjoint with itself -- the role is empty
 	if ( Disjoint.count(R) )
 	{
-		setDomain ( new DLTree(BOTTOM) );
+		setDomain(createBottom());
 		Disjoint.clear();
 		return;
 	}
@@ -337,7 +337,7 @@ void TRole :: checkHierarchicalDisjoint ( TRole* R )
 	for ( const_iterator p = R->begin_desc(), p_end = R->end_desc(); p != p_end; ++p )
 		if ( Disjoint.count(*p) )
 		{
-			(*p)->setDomain ( new DLTree(BOTTOM) );
+			(*p)->setDomain(createBottom());
 			Disjoint.erase(*p);
 			(*p)->Disjoint.clear();
 		}

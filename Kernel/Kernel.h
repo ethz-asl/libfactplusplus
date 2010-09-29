@@ -988,7 +988,7 @@ public:
 	void getRoleDomain ( const TRoleExpr* r, bool direct, Actor& actor )
 	{
 		classifyKB();	// ensure KB is ready to answer the query
-		setUpCache ( createSNFExists ( e(r), new DLTree(TOP) ), csClassified );
+		setUpCache ( createSNFExists ( e(r), createTop() ), csClassified );
 		Taxonomy* tax = getCTaxonomy();
 		if ( direct )	// gets an exact domain is named concept; otherwise, set of the most specific concepts
 			tax->getRelativesInfo</*needCurrent=*/true, /*onlyDirect=*/true, /*upDirection=*/true> ( cachedVertex, actor );

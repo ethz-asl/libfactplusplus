@@ -109,7 +109,7 @@ public:		// visitor interface
 		ArgList.clear();
 		ensureNames(axiom.getC());
 		ArgList.push_back(e(axiom.getC()));
-		DLTree* acc = new DLTree(BOTTOM);
+		DLTree* acc = createBottom();
 		for ( TDLAxiomDisjointUnion::iterator p = axiom.begin(), p_end = axiom.end(); p != p_end; ++p )
 			acc = createSNFOr ( acc, e(*p) );
 		ArgList.push_back(acc);
@@ -219,7 +219,7 @@ public:		// visitor interface
 		if ( isUniversalRole(axiom.getRole()) )	// KB became inconsistent
 			throw EFPPInconsistentKB();
 		TRole* R = getRole ( axiom.getRole(), "Role expression expected in Role Irreflexivity axiom" );
-		R->setDomain(createSNFNot(new DLTree(REFLEXIVE,e(axiom.getRole()))));
+		R->setDomain(createSNFNot(new DLTree(TLexeme(REFLEXIVE),e(axiom.getRole()))));
 		R->setIrreflexive(true);
 	}
 	virtual void visit ( TDLAxiomRoleSymmetric& axiom )

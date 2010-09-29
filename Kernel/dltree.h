@@ -129,6 +129,11 @@ inline bool isOneOf ( const DLTree* t )
 
 // create SNF from given parts
 
+	/// create TOP element
+inline DLTree* createTop ( void ) { return new DLTree(TLexeme(TOP)); }
+	/// create BOTTOM element
+inline DLTree* createBottom ( void ) { return new DLTree(TLexeme(BOTTOM)); }
+
 	/// create inverse of role R
 extern DLTree* createInverse ( DLTree* R );
 
@@ -160,7 +165,7 @@ inline DLTree* createSNFLE ( unsigned int n, DLTree* R, DLTree* C )
 	{				// <= n R.F -> T;
 		deleteTree(R);
 		deleteTree(C);
-		return new DLTree(TOP);
+		return createTop();
 	}
 	if ( n == 0 )	// <= 0 R.C -> \AR.\not C
 		return createSNFForall ( R, createSNFNot(C) );

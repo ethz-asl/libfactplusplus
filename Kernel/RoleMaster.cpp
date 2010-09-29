@@ -52,7 +52,11 @@ void RoleMaster :: addRoleParent ( DLTree* tree, TRole* parent )
 		DLTree* C = clone(tree->Right());
 		DLTree* InvP = new DLTree ( TLexeme ( RNAME, parent->inverse() ) );
 		DLTree* InvR = new DLTree ( TLexeme ( RNAME, R->inverse() ) );
-		R->setRange ( new DLTree ( PROJFROM, InvR, new DLTree ( PROJINTO, InvP, C ) ) );
+		// C = PROJINTO(PARENT-,C)
+		C = new DLTree ( TLexeme(PROJINTO), InvP, C );
+		// C = PROJFROM(R-,PROJINTO(PARENT-,C))
+		C = new DLTree ( TLexeme(PROJFROM), InvR, C );
+		R->setRange(C);
 	}
 	else if ( tree->Element() == PROJFROM )
 	{
@@ -62,7 +66,11 @@ void RoleMaster :: addRoleParent ( DLTree* tree, TRole* parent )
 		TRole* R = resolveRole(tree->Left());
 		DLTree* C = clone(tree->Right());
 		DLTree* P = new DLTree ( TLexeme ( RNAME, parent ) );
-		R->setDomain ( new DLTree ( PROJFROM, clone(tree->Left()), new DLTree ( PROJINTO, P, C ) ) );
+		// C = PROJINTO(PARENT,C)
+		C = new DLTree ( TLexeme(PROJINTO), P, C );
+		// C = PROJFROM(R,PROJINTO(PARENT,C))
+		C = new DLTree ( TLexeme(PROJFROM), clone(tree->Left()), C );
+		R->setDomain(C);
 	}
 	else
 		addRoleParent ( resolveRole(tree), parent );

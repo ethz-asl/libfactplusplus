@@ -374,7 +374,7 @@ public:		// interface
 	void initSpecialDomain ( void )
 	{
 		if ( !hasSpecialDomain() || getTRange() == NULL )
-			pSpecialDomain = new DLTree(TOP);
+			pSpecialDomain = createTop();
 		else
 			pSpecialDomain = createSNFForall ( new DLTree ( TLexeme ( RNAME, this ) ), clone(getTRange()) );
 	}

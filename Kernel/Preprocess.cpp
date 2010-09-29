@@ -175,7 +175,7 @@ replaceSynonymsFromTree ( DLTree* desc )
 			// check for TOP/BOTTOM
 			//FIXME!! may be, better use ID for TOP/BOTTOM
 			if ( entry->getId() == -1 )
-				cur = !strcmp(entry->getName(), "TOP") ? TOP : BOTTOM;
+				cur = TLexeme ( !strcmp(entry->getName(), "TOP") ? TOP : BOTTOM );
 			else
 				cur = TLexeme ( static_cast<TConcept*>(entry)->isSingleton() ? INAME : CNAME, entry );
 			return true;

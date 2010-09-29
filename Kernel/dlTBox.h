@@ -417,7 +417,7 @@ protected:	// methods
 	template<class Iterator>
 	DLTree* buildDisjAux ( Iterator beg, Iterator end )
 	{
-		DLTree* t = new DLTree(TOP);
+		DLTree* t = createTop();
 		for ( Iterator i = beg; i < end; ++i )
 			t = createSNFAnd ( t, createSNFNot(clone(*i)) );
 		return t;
@@ -918,9 +918,9 @@ public:
 		if ( C == NULL )
 			return NULL;
 		if ( C == pTop )
-			return new DLTree(TOP);
+			return createTop();
 		if ( C == pBottom )
-			return new DLTree(BOTTOM);
+			return createBottom();
 		return new DLTree ( TLexeme ( isIndividual(C) ? INAME : CNAME, C ) );
 	}
 		/// get fresh concept

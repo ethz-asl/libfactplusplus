@@ -113,7 +113,7 @@ TConcept :: replaceWithConst ( DLTree* t ) const
 		if ( resolveSynonym(name) == this )
 		{
 			deleteTree(t);	// replace it for TOP
-			return new DLTree(TOP);
+			return createTop();
 		}
 		else
 			return t;

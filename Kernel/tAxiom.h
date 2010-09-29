@@ -61,7 +61,7 @@ protected:	// methods
 			if ( i != pos && equalTrees ( Disjuncts[i], p ) )
 			{
 				deleteTree(p);
-				Disjuncts[pos] = new DLTree(TOP);
+				Disjuncts[pos] = createTop();
 				return;
 			}
 		Disjuncts[pos] = p;
