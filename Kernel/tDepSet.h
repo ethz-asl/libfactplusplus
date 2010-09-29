@@ -211,6 +211,8 @@ public:		// interface
 		// not found
 		return false;
 	}
+		/// check the equivalence of the two dep-sets
+	bool operator == ( const TDepSet& ds ) const { return dep == ds.dep; }
 
 		/// Adds given dep-set to current dep-set
 	void add ( const TDepSet& toAdd ) { dep = dep ? dep->merge(toAdd.dep) : toAdd.dep; }
