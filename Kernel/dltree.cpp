@@ -34,11 +34,10 @@ DLTree* createInverse ( DLTree* R )
 		deleteTree(R);
 		return p;
 	}
-	case RNAME:	// role name
+	case RNAME:	// object role name
 		return new DLTree ( TLexeme(INV), R );
-	// NOTE!! data roles can have no inverses
-	default:	// error
-		return NULL;
+	default:	// no other elements can have inverses
+		fpp_unreachable();
 	}
 }
 
