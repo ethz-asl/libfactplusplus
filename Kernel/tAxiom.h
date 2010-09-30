@@ -66,8 +66,8 @@ protected:	// methods
 			}
 		Disjuncts[pos] = p;
 	}
-		/// replace element given by an iterator I with P
-	void replace ( DLTree* p, const_iterator i ) { replace ( p, i-begin() ); }
+		/// replace element given by an iterator I with TOP
+	void replaceWithTop ( iterator i ) { deleteTree(*i); *i = createTop(); }
 
 	// access to labels
 

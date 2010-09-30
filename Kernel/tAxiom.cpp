@@ -90,7 +90,7 @@ unsigned int TAxiom :: absorbIntoConcept ( TBox& KB )
 	// locate concept
 	TConcept* Concept = getConcept(*bestConcept);
 
-	replace ( createTop(), bestConcept );
+	replaceWithTop(bestConcept);
 
 #ifdef RKG_DEBUG_ABSORPTION
 	std::cout << " C-Absorb GCI to concept " << Concept->getName() << ": ";
@@ -140,7 +140,7 @@ unsigned int TAxiom :: absorbIntoDomain ( void )
 	{
 		Role = resolveRole ( (*bestSome)->Left()->Left() );
 		// replace the SOME concept expression with TOP
-		replace ( createTop(), bestSome );
+		replaceWithTop(bestSome);
 	}
 	else
 		// FIXME!! as for now: just take the 1st concept name
