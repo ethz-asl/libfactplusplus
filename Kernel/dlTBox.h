@@ -170,8 +170,9 @@ protected:	// typedefs
 	typedef ExpressionArray::const_iterator ea_iterator;
 
 protected:	// members
+		/// relevance label (to determine logical features)
 	TLabeller relevance;
-
+		/// DAG of all expressions
 	DLDag DLHeap;
 
 		/// reasoner for TBox-related queries w/o nominals
@@ -239,8 +240,6 @@ protected:	// members
 		/// cache for the \forall R.C replacements during absorption
 	TRCCache* RCCache;
 
-		/// current axiom's ID
-	unsigned int axiomId;
 		/// current aux concept's ID
 	unsigned int auxConceptID;
 		/// how many times nominals were found during translation to DAG; local to BuildDAG
@@ -936,9 +935,6 @@ public:
 //-----------------------------------------------------------------------------
 //--		public parser (input) interface
 //-----------------------------------------------------------------------------
-
-		/// set the ID of the axiom to be processed next
-	void setAxiomId ( unsigned int id ) { axiomId = id; }
 
 		/// set the flag that forbid usage of undefined names for concepts/roles; @return old value
 	bool setForbidUndefinedNames ( bool val )

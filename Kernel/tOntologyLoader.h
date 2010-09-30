@@ -347,7 +347,6 @@ public:		// interface
 		for ( TOntology::iterator p = ontology.begin(), p_end = ontology.end(); p < p_end; ++p )
 			if ( (*p)->isUsed() )
 			{
-				kb.setAxiomId((*p)->getId());
 				(*p)->accept(*this);
 			}
 	}
