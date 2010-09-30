@@ -25,10 +25,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 	/// create inverse of role R
 DLTree* createInverse ( DLTree* R )
 {
-	// check for empty argument
-	if ( R == NULL )
-		return NULL;
-
+	fpp_assert ( R != NULL );	// sanity check
 	switch ( R->Element().getToken() )
 	{
 	case INV:	// R-- = R
@@ -48,9 +45,7 @@ DLTree* createInverse ( DLTree* R )
 	/// create negation of given formula
 DLTree* createSNFNot ( DLTree* C )
 {
-	// check for empty argument (possible in OR processing)
-	if ( C == NULL )
-		return NULL;
+	fpp_assert ( C != NULL );	// sanity check
 	if ( C->Element() == BOTTOM )
 	{	// \not F = T
 		deleteTree(C);
