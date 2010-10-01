@@ -437,8 +437,6 @@ public:		// interface
 	void gatherStat ( const DLDag& dag, bool pos );
 		/// init statistic for given node based on the stat of the children
 	void initStat ( const DLDag& dag, bool pos );
-		/// increment frequency of the sub-tree starting from the current node
-	void incFreq ( DLDag& dag, bool pos );
 		/// sort entry using DAG's compare method
 	void sortEntry ( const DLDag& dag );
 

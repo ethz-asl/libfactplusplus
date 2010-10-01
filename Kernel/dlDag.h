@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2009 by Dmitry Tsarkov
+Copyright (C) 2003-2010 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -16,8 +16,8 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef _DLDAG_H
-#define _DLDAG_H
+#ifndef DLDAG_H
+#define DLDAG_H
 
 #include <vector>
 #include <cstring>	// strlen
@@ -96,6 +96,8 @@ protected:	// methods
 				 Method == 'B' || Method == 'G' || Method == '0' )
 			&& ( Order == 'a' || Order == 'd' ) && ( NGPref == 'p' || NGPref == 'n' );
 	}
+		/// gather vertex freq statistics
+	void computeVertexFreq ( BipolarPointer p );
 		/// change order of ADD elements wrt statistic
 	void Recompute ( void )
 	{

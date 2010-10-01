@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2009 by Dmitry Tsarkov
+Copyright (C) 2003-2010 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -113,6 +113,30 @@ void DLDag :: setOrderOptions ( const char* opt )
 	Recompute();
 }
 
+/// gather vertex freq statistics
+void
+DLDag :: computeVertexFreq ( BipolarPointer p )
+{
+	DLVertex& v = (*this)[p];
+	bool pos = isPositive(p);
+
+	if ( v.isVisited(pos) )	// avoid cycles
+		return;
+
+	v.incFreqValue(pos);	// increment frequence of current vertex
+	v.setVisited(pos);
+
+	if ( v.omitStat(pos) )	// negation of primitive concept-like
+		return;
+
+	// increment frequence of all subvertex
+	if ( isValid(v.getC()) )
+		computeVertexFreq ( createBiPointer ( v.getC(), pos ) );
+	else
+		for ( DLVertex::const_iterator q = v.begin(), q_end = v.end(); q != q_end; ++q )
+			computeVertexFreq ( createBiPointer ( *q, pos ) );
+}
+
 void
 DLDag :: gatherStatistic ( void )
 {
@@ -121,18 +145,15 @@ DLDag :: gatherStatistic ( void )
 		Heap[*p]->gatherStat ( *this, /*pos=*/false );
 
 	// if necessary -- gather frequency
-	bool needFreq = (orSortSat[0] == 'F' || orSortSub[0] == 'F' );
-
-	if ( !needFreq )
+	if ( orSortSat[0] != 'F' && orSortSub[0] != 'F' )
 		return;
 
 	clearDFS();
 
-	for ( unsigned int i = size()-1; i > 1; --i )
+	for ( int i = size()-1; i > 1; --i )
 	{
-		DLVertex& v = (*this)[i];
-		if ( isCNameTag(v.Type()) )
-			v.incFreq ( *this, /*pos=*/true );
+		if ( isCNameTag((*this)[i].Type()) )
+			computeVertexFreq(i);
 	}
 }
 

@@ -184,27 +184,6 @@ void DLVertex :: initStat ( const DLDag& dag, bool pos )
 	setStatValues ( d, s, b, g, pos );
 }
 
-/// increment frequency of the sub-tree starting from the current node
-void DLVertex :: incFreq ( DLDag& dag, bool pos )
-{
-	if ( isVisited(pos) )	// avoid cycles
-		return;
-
-	incFreqValue(pos);	// increment frequence of current vertex
-
-	setVisited(pos);
-
-	if ( omitStat(pos) )	// negation of primitive concept-like
-		return;
-
-	// increment frequence of all subvertex
-	if ( isValid(getC()) )
-		dag[getC()].incFreq ( dag, pos == isPositive(getC()) );
-	else
-		for ( const_iterator q = begin(); q != end(); ++q )
-			dag[*q].incFreq ( dag, pos == isPositive(*q) );
-}
-
 // Sort given entry in the order defined by flags in a DAG.
 // the overall sorted entry structure looks like
 //   fffA..M..Zlll if sortAscend set, and
