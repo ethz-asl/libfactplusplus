@@ -30,8 +30,6 @@ DLDag :: DLDag ( const ifOptionSet* Options )
 {
 	Heap.push_back ( new DLVertex (dtBad) );	// empty vertex -- bpINVALID
 	Heap.push_back ( new DLVertex (dtTop) );
-	Heap.back()->setStatValues(0,0,0,0,true);
-	Heap.back()->setStatValues(0,0,0,0,false);
 
 	readConfig ( Options );
 }

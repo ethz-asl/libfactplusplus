@@ -21,6 +21,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <vector>
 #include <iostream>
+#include <cstring>	// memset
 
 #include "globaldef.h"
 #include "BiPointer.h"
@@ -138,25 +139,24 @@ public:		// static methods
 
 public:		// interface
 		/// default c'tor
-	DLVertexStatistic ( void )
-	{
-		setStatValues ( 0, 0, 0, 0, /*pos=*/true );
-		setStatValues ( 0, 0, 0, 0, /*pos=*/false );
-	}
+	DLVertexStatistic ( void ) { std::memset ( &stat, 0, sizeof(stat) ); }
 		/// empty d'tor
 	virtual ~DLVertexStatistic ( void ) {}
 
 	// set methods
 
-		/// set all values at once
-	void setStatValues ( StatType d, StatType s, StatType b, StatType g, bool pos )
+		/// add-up all stat values at once by explicit values
+	void updateStatValues ( StatType d, StatType s, StatType b, StatType g, bool pos )
 	{
-		stat[getStatIndexDepth(pos)] = d;
-		stat[getStatIndexSize(pos)] = s;
-		stat[getStatIndexBranch(pos)] = b;
-		stat[getStatIndexGener(pos)] = g;
-		stat[getStatIndexFreq(pos)] = 0;
+		stat[getStatIndexSize(pos)] += s;
+		stat[getStatIndexBranch(pos)] += b;
+		stat[getStatIndexGener(pos)] += g;
+		if ( d > stat[getStatIndexDepth(pos)] )
+			stat[getStatIndexDepth(pos)] = d;
 	}
+		/// add-up all values at once by a given vertex
+	void updateStatValues ( const DLVertexStatistic& v, bool posV, bool pos )
+		{ updateStatValues ( v.getDepth(posV), v.getSize(posV), v.getBranch(posV), v.getGener(posV), pos ); }
 		/// increment frequency value
 	void incFreqValue ( bool pos ) { ++stat[getStatIndexFreq(pos)]; }
 

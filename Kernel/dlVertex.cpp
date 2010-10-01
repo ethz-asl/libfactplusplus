@@ -124,37 +124,19 @@ DLVertex :: gatherStat ( const DLDag& dag, bool pos )
 
 void DLVertex :: initStat ( const DLDag& dag, bool pos )
 {
-	StatType d = 0, s = 1, b = 0, g = 0, d_loc;
-
-#define UPDATE_STAT()			\
-	if ( v.isInCycle(posQ) )	\
-		setInCycle(pos);		\
-	d_loc = v.getDepth(posQ);	\
-	s += v.getSize(posQ);		\
-	b += v.getBranch(posQ);		\
-	g += v.getGener(posQ);		\
-	if ( d_loc > d ) d = d_loc
+	StatType d = 0, s = 1, b = 0, g = 0;
 
 	if ( !omitStat(pos) )
 	{
 		if ( isValid(getC()) )
-		{
-			const DLVertex& v = dag[getC()];
-			bool posQ = (pos == isPositive(getC()));
-			UPDATE_STAT();
-		}
+			updateStatValues ( dag[getC()], pos == isPositive(getC()), pos );
 		else
 			for ( const_iterator q = begin(), q_end = end(); q < q_end; ++q )
-			{
-				const DLVertex& v = dag[*q];
-				bool posQ = (pos == isPositive(*q));
-				UPDATE_STAT();
-			}
+				updateStatValues ( dag[*q], pos == isPositive(*q), pos );
 	}
 
-#undef UPDATE_STAT
-
 	// correct values wrt POS
+	d = getDepth(pos);
 	switch ( Type() )
 	{
 	case dtAnd:
@@ -181,7 +163,7 @@ void DLVertex :: initStat ( const DLDag& dag, bool pos )
 		break;
 	}
 
-	setStatValues ( d, s, b, g, pos );
+	updateStatValues ( d, s, b, g, pos );
 }
 
 // Sort given entry in the order defined by flags in a DAG.
