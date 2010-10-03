@@ -76,7 +76,7 @@ protected:	// methods
 	void processLabelInterval ( const DLDag& DLHeap, l_iterator start, l_iterator end )
 	{
 		for ( l_iterator p = start; p != end; ++p )
-			processConcept ( DLHeap[p->bp()], p->bp(), p->getDep().empty() );
+			processConcept ( DLHeap[*p], p->bp(), p->getDep().empty() );
 	}
 		/// fills cache sets by tree->Label; set Deterministic accordingly
 	void initCacheByLabel ( const DLDag& DLHeap, const DlCompletionTree* pCT )

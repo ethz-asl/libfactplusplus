@@ -638,7 +638,7 @@ protected:	// methods
 	{
 		for ( DlCompletionTree::const_label_iterator q = curNode->beginl_cc(), q_end = curNode->endl_cc(); q < q_end; ++q )
 			if ( isNegative(q->bp())		// need at-least restriction
-				 && isNRClash ( DLHeap[q->bp()], atmost, *q ) )
+				 && isNRClash ( DLHeap[*q], atmost, *q ) )
 				return true;
 		return false;
 	}
@@ -647,7 +647,7 @@ protected:	// methods
 	{
 		for ( DlCompletionTree::const_label_iterator q = curNode->beginl_cc(), q_end = curNode->endl_cc(); q < q_end; ++q )
 			if ( isPositive(q->bp())		// need at-most restriction
-				 && isNRClash ( atleast, DLHeap[q->bp()], *q ) )
+				 && isNRClash ( atleast, DLHeap[*q], *q ) )
 				return true;
 		return false;
 	}

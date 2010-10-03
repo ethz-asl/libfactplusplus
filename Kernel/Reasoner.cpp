@@ -681,7 +681,7 @@ void DlSatTester :: logStartEntry ( void ) const
 	LL << "," << curConcept << "){";
 	if ( isNegative (curConcept.bp()) )
 		LL << "~";
-	LL << DLHeap[curConcept.bp()].getTagName() << "}:";
+	LL << DLHeap[curConcept].getTagName() << "}:";
 }
 
 void DlSatTester :: logFinishEntry ( tacticUsage res ) const

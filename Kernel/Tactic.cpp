@@ -68,7 +68,7 @@ tacticUsage DlSatTester :: commonTactic ( void )
 
 	// apply tactic only if Node is not an i-blocked
 	if ( !isIBlocked() )
-		ret = commonTacticBody ( DLHeap[curConcept.bp()] );
+		ret = commonTacticBody ( DLHeap[curConcept] );
 
 	if ( LLM.isWritable(llGTA) )
 		logFinishEntry(ret);
@@ -540,7 +540,7 @@ tacticUsage DlSatTester :: commonTacticBodySome ( const DLVertex& cur )	// for E
 	for ( DlCompletionTree::const_label_iterator pc = curNode->beginl_cc(); pc != curNode->endl_cc(); ++pc )
 	{	// found such vertex (<=1 R)
 		const ConceptWDep& LC = *pc;
-		const DLVertex& ver = DLHeap[LC.bp()];
+		const DLVertex& ver = DLHeap[LC];
 
 		if ( isPositive(LC.bp()) && isFunctionalVertex(ver) && *ver.getRole() >= *R )
 			if ( !rFunc ||	// 1st functional restriction found or another one...
@@ -750,7 +750,7 @@ DlSatTester :: applyAllGeneratingRules ( DlCompletionTree* node )
 		if ( isPositive(p->bp()) )
 			continue;
 
-		switch ( DLHeap[p->bp()].Type() )
+		switch ( DLHeap[*p].Type() )
 		{
 		case dtForall:
 		case dtLE:
@@ -815,7 +815,7 @@ tacticUsage DlSatTester :: applyUniversalNR ( DlCompletionTree* Node,
 		if ( isNegative(p->bp()) )
 			continue;
 
-		const DLVertex& v = DLHeap[p->bp()];
+		const DLVertex& v = DLHeap[*p];
 		const TRole* vR = v.getRole();
 
 		switch ( v.Type() )
@@ -1186,12 +1186,12 @@ tacticUsage DlSatTester :: mergeLabels ( const CGLabel& from, DlCompletionTree* 
 		if ( findConcept ( sc, p->bp() ) )
 			CGraph.saveRareCond ( sc.updateDepSet ( p->bp(), p->getDep() ) );
 		else
-			switchResult ( ret, insertToDoEntry ( to, p->bp(), dep+p->getDep(), DLHeap[p->bp()].Type(), "M" ) );
+			switchResult ( ret, insertToDoEntry ( to, p->bp(), dep+p->getDep(), DLHeap[*p].Type(), "M" ) );
 	for ( p = from.begin_cc(), p_end = from.end_cc(); p < p_end; ++p )
 		if ( findConcept ( cc, p->bp() ) )
 			CGraph.saveRareCond ( cc.updateDepSet ( p->bp(), p->getDep() ) );
 		else
-			switchResult ( ret, insertToDoEntry ( to, p->bp(), dep+p->getDep(), DLHeap[p->bp()].Type(), "M" ) );
+			switchResult ( ret, insertToDoEntry ( to, p->bp(), dep+p->getDep(), DLHeap[*p].Type(), "M" ) );
 
 	return ret;
 }

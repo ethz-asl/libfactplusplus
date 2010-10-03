@@ -28,6 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "dlVHash.h"
 #include "ifOptions.h"
 #include "tRole.h"
+#include "ConceptWithDep.h"
 
 class RoleMaster;
 class TConcept;
@@ -200,6 +201,8 @@ public:		// interface
 #	endif
 		return *Heap[getValue(i)];
 	}
+		/// RW access by index in complex concept
+	DLVertex& operator [] ( const ConceptWDep& cwd ) { return (*this)[cwd.bp()]; }
 		/// access by index (const version)
 	const DLVertex& operator [] ( BipolarPointer i ) const
 	{
@@ -209,6 +212,8 @@ public:		// interface
 #	endif
 		return *Heap[getValue(i)];
 	}
+		/// RO access by index in complex concept
+	const DLVertex& operator [] ( const ConceptWDep& cwd ) const { return (*this)[cwd.bp()]; }
 
 		/// get size of DAG
 	size_t size ( void ) const { return Heap.size (); }
