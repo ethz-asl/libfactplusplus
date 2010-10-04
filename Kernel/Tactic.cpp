@@ -320,7 +320,7 @@ bool DlSatTester :: planOrProcessing ( const DLVertex& cur, DepSet& dep )
 	// check all OR components for the clash
 	const CGLabel& lab = curNode->label();
 	for ( DLVertex::const_iterator q = cur.begin(), q_end = cur.end(); q < q_end; ++q )
-		switch ( tryAddConcept ( lab.getLabel(DLHeap[*q].Type()), inverse(ConceptWDep(*q)) ) )  
+		switch ( tryAddConcept ( lab.getLabel(DLHeap[*q].Type()), inverse(ConceptWDep(*q)) ) )
 		{
 		case acrClash:	// clash found -- OK
 			dep.add(getClashSet());

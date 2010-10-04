@@ -355,8 +355,10 @@ protected:	// methods
 	//------------  methods  ----------------------------
 	// adds p to the labels of node n.
 	// returns utDone, utClash or utUnused
-	tacticUsage addToDoEntry ( DlCompletionTree* n, BipolarPointer c, const DepSet& dep,
-							   const char* reason = NULL );
+	tacticUsage addToDoEntry ( DlCompletionTree* node, const ConceptWDep& C, const char* reason = NULL );
+		/// synonym to the above
+	tacticUsage addToDoEntry ( DlCompletionTree* node, BipolarPointer c, const DepSet& dep, const char* reason = NULL )
+		{ return addToDoEntry ( node, ConceptWDep(c,dep), reason ); }
 		/// insert C to the label of NODE; do necessary updates; may return Clash in case of data P
 	tacticUsage insertToDoEntry ( DlCompletionTree* node, const ConceptWDep& C,
 								  DagTag tag, const char* reason );
@@ -983,7 +985,7 @@ DlSatTester :: runSat ( BipolarPointer p, BipolarPointer q )
 
 	// use general method to init node with P and add Q then
 	if ( initNewNode ( CGraph.getRoot(), DepSet(), p ) == utClash ||
-		 addToDoEntry ( CGraph.getRoot(), q, DepSet() ) == utClash )
+		 addToDoEntry ( CGraph.getRoot(), ConceptWDep(q) ) == utClash )
 		return false;		// concept[s] unsatisfiable
 
 	// check satisfiability explicitly

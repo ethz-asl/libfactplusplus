@@ -221,33 +221,32 @@ DlSatTester :: tryAddConcept ( const CWDArray& lab, const ConceptWDep& C )
 	}
 }
 
-tacticUsage DlSatTester :: addToDoEntry ( DlCompletionTree* n, BipolarPointer c, const DepSet& dep,
-										  const char* reason )
+tacticUsage
+DlSatTester :: addToDoEntry ( DlCompletionTree* node, const ConceptWDep& C, const char* reason )
 {
-	if ( c == bpTOP )	// simplest things first
+	if ( C == bpTOP )	// simplest things first
 		return utUnusable;
-	ConceptWDep C(c,dep);
-	if ( c == bpBOTTOM )
+	if ( C == bpBOTTOM )
 	{
-		setClashSet(dep);
+		setClashSet(C.getDep());
 		if ( LLM.isWritable(llGTA) )
-			logClash ( n, C );
+			logClash ( node, C );
 		return utClash;
 	}
 
-	const DLVertex& v = DLHeap[c];
+	const DLVertex& v = DLHeap[C];
 	DagTag tag = v.Type();
 
 	// collections shouldn't appear in the node labels
 	if ( tag == dtCollection )
 	{
-		if ( isNegative(c) )	// nothing to do
+		if ( isNegative(C.bp()) )	// nothing to do
 			return utUnusable;
 		// setup and run and()
 		incStat(nTacticCalls);		// to balance nAndCalls later
 		DlCompletionTree* oldNode = curNode;
 		ConceptWDep oldConcept = curConcept;
-		curNode = n;
+		curNode = node;
 		curConcept = C;
 		tacticUsage ret = commonTacticBodyAnd(v);
 		curNode = oldNode;
@@ -256,16 +255,16 @@ tacticUsage DlSatTester :: addToDoEntry ( DlCompletionTree* n, BipolarPointer c,
 	}
 
 	// try to add a concept to a node label
-	switch ( tryAddConcept ( n->label().getLabel(tag), C ) )
+	switch ( tryAddConcept ( node->label().getLabel(tag), C ) )
 	{
 	case acrClash:	// clash -- return
 		if ( LLM.isWritable(llGTA) )
-			logClash ( n, C );
+			logClash ( node, C );
 		return utClash;
 	case acrExist:	// already exists -- nothing new
 		return utUnusable;
 	case acrDone:	// try was done
-		return insertToDoEntry ( n, C, tag, reason );
+		return insertToDoEntry ( node, C, tag, reason );
 	default:	// safety check
 		fpp_unreachable();
 	}
