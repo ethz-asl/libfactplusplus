@@ -46,29 +46,30 @@ clash:	// clash found: clear all stuff; returns true
 	// find apropiate place to insert
 	unsigned int v = getValue (p);
 
-	register unsigned int i, j;
-	for ( i = 0; i < Child. size () && getValue(Child[i]) < v; ++i )
+	BaseType::iterator q = Child.begin(), q_end = Child.end();
+	for ( ; q != q_end && getValue(*q) < v; ++q )
 		(void)NULL;
 
-	if ( i == Child. size() )	// finish
+	if ( q == q_end )	// finish
 	{
-		Child. push_back(p);
+		Child.push_back(p);
 		return false;
 	}
 
 	// we finds a place with |Child[i]| >= v
-	if ( Child [i] == p )	// concept already exists
+	if ( *q == p )	// concept already exists
 		return false;
-	else if ( Child [i] == inverse (p) )
+	else if ( *q == inverse(p) )
 		goto clash;
 
 	// we need to insert p into set
-	Child.push_back ( Child.back () );
+	unsigned int offset = q - Child.begin();
+	Child.push_back(Child.back());
 
-	for ( j = Child. size ()-1; j>i; --j )
-		Child [j] = Child [j-1];	// copy the tail
+	for ( q_end = Child.begin()+offset, q = Child.end()-1; q != q_end; --q )
+		*q=*(q-1);	// copy the tail
 
-	Child [i] = p;
+	*q = p;
 
 	// FIXME: add some simplification (about AR.C1, AR.c2 etc)
 	return false;
