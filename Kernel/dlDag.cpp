@@ -140,7 +140,7 @@ DLDag :: computeVertexStat ( BipolarPointer p )
 		// fallthrough
 	case dtAnd:	// check all the conjuncts
 		for ( DLVertex::const_iterator q = v.begin(), q_end = v.end(); q < q_end; ++q )
-			computeVertexStat ( createBiPointer ( *q, pos ) );
+			computeVertexStat ( *q, pos );
 		break;
 	case dtProj:
 		if ( !pos )		// ~Proj -- nothing to do
@@ -150,7 +150,7 @@ DLDag :: computeVertexStat ( BipolarPointer p )
 	case dtForall:
 	case dtUAll:
 	case dtLE:	// check a single referenced concept
-		computeVertexStat ( createBiPointer ( v.getC(), pos ) );
+		computeVertexStat ( v.getC(), pos );
 		break;
 	default:	// nothing to do
 		break;
@@ -173,10 +173,10 @@ DLDag :: updateVertexStat ( BipolarPointer p )
 	if ( !v.omitStat(pos) )
 	{
 		if ( isValid(v.getC()) )
-			v.updateStatValues ( (*this)[v.getC()], pos == isPositive(v.getC()), pos );
+			updateVertexStat ( v, v.getC(), pos );
 		else
 			for ( DLVertex::const_iterator q = v.begin(), q_end = v.end(); q < q_end; ++q )
-				v.updateStatValues ( (*this)[*q], pos == isPositive(*q), pos );
+				updateVertexStat ( v, *q, pos );
 	}
 
 	// correct values wrt POS
@@ -228,10 +228,10 @@ DLDag :: computeVertexFreq ( BipolarPointer p )
 
 	// increment frequence of all subvertex
 	if ( isValid(v.getC()) )
-		computeVertexFreq ( createBiPointer ( v.getC(), pos ) );
+		computeVertexFreq ( v.getC(), pos );
 	else
 		for ( DLVertex::const_iterator q = v.begin(), q_end = v.end(); q != q_end; ++q )
-			computeVertexFreq ( createBiPointer ( *q, pos ) );
+			computeVertexFreq ( *q, pos );
 }
 
 void

@@ -99,10 +99,16 @@ protected:	// methods
 	}
 		/// gather vertex statistics (no freq)
 	void computeVertexStat ( BipolarPointer p );
+		/// helper for the recursion
+	void computeVertexStat ( BipolarPointer p, bool pos ) { computeVertexStat ( createBiPointer ( p, pos ) ); }
 		/// update vertex statistics (no freq) wrt calculated values of children
 	void updateVertexStat ( BipolarPointer p );
+		/// helper for the recursion
+	void updateVertexStat ( DLVertex& v, BipolarPointer p, bool pos ) { v.updateStatValues ( (*this)[p], pos == isPositive(p), pos ); }
 		/// gather vertex freq statistics
 	void computeVertexFreq ( BipolarPointer p );
+		/// helper for the recursion
+	void computeVertexFreq ( BipolarPointer p, bool pos ) { computeVertexFreq ( createBiPointer ( p, pos ) ); }
 		/// change order of ADD elements wrt statistic
 	void Recompute ( void )
 	{
