@@ -189,7 +189,7 @@ DlSatTester :: applicable ( const TBox::TSimpleRule& rule )
 	{
 		if ( (*p)->pName == bp )
 			continue;
-		if ( findConcept(lab,(*p)->pName,loc) )
+		if ( findConceptClash(lab,ConceptWDep((*p)->pName,loc)) )
 			loc = getClashSet();	// such a concept exists -- rememeber clash set
 		else	// no such concept -- can not fire a rule
 			return false;
@@ -319,9 +319,8 @@ bool DlSatTester :: planOrProcessing ( const DLVertex& cur, DepSet& dep )
 
 	// check all OR components for the clash
 	const CGLabel& lab = curNode->label();
-	const DepSet dummy;
 	for ( DLVertex::const_iterator q = cur.begin(), q_end = cur.end(); q < q_end; ++q )
-		switch ( tryAddConcept ( lab.getLabel(DLHeap[*q].Type()), inverse(*q), dummy ) )
+		switch ( tryAddConcept ( lab.getLabel(DLHeap[*q].Type()), inverse(ConceptWDep(*q)) ) )  
 		{
 		case acrClash:	// clash found -- OK
 			dep.add(getClashSet());
@@ -507,7 +506,7 @@ tacticUsage DlSatTester :: commonTacticBodySome ( const DLVertex& cur )	// for E
 	// check if we have functional role
 	if ( R->isFunctional() )
 		for ( TRole::const_iterator r = R->begin_topfunc(), r_end = R->end_topfunc(); r != r_end; ++r )
-			switch ( tryAddConcept ( curNode->label().getLabel(dtLE), (*r)->getFunctional(), dep ) )
+			switch ( tryAddConcept ( curNode->label().getLabel(dtLE), ConceptWDep((*r)->getFunctional(),dep) ) )
 			{
 			case acrClash:	// addition leads to clash
 				return utClash;
@@ -1029,14 +1028,15 @@ applyLE:	// skip init, because here we are after restoring
 			{
 				// here we know that C is in both labels; set a proper clash-set
 				DagTag tag = DLHeap[C].Type();
+				ConceptWDep CWD(C,dep);
 				bool test;
 
 				// here dep contains the clash-set
-				test = findConcept(from->getArcEnd()->label().getLabel(tag), C, dep );
+				test = findConceptClash(from->getArcEnd()->label().getLabel(tag), CWD );
 				fpp_assert(test);
-				dep = getClashSet();	// save new dep-set
+				CWD.addDep(getClashSet());	// save new dep-set
 
-				test = findConcept(to->getArcEnd()->label().getLabel(tag), C, dep );
+				test = findConceptClash(to->getArcEnd()->label().getLabel(tag), CWD );
 				fpp_assert(test);
 				// both clash-sets are now in common clash-set
 			}
@@ -1140,7 +1140,7 @@ DlSatTester :: checkMergeClash ( const CGLabel& from, const CGLabel& to, const D
 	bool clash = false;
 	for ( p = from.begin_sc(), p_end = from.end_sc(); p < p_end; ++p )
 		if ( isUsed(inverse(p->bp()))
-			 && findConcept ( to.getLabel(dtPConcept), inverse(p->bp()), p->getDep() ) )
+			 && findConceptClash ( to.getLabel(dtPConcept), inverse(*p) ) )
 		{
 			clash = true;
 			clashDep.add(getClashSet());
@@ -1150,7 +1150,7 @@ DlSatTester :: checkMergeClash ( const CGLabel& from, const CGLabel& to, const D
 		}
 	for ( p = from.begin_cc(), p_end = from.end_cc(); p < p_end; ++p )
 		if ( isUsed(inverse(p->bp()))
-			 && findConcept ( to.getLabel(dtForall), inverse(p->bp()), p->getDep() ) )
+			 && findConceptClash ( to.getLabel(dtForall), inverse(*p) ) )
 		{
 			clash = true;
 			clashDep.add(getClashSet());
@@ -1183,12 +1183,12 @@ tacticUsage DlSatTester :: mergeLabels ( const CGLabel& from, DlCompletionTree* 
 	// we still need to update it with a new dep-set (due to merging)
 	// note that DEP is already there
 	for ( p = from.begin_sc(), p_end = from.end_sc(); p < p_end; ++p )
-		if ( findConcept ( sc, p->bp() ) )
+		if ( findConcept ( sc, *p ) )
 			CGraph.saveRareCond ( sc.updateDepSet ( p->bp(), p->getDep() ) );
 		else
 			switchResult ( ret, insertToDoEntry ( to, ConceptWDep(*p,dep), DLHeap[*p].Type(), "M" ) );
 	for ( p = from.begin_cc(), p_end = from.end_cc(); p < p_end; ++p )
-		if ( findConcept ( cc, p->bp() ) )
+		if ( findConcept ( cc, *p ) )
 			CGraph.saveRareCond ( cc.updateDepSet ( p->bp(), p->getDep() ) );
 		else
 			switchResult ( ret, insertToDoEntry ( to, ConceptWDep(*p,dep), DLHeap[*p].Type(), "M" ) );
@@ -1285,9 +1285,11 @@ bool isNewEdge ( const DlCompletionTree* node, Iterator begin, Iterator end )
 	return true;
 }
 
-void DlSatTester :: findNeighbours ( const TRole* Role, BipolarPointer C, DepSet& Dep )
+void
+DlSatTester :: findNeighbours ( const TRole* Role, BipolarPointer c, DepSet& Dep )
 {
 	EdgesToMerge.clear();
+	ConceptWDep C(c);	// no dep-set needed
 	DagTag tag = DLHeap[C].Type();
 
 	for ( DlCompletionTree::const_edge_iterator p = curNode->begin(), p_end = curNode->end(); p < p_end; ++p )

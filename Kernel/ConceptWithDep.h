@@ -67,4 +67,7 @@ public:		// methods
 	friend O& operator << ( O& o, const ConceptWDep& c ) { o << c.Concept << c.getDep(); return o; }
 }; // ConceptWDep
 
+/// create an inverse of a given CWD with the same dep-set
+inline ConceptWDep inverse ( const ConceptWDep& C ) { return ConceptWDep ( inverse(C.bp()), C.getDep() ); }
+
 #endif // CONCEPTWITHDEP_H

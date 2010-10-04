@@ -366,13 +366,13 @@ protected:	// methods
 	// label access interface
 
 		/// check if it is possible to add a concept to a label given by TAG
-	addConceptResult checkAddedConcept ( const CWDArray& lab, BipolarPointer p, const DepSet& dep );
-		/// try to add a concept to a label given by TAG; ~P can't appear in the label
-	bool findConcept ( const CWDArray& lab, BipolarPointer p );
-		/// try to add a concept to a label given by TAG; ~P can't appear in the label; setup clash-set if found
-	bool findConcept ( const CWDArray& lab, BipolarPointer p, const DepSet& dep );
+	addConceptResult checkAddedConcept ( const CWDArray& lab, const ConceptWDep& C );
+		/// try to add a concept to a label given by TAG; ~C can't appear in the label
+	bool findConcept ( const CWDArray& lab, const ConceptWDep& C );
+		/// try to add a concept to a label given by TAG; ~C can't appear in the label; setup clash-set if found
+	bool findConceptClash ( const CWDArray& lab, const ConceptWDep& C );
 		/// check if C or ~C is already in LAB
-	addConceptResult tryAddConcept ( const CWDArray& lab, BipolarPointer c, const DepSet& dep );
+	addConceptResult tryAddConcept ( const CWDArray& lab, const ConceptWDep& C );
 
 		/** Adds ToDo entry which already exists in label of NODE. There is no need
 			to add entry to label, but it is necessary to provide offset of existing concept.
@@ -652,18 +652,18 @@ protected:	// methods
 	}
 
 		/// aux method that fills the dep-set for either C or ~C found in the label; @return whether C was found
-	bool findChooseRuleConcept ( const CWDArray& label, BipolarPointer C, DepSet& Dep )
+	bool findChooseRuleConcept ( const CWDArray& label, const ConceptWDep& C, DepSet& Dep )
 	{
 		if ( C == bpTOP )
 			return true;
-		if ( findConcept ( label, C, Dep ) )
+		if ( findConceptClash ( label, C ) )
 		{
-			Dep = getClashSet();
+			Dep.add(getClashSet());
 			return true;
 		}
-		else if ( findConcept ( label, inverse(C), Dep ) )
+		else if ( findConceptClash ( label, inverse(C) ) )
 		{
-			Dep = getClashSet();
+			Dep.add(getClashSet());
 			return false;
 		}
 		else
