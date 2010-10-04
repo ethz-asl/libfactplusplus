@@ -299,7 +299,7 @@ tacticUsage DlSatTester :: commonTacticBodyOr ( const DLVertex& cur )	// for C \
 		if ( OrConceptsToTest.size() == 1 )
 		{
 			BipolarPointer C = OrConceptsToTest.back();
-			return insertToDoEntry ( curNode, C, dep, DLHeap[C].Type(), "bcp" );
+			return insertToDoEntry ( curNode, ConceptWDep(C,dep), DLHeap[C].Type(), "bcp" );
 		}
 
 		// more than one alternative: use branching context
@@ -377,7 +377,7 @@ tacticUsage DlSatTester :: processOrEntry ( void )
 #	ifdef RKG_USE_DYNAMIC_BACKJUMPING
 		addToDoEntry ( curNode, C, dep, reason );
 #	else
-		insertToDoEntry ( curNode, C, dep, DLHeap[C].Type(), reason );
+		insertToDoEntry ( curNode, ConceptWDep(C,dep), DLHeap[C].Type(), reason );
 #	endif
 }
 
@@ -1126,7 +1126,7 @@ bool DlSatTester :: isNRClash ( const DLVertex& atleast, const DLVertex& atmost,
 
 	// log clash reason
 	if ( LLM.isWritable(llGTA) )
-		logClash ( curNode, reason.bp(), reason.getDep() );
+		logClash ( curNode, reason );
 
 	return true;
 }
@@ -1186,12 +1186,12 @@ tacticUsage DlSatTester :: mergeLabels ( const CGLabel& from, DlCompletionTree* 
 		if ( findConcept ( sc, p->bp() ) )
 			CGraph.saveRareCond ( sc.updateDepSet ( p->bp(), p->getDep() ) );
 		else
-			switchResult ( ret, insertToDoEntry ( to, p->bp(), dep+p->getDep(), DLHeap[*p].Type(), "M" ) );
+			switchResult ( ret, insertToDoEntry ( to, ConceptWDep(*p,dep), DLHeap[*p].Type(), "M" ) );
 	for ( p = from.begin_cc(), p_end = from.end_cc(); p < p_end; ++p )
 		if ( findConcept ( cc, p->bp() ) )
 			CGraph.saveRareCond ( cc.updateDepSet ( p->bp(), p->getDep() ) );
 		else
-			switchResult ( ret, insertToDoEntry ( to, p->bp(), dep+p->getDep(), DLHeap[*p].Type(), "M" ) );
+			switchResult ( ret, insertToDoEntry ( to, ConceptWDep(*p,dep), DLHeap[*p].Type(), "M" ) );
 
 	return ret;
 }

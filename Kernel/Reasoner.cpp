@@ -221,11 +221,12 @@ tacticUsage DlSatTester :: addToDoEntry ( DlCompletionTree* n, BipolarPointer c,
 {
 	if ( c == bpTOP )	// simplest things first
 		return utUnusable;
+	ConceptWDep C(c,dep);
 	if ( c == bpBOTTOM )
 	{
 		setClashSet(dep);
 		if ( LLM.isWritable(llGTA) )
-			logClash ( n, c, dep );
+			logClash ( n, C );
 		return utClash;
 	}
 
@@ -242,7 +243,7 @@ tacticUsage DlSatTester :: addToDoEntry ( DlCompletionTree* n, BipolarPointer c,
 		DlCompletionTree* oldNode = curNode;
 		ConceptWDep oldConcept = curConcept;
 		curNode = n;
-		curConcept = ConceptWDep(c,dep);
+		curConcept = C;
 		tacticUsage ret = commonTacticBodyAnd(v);
 		curNode = oldNode;
 		curConcept = oldConcept;
@@ -254,43 +255,41 @@ tacticUsage DlSatTester :: addToDoEntry ( DlCompletionTree* n, BipolarPointer c,
 	{
 	case acrClash:	// clash -- return
 		if ( LLM.isWritable(llGTA) )
-			logClash ( n, c, dep );
+			logClash ( n, C );
 		return utClash;
 	case acrExist:	// already exists -- nothing new
 		return utUnusable;
 	case acrDone:	// try was done
-		return insertToDoEntry ( n, c, dep, tag, reason );
+		return insertToDoEntry ( n, C, tag, reason );
 	default:	// safety check
 		fpp_unreachable();
 	}
 }
 
 /// insert P to the label of N; do necessary updates; may return Clash in case of data node N
-tacticUsage DlSatTester :: insertToDoEntry ( DlCompletionTree* n, BipolarPointer c, const DepSet& dep,
-											 DagTag tag, const char* reason = NULL )
+tacticUsage
+DlSatTester :: insertToDoEntry ( DlCompletionTree* node, const ConceptWDep& C,
+								 DagTag tag, const char* reason = NULL )
 {
-	// we will need this tag for TODO entry anyway
-	ConceptWDep p ( c, dep );
-
 	// we will change current Node => save it if necessary
-	updateLevel ( n, dep );
-	CGraph.addConceptToNode ( n, p, tag );
+	updateLevel ( node, C.getDep() );
+	CGraph.addConceptToNode ( node, C, tag );
 
-	setUsed(c);
+	setUsed(C.bp());
 
-	if ( n->isCached() )
+	if ( node->isCached() )
 	{
-		tacticUsage ret = correctCachedEntry(n);
+		tacticUsage ret = correctCachedEntry(node);
 		return ret == utUnusable ? utDone : ret;
 	}
 
 	// add new info in TODO list
-	TODO.addEntry ( n, tag, p );
+	TODO.addEntry ( node, tag, C );
 
-	if ( n->isDataNode() )	// data concept -- run data center for it
-		return checkDataNode ? checkDataClash(n) : utUnusable;
+	if ( node->isDataNode() )	// data concept -- run data center for it
+		return checkDataNode ? checkDataClash(node) : utUnusable;
 	else if ( LLM.isWritable(llGTA) )	// inform about it
-		logEntry ( n, c, dep, reason );
+		logEntry ( node, C, reason );
 
 	return utDone;
 }

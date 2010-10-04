@@ -357,8 +357,8 @@ protected:	// methods
 	// returns utDone, utClash or utUnused
 	tacticUsage addToDoEntry ( DlCompletionTree* n, BipolarPointer c, const DepSet& dep,
 							   const char* reason = NULL );
-		/// insert P to the label of N; do necessary updates; may return Clash in case of data P
-	tacticUsage insertToDoEntry ( DlCompletionTree* n, BipolarPointer c, const DepSet& dep,
+		/// insert C to the label of NODE; do necessary updates; may return Clash in case of data P
+	tacticUsage insertToDoEntry ( DlCompletionTree* node, const ConceptWDep& C,
 								  DagTag tag, const char* reason );
 		/// if something was added to cached node N, un- or re-cache it; @return result of re-cache
 	tacticUsage correctCachedEntry ( DlCompletionTree* n );
@@ -381,10 +381,9 @@ protected:	// methods
 	void addExistingToDoEntry ( DlCompletionTree* node, int offset, const char* reason = NULL )
 	{
 		const ConceptWDep& C = node->label().getConcept(offset);
-		BipolarPointer bp = C.bp();
-		TODO.addEntry ( node, DLHeap[bp].Type(), C, offset );
+		TODO.addEntry ( node, DLHeap[C.bp()].Type(), C, offset );
 		if ( LLM.isWritable(llGTA) )
-			logEntry ( node, bp, C.getDep(), reason );
+			logEntry ( node, C, reason );
 	}
 		/// add all elements from NODE label into TODO list
 	void redoNodeLabel ( DlCompletionTree* node, const char* reason )
@@ -747,23 +746,23 @@ protected:	// methods
 		/// log finish of processing of a ToDo entry
 	void logFinishEntry ( tacticUsage res ) const;
 		/// log the result of processing ACTION with entry (N,C{DEP})/REASON
-	void logNCEntry ( const DlCompletionTree* n, BipolarPointer c, const DepSet& dep,
+	void logNCEntry ( const DlCompletionTree* n, const ConceptWDep& C,
 					  const char* action, const char* reason ) const
 	{
 		CHECK_LL_RETURN(llGTA);	// useless, but safe
 
 		LL << " " << action << "(";
 		n->logNode();
-		LL << "," << c << dep << ")";
+		LL << "," << C.bp() << C.getDep() << ")";
 		if ( reason )
 			LL << reason;
 	}
 		/// log addition of the entry to ToDo list
-	void logEntry ( const DlCompletionTree* n, BipolarPointer c, const DepSet& dep, const char* reason ) const
-		{ logNCEntry ( n, c, dep, "+", reason ); }
+	void logEntry ( const DlCompletionTree* n, const ConceptWDep& C, const char* reason ) const
+		{ logNCEntry ( n, C, "+", reason ); }
 		/// log clash happened during node processing
-	void logClash ( const DlCompletionTree* n, BipolarPointer c, const DepSet& dep ) const
-		{ logNCEntry ( n, c, dep, "x", DLHeap[c].getTagName() ); }
+	void logClash ( const DlCompletionTree* n, const ConceptWDep& C ) const
+		{ logNCEntry ( n, C, "x", DLHeap[C].getTagName() ); }
 		/// write root subtree of CG with given LEVEL
 	void writeRoot ( unsigned int level )
 	{
