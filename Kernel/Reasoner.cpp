@@ -285,7 +285,7 @@ tacticUsage DlSatTester :: insertToDoEntry ( DlCompletionTree* n, BipolarPointer
 	}
 
 	// add new info in TODO list
-	TODO.addEntry ( n, c, tag );
+	TODO.addEntry ( n, tag, p );
 
 	if ( n->isDataNode() )	// data concept -- run data center for it
 		return checkDataNode ? checkDataClash(n) : utUnusable;

@@ -382,7 +382,7 @@ protected:	// methods
 	{
 		const ConceptWDep& C = node->label().getConcept(offset);
 		BipolarPointer bp = C.bp();
-		TODO.addEntry ( node, bp, DLHeap[bp].Type(), offset );
+		TODO.addEntry ( node, DLHeap[bp].Type(), C, offset );
 		if ( LLM.isWritable(llGTA) )
 			logEntry ( node, bp, C.getDep(), reason );
 	}

@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2009 by Dmitry Tsarkov
+Copyright (C) 2003-2010 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -16,8 +16,8 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef __TODOLIST_H
-#define __TODOLIST_H
+#ifndef TODOLIST_H
+#define TODOLIST_H
 
 #include "globaldef.h"
 #include "fpp_assert.h"
@@ -293,9 +293,9 @@ public:
 	// work with entries
 
 		/// add entry with given NODE and CONCEPT with given OFFSET to the TODO table
-	void addEntry ( DlCompletionTree* node, BipolarPointer concept, DagTag type, int offset )
+	void addEntry ( DlCompletionTree* node, DagTag type, const ConceptWDep& C, int offset )
 	{
-		unsigned int index = Matrix.getIndex ( type, isPositive(concept), node->isNominalNode() );
+		unsigned int index = Matrix.getIndex ( type, isPositive(C.bp()), node->isNominalNode() );
 		switch ( index )
 		{
 		case nRegularOps:	// unused entry
@@ -310,8 +310,8 @@ public:
 		++noe;
 	}
 		/// add entry with given NODE and CONCEPT of a TYPE to the ToDo table
-	void addEntry ( DlCompletionTree* node, BipolarPointer concept, DagTag type )
-		{ addEntry ( node, concept, type, node->label().getLast(type) ); }
+	void addEntry ( DlCompletionTree* node, DagTag type, const ConceptWDep& C )
+		{ addEntry ( node, type, C, node->label().getLast(type) ); }
 		/// get the next TODO entry. @return NULL if the table is empty
 	const ToDoEntry* getNextEntry ( void );
 
