@@ -97,6 +97,10 @@ protected:	// methods
 				 Method == 'B' || Method == 'G' || Method == '0' )
 			&& ( Order == 'a' || Order == 'd' ) && ( NGPref == 'p' || NGPref == 'n' );
 	}
+		/// gather vertex statistics (no freq)
+	void computeVertexStat ( BipolarPointer p );
+		/// update vertex statistics (no freq) wrt calculated values of children
+	void updateVertexStat ( BipolarPointer p );
 		/// gather vertex freq statistics
 	void computeVertexFreq ( BipolarPointer p );
 		/// change order of ADD elements wrt statistic

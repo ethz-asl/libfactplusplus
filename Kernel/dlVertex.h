@@ -433,10 +433,6 @@ public:		// interface
 
 		/// whether statistic's gathering should be omitted due to the type of a vertex
 	bool omitStat ( bool pos ) const;
-		/// gather statistic for the subgraph starting from given node
-	void gatherStat ( const DLDag& dag, bool pos );
-		/// init statistic for given node based on the stat of the children
-	void initStat ( const DLDag& dag, bool pos );
 		/// sort entry using DAG's compare method
 	void sortEntry ( const DLDag& dag );
 

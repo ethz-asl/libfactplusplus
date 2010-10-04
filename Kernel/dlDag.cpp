@@ -111,6 +111,105 @@ void DLDag :: setOrderOptions ( const char* opt )
 	Recompute();
 }
 
+void
+DLDag :: computeVertexStat ( BipolarPointer p )
+{
+	DLVertex& v = (*this)[p];
+	bool pos = isPositive(p);
+
+	// this vertex is already processed
+	if ( v.isProcessed(pos) )
+		return;
+
+	// in case of cycle: mark concept as such
+	if ( v.isVisited(pos) )
+	{
+		v.setInCycle(pos);
+		// FIXME!! now the fact of cycle is not used; later on mark a node in cycle iff any child is/
+		return;
+	}
+
+	v.setVisited(pos);
+
+	// ensure that the statistic is gather for all sub-concepts of the expression
+	switch ( v.Type() )
+	{
+	case dtCollection:	// if pos then behaves like and
+		if ( !pos )		// ~Coll -- nothing to do
+			break;
+		// fallthrough
+	case dtAnd:	// check all the conjuncts
+		for ( DLVertex::const_iterator q = v.begin(), q_end = v.end(); q < q_end; ++q )
+			computeVertexStat ( createBiPointer ( *q, pos ) );
+		break;
+	case dtProj:
+		if ( !pos )		// ~Proj -- nothing to do
+			break;
+		// fallthrough
+	case dtName:
+	case dtForall:
+	case dtUAll:
+	case dtLE:	// check a single referenced concept
+		computeVertexStat ( createBiPointer ( v.getC(), pos ) );
+		break;
+	default:	// nothing to do
+		break;
+	}
+
+	v.setProcessed(pos);
+
+	// here all the necessary statistics is gathered -- use it in the init
+	updateVertexStat(p);
+}
+
+void
+DLDag :: updateVertexStat ( BipolarPointer p )
+{
+	DLVertex& v = (*this)[p];
+	bool pos = isPositive(p);
+
+	DLVertex::StatType d = 0, s = 1, b = 0, g = 0;
+
+	if ( !v.omitStat(pos) )
+	{
+		if ( isValid(v.getC()) )
+			v.updateStatValues ( (*this)[v.getC()], pos == isPositive(v.getC()), pos );
+		else
+			for ( DLVertex::const_iterator q = v.begin(), q_end = v.end(); q < q_end; ++q )
+				v.updateStatValues ( (*this)[*q], pos == isPositive(*q), pos );
+	}
+
+	// correct values wrt POS
+	d = v.getDepth(pos);
+	switch ( v.Type() )
+	{
+	case dtAnd:
+		if ( !pos )
+			++b;	// OR is branching
+		break;
+	case dtForall:
+		++d;		// increase depth
+		if ( !pos )
+			++g;	// SOME is generating
+		break;
+	case dtLE:
+		++d;		// increase depth
+		if ( !pos )
+			++g;	// >= is generating
+		else if ( v.getNumberLE() != 1 )
+			++b;	// <= is branching
+		break;
+	case dtProj:
+		if ( pos )
+			++b;	// projection sometimes involves branching
+		break;
+	default:
+		break;
+	}
+
+	v.updateStatValues ( d, s, b, g, pos );
+}
+
 /// gather vertex freq statistics
 void
 DLDag :: computeVertexFreq ( BipolarPointer p )
@@ -140,7 +239,7 @@ DLDag :: gatherStatistic ( void )
 {
 	// gather main statistics for disjunctions
 	for ( StatVector::iterator p = listAnds.begin(), p_end = listAnds.end(); p < p_end; ++p )
-		Heap[*p]->gatherStat ( *this, /*pos=*/false );
+		computeVertexStat(inverse(*p));
 
 	// if necessary -- gather frequency
 	if ( orSortSat[0] != 'F' && orSortSub[0] != 'F' )
