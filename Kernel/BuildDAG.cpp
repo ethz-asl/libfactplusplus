@@ -156,44 +156,51 @@ BipolarPointer TBox :: tree2dag ( const DLTree* t )
 		return bpINVALID;	// invalid value
 
 	const TLexeme& cur = t->Element();
+	BipolarPointer ret = bpINVALID;
 
 	switch ( cur.getToken() )
 	{
 	case BOTTOM:	// it is just !top
-		return bpBOTTOM;
+		ret = bpBOTTOM;
+		break;
 	case TOP:		// the 1st node
-		return bpTOP;
+		ret = bpTOP;
+		break;
 	case DATAEXPR:	// data-related expression
-		return addDataExprToHeap ( static_cast<TDataEntry*>(cur.getNE()) );
+		ret = addDataExprToHeap ( static_cast<TDataEntry*>(cur.getNE()) );
+		break;
 	case CNAME:		// concept name
-		return concept2dag(toConcept(cur.getNE()));
+		ret = concept2dag(toConcept(cur.getNE()));
+		break;
 	case INAME:		// individual name
 		++nNominalReferences;	// definitely a nominal
-		return concept2dag(toIndividual(cur.getNE()));
+		ret = concept2dag(toIndividual(cur.getNE()));
+		break;
 
 	case NOT:
-		return inverse ( tree2dag ( t->Left() ) );
-
+		ret = inverse ( tree2dag ( t->Left() ) );
+		break;
 	case AND:
-		return and2dag(t);
-
+		ret = and2dag(t);
+		break;
 	case FORALL:
-		return forall2dag ( resolveRole(t->Left()), tree2dag(t->Right()) );
-
+		ret = forall2dag ( resolveRole(t->Left()), tree2dag(t->Right()) );
+		break;
 	case REFLEXIVE:
-		return reflexive2dag(resolveRole(t->Left()));
-
+		ret = reflexive2dag(resolveRole(t->Left()));
+		break;
 	case LE:
-		return atmost2dag ( cur.getData(), resolveRole(t->Left()), tree2dag(t->Right()) );
-
+		ret = atmost2dag ( cur.getData(), resolveRole(t->Left()), tree2dag(t->Right()) );
+		break;
 	case PROJFROM:	// note: no PROJINTO as already unified
-		return DLHeap.directAdd ( new DLVertex ( resolveRole(t->Left()), tree2dag(t->Right()->Right()), resolveRole(t->Right()->Left()) ) );
-
+		ret = DLHeap.directAdd ( new DLVertex ( resolveRole(t->Left()), tree2dag(t->Right()->Right()), resolveRole(t->Right()->Left()) ) );
+		break;
 	default:
 		fpp_assert ( isSNF(t) );	// safety check
 		fpp_unreachable();			// extra safety check ;)
-		return bpINVALID;
 	}
+
+	return ret;
 }
 
 /// fills AND-like vertex V with an AND-like expression T; process result
