@@ -84,7 +84,10 @@ public class FaCTPlusPlusReasoner extends OWLReasonerBase {
 			"http://www.w3.org/2002/07/owl#topDataProperty",
 			"http://www.w3.org/2002/07/owl#bottomDataProperty");
         kernel.setProgressMonitor(new ProgressMonitorAdapter());
-        kernel.setOperationTimeout(configuration.getTimeOut());
+		long millis = configuration.getTimeOut();
+		if ( millis == Long.MAX_VALUE )
+			millis = 0;
+        kernel.setOperationTimeout(millis);
         loadReasonerAxioms();
     }
 
