@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2009 by Dmitry Tsarkov
+Copyright (C) 2003-2010 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -57,7 +57,7 @@ class BCOr: public BranchingContext
 {
 public:		// types
 		/// short OR indexes
-	typedef std::vector<BipolarPointer> OrIndex;
+	typedef std::vector<ConceptWDep> OrIndex;
 		/// short OR index iterator
 	typedef OrIndex::const_iterator or_iterator;
 

@@ -298,7 +298,7 @@ tacticUsage DlSatTester :: commonTacticBodyOr ( const DLVertex& cur )	// for C \
 			// not a branching: just add a single concept
 		if ( OrConceptsToTest.size() == 1 )
 		{
-			BipolarPointer C = OrConceptsToTest.back();
+			ConceptWDep C = OrConceptsToTest.back();
 			return insertToDoEntry ( curNode, ConceptWDep(C,dep), DLHeap[C].Type(), "bcp" );
 		}
 
@@ -320,21 +320,24 @@ bool DlSatTester :: planOrProcessing ( const DLVertex& cur, DepSet& dep )
 	// check all OR components for the clash
 	const CGLabel& lab = curNode->label();
 	for ( DLVertex::const_iterator q = cur.begin(), q_end = cur.end(); q < q_end; ++q )
-		switch ( tryAddConcept ( lab.getLabel(DLHeap[*q].Type()), inverse(ConceptWDep(*q)) ) )
+	{
+		ConceptWDep C(inverse(*q));
+		switch ( tryAddConcept ( lab.getLabel(DLHeap[C].Type()), C ) )
 		{
 		case acrClash:	// clash found -- OK
 			dep.add(getClashSet());
 			continue;
 		case acrExist:	// already have such concept -- save it to the 1st position
 			OrConceptsToTest.resize(1);
-			OrConceptsToTest[0] = inverse(*q);
+			OrConceptsToTest[0] = C;
 			return true;
 		case acrDone:
-			OrConceptsToTest.push_back(inverse(*q));
+			OrConceptsToTest.push_back(C);
 			continue;
 		default:		// safety check
 			fpp_unreachable();
 		}
+	}
 
 	return false;
 }
@@ -344,7 +347,7 @@ tacticUsage DlSatTester :: processOrEntry ( void )
 	// save the context here as after save() it would be lost
 	const BCOr* bcOr = static_cast<BCOr*>(bContext);
 	BCOr::or_iterator p = bcOr->orBeg(), p_end = bcOr->orCur();
-	BipolarPointer C = *p_end;
+	ConceptWDep C = *p_end;
 	const char* reason = NULL;
 	DepSet dep;
 
@@ -368,7 +371,7 @@ tacticUsage DlSatTester :: processOrEntry ( void )
 	// if semantic branching is in use -- add previous entries to the label
 	if ( useSemanticBranching )
 		for ( ; p < p_end; ++p )
-			if ( addToDoEntry ( curNode, inverse(*p), dep, "sb" ) != utDone )
+			if ( addToDoEntry ( curNode, ConceptWDep(inverse(*p),dep), "sb" ) != utDone )
 				fpp_unreachable();	// Both Exists and Clash are errors
 
 	// add new entry to current node; we know the result would be DONE
