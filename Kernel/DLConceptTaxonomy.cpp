@@ -165,6 +165,7 @@ bool DLConceptTaxonomy :: propagateUp ( void )
 
 	// including node always have some parents (TOP at least)
 	TaxonomyVertex::iterator p = Current->begin(upDirection), p_end = Current->end(upDirection);
+	fpp_assert ( p != p_end );	// there is at least one parent (TOP)
 
 	TaxonomyLink aux;	// aux set for the verteces in ...
 	unsigned int nCommon = 1;	// number of common parents
