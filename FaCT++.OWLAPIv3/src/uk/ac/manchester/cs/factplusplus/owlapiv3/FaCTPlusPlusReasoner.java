@@ -1485,9 +1485,11 @@ public class FaCTPlusPlusReasoner extends OWLReasonerBase {
         }
 
         public boolean isCancelled() {
+			if (interrupted) {
+				throw new ReasonerInterruptedException();
+			}
             return interrupted;
         }
-
     }
 
 
