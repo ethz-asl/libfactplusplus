@@ -89,6 +89,16 @@ void ThrowExc ( JNIEnv * env, const char* reason, const char* className )
 	env->ThrowNew ( cls, reason );
 }
 
+/// throw exception with an empty c'tor and a given signature
+inline
+void ThrowExc ( JNIEnv * env, const char* className )
+{
+	jclass cls = env->FindClass(className);
+	jmethodID CtorID = env->GetMethodID ( cls, "<init>", "()V" );
+	jobject obj = env->NewObject ( cls, CtorID );
+	env->Throw((jthrowable)obj);
+}
+
 /// throw general Java exception
 inline
 void ThrowGen ( JNIEnv* env, const char* reason )
@@ -100,28 +110,52 @@ void ThrowGen ( JNIEnv* env, const char* reason )
 inline
 void Throw ( JNIEnv* env, const char* reason )
 {
-	ThrowExc ( env, reason, "Luk/ac/manchester/cs/factplusplus/FaCTPlusPlusException;" );
+	ThrowExc ( env, reason, "Lorg/semanticweb/owlapi/reasoner/ReasonerInternalException;" );
 }
 
 /// throw Inconsistent Ontology exception
 inline
 void ThrowICO ( JNIEnv* env )
 {
-	ThrowExc ( env, "FaCT++.Kernel: inconsistent ontology", "Luk/ac/manchester/cs/factplusplus/InconsistentOntologyException;" );
+	ThrowExc ( env, "Lorg/semanticweb/owlapi/reasoner/InconsistentOntologyException;" );
 }
 
 /// throw CR for non-simple role exception
 inline
 void ThrowNSR ( JNIEnv* env, const char* reason )
 {
-	ThrowExc ( env, reason, "Luk/ac/manchester/cs/factplusplus/NonSimpleRoleInNumberRestrictionException;" );
+	std::string msg ("Non-simple object property '");
+	msg += reason;
+	msg += "' is used as a simple one";
+	ThrowExc ( env, msg.c_str(), "Lorg/semanticweb/owlapi/reasoner/OWLReasonerRuntimeException;");
+
+// not correct because does not have enough information
+//	jclass ceNotProfile = env->FindClass("Lorg/semanticweb/owlapi/reasoner/ClassExpressionNotInProfileException;");
+//	if ( ceNotProfile == 0 )
+//	{
+//		Throw ( env, "Can't get class for Pointer" );
+//		return ;
+//	}
+//
+//	jmethodID CtorID = env->GetMethodID ( ceNotProfile, "<init>", "(Lorg/semanticweb/owlapi/model/OWLClassExpression;Lorg/semanticweb/owlapi/profiles/OWLProfile;)V" );
+//
+//	// create an object to return
+//	jobject obj = env->NewObject ( ceNotProfile, CtorID, NULL, NULL );
+//	env->Throw((jthrowable)obj);
 }
 
 /// throw Role Inclusion Cycle exception
 inline
 void ThrowRIC ( JNIEnv* env, const char* reason )
 {
-	ThrowExc ( env, reason, "Luk/ac/manchester/cs/factplusplus/RoleInclusionCycleException;" );
+	ThrowExc ( env, reason, "Lorg/semanticweb/owlapi/reasoner/AxiomNotInProfileException;" );
+}
+
+/// throw Role Inclusion Cycle exception
+inline
+void ThrowTO ( JNIEnv* env )
+{
+	ThrowExc ( env, "Lorg/semanticweb/owlapi/reasoner/TimeOutException;" );
 }
 
 /// field for Kernel's ID

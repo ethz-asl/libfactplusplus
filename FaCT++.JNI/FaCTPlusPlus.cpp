@@ -35,6 +35,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "JNISupport.h"
 #include "JNIActor.h"
 #include "JNIMonitor.h"
+#include "eFPPTimeout.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -1323,6 +1324,7 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_retrac
 	{ ThrowNSR ( env, nsr.getRoleName() ); }	\
 	catch ( EFPPCycleInRIA cir )				\
 	{ ThrowRIC ( env, cir.getRoleName() ); }	\
+	catch ( EFPPTimeout ) { ThrowTO(env); }		\
 	catch ( EFaCTPlusPlus fpp )					\
 	{ Throw ( env, fpp.what() ); }				\
 	catch ( std::exception ex )					\
