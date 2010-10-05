@@ -24,15 +24,15 @@ package uk.ac.manchester.cs.factplusplus.protege;
  */
 
 
-import org.protege.editor.owl.model.inference.ProtegeOWLReasonerFactoryAdapter;
-import org.semanticweb.owlapi.model.OWLOntology;
-import org.semanticweb.owlapi.model.OWLRuntimeException;
-import org.semanticweb.owlapi.reasoner.OWLReasoner;
-import org.semanticweb.owlapi.reasoner.OWLReasonerConfiguration;
-import org.semanticweb.owlapi.reasoner.ReasonerProgressMonitor;
-import org.semanticweb.owlapi.reasoner.SimpleConfiguration;
+import javax.swing.JOptionPane;
 
-import javax.swing.*;
+import org.protege.editor.owl.model.inference.AbstractProtegeOWLReasonerInfo;
+import org.semanticweb.owlapi.model.OWLRuntimeException;
+import org.semanticweb.owlapi.reasoner.BufferingMode;
+import org.semanticweb.owlapi.reasoner.OWLReasonerFactory;
+
+import uk.ac.manchester.cs.factplusplus.FaCTPlusPlus;
+import uk.ac.manchester.cs.factplusplus.owlapiv3.FaCTPlusPlusReasonerFactory;
 
 /**
  * Author: Matthew Horridge<br>
@@ -40,15 +40,49 @@ import javax.swing.*;
  * Bio-Health Informatics Group<br>
  * Date: 11-May-2007<br><br>
  */
-public class FaCTPlusPlusFactory extends ProtegeOWLReasonerFactoryAdapter {
+public class FaCTPlusPlusFactory extends AbstractProtegeOWLReasonerInfo {
 
-    private uk.ac.manchester.cs.factplusplus.owlapiv3.FaCTPlusPlusReasonerFactory fac;
+    private FaCTPlusPlusReasonerFactory fac;
+
+// previous interface implementation
+//    public OWLReasoner createReasoner(OWLOntology owlOntology, ReasonerProgressMonitor reasonerProgressMonitor) {
+//        try {
+//            OWLReasonerConfiguration conf = new SimpleConfiguration(reasonerProgressMonitor);
+//            return fac.createNonBufferingReasoner(owlOntology, conf);
+//        }
+//        catch (UnsatisfiedLinkError e) {
+//            JOptionPane.showMessageDialog(null,
+//                                          "FaCT++ requires platform specific libraries which cannot be found.\n" +
+//                                          "Supported platforms are OS X, Windows and Linux.",
+//                                          "Missing libraries or platform not supported",
+//                                          JOptionPane.ERROR_MESSAGE);
+//            throw new OWLRuntimeException(e);
+//        }
+//        catch (Exception e) {
+//            throw new OWLRuntimeException(e);
+//        }
+//    }
 
 
-    public OWLReasoner createReasoner(OWLOntology owlOntology, ReasonerProgressMonitor reasonerProgressMonitor) {
-        try {
-            OWLReasonerConfiguration conf = new SimpleConfiguration(reasonerProgressMonitor);
-            return fac.createNonBufferingReasoner(owlOntology, conf);
+    public void initialise() throws Exception {
+        fac = new FaCTPlusPlusReasonerFactory();
+    }
+
+
+    public void dispose() throws Exception {
+        fac = null;
+    }
+
+
+	public BufferingMode getRecommendedBuffering() {
+		return BufferingMode.BUFFERING;
+	}
+
+
+	public OWLReasonerFactory getReasonerFactory() {
+		try {
+			// refer to the FaCTPlusPlus class so the static block that loads the native library is loaded
+        	FaCTPlusPlus.test();
         }
         catch (UnsatisfiedLinkError e) {
             JOptionPane.showMessageDialog(null,
@@ -58,18 +92,6 @@ public class FaCTPlusPlusFactory extends ProtegeOWLReasonerFactoryAdapter {
                                           JOptionPane.ERROR_MESSAGE);
             throw new OWLRuntimeException(e);
         }
-        catch (Exception e) {
-            throw new OWLRuntimeException(e);
-        }
-    }
-
-
-    public void initialise() throws Exception {
-        fac = new uk.ac.manchester.cs.factplusplus.owlapiv3.FaCTPlusPlusReasonerFactory();
-    }
-
-
-    public void dispose() throws Exception {
-        fac = null;
-    }
+		return fac;
+	}
 }
