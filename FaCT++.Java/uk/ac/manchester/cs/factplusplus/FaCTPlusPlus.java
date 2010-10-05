@@ -18,15 +18,24 @@ import java.lang.System;
 
 public class FaCTPlusPlus {
 
-    static {
-        // Load the FaCT++ JNI library
-	if (System.getProperty("factpp.jni.path","nope") == "nope")
-	    { System.loadLibrary("FaCTPlusPlusJNI"); }
-	else
-	    { System.load(System.getProperty("factpp.jni.path")); }
-	// init all the IDs used 
-	initMethodsFieldsIDs();
-    }
+	static {
+		initDone=true;
+		// Load the FaCT++ JNI library
+		if (System.getProperty("factpp.jni.path","nope") == "nope")
+			System.loadLibrary("FaCTPlusPlusJNI");
+		else
+			System.load(System.getProperty("factpp.jni.path"));
+		// init all the IDs used
+		initMethodsFieldsIDs();
+	}
+
+	// used to ensure that TEST method forces JNI library to load
+	private static volatile boolean initDone;
+	// make sure FaCT++ JNI library is loaded afterwards
+	public static final boolean test() {
+		// this is only useful to force the native library loading
+		return initDone;
+	}
 
     /**
      * Used to initialise methods and fields that will be used by the native implementation
