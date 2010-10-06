@@ -20,12 +20,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "tOntologyLoader.h"
 #include "tOntologyPrinterLISP.h"
 
-const char* ReasoningKernel :: Version = "1.4.1";
+const char* ReasoningKernel :: Version = "1.5.0";
 const char* ReasoningKernel :: ProductName =
 	"FaCT++.Kernel: Reasoner for the SROIQ(D) Description Logic\n";
 const char* ReasoningKernel :: Copyright =
 	"Copyright (C) Dmitry V. Tsarkov, 2002-2010. ";
-const char* ReasoningKernel :: ReleaseDate = "(7 September 2010)";
+const char* ReasoningKernel :: ReleaseDate = "(5 October 2010)";
 
 // print the FaCT++ information only once
 static bool KernelFirstRun = true;
