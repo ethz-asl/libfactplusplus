@@ -125,7 +125,6 @@ DLDag :: computeVertexStat ( BipolarPointer p )
 	if ( v.isVisited(pos) )
 	{
 		v.setInCycle(pos);
-		// FIXME!! now the fact of cycle is not used; later on mark a node in cycle iff any child is/
 		return;
 	}
 

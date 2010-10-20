@@ -104,7 +104,17 @@ protected:	// methods
 		/// update vertex statistics (no freq) wrt calculated values of children
 	void updateVertexStat ( BipolarPointer p );
 		/// helper for the recursion
-	void updateVertexStat ( DLVertex& v, BipolarPointer p, bool pos ) { v.updateStatValues ( (*this)[p], pos == isPositive(p), pos ); }
+	void updateVertexStat ( DLVertex& v, BipolarPointer p, bool pos )
+	{
+		const DLVertex& w = (*this)[p];
+		bool posW = pos == isPositive(p);
+
+		// update in-cycle information
+		if ( w.isInCycle(posW) )
+			v.setInCycle(pos);
+
+		v.updateStatValues ( w, posW, pos );
+	}
 		/// gather vertex freq statistics
 	void computeVertexFreq ( BipolarPointer p );
 		/// helper for the recursion
