@@ -73,6 +73,13 @@ TBox :: applyAxiomCToCN ( DLTree* D, DLTree*& CN )
 	// FIXME!! check for C->isPrimitive()
 	else if ( equalTrees ( C->Description, D ) && !( C->isSingleton() && isName(D) ) )
 		deleteTree ( makeNonPrimitive(C,D) );
+	else if ( getCI(D) == pTop )	// top [= C: make C = TOP, Top [= Desc(C)
+	{
+		if ( C->Description != NULL )
+			addSubsumeAxiom ( D, makeNonPrimitive ( C, clone(D) ) );
+		else	// just make C = Top
+			makeNonPrimitive ( C, D );
+	}
 	else	// n/a
 		return false;
 
