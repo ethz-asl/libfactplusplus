@@ -531,7 +531,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
   (JNIEnv * env, jobject obj, jobject arg)
 {
 	TRACE_JNI("getMaxInclusiveFacet");
-	return Facet ( env, getEM(env,obj)->FacetMaxExclusive(getDataValueExpr(env,arg)) );
+	return Facet ( env, getEM(env,obj)->FacetMaxInclusive(getDataValueExpr(env,arg)) );
 }
 
 /*
@@ -723,7 +723,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
   (JNIEnv * env, jobject obj, jobject arg1, jobject arg2)
 {
 	TRACE_JNI("getDataValue");
-	return Class ( env, getEM(env,obj)->Exists ( getDRoleExpr(env,arg1), getDataValueExpr(env,arg2) ) );
+	return Class ( env, getEM(env,obj)->Value ( getDRoleExpr(env,arg1), getDataValueExpr(env,arg2) ) );
 }
 
 /*
