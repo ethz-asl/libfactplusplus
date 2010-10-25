@@ -197,6 +197,8 @@ public:		// interface
 
 		return NULL;
 	}
+		/// absorb into TOP; @return true if absorption performs
+	bool absorbIntoTop ( TBox& KB );
 		/// absorb into concept; @return number of alternatives
 	unsigned int absorbIntoConcept ( TBox& KB );
 		/// absorb into role domain; @return number of alternatives

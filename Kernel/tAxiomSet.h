@@ -122,6 +122,14 @@ protected:	// methods
 		absoprtionApplied = true;
 	}
 
+		/// absorb single axiom AX into TOP; @return true if succeed
+	bool absorbIntoTop ( TAxiom* ax )
+	{
+		if ( !ax->absorbIntoTop(Host) )
+			return false;
+		absoprtionApplied = true;
+		return true;
+	}
 		/// absorb single axiom AX into concept; @return true if succeed
 	bool absorbIntoConcept ( TAxiom* ax )
 	{

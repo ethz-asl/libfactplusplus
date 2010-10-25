@@ -70,6 +70,36 @@ void TAxiom :: dump ( std::ostream& o ) const
 }
 #endif
 
+bool
+TAxiom :: absorbIntoTop ( TBox& KB )
+{
+	TConcept* C = NULL;
+
+	// check whether the axiom is Top [= C
+	for ( iterator p = begin(); p != end(); ++p )
+		if ( isConst(*p) )	// only TOP can be here
+			continue;
+		else if ( (*p)->Element() == NOT && isName((*p)->Left()) )	// C found
+		{
+			if ( C != NULL )	// more than one concept
+				return false;
+			C = getConcept((*p)->Left());
+		}
+		else
+			return false;
+
+	if ( C == NULL )
+		return false;
+
+	// make an absorption
+	if ( C->Description != NULL )
+		KB.addSubsumeAxiom ( createTop(), KB.makeNonPrimitive ( C, createTop() ) );
+	else	// just make C = Top
+		KB.makeNonPrimitive ( C, createTop() );
+
+	return true;
+}
+
 unsigned int TAxiom :: absorbIntoConcept ( TBox& KB )
 {
 	WorkSet Cons;
