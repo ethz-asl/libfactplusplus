@@ -36,6 +36,8 @@ unsigned int TAxiomSet :: absorb ( void )
 	if ( !useAbsorption || earlyAbsorption )
 		goto final;
 
+	bool absoprtionApplied;
+
 	do
 	{
 		absoprtionApplied = false;
@@ -43,9 +45,12 @@ unsigned int TAxiomSet :: absorb ( void )
 		Accum.clear();
 
 		for ( AxiomCollection::iterator p = Process.begin(), p_end = Process.end(); p != p_end; ++p )
-			if ( !absorbGCI(*p) )
+			if ( absorbGCI(*p) )
+				absoprtionApplied = true;
+			else
 				insertGCI(*p);
-	} while ( absoprtionApplied == true );
+		// if were additions to Accum (made by split) then we need to do run again
+	} while ( absoprtionApplied == true || Accum.size() != Process.size() );
 
 final:
 	PrintStatistics();

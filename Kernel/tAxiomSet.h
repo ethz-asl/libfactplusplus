@@ -55,8 +55,6 @@ protected:	// members
 		/// flag for choosing if R will be absorbed late
 	bool lateR;
 
-		/// flag to check that absorptions was made
-	bool absoprtionApplied;
 		/// flag to manage time of absorption
 	bool earlyAbsorption;
 
@@ -97,7 +95,6 @@ protected:	// methods
 			p->dump(std::cout);
 #		endif
 			ret = true;
-			absoprtionApplied = true;	// force system to re-absorb newly created GCIs
 		}
 
 		return ret;
@@ -112,24 +109,16 @@ protected:	// methods
 	{
 		++nConceptAbsorbed;
 		nConceptAbsorbAlternatives += n;
-		absoprtionApplied = true;
 	}
 		/// increase Role Domain Absorption statistic to N variants
 	void incRoleDomainAbsorption ( unsigned int n )
 	{
 		++nRoleDomainAbsorbed;
 		nRoleDomainAbsorbAlternatives += n;
-		absoprtionApplied = true;
 	}
 
 		/// absorb single axiom AX into TOP; @return true if succeed
-	bool absorbIntoTop ( TAxiom* ax )
-	{
-		if ( !ax->absorbIntoTop(Host) )
-			return false;
-		absoprtionApplied = true;
-		return true;
-	}
+	bool absorbIntoTop ( TAxiom* ax ) { return ax->absorbIntoTop(Host); }
 		/// absorb single axiom AX into concept; @return true if succeed
 	bool absorbIntoConcept ( TAxiom* ax )
 	{
