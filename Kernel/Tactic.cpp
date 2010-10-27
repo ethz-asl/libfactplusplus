@@ -954,18 +954,14 @@ tacticUsage DlSatTester :: commonTacticBodyLE ( const DLVertex& cur )	// for <=n
 
 	if ( !isFirstBranchCall() )
 	{
-		if ( dynamic_cast<BCChoose*>(bContext) != NULL )
-			goto applyCh;	// clash in choose-rule: redo all
 		if ( dynamic_cast<BCNN*>(bContext) != NULL )
-			goto applyNN;	// clash in NN-rule: skip choose-rule
+			return commonTacticBodyNN(cur);	// after application <=-rule would be checked again
 		if ( dynamic_cast<BCLE*>(bContext) != NULL )
 			goto applyLE;	// clash in LE-rule: skip all the rest
 
-		// only these three cases can be here
-		fpp_unreachable();
+		// the only possible case is choose-rule; in this case just continue
+		fpp_assert ( dynamic_cast<BCChoose*>(bContext) != NULL );
 	}
-
-applyCh:
 
 	// check if we have Qualified NR
 	if ( C != bpTOP )
@@ -973,10 +969,7 @@ applyCh:
 
 	// check whether we need to apply NN rule first
 	if ( isNNApplicable ( R, C, /*stopper=*/curConcept.bp()+cur.getNumberLE() ) )
-	{
-applyNN:
 		return commonTacticBodyNN(cur);	// after application <=-rule would be checked again
-	}
 
 	// if we are here that it IS first LE call
 
