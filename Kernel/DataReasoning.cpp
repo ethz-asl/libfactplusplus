@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2005-2009 by Dmitry Tsarkov
+Copyright (C) 2005-2010 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -107,8 +107,7 @@ DataTypeAppearance::DepInterval :: checkMinMaxClash ( DepSet& dep ) const
 	// >5 and <5, >=5 and <5, >5 and <=5 leads to clash
 	if ( Max < Min || Constraints.minExcl || Constraints.maxExcl )
 	{
-		dep += minDep;
-		dep += maxDep;
+		dep += locDep;
 		return true;
 	}
 

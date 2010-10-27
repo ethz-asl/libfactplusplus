@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2005-2009 by Dmitry Tsarkov
+Copyright (C) 2005-2010 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -17,8 +17,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 
-#ifndef _DATAREASONING_H
-#define _DATAREASONING_H
+#ifndef DATAREASONING_H
+#define DATAREASONING_H
 
 
 #include <map>
@@ -42,10 +42,8 @@ protected:	// classes
 	protected:	// members
 			/// interval itself
 		TDataInterval Constraints;
-			/// dep-set for the min border of the interval
-		DepSet minDep;
-			/// dep-set for the max border of the interval
-		DepSet maxDep;
+			/// local dep-set
+		DepSet locDep;
 	public:		// interface
 			/// empty c'tor
 		DepInterval ( void ) {}
@@ -57,10 +55,7 @@ protected:	// classes
 		{
 			if ( !Constraints.update ( min, excl, value ) )
 				return false;
-			if ( min )
-				minDep = dep;
-			else
-				maxDep = dep;
+			locDep = dep;
 			return true;
 		}
 			/// correct MIN and MAX operands of a type
@@ -70,10 +65,7 @@ protected:	// classes
 		{
 			if ( Constraints.consistent(type) )
 				return true;
-			if ( Constraints.hasMin() )
-				dep += minDep;
-			if ( Constraints.hasMax() )
-				dep += maxDep;
+			dep += locDep;
 			return false;
 		}
 			/// clear the interval
