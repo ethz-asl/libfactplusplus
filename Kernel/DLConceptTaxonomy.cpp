@@ -26,8 +26,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "globaldef.h"
 #include "logging.h"
 
-using namespace std;
-
 /********************************************************\
 |* 			Implementation of class Taxonomy			*|
 \********************************************************/

@@ -27,7 +27,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <fstream>
 
 //#define TMP_PRINT_TAXONOMY_INFO
-using namespace std;
 
 /********************************************************\
 |* 			Implementation of class Taxonomy			*|
