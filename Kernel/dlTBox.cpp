@@ -244,7 +244,7 @@ TBox :: performConsistencyCheck ( void )
 		if ( DLHeap.getCache(bpTOP) == NULL )
 			initSingletonCache(bpTOP);
 
-		ret = nomReasoner->consistentNominalCloud();
+		ret = static_cast<NominalReasoner*>(nomReasoner)->consistentNominalCloud();
 	}
 	else
 		ret = isSatisfiable(pTop);

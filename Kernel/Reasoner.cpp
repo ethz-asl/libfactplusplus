@@ -87,36 +87,16 @@ void DlSatTester :: readConfig ( const ifOptionSet* Options )
 void
 DlSatTester :: prepareReasoner ( void )
 {
-	if ( hasNominals() )
-	{
-		if ( LLM.isWritable(llSRState) )
-			LL << "\nInitNominalReasoner:";
+	CGraph.clear();
+	Stack.clear();
+	TODO.clear();
 
-		restore(1);
+	pUsed.clear();
+	nUsed.clear();
 
-		// check whether branching op is not a barrier...
-		if ( dynamic_cast<BCBarrier*>(bContext) == NULL )
-		{	// replace it with a barrier
-			Stack.pop();
-			createBCBarrier();
-		}
-		// save the barrier (also remember the entry to be produced)
-		save();
-		// free the memory used in the pools before
-		Stack.clearPools();
-	}
-	else
-	{
-		CGraph.clear();
-		Stack.clear();
-		TODO.clear();
-		pUsed.clear();
-		nUsed.clear();
-
-		curNode = NULL;
-		bContext = NULL;
-		tryLevel = InitBranchingLevelValue;
-	}
+	curNode = NULL;
+	bContext = NULL;
+	tryLevel = InitBranchingLevelValue;
 
 	// clear last session information
 	resetSessionFlags();

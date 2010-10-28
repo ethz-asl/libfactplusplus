@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2009 by Dmitry Tsarkov
+Copyright (C) 2003-2010 by Dmitry Tsarkov
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -24,7 +24,7 @@ Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 
 // register all nominals defined in TBox
 void
-DlSatTester :: initNominalVector ( void )
+NominalReasoner :: initNominalVector ( void )
 {
 	Nominals.clear();
 
@@ -33,8 +33,32 @@ DlSatTester :: initNominalVector ( void )
 			Nominals.push_back(*pi);
 }
 
+/// prerpare Nominal Reasoner to a new job
+void
+NominalReasoner :: prepareReasoner ( void )
+{
+	if ( LLM.isWritable(llSRState) )
+		LL << "\nInitNominalReasoner:";
+
+	restore(1);
+
+	// check whether branching op is not a barrier...
+	if ( dynamic_cast<BCBarrier*>(bContext) == NULL )
+	{	// replace it with a barrier
+		Stack.pop();
+		createBCBarrier();
+	}
+	// save the barrier (also remember the entry to be produced)
+	save();
+	// free the memory used in the pools before
+	Stack.clearPools();
+
+	// clear last session information
+	resetSessionFlags();
+}
+
 bool
-DlSatTester :: consistentNominalCloud ( void )
+NominalReasoner :: consistentNominalCloud ( void )
 {
 	if ( LLM.isWritable(llBegSat) )
 		LL << "\n--------------------------------------------\n"
@@ -78,7 +102,7 @@ DlSatTester :: consistentNominalCloud ( void )
 
 /// create nominal nodes for all individuals in TBox
 bool
-DlSatTester :: initNominalCloud ( void )
+NominalReasoner :: initNominalCloud ( void )
 {
 	// create nominal nodes and fills them with initial values
 	for ( SingletonVector::iterator p = Nominals.begin(); p != Nominals.end(); ++p )
@@ -112,7 +136,7 @@ DlSatTester :: initNominalCloud ( void )
 }
 
 bool
-DlSatTester :: initRelatedNominals ( const TRelated* rel )
+NominalReasoner :: initRelatedNominals ( const TRelated* rel )
 {
 	DlCompletionTree* from = resolveSynonym(rel->a)->node;
 	DlCompletionTree* to = resolveSynonym(rel->b)->node;
@@ -131,4 +155,3 @@ DlSatTester :: initRelatedNominals ( const TRelated* rel )
 	// do NOT need to re-check anything: nothing was processed yet
 	return setupEdge ( pA, dep, 0 ) == utClash;
 }
-

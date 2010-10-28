@@ -125,8 +125,6 @@ class DlSatTester
 protected:	// type definition
 		/// TODO table type
 	typedef ToDoList ToDoTableType;
-		/// vector of singletons
-	typedef TBox::SingletonVector SingletonVector;
 		/// vector of edges
 	typedef std::vector<DlCompletionTreeArc*> EdgeVector;
 		/// RO label iterator
@@ -212,8 +210,6 @@ protected:	// members
 	TBox& tBox;
 		/// link to dag from TBox
 	DLDag& DLHeap;
-		/// all nominals defined in TBox
-	SingletonVector Nominals;
 		/// all the reflexive roles
 	RoleMaster::TRoleVec ReflexiveRoles;
 
@@ -349,7 +345,7 @@ protected:	// methods
 #	define incStat(stat)
 #endif
 
-		/// resets all session flags
+		/// reset all session flags
 	void resetSessionFlags ( void );
 
 	//------------  methods  ----------------------------
@@ -425,9 +421,6 @@ protected:	// methods
 		/// return cache of given completion tree (implementation)
 	const modelCacheInterface* createModelCache ( const DlCompletionTree* p ) const
 		{ return new modelCacheIan ( DLHeap, p, encounterNominal ); }
-		/// create cache entry for given singleton
-	void registerNominalCache ( TIndividual* p ) const
-		{ DLHeap.setCache ( p->pName, createModelCache(p->node->resolvePBlocker()) ); }
 
 		/// check whether given NODE can be cached
 	bool canBeCached ( DlCompletionTree* node );
@@ -449,18 +442,7 @@ protected:	// methods
 //-----------------------------------------------------------------------------
 
 		/// check whether reasoning with nominals is performed
-	bool hasNominals ( void ) const { return !Nominals.empty(); }
-		/// init single nominal node
-	bool initNominalNode ( const TIndividual* nom );
-		/// create nominal nodes for all individuals in TBox
-	bool initNominalCloud ( void );
-		/// make an R-edge between related nominals
-	bool initRelatedNominals ( const TRelated* rel );
-		/// use classification information for the nominal P
-	void updateClassifiedSingleton ( TIndividual* p )
-	{
-		registerNominalCache(p);
-	}
+	virtual bool hasNominals ( void ) const { return false; }
 
 		/// check satisfiability of task which is set-up
 	bool runSat ( void );
@@ -916,11 +898,6 @@ public:
 			return createModelCache(bpBOTTOM);
 	}
 
-		/// init vector of nominals defined in TBox
-	void initNominalVector ( void );
-		/// check whether ontology with nominals is consistent
-	bool consistentNominalCloud ( void );
-
 	void writeTotalStatistic ( std::ostream& o )
 	{
 #	ifdef USE_REASONING_STATISTICS
@@ -967,15 +944,6 @@ DlSatTester :: initNewNode ( DlCompletionTree* node, const DepSet& dep, BipolarP
 		return utClash;
 
 	return utDone;
-}
-
-inline bool
-DlSatTester :: initNominalNode ( const TIndividual* nom )
-{
-	DlCompletionTree* node = CGraph.getNewNode();
-	node->setNominalLevel();
-	const_cast<TIndividual*>(nom)->node = node;	// init nominal with associated node
-	return initNewNode ( node, DepSet(), nom->pName ) == utClash;	// ABox is inconsistent
 }
 
 inline bool

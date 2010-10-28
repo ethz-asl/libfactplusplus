@@ -21,6 +21,64 @@ Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 
 #include "Reasoner.h"
 
+class NominalReasoner: public DlSatTester
+{
+protected:	// type definition
+		/// vector of singletons
+	typedef TBox::SingletonVector SingletonVector;
+
+protected:	// members
+		/// all nominals defined in TBox
+	SingletonVector Nominals;
+
+protected:	// methods
+		/// prepare reasoning
+	virtual void prepareReasoner ( void );
+		/// there are nominals
+	virtual bool hasNominals ( void ) const { return true; }
+
+//-----------------------------------------------------------------------------
+//--		internal nominal reasoning interface
+//-----------------------------------------------------------------------------
+
+		/// init vector of nominals defined in TBox
+	void initNominalVector ( void );
+
+		/// create cache entry for given singleton
+	void registerNominalCache ( TIndividual* p )
+		{ DLHeap.setCache ( p->pName, createModelCache(p->node->resolvePBlocker()) ); }
+		/// init single nominal node
+	bool initNominalNode ( const TIndividual* nom )
+	{
+		DlCompletionTree* node = CGraph.getNewNode();
+		node->setNominalLevel();
+		const_cast<TIndividual*>(nom)->node = node;	// init nominal with associated node
+		return initNewNode ( node, DepSet(), nom->pName ) == utClash;	// ABox is inconsistent
+	}
+		/// create nominal nodes for all individuals in TBox
+	bool initNominalCloud ( void );
+		/// make an R-edge between related nominals
+	bool initRelatedNominals ( const TRelated* rel );
+		/// use classification information for the nominal P
+	void updateClassifiedSingleton ( TIndividual* p )
+	{
+		registerNominalCache(p);
+	}
+
+public:
+		/// c'tor
+	NominalReasoner ( TBox& tbox, const ifOptionSet* Options )
+		: DlSatTester(tbox,Options)
+	{
+		initNominalVector();
+	}
+		/// empty d'tor
+	virtual ~NominalReasoner ( void ) {}
+
+		/// check whether ontology with nominals is consistent
+	bool consistentNominalCloud ( void );
+}; // NominalReasoner
+
 //-----------------------------------------------------------------------------
 //--	implemenation of nominal reasoner-related parts of TBox
 //-----------------------------------------------------------------------------
@@ -37,8 +95,7 @@ TBox :: initReasoner ( void )
 
 		if ( NCFeatures.hasSingletons() )
 		{
-			nomReasoner = new DlSatTester ( *this, pOptions );
-			nomReasoner->initNominalVector();
+			nomReasoner = new NominalReasoner ( *this, pOptions );
 			nomReasoner->setTestTimeout(testTimeout);
 		}
 	}

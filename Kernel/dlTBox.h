@@ -54,6 +54,7 @@ class TBox
 {
 	friend class Precompletor;
 	friend class DlSatTester;
+	friend class NominalReasoner;
 	friend class ReasoningKernel;
 	friend class TAxiom;	// FIXME!! while TConcept can't get rid of told cycles
 
