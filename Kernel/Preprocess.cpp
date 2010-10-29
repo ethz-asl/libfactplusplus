@@ -118,7 +118,7 @@ void TBox :: Preprocess ( void )
 
 	// set indexes for model caching
 	BEGIN_PASS("Set all indexes");
-	void setAllIndexes ( void );
+	setAllIndexes();
 	END_PASS();
 
 	// create sorts for KB
