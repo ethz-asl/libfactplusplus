@@ -42,24 +42,17 @@ void modelCacheIan :: processConcept ( const DLVertex& cur, BipolarPointer bp, b
 			break;
 
 		case dtIrr:		// for \neg \ER.Self: add R to AR-set
-		case dtForall:	// add xR.C roles to *Roles.
-			if ( isPositive (bp) )	// WARNING!!! it's possible to add also every sub-role, but it is extra...
+		case dtForall:	// add AR.C roles to forallRoles
+		case dtLE:		// for <= n R: add R to forallRoles
+			if ( isPositive (bp) )	// no need to deal with existantionals here: they would be created through edges
 			{
 				if ( cur.getRole()->isSimple() )
 					forallRoles.insert(cur.getRole());
 				else
 					processAutomaton(cur);
 			}
-//			else
-//				addExistsRole(cur.getRole());
-
 			break;
 
-		case dtLE:	// for <= n R: add R to forallRoles
-			if ( isPositive(bp) )
-				forallRoles.insert(cur.getRole());
-			else	// for >= n R: add R to existRoles
-				existsRoles.insert(cur.getRole());
 		default:	// all other -- nothing to do
 			break;
 		}
