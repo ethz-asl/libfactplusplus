@@ -202,7 +202,7 @@ void
 TBox :: buildSimpleCache ( void )
 {
 	// set cache for BOTTOM entry
-	initSingletonCache(bpBOTTOM);
+	initConstCache(bpBOTTOM);
 
 	// set all the caches for the temp concept
 	initSingletonCache(pTemp->pName);
@@ -213,7 +213,7 @@ TBox :: buildSimpleCache ( void )
 		return;
 
 	// it is now safe to make a TOP cache
-	initSingletonCache(bpTOP);
+	initConstCache(bpTOP);
 
 	for ( c_const_iterator c = c_begin(), cend = c_end(); c < cend; ++c )
 		if ( (*c)->isPrimitive() )
@@ -244,7 +244,7 @@ TBox :: performConsistencyCheck ( void )
 	{
 		// make a cache for TOP if it is not there
 		if ( DLHeap.getCache(bpTOP) == NULL )
-			initSingletonCache(bpTOP);
+			initConstCache(bpTOP);
 
 		ret = static_cast<NominalReasoner*>(nomReasoner)->consistentNominalCloud();
 	}

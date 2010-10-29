@@ -24,6 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "tConcept.h"
 #include "tIndividual.h"
+#include "modelCacheSingleton.h"
 #include "RoleMaster.h"
 #include "LogicFeature.h"
 #include "dlDag.h"
@@ -38,7 +39,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 class DlSatTester;
 class DLConceptTaxonomy;
 class dumpInterface;
-class modelCacheSingleton;
 
 /// enumeration for the reasoner status
 enum KBStatus
@@ -681,8 +681,10 @@ protected:	// methods
 //--		internal cache-related methods
 //-----------------------------------------------------------------------------
 
+		/// init const cache for either bpTOP or bpBOTTOM
+	void initConstCache ( BipolarPointer p ) { DLHeap.setCache ( p, createConstCache(p) ); }
 		/// init [singleton] cache for given concept implementation
-	void initSingletonCache ( BipolarPointer p );	// implemented in Reasoner.h
+	void initSingletonCache ( BipolarPointer p ) { DLHeap.setCache ( p, new modelCacheSingleton(p) ); }
 		/// create cache for ~C where C is a primitive concept (as it is simple)
 	void buildSimpleCache ( void );
 

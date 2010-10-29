@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2007 by Dmitry Tsarkov
+Copyright (C) 2007-2010 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -16,11 +16,13 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef _MODELCACHECONST_H
-#define _MODELCACHECONST_H
+#ifndef MODELCACHECONST_H
+#define MODELCACHECONST_H
 
 #include "logging.h"
 #include "modelCacheInterface.h"
+#include "BiPointer.h"
+#include "fpp_assert.h"
 
 ///	Model caching implementation for TOP/BOTTOM nodes.
 class modelCacheConst: public modelCacheInterface
@@ -68,5 +70,13 @@ public:
 			LL << "\nConst cache: element " << (isTop ? "TOP" : "BOTTOM");
 	}
 }; // modelCacheConst
+
+// create const cache by BP; BP should be either bpTOP or bpBOTTOM
+inline
+modelCacheConst* createConstCache ( BipolarPointer bp )
+{
+	fpp_assert ( bp == bpTOP || bp == bpBOTTOM );
+	return new modelCacheConst(bp==bpTOP);
+}
 
 #endif

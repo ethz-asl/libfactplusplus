@@ -24,7 +24,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "dlCompletionGraph.h"
 #include "dlTBox.h"
 #include "dlDag.h"
-#include "modelCacheSingleton.h"
 #include "modelCacheIan.h"
 #include "tSaveStack.h"
 #include "procTimer.h"
@@ -879,14 +878,6 @@ public:
 		/// set SAT test timeout in milliseconds
 	void setTestTimeout ( unsigned int ms ) { testTimeout = ms; }
 
-		/// return [singleton] cache for given concept implementation
-	const modelCacheInterface* createModelCache ( BipolarPointer p ) const
-	{
-		if ( p == bpTOP || p == bpBOTTOM )
-			return new modelCacheConst(p==bpTOP);
-		else
-			return new modelCacheSingleton(p);
-	}
 		/// build cache entry for given DAG node, using cascaded schema; @return cache
 	const modelCacheInterface* createCache ( BipolarPointer p );
 		/// create model cache for the just-classified entry
@@ -895,7 +886,7 @@ public:
 		if ( sat )	// here we need actual (not a p-blocked) root of the tree
 			return createModelCache(getRootNode());
 		else		// unsat => cache is just bottom
-			return createModelCache(bpBOTTOM);
+			return createConstCache(bpBOTTOM);
 	}
 
 	void writeTotalStatistic ( std::ostream& o )
@@ -1083,13 +1074,6 @@ TBox :: setToDoPriorities ( void )
 	stdReasoner->initToDoPriorities(pOptions);
 	if ( nomReasoner )
 		nomReasoner->initToDoPriorities(pOptions);
-}
-
-/// init [singleton] cache for given concept implementation
-inline void
-TBox :: initSingletonCache ( BipolarPointer p )
-{
-	DLHeap.setCache ( p, stdReasoner->createModelCache(p) );
 }
 
 inline const modelCacheInterface*
