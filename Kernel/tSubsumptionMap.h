@@ -69,6 +69,7 @@ public:		// interface
 		addKnoSub ( v, TopVertex );
 		if ( dynamic_cast<TIndividual*>(p) != NULL )
 			addNonSub ( v, BotVertex );
+		// FIXME!! now the level is given for ModelCache, revisit later
 		p->setIndex(v);
 	}
 		/// size of the matrix

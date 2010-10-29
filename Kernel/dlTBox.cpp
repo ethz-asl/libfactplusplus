@@ -49,6 +49,8 @@ TBox :: TBox ( const ifOptionSet* Options, const std::string& TopORoleName, cons
 	, Axioms(*this)
 	, T_G(bpTOP)	// initialise GCA's concept with Top
 	, RCCache(NULL)
+	, nC(0)
+	, nR(0)
 	, auxConceptID(0)
 	, Fairness(NULL)
 	, useSortedReasoning(true)

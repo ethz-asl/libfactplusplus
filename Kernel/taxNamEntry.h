@@ -44,7 +44,7 @@ protected:	// members
 	linkSet toldSubsumers;
 		/// pointer to synonym (entry which contains whole information the same as current)
 	ClassifiableEntry* pSynonym;
-		/// index as a vertex in the SubsumptionMap
+		/// index as a vertex in the SubsumptionMap/model cache
 	unsigned int Index;
 
 private:	// no copy
@@ -184,4 +184,4 @@ ClassifiableEntry :: addParentIfNew ( ClassifiableEntry* parent )
 	addParent(parent);
 }
 
-#endif // _TAXNAMENTRY_H
+#endif // TAXNAMENTRY_H

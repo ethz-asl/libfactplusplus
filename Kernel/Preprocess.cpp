@@ -116,6 +116,11 @@ void TBox :: Preprocess ( void )
 	calculateTSDepth();
 	END_PASS();
 
+	// set indexes for model caching
+	BEGIN_PASS("Set all indexes");
+	void setAllIndexes ( void );
+	END_PASS();
+
 	// create sorts for KB
 	BEGIN_PASS("Determine sorts");
 	determineSorts();
@@ -402,6 +407,26 @@ TBox :: performPrecompletion ( void )
 		std::cerr << "\nPrecompletion failed";	// do nothing for now
 	else
 		std::cerr << "\nPrecompletion succeed";	// do nothing for now
+}
+
+void
+TBox :: setAllIndexes ( void )
+{
+	nC = 0;
+	for ( c_const_iterator pc = c_begin(), pc_end = c_end(); pc != pc_end; ++pc )
+		if ( !(*pc)->isSynonym() )
+			(*pc)->setIndex(nC++);
+	for ( i_const_iterator pi = i_begin(), pi_end = i_end(); pi != pi_end; ++pi )
+		if ( !(*pi)->isSynonym() )
+			(*pi)->setIndex(nC++);
+	nR = 0;
+	RoleMaster::iterator r, r_end;
+	for ( r = ORM.begin(), r_end = ORM.end(); r < r_end; ++r )
+		if ( !(*r)->isSynonym() )
+			(*r)->setIndex(nR++);
+	for ( r = DRM.begin(), r_end = DRM.end(); r < r_end; ++r )
+		if ( !(*r)->isSynonym() )
+			(*r)->setIndex(nR++);
 }
 
 /// determine all sorts in KB (make job only for SORTED_REASONING)

@@ -241,6 +241,10 @@ protected:	// members
 		/// cache for the \forall R.C replacements during absorption
 	TRCCache* RCCache;
 
+		/// number of concepts and individuals; used to set index for modelCache
+	unsigned int nC;
+		/// number of all distinct roles; used to set index for modelCache
+	unsigned int nR;
 		/// current aux concept's ID
 	unsigned int auxConceptID;
 		/// how many times nominals were found during translation to DAG; local to BuildDAG
@@ -612,6 +616,8 @@ protected:	// methods
 		for ( i_const_iterator pi = i_begin(); pi != i_end(); ++pi )
 			(*pi)->getClassTag();
 	}
+		/// set index on all classifiable entries
+	void setAllIndexes ( void );
 
 //-----------------------------------------------------------------------------
 //--		internal reasoner-related interface
