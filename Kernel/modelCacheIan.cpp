@@ -34,10 +34,10 @@ void modelCacheIan :: processConcept ( const DLVertex& cur, BipolarPointer bp, b
 		case dtPConcept:
 		case dtNSingleton:
 		case dtPSingleton:
-			if ( isNegative (bp) )
-				(det ? negDConcepts : negNConcepts).insert(inverse(bp));
-			else
-				(det ? posDConcepts : posNConcepts).insert(bp);
+			( isNegative(bp)
+				? (det ? negDConcepts : negNConcepts)
+				: (det ? posDConcepts : posNConcepts) )
+			.insert(static_cast<const ClassifiableEntry*>(cur.getConcept())->index());
 
 			break;
 
@@ -47,7 +47,7 @@ void modelCacheIan :: processConcept ( const DLVertex& cur, BipolarPointer bp, b
 			if ( isPositive (bp) )	// no need to deal with existantionals here: they would be created through edges
 			{
 				if ( cur.getRole()->isSimple() )
-					forallRoles.insert(cur.getRole());
+					forallRoles.insert(cur.getRole()->index());
 				else
 					processAutomaton(cur);
 			}
@@ -67,21 +67,21 @@ modelCacheIan :: processAutomaton ( const DLVertex& cur )
 	// add the role that is accepted by a transition
 	for ( RAStateTransitions::const_iterator i = RST.begin(), i_end = RST.end(); i < i_end; ++i )
 		for ( RATransition::const_iterator r = (*i)->begin(), r_end = (*i)->end(); r < r_end; ++r )
-			forallRoles.insert(*r);
+			forallRoles.insert((*r)->index());
 }
 
 /// adds role (and all its super-roles) to exists- and funcRoles
 void modelCacheIan :: addExistsRole ( const TRole* R )
 {
-	existsRoles.insert(R);
+	existsRoles.insert(R->index());
 	if ( R->isTopFunc() )	// all other top-funcs would be added later on
-		funcRoles.insert(R);
+		funcRoles.insert(R->index());
 
 	for ( TRole::const_iterator r = R->begin_anc(), r_end = R->end_anc(); r != r_end; ++r )
 	{
-		existsRoles.insert(*r);
+		existsRoles.insert((*r)->index());
 		if ( (*r)->isTopFunc() )
-			funcRoles.insert(*r);
+			funcRoles.insert((*r)->index());
 	}
 }
 
@@ -297,29 +297,15 @@ void modelCacheIan :: logCacheEntry ( unsigned int level ) const
 	logCacheSet ( funcRoles );
 }
 
-void modelCacheIan :: logCacheSet ( const conceptSet& s ) const
+void modelCacheIan :: logCacheSet ( const IndexSet& s ) const
 {
 	LL << "{";
 	if ( !s.empty() )
 	{
-		conceptSet::const_iterator p = s.begin ();
+		IndexSet::const_iterator p = s.begin ();
 		LL << *p;
 		for ( ++p; p != s.end(); ++p )
 			LL << ',' << *p;
 	}
 	LL << "}";
 }
-
-void modelCacheIan :: logCacheSet ( const roleSet& s ) const
-{
-	LL << "{";
-	if ( !s.empty() )
-	{
-		roleSet::const_iterator p = s.begin ();
-		LL << '"' << (*p)->getName() << '"';
-		for ( ++p; p != s.end(); ++p )
-			LL << ',' << '"' << (*p)->getName() << '"';
-	}
-	LL << "}";
-}
-

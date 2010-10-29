@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2007 by Dmitry Tsarkov
+Copyright (C) 2003-2010 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -16,11 +16,10 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef _MODELCACHESINGLETON_H
-#define _MODELCACHESINGLETON_H
+#ifndef MODELCACHESINGLETON_H
+#define MODELCACHESINGLETON_H
 
 #include "logging.h"
-#include "modelCacheInterface.h"
 #include "modelCacheConst.h"
 #include "BiPointer.h"
 

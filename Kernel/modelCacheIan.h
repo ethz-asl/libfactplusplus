@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2009 by Dmitry Tsarkov
+Copyright (C) 2003-2010 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -16,8 +16,8 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef _MODELCACHEIAN_H
-#define _MODELCACHEIAN_H
+#ifndef MODELCACHEIAN_H
+#define MODELCACHEIAN_H
 
 #include <set>
 
@@ -31,10 +31,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 class modelCacheIan: public modelCacheInterface
 {
 protected:	// types
-		/// set of concepts in node label
-	typedef std::set<BipolarPointer> conceptSet;
-		/// set of roles appeares in \E-\A constructors
-	typedef std::set<const TRole*> roleSet;
+		/// set of indexes of a named entries in a node label
+	typedef std::set<unsigned int> IndexSet;
 		/// node label iterator
 	typedef DlCompletionTree::const_label_iterator l_iterator;
 		/// edges iterator
@@ -44,25 +42,25 @@ protected:	// members
 	// sets for the cache
 
 		/// named concepts that appears positively det-lly in a root node of a cache
-	conceptSet posDConcepts;
+	IndexSet posDConcepts;
 		/// named concepts that appears positively non-det in a root node of a cache
-	conceptSet posNConcepts;
+	IndexSet posNConcepts;
 		/// named concepts that appears negatively det-lly in a root node of a cache
-	conceptSet negDConcepts;
+	IndexSet negDConcepts;
 		/// named concepts that appears negatively non-det in a root node of a cache
-	conceptSet negNConcepts;
+	IndexSet negNConcepts;
 #ifdef RKG_USE_SIMPLE_RULES
 		/// extra det-lly concepts that are (partial) Simple Rule applications
-	conceptSet extraDConcepts;
+	IndexSet extraDConcepts;
 		/// extra non-det concepts that are (partial) Simple Rule applications
-	conceptSet extraNConcepts;
+	IndexSet extraNConcepts;
 #endif
 		/// role names that are labels of the outgoing edges from the root node
-	roleSet existsRoles;
+	IndexSet existsRoles;
 		/// role names that appears in the \A restrictions in the root node
-	roleSet forallRoles;
+	IndexSet forallRoles;
 		/// role names that appears in the atmost restrictions in the root node
-	roleSet funcRoles;
+	IndexSet funcRoles;
 
 		/// current state of cache model; recalculates on every change
 	modelCacheState curState;
@@ -93,9 +91,7 @@ protected:	// methods
 	modelCacheState isMergableIan ( const modelCacheIan* p ) const;
 
 		/// log given concept set
-	void logCacheSet ( const conceptSet& s ) const;
-		/// log given role set
-	void logCacheSet ( const roleSet& s ) const;
+	void logCacheSet ( const IndexSet& s ) const;
 
 public:
 		/// Create cache model of given CompletionTree using given HEAP

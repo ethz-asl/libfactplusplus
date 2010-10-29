@@ -683,8 +683,9 @@ protected:	// methods
 
 		/// init const cache for either bpTOP or bpBOTTOM
 	void initConstCache ( BipolarPointer p ) { DLHeap.setCache ( p, createConstCache(p) ); }
-		/// init [singleton] cache for given concept implementation
-	void initSingletonCache ( BipolarPointer p ) { DLHeap.setCache ( p, new modelCacheSingleton(p) ); }
+		/// init [singleton] cache for given concept and polarity
+	void initSingletonCache ( const TConcept* p, bool pos )
+		{ DLHeap.setCache ( createBiPointer(p->pName,pos), new modelCacheSingleton(createBiPointer(p->index(),pos)) ); }
 		/// create cache for ~C where C is a primitive concept (as it is simple)
 	void buildSimpleCache ( void );
 

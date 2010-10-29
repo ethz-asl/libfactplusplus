@@ -205,8 +205,8 @@ TBox :: buildSimpleCache ( void )
 	initConstCache(bpBOTTOM);
 
 	// set all the caches for the temp concept
-	initSingletonCache(pTemp->pName);
-	initSingletonCache(inverse(pTemp->pName));
+	initSingletonCache ( pTemp, /*pos=*/true );
+	initSingletonCache ( pTemp, /*pos=*/false );
 
 	// inapplicable if KB contains CGIs in any form
 	if ( GCIs.isGCI() || GCIs.isReflexive() )
@@ -217,11 +217,11 @@ TBox :: buildSimpleCache ( void )
 
 	for ( c_const_iterator c = c_begin(), cend = c_end(); c < cend; ++c )
 		if ( (*c)->isPrimitive() )
-			initSingletonCache(inverse((*c)->pName));
+			initSingletonCache ( (*c), /*pos=*/false );
 
 	for ( i_const_iterator i = i_begin(), iend = i_end(); i < iend; ++i )
 		if ( (*i)->isPrimitive() )
-			initSingletonCache(inverse((*i)->pName));
+			initSingletonCache ( (*i), /*pos=*/false );
 }
 
 /// check if the ontology is consistent
