@@ -101,7 +101,10 @@ modelCacheState modelCacheIan :: canMerge ( const modelCacheInterface* p ) const
 	case mctConst:		// check for TOP (as the model is valid)
 		return csValid;
 	case mctSingleton:	// check for the Singleton
-		return isMergableSingleton ( static_cast<const modelCacheSingleton*>(p) );
+	{
+		BipolarPointer Singleton = static_cast<const modelCacheSingleton*>(p)->getValue();
+		return isMergableSingleton ( getValue(Singleton), isPositive(Singleton) );
+	}
 	case mctIan:
 		return isMergableIan ( static_cast<const modelCacheIan*>(p) );
 	default:			// something unexpected
@@ -141,13 +144,10 @@ sets_intersect ( const std::set<T>& s1, const std::set<T>& s2 )
 	return false;
 }
 
-modelCacheState modelCacheIan :: isMergableSingleton ( const modelCacheSingleton* p ) const
+modelCacheState modelCacheIan :: isMergableSingleton ( unsigned int Singleton, bool pos ) const
 {
-	BipolarPointer Singleton = p->getValue();
-	fpp_assert ( isValid(Singleton) );
-
 	// check for the clash
-	if ( isPositive (Singleton) )
+	if ( pos )
 	{
 		// deterministic clash
 		if ( set_contains ( negDConcepts, Singleton ) )
@@ -158,7 +158,6 @@ modelCacheState modelCacheIan :: isMergableSingleton ( const modelCacheSingleton
 	}
 	else
 	{
-		Singleton = inverse(Singleton);
 		// deterministic clash
 		if ( set_contains ( posDConcepts, Singleton ) )
 			return csInvalid;
@@ -217,58 +216,69 @@ modelCacheState modelCacheIan :: merge ( const modelCacheInterface* p )
 	case mctSingleton:	// adds Singleton
 	{
 		BipolarPointer Singleton = static_cast<const modelCacheSingleton*>(p)->getValue();
-		fpp_assert ( isValid(Singleton) );
-		modelCacheState newState = csValid;
-
-		// check for the clash
-		if ( isNegative(Singleton) )
-		{
-			if ( set_contains ( posDConcepts, inverse(Singleton) ) )
-				newState = csInvalid;
-			else if ( set_contains ( posNConcepts, inverse(Singleton) ) )
-				newState = csFailed;
-			else
-				negDConcepts.insert(inverse(Singleton));
-		}
-		else
-		{
-			if ( set_contains ( negDConcepts, Singleton ) )
-				newState = csInvalid;
-			else if ( set_contains ( negNConcepts, Singleton ) )
-				newState = csFailed;
-			else
-				posDConcepts.insert(Singleton);
-		}
-
-		curState = mergeStatus ( getState(), newState );
+		mergeSingleton ( getValue(Singleton), isPositive(Singleton) );
 		break;
 	}
 	case mctIan:
-	{
-		const modelCacheIan* q = static_cast<const modelCacheIan*>(p);
-		// setup curState
-		curState = isMergableIan(q);
-
-		// merge all sets:
-		posDConcepts.insert ( q->posDConcepts.begin(), q->posDConcepts.end() );
-		posNConcepts.insert ( q->posNConcepts.begin(), q->posNConcepts.end() );
-		negDConcepts.insert ( q->negDConcepts.begin(), q->negDConcepts.end() );
-		negNConcepts.insert ( q->negNConcepts.begin(), q->negNConcepts.end() );
-#	ifdef RKG_USE_SIMPLE_RULES
-		extraDConcepts.insert ( q->extraDConcepts.begin(), q->extraDConcepts.end() );
-		extraNConcepts.insert ( q->extraNConcepts.begin(), q->extraNConcepts.end() );
-#	endif
-		existsRoles.insert ( q->existsRoles.begin (), q->existsRoles.end () );
-		forallRoles.insert ( q->forallRoles.begin (), q->forallRoles.end () );
-		funcRoles.insert ( q->funcRoles.begin (), q->funcRoles.end () );
+		mergeIan(static_cast<const modelCacheIan*>(p));
 		break;
-	}
 	default:
 		fpp_unreachable();
 	}
 
 	updateNominalStatus(p);
 	return getState();
+}
+
+/// actual merge with a singleton cache
+void
+modelCacheIan :: mergeSingleton ( unsigned int Singleton, bool pos )
+{
+	fpp_assert ( Singleton != 0 );
+	modelCacheState newState = csValid;
+
+	// check for the clash
+	if ( pos )
+	{
+		if ( set_contains ( negDConcepts, Singleton ) )
+			newState = csInvalid;
+		else if ( set_contains ( negNConcepts, Singleton ) )
+			newState = csFailed;
+		else
+			posDConcepts.insert(Singleton);
+	}
+	else
+	{
+		if ( set_contains ( posDConcepts, Singleton ) )
+			newState = csInvalid;
+		else if ( set_contains ( posNConcepts, Singleton ) )
+			newState = csFailed;
+		else
+			negDConcepts.insert(Singleton);
+	}
+
+	curState = mergeStatus ( getState(), newState );
+}
+
+/// actual merge with an Ian's cache
+void
+modelCacheIan :: mergeIan ( const modelCacheIan* p )
+{
+	// setup curState
+	curState = isMergableIan(p);
+
+	// merge all sets:
+	posDConcepts.insert ( p->posDConcepts.begin(), p->posDConcepts.end() );
+	posNConcepts.insert ( p->posNConcepts.begin(), p->posNConcepts.end() );
+	negDConcepts.insert ( p->negDConcepts.begin(), p->negDConcepts.end() );
+	negNConcepts.insert ( p->negNConcepts.begin(), p->negNConcepts.end() );
+#ifdef RKG_USE_SIMPLE_RULES
+	extraDConcepts.insert ( p->extraDConcepts.begin(), p->extraDConcepts.end() );
+	extraNConcepts.insert ( p->extraNConcepts.begin(), p->extraNConcepts.end() );
+#endif
+	existsRoles.insert ( p->existsRoles.begin (), p->existsRoles.end () );
+	forallRoles.insert ( p->forallRoles.begin (), p->forallRoles.end () );
+	funcRoles.insert ( p->funcRoles.begin (), p->funcRoles.end () );
 }
 
 // logging

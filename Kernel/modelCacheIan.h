@@ -86,9 +86,13 @@ protected:	// methods
 	void addExistsRole ( const TRole* r );
 
 		/// implementation of merging with Singleton cache type
-	modelCacheState isMergableSingleton ( const modelCacheSingleton* p ) const;
+	modelCacheState isMergableSingleton ( unsigned int Singleton, bool pos ) const;
 		/// implementation of merging with Ian's cache type
 	modelCacheState isMergableIan ( const modelCacheIan* p ) const;
+		/// actual merge with a singleton cache
+	void mergeSingleton ( unsigned int Singleton, bool pos );
+		/// actual merge with an Ian's cache
+	void mergeIan ( const modelCacheIan* p );
 
 		/// log given concept set
 	void logCacheSet ( const IndexSet& s ) const;
