@@ -35,8 +35,10 @@ bool DLConceptTaxonomy :: testSub ( const TConcept* p, const TConcept* q )
 	fpp_assert ( p != NULL );
 	fpp_assert ( q != NULL );
 
-	// FIXME!! check this later on when REAL nominals appears
-	if ( q->isSingleton() )
+	if ( q->isSingleton()		// singleton on the RHS is useless iff...
+		 && q->isPrimitive()	// it is primitive
+		 && !p->isSingleton()	// FIXME!! this is necessary to find same individuals ATM
+		 && !q->isNominal() )	// nominals should be classified as usual concepts
 		return false;
 
 	if ( LLM.isWritable(llTaxTrying) )
