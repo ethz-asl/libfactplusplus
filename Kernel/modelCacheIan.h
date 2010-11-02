@@ -67,14 +67,14 @@ protected:	// members
 
 protected:	// methods
 		/// add single concept from label to cache
-	void processConcept ( const DLVertex& cur, BipolarPointer bp, bool det );
+	void processConcept ( const DLVertex& cur, bool pos, bool det );
 		/// add all roles that are accepted by an automaton from a given entry
 	void processAutomaton ( const DLVertex& cur );
 		/// process CT label in given interval; set Deterministic accordingly
 	void processLabelInterval ( const DLDag& DLHeap, l_iterator start, l_iterator end )
 	{
 		for ( l_iterator p = start; p != end; ++p )
-			processConcept ( DLHeap[*p], p->bp(), p->getDep().empty() );
+			processConcept ( DLHeap[*p], isPositive(p->bp()), p->getDep().empty() );
 	}
 		/// fills cache sets by tree->Label; set Deterministic accordingly
 	void initCacheByLabel ( const DLDag& DLHeap, const DlCompletionTree* pCT )

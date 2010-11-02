@@ -19,7 +19,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "modelCacheIan.h"
 #include "logging.h"
 
-void modelCacheIan :: processConcept ( const DLVertex& cur, BipolarPointer bp, bool det )
+void modelCacheIan :: processConcept ( const DLVertex& cur, bool pos, bool det )
 {
 		switch ( cur.Type() )
 		{
@@ -34,7 +34,7 @@ void modelCacheIan :: processConcept ( const DLVertex& cur, BipolarPointer bp, b
 		case dtPConcept:
 		case dtNSingleton:
 		case dtPSingleton:
-			( isNegative(bp)
+			( !pos
 				? (det ? negDConcepts : negNConcepts)
 				: (det ? posDConcepts : posNConcepts) )
 			.insert(static_cast<const ClassifiableEntry*>(cur.getConcept())->index());
@@ -44,7 +44,7 @@ void modelCacheIan :: processConcept ( const DLVertex& cur, BipolarPointer bp, b
 		case dtIrr:		// for \neg \ER.Self: add R to AR-set
 		case dtForall:	// add AR.C roles to forallRoles
 		case dtLE:		// for <= n R: add R to forallRoles
-			if ( isPositive (bp) )	// no need to deal with existantionals here: they would be created through edges
+			if ( pos )	// no need to deal with existantionals here: they would be created through edges
 			{
 				if ( cur.getRole()->isSimple() )
 					forallRoles.insert(cur.getRole()->index());
