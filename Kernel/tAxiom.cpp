@@ -84,6 +84,8 @@ TAxiom :: absorbIntoTop ( TBox& KB )
 			if ( C != NULL )	// more than one concept
 				return false;
 			C = getConcept((*p)->Left());
+			if ( C->isSingleton() )	// doesn't work with nominals
+				return false;
 		}
 		else
 			return false;
