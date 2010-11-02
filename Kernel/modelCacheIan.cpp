@@ -146,6 +146,8 @@ sets_intersect ( const std::set<T>& s1, const std::set<T>& s2 )
 
 modelCacheState modelCacheIan :: isMergableSingleton ( unsigned int Singleton, bool pos ) const
 {
+	fpp_assert ( Singleton != 0 );
+
 	// check for the clash
 	if ( pos )
 	{
@@ -234,30 +236,17 @@ modelCacheState modelCacheIan :: merge ( const modelCacheInterface* p )
 void
 modelCacheIan :: mergeSingleton ( unsigned int Singleton, bool pos )
 {
-	fpp_assert ( Singleton != 0 );
-	modelCacheState newState = csValid;
+	modelCacheState newState = isMergableSingleton ( Singleton, pos );
 
-	// check for the clash
-	if ( pos )
+	if ( newState != csValid )	// some clash occured: adjust state
+		curState = mergeStatus ( getState(), newState );
+	else	// add singleton; no need to change state here
 	{
-		if ( set_contains ( negDConcepts, Singleton ) )
-			newState = csInvalid;
-		else if ( set_contains ( negNConcepts, Singleton ) )
-			newState = csFailed;
-		else
+		if ( pos )
 			posDConcepts.insert(Singleton);
-	}
-	else
-	{
-		if ( set_contains ( posDConcepts, Singleton ) )
-			newState = csInvalid;
-		else if ( set_contains ( posNConcepts, Singleton ) )
-			newState = csFailed;
 		else
 			negDConcepts.insert(Singleton);
 	}
-
-	curState = mergeStatus ( getState(), newState );
 }
 
 /// actual merge with an Ian's cache
