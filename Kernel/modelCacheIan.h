@@ -30,9 +30,72 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 class modelCacheIan: public modelCacheInterface
 {
-protected:	// types
+protected:	// classes
 		/// set of indexes of a named entries in a node label
-	typedef std::set<unsigned int> IndexSet;
+	class IndexSet
+	{
+	protected:	// types
+			/// base type
+		typedef std::set<unsigned int> BaseType;
+	protected:	// members
+			/// set implementation
+		BaseType Base;
+	public:		// interface
+			/// empty c'tor
+		IndexSet ( void ) {}
+			/// copy c'tor
+		IndexSet ( const IndexSet& is ) : Base(is.Base) {}
+			/// assignment
+		IndexSet& operator= ( const IndexSet& is )
+		{
+			Base = is.Base;
+			return *this;
+		}
+			/// empty d'tor
+		~IndexSet ( void ) {}
+
+			/// adds given index to the set
+		void insert ( unsigned int i )
+		{
+#		ifdef ENABLE_CHECKING
+			fpp_assert ( i > 0 );
+			fpp_assert ( i < Base.size() );
+#		endif
+			Base.insert(i);
+		}
+			/// adds the given set to the current one
+		IndexSet& operator |= ( const IndexSet& is )
+		{
+			Base.insert ( is.Base.begin(), is.Base.end() );
+			return *this;
+		}
+
+			/// check whether the set is empty
+		bool empty ( void ) const { return Base.empty(); }
+			/// check whether I contains in the set
+		bool contains ( unsigned int i ) const { return Base.find(i) != Base.end(); }
+			/// check whether the intersection between the current set and IS is nonempty
+		bool intersects ( const IndexSet& is ) const
+		{
+			if ( Base.empty() || is.Base.empty() )
+				return false;
+
+			BaseType::const_iterator p1 = Base.begin(), p1_end = Base.end(), p2 = is.Base.begin(), p2_end = is.Base.end();
+			while ( p1 != p1_end && p2 != p2_end )
+				if ( *p1 == *p2 )
+					return true;
+				else if ( *p1 < *p2 )
+					++p1;
+				else
+					++p2;
+
+			return false;
+		}
+			/// prints the set in a human-readable form
+		void print ( std::ostream& o ) const;
+	}; // IndexSet
+
+protected:	// types
 		/// node label iterator
 	typedef DlCompletionTree::const_label_iterator l_iterator;
 		/// edges iterator

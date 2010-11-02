@@ -108,47 +108,15 @@ modelCacheState modelCacheIan :: canMerge ( const modelCacheInterface* p ) const
 	}
 }
 
-
-template <class T>
-inline bool
-set_contains ( const std::set<T>& s, T value )
-{
-	return s.find(value) != s.end();
-}
-
-/// checks if 2 sets are intersects.
-template <class T>
-inline bool
-sets_intersect ( const std::set<T>& s1, const std::set<T>& s2 )
-{
-	if ( s1.empty() || s2.empty() )
-		return false;
-
-	typename std::set<T>::const_iterator
-		p1 = s1.begin(), p1_end = s1.end(),
-		p2 = s2.begin(), p2_end = s2.end();
-	while ( p1 != p1_end && p2 != p2_end )
-	{
-		if ( *p1 == *p2 )
-			return true;
-		if ( *p1 < *p2 )
-			++p1;
-		else
-			++p2;
-	}
-
-	return false;
-}
-
 modelCacheState modelCacheIan :: isMergableSingleton ( unsigned int Singleton, bool pos ) const
 {
 	fpp_assert ( Singleton != 0 );
 
 	// deterministic clash
-	if ( set_contains ( getDConcepts(!pos), Singleton ) )
+	if ( getDConcepts(!pos).contains(Singleton) )
 		return csInvalid;
 	// non-det clash
-	else if ( set_contains ( getNConcepts(!pos), Singleton ) )
+	else if ( getNConcepts(!pos).contains(Singleton) )
 		return csFailed;
 
 	return csValid;
@@ -156,27 +124,27 @@ modelCacheState modelCacheIan :: isMergableSingleton ( unsigned int Singleton, b
 
 modelCacheState modelCacheIan :: isMergableIan ( const modelCacheIan* q ) const
 {
-	if ( sets_intersect ( posDConcepts, q->negDConcepts )
-		 || sets_intersect ( q->posDConcepts, negDConcepts )
+	if ( posDConcepts.intersects(q->negDConcepts)
+		 || q->posDConcepts.intersects(negDConcepts)
 #	ifdef RKG_USE_SIMPLE_RULES
-		 || sets_intersect ( extraDConcepts, q->extraDConcepts )
+		 || getExtra(/*det=*/true).intersects(q->getExtra(/*det=*/true))
 #	endif
 		)
 		return csInvalid;
-	else if (  sets_intersect ( posDConcepts, q->negNConcepts )
-			|| sets_intersect ( posNConcepts, q->negDConcepts )
-			|| sets_intersect ( posNConcepts, q->negNConcepts )
-  			|| sets_intersect ( q->posDConcepts, negNConcepts )
-  			|| sets_intersect ( q->posNConcepts, negDConcepts )
-  			|| sets_intersect ( q->posNConcepts, negNConcepts )
+	else if (  posDConcepts.intersects(q->negNConcepts)
+			|| posNConcepts.intersects(q->negDConcepts)
+			|| posNConcepts.intersects(q->negNConcepts)
+  			|| q->posDConcepts.intersects(negNConcepts)
+  			|| q->posNConcepts.intersects(negDConcepts)
+  			|| q->posNConcepts.intersects(negNConcepts)
 #		ifdef RKG_USE_SIMPLE_RULES
-			|| sets_intersect ( extraDConcepts, q->extraNConcepts )
-			|| sets_intersect ( extraNConcepts, q->extraDConcepts )
-			|| sets_intersect ( extraNConcepts, q->extraNConcepts )
+			|| getExtra(/*det=*/true).intersects(q->getExtra(/*det=*/false))
+			|| getExtra(/*det=*/false).intersects(q->getExtra(/*det=*/true))
+			|| getExtra(/*det=*/false).intersects(q->getExtra(/*det=*/false))
 #		endif
-			|| sets_intersect ( existsRoles, q->forallRoles )
-			|| sets_intersect ( q->existsRoles, forallRoles )
-			|| sets_intersect ( funcRoles, q->funcRoles ) )
+			|| existsRoles.intersects(q->forallRoles)
+			|| q->existsRoles.intersects(forallRoles)
+			|| funcRoles.intersects(q->funcRoles) )
 		return csFailed;
 	else	// could be merged
 		return csValid;
@@ -235,17 +203,17 @@ modelCacheIan :: mergeIan ( const modelCacheIan* p )
 	curState = isMergableIan(p);
 
 	// merge all sets:
-	posDConcepts.insert ( p->posDConcepts.begin(), p->posDConcepts.end() );
-	posNConcepts.insert ( p->posNConcepts.begin(), p->posNConcepts.end() );
-	negDConcepts.insert ( p->negDConcepts.begin(), p->negDConcepts.end() );
-	negNConcepts.insert ( p->negNConcepts.begin(), p->negNConcepts.end() );
+	posDConcepts |= p->posDConcepts;
+	posNConcepts |= p->posNConcepts;
+	negDConcepts |= p->negDConcepts;
+	negNConcepts |= p->negNConcepts;
 #ifdef RKG_USE_SIMPLE_RULES
-	extraDConcepts.insert ( p->extraDConcepts.begin(), p->extraDConcepts.end() );
-	extraNConcepts.insert ( p->extraNConcepts.begin(), p->extraNConcepts.end() );
+	extraDConcepts |= p->extraDConcepts;
+	extraNConcepts |= p->extraNConcepts;
 #endif
-	existsRoles.insert ( p->existsRoles.begin (), p->existsRoles.end () );
-	forallRoles.insert ( p->forallRoles.begin (), p->forallRoles.end () );
-	funcRoles.insert ( p->funcRoles.begin (), p->funcRoles.end () );
+	existsRoles |= p->existsRoles;
+	forallRoles |= p->forallRoles;
+	funcRoles |= p->funcRoles;
 }
 
 // logging
@@ -253,36 +221,37 @@ void modelCacheIan :: logCacheEntry ( unsigned int level ) const
 {
 	CHECK_LL_RETURN(level);
 	LL << "\nIan cache: posDConcepts = ";
-	logCacheSet ( posDConcepts );
+	posDConcepts.print(LL);
 	LL << ", posNConcepts = ";
-	logCacheSet ( posNConcepts );
+	posNConcepts.print(LL);
 	LL << ", negDConcepts = ";
-	logCacheSet ( negDConcepts );
+	negDConcepts.print(LL);
 	LL << ", negNConcepts = ";
-	logCacheSet ( negNConcepts );
+	negNConcepts.print(LL);
 #ifdef RKG_USE_SIMPLE_RULES
 	LL << ", extraDConcepts = ";
-	logCacheSet ( extraDConcepts );
+	extraDConcepts.print(LL);
 	LL << ", extraNConcepts = ";
-	logCacheSet ( extraNConcepts );
+	extraNConcepts.print(LL);
 #endif
 	LL << ", existsRoles = ";
-	logCacheSet ( existsRoles );
+	existsRoles.print(LL);
 	LL << ", forallRoles = ";
-	logCacheSet ( forallRoles );
+	forallRoles.print(LL);
 	LL << ", funcRoles = ";
-	logCacheSet ( funcRoles );
+	funcRoles.print(LL);
 }
 
-void modelCacheIan :: logCacheSet ( const IndexSet& s ) const
+void
+modelCacheIan::IndexSet :: print ( std::ostream& o ) const
 {
-	LL << "{";
-	if ( !s.empty() )
+	o << "{";
+	if ( !Base.empty() )
 	{
-		IndexSet::const_iterator p = s.begin ();
-		LL << *p;
-		for ( ++p; p != s.end(); ++p )
-			LL << ',' << *p;
+		BaseType::const_iterator p = Base.begin(), p_end = Base.end();
+		o << *p;
+		while ( ++p != p_end )
+			o << ',' << *p;
 	}
-	LL << "}";
+	o << "}";
 }
