@@ -34,11 +34,7 @@ void modelCacheIan :: processConcept ( const DLVertex& cur, bool pos, bool det )
 		case dtPConcept:
 		case dtNSingleton:
 		case dtPSingleton:
-			( !pos
-				? (det ? negDConcepts : negNConcepts)
-				: (det ? posDConcepts : posNConcepts) )
-			.insert(static_cast<const ClassifiableEntry*>(cur.getConcept())->index());
-
+			(det ? getDConcepts(pos) : getNConcepts(pos)).insert(static_cast<const ClassifiableEntry*>(cur.getConcept())->index());
 			break;
 
 		case dtIrr:		// for \neg \ER.Self: add R to AR-set
@@ -148,25 +144,12 @@ modelCacheState modelCacheIan :: isMergableSingleton ( unsigned int Singleton, b
 {
 	fpp_assert ( Singleton != 0 );
 
-	// check for the clash
-	if ( pos )
-	{
-		// deterministic clash
-		if ( set_contains ( negDConcepts, Singleton ) )
-			return csInvalid;
-		// non-det clash
-		else if ( set_contains ( negNConcepts, Singleton ) )
-			return csFailed;
-	}
-	else
-	{
-		// deterministic clash
-		if ( set_contains ( posDConcepts, Singleton ) )
-			return csInvalid;
-		// non-det clash
-		else if ( set_contains ( posNConcepts, Singleton ) )
-			return csFailed;
-	}
+	// deterministic clash
+	if ( set_contains ( getDConcepts(!pos), Singleton ) )
+		return csInvalid;
+	// non-det clash
+	else if ( set_contains ( getNConcepts(!pos), Singleton ) )
+		return csFailed;
 
 	return csValid;
 }
@@ -241,12 +224,7 @@ modelCacheIan :: mergeSingleton ( unsigned int Singleton, bool pos )
 	if ( newState != csValid )	// some clash occured: adjust state
 		curState = mergeStatus ( getState(), newState );
 	else	// add singleton; no need to change state here
-	{
-		if ( pos )
-			posDConcepts.insert(Singleton);
-		else
-			negDConcepts.insert(Singleton);
-	}
+		getDConcepts(pos).insert(Singleton);
 }
 
 /// actual merge with an Ian's cache

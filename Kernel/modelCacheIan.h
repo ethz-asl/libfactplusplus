@@ -85,6 +85,25 @@ protected:	// methods
 		/// adds role (and all its super-roles) to exists- and funcRoles
 	void addExistsRole ( const TRole* r );
 
+	// access to the arrays
+
+		/// get RW access to D-concepts wrt polarity
+	IndexSet& getDConcepts ( bool pos ) { return pos ? posDConcepts : negDConcepts; }
+		/// get RW access to N-concepts wrt polarity
+	IndexSet& getNConcepts ( bool pos ) { return pos ? posNConcepts : negNConcepts; }
+		/// get RO access to D-concepts wrt polarity
+	const IndexSet& getDConcepts ( bool pos ) const { return pos ? posDConcepts : negDConcepts; }
+		/// get RO access to N-concepts wrt polarity
+	const IndexSet& getNConcepts ( bool pos ) const { return pos ? posNConcepts : negNConcepts; }
+#ifdef RKG_USE_SIMPLE_RULES
+		/// get RW access to extra concepts wrt deterministic flag
+	IndexSet& getExtra ( bool det ) { return det ? extraDConcepts : extraNConcepts; }
+		/// get RO access to extra concepts wrt deterministic flag
+	const IndexSet& getExtra ( bool det ) const { return det ? extraDConcepts : extraNConcepts; }
+#endif
+
+	// merge support
+
 		/// implementation of merging with Singleton cache type
 	modelCacheState isMergableSingleton ( unsigned int Singleton, bool pos ) const;
 		/// implementation of merging with Ian's cache type
