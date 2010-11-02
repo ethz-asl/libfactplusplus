@@ -630,12 +630,12 @@ void TBox :: PrintConcept ( std::ostream& o, const TConcept* p ) const
 	// print only relevant concepts
 	if ( isValid(p->pName) )
 	{
-		o << getCTTagName(p->getClassTag()) << '.';
+		o << getCTTagName(p->getClassTag());
 
 		if ( p->isSingleton() )
-			o << '!';
+			o << (p->isNominal() ? 'o' : '!');
 
-		o << p->getName() << " [" << p->tsDepth
+		o << '.' << p->getName() << " [" << p->tsDepth
 		  << "] " << (p->isNonPrimitive() ? "=" : "[=");
 
 		if ( isValid (p->pBody) )

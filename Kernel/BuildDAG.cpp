@@ -173,9 +173,13 @@ BipolarPointer TBox :: tree2dag ( const DLTree* t )
 		ret = concept2dag(toConcept(cur.getNE()));
 		break;
 	case INAME:		// individual name
+	{
 		++nNominalReferences;	// definitely a nominal
-		ret = concept2dag(toIndividual(cur.getNE()));
+		TIndividual* ind = toIndividual(cur.getNE());
+		ind->setNominal();
+		ret = concept2dag(ind);
 		break;
+	}
 
 	case NOT:
 		ret = inverse ( tree2dag ( t->Left() ) );

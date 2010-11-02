@@ -259,6 +259,8 @@ public:		// methods
 	FPP_ADD_FLAG(Primitive,0x10);
 		/// register a HasSingletonParent flag
 	FPP_ADD_FLAG(HasSP,0x20);
+		/// register a Nominal flag
+	FPP_ADD_FLAG(Nominal,0x40);
 
 	// concept non-primitivity methods
 
