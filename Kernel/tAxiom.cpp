@@ -77,7 +77,7 @@ TAxiom :: absorbIntoTop ( TBox& KB )
 
 	// check whether the axiom is Top [= C
 	for ( iterator p = begin(); p != end(); ++p )
-		if ( isConst(*p) )	// only TOP can be here
+		if ( (*p)->Element().getToken() == TOP )	// TOP here is fine
 			continue;
 		else if ( (*p)->Element() == NOT && isName((*p)->Left()) )	// C found
 		{
@@ -94,10 +94,17 @@ TAxiom :: absorbIntoTop ( TBox& KB )
 		return false;
 
 	// make an absorption
-	if ( C->Description != NULL )
-		KB.addSubsumeAxiom ( createTop(), KB.makeNonPrimitive ( C, createTop() ) );
-	else	// just make C = Top
-		KB.makeNonPrimitive ( C, createTop() );
+	DLTree* desc = KB.makeNonPrimitive ( C, createTop() );
+
+#ifdef RKG_DEBUG_ABSORPTION
+	std::cout << " T-Absorb GCI to axiom";
+	if ( desc )
+		std::cout << "s *TOP* [=" << desc << " and";
+	std::cout << " " << C->getName() << " = *TOP*: ";
+	dump(std::cout);
+#endif
+	if ( desc )
+		KB.addSubsumeAxiom ( createTop(), desc );
 
 	return true;
 }
