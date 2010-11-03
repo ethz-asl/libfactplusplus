@@ -420,6 +420,7 @@ TBox :: setAllIndexes ( void )
 	for ( i_const_iterator pi = i_begin(), pi_end = i_end(); pi != pi_end; ++pi )
 		if ( !(*pi)->isSynonym() )
 			(*pi)->setIndex(nC++);
+	++nC;	// place for the query concept
 	nR = 1;	// the same
 	RoleMaster::iterator r, r_end;
 	for ( r = ORM.begin(), r_end = ORM.end(); r < r_end; ++r )

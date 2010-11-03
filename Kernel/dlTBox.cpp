@@ -467,6 +467,7 @@ TBox :: createQueryConcept ( const DLTree* desc )
 	// create description
 	deleteTree ( makeNonPrimitive ( defConcept, clone(desc) ) );
 	defConcept->setSystem();
+	defConcept->setIndex(nC-1);
 
 	// build DAG entries for the default concept
 	DLHeap.setExpressionCache(false);

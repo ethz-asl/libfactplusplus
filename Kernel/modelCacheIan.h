@@ -59,7 +59,6 @@ protected:	// classes
 		{
 #		ifdef ENABLE_CHECKING
 			fpp_assert ( i > 0 );
-			fpp_assert ( i < Base.size() );
 #		endif
 			Base.insert(i);
 		}
