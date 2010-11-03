@@ -482,10 +482,18 @@ public:		// methods
 	bool isBlocked ( void ) const { return Blocker != NULL && !pBlocked; }
 		/// check the legality of the direct block
 	bool isIllegallyDBlocked ( void ) const { return isDBlocked() && Blocker->isBlocked(); }
-		/// get node to which current one was merged
+		/// get RW node to which current one was merged
+	DlCompletionTree* resolvePBlocker ( void )
+	{
+		if ( unlikely(isPBlocked()) )
+			return const_cast<DlCompletionTree*>(Blocker)->resolvePBlocker();
+		else
+			return this;
+	}
+		/// get RO node to which current one was merged
 	const DlCompletionTree* resolvePBlocker ( void ) const
 	{
-		if ( isPBlocked() )
+		if ( unlikely(isPBlocked()) )
 			return Blocker->resolvePBlocker();
 		else
 			return this;
@@ -493,7 +501,7 @@ public:		// methods
 		/// get node to which current one was merged; fills DEP from pDep's
 	DlCompletionTree* resolvePBlocker ( DepSet& dep )
 	{
-		if ( !isPBlocked() )
+		if ( likely(!isPBlocked()) )
 			return this;
 		dep += pDep;
 		return const_cast<DlCompletionTree*>(Blocker)->resolvePBlocker(dep);
@@ -640,4 +648,4 @@ inline void DlCompletionTree :: init ( unsigned int level )
 	pDep.clear();
 }
 
-#endif // _DLCOMPLETIONTREE_H
+#endif // DLCOMPLETIONTREE_H

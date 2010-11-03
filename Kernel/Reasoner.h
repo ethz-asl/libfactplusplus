@@ -864,7 +864,7 @@ public:
 	bool checkIrreflexivity ( const TRole* R );
 
 		/// get the ROOT node of the completion graph
-	const DlCompletionTree* getRootNode ( void ) const { return CGraph.getActualRoot(); }
+	const DlCompletionTree* getRootNode ( void ) const { return CGraph.getRoot(); }
 
 		/// init TODO list priority for classification
 	void initToDoPriorities ( const ifOptionSet* OptionSet )

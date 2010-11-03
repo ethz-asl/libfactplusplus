@@ -16,8 +16,8 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef _DLCOMPLETIONGRAPH_H
-#define _DLCOMPLETIONGRAPH_H
+#ifndef DLCOMPLETIONGRAPH_H
+#define DLCOMPLETIONGRAPH_H
 
 #include <vector>
 
@@ -313,11 +313,9 @@ public:		// interface
 	// access to nodes
 
 		/// get a root node (non-const)
-	DlCompletionTree* getRoot ( void ) { return NodeBase[0]; }
+	DlCompletionTree* getRoot ( void ) { return NodeBase[0]->resolvePBlocker(); }
 		/// get a root node (const)
-	const DlCompletionTree* getRoot ( void ) const { return NodeBase[0]; }
-		/// get actual root of the CGraph (in case root was merged to a nominal node)
-	const DlCompletionTree* getActualRoot ( void ) const { return getRoot()->resolvePBlocker(); }
+	const DlCompletionTree* getRoot ( void ) const { return NodeBase[0]->resolvePBlocker(); }
 		/// get a node by it's ID
 	const DlCompletionTree* getNode ( unsigned int id ) const
 	{
