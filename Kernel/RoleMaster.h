@@ -126,10 +126,12 @@ public:		// interface
 		emptyRole.setId(0);
 		emptyRole.setInverse(&emptyRole);
 		emptyRole.setDataRole(dataRoles);
+		emptyRole.setBPDomain(bpBOTTOM);
 		// setup universal role
 		universalRole.setId(0);
 		universalRole.setInverse(&universalRole);
 		universalRole.setDataRole(dataRoles);
+		universalRole.setBPDomain(bpTOP);
 
 		// create roles taxonomy
 		pTax = new Taxonomy ( &universalRole, &emptyRole );
