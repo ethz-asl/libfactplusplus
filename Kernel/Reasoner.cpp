@@ -390,7 +390,7 @@ DlSatTester :: doCacheNode ( DlCompletionTree* node )
 	return cache;
 }
 
-tacticUsage
+modelCacheState
 DlSatTester :: reportNodeCached ( modelCacheIan* cache, DlCompletionTree* node )
 {
 	enum modelCacheState status = cache->getState();
@@ -401,19 +401,21 @@ DlSatTester :: reportNodeCached ( modelCacheIan* cache, DlCompletionTree* node )
 		incStat(nCachedSat);
 		if ( LLM.isWritable(llGTA) )
 			LL << " cached(" << node->getId() << ")";
-		return utDone;
+		break;
 	case csInvalid:
 		incStat(nCachedUnsat);
-		return utClash;
+		break;
 	case csFailed:
 	case csUnknown:
 		incStat(nCacheFailed);
 		if ( LLM.isWritable(llGTA) )
 			LL << " cf(c)";
-		return utUnusable;
+		status = csFailed;
+		break;
 	default:
 		fpp_unreachable();
 	}
+	return status;
 }
 
 tacticUsage DlSatTester :: correctCachedEntry ( DlCompletionTree* n )
@@ -421,13 +423,13 @@ tacticUsage DlSatTester :: correctCachedEntry ( DlCompletionTree* n )
 	fpp_assert ( n->isCached() );	// safety check
 
 	// FIXME!! check if it is possible to leave node cached in more efficient way
-	tacticUsage ret = tryCacheNode(n);
+	modelCacheState status = tryCacheNode(n);
 
 	// uncheck cached node status and add all elements in TODO list
-	if ( ret == utUnusable )
+	if ( status == csFailed )
 		redoNodeLabel ( n, "ce" );
 
-	return ret;
+	return usageByState(status);
 }
 
 //-----------------------------------------------------------------------------

@@ -426,14 +426,19 @@ protected:	// methods
 		/// perform caching of the node (it is known that caching is possible)
 	modelCacheIan* doCacheNode ( DlCompletionTree* node );
 		/// mark NODE (un)cached depending on the joint cache STATUS; @return appropriate TU
-	tacticUsage reportNodeCached ( modelCacheIan* cache, DlCompletionTree* node );
+	modelCacheState reportNodeCached ( modelCacheIan* cache, DlCompletionTree* node );
 		/// check whether node may be (un)cached; save node if something is changed
-	tacticUsage tryCacheNode ( DlCompletionTree* node )
+	modelCacheState tryCacheNode ( DlCompletionTree* node )
 	{
-		tacticUsage ret = canBeCached(node) ? reportNodeCached ( doCacheNode(node), node ) : utUnusable;
+		modelCacheState ret = canBeCached(node) ? reportNodeCached ( doCacheNode(node), node ) : csFailed;
 		// node is cached if RET is utDone
-		CGraph.saveRareCond(node->setCached(ret == utDone));
+		CGraph.saveRareCond(node->setCached(ret == csValid));
 		return ret;
+	}
+		/// transform model cache status into tactic usage
+	static tacticUsage usageByState ( modelCacheState status )
+	{
+		return (status ==  csValid ? utDone : (status == csInvalid ? utClash : utUnusable));
 	}
 
 //-----------------------------------------------------------------------------

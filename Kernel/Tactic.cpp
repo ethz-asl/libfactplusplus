@@ -790,7 +790,7 @@ DlSatTester :: setupEdge ( DlCompletionTreeArc* pA, const DepSet& dep, unsigned 
 			switchResult ( ret, checkDataClash(child) );
 		}
 		else	// check if it is possible to use cache for new node
-			switchResult ( ret, tryCacheNode(child) );
+			switchResult ( ret, usageByState(tryCacheNode(child)) );
 	}
 
 	// all done
