@@ -673,21 +673,9 @@ void DlSatTester :: logFinishEntry ( tacticUsage res ) const
 {
 	CHECK_LL_RETURN(llGTA);	// useless but safe
 
-	LL << "] ";
-	switch (res)
-	{
-	case utDone:
-		LL << "utDone";
-		break;
-	case utUnusable:
-		LL << "utUnusable";
-		break;
-	case utClash:
-		LL << "utClash" << getClashSet();
-		break;
-	default:	// safety check
-		fpp_unreachable();
-	}
+	LL << "]";
+	if ( res == utClash )
+		LL << " Clash" << getClashSet();
 #ifdef __DEBUG_FLUSH_LL
 	LL.flush ();
 #endif
