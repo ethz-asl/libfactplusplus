@@ -205,7 +205,7 @@ tacticUsage
 DlSatTester :: addToDoEntry ( DlCompletionTree* node, const ConceptWDep& C, const char* reason )
 {
 	if ( C == bpTOP )	// simplest things first
-		return utUnusable;
+		return utDone;
 	if ( C == bpBOTTOM )
 	{
 		setClashSet(C.getDep());
@@ -221,7 +221,7 @@ DlSatTester :: addToDoEntry ( DlCompletionTree* node, const ConceptWDep& C, cons
 	if ( tag == dtCollection )
 	{
 		if ( isNegative(C.bp()) )	// nothing to do
-			return utUnusable;
+			return utDone;
 		// setup and run and()
 		incStat(nTacticCalls);		// to balance nAndCalls later
 		DlCompletionTree* oldNode = curNode;
@@ -242,7 +242,7 @@ DlSatTester :: addToDoEntry ( DlCompletionTree* node, const ConceptWDep& C, cons
 			logClash ( node, C );
 		return utClash;
 	case acrExist:	// already exists -- nothing new
-		return utUnusable;
+		return utDone;
 	case acrDone:	// try was done
 		return insertToDoEntry ( node, C, tag, reason );
 	default:	// safety check
@@ -262,16 +262,13 @@ DlSatTester :: insertToDoEntry ( DlCompletionTree* node, const ConceptWDep& C,
 	setUsed(C.bp());
 
 	if ( node->isCached() )
-	{
-		tacticUsage ret = correctCachedEntry(node);
-		return ret == utUnusable ? utDone : ret;
-	}
+		return correctCachedEntry(node);
 
 	// add new info in TODO list
 	TODO.addEntry ( node, tag, C );
 
 	if ( node->isDataNode() )	// data concept -- run data center for it
-		return checkDataNode ? checkDataClash(node) : utUnusable;
+		return checkDataNode ? checkDataClash(node) : utDone;
 	else if ( LLM.isWritable(llGTA) )	// inform about it
 		logEntry ( node, C, reason );
 

@@ -32,7 +32,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "tFastSet.h"
 
 // Enum for usage the Tactics to a ToDoEntry
-enum tacticUsage { utUnusable, utClash, utDone };
+enum tacticUsage { utDone, utClash };
 
 #ifdef _USE_LOGGING	// don't gather statistics w/o logging
 #	define USE_REASONING_STATISTICS
@@ -438,7 +438,7 @@ protected:	// methods
 		/// transform model cache status into tactic usage
 	static tacticUsage usageByState ( modelCacheState status )
 	{
-		return (status ==  csValid ? utDone : (status == csInvalid ? utClash : utUnusable));
+		return (status == csInvalid ? utClash : utDone);
 	}
 
 //-----------------------------------------------------------------------------
@@ -515,7 +515,7 @@ protected:	// methods
 	tacticUsage applyExtraRulesIf ( const TConcept* p )
 	{
 		if ( !p->hasExtraRules() )
-			return utUnusable;
+			return utDone;
 		fpp_assert ( p->isPrimitive() );
 		return applyExtraRules(p);
 	}
