@@ -427,7 +427,7 @@ tacticUsage DlSatTester :: correctCachedEntry ( DlCompletionTree* n )
 
 	// uncheck cached node status and add all elements in TODO list
 	if ( status == csFailed )
-		redoNodeLabel ( n, "ce" );
+		redoNodeLabel ( n, "uc" );
 
 	return usageByState(status);
 }
