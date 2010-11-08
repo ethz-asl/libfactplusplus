@@ -518,7 +518,7 @@ bool DlSatTester :: checkSatisfiability ( void )
 				}
 				CGraph.retestCGBlockedStatus();
 				if ( LLM.isWritable(llGTA) )
-					LL << "] utDone";
+					LL << "]";
 				// clear blocker cache
 				dBlocked = NULL;
 				if ( TODO.empty() )

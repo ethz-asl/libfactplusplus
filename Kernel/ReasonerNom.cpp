@@ -84,7 +84,7 @@ NominalReasoner :: consistentNominalCloud ( void )
 		save();
 		nonDetShift = 1;	// the barrier doesn't introduce branching itself
 		if ( LLM.isWritable(llSRState) )
-			LL << "] utDone";
+			LL << "]";
 	}
 
 	if ( LLM.isWritable(llSatResult) )

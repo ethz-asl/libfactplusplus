@@ -33,9 +33,8 @@ do { if (expr) return true; } while(0)
   * and a Real tactic function <name>Body
   *
   * Each tactic returns:
-  * - utUnusable	- if it couldn't be used for such vertex;
-  * - utClash		- if there is a clash while used
-  * - utDone		- if it was successfully used
+  * - true		- if expansion of CUR lead to clash
+  * - false		- overwise
   *
   ******************************************************************************/
 
@@ -160,9 +159,7 @@ bool DlSatTester :: commonTacticBodyId ( const DLVertex& cur )
 
 	// get either body(p) or inverse(body(p)), depends on sign of current ID
 	BipolarPointer C = isPositive(curConcept.bp()) ? cur.getC() : inverse(cur.getC());
-	switchResult ( addToDoEntry ( curNode, C, curConcept.getDep() ) );
-
-	return false;
+	return addToDoEntry ( curNode, C, curConcept.getDep() );
 }
 
 /// @return true if the rule is applicable; set the dep-set accordingly
@@ -555,8 +552,7 @@ bool DlSatTester :: commonTacticBodySome ( const DLVertex& cur )	// for ER.C con
 			newDep.add(dep);
 
 			// check if merging will lead to clash because of disjoint roles
-			if ( R->isDisjoint() &&
-				 checkDisjointRoleClash ( curNode, succ, R, newDep ) )
+			if ( R->isDisjoint() && checkDisjointRoleClash ( curNode, succ, R, newDep ) )
 				return true;
 
 			// add current role label (to both arc and its reverse)
@@ -1060,9 +1056,7 @@ bool DlSatTester :: createDifferentNeighbours ( const TRole* R, BipolarPointer C
 	CGraph.finiIR();
 
 	// re-apply all <= NR in curNode; do it only once for all created nodes; no need for Irr
-	switchResult ( applyUniversalNR ( curNode, pA, dep, redoFunc|redoAtMost ) );
-
-	return false;
+	return applyUniversalNR ( curNode, pA, dep, redoFunc|redoAtMost );
 }
 
 		/// check if ATLEAST and ATMOST restrictions are in clash; setup depset from CUR
@@ -1332,9 +1326,7 @@ bool DlSatTester :: commonTacticBodyNN ( const DLVertex& cur )	// NN-rule
 	switchResult ( createDifferentNeighbours ( cur.getRole(), cur.getC(), curDep, NN, curNode->getNominalLevel()+1 ) );
 
 	// now remember NR we just created: it is (<= curNN R), so have to find it
-	switchResult ( addToDoEntry ( curNode, curConcept.bp() + (cur.getNumberLE()-NN), curDep, "NN" ) );
-
-	return false;
+	return addToDoEntry ( curNode, curConcept.bp() + (cur.getNumberLE()-NN), curDep, "NN" );
 }
 
 //-------------------------------------------------------------------------------
@@ -1462,8 +1454,6 @@ bool DlSatTester :: checkProjection ( DlCompletionTreeArc* pA, BipolarPointer C,
 	// here C is in the label of curNode: add ProjR to the edge if necessary
 	DlCompletionTree* child = pA->getArcEnd();
 	pA = CGraph.addRoleLabel ( curNode, child, pA->isPredEdge(), ProjR, dep );
-	switchResult ( setupEdge ( pA, dep, redoForall|redoFunc|redoAtMost|redoIrr ) );
-
-	return false;
+	return setupEdge ( pA, dep, redoForall|redoFunc|redoAtMost|redoIrr );
 }
 

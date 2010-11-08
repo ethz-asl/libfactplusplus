@@ -344,9 +344,7 @@ protected:	// methods
 		/// reset all session flags
 	void resetSessionFlags ( void );
 
-	//------------  methods  ----------------------------
-	// adds p to the labels of node n.
-	// returns utDone, utClash or utUnused
+		/// adds C to the labels of NODE; @return true iff clash occurs
 	bool addToDoEntry ( DlCompletionTree* node, const ConceptWDep& C, const char* reason = NULL );
 		/// synonym to the above
 	bool addToDoEntry ( DlCompletionTree* node, BipolarPointer c, const DepSet& dep, const char* reason = NULL )
@@ -428,11 +426,11 @@ protected:	// methods
 	modelCacheState tryCacheNode ( DlCompletionTree* node )
 	{
 		modelCacheState ret = canBeCached(node) ? reportNodeCached ( doCacheNode(node), node ) : csFailed;
-		// node is cached if RET is utDone
+		// node is cached if RET is csValid
 		CGraph.saveRareCond(node->setCached(ret == csValid));
 		return ret;
 	}
-		/// transform model cache status into tactic usage
+		/// @return true iff cache status is invalid
 	static bool usageByState ( modelCacheState status )
 	{
 		return status == csInvalid;
@@ -455,9 +453,8 @@ protected:	// methods
 	 * certain type of concept expression (parameter CUR).
 	 *
 	 * Each tactic returns:
-	 * - utUnusable	- if CUR can not be expanded
-	 * - utClash		- if expansion of CUR lead to clash
-	 * - utDone		- if CUR was successfully expanded
+	 * - true		- if expansion of CUR lead to clash
+	 * - false		- overwise
 	 */
 
 		/// main calling method; wrapper for Body
