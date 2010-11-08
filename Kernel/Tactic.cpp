@@ -23,7 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Reasoner.h"
 #include "logging.h"
 
-#define switchResult(ret,expr)\
+#define switchResult(expr)\
 do {\
 	switch ( expr )\
 	{\
@@ -162,12 +162,12 @@ tacticUsage DlSatTester :: commonTacticBodyId ( const DLVertex& cur )
 #ifdef RKG_USE_SIMPLE_RULES
 	// check if we have some simple rules
 	if ( isPositive(curConcept.bp()) )
-		switchResult ( ret, applyExtraRulesIf(static_cast<const TConcept*>(cur.getConcept())) );
+		switchResult ( applyExtraRulesIf(static_cast<const TConcept*>(cur.getConcept())) );
 #endif
 
 	// get either body(p) or inverse(body(p)), depends on sign of current ID
 	BipolarPointer C = isPositive(curConcept.bp()) ? cur.getC() : inverse(cur.getC());
-	switchResult ( ret, addToDoEntry ( curNode, C, curConcept.getDep() ) );
+	switchResult ( addToDoEntry ( curNode, C, curConcept.getDep() ) );
 
 	return utDone;
 }
@@ -206,7 +206,7 @@ DlSatTester :: applyExtraRules ( const TConcept* C )
 		if ( rule->applicable(*this) )	// apply the rule's head
 		{
 			incStat(nSRuleFire);
-			switchResult ( ret, addToDoEntry ( curNode, rule->bpHead, getClashSet() ) );
+			switchResult ( addToDoEntry ( curNode, rule->bpHead, getClashSet() ) );
 		}
 	}
 
@@ -260,7 +260,7 @@ tacticUsage DlSatTester :: commonTacticBodyAnd ( const DLVertex& cur )
 	// FIXME!! I don't know why, but performance is usually BETTER if using r-iters.
 	// It's their only usage, so after investigation they can be dropped
 	for ( DLVertex::const_reverse_iterator q = cur.rbegin(); q != cur.rend(); ++q )
-		switchResult ( ret, addToDoEntry ( curNode, *q, dep ) );
+		switchResult ( addToDoEntry ( curNode, *q, dep ) );
 
 	return utDone;
 }
@@ -395,12 +395,12 @@ tacticUsage DlSatTester :: commonTacticBodyAllComplex ( const DLVertex& cur )
 			incStat(nAutoEmptyLookups);
 
 			if ( (*q)->empty() )
-				switchResult ( ret, addToDoEntry ( curNode, C+(*q)->final(), dep, "e" ) );
+				switchResult ( addToDoEntry ( curNode, C+(*q)->final(), dep, "e" ) );
 		}
 
 	// apply final-state rule
 	if ( state == 1 )
-		switchResult ( ret, addToDoEntry ( curNode, cur.getC(), dep ) );
+		switchResult ( addToDoEntry ( curNode, cur.getC(), dep ) );
 
 	// check whether automaton applicable to any edges
 	incStat(nAllCalls);
@@ -408,7 +408,7 @@ tacticUsage DlSatTester :: commonTacticBodyAllComplex ( const DLVertex& cur )
 	// check all neighbours
 	for ( DlCompletionTree::const_edge_iterator p = curNode->begin(), p_end = curNode->end(); p < p_end; ++p )
 		if ( RST.recognise((*p)->getRole()) )
-			switchResult ( ret, applyTransitions ( (*p), RST, C, dep+(*p)->getDep() ) );
+			switchResult ( applyTransitions ( (*p), RST, C, dep+(*p)->getDep() ) );
 
 	return utDone;
 }
@@ -425,7 +425,7 @@ tacticUsage DlSatTester :: commonTacticBodyAllSimple ( const DLVertex& cur )
 	// check all neighbours; as the role is simple then recognise() == applicable()
 	for ( DlCompletionTree::const_edge_iterator p = curNode->begin(), p_end = curNode->end(); p < p_end; ++p )
 		if ( RST.recognise((*p)->getRole()) )
-			switchResult ( ret, addToDoEntry ( (*p)->getArcEnd(), C, dep+(*p)->getDep() ) );
+			switchResult ( addToDoEntry ( (*p)->getArcEnd(), C, dep+(*p)->getDep() ) );
 
 	return utDone;
 }
@@ -453,7 +453,7 @@ tacticUsage DlSatTester :: applyTransitions ( const DlCompletionTreeArc* edge,
 	{
 		incStat(nAutoTransLookups);
 		if ( (*q)->applicable(R) )
-			switchResult ( ret, addToDoEntry ( node, C+(*q)->final(), dep, reason ) );
+			switchResult ( addToDoEntry ( node, C+(*q)->final(), dep, reason ) );
 	}
 
 	return utDone;
@@ -570,23 +570,23 @@ tacticUsage DlSatTester :: commonTacticBodySome ( const DLVertex& cur )	// for E
 			functionalArc = CGraph.addRoleLabel ( curNode, succ, functionalArc->isPredEdge(), R, newDep );
 
 			// adds concept to the end of arc
-			switchResult ( ret, addToDoEntry ( succ, C, newDep ) );
+			switchResult ( addToDoEntry ( succ, C, newDep ) );
 
 			// if new role label was added...
 			if ( RF != R )
 			{
 				// add Range and Domain of a new role; this includes functional, so remove it from the latter
-				switchResult ( ret, initHeadOfNewEdge ( curNode, R, newDep, "RD" ) );
-				switchResult ( ret, initHeadOfNewEdge ( succ, R->inverse(), newDep, "RR" ) );
+				switchResult ( initHeadOfNewEdge ( curNode, R, newDep, "RD" ) );
+				switchResult ( initHeadOfNewEdge ( succ, R->inverse(), newDep, "RR" ) );
 
 				// check AR.C in both sides of functionalArc
 				// FIXME!! for simplicity, check the functionality here (see bEx017). It seems
 				// only necessary when R has several functional super-roles, so the condition
 				// can be simplified
-				switchResult ( ret, applyUniversalNR ( curNode, functionalArc, newDep, redoForall | redoFunc ) );
+				switchResult ( applyUniversalNR ( curNode, functionalArc, newDep, redoForall | redoFunc ) );
 				// if new role label was added to a functionalArc, some functional restrictions
 				// in the SUCC node might became applicable. See bFunctional1x test
-				switchResult ( ret, applyUniversalNR ( succ, functionalArc->getReverse(), newDep,
+				switchResult ( applyUniversalNR ( succ, functionalArc->getReverse(), newDep,
 													   redoForall | redoFunc | redoAtMost ) );
 			}
 
@@ -755,24 +755,24 @@ DlSatTester :: setupEdge ( DlCompletionTreeArc* pA, const DepSet& dep, unsigned 
 	DlCompletionTree* from = pA->getReverse()->getArcEnd();
 
 	// adds Range and Domain
-	switchResult ( ret, initHeadOfNewEdge ( from, pA->getRole(), dep, "RD" ) );
-	switchResult ( ret, initHeadOfNewEdge ( child, pA->getReverse()->getRole(), dep, "RR" ) );
+	switchResult ( initHeadOfNewEdge ( from, pA->getRole(), dep, "RD" ) );
+	switchResult ( initHeadOfNewEdge ( child, pA->getReverse()->getRole(), dep, "RR" ) );
 
 	// check if we have any AR.X concepts in current node
-	switchResult ( ret, applyUniversalNR ( from, pA, dep, flags ) );
+	switchResult ( applyUniversalNR ( from, pA, dep, flags ) );
 
 	// for nominal children and loops -- just apply things for the inverses
 	if ( pA->isPredEdge() || child->isNominalNode() || child == from )
-		switchResult ( ret, applyUniversalNR ( child, pA->getReverse(), dep, flags ) );
+		switchResult ( applyUniversalNR ( child, pA->getReverse(), dep, flags ) );
 	else
 	{
 		if ( child->isDataNode() )
 		{
 			checkDataNode = true;
-			switchResult ( ret, checkDataClash(child) );
+			switchResult ( checkDataClash(child) );
 		}
 		else	// check if it is possible to use cache for new node
-			switchResult ( ret, usageByState(tryCacheNode(child)) );
+			switchResult ( usageByState(tryCacheNode(child)) );
 	}
 
 	// all done
@@ -804,7 +804,7 @@ tacticUsage DlSatTester :: applyUniversalNR ( DlCompletionTree* Node,
 		{
 		case dtIrr:
 			if ( flags & redoIrr )
-				switchResult ( ret, checkIrreflexivity ( arcSample, vR, dep ) );
+				switchResult ( checkIrreflexivity ( arcSample, vR, dep ) );
 			break;
 
 		case dtForall:
@@ -818,9 +818,9 @@ tacticUsage DlSatTester :: applyUniversalNR ( DlCompletionTree* Node,
 				break;
 
 			if ( vR->isSimple() )	// R is recognised so just add the final state!
-				switchResult ( ret, addToDoEntry ( arcSample->getArcEnd(), v.getC(), dep+p->getDep(), "ae" ) );
+				switchResult ( addToDoEntry ( arcSample->getArcEnd(), v.getC(), dep+p->getDep(), "ae" ) );
 			else
-				switchResult ( ret, applyTransitions ( arcSample, RST, p->bp()-v.getState(), dep+p->getDep(), "ae" ) );
+				switchResult ( applyTransitions ( arcSample, RST, p->bp()-v.getState(), dep+p->getDep(), "ae" ) );
 			break;
 		}
 
@@ -853,14 +853,14 @@ DlSatTester :: initHeadOfNewEdge ( DlCompletionTree* node, const TRole* R, const
 	// if R is functional, then add FR with given DEP-set to NODE
 	if ( R->isFunctional() )
 		for ( r = R->begin_topfunc(), r_end = R->end_topfunc(); r != r_end; ++r )
-			switchResult ( ret, addToDoEntry ( node, (*r)->getFunctional(), dep, "fr" ) );
+			switchResult ( addToDoEntry ( node, (*r)->getFunctional(), dep, "fr" ) );
 
 	// setup Domain for R
-	switchResult ( ret, addToDoEntry ( node, R->getBPDomain(), dep, reason ) );
+	switchResult ( addToDoEntry ( node, R->getBPDomain(), dep, reason ) );
 
 #	ifndef RKG_UPDATE_RND_FROM_SUPERROLES
 		for ( r = R->begin_anc(), r_end = R->end_anc(); r < r_end; ++r )
-			switchResult ( ret, addToDoEntry ( node, (*r)->getBPDomain(), dep, reason ) );
+			switchResult ( addToDoEntry ( node, (*r)->getBPDomain(), dep, reason ) );
 #	endif
 
 	return utDone;
@@ -903,7 +903,7 @@ tacticUsage DlSatTester :: commonTacticBodyFunc ( const DLVertex& cur )	// for <
 	for ( ++q; q != EdgesToMerge.end(); ++q )
 		// during merge EdgesToMerge may became purged (see Nasty4) => check this
 		if ( !(*q)->getArcEnd()->isPBlocked() )
-			switchResult ( ret, Merge ( (*q)->getArcEnd(), sample, depF+(*q)->getDep() ) );
+			switchResult ( Merge ( (*q)->getArcEnd(), sample, depF+(*q)->getDep() ) );
 
 	return utDone;
 }
@@ -934,7 +934,7 @@ tacticUsage DlSatTester :: commonTacticBodyLE ( const DLVertex& cur )	// for <=n
 
 	// check if we have Qualified NR
 	if ( C != bpTOP )
-		switchResult ( ret, commonTacticBodyChoose ( R, C ) );
+		switchResult ( commonTacticBodyChoose ( R, C ) );
 
 	// check whether we need to apply NN rule first
 	if ( isNNApplicable ( R, C, /*stopper=*/curConcept.bp()+cur.getNumberLE() ) )
@@ -1017,11 +1017,11 @@ applyLE:	// skip init, because here we are after restoring
 		DepSet curDep(getCurDepSet());
 		curDep.add(from->getDep());
 
-		switchResult ( ret, Merge ( from->getArcEnd(), to->getArcEnd(), curDep ) );
+		switchResult ( Merge ( from->getArcEnd(), to->getArcEnd(), curDep ) );
 		// it might be the case (see bIssue28) that after the merge there is an R-neigbour
 		// that have neither C or ~C in its label (it was far in the nominal cloud)
 		if ( C != bpTOP )
-			switchResult ( ret, commonTacticBodyChoose ( R, C ) );
+			switchResult ( commonTacticBodyChoose ( R, C ) );
 	}
 }
 
@@ -1065,13 +1065,13 @@ tacticUsage DlSatTester :: createDifferentNeighbours ( const TRole* R, BipolarPo
 		CGraph.setCurIR ( child, dep );
 
 		// add necessary new node labels and setup new edge
-		switchResult ( ret, initNewNode ( child, dep, C ) );
-		switchResult ( ret, setupEdge ( pA, dep, redoForall ) );
+		switchResult ( initNewNode ( child, dep, C ) );
+		switchResult ( setupEdge ( pA, dep, redoForall ) );
 	}
 	CGraph.finiIR();
 
 	// re-apply all <= NR in curNode; do it only once for all created nodes; no need for Irr
-	switchResult ( ret, applyUniversalNR ( curNode, pA, dep, redoFunc|redoAtMost ) );
+	switchResult ( applyUniversalNR ( curNode, pA, dep, redoFunc|redoAtMost ) );
 
 	return utDone;
 }
@@ -1148,12 +1148,12 @@ tacticUsage DlSatTester :: mergeLabels ( const CGLabel& from, DlCompletionTree* 
 		if ( findConcept ( sc, *p ) )
 			CGraph.saveRareCond ( sc.updateDepSet ( p->bp(), p->getDep() ) );
 		else
-			switchResult ( ret, insertToDoEntry ( to, ConceptWDep(*p,dep), DLHeap[*p].Type(), "M" ) );
+			switchResult ( insertToDoEntry ( to, ConceptWDep(*p,dep), DLHeap[*p].Type(), "M" ) );
 	for ( p = from.begin_cc(), p_end = from.end_cc(); p < p_end; ++p )
 		if ( findConcept ( cc, *p ) )
 			CGraph.saveRareCond ( cc.updateDepSet ( p->bp(), p->getDep() ) );
 		else
-			switchResult ( ret, insertToDoEntry ( to, ConceptWDep(*p,dep), DLHeap[*p].Type(), "M" ) );
+			switchResult ( insertToDoEntry ( to, ConceptWDep(*p,dep), DLHeap[*p].Type(), "M" ) );
 
 	return utDone;
 }
@@ -1187,7 +1187,7 @@ tacticUsage DlSatTester :: Merge ( DlCompletionTree* from, DlCompletionTree* to,
 		return utClash;
 
 	// copy all node labels
-	switchResult ( ret, mergeLabels ( from->label(), to, depF ) );
+	switchResult ( mergeLabels ( from->label(), to, depF ) );
 
 	// correct graph structure
 	typedef std::vector<DlCompletionTreeArc*> edgeVector;
@@ -1209,7 +1209,7 @@ tacticUsage DlSatTester :: Merge ( DlCompletionTree* from, DlCompletionTree* to,
 
 	// for every node added to TO, every ALL, Irr and <=-node should be checked
 	for ( q = edges.begin(); q != q_end; ++q )
-		switchResult ( ret, applyUniversalNR ( to, *q, depF, redoForall|redoFunc|redoAtMost|redoIrr ) );
+		switchResult ( applyUniversalNR ( to, *q, depF, redoForall|redoFunc|redoAtMost|redoIrr ) );
 
 	// we do real action here, so the return value
 	return utDone;
@@ -1273,7 +1273,7 @@ tacticUsage DlSatTester :: commonTacticBodyChoose ( const TRole* R, BipolarPoint
 	// apply choose-rule for every R-neighbour
 	for ( DlCompletionTree::const_edge_iterator p = curNode->begin(), p_end = curNode->end(); p < p_end; ++p )
 		if ( (*p)->isNeighbour(R) )
-			switchResult ( ret, applyChooseRule ( (*p)->getArcEnd(), C ) );
+			switchResult ( applyChooseRule ( (*p)->getArcEnd(), C ) );
 
 	return utDone;
 }
@@ -1337,14 +1337,13 @@ tacticUsage DlSatTester :: commonTacticBodyNN ( const DLVertex& cur )	// NN-rule
 	const DepSet curDep(getCurDepSet());
 
 	// make a stopper to mark that NN-rule is applied
-	switchResult ( ret, addToDoEntry ( curNode, curConcept.bp() + cur.getNumberLE(), DepSet(), "NNs" ) );
+	switchResult ( addToDoEntry ( curNode, curConcept.bp() + cur.getNumberLE(), DepSet(), "NNs" ) );
 
 	// create curNN new different edges
-	switchResult ( ret,
-		createDifferentNeighbours ( cur.getRole(), cur.getC(), curDep, NN, curNode->getNominalLevel()+1 ) );
+	switchResult ( createDifferentNeighbours ( cur.getRole(), cur.getC(), curDep, NN, curNode->getNominalLevel()+1 ) );
 
 	// now remember NR we just created: it is (<= curNN R), so have to find it
-	switchResult ( ret, addToDoEntry ( curNode, curConcept.bp() + (cur.getNumberLE()-NN), curDep, "NN" ) );
+	switchResult ( addToDoEntry ( curNode, curConcept.bp() + (cur.getNumberLE()-NN), curDep, "NN" ) );
 
 	return utDone;
 }
@@ -1434,7 +1433,7 @@ tacticUsage DlSatTester :: commonTacticBodyProj ( const TRole* R, BipolarPointer
 	{
 		p = curNode->begin() + i;
 		if ( (*p)->isNeighbour(R) )
-			switchResult ( ret, checkProjection ( *p, C, ProjR ) );
+			switchResult ( checkProjection ( *p, C, ProjR ) );
 	}
 
 	return utDone;
@@ -1468,13 +1467,13 @@ tacticUsage DlSatTester :: checkProjection ( DlCompletionTreeArc* pA, BipolarPoi
 			prepareBranchDep();
 			dep.add(getBranchDep());
 			determiniseBranchingOp();
-			switchResult ( ret, addToDoEntry ( curNode, C, dep, "cr1" ) );
+			switchResult ( addToDoEntry ( curNode, C, dep, "cr1" ) );
 		}
 	}
 	// here C is in the label of curNode: add ProjR to the edge if necessary
 	DlCompletionTree* child = pA->getArcEnd();
 	pA = CGraph.addRoleLabel ( curNode, child, pA->isPredEdge(), ProjR, dep );
-	switchResult ( ret, setupEdge ( pA, dep, redoForall|redoFunc|redoAtMost|redoIrr ) );
+	switchResult ( setupEdge ( pA, dep, redoForall|redoFunc|redoAtMost|redoIrr ) );
 
 	return utDone;
 }
