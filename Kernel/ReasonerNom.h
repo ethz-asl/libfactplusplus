@@ -53,7 +53,7 @@ protected:	// methods
 		DlCompletionTree* node = CGraph.getNewNode();
 		node->setNominalLevel();
 		const_cast<TIndividual*>(nom)->node = node;	// init nominal with associated node
-		return initNewNode ( node, DepSet(), nom->pName ) == utClash;	// ABox is inconsistent
+		return initNewNode ( node, DepSet(), nom->pName );	// ABox is inconsistent
 	}
 		/// create nominal nodes for all individuals in TBox
 	bool initNominalCloud ( void );

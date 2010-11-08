@@ -24,14 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "logging.h"
 
 #define switchResult(expr)\
-do {\
-	switch ( expr )\
-	{\
-	case utClash: return utClash;\
-	case utDone: break;\
-	default: fpp_unreachable();\
-	}\
-} while (0)\
+do { if (expr) return true; } while(0)
 
 /********************************************************************************
   * Tactics section;
@@ -47,7 +40,7 @@ do {\
   ******************************************************************************/
 
 // main local Tactic
-tacticUsage DlSatTester :: commonTactic ( void )
+bool DlSatTester :: commonTactic ( void )
 {
 #ifdef ENABLE_CHECKING
 	fpp_assert ( curConcept.bp() != bpINVALID );
@@ -56,13 +49,13 @@ tacticUsage DlSatTester :: commonTactic ( void )
 	// check if Node is cached and we tries to expand existing result
 	// also don't do anything for p-blocked nodes (can't be unblocked)
 	if ( curNode->isCached() || curNode->isPBlocked() )
-		return utDone;
+		return false;
 
 	// informs about starting calculations...
 	if ( LLM.isWritable(llGTA) )
 		logStartEntry();
 
-	tacticUsage ret = utDone;
+	bool ret = false;
 
 	// apply tactic only if Node is not an i-blocked
 	if ( !isIBlocked() )
@@ -78,7 +71,7 @@ tacticUsage DlSatTester :: commonTactic ( void )
 //	Simple tactics
 //-------------------------------------------------------------------------------
 
-tacticUsage DlSatTester :: commonTacticBody ( const DLVertex& cur )
+bool DlSatTester :: commonTacticBody ( const DLVertex& cur )
 {
 	// show DAG usage
 #ifdef RKG_PRINT_DAG_USAGE
@@ -91,12 +84,12 @@ tacticUsage DlSatTester :: commonTacticBody ( const DLVertex& cur )
 	{
 	case dtTop:
 		fpp_unreachable();		// can't appear here; addToDoEntry deals with constants
-		return utDone;
+		return false;
 
 	case dtDataType:	// data things are checked by data inferer
 	case dtDataValue:
 		incStat(nUseless);
-		return utDone;
+		return false;
 
 	case dtPSingleton:
 	case dtNSingleton:
@@ -147,11 +140,11 @@ tacticUsage DlSatTester :: commonTacticBody ( const DLVertex& cur )
 
 	default:
 		fpp_unreachable();
-		return utDone;
+		return false;
 	}
 }
 
-tacticUsage DlSatTester :: commonTacticBodyId ( const DLVertex& cur )
+bool DlSatTester :: commonTacticBodyId ( const DLVertex& cur )
 {
 #ifdef ENABLE_CHECKING
 	fpp_assert ( isCNameTag(cur.Type()) );	// safety check
@@ -169,7 +162,7 @@ tacticUsage DlSatTester :: commonTacticBodyId ( const DLVertex& cur )
 	BipolarPointer C = isPositive(curConcept.bp()) ? cur.getC() : inverse(cur.getC());
 	switchResult ( addToDoEntry ( curNode, C, curConcept.getDep() ) );
 
-	return utDone;
+	return false;
 }
 
 /// @return true if the rule is applicable; set the dep-set accordingly
@@ -196,7 +189,7 @@ DlSatTester :: applicable ( const TBox::TSimpleRule& rule )
 	return true;
 }
 
-tacticUsage
+bool
 DlSatTester :: applyExtraRules ( const TConcept* C )
 {
 	for ( TConcept::er_iterator p = C->er_begin(), p_end=C->er_end(); p < p_end; ++p )
@@ -210,10 +203,10 @@ DlSatTester :: applyExtraRules ( const TConcept* C )
 		}
 	}
 
-	return utDone;
+	return false;
 }
 
-tacticUsage DlSatTester :: commonTacticBodySingleton ( const DLVertex& cur )
+bool DlSatTester :: commonTacticBodySingleton ( const DLVertex& cur )
 {
 #ifdef ENABLE_CHECKING
 	fpp_assert ( cur.Type() == dtPSingleton || cur.Type() == dtNSingleton );	// safety check
@@ -247,7 +240,7 @@ tacticUsage DlSatTester :: commonTacticBodySingleton ( const DLVertex& cur )
 //	AND/OR processing
 //-------------------------------------------------------------------------------
 
-tacticUsage DlSatTester :: commonTacticBodyAnd ( const DLVertex& cur )
+bool DlSatTester :: commonTacticBodyAnd ( const DLVertex& cur )
 {
 #ifdef ENABLE_CHECKING
 	fpp_assert ( isPositive(curConcept.bp()) && ( cur.Type() == dtAnd || cur.Type() == dtCollection ) );	// safety check
@@ -262,10 +255,10 @@ tacticUsage DlSatTester :: commonTacticBodyAnd ( const DLVertex& cur )
 	for ( DLVertex::const_reverse_iterator q = cur.rbegin(); q != cur.rend(); ++q )
 		switchResult ( addToDoEntry ( curNode, *q, dep ) );
 
-	return utDone;
+	return false;
 }
 
-tacticUsage DlSatTester :: commonTacticBodyOr ( const DLVertex& cur )	// for C \or D concepts
+bool DlSatTester :: commonTacticBodyOr ( const DLVertex& cur )	// for C \or D concepts
 {
 #ifdef ENABLE_CHECKING
 	fpp_assert ( isNegative(curConcept.bp()) && cur.Type() == dtAnd );	// safety check
@@ -280,13 +273,13 @@ tacticUsage DlSatTester :: commonTacticBodyOr ( const DLVertex& cur )	// for C \
 		{	// found existing component
 			if ( LLM.isWritable(llGTA) )
 				LL << " E(" << OrConceptsToTest.back() << ")";
-			return utDone;
+			return false;
 		}
 		if ( OrConceptsToTest.empty() )
 		{	// no more applicable concepts:
 			// set global dep-set using accumulated deps
 			setClashSet(dep);
-			return utClash;
+			return true;
 		}
 			// not a branching: just add a single concept
 		if ( OrConceptsToTest.size() == 1 )
@@ -335,7 +328,7 @@ bool DlSatTester :: planOrProcessing ( const DLVertex& cur, DepSet& dep )
 	return false;
 }
 
-tacticUsage DlSatTester :: processOrEntry ( void )
+bool DlSatTester :: processOrEntry ( void )
 {
 	// save the context here as after save() it would be lost
 	const BCOr* bcOr = static_cast<BCOr*>(bContext);
@@ -364,7 +357,7 @@ tacticUsage DlSatTester :: processOrEntry ( void )
 	// if semantic branching is in use -- add previous entries to the label
 	if ( useSemanticBranching )
 		for ( ; p < p_end; ++p )
-			if ( addToDoEntry ( curNode, ConceptWDep(inverse(*p),dep), "sb" ) != utDone )
+			if ( addToDoEntry ( curNode, ConceptWDep(inverse(*p),dep), "sb" ) )
 				fpp_unreachable();	// Both Exists and Clash are errors
 
 	// add new entry to current node; we know the result would be DONE
@@ -380,7 +373,7 @@ tacticUsage DlSatTester :: processOrEntry ( void )
 //	ALL processing
 //-------------------------------------------------------------------------------
 
-tacticUsage DlSatTester :: commonTacticBodyAllComplex ( const DLVertex& cur )
+bool DlSatTester :: commonTacticBodyAllComplex ( const DLVertex& cur )
 {
 	const DepSet& dep = curConcept.getDep();
 	unsigned int state = cur.getState();
@@ -410,10 +403,10 @@ tacticUsage DlSatTester :: commonTacticBodyAllComplex ( const DLVertex& cur )
 		if ( RST.recognise((*p)->getRole()) )
 			switchResult ( applyTransitions ( (*p), RST, C, dep+(*p)->getDep() ) );
 
-	return utDone;
+	return false;
 }
 
-tacticUsage DlSatTester :: commonTacticBodyAllSimple ( const DLVertex& cur )
+bool DlSatTester :: commonTacticBodyAllSimple ( const DLVertex& cur )
 {
 	const RAStateTransitions& RST = cur.getRole()->getAutomaton()[0];
 	const DepSet& dep = curConcept.getDep();
@@ -427,7 +420,7 @@ tacticUsage DlSatTester :: commonTacticBodyAllSimple ( const DLVertex& cur )
 		if ( RST.recognise((*p)->getRole()) )
 			switchResult ( addToDoEntry ( (*p)->getArcEnd(), C, dep+(*p)->getDep() ) );
 
-	return utDone;
+	return false;
 }
 
 //-------------------------------------------------------------------------------
@@ -435,7 +428,7 @@ tacticUsage DlSatTester :: commonTacticBodyAllSimple ( const DLVertex& cur )
 //-------------------------------------------------------------------------------
 
 /** Perform expansion of (C=\AR{state}.X).DEP to an EDGE with a given reason */
-tacticUsage DlSatTester :: applyTransitions ( const DlCompletionTreeArc* edge,
+bool DlSatTester :: applyTransitions ( const DlCompletionTreeArc* edge,
 											const RAStateTransitions& RST,
 											BipolarPointer C,
 											const DepSet& dep, const char* reason )
@@ -456,14 +449,14 @@ tacticUsage DlSatTester :: applyTransitions ( const DlCompletionTreeArc* edge,
 			switchResult ( addToDoEntry ( node, C+(*q)->final(), dep, reason ) );
 	}
 
-	return utDone;
+	return false;
 }
 
 //-------------------------------------------------------------------------------
 //	SOME processing
 //-------------------------------------------------------------------------------
 
-tacticUsage DlSatTester :: commonTacticBodySome ( const DLVertex& cur )	// for ER.C concepts
+bool DlSatTester :: commonTacticBodySome ( const DLVertex& cur )	// for ER.C concepts
 {
 #ifdef ENABLE_CHECKING
 	fpp_assert ( isNegative(curConcept.bp()) && cur.Type() == dtForall );
@@ -475,12 +468,12 @@ tacticUsage DlSatTester :: commonTacticBodySome ( const DLVertex& cur )	// for E
 
 	// check if we already have R-neighbour labelled with C
 	if ( isSomeExists ( R, C ) )
-		return utDone;
+		return false;
 	// try to check the case (some R (or C D)), where C is in the label of an R-neighbour
 	if ( isNegative(C) && DLHeap[C].Type() == dtAnd )
 		for ( DLVertex::const_iterator q = DLHeap[C].begin(), q_end = DLHeap[C].end(); q < q_end; ++q )
 			if ( isSomeExists ( R, inverse(*q) ) )
-				return utDone;
+				return false;
 
 	// check for the case \ER.{o}
 	if ( tBox.testHasNominals() && isPositive(C) )
@@ -498,7 +491,7 @@ tacticUsage DlSatTester :: commonTacticBodySome ( const DLVertex& cur )	// for E
 			switch ( tryAddConcept ( curNode->label().getLabel(dtLE), ConceptWDep((*r)->getFunctional(),dep) ) )
 			{
 			case acrClash:	// addition leads to clash
-				return utClash;
+				return true;
 			case acrDone:	// should be add to a label
 			{
 				// we are changing current Node => save it
@@ -563,8 +556,8 @@ tacticUsage DlSatTester :: commonTacticBodySome ( const DLVertex& cur )	// for E
 
 			// check if merging will lead to clash because of disjoint roles
 			if ( R->isDisjoint() &&
-				 checkDisjointRoleClash ( curNode, succ, R, newDep ) == utClash )
-				return utClash;
+				 checkDisjointRoleClash ( curNode, succ, R, newDep ) )
+				return true;
 
 			// add current role label (to both arc and its reverse)
 			functionalArc = CGraph.addRoleLabel ( curNode, succ, functionalArc->isPredEdge(), R, newDep );
@@ -590,7 +583,7 @@ tacticUsage DlSatTester :: commonTacticBodySome ( const DLVertex& cur )	// for E
 													   redoForall | redoFunc | redoAtMost ) );
 			}
 
-			return utDone;
+			return false;
 		}
 	}
 
@@ -604,13 +597,13 @@ tacticUsage DlSatTester :: commonTacticBodySome ( const DLVertex& cur )	// for E
 }
 
 /// expansion rule for existential quantifier in the form ER {o}
-tacticUsage DlSatTester :: commonTacticBodyValue ( const TRole* R, const TIndividual* nom )
+bool DlSatTester :: commonTacticBodyValue ( const TRole* R, const TIndividual* nom )
 {
 	DepSet dep(curConcept.getDep());
 
 	// check blocking conditions
 	if ( recheckNodeDBlocked() )
-		return utDone;
+		return false;
 
 	incStat(nSomeCalls);
 
@@ -620,8 +613,8 @@ tacticUsage DlSatTester :: commonTacticBodyValue ( const TRole* R, const TIndivi
 	DlCompletionTree* realNode = nom->node->resolvePBlocker(dep);
 
 	// check if merging will lead to clash because of disjoint roles
-	if ( R->isDisjoint() && checkDisjointRoleClash ( curNode, realNode, R, dep ) == utClash )
-		return utClash;
+	if ( R->isDisjoint() && checkDisjointRoleClash ( curNode, realNode, R, dep ) )
+		return true;
 
 	// here we are sure that there is a nominal connected to a root node
 	encounterNominal = true;
@@ -638,7 +631,7 @@ tacticUsage DlSatTester :: commonTacticBodyValue ( const TRole* R, const TIndivi
 //	Support for SOME processing
 //-------------------------------------------------------------------------------
 
-tacticUsage DlSatTester :: createNewEdge ( const TRole* R, BipolarPointer C, unsigned int flags )
+bool DlSatTester :: createNewEdge ( const TRole* R, BipolarPointer C, unsigned int flags )
 {
 	const DepSet& dep = curConcept.getDep();
 
@@ -646,17 +639,13 @@ tacticUsage DlSatTester :: createNewEdge ( const TRole* R, BipolarPointer C, uns
 	if ( recheckNodeDBlocked() )
 	{
 		incStat(nUseless);
-		return utDone;
+		return false;
 	}
 
 	DlCompletionTreeArc* pA = createOneNeighbour ( R, dep );
 
 	// add necessary label
-	if ( initNewNode ( pA->getArcEnd(), dep, C ) == utClash ||
-		 setupEdge ( pA, dep, flags ) == utClash )
-		return utClash;
-	else
-		return utDone;
+	return initNewNode ( pA->getArcEnd(), dep, C ) || setupEdge ( pA, dep, flags );
 }
 
 /// create new ROLE-neighbour to curNode; return edge to it
@@ -748,7 +737,7 @@ DlSatTester :: applyAllGeneratingRules ( DlCompletionTree* node )
 	}
 }
 
-tacticUsage
+bool
 DlSatTester :: setupEdge ( DlCompletionTreeArc* pA, const DepSet& dep, unsigned int flags )
 {
 	DlCompletionTree* child = pA->getArcEnd();
@@ -776,16 +765,16 @@ DlSatTester :: setupEdge ( DlCompletionTreeArc* pA, const DepSet& dep, unsigned 
 	}
 
 	// all done
-	return utDone;
+	return false;
 }
 
-tacticUsage DlSatTester :: applyUniversalNR ( DlCompletionTree* Node,
+bool DlSatTester :: applyUniversalNR ( DlCompletionTree* Node,
 											  const DlCompletionTreeArc* arcSample,
 											  const DepSet& dep_, unsigned int flags )
 {
 	// check whether a flag is set
 	if ( flags == 0 )
-		return utDone;
+		return false;
 
 	const TRole* R = arcSample->getRole();
 	DepSet dep = dep_ + arcSample->getDep();
@@ -840,11 +829,11 @@ tacticUsage DlSatTester :: applyUniversalNR ( DlCompletionTree* Node,
 		}
 	}
 
-	return utDone;
+	return false;
 }
 
 	/// add necessary concepts to the head of the new EDGE
-tacticUsage
+bool
 DlSatTester :: initHeadOfNewEdge ( DlCompletionTree* node, const TRole* R, const DepSet& dep, const char* reason )
 {
 	// define return value
@@ -863,14 +852,14 @@ DlSatTester :: initHeadOfNewEdge ( DlCompletionTree* node, const TRole* R, const
 			switchResult ( addToDoEntry ( node, (*r)->getBPDomain(), dep, reason ) );
 #	endif
 
-	return utDone;
+	return false;
 }
 
 //-------------------------------------------------------------------------------
 //	Func/LE/GE processing
 //-------------------------------------------------------------------------------
 
-tacticUsage DlSatTester :: commonTacticBodyFunc ( const DLVertex& cur )	// for <=1 R concepts
+bool DlSatTester :: commonTacticBodyFunc ( const DLVertex& cur )	// for <=1 R concepts
 {
 #ifdef ENABLE_CHECKING
 	fpp_assert ( isPositive(curConcept.bp()) && isFunctionalVertex(cur) );
@@ -883,7 +872,7 @@ tacticUsage DlSatTester :: commonTacticBodyFunc ( const DLVertex& cur )	// for <
 	incStat(nFuncCalls);
 
 	if ( isQuickClashLE(cur) )
-		return utClash;
+		return true;
 
 	// locate all R-neighbours of curNode
 	DepSet dummy;	// not used
@@ -891,7 +880,7 @@ tacticUsage DlSatTester :: commonTacticBodyFunc ( const DLVertex& cur )	// for <
 
 	// check if we have nodes to merge
 	if ( EdgesToMerge.size() < 2 )
-		return utDone;
+		return false;
 
 	// merge all nodes to the first (the least wrt nominal hierarchy) found node
 	EdgeVector::iterator q = EdgesToMerge.begin();
@@ -905,11 +894,11 @@ tacticUsage DlSatTester :: commonTacticBodyFunc ( const DLVertex& cur )	// for <
 		if ( !(*q)->getArcEnd()->isPBlocked() )
 			switchResult ( Merge ( (*q)->getArcEnd(), sample, depF+(*q)->getDep() ) );
 
-	return utDone;
+	return false;
 }
 
 
-tacticUsage DlSatTester :: commonTacticBodyLE ( const DLVertex& cur )	// for <=nR.C concepts
+bool DlSatTester :: commonTacticBodyLE ( const DLVertex& cur )	// for <=nR.C concepts
 {
 #ifdef ENABLE_CHECKING
 	fpp_assert ( isPositive(curConcept.bp()) && ( cur.Type() == dtLE ) );
@@ -943,7 +932,7 @@ tacticUsage DlSatTester :: commonTacticBodyLE ( const DLVertex& cur )	// for <=n
 	// if we are here that it IS first LE call
 
 	if ( isQuickClashLE(cur) )
-		return utClash;
+		return true;
 
 	// we need to repeate merge until there will be necessary amount of edges
 	while (1)
@@ -956,7 +945,7 @@ tacticUsage DlSatTester :: commonTacticBodyLE ( const DLVertex& cur )	// for <=n
 
 			// if the number of R-neighbours satisfies condition -- nothing to do
 			if ( EdgesToMerge.size() <= cur.getNumberLE() )
-				return utDone;
+				return false;
 
 			// init context
 			createBCLE();
@@ -976,7 +965,7 @@ applyLE:	// skip init, because here we are after restoring
 		if ( bcLE->noMoreLEOptions() )
 		{	// set global clashset to cummulative one from previous branch failures
 			useBranchDep();
-			return utClash;
+			return true;
 		}
 
 		// get from- and to-arcs using corresponding indexes in Edges
@@ -1025,7 +1014,7 @@ applyLE:	// skip init, because here we are after restoring
 	}
 }
 
-tacticUsage DlSatTester :: commonTacticBodyGE ( const DLVertex& cur )	// for >=nR.C concepts
+bool DlSatTester :: commonTacticBodyGE ( const DLVertex& cur )	// for >=nR.C concepts
 {
 #ifdef ENABLE_CHECKING
 	fpp_assert ( isNegative(curConcept.bp()) && cur.Type() == dtLE );
@@ -1033,12 +1022,12 @@ tacticUsage DlSatTester :: commonTacticBodyGE ( const DLVertex& cur )	// for >=n
 
 	// check blocking conditions
 	if ( recheckNodeDBlocked() )
-		return utDone;
+		return false;
 
 	incStat(nGeCalls);
 
 	if ( isQuickClashGE(cur) )
-		return utClash;
+		return true;
 
 	// create N new different edges
 	return createDifferentNeighbours ( cur.getRole(), cur.getC(), curConcept.getDep(), cur.getNumberGE(), BlockableLevel );
@@ -1049,7 +1038,7 @@ tacticUsage DlSatTester :: commonTacticBodyGE ( const DLVertex& cur )	// for >=n
 //-------------------------------------------------------------------------------
 
 /// create N R-neighbours of curNode with given Nominal LEVEL labelled with C
-tacticUsage DlSatTester :: createDifferentNeighbours ( const TRole* R, BipolarPointer C, const DepSet& dep,
+bool DlSatTester :: createDifferentNeighbours ( const TRole* R, BipolarPointer C, const DepSet& dep,
 													   unsigned int n, CTNominalLevel level )
 {
 	// create N new edges with the same IR
@@ -1073,7 +1062,7 @@ tacticUsage DlSatTester :: createDifferentNeighbours ( const TRole* R, BipolarPo
 	// re-apply all <= NR in curNode; do it only once for all created nodes; no need for Irr
 	switchResult ( applyUniversalNR ( curNode, pA, dep, redoFunc|redoAtMost ) );
 
-	return utDone;
+	return false;
 }
 
 		/// check if ATLEAST and ATMOST restrictions are in clash; setup depset from CUR
@@ -1126,7 +1115,7 @@ DlSatTester :: checkMergeClash ( const CGLabel& from, const CGLabel& to, const D
 	return clash;
 }
 
-tacticUsage DlSatTester :: mergeLabels ( const CGLabel& from, DlCompletionTree* to, const DepSet& dep )
+bool DlSatTester :: mergeLabels ( const CGLabel& from, DlCompletionTree* to, const DepSet& dep )
 {
 	CGLabel::const_iterator p, p_end;
 	CGLabel& lab(to->label());
@@ -1155,10 +1144,10 @@ tacticUsage DlSatTester :: mergeLabels ( const CGLabel& from, DlCompletionTree* 
 		else
 			switchResult ( insertToDoEntry ( to, ConceptWDep(*p,dep), DLHeap[*p].Type(), "M" ) );
 
-	return utDone;
+	return false;
 }
 
-tacticUsage DlSatTester :: Merge ( DlCompletionTree* from, DlCompletionTree* to, const DepSet& depF )
+bool DlSatTester :: Merge ( DlCompletionTree* from, DlCompletionTree* to, const DepSet& depF )
 {
 	// if node is already purged -- nothing to do
 	fpp_assert ( !from->isPBlocked() );
@@ -1179,12 +1168,12 @@ tacticUsage DlSatTester :: Merge ( DlCompletionTree* from, DlCompletionTree* to,
 	if ( CGraph.nonMergable ( from, to, dep ) )
 	{
 		setClashSet(dep);
-		return utClash;
+		return true;
 	}
 
 	// check for the clash before doing anything else
 	if ( checkMergeClash ( from->label(), to->label(), depF, to->getId() ) )
-		return utClash;
+		return true;
 
 	// copy all node labels
 	switchResult ( mergeLabels ( from->label(), to, depF ) );
@@ -1200,8 +1189,8 @@ tacticUsage DlSatTester :: Merge ( DlCompletionTree* from, DlCompletionTree* to,
 	for ( q = edges.begin(); q != q_end; ++q )
 		if ( (*q)->getRole()->isDisjoint() &&
 			 checkDisjointRoleClash ( (*q)->getReverse()->getArcEnd(), (*q)->getArcEnd(),
-			 						  (*q)->getRole(), depF ) == utClash )
-			return utClash;
+			 						  (*q)->getRole(), depF ) )
+			return true;
 
 	// nothing more to do with data nodes
 	if ( to->isDataNode() )	// data concept -- run data center for it
@@ -1212,18 +1201,18 @@ tacticUsage DlSatTester :: Merge ( DlCompletionTree* from, DlCompletionTree* to,
 		switchResult ( applyUniversalNR ( to, *q, depF, redoForall|redoFunc|redoAtMost|redoIrr ) );
 
 	// we do real action here, so the return value
-	return utDone;
+	return false;
 }
 
-tacticUsage
+bool
 DlSatTester :: checkDisjointRoleClash ( DlCompletionTree* from, DlCompletionTree* to,
 										const TRole* R, const DepSet& dep )
 {
 	// try to check whether link from->to labelled with something disjoint with R
 	for ( DlCompletionTree::const_edge_iterator p = from->begin(), p_end = from->end(); p != p_end; ++p )
 		if ( checkDisjointRoleClash ( *p, to, R, dep ) )
-			return utClash;
-	return utDone;
+			return true;
+	return false;
 }
 
 // compare 2 CT edges wrt blockable/nominal nodes at their ends
@@ -1266,7 +1255,7 @@ DlSatTester :: findNeighbours ( const TRole* Role, BipolarPointer c, DepSet& Dep
 //	Choose-rule processing
 //-------------------------------------------------------------------------------
 
-tacticUsage DlSatTester :: commonTacticBodyChoose ( const TRole* R, BipolarPointer C )
+bool DlSatTester :: commonTacticBodyChoose ( const TRole* R, BipolarPointer C )
 {
 	DlCompletionTree::edge_iterator p;
 
@@ -1275,7 +1264,7 @@ tacticUsage DlSatTester :: commonTacticBodyChoose ( const TRole* R, BipolarPoint
 		if ( (*p)->isNeighbour(R) )
 			switchResult ( applyChooseRule ( (*p)->getArcEnd(), C ) );
 
-	return utDone;
+	return false;
 }
 
 //-------------------------------------------------------------------------------
@@ -1283,10 +1272,10 @@ tacticUsage DlSatTester :: commonTacticBodyChoose ( const TRole* R, BipolarPoint
 //-------------------------------------------------------------------------------
 
 /// apply choose-rule to given node
-tacticUsage DlSatTester :: applyChooseRule ( DlCompletionTree* node, BipolarPointer C )
+bool DlSatTester :: applyChooseRule ( DlCompletionTree* node, BipolarPointer C )
 {
 	if ( node->isLabelledBy(C) || node->isLabelledBy(inverse(C)) )
-		return utDone;
+		return false;
 
 	// now node will be labelled with ~C or C
 	if ( isFirstBranchCall() )
@@ -1310,7 +1299,7 @@ tacticUsage DlSatTester :: applyChooseRule ( DlCompletionTree* node, BipolarPoin
 //	NN rule processing
 //-------------------------------------------------------------------------------
 
-tacticUsage DlSatTester :: commonTacticBodyNN ( const DLVertex& cur )	// NN-rule
+bool DlSatTester :: commonTacticBodyNN ( const DLVertex& cur )	// NN-rule
 {
 	// here we KNOW that NN-rule is applicable, so skip some tests
 	incStat(nNNCalls);
@@ -1324,7 +1313,7 @@ tacticUsage DlSatTester :: commonTacticBodyNN ( const DLVertex& cur )	// NN-rule
 	if ( bcNN->noMoreNNOptions(cur.getNumberLE()) )
 	{	// set global clashset to cummulative one from previous branch failures
 		useBranchDep();
-		return utClash;
+		return true;
 	}
 
 	// take next NN number; save it as SAVE() will reset it to 0
@@ -1345,7 +1334,7 @@ tacticUsage DlSatTester :: commonTacticBodyNN ( const DLVertex& cur )	// NN-rule
 	// now remember NR we just created: it is (<= curNN R), so have to find it
 	switchResult ( addToDoEntry ( curNode, curConcept.bp() + (cur.getNumberLE()-NN), curDep, "NN" ) );
 
-	return utDone;
+	return false;
 }
 
 //-------------------------------------------------------------------------------
@@ -1387,16 +1376,16 @@ bool DlSatTester :: isNNApplicable ( const TRole* r, BipolarPointer C, BipolarPo
 //	Support for (\neg) \E R.Self
 //-------------------------------------------------------------------------------
 
-tacticUsage DlSatTester :: commonTacticBodySomeSelf ( const TRole* R )
+bool DlSatTester :: commonTacticBodySomeSelf ( const TRole* R )
 {
 	// check blocking conditions
 	if ( recheckNodeDBlocked() )
-		return utDone;
+		return false;
 
 	// nothing to do if R-loop already exists
 	for ( DlCompletionTree::const_edge_iterator p = curNode->begin(), p_end = curNode->end(); p < p_end; ++p )
 		if ( (*p)->getArcEnd() == curNode && (*p)->isNeighbour(R) )
-			return utDone;
+			return false;
 
 	// create an R-loop through curNode
 	const DepSet& dep = curConcept.getDep();
@@ -1404,27 +1393,27 @@ tacticUsage DlSatTester :: commonTacticBodySomeSelf ( const TRole* R )
 	return setupEdge ( pA, dep, redoForall|redoFunc|redoAtMost|redoIrr );
 }
 
-tacticUsage DlSatTester :: commonTacticBodyIrrefl ( const TRole* R )
+bool DlSatTester :: commonTacticBodyIrrefl ( const TRole* R )
 {
 	// return clash if R-loop is found
 	for ( DlCompletionTree::const_edge_iterator p = curNode->begin(), p_end = curNode->end(); p < p_end; ++p )
-		if ( checkIrreflexivity ( *p, R, curConcept.getDep() ) == utClash )
-			return utClash;
+		if ( checkIrreflexivity ( *p, R, curConcept.getDep() ) )
+			return true;
 
-	return utDone;
+	return false;
 }
 
 //-------------------------------------------------------------------------------
 //	Support for projection R\C -> P
 //-------------------------------------------------------------------------------
 
-tacticUsage DlSatTester :: commonTacticBodyProj ( const TRole* R, BipolarPointer C, const TRole* ProjR )
+bool DlSatTester :: commonTacticBodyProj ( const TRole* R, BipolarPointer C, const TRole* ProjR )
 {
 	// find an R-edge, try to apply projection-rule to it
 
 	// if ~C is in the label of curNode, do nothing
 	if ( curNode->isLabelledBy(inverse(C)) )
-		return utDone;
+		return false;
 
 	// FIXME!! checkProjection() might change curNode's edge vector and thusly invalidate iterators
 	DlCompletionTree::const_edge_iterator p = curNode->begin(), p_end = curNode->end();
@@ -1436,17 +1425,17 @@ tacticUsage DlSatTester :: commonTacticBodyProj ( const TRole* R, BipolarPointer
 			switchResult ( checkProjection ( *p, C, ProjR ) );
 	}
 
-	return utDone;
+	return false;
 }
 
-tacticUsage DlSatTester :: checkProjection ( DlCompletionTreeArc* pA, BipolarPointer C, const TRole* ProjR )
+bool DlSatTester :: checkProjection ( DlCompletionTreeArc* pA, BipolarPointer C, const TRole* ProjR )
 {
 	// nothing to do if pA is labelled by ProjR as well
 	if ( pA->isNeighbour(ProjR) )
-		return utDone;
+		return false;
 	// if ~C is in the label of curNode, do nothing
 	if ( curNode->isLabelledBy(inverse(C)) )
-		return utDone;
+		return false;
 
 	// neither C nor ~C are in the label: make a choice
 	DepSet dep(curConcept.getDep());
@@ -1475,6 +1464,6 @@ tacticUsage DlSatTester :: checkProjection ( DlCompletionTreeArc* pA, BipolarPoi
 	pA = CGraph.addRoleLabel ( curNode, child, pA->isPredEdge(), ProjR, dep );
 	switchResult ( setupEdge ( pA, dep, redoForall|redoFunc|redoAtMost|redoIrr ) );
 
-	return utDone;
+	return false;
 }
 

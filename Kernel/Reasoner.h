@@ -31,9 +31,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ToDoList.h"
 #include "tFastSet.h"
 
-// Enum for usage the Tactics to a ToDoEntry
-enum tacticUsage { utDone, utClash };
-
 #ifdef _USE_LOGGING	// don't gather statistics w/o logging
 #	define USE_REASONING_STATISTICS
 #endif
@@ -350,15 +347,15 @@ protected:	// methods
 	//------------  methods  ----------------------------
 	// adds p to the labels of node n.
 	// returns utDone, utClash or utUnused
-	tacticUsage addToDoEntry ( DlCompletionTree* node, const ConceptWDep& C, const char* reason = NULL );
+	bool addToDoEntry ( DlCompletionTree* node, const ConceptWDep& C, const char* reason = NULL );
 		/// synonym to the above
-	tacticUsage addToDoEntry ( DlCompletionTree* node, BipolarPointer c, const DepSet& dep, const char* reason = NULL )
+	bool addToDoEntry ( DlCompletionTree* node, BipolarPointer c, const DepSet& dep, const char* reason = NULL )
 		{ return addToDoEntry ( node, ConceptWDep(c,dep), reason ); }
 		/// insert C to the label of NODE; do necessary updates; may return Clash in case of data P
-	tacticUsage insertToDoEntry ( DlCompletionTree* node, const ConceptWDep& C,
+	bool insertToDoEntry ( DlCompletionTree* node, const ConceptWDep& C,
 								  DagTag tag, const char* reason );
 		/// if something was added to cached node N, un- or re-cache it; @return result of re-cache
-	tacticUsage correctCachedEntry ( DlCompletionTree* n );
+	bool correctCachedEntry ( DlCompletionTree* n );
 
 	// label access interface
 
@@ -436,9 +433,9 @@ protected:	// methods
 		return ret;
 	}
 		/// transform model cache status into tactic usage
-	static tacticUsage usageByState ( modelCacheState status )
+	static bool usageByState ( modelCacheState status )
 	{
-		return (status == csInvalid ? utClash : utDone);
+		return status == csInvalid;
 	}
 
 //-----------------------------------------------------------------------------
@@ -464,43 +461,43 @@ protected:	// methods
 	 */
 
 		/// main calling method; wrapper for Body
-	tacticUsage commonTactic ( void );
+	bool commonTactic ( void );
 		/// choose proper tactic based on type of a concept constructor
-	tacticUsage commonTacticBody ( const DLVertex& cur );
+	bool commonTacticBody ( const DLVertex& cur );
 		/// expansion rule for (non)primitive concept
-	tacticUsage commonTacticBodyId ( const DLVertex& cur );
+	bool commonTacticBodyId ( const DLVertex& cur );
 		/// expansion rule for (non)primitive singleton concept
-	tacticUsage commonTacticBodySingleton ( const DLVertex& cur );
+	bool commonTacticBodySingleton ( const DLVertex& cur );
 		/// expansion rule for conjunction
-	tacticUsage commonTacticBodyAnd ( const DLVertex& cur );
+	bool commonTacticBodyAnd ( const DLVertex& cur );
 		/// expansion rule for disjunction
-	tacticUsage commonTacticBodyOr ( const DLVertex& cur );
+	bool commonTacticBodyOr ( const DLVertex& cur );
 		/// expansion rule for general existential quantifier
-	tacticUsage commonTacticBodySome ( const DLVertex& cur );
+	bool commonTacticBodySome ( const DLVertex& cur );
 		/// expansion rule for existential quantifier in the form \ER{nom}
-	tacticUsage commonTacticBodyValue ( const TRole* R, const TIndividual* nom );
+	bool commonTacticBodyValue ( const TRole* R, const TIndividual* nom );
 		/// expansion rule for universal restriction
-	tacticUsage commonTacticBodyAll ( const DLVertex& cur );
+	bool commonTacticBodyAll ( const DLVertex& cur );
 		/// expansion rule for universal restriction with simple role using RA
-	tacticUsage commonTacticBodyAllSimple ( const DLVertex& cur );
+	bool commonTacticBodyAllSimple ( const DLVertex& cur );
 		/// expansion rule for universal restriction with non-simple role using RA
-	tacticUsage commonTacticBodyAllComplex ( const DLVertex& cur );
+	bool commonTacticBodyAllComplex ( const DLVertex& cur );
 		/// expansion rule for \E R{Self}
-	tacticUsage commonTacticBodySomeSelf ( const TRole* R );
+	bool commonTacticBodySomeSelf ( const TRole* R );
 		/// expansion rule for \neg\E R{Self}
-	tacticUsage commonTacticBodyIrrefl ( const TRole* R );
+	bool commonTacticBodyIrrefl ( const TRole* R );
 		/// expansion rule for at-least number restriction
-	tacticUsage commonTacticBodyGE ( const DLVertex& cur );
+	bool commonTacticBodyGE ( const DLVertex& cur );
 		/// expansion rule for at-most number restriction
-	tacticUsage commonTacticBodyLE ( const DLVertex& cur );
+	bool commonTacticBodyLE ( const DLVertex& cur );
 		/// expansion rule for choose-rule
-	tacticUsage commonTacticBodyChoose ( const TRole* R, BipolarPointer C );
+	bool commonTacticBodyChoose ( const TRole* R, BipolarPointer C );
 		/// expansion rule for functional restriction
-	tacticUsage commonTacticBodyFunc ( const DLVertex& cur );
+	bool commonTacticBodyFunc ( const DLVertex& cur );
 		/// expansion rule for at-most restriction in nominal node (NN-rule)
-	tacticUsage commonTacticBodyNN ( const DLVertex& cur );
+	bool commonTacticBodyNN ( const DLVertex& cur );
 		/// expansion rule for auxilliary projection-construction
-	tacticUsage commonTacticBodyProj ( const TRole* R, BipolarPointer C, const TRole* ProjR );
+	bool commonTacticBodyProj ( const TRole* R, BipolarPointer C, const TRole* ProjR );
 
 	// support for inapplicable tactics
 
@@ -509,13 +506,13 @@ protected:	// methods
 		/// @return true iff NN-rule wrt (<= R.C) is applicable to the curNode
 	bool isNNApplicable ( const TRole* r, BipolarPointer C, BipolarPointer stopper ) const;
 		/// apply rule-like actions for the concept P
-	tacticUsage applyExtraRules ( const TConcept* p );
+	bool applyExtraRules ( const TConcept* p );
 		/// apply rule-like actions for the concept P if necessary
 	inline
-	tacticUsage applyExtraRulesIf ( const TConcept* p )
+	bool applyExtraRulesIf ( const TConcept* p )
 	{
 		if ( !p->hasExtraRules() )
-			return utDone;
+			return false;
 		fpp_assert ( p->isPrimitive() );
 		return applyExtraRules(p);
 	}
@@ -523,7 +520,7 @@ protected:	// methods
 	// support for choose-rule
 
 		/// apply choose-rule for given range of edges
-	tacticUsage applyChooseRule ( DlCompletionTree* node, BipolarPointer C );
+	bool applyChooseRule ( DlCompletionTree* node, BipolarPointer C );
 
 	// support for creating/updating edge methods
 
@@ -532,11 +529,11 @@ protected:	// methods
 		/// apply all the generating rules for the (unblocked) current node
 	void applyAllGeneratingRules ( DlCompletionTree* node );
 		/// add C and T_G with given DEP-set to a NODE; @return DONE/CLASH
-	tacticUsage initNewNode ( DlCompletionTree* node, const DepSet& dep, BipolarPointer C );
+	bool initNewNode ( DlCompletionTree* node, const DepSet& dep, BipolarPointer C );
 		/// apply reflexive roles to the (newly created) NODE with apropriate DEP; @return true for clash
 	bool applyReflexiveRoles ( DlCompletionTree* node, const DepSet& dep );
 		/// add necessary concepts to the NODE of the new edge, labelled with R
-	tacticUsage initHeadOfNewEdge ( DlCompletionTree* node, const TRole* R, const DepSet& dep, const char* reason );
+	bool initHeadOfNewEdge ( DlCompletionTree* node, const TRole* R, const DepSet& dep, const char* reason );
 
 	// support for existential-like rules
 
@@ -552,9 +549,9 @@ protected:	// methods
 		return where != NULL;
 	}
 		/// aux method for setting up new edge PA
-	tacticUsage setupEdge ( DlCompletionTreeArc* pA, const DepSet& curDep, unsigned int flags );
+	bool setupEdge ( DlCompletionTreeArc* pA, const DepSet& curDep, unsigned int flags );
 		/// aux method for creating new edge from curNode with given ROLE edge label and CONCEPT at the final label
-	tacticUsage createNewEdge ( const TRole* Role, BipolarPointer Concept, unsigned int flags );
+	bool createNewEdge ( const TRole* Role, BipolarPointer Concept, unsigned int flags );
 		/// create new ROLE-neighbour with LEVEL to curNode; return edge to it
 	DlCompletionTreeArc* createOneNeighbour ( const TRole* Role, const DepSet& dep,
 											  CTNominalLevel level = BlockableLevel );
@@ -565,7 +562,7 @@ protected:	// methods
 			apply AR.C in and <= nR (if needed) in NODE's label where R is label of arcSample.
 			Set of applicable concepts is defined by redoForallFlags value.
 		*/
-	tacticUsage applyUniversalNR ( DlCompletionTree* Node, const DlCompletionTreeArc* arcSample,
+	bool applyUniversalNR ( DlCompletionTree* Node, const DlCompletionTreeArc* arcSample,
 								   const DepSet& dep, unsigned int flags );
 
 	// support for branching rules
@@ -601,12 +598,12 @@ protected:	// methods
 		/// Aux method for locating OR node characteristics; @return true if node is labelled by one of DJs
 	bool planOrProcessing ( const DLVertex& cur, DepSet& dep );
 		/// aux method for disjunction processing
-	tacticUsage processOrEntry ( void );
+	bool processOrEntry ( void );
 
 	// support for (qualified) number restrictions
 
 		/// create N R-neighbours of curNode with given Nominal LEVEL labelled with C
-	tacticUsage createDifferentNeighbours ( const TRole* R, BipolarPointer C, const DepSet& dep,
+	bool createDifferentNeighbours ( const TRole* R, BipolarPointer C, const DepSet& dep,
 											unsigned int n, CTNominalLevel level );
 
 		/// check whether a node represents a functional one
@@ -662,11 +659,11 @@ protected:	// methods
 		/// aux method that checks whether clash occurs during the merge of labels
 	bool checkMergeClash ( const CGLabel& from, const CGLabel& to, const DepSet& dep, unsigned int nodeId );
 		/// aux method that merge FROM label to the TO node with an appropriadte dep-set
-	tacticUsage mergeLabels ( const CGLabel& from, DlCompletionTree* to, const DepSet& dep );
+	bool mergeLabels ( const CGLabel& from, DlCompletionTree* to, const DepSet& dep );
 		/// merge FROM node into TO node with additional dep-set DEPF
-	tacticUsage Merge ( DlCompletionTree* from, DlCompletionTree* to, const DepSet& depF );
+	bool Merge ( DlCompletionTree* from, DlCompletionTree* to, const DepSet& depF );
 		/// check whether clash occures due to new edge from FROM to TO labelled with R
-	tacticUsage checkDisjointRoleClash ( DlCompletionTree* from, DlCompletionTree* to,
+	bool checkDisjointRoleClash ( DlCompletionTree* from, DlCompletionTree* to,
 										 const TRole* R, const DepSet& dep );
 		/// check whether clash occures EDGE to TO labelled with S disjoint with R
 	bool checkDisjointRoleClash ( const DlCompletionTreeArc* edge, DlCompletionTree* to,
@@ -684,45 +681,45 @@ protected:	// methods
 	// support for FORALL expansion
 
 		/** Perform expansion of (\neg \ER.Self).DEP to an EDGE */
-	tacticUsage checkIrreflexivity ( const DlCompletionTreeArc* edge,
+	bool checkIrreflexivity ( const DlCompletionTreeArc* edge,
 									 const TRole* R, const DepSet& dep )
 	{
 		// only loops counts here...
 		if ( edge->getArcEnd() != edge->getReverse()->getArcEnd() )
-			return utDone;
+			return false;
 		// which are labelled either with R or with R-
 		if ( !edge->isNeighbour(R) && !edge->isNeighbour(R->inverse()) )
-			return utDone;
+			return false;
 
 		// set up clash
 		setClashSet(dep);
 		updateClashSet(edge->getDep());
-		return utClash;
+		return true;
 	}
 
 		/** Perform expansion of (C=\AR{0}.X).DEP wrt RST to an EDGE with a given reason */
-	tacticUsage applyTransitions ( const DlCompletionTreeArc* edge, const RAStateTransitions& RST,
+	bool applyTransitions ( const DlCompletionTreeArc* edge, const RAStateTransitions& RST,
 								   BipolarPointer C, const DepSet& dep, const char* reason = NULL );
 
 	// support for the projection
 
 		/// apply projection to given edge if necessary
-	tacticUsage checkProjection ( DlCompletionTreeArc* pA, BipolarPointer C, const TRole* ProjR );
+	bool checkProjection ( DlCompletionTreeArc* pA, BipolarPointer C, const TRole* ProjR );
 
 	// datatype staff
 
 		/// @return true iff given data node contains inconsistent data constraints
 	bool hasDataClash ( const DlCompletionTree* node );
-		/// @return utClash iff given data node contains inconsistent data constraints
-	tacticUsage checkDataClash ( const DlCompletionTree* node )
+		/// @return true iff given data node contains inconsistent data constraints
+	bool checkDataClash ( const DlCompletionTree* node )
 	{
 		if ( hasDataClash(node) )
 		{
 			setClashSet(DTReasoner.getClashSet());
-			return utClash;
+			return true;
 		}
 		else
-			return utDone;
+			return false;
 	}
 
 	// logging actions
@@ -732,7 +729,7 @@ protected:	// methods
 		/// log start of processing of a ToDo entry
 	void logStartEntry ( void ) const;
 		/// log finish of processing of a ToDo entry
-	void logFinishEntry ( tacticUsage res ) const;
+	void logFinishEntry ( bool res ) const;
 		/// log the result of processing ACTION with entry (N,C{DEP})/REASON
 	void logNCEntry ( const DlCompletionTree* n, const ConceptWDep& C,
 					  const char* action, const char* reason ) const
@@ -924,22 +921,22 @@ inline void DlSatTester :: resetSessionFlags ( void )
 	dBlocked = NULL;
 }
 
-inline tacticUsage
+inline bool
 DlSatTester :: initNewNode ( DlCompletionTree* node, const DepSet& dep, BipolarPointer C )
 {
 	if ( node->isDataNode() )	// creating new data node -- do data check once in the end
 		checkDataNode = false;
 	node->setInit(C);
-	if ( addToDoEntry ( node, C, dep ) == utClash )
-		return utClash;
+	if ( addToDoEntry ( node, C, dep ) )
+		return true;
 	if ( node->isDataNode() )
-		return utDone;
-	if ( addToDoEntry ( node, tBox.getTG(), dep ) == utClash )
-		return utClash;
+		return false;
+	if ( addToDoEntry ( node, tBox.getTG(), dep ) )
+		return true;
 	if ( GCIs.isReflexive() && applyReflexiveRoles ( node, dep ) )
-		return utClash;
+		return true;
 
-	return utDone;
+	return false;
 }
 
 inline bool
@@ -948,8 +945,8 @@ DlSatTester :: runSat ( BipolarPointer p, BipolarPointer q )
 	prepareReasoner();
 
 	// use general method to init node with P and add Q then
-	if ( initNewNode ( CGraph.getRoot(), DepSet(), p ) == utClash ||
-		 addToDoEntry ( CGraph.getRoot(), ConceptWDep(q) ) == utClash )
+	if ( initNewNode ( CGraph.getRoot(), DepSet(), p ) ||
+		 addToDoEntry ( CGraph.getRoot(), ConceptWDep(q) ) )
 		return false;		// concept[s] unsatisfiable
 
 	// check satisfiability explicitly
@@ -967,18 +964,18 @@ DlSatTester :: checkDisjointRoles ( const TRole* R, const TRole* S )
 
 	// use general method to init node...
 	DepSet dummy;
-	if ( initNewNode ( CGraph.getRoot(), dummy, bpTOP ) == utClash )
+	if ( initNewNode ( CGraph.getRoot(), dummy, bpTOP ) )
 		return true;
 	// ... add edges with R and S...
 	curNode = CGraph.getRoot();
 	DlCompletionTreeArc* edgeR = createOneNeighbour ( R, dummy );
 	DlCompletionTreeArc* edgeS = createOneNeighbour ( S, dummy );
 	// init new nodes/edges. No need to apply restrictions, as no reasoning have been done yet.
-	if ( initNewNode ( edgeR->getArcEnd(), dummy, bpTOP ) == utClash
-		 || initNewNode ( edgeS->getArcEnd(), dummy, bpTOP ) == utClash
-		 || setupEdge ( edgeR, dummy, /*flags=*/0 ) == utClash
-		 || setupEdge ( edgeS, dummy, /*flags=*/0 ) == utClash
-		 || Merge ( edgeS->getArcEnd(), edgeR->getArcEnd(), dummy ) == utClash )
+	if ( initNewNode ( edgeR->getArcEnd(), dummy, bpTOP )
+		 || initNewNode ( edgeS->getArcEnd(), dummy, bpTOP )
+		 || setupEdge ( edgeR, dummy, /*flags=*/0 )
+		 || setupEdge ( edgeS, dummy, /*flags=*/0 )
+		 || Merge ( edgeS->getArcEnd(), edgeR->getArcEnd(), dummy ) )
 		return true;
 
 	// 2 roles are disjoint if current setting is unsatisfiable
@@ -993,15 +990,15 @@ DlSatTester :: checkIrreflexivity ( const TRole* R )
 
 	// use general method to init node...
 	DepSet dummy;
-	if ( initNewNode ( CGraph.getRoot(), dummy, bpTOP ) == utClash )
+	if ( initNewNode ( CGraph.getRoot(), dummy, bpTOP ) )
 		return true;
 	// ... add an R-loop
 	curNode = CGraph.getRoot();
 	DlCompletionTreeArc* edgeR = createOneNeighbour ( R, dummy );
 	// init new nodes/edges. No need to apply restrictions, as no reasoning have been done yet.
-	if ( initNewNode ( edgeR->getArcEnd(), dummy, bpTOP ) == utClash
-		 || setupEdge ( edgeR, dummy, /*flags=*/0 ) == utClash
-		 || Merge ( edgeR->getArcEnd(), CGraph.getRoot(), dummy ) == utClash )
+	if ( initNewNode ( edgeR->getArcEnd(), dummy, bpTOP )
+		 || setupEdge ( edgeR, dummy, /*flags=*/0 )
+		 || Merge ( edgeR->getArcEnd(), CGraph.getRoot(), dummy ) )
 		return true;
 
 	// R is irreflexive if current setting is unsatisfiable
@@ -1040,7 +1037,7 @@ inline bool DlSatTester :: tunedRestore ( void )
 		return straightforwardRestore ();
 }
 
-inline tacticUsage DlSatTester :: commonTacticBodyAll ( const DLVertex& cur )
+inline bool DlSatTester :: commonTacticBodyAll ( const DLVertex& cur )
 {
 #ifdef ENABLE_CHECKING
 	fpp_assert ( isPositive(curConcept.bp()) && cur.Type() == dtForall );

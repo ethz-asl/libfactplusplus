@@ -201,17 +201,17 @@ DlSatTester :: tryAddConcept ( const CWDArray& lab, const ConceptWDep& C )
 	}
 }
 
-tacticUsage
+bool
 DlSatTester :: addToDoEntry ( DlCompletionTree* node, const ConceptWDep& C, const char* reason )
 {
 	if ( C == bpTOP )	// simplest things first
-		return utDone;
+		return false;
 	if ( C == bpBOTTOM )
 	{
 		setClashSet(C.getDep());
 		if ( LLM.isWritable(llGTA) )
 			logClash ( node, C );
-		return utClash;
+		return true;
 	}
 
 	const DLVertex& v = DLHeap[C];
@@ -221,14 +221,14 @@ DlSatTester :: addToDoEntry ( DlCompletionTree* node, const ConceptWDep& C, cons
 	if ( tag == dtCollection )
 	{
 		if ( isNegative(C.bp()) )	// nothing to do
-			return utDone;
+			return false;
 		// setup and run and()
 		incStat(nTacticCalls);		// to balance nAndCalls later
 		DlCompletionTree* oldNode = curNode;
 		ConceptWDep oldConcept = curConcept;
 		curNode = node;
 		curConcept = C;
-		tacticUsage ret = commonTacticBodyAnd(v);
+		bool ret = commonTacticBodyAnd(v);
 		curNode = oldNode;
 		curConcept = oldConcept;
 		return ret;
@@ -240,9 +240,9 @@ DlSatTester :: addToDoEntry ( DlCompletionTree* node, const ConceptWDep& C, cons
 	case acrClash:	// clash -- return
 		if ( LLM.isWritable(llGTA) )
 			logClash ( node, C );
-		return utClash;
+		return true;
 	case acrExist:	// already exists -- nothing new
-		return utDone;
+		return false;
 	case acrDone:	// try was done
 		return insertToDoEntry ( node, C, tag, reason );
 	default:	// safety check
@@ -251,7 +251,7 @@ DlSatTester :: addToDoEntry ( DlCompletionTree* node, const ConceptWDep& C, cons
 }
 
 /// insert P to the label of N; do necessary updates; may return Clash in case of data node N
-tacticUsage
+bool
 DlSatTester :: insertToDoEntry ( DlCompletionTree* node, const ConceptWDep& C,
 								 DagTag tag, const char* reason = NULL )
 {
@@ -268,11 +268,11 @@ DlSatTester :: insertToDoEntry ( DlCompletionTree* node, const ConceptWDep& C,
 	TODO.addEntry ( node, tag, C );
 
 	if ( node->isDataNode() )	// data concept -- run data center for it
-		return checkDataNode ? checkDataClash(node) : utDone;
+		return checkDataNode ? checkDataClash(node) : false;
 	else if ( LLM.isWritable(llGTA) )	// inform about it
 		logEntry ( node, C, reason );
 
-	return utDone;
+	return false;
 }
 
 //-----------------------------------------------------------------------------
@@ -415,7 +415,7 @@ DlSatTester :: reportNodeCached ( modelCacheIan* cache, DlCompletionTree* node )
 	return status;
 }
 
-tacticUsage DlSatTester :: correctCachedEntry ( DlCompletionTree* n )
+bool DlSatTester :: correctCachedEntry ( DlCompletionTree* n )
 {
 	fpp_assert ( n->isCached() );	// safety check
 
@@ -494,7 +494,7 @@ bool DlSatTester :: applyReflexiveRoles ( DlCompletionTree* node, const DepSet& 
 	{
 		// create R-loop through the NODE
 		DlCompletionTreeArc* pA = CGraph.addRoleLabel ( node, node, /*isPredEdge=*/false, *p, dep );
-		if ( setupEdge ( pA, dep, 0 ) == utClash )
+		if ( setupEdge ( pA, dep, 0 ) )
 			return true;
 	}
 
@@ -562,7 +562,7 @@ bool DlSatTester :: checkSatisfiability ( void )
 				throw EFPPTimeout();
 		}
 		// here curNode/curConcept are set
-		if ( commonTactic() == utClash )	// clash found
+		if ( commonTactic() )	// clash found
 		{
 			if ( tunedRestore() )	// the concept is unsatisfiable
 				return false;
@@ -666,12 +666,12 @@ void DlSatTester :: logStartEntry ( void ) const
 	LL << DLHeap[curConcept].getTagName() << "}:";
 }
 
-void DlSatTester :: logFinishEntry ( tacticUsage res ) const
+void DlSatTester :: logFinishEntry ( bool res ) const
 {
 	CHECK_LL_RETURN(llGTA);	// useless but safe
 
 	LL << "]";
-	if ( res == utClash )
+	if ( res )
 		LL << " Clash" << getClashSet();
 #ifdef __DEBUG_FLUSH_LL
 	LL.flush ();

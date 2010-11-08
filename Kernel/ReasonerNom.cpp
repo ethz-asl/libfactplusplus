@@ -69,7 +69,7 @@ NominalReasoner :: consistentNominalCloud ( void )
 	bool result = false;
 
 	// reserve the root for the forthcoming reasoning
-	if ( initNewNode ( CGraph.getRoot(), DepSet(), bpTOP ) == utClash ||
+	if ( initNewNode ( CGraph.getRoot(), DepSet(), bpTOP ) ||
 		 initNominalCloud() )	// clash during initialisation
 		result = false;
 	else	// perform a normal reasoning
@@ -144,7 +144,7 @@ NominalReasoner :: initRelatedNominals ( const TRelated* rel )
 	DepSet dep;	// empty dep-set
 
 	// check if merging will lead to clash because of disjoint roles
-	if ( R->isDisjoint() && checkDisjointRoleClash ( from, to, R, dep ) == utClash )
+	if ( R->isDisjoint() && checkDisjointRoleClash ( from, to, R, dep ) )
 		return true;
 
 	// create new edge between FROM and TO
@@ -153,5 +153,5 @@ NominalReasoner :: initRelatedNominals ( const TRelated* rel )
 
 	// return OK iff setup new enge didn't lead to clash
 	// do NOT need to re-check anything: nothing was processed yet
-	return setupEdge ( pA, dep, 0 ) == utClash;
+	return setupEdge ( pA, dep, 0 );
 }
