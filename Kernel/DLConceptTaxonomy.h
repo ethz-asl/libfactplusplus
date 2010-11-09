@@ -205,11 +205,14 @@ inline bool DLConceptTaxonomy :: isUnsatisfiable ( void )
 	{	// add to BOTTOM
 		getBottomVertex()->addSynonym(p);
 		delete Current;
-		Current = NULL;
 	}
 	else
-		const_cast<TConcept*>(p)->setTaxVertex(getBottomVertex());
+	{
+		Current->copyFromNode(getBottomVertex());
+		const_cast<TConcept*>(p)->setTaxVertex(Current);
+	}
 
+	Current = NULL;
 	return true;
 }
 
