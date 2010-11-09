@@ -132,6 +132,10 @@ void TBox :: addConceptToHeap ( TConcept* pConcept )
 		(pConcept->isSingleton() ? dtPSingleton : dtPConcept):
 		(pConcept->isSingleton() ? dtNSingleton : dtNConcept);
 
+	// NSingleton is a nominal
+	if ( tag == dtNSingleton && !pConcept->isSynonym() )
+		static_cast<TIndividual*>(pConcept)->setNominal();
+
 	// new concept's addition
 	DLVertex* ver = new DLVertex(tag);
 	ver->setConcept(pConcept);
