@@ -39,8 +39,12 @@ bool TaxonomyVertex :: removeLink ( bool upDirection, TaxonomyVertex* p )
 	return false;
 }
 
-void TaxonomyVertex :: incorporate ( void )
+void TaxonomyVertex :: incorporate ( const ClassifiableEntry* entry )
 {
+	// setup sample
+	setSample(entry);
+
+	// setup links
 	iterator u, u_end = end(/*upDirection=*/true), d, d_end = end(/*upDirection=*/false);
 
 	// correct links on lower concepts...
@@ -87,10 +91,10 @@ void TaxonomyVertex :: printSynonyms ( std::ostream& o ) const
 	fpp_assert ( sample != NULL );
 
 	if ( synonyms.empty() )
-		o << '"' << sample->getName() << '"';
+		o << '"' << getPrimer()->getName() << '"';
 	else
 	{
-		o << "(\"" << sample->getName();
+		o << "(\"" << getPrimer()->getName();
 		for ( syn_iterator q = begin_syn(), q_end = end_syn(); q < q_end; ++q )
 			o << "\"=\"" << (*q)->getName();
 		o << "\")";

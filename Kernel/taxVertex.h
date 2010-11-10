@@ -112,13 +112,27 @@ public:		// flags interface
 	syn_iterator begin_syn ( void ) const { return synonyms.begin(); }
 	syn_iterator end_syn ( void ) const { return synonyms.end(); }
 
+		/// mark vertex as the one corresponding to a given ENTRY
+	void setHostVertex ( const ClassifiableEntry* entry ) { const_cast<ClassifiableEntry*>(entry)->setTaxVertex(this); }
+		/// set sample to ENTRY
+	void setSample ( const ClassifiableEntry* entry )
+	{
+		sample = entry;
+		setHostVertex(entry);
+	}
+
 public:
-		/// the only c'tor
-	TaxonomyVertex ( const ClassifiableEntry* p )
-		: sample(p)
+		/// empty c'tor
+	TaxonomyVertex ( void )
+		: sample(NULL)
 	{
 		initFlags();
-		const_cast<ClassifiableEntry*>(p)->setTaxVertex (this);
+	}
+		/// init c'tor; use it only for Top/Bot initialisations
+	TaxonomyVertex ( const ClassifiableEntry* p )
+	{
+		setSample(p);
+		initFlags();
 	}
 		/// empty d'tor
 	~TaxonomyVertex ( void ) {}
@@ -126,7 +140,7 @@ public:
 	void addSynonym ( const ClassifiableEntry* p )
 	{
 		synonyms.push_back(p);
-		const_cast<ClassifiableEntry*>(p)->setTaxVertex (this);
+		setHostVertex(p);
 	}
 	const ClassifiableEntry* getPrimer ( void ) const { return sample; }
 
@@ -143,16 +157,6 @@ public:
 	const_iterator begin ( bool upDirection ) const { return neigh(upDirection).begin(); }
 	const_iterator end ( bool upDirection ) const { return neigh(upDirection).end(); }
 
-		/// copy node information (label) into the given one
-	void copyToNode ( TaxonomyVertex* v )
-	{
-		v->addSynonym(sample);
-		for ( syn_iterator p = begin_syn(), p_end = end_syn(); p < p_end; ++p )
-		{
-			fpp_unreachable();
-			v->addSynonym (*p);
-		}
-	}
 		/// copy node information (label) from the given one
 	void copyFromNode ( TaxonomyVertex* v )
 	{
@@ -166,7 +170,7 @@ public:
 	/** Adds vertex to existing graph. For every Up, Down such that (Up->Down)
 		creates couple of links (Up->this), (this->Down). Don't work with synonyms!!!
 	*/
-	void incorporate ( void );
+	void incorporate ( const ClassifiableEntry* entry );
 		/// @return v if node represents a synonym (v=Up[i]==Down[j]); @return NULL otherwise
 	TaxonomyVertex* isSynonymNode ( void )
 	{

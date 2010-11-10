@@ -60,24 +60,27 @@ Taxonomy :: insertCurrent ( TaxonomyVertex* syn )
 		// check if current concept is synonym to someone
 		if ( syn != NULL )
 		{
-			Current->copyToNode(syn);
+			syn->addSynonym(curEntry);
 
 			if ( LLM.isWritable(llTaxInsert) )
-				LL << "\nTAX:set " << Current->getPrimer()->getName() << " equal " << syn->getPrimer()->getName();
+				LL << "\nTAX:set " << curEntry->getName() << " equal " << syn->getPrimer()->getName();
 
 			delete Current;
 		}
 		else	// just incorporate it as a special entry and save into Graph
 		{
-			Current->incorporate();
+			Current->incorporate(curEntry);
 			Graph.push_back(Current);
 		}
 
 		Current = NULL;
 	}
 	else	// check if node is synonym of existing one and copy EXISTING info to Current
+	{
+		Current->setSample(curEntry);
 		if ( syn != NULL )
 			Current->copyFromNode(syn);
+	}
 }
 
 void

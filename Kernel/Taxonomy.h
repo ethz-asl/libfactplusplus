@@ -133,7 +133,7 @@ protected:	// methods
 		/// initialise aux entry with given concept p
 	void setCurrentEntry ( const ClassifiableEntry* p )
 	{
-		Current = new TaxonomyVertex (p);
+		Current = new TaxonomyVertex();
 		curEntry = p;
 	}
 
