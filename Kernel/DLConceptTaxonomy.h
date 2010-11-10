@@ -110,13 +110,6 @@ protected:	// methods
 	//--	Tunable methods (depending on taxonomy type)
 	//-----------------------------------------------------------------
 
-		/// check if told subsumer P have to be classified during current session
-	virtual bool needToldClassification ( ClassifiableEntry* p ) const
-	{
-		if ( useCompletelyDefined && !static_cast<TConcept*>(p)->isPrimitive() )
-			return false;
-		return true;
-	}
 		/// prepare told subsumers for given entry if necessary
 //	virtual void buildToldSubsumers ( ClassifiableEntry* p ATTR_UNUSED ) {}
 		/// check if no classification needed (synonym, orphan, unsatisfiable)

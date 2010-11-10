@@ -190,8 +190,6 @@ protected:	// methods
 	//--	DFS-based classification
 	//-----------------------------------------------------------------
 
-		/// check if told subsumer P have to be classified during current session
-	virtual bool needToldClassification ( ClassifiableEntry* p ATTR_UNUSED ) const { return true; }
 		/// prepare known subsumers for given entry if necessary
 	virtual KnownSubsumers* buildKnownSubsumers ( ClassifiableEntry* p )
 		{ return new ToldSubsumers(p->told_begin(), p->told_end()); }
@@ -317,8 +315,6 @@ public:		// interface
 
 		/// set Completely Defined flag
 	void setCompletelyDefined ( bool use ) { useCompletelyDefined = use; }
-		/// set Insert Into Taxonomy flag
-	void setInsertIntoTaxonomy ( bool use ) { willInsertIntoTaxonomy = use; }
 		/// call this method after taxonomy is built
 	void finalise ( void )
 	{	// create links from leaf concepts to bottom

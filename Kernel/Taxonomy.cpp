@@ -320,9 +320,6 @@ bool Taxonomy :: checkToldSubsumers ( void )
 				ret = false;	// not all told subsumers are collected
 				break;
 			}
-
-			if ( !needToldClassification(r) )
-				continue;
 			// else - check all told subsumers of new on
 			addTop(r);
 			ret = checkToldSubsumers ();
