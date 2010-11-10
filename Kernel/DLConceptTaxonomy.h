@@ -200,19 +200,7 @@ inline bool DLConceptTaxonomy :: isUnsatisfiable ( void )
 	if ( tBox.isSatisfiable(p) )
 		return false;
 
-	// for unsatisfiable concepts:
-	if ( willInsertIntoTaxonomy )
-	{	// add to BOTTOM
-		getBottomVertex()->addSynonym(p);
-		delete Current;
-	}
-	else
-	{
-		Current->copyFromNode(getBottomVertex());
-		const_cast<TConcept*>(p)->setTaxVertex(Current);
-	}
-
-	Current = NULL;
+	insertCurrent(getBottomVertex());
 	return true;
 }
 

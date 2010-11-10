@@ -52,6 +52,34 @@ void Taxonomy :: print ( std::ostream& o ) const
 // classification part
 //---------------------------------------------------
 
+void
+Taxonomy :: insertCurrent ( TaxonomyVertex* syn )
+{
+	if ( willInsertIntoTaxonomy )
+	{
+		// check if current concept is synonym to someone
+		if ( syn != NULL )
+		{
+			Current->copyToNode(syn);
+
+			if ( LLM.isWritable(llTaxInsert) )
+				LL << "\nTAX:set " << Current->getPrimer()->getName() << " equal " << syn->getPrimer()->getName();
+
+			delete Current;
+		}
+		else	// just incorporate it as a special entry and save into Graph
+		{
+			Current->incorporate();
+			Graph.push_back(Current);
+		}
+
+		Current = NULL;
+	}
+	else	// check if node is synonym of existing one and copy EXISTING info to Current
+		if ( syn != NULL )
+			Current->copyFromNode(syn);
+}
+
 void Taxonomy :: performClassification ( ClassifiableEntry* p )
 {
 	fpp_assert ( p != NULL );
@@ -72,30 +100,7 @@ void Taxonomy :: performClassification ( ClassifiableEntry* p )
 	generalTwoPhaseClassification();
 
 	// create new vertex
-	TaxonomyVertex* v = Current->isSynonymNode();
-	if ( willInsertIntoTaxonomy )
-	{
-		// check if current concept is synonym to someone
-		if ( v != NULL )
-		{
-			Current->copyToNode(v);
-
-			if ( LLM.isWritable(llTaxInsert) )
-				LL << "\nTAX:set " << Current->getPrimer()->getName() << " equal " << v->getPrimer()->getName();
-
-			delete Current;
-		}
-		else	// just incorporate it as a special entry and save into Graph
-		{
-			Current->incorporate();
-			Graph.push_back(Current);
-		}
-
-		Current = NULL;
-	}
-	else	// check if node is synonym of existing one and copy EXISTING info to Current
-		if ( v != NULL )
-			Current->copyFromNode(v);
+	insertCurrent(Current->isSynonymNode());
 
 	// clear all labels
 	clearLabels();
@@ -145,12 +150,7 @@ bool Taxonomy :: classifySynonym ( void )
 
 	// update synonym vertex:
 	fpp_assert ( syn->getTaxVertex() != NULL );
-	syn->getTaxVertex()->addSynonym(curEntry);
-
-	// clean up Current entry
-	delete Current;
-	Current = NULL;
-	curEntry = NULL;
+	insertCurrent(syn->getTaxVertex());
 
 	return true;
 }

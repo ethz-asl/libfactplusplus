@@ -185,6 +185,8 @@ protected:	// methods
 	void performClassification ( ClassifiableEntry* p );
 		/// fills parents and children of Current using tunable general approach
 	void generalTwoPhaseClassification ( void );
+		/// insert current node into taxonomy wrt flag willIIT; SYN is synonym (if any)
+	void insertCurrent ( TaxonomyVertex* syn );
 		/// do all necessary action for the classification of given entry
 	void doClassification ( ClassifiableEntry* p )
 	{

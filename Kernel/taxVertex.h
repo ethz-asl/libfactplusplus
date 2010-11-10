@@ -148,7 +148,10 @@ public:
 	{
 		v->addSynonym(sample);
 		for ( syn_iterator p = begin_syn(), p_end = end_syn(); p < p_end; ++p )
+		{
+			fpp_unreachable();
 			v->addSynonym (*p);
+		}
 	}
 		/// copy node information (label) from the given one
 	void copyFromNode ( TaxonomyVertex* v )
