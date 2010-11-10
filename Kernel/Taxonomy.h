@@ -173,27 +173,18 @@ protected:	// methods
 	virtual void runBottomUp ( void ) {}
 
 		/// actions that to be done BEFORE entry will be classified
-	virtual void preClassificationActions ( ClassifiableEntry* cur ATTR_UNUSED ) {}
-		/// actions that to be done AFTER entry will be classified
-	virtual void postClassificationActions ( ClassifiableEntry* cur ATTR_UNUSED ) {}
+	virtual void preClassificationActions ( void ) {}
 
 	//-----------------------------------------------------------------
 	//--	General classification methods
 	//-----------------------------------------------------------------
 
 		/// Common pre- and post-action to setup 2-phase algo
-	void performClassification ( ClassifiableEntry* p );
+	void performClassification ( void );
 		/// fills parents and children of Current using tunable general approach
 	void generalTwoPhaseClassification ( void );
 		/// insert current node into taxonomy wrt flag willIIT; SYN is synonym (if any)
 	void insertCurrent ( TaxonomyVertex* syn );
-		/// do all necessary action for the classification of given entry
-	void doClassification ( ClassifiableEntry* p )
-	{
-		preClassificationActions(p);
-		performClassification(p);
-		postClassificationActions(p);
-	}
 
 	//-----------------------------------------------------------------
 	//--	DFS-based classification

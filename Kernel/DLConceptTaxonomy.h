@@ -153,7 +153,7 @@ protected:	// methods
 	}
 
 		/// actions that to be done BEFORE entry will be classified
-	virtual void preClassificationActions ( ClassifiableEntry* cur ATTR_UNUSED )
+	virtual void preClassificationActions ( void )
 	{
 		++nConcepts;
 		if ( pTaxProgress != NULL )

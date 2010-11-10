@@ -80,17 +80,16 @@ Taxonomy :: insertCurrent ( TaxonomyVertex* syn )
 			Current->copyFromNode(syn);
 }
 
-void Taxonomy :: performClassification ( ClassifiableEntry* p )
+void
+Taxonomy :: performClassification ( void )
 {
-	fpp_assert ( p != NULL );
+	// do something before classification (tunable)
+	preClassificationActions();
 
 	++nEntries;
 
-	// set this concept as a current
-	setCurrentEntry (p);
-
 	if ( LLM.isWritable(llStartCfyEntry) && needLogging() )
-		LL << "\n\nTAX: start classifying entry " << p->getName();
+		LL << "\n\nTAX: start classifying entry " << curEntry->getName();
 
 	// if no classification needed -- nothing to do
 	if ( immediatelyClassified() )
@@ -343,13 +342,12 @@ void Taxonomy :: classifyTop ( void )
 	fpp_assert ( !waitStack.empty() );	// safety check
 
 	// load last concept
-	ClassifiableEntry* p = waitStack.top ();
-	fpp_assert ( p != NULL );
+	setCurrentEntry(waitStack.top());
+
 #ifdef TMP_PRINT_TAXONOMY_INFO
 	std::cout << "\nTrying classify" << (p->isCompletelyDefined()? " CD " : " " ) << p->getName() << "... ";
 #endif
-
-	doClassification(p);
+	performClassification();
 #ifdef TMP_PRINT_TAXONOMY_INFO
 	std::cout << "done";
 #endif
