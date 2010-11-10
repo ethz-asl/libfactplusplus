@@ -137,11 +137,21 @@ public:
 		/// empty d'tor
 	~TaxonomyVertex ( void ) {}
 
+		/// add P as a synonym to curent vertex
 	void addSynonym ( const ClassifiableEntry* p )
 	{
 		synonyms.push_back(p);
 		setHostVertex(p);
 	}
+		/// clears the vertex
+	void clear ( void )
+	{
+		Links[0].clear();
+		Links[1].clear();
+		sample = NULL;
+		initFlags();
+	}
+		/// get RO access to the primer
 	const ClassifiableEntry* getPrimer ( void ) const { return sample; }
 
 		/// add link in given direction to vertex
@@ -156,16 +166,6 @@ public:
 
 	const_iterator begin ( bool upDirection ) const { return neigh(upDirection).begin(); }
 	const_iterator end ( bool upDirection ) const { return neigh(upDirection).end(); }
-
-		/// copy node information (label) from the given one
-	void copyFromNode ( TaxonomyVertex* v )
-	{
-		fpp_assert(synonyms.empty());
-		// don't use addSynonym() here as it change the TaxVertex from the entries
-		synonyms.push_back(v->getPrimer());
-		for ( syn_iterator p = v->begin_syn(), p_end = v->end_syn(); p < p_end; ++p )
-			synonyms.push_back(*p);
-	}
 
 	/** Adds vertex to existing graph. For every Up, Down such that (Up->Down)
 		creates couple of links (Up->this), (this->Down). Don't work with synonyms!!!

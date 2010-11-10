@@ -431,9 +431,6 @@ TBox :: removeConcept ( TConcept* p )
 	if ( isCorrect(p->pName) )
 		DLHeap.removeAfter(p->pName);
 
-	// delete associated taxonomy vertex as it is not done using destructor
-	delete p->getTaxVertex();
-
 	if ( Concepts.Remove(p) )
 		fpp_unreachable();	// can't remove non-last concept
 }
@@ -498,7 +495,6 @@ TBox :: classifyQueryConcept ( void )
 
 	// setup taxonomy behaviour flags
 	pTax->setCompletelyDefined ( false );	// non-primitive concept
-	pTax->setInsertIntoTaxonomy ( false );	// just classify
 	pTax->setProgressIndicator(NULL);		// switch off the progress monitor
 
 	// classify the concept

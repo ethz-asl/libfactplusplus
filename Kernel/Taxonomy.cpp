@@ -33,6 +33,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 \********************************************************/
 Taxonomy :: ~Taxonomy ( void )
 {
+	delete Current;
 	for ( iterator p = Graph.begin(), p_end = Graph.end(); p < p_end; ++p )
 		delete *p;
 }
@@ -64,22 +65,21 @@ Taxonomy :: insertCurrent ( TaxonomyVertex* syn )
 
 			if ( LLM.isWritable(llTaxInsert) )
 				LL << "\nTAX:set " << curEntry->getName() << " equal " << syn->getPrimer()->getName();
-
-			delete Current;
 		}
 		else	// just incorporate it as a special entry and save into Graph
 		{
 			Current->incorporate(curEntry);
 			Graph.push_back(Current);
+			// we used the Current so need to create a new one
+			Current = new TaxonomyVertex();
 		}
-
-		Current = NULL;
 	}
 	else	// check if node is synonym of existing one and copy EXISTING info to Current
 	{
-		Current->setSample(curEntry);
-		if ( syn != NULL )
-			Current->copyFromNode(syn);
+		if ( syn != NULL )	// set synonym to the tax-entry for the checked one
+			syn->setHostVertex(curEntry);
+		else	// mark a current one to be a tax-entry
+			Current->setSample(curEntry);
 	}
 }
 

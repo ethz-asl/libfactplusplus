@@ -133,7 +133,7 @@ protected:	// methods
 		/// initialise aux entry with given concept p
 	void setCurrentEntry ( const ClassifiableEntry* p )
 	{
-		Current = new TaxonomyVertex();
+		Current->clear();
 		curEntry = p;
 	}
 
@@ -249,7 +249,7 @@ protected:	// methods
 public:		// interface
 		/// init c'tor
 	Taxonomy ( const ClassifiableEntry* pTop, const ClassifiableEntry* pBottom )
-		: Current (NULL)
+		: Current(new TaxonomyVertex())
 		, curEntry(NULL)
 		, nEntries(0)
 		, nCDEntries(0)
@@ -329,6 +329,7 @@ public:		// interface
 				(*p)->addNeighbour ( upDirection, getBottomVertex() );
 				getBottomVertex()->addNeighbour ( !upDirection, *p );
 			}
+		willInsertIntoTaxonomy = false;	// after finalisation one shouldn't add new entries to taxonomy
 	}
 		/// unlink the bottom from the taxonomy
 	void deFinalise ( void )
@@ -341,6 +342,7 @@ public:		// interface
 			  p < p_end; ++p )
 			(*p)->removeLink ( !upDirection, bot );
 		bot->clearLinks(upDirection);
+		willInsertIntoTaxonomy = true;	// it's possible again to add entries
 	}
 
 	// taxonomy info access
