@@ -24,7 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "logging.h"
 
 #define switchResult(expr)\
-do { if (expr) return true; } while(0)
+do { if (unlikely(expr)) return true; } while(0)
 
 /********************************************************************************
   * Tactics section;

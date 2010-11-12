@@ -924,13 +924,13 @@ DlSatTester :: initNewNode ( DlCompletionTree* node, const DepSet& dep, BipolarP
 	if ( node->isDataNode() )	// creating new data node -- do data check once in the end
 		checkDataNode = false;
 	node->setInit(C);
-	if ( addToDoEntry ( node, C, dep ) )
+	if ( unlikely ( addToDoEntry ( node, C, dep ) ) )
 		return true;
 	if ( node->isDataNode() )
 		return false;
-	if ( addToDoEntry ( node, tBox.getTG(), dep ) )
+	if ( unlikely ( addToDoEntry ( node, tBox.getTG(), dep ) ) )
 		return true;
-	if ( GCIs.isReflexive() && applyReflexiveRoles ( node, dep ) )
+	if ( unlikely ( GCIs.isReflexive() && applyReflexiveRoles ( node, dep ) ) )
 		return true;
 
 	return false;
