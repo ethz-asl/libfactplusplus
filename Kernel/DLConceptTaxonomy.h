@@ -71,6 +71,21 @@ protected:	// methods
 	const TConcept* curConcept ( void ) const { return static_cast<const TConcept*>(curEntry); }
 		/// tests subsumption (via tBox) and gather statistics.  Use cache and other optimisations.
 	bool testSub ( const TConcept* p, const TConcept* q );
+		/// test subsumption via TBox explicitely
+	bool testSubTBox ( const TConcept* p, const TConcept* q )
+	{
+		bool res = tBox.isSubHolds ( p, q );
+
+		// update statistic
+		++nTries;
+
+		if ( res )
+			++nPositives;
+		else
+			++nNegatives;
+
+		return res;
+	}
 
 	// interface from BAADER paper
 

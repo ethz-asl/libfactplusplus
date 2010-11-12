@@ -37,7 +37,6 @@ bool DLConceptTaxonomy :: testSub ( const TConcept* p, const TConcept* q )
 
 	if ( q->isSingleton()		// singleton on the RHS is useless iff...
 		 && q->isPrimitive()	// it is primitive
-		 && !p->isSingleton()	// FIXME!! this is necessary to find same individuals ATM
 		 && !q->isNominal() )	// nominals should be classified as usual concepts
 		return false;
 
@@ -76,18 +75,7 @@ bool DLConceptTaxonomy :: testSub ( const TConcept* p, const TConcept* q )
 		break;
 	}
 
-	// really performed test
-	bool res = tBox.isSubHolds ( p, q );
-
-	// update statistic
-	++nTries;
-
-	if ( res )
-		++nPositives;
-	else
-		++nNegatives;
-
-	return res;
+	return testSubTBox ( p, q );
 }
 
 void DLConceptTaxonomy :: print ( std::ostream& o ) const
@@ -223,12 +211,22 @@ DLConceptTaxonomy :: classifySynonym ( void )
 		if ( unlikely(tBox.isBlockedInd(curI)) )
 		{	// check whether current entry is the same as another individual
 			TIndividual* syn = tBox.getBlockingInd(curI);
+			fpp_assert ( syn->getTaxVertex() != NULL );
 
  			if ( tBox.isBlockingDet(curI) )
-			{
-				fpp_assert ( syn->getTaxVertex() != NULL );
+			{	// deterministic merge => curI = syn
 				insertCurrent(syn->getTaxVertex());
 				return true;
+			}
+			else	// non-det merge: check whether it is the same
+			{
+				if ( LLM.isWritable(llTaxTrying) )
+					LL << "\nTAX: trying '" << curI->getName() << "' = '" << syn->getName() << "'... ";
+				if ( testSubTBox ( curI, syn ) )	// they are actually the same
+				{
+					insertCurrent(syn->getTaxVertex());
+					return true;
+				}
 			}
 		}
 	}
