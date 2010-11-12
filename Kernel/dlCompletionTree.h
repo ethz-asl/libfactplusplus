@@ -482,6 +482,9 @@ public:		// methods
 	bool isBlocked ( void ) const { return Blocker != NULL && !pBlocked; }
 		/// check the legality of the direct block
 	bool isIllegallyDBlocked ( void ) const { return isDBlocked() && Blocker->isBlocked(); }
+
+		/// get access to the blocker
+	const DlCompletionTree* getBlocker ( void ) const { return Blocker; }
 		/// get RW node to which current one was merged
 	DlCompletionTree* resolvePBlocker ( void )
 	{
@@ -506,6 +509,8 @@ public:		// methods
 		dep += pDep;
 		return const_cast<DlCompletionTree*>(Blocker)->resolvePBlocker(dep);
 	}
+		/// get purge dep-set of a given node
+	const DepSet& getPurgeDep ( void ) const { return pDep; }
 		/// check whether a node can block node P according to it's Init value
 	bool canBlockInit ( const DlCompletionTree* p ) const { return canBlockInit(p->Init); }
 

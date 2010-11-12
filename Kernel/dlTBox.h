@@ -232,6 +232,8 @@ protected:	// members
 	DifferentIndividuals Different;
 		/// all simple rules in KB
 	TSimpleRules SimpleRules;
+		/// map to show the possible equivalence between individuals
+	std::map<TConcept*, std::pair<TIndividual*,bool> > SameI;
 
 		/// internalisation of a general axioms
 	BipolarPointer T_G;
@@ -676,6 +678,8 @@ protected:	// methods
 	}
 		/// classify all concepts from given COLLECTION with given CD value
 	void classifyConcepts ( const ConceptVector& collection, bool curCompletelyDefined, const char* type );
+		/// classify single concept
+	void classifyEntry ( TConcept* entry );
 
 //-----------------------------------------------------------------------------
 //--		internal cache-related methods
@@ -1051,6 +1055,13 @@ public:
 		/// check if Sorted Reasoning is applicable
 	bool canUseSortedReasoning ( void ) const
 		{ return useSortedReasoning && !GCIs.isGCI() && !GCIs.isReflexive(); }
+
+		/// @return true iff individual C is known to be p-blocked by another one
+	bool isBlockedInd ( TConcept* C ) const { return SameI.find(C) != SameI.end(); }
+		/// get individual that blocks C; works only for blocked individuals C
+	TIndividual* getBlockingInd ( TConcept* C ) const { return SameI.at(C).first; }
+		/// @return true iff an individual blocks C deterministically
+	bool isBlockingDet ( TConcept* C ) const { return SameI.at(C).second; }
 
 //-----------------------------------------------------------------------------
 //--		public reasoning interface

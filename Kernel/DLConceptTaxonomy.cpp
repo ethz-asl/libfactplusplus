@@ -209,6 +209,33 @@ DLConceptTaxonomy :: clearCommon ( void )
 	Common.clear();
 }
 
+/// @return true iff curEntry is classified as a synonym
+bool
+DLConceptTaxonomy :: classifySynonym ( void )
+{
+	if ( Taxonomy::classifySynonym() )
+		return true;
+
+	if ( curConcept()->isSingleton() )
+	{
+		TIndividual* curI = (TIndividual*)const_cast<TConcept*>(curConcept());
+
+		if ( unlikely(tBox.isBlockedInd(curI)) )
+		{	// check whether current entry is the same as another individual
+			TIndividual* syn = tBox.getBlockingInd(curI);
+
+ 			if ( tBox.isBlockingDet(curI) )
+			{
+				fpp_assert ( syn->getTaxVertex() != NULL );
+				insertCurrent(syn->getTaxVertex());
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
+
 /********************************************************\
 |* 			Implementation of class TBox				*|
 \********************************************************/
@@ -289,8 +316,8 @@ void TBox :: createTaxonomy ( bool needIndividual )
 	}
 }
 
-void TBox :: classifyConcepts ( const ConceptVector& collection, bool curCompletelyDefined,
-								const char* type ATTR_UNUSED )
+void
+TBox :: classifyConcepts ( const ConceptVector& collection, bool curCompletelyDefined, const char* type )
 {
 	// set CD for taxonomy
 	pTax->setCompletelyDefined (curCompletelyDefined);
@@ -304,7 +331,7 @@ void TBox :: classifyConcepts ( const ConceptVector& collection, bool curComplet
 		// check if concept is already classified
 		if ( !isCancelled() && !(*q)->isClassified () /*&& (*q)->isClassifiable(curCompletelyDefined)*/ )
 		{
-			pTax->classifyEntry (*q);	// need to classify concept
+			classifyEntry(*q);	// need to classify concept
 			if ( (*q)->isClassified() )
 				++n;
 		}

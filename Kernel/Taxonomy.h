@@ -146,7 +146,7 @@ protected:	// methods
 		/// make the only child -- bottom
 	void setChildBottom ( void ) { Current->addNeighbour ( /*upDirection=*/false, getBottomVertex() ); }
 		/// return 1 if current entry is classified as a synonym of already classified one
-	bool classifySynonym ( void );
+	virtual bool classifySynonym ( void );
 
 		/// set up Told Subsumers for the current entry
 	void setToldSubsumers ( void );

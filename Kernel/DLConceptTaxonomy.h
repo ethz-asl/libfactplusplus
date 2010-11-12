@@ -152,6 +152,8 @@ protected:	// methods
 		if ( pTaxProgress != NULL )
 			pTaxProgress->nextClass();
 	}
+		/// @return true iff curEntry is classified as a synonym
+	virtual bool classifySynonym ( void );
 
 		/// check if it is necessary to log taxonomy action
 	virtual bool needLogging ( void ) const { return true; }
@@ -242,6 +244,15 @@ inline void
 TBox :: initTaxonomy ( void )
 {
 	pTax = new DLConceptTaxonomy ( pTop, pBottom, *this, GCIs );
+}
+
+inline void
+TBox :: classifyEntry ( TConcept* entry )
+{
+	if ( unlikely(isBlockedInd(entry)) )
+		classifyEntry(getBlockingInd(entry));	// make sure that the possible synonym is already classified
+	if ( !entry->isClassified() )
+		pTax->classifyEntry(entry);
 }
 
 #endif // _DLCONCEPTTAXONOMY_H

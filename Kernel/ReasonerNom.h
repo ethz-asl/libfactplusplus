@@ -63,6 +63,14 @@ protected:	// methods
 	void updateClassifiedSingleton ( TIndividual* p )
 	{
 		registerNominalCache(p);
+		if ( unlikely(p->node->isPBlocked()) )
+		{
+			// BP of the individual P is merged to
+			BipolarPointer bp = p->node->getBlocker()->label().begin_sc()->bp();
+			TIndividual* blocker = (TIndividual*)DLHeap[bp].getConcept();
+			fpp_assert ( blocker->node == p->node->getBlocker() );
+			tBox.SameI[p] = std::make_pair ( blocker, p->node->getPurgeDep().empty() );
+		}
 	}
 
 public:
