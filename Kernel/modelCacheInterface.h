@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2007 by Dmitry Tsarkov
+Copyright (C) 2003-2010 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -16,10 +16,13 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef _MODELCACHEINTERFACE_H
-#define _MODELCACHEINTERFACE_H
+#ifndef MODELCACHEINTERFACE_H
+#define MODELCACHEINTERFACE_H
 
 #include "globaldef.h"
+#ifdef _USE_LOGGING
+#	include "logging.h"
+#endif
 
 /// status of model cache or merge operation
 enum modelCacheState
@@ -73,6 +76,8 @@ public:		// interface
 		{ return hasNominalNode && p->hasNominalNode; }
 		/// update knoweledge about nominals in the model after merging
 	void updateNominalStatus ( const modelCacheInterface* p ) { hasNominalNode |= p->hasNominalNode; }
+		/// state the precense of a nominals in cache wrt FLAG
+	void setFlagNominals ( bool flag ) { hasNominalNode = flag; }
 
 	// mergable part
 
@@ -85,8 +90,10 @@ public:		// interface
 	virtual modelCacheType getCacheType ( void ) const { return mctBadType; }
 		/// get type of cache (deep or shallow)
 	virtual bool shallowCache ( void ) const { return true; }
+#ifdef _USE_LOGGING
 		/// log this cache entry (with given level)
 	virtual void logCacheEntry ( unsigned int level ATTR_UNUSED ) const {}
+#endif
 }; // modelCacheInterface
 
 #endif

@@ -383,6 +383,8 @@ DlSatTester :: doCacheNode ( DlCompletionTree* node )
 
 		cache->merge(&cachePar);
 	}
+	else
+		fpp_unreachable();
 
 	return cache;
 }

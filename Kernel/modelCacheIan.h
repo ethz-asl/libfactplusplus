@@ -144,8 +144,20 @@ protected:	// methods
 		processLabelInterval ( DLHeap, pCT->beginl_sc(), pCT->endl_sc() );
 		processLabelInterval ( DLHeap, pCT->beginl_cc(), pCT->endl_cc() );
 	}
+		/// adds role to exists- and func-role if necessary
+	void addRoleToCache ( const TRole* R )
+	{
+		existsRoles.insert(R->index());
+		if ( R->isTopFunc() )	// all other top-funcs would be added separately
+			funcRoles.insert(R->index());		
+	}
 		/// adds role (and all its super-roles) to exists- and funcRoles
-	void addExistsRole ( const TRole* r );
+	void addExistsRole ( const TRole* R )
+	{
+		addRoleToCache(R);
+		for ( TRole::const_iterator r = R->begin_anc(), r_end = R->end_anc(); r != r_end; ++r )
+			addRoleToCache(*r);
+	}
 
 	// access to the arrays
 
@@ -234,12 +246,14 @@ public:
 		/// Merge given model to current one; return state of the merged model
 	modelCacheState merge ( const modelCacheInterface* p );
 
-	/// Get the tag identifying the cache type
+		/// Get the tag identifying the cache type
 	virtual modelCacheType getCacheType ( void ) const { return mctIan; }
 		/// get type of cache (deep or shallow)
 	virtual bool shallowCache ( void ) const { return existsRoles.empty(); }
-	/// log this cache entry (with given level)
+#ifdef _USE_LOGGING
+		/// log this cache entry (with given level)
 	virtual void logCacheEntry ( unsigned int level ) const;
+#endif
 }; // modelCacheIan
 
 #endif

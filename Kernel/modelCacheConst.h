@@ -19,7 +19,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef MODELCACHECONST_H
 #define MODELCACHECONST_H
 
-#include "logging.h"
 #include "modelCacheInterface.h"
 #include "BiPointer.h"
 #include "fpp_assert.h"
@@ -63,12 +62,14 @@ public:
 	}
 		/// Get the tag identifying the cache type
 	virtual modelCacheType getCacheType ( void ) const { return mctConst; }
+#ifdef _USE_LOGGING
 		/// log this cache entry (with given level)
 	virtual void logCacheEntry ( unsigned int level ) const
 	{
 		if ( LLM.isWritable(level) )
 			LL << "\nConst cache: element " << (isTop ? "TOP" : "BOTTOM");
 	}
+#endif
 }; // modelCacheConst
 
 // create const cache by BP; BP should be either bpTOP or bpBOTTOM

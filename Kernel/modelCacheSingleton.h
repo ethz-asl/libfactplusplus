@@ -19,7 +19,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef MODELCACHESINGLETON_H
 #define MODELCACHESINGLETON_H
 
-#include "logging.h"
 #include "modelCacheConst.h"
 #include "BiPointer.h"
 
@@ -71,14 +70,16 @@ public:
 			return csUnknown;
 		}
 	}
-	/// Get the tag identifying the cache type
+		/// Get the tag identifying the cache type
 	virtual modelCacheType getCacheType ( void ) const { return mctSingleton; }
-	/// log this cache entry (with given level)
+#ifdef _USE_LOGGING
+		/// log this cache entry (with given level)
 	virtual void logCacheEntry ( unsigned int level ) const
 	{
 		if ( LLM.isWritable(level) )
 			LL << "\nSingleton cache: element " << getValue();
 	}
+#endif
 }; // modelCacheSingleton
 
 #endif

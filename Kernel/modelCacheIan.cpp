@@ -66,21 +66,6 @@ modelCacheIan :: processAutomaton ( const DLVertex& cur )
 			forallRoles.insert((*r)->index());
 }
 
-/// adds role (and all its super-roles) to exists- and funcRoles
-void modelCacheIan :: addExistsRole ( const TRole* R )
-{
-	existsRoles.insert(R->index());
-	if ( R->isTopFunc() )	// all other top-funcs would be added later on
-		funcRoles.insert(R->index());
-
-	for ( TRole::const_iterator r = R->begin_anc(), r_end = R->end_anc(); r != r_end; ++r )
-	{
-		existsRoles.insert((*r)->index());
-		if ( (*r)->isTopFunc() )
-			funcRoles.insert((*r)->index());
-	}
-}
-
 modelCacheState modelCacheIan :: canMerge ( const modelCacheInterface* p ) const
 {
 	if ( hasNominalClash(p) )	// fail to merge due to nominal precense
@@ -217,6 +202,7 @@ modelCacheIan :: mergeIan ( const modelCacheIan* p )
 }
 
 // logging
+#ifdef _USE_LOGGING
 void modelCacheIan :: logCacheEntry ( unsigned int level ) const
 {
 	CHECK_LL_RETURN(level);
@@ -241,6 +227,7 @@ void modelCacheIan :: logCacheEntry ( unsigned int level ) const
 	LL << ", funcRoles = ";
 	funcRoles.print(LL);
 }
+#endif
 
 void
 modelCacheIan::IndexSet :: print ( std::ostream& o ) const
