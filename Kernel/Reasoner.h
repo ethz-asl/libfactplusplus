@@ -418,7 +418,7 @@ protected:	// methods
 	const modelCacheInterface* buildCache ( BipolarPointer p );
 		/// return cache of given completion tree (implementation)
 	const modelCacheInterface* createModelCache ( const DlCompletionTree* p ) const
-		{ return new modelCacheIan ( DLHeap, p, encounterNominal ); }
+		{ return new modelCacheIan ( DLHeap, p, encounterNominal, tBox.nC, tBox.nR ); }
 
 		/// check whether given NODE can be cached
 	bool canBeCached ( DlCompletionTree* node );

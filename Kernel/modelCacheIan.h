@@ -43,8 +43,8 @@ protected:	// classes
 		BaseType Base;
 
 	public:		// interface
-			/// empty c'tor
-		IndexSet ( void ) {}
+			/// empty c'tor taking max possible number of elements in the set
+		explicit IndexSet ( unsigned int size ATTR_UNUSED ) {}
 			/// copy c'tor
 		IndexSet ( const IndexSet& is ) : Base(is.Base) {}
 			/// assignment
@@ -196,15 +196,37 @@ protected:	// methods
 
 public:
 		/// Create cache model of given CompletionTree using given HEAP
-	modelCacheIan ( const DLDag& heap, const DlCompletionTree* p, bool flagNominals )
+	modelCacheIan ( const DLDag& heap, const DlCompletionTree* p, bool flagNominals, unsigned int nC, unsigned int nR )
 		: modelCacheInterface(flagNominals)
+		, posDConcepts(nC)
+		, posNConcepts(nC)
+		, negDConcepts(nC)
+		, negNConcepts(nC)
+#	ifdef RKG_USE_SIMPLE_RULES
+		, extraDConcepts(nC)
+		, extraNConcepts(nC)
+#	endif
+		, existsRoles(nR)
+		, forallRoles(nR)
+		, funcRoles(nR)
 	{
 		initCacheByLabel ( heap, p );
 		initRolesFromArcs(p);
 	}
 		/// empty c'tor
-	modelCacheIan ( bool flagNominals )
+	modelCacheIan ( bool flagNominals, unsigned int nC, unsigned int nR )
 		: modelCacheInterface(flagNominals)
+		, posDConcepts(nC)
+		, posNConcepts(nC)
+		, negDConcepts(nC)
+		, negNConcepts(nC)
+#	ifdef RKG_USE_SIMPLE_RULES
+		, extraDConcepts(nC)
+		, extraNConcepts(nC)
+#	endif
+		, existsRoles(nR)
+		, forallRoles(nR)
+		, funcRoles(nR)
 		, curState(csValid)
 		{}
 		/// copy c'tor
