@@ -219,6 +219,10 @@ protected:	// members
 	DataTypeReasoner DTReasoner;
 		/// Used sets for pos- and neg- entries
 	TFastSet<unsigned int> pUsed, nUsed;
+		/// cache for testing whether it's possible to non-expand newly created node
+	modelCacheIan newNodeCache;
+		/// auxilliary cache that is built from the edges of newly created node
+	modelCacheIan newNodeEdges;
 
 		/// GCI-related KB flags
 	const TKBFlags& GCIs;
@@ -418,14 +422,14 @@ protected:	// methods
 
 		/// check whether given NODE can be cached
 	bool canBeCached ( DlCompletionTree* node );
-		/// perform caching of the node (it is known that caching is possible)
-	modelCacheIan* doCacheNode ( DlCompletionTree* node );
-		/// mark NODE (un)cached depending on the joint cache STATUS; @return appropriate TU
-	modelCacheState reportNodeCached ( modelCacheIan* cache, DlCompletionTree* node );
+		/// build cache of the node (it is known that caching is possible) in newNodeCache
+	void doCacheNode ( DlCompletionTree* node );
+		/// mark NODE (un)cached depending on the joint cache STATUS; @return resulting status
+	modelCacheState reportNodeCached ( DlCompletionTree* node );
 		/// check whether node may be (un)cached; save node if something is changed
 	modelCacheState tryCacheNode ( DlCompletionTree* node )
 	{
-		modelCacheState ret = canBeCached(node) ? reportNodeCached ( doCacheNode(node), node ) : csFailed;
+		modelCacheState ret = canBeCached(node) ? reportNodeCached(node) : csFailed;
 		// node is cached if RET is csValid
 		CGraph.saveRareCond(node->setCached(ret == csValid));
 		return ret;

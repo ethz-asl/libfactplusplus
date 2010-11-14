@@ -17,7 +17,24 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "modelCacheIan.h"
-#include "logging.h"
+
+/// clear the cache
+void
+modelCacheIan :: clear ( void )
+{
+	posDConcepts.clear();
+	posNConcepts.clear();
+	negDConcepts.clear();
+	negNConcepts.clear();
+#ifdef RKG_USE_SIMPLE_RULES
+	extraDConcepts.clear();
+	extraNConcepts.clear();
+#endif
+	existsRoles.clear();
+	forallRoles.clear();
+	funcRoles.clear();
+	curState = csValid;
+}
 
 void modelCacheIan :: processConcept ( const DLVertex& cur, bool pos, bool det )
 {

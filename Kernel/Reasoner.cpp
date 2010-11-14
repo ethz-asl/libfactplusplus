@@ -35,6 +35,9 @@ DlSatTester :: DlSatTester ( TBox& tbox, const ifOptionSet* Options )
 	, Manager(64)
 	, CGraph(1,this)
 	, DTReasoner(tbox.DLHeap)
+	// It's unsafe to have a cache that touchs a nominal in a node; set flagNominals to prevent it
+	, newNodeCache(true)
+	, newNodeEdges(false)
 	, GCIs(tbox.GCIs)
 	, testTimeout(0)
 	, bContext(NULL)
@@ -334,20 +337,19 @@ DlSatTester :: canBeCached ( DlCompletionTree* node )
 }
 
 /// perform caching of the node (it is known that caching is possible)
-modelCacheIan*
+void
 DlSatTester :: doCacheNode ( DlCompletionTree* node )
 {
 	DlCompletionTree::const_label_iterator p;
-
-	// It's unsafe to have a cache that touchs nominal here; set flagNominals to prevent it
-	modelCacheIan* cache = new modelCacheIan(true);
 	DepSet dep;
+
+	newNodeCache.clear();
 
 	for ( p = node->beginl_sc(); p != node->endl_sc(); ++p )
 	{
 		dep.add(p->getDep());
 		// try to merge cache of a node label element with accumulator
-		switch ( cache->merge(DLHeap.getCache(p->bp())) )
+		switch ( newNodeCache.merge(DLHeap.getCache(p->bp())) )
 		{
 		case csValid:	// continue
 			break;
@@ -355,7 +357,7 @@ DlSatTester :: doCacheNode ( DlCompletionTree* node )
 			setClashSet(dep);
 		// fall through
 		default:		// caching of node fails
-			return cache;
+			return;
 		}
 	}
 
@@ -363,7 +365,7 @@ DlSatTester :: doCacheNode ( DlCompletionTree* node )
 	{
 		dep.add(p->getDep());
 		// try to merge cache of a node label element with accumulator
-		switch ( cache->merge(DLHeap.getCache(p->bp())) )
+		switch ( newNodeCache.merge(DLHeap.getCache(p->bp())) )
 		{
 		case csValid:	// continue
 			break;
@@ -371,29 +373,21 @@ DlSatTester :: doCacheNode ( DlCompletionTree* node )
 			setClashSet(dep);
 		// fall through
 		default:		// caching of node fails
-			return cache;
+			return;
 		}
 	}
 
 	// all concepts in label are mergable; now try to add input arc
-	if ( node->hasParent() )
-	{
-		modelCacheIan cachePar(false);
-		cachePar.initRolesFromArcs(node);	// the only arc is parent
-
-		cache->merge(&cachePar);
-	}
-	else
-		fpp_unreachable();
-
-	return cache;
+	newNodeEdges.clear();
+	newNodeEdges.initRolesFromArcs(node);
+	newNodeCache.merge(&newNodeEdges);
 }
 
 modelCacheState
-DlSatTester :: reportNodeCached ( modelCacheIan* cache, DlCompletionTree* node )
+DlSatTester :: reportNodeCached ( DlCompletionTree* node )
 {
-	enum modelCacheState status = cache->getState();
-	delete cache;
+	doCacheNode(node);
+	enum modelCacheState status = newNodeCache.getState();
 	switch ( status )
 	{
 	case csValid:

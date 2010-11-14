@@ -37,9 +37,11 @@ protected:	// classes
 	protected:	// types
 			/// base type
 		typedef std::set<unsigned int> BaseType;
+
 	protected:	// members
 			/// set implementation
 		BaseType Base;
+
 	public:		// interface
 			/// empty c'tor
 		IndexSet ( void ) {}
@@ -68,6 +70,8 @@ protected:	// classes
 			Base.insert ( is.Base.begin(), is.Base.end() );
 			return *this;
 		}
+			/// clear the set
+		void clear ( void ) { Base.clear(); }
 
 			/// check whether the set is empty
 		bool empty ( void ) const { return Base.empty(); }
@@ -149,7 +153,7 @@ protected:	// methods
 	{
 		existsRoles.insert(R->index());
 		if ( R->isTopFunc() )	// all other top-funcs would be added separately
-			funcRoles.insert(R->index());		
+			funcRoles.insert(R->index());
 	}
 		/// adds role (and all its super-roles) to exists- and funcRoles
 	void addExistsRole ( const TRole* R )
@@ -229,8 +233,6 @@ public:
 	*/
 	virtual modelCacheState getState ( void ) const { return curState; }
 
-		/// init empty valid cache
-	void initEmptyCache ( void );
 		/// init existRoles from arcs; can be used to create pseudo-cache with deps of CT edges
 	void initRolesFromArcs ( const DlCompletionTree* pCT )
 	{
@@ -240,6 +242,8 @@ public:
 
 		curState = csValid;
 	}
+		/// clear the cache
+	void clear ( void );
 
 		/// check whether two caches can be merged; @return state of "merged" model
 	modelCacheState canMerge ( const modelCacheInterface* p ) const;
