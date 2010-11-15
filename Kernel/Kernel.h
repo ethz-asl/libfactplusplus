@@ -1037,7 +1037,12 @@ public:
 	void getTypes ( const TIndividualExpr* I, bool direct, Actor& actor )
 	{
 		realiseKB();	// ensure KB is ready to answer the query
-		getSupConcepts ( getExpressionManager()->OneOf(I), direct, actor );
+		setUpCache ( e(I), csClassified );
+		Taxonomy* tax = getCTaxonomy();
+		if ( direct )
+			tax->getRelativesInfo</*needCurrent=*/true, /*onlyDirect=*/true, /*upDirection=*/true> ( cachedVertex, actor );
+		else
+			tax->getRelativesInfo</*needCurrent=*/true, /*onlyDirect=*/false, /*upDirection=*/true> ( cachedVertex, actor );
 	}
 		/// apply actor::apply() to all synonyms of an individual I
 	template<class Actor>
