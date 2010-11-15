@@ -378,7 +378,7 @@ public class FaCTPlusPlusReasoner extends OWLReasonerBase {
 
     public NodeSet<OWLClass> getDataPropertyDomains(OWLDataProperty pe, boolean direct) throws InconsistentOntologyException, ReasonerInterruptedException, TimeOutException {
         checkConsistency();
-        return getSuperClasses(getOWLDataFactory().getOWLDataSomeValuesFrom(getOWLDataFactory().getOWLTopDataProperty(), getOWLDataFactory().getTopDatatype()), direct);
+        return getSuperClasses(getOWLDataFactory().getOWLDataSomeValuesFrom(pe, getOWLDataFactory().getTopDatatype()), direct);
     }
 
 	// individuals
@@ -1218,6 +1218,12 @@ public class FaCTPlusPlusReasoner extends OWLReasonerBase {
     private class EntailmentChecker implements OWLAxiomVisitorEx<Boolean> {
 
         public Boolean visit(OWLSubClassOfAxiom axiom) {
+		if(axiom.getSuperClass().equals(manager.getOWLDataFactory().getOWLThing())) {
+                               return true;
+                       }
+                if(axiom.getSubClass().equals(manager.getOWLDataFactory().getOWLNothing())) {
+                               return true;
+                       }
             return kernel.isClassSubsumedBy(toClassPointer(axiom.getSubClass()), toClassPointer(axiom.getSuperClass()));
         }
 
