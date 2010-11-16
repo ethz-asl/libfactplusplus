@@ -245,17 +245,3 @@ void modelCacheIan :: logCacheEntry ( unsigned int level ) const
 	funcRoles.print(LL);
 }
 #endif
-
-void
-modelCacheIan::IndexSet :: print ( std::ostream& o ) const
-{
-	o << "{";
-	if ( !Base.empty() )
-	{
-		BaseType::const_iterator p = Base.begin(), p_end = Base.end();
-		o << *p;
-		while ( ++p != p_end )
-			o << ',' << *p;
-	}
-	o << "}";
-}
