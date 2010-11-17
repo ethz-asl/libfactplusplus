@@ -3,6 +3,7 @@ package uk.ac.manchester.cs.factplusplus.owlapiv3;
 import java.io.PrintStream;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.semanticweb.owlapi.model.*;
 import org.semanticweb.owlapi.reasoner.*;
@@ -50,7 +51,7 @@ public class FaCTPlusPlusReasoner implements OWLReasoner,
 		OWLOntologyChangeListener {
 	public static final String REASONER_NAME = "FaCT++";
 	public static final Version VERSION = new Version(1, 5, 0, 0);
-	private volatile boolean interrupted = false;
+	protected final AtomicBoolean interrupted = new AtomicBoolean(false);
 	private final FaCTPlusPlus kernel = new FaCTPlusPlus();
 	private volatile AxiomTranslator axiomTranslator = new AxiomTranslator();
 	private volatile ClassExpressionTranslator classExpressionTranslator;
@@ -60,7 +61,7 @@ public class FaCTPlusPlusReasoner implements OWLReasoner,
 	private volatile IndividualTranslator individualTranslator;
 	private volatile EntailmentChecker entailmentChecker;
 	private final Map<OWLAxiom, AxiomPointer> axiom2PtrMap = new HashMap<OWLAxiom, AxiomPointer>();
-	private Map<AxiomPointer, OWLAxiom> ptr2AxiomMap = new HashMap<AxiomPointer, OWLAxiom>();
+	private final Map<AxiomPointer, OWLAxiom> ptr2AxiomMap = new HashMap<AxiomPointer, OWLAxiom>();
 	private static final Set<InferenceType> SupportedInferenceTypes = new HashSet<InferenceType>(
 			Arrays.asList(InferenceType.CLASS_ASSERTIONS,
 					InferenceType.CLASS_HIERARCHY,
@@ -251,7 +252,7 @@ public class FaCTPlusPlusReasoner implements OWLReasoner,
 				"http://www.w3.org/2002/07/owl#bottomObjectProperty",
 				"http://www.w3.org/2002/07/owl#topDataProperty",
 				"http://www.w3.org/2002/07/owl#bottomDataProperty");
-		kernel.setProgressMonitor(new ProgressMonitorAdapter());
+		kernel.setProgressMonitor(new ProgressMonitorAdapter(configuration.getProgressMonitor(), interrupted));
 		long millis = configuration.getTimeOut();
 		if (millis == Long.MAX_VALUE)
 			millis = 0;
@@ -341,7 +342,7 @@ public class FaCTPlusPlusReasoner implements OWLReasoner,
 	}
 
 	public void interrupt() {
-		interrupted = true;
+		interrupted.set(true);
 	}
 
 	// precompute inferences
@@ -373,7 +374,7 @@ public class FaCTPlusPlusReasoner implements OWLReasoner,
 	}
 
 	private void checkConsistency() {
-		if (interrupted) {
+		if (interrupted.get()) {
 			throw new ReasonerInterruptedException();
 		}
 		if (!isConsistent()) {
@@ -1866,44 +1867,56 @@ public class FaCTPlusPlusReasoner implements OWLReasoner,
 
 	public synchronized void dispose() {
 		manager.removeOntologyChangeListener(this);
-		axiomTranslator = new AxiomTranslator();
-		classExpressionTranslator = new ClassExpressionTranslator();
-		dataRangeTranslator = new DataRangeTranslator();
-		objectPropertyTranslator = new ObjectPropertyTranslator();
-		dataPropertyTranslator = new DataPropertyTranslator();
-		individualTranslator = new IndividualTranslator();
+		axiomTranslator = null;
+		classExpressionTranslator = null;
+		dataRangeTranslator = null;
+		objectPropertyTranslator = null;
+		dataPropertyTranslator = null;
+		individualTranslator = null;
+		entailmentChecker=null;
+		axiom2PtrMap.clear();
+		ptr2AxiomMap.clear();
+		rawChanges.clear();
+		reasonerAxioms.clear();
 		kernel.dispose();
 	}
 
-	private class ProgressMonitorAdapter implements FaCTPlusPlusProgressMonitor {
+	private static class ProgressMonitorAdapter implements FaCTPlusPlusProgressMonitor {
 		private int count = 0;
 		private int total = 0;
+		private final ReasonerProgressMonitor progressMonitor;
+		private final AtomicBoolean interrupted;
+		
+		public ProgressMonitorAdapter(ReasonerProgressMonitor p, AtomicBoolean interr) {
+			this.progressMonitor=p;
+			this.interrupted=interr;
+		}
 
 		public void setClassificationStarted(int classCount) {
 			count = 0;
 			total = classCount;
-			getReasonerConfiguration().getProgressMonitor()
+			progressMonitor
 					.reasonerTaskStarted(ReasonerProgressMonitor.CLASSIFYING);
-			getReasonerConfiguration().getProgressMonitor()
+			progressMonitor
 					.reasonerTaskProgressChanged(count, classCount);
 		}
 
 		public void nextClass() {
 			count++;
-			getReasonerConfiguration().getProgressMonitor()
+			progressMonitor
 					.reasonerTaskProgressChanged(count, total);
 		}
 
 		public void setFinished() {
-			getReasonerConfiguration().getProgressMonitor()
+			progressMonitor
 					.reasonerTaskStopped();
 		}
 
 		public boolean isCancelled() {
-			if (interrupted) {
+			if (interrupted.get()) {
 				throw new ReasonerInterruptedException();
 			}
-			return interrupted;
+			return false;
 		}
 	}
 
