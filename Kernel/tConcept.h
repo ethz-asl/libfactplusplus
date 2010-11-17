@@ -114,8 +114,10 @@ protected:	// methods
 		/// calculate value of classification TAG based on told subsumers. WARNING: no TS cycles allowed
 	CTTag determineClassTag ( void );
 
-		/// replace every entry of THIS in the P with true/false; return updated tree
-	DLTree* replaceWithConst ( DLTree* p ) const;
+		/// @return true iff description contains references to THIS concept
+	bool hasSelfInDesc ( const DLTree* p ) const;
+		/// @return copy of P with every entry of THIS replaced with true
+	DLTree* replaceSelfWithConst ( const DLTree* p ) const;
 
 	// told subsumers interface
 
@@ -202,7 +204,12 @@ public:		// methods
 		/// remove concept from its own definition (like in case C [= (or C ...)
 	void removeSelfFromDescription ( void )
 	{
-		Description = replaceWithConst(Description);
+		if ( hasSelfInDesc(Description) )
+		{	
+			DLTree* desc = Description;
+			Description = replaceSelfWithConst(desc);
+			deleteTree(desc);
+		}
 		initToldSubsumers();
 	}
 		/// remove concept description (to save space)

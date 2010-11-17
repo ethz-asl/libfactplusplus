@@ -97,13 +97,40 @@ CTTag TConcept :: determineClassTag ( void )
 	return cttTrueCompletelyDefined;
 }
 
+bool
+TConcept :: hasSelfInDesc ( const DLTree* t ) const
+{
+	if ( t == NULL )
+		return false;
+	
+	switch ( t->Element().getToken() )
+	{
+		case NAME:	// if ID contains synonym of P
+		{
+			const ClassifiableEntry* name = static_cast<const ClassifiableEntry*>(t->Element().getNE());
+			return resolveSynonym(name) == this;
+		}
+		case AND:
+			return hasSelfInDesc(t->Left()) || hasSelfInDesc(t->Right());
+		case NOT:	// a [= (not a) -> a [= BOTTOM; a [= (a or b) -> a [= TOP
+			switch ( t->Left()->Element().getToken() )
+			{
+			case AND:
+			case NAME:
+				return hasSelfInDesc(t->Left());
+			default:
+				return false;
+		}
+		default:
+			return false;
+	}
+}
+
 DLTree*
-TConcept :: replaceWithConst ( DLTree* t ) const
+TConcept :: replaceSelfWithConst ( const DLTree* t ) const
 {
 	if ( t == NULL )
 		return NULL;
-
-	DLTree* ret;
 
 	switch ( t->Element().getToken() )
 	{
@@ -111,33 +138,25 @@ TConcept :: replaceWithConst ( DLTree* t ) const
 	{
 		const ClassifiableEntry* name = static_cast<const ClassifiableEntry*>(t->Element().getNE());
 		if ( resolveSynonym(name) == this )
-		{
-			deleteTree(t);	// replace it for TOP
 			return createTop();
-		}
 		else
-			return t;
+			break;
 	}
 	case AND:	// a [= (and a b) -> a [= b
-		ret = createSNFAnd ( replaceWithConst(t->Left()), replaceWithConst(t->Right()) );
-		delete t;	// delete just entry, not the whole tree
-		return ret;
-
+		return createSNFAnd ( replaceSelfWithConst(t->Left()), replaceSelfWithConst(t->Right()) );
 	case NOT:	// a [= (not a) -> a [= BOTTOM; a [= (a or b) -> a [= TOP
 		switch ( t->Left()->Element().getToken() )
 		{
 		case AND:
 		case NAME:
-			ret = createSNFNot(replaceWithConst(t->Left()));
-			delete t;	// delete just NOT as we re-use LEFT
-			return ret;
+			return createSNFNot(replaceSelfWithConst(t->Left()));
 		default:
-			return t;
+			break;
 		}
-
 	default:
-		return t;
+		break;
 	}
+	return clone(t);
 }
 
 /// init told subsumers of the concept by given DESCription; @return TRUE iff concept is CD
