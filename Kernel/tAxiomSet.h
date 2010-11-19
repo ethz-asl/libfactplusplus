@@ -55,9 +55,6 @@ protected:	// members
 		/// flag for choosing if R will be absorbed late
 	bool lateR;
 
-		/// flag to manage time of absorption
-	bool earlyAbsorption;
-
 	// statistic part
 
 		/// number of axioms absorbed by concept absorption
@@ -75,12 +72,6 @@ protected:	// methods
 	void insertGCI ( TAxiom* p ) { Accum.push_back(p); }
 		/// absorb single GCI wrt absorption flags
 	bool absorbGCI ( TAxiom* p );
-		/// process GCI (with absorption if possible)
-	void processGCI ( TAxiom* p )
-	{
-		if ( !earlyAbsorption || !absorbGCI(p) )
-			insertGCI(p);
-	}
 		/// split given axiom
 	bool split ( TAxiom* p )
 	{
@@ -89,7 +80,7 @@ protected:	// methods
 
 		while ( (q=p->split()) != NULL )
 		{
-			processGCI(q);
+			insertGCI(q);
 #		ifdef RKG_DEBUG_ABSORPTION
 			std::cout << "\nContinue absorption of ";
 			p->dump(std::cout);
@@ -145,7 +136,6 @@ public:		// interface
 		/// c'tor
 	TAxiomSet ( TBox& host )
 		: Host(host)
-		, earlyAbsorption(false)
 		, nConceptAbsorbed(0)
 		, nConceptAbsorbAlternatives(0)
 		, nRoleDomainAbsorbed(0)
@@ -164,11 +154,9 @@ public:		// interface
 		TAxiom* p = new TAxiom();
 		p->add(C);
 		p->add(createSNFNot(D));
-		processGCI(p);
+		insertGCI(p);
 	}
 
-		/// set the early absorption flag
-	void setEarlyAbsorption ( bool flag ) { earlyAbsorption = flag; }
 		/// absorb set of axioms; @return size of not absorbed set
 	unsigned int absorb ( void );
 		/// get number of (not absorbed) GCIs

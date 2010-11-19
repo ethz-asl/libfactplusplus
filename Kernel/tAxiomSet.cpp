@@ -33,7 +33,7 @@ unsigned int TAxiomSet :: absorb ( void )
 	// GCIs to process
 	AxiomCollection Process;
 
-	if ( !useAbsorption || earlyAbsorption )
+	if ( !useAbsorption )
 		goto final;
 
 	bool absoprtionApplied;
