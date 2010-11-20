@@ -205,7 +205,7 @@ public:		// methods
 	void removeSelfFromDescription ( void )
 	{
 		if ( hasSelfInDesc(Description) )
-		{	
+		{
 			DLTree* desc = Description;
 			Description = replaceSelfWithConst(desc);
 			deleteTree(desc);

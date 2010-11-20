@@ -447,6 +447,8 @@ TBox :: createQueryConcept ( const DLTree* desc )
 {
 	static const char* const defConceptName = "FaCT++.default";
 
+	fpp_assert ( desc != NULL );
+
 	// clear the default concept def=desc
 	if ( defConcept != NULL )
 		clearQueryConcept();

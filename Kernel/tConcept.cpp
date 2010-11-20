@@ -102,7 +102,7 @@ TConcept :: hasSelfInDesc ( const DLTree* t ) const
 {
 	if ( t == NULL )
 		return false;
-	
+
 	switch ( t->Element().getToken() )
 	{
 		case NAME:	// if ID contains synonym of P
