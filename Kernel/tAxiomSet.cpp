@@ -64,8 +64,11 @@ bool TAxiomSet :: absorbGCI ( TAxiom* p )
 	p->dump(std::cout);
 #endif
 
+	++nAbsorptionTried;
 	for (;;)	// 1) -- beginning
 	{
+		++nAbsorptionIterations;
+
 		// always check absorption into TOP first
 		if ( absorbIntoTop(p) )
 			break;
@@ -197,19 +200,13 @@ bool TAxiomSet :: isAbsorptionFlagsCorrect ( bool useRnD ) const
 
 	return true;
 }
-/*
-void TAxiomSet :: Print ( std::ostream& o ) const
-{
-	o << "Axioms (" << size() << "): \n";
-	for ( AxiomCollection::const_iterator
-		  p = Accum.begin(), p_end = Accum.end(); p != p_end; ++p )
-		p->Print(o);
-}
-*/
+
 void TAxiomSet :: PrintStatistics ( void ) const
 {
-	if ( LLM.isWritable(llAlways) )
-		LL << "\nThere were used " << nConceptAbsorbed << " concept absorption with "
+	if ( useAbsorption && nAbsorptionTried > 0 && LLM.isWritable(llAlways) )
+		LL << "\nThere were " << nAbsorptionIterations
+		   << " absorption attempts for " << nAbsorptionTried << " axioms."
+		   << "\nThere were used " << nConceptAbsorbed << " concept absorption with "
 		   << nConceptAbsorbAlternatives << " possibilities\nThere were used "
 		   << nRoleDomainAbsorbed << " role domain absorption with "
 		   << nRoleDomainAbsorbAlternatives << " possibilities";

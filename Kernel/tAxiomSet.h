@@ -57,6 +57,10 @@ protected:	// members
 
 	// statistic part
 
+		/// number of axioms for which absrption was tried
+	unsigned int nAbsorptionTried;
+		/// number of iterations absorption algorithm made
+	unsigned int nAbsorptionIterations;
 		/// number of axioms absorbed by concept absorption
 	unsigned int nConceptAbsorbed;
 		/// number of possible ways of concept absorptions
@@ -136,6 +140,8 @@ public:		// interface
 		/// c'tor
 	TAxiomSet ( TBox& host )
 		: Host(host)
+		, nAbsorptionTried(0)
+		, nAbsorptionIterations(0)
 		, nConceptAbsorbed(0)
 		, nConceptAbsorbAlternatives(0)
 		, nRoleDomainAbsorbed(0)
