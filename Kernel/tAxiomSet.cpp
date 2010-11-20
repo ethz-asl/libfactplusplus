@@ -30,27 +30,26 @@ TAxiomSet :: ~TAxiomSet ( void )
 
 unsigned int TAxiomSet :: absorb ( void )
 {
-	// GCIs to process
-	AxiomCollection Process;
+	// absorbed- and unabsorbable GCIs
+	AxiomCollection Absorbed, GCIs;
 
 	if ( !useAbsorption )
 		goto final;
 
-	bool absoprtionApplied;
-
-	do
+	// we will change Accum (via split rule), so indexing and compare with size
+	for ( unsigned int i = 0; i < Accum.size(); ++i )
 	{
-		absoprtionApplied = false;
-		Process.swap(Accum);
-		Accum.clear();
+		TAxiom* ax = Accum[i];
+		if ( absorbGCI(ax) )
+			Absorbed.push_back(ax);
+		else
+			GCIs.push_back(ax);
+	}
 
-		for ( AxiomCollection::iterator p = Process.begin(), p_end = Process.end(); p != p_end; ++p )
-			if ( absorbGCI(*p) )
-				absoprtionApplied = true;
-			else
-				insertGCI(*p);
-		// if were additions to Accum (made by split) then we need to do run again
-	} while ( absoprtionApplied == true || Accum.size() != Process.size() );
+	// clear absorbed and remobve them from Accum
+	for ( AxiomCollection::iterator p = Absorbed.begin(), p_end = Absorbed.end(); p != p_end; ++p )
+		delete *p;
+	Accum.swap(GCIs);
 
 final:
 	PrintStatistics();
@@ -118,7 +117,6 @@ bool TAxiomSet :: absorbGCI ( TAxiom* p )
 	}
 
 	// here axiom is absorbed
-	delete p;
 	return true;
 }
 
