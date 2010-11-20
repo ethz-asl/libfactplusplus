@@ -49,14 +49,13 @@ DLTree* TAxiom :: createAnAxiom ( void )
 	const_iterator p = begin();
 
 	// create new OR vertex for the axiom:
-	DLTree* Or = *p;
+	DLTree* Or = clone(*p);
 
 	for ( ++p; p != end(); ++p )
-		Or = createSNFAnd ( *p, Or );
+		Or = createSNFAnd ( clone(*p), Or );
 
 	fpp_assert ( isSNF(Or) );	// safety check for G
 
-	inUse = true;
 	return createSNFNot(Or);
 }
 

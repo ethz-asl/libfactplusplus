@@ -46,7 +46,7 @@ unsigned int TAxiomSet :: absorb ( void )
 			GCIs.push_back(ax);
 	}
 
-	// clear absorbed and remobve them from Accum
+	// clear absorbed and remove them from Accum
 	for ( AxiomCollection::iterator p = Absorbed.begin(), p_end = Absorbed.end(); p != p_end; ++p )
 		delete *p;
 	Accum.swap(GCIs);

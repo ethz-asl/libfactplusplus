@@ -45,8 +45,6 @@ protected:	// types
 protected:	// members
 		/// GCI is presented in the form (or Disjuncts);
 	absorptionSet Disjuncts;
-		/// check whether GCI was used to create some concept expression
-	bool inUse;
 
 protected:	// methods
 		/// update internal indeces for an expression P in a given POSition
@@ -157,10 +155,9 @@ protected:	// methods
 
 public:		// interface
 		/// create an empty GCI
-	TAxiom ( void ) : inUse(false) {}
+	TAxiom ( void ) {}
 		/// create a copy of a given GCI
 	TAxiom ( const TAxiom& ax )
-		: inUse(false)	// new GCI is NOT in use
 	{
 		for ( const_iterator i = ax.begin(), i_end = ax.end(); i != i_end; ++i )
 			Disjuncts.push_back(clone(*i));
@@ -168,9 +165,8 @@ public:		// interface
 		/// d'tor: delete elements if AX is not in use
 	~TAxiom ( void )
 	{
-		if ( !inUse )
-			for ( iterator i = begin(), i_end = end(); i != i_end; ++i )
-				deleteTree(*i);
+		for ( iterator i = begin(), i_end = end(); i != i_end; ++i )
+			deleteTree(*i);
 	}
 
 		/// add DLTree to an axiom
