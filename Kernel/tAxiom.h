@@ -179,6 +179,17 @@ public:		// interface
 		gather ( p, Disjuncts.size() );
 		Disjuncts.push_back(p);
 	}
+		/// check whether 2 axioms are the same
+	bool operator == ( const TAxiom& ax ) const
+	{
+		if ( Disjuncts.size() != ax.Disjuncts.size() )
+			return false;
+		const_iterator p = begin(), q = ax.begin(), p_end = end(), q_end = ax.end();
+		for ( ; p != p_end; ++p, ++q )
+			if ( !equalTrees(*p,*q) )
+				return false;
+		return true;
+	}
 
 		/// simplify an axiom
 	bool simplify ( void );

@@ -28,6 +28,32 @@ TAxiomSet :: ~TAxiomSet ( void )
 		delete *p;
 }
 
+bool
+TAxiomSet :: split ( TAxiom* p )
+{
+	TAxiom* q = NULL;
+	TAxiom* clone = new TAxiom(*p);
+	bool untouched = true;
+
+	while ( (q=clone->split()) != NULL )
+	{
+		untouched = false;
+		if ( insertIfNew(q) )
+		{	// there is already such an axiom in process; stop now
+			delete q;
+			delete clone;
+			return false;
+		}
+	}
+
+	if ( untouched || insertIfNew(clone) )
+	{
+		delete clone;
+		return false;
+	}
+	return true;
+}
+
 unsigned int TAxiomSet :: absorb ( void )
 {
 	// absorbed- and unabsorbable GCIs
@@ -111,7 +137,7 @@ bool TAxiomSet :: absorbGCI ( TAxiom* p )
 
 		// step 5: recursive step -- split OR verteces
 		if ( split(p) )
-			continue;
+			break;
 
 		return false;
 	}

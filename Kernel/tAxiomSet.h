@@ -74,26 +74,19 @@ protected:	// methods
 
 		/// add already built GCI p
 	void insertGCI ( TAxiom* p ) { Accum.push_back(p); }
+		/// insert GCI if new; @return true iff already exists
+	bool insertIfNew ( TAxiom* q )
+	{
+		for ( AxiomCollection::const_iterator p = Accum.begin(), p_end = Accum.end(); p != p_end; ++p )
+			if ( *q == **p )
+				return true;
+		insertGCI(q);
+		return false;
+	}
 		/// absorb single GCI wrt absorption flags
 	bool absorbGCI ( TAxiom* p );
 		/// split given axiom
-	bool split ( TAxiom* p )
-	{
-		TAxiom* q = NULL;
-		bool ret = false;
-
-		while ( (q=p->split()) != NULL )
-		{
-			insertGCI(q);
-#		ifdef RKG_DEBUG_ABSORPTION
-			std::cout << "\nContinue absorption of ";
-			p->dump(std::cout);
-#		endif
-			ret = true;
-		}
-
-		return ret;
-	}
+	bool split ( TAxiom* p );
 		/// simplify given axiom.
 	bool simplify ( TAxiom* p ) { return p->simplify(); }
 
