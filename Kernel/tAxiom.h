@@ -64,8 +64,6 @@ protected:	// methods
 			}
 		Disjuncts[pos] = p;
 	}
-		/// replace element given by an iterator I with TOP
-	void replaceWithTop ( iterator i ) { deleteTree(*i); *i = createTop(); }
 
 	// access to labels
 
@@ -199,8 +197,10 @@ public:		// interface
 	unsigned int absorbIntoConcept ( TBox& KB );
 		/// absorb into role domain; @return number of alternatives
 	unsigned int absorbIntoDomain ( void );
-		/// create a concept expressiong corresponding a given GCI
-	DLTree* createAnAxiom ( void );
+		/// create a concept expression corresponding to a given GCI; ignore REPLACED entry
+	DLTree* createAnAxiom ( const_iterator replaced ) const;
+		/// create a concept expression corresponding to a given GCI
+	DLTree* createAnAxiom ( void ) const { return createAnAxiom(end());	}
 
 #ifdef RKG_DEBUG_ABSORPTION
 		/// dump GCI for debug purposes

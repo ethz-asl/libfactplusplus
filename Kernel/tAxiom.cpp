@@ -42,17 +42,16 @@ bool TAxiom :: simplify ( void )
 	return false;
 }
 
-DLTree* TAxiom :: createAnAxiom ( void )
+DLTree*
+TAxiom :: createAnAxiom ( const_iterator replaced ) const
 {
 	fpp_assert ( !Disjuncts.empty() );	// could not create an axiom from empty absorption set
 
-	const_iterator p = begin();
-
 	// create new OR vertex for the axiom:
-	DLTree* Or = clone(*p);
-
-	for ( ++p; p != end(); ++p )
-		Or = createSNFAnd ( clone(*p), Or );
+	DLTree* Or = createTop();
+	for ( const_iterator p = begin(), p_end = end(); p != p_end; ++p )
+		if ( p != replaced )
+			Or = createSNFAnd ( clone(*p), Or );
 
 	fpp_assert ( isSNF(Or) );	// safety check for G
 
@@ -128,15 +127,13 @@ unsigned int TAxiom :: absorbIntoConcept ( TBox& KB )
 	// locate concept
 	TConcept* Concept = getConcept(*bestConcept);
 
-	replaceWithTop(bestConcept);
-
 #ifdef RKG_DEBUG_ABSORPTION
 	std::cout << " C-Absorb GCI to concept " << Concept->getName() << ": ";
 	dump(std::cout);
 #endif
 
 	// adds a new definition
-	Concept->addDesc(createAnAxiom());
+	Concept->addDesc(createAnAxiom(bestConcept));
 	Concept->removeSelfFromDescription();
 	// in case T [= (A or \neg B) and (B and \neg A) there appears a cycle A [= B [= A
 	// so remove potential cycle
@@ -175,11 +172,7 @@ unsigned int TAxiom :: absorbIntoDomain ( void )
 	TRole* Role;
 
 	if ( bestSome != end() )
-	{
 		Role = resolveRole ( (*bestSome)->Left()->Left() );
-		// replace the SOME concept expression with TOP
-		replaceWithTop(bestSome);
-	}
 	else
 		// FIXME!! as for now: just take the 1st concept name
 		Role = resolveRole ( (*Cons[0])->Left()->Left() );
@@ -189,7 +182,8 @@ unsigned int TAxiom :: absorbIntoDomain ( void )
 	dump(std::cout);
 #endif
 
-	Role->setDomain(createAnAxiom());
+	// here bestSome is either actual domain, or END(); both cases are fine
+	Role->setDomain(createAnAxiom(bestSome));
 
 	return Cons.size();
 }
