@@ -21,11 +21,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "tOntologyPrinterLISP.h"
 
 const char* ReasoningKernel :: Version = "1.5.0";
-const char* ReasoningKernel :: ProductName =
-	"FaCT++.Kernel: Reasoner for the SROIQ(D) Description Logic\n";
+const char* ReasoningKernel :: SupportedDL = "SROIQ(D)";
 const char* ReasoningKernel :: Copyright =
-	"Copyright (C) Dmitry V. Tsarkov, 2002-2010. ";
-const char* ReasoningKernel :: ReleaseDate = "(5 October 2010)";
+	"Copyright (C) Dmitry Tsarkov, 2002-2010";
+const char* ReasoningKernel :: ReleaseDate = "5 October 2010";
 
 // print the FaCT++ information only once
 static bool KernelFirstRun = true;
@@ -47,7 +46,8 @@ ReasoningKernel :: ReasoningKernel ( void )
 	// Intro
 	if ( KernelFirstRun )
 	{
-		std::cerr << ProductName << Copyright << "Version " << Version << " " << ReleaseDate << "\n";
+		std::cerr << "FaCT++.Kernel: Reasoner for the " << SupportedDL << " Description Logic, " << 8*sizeof(int) << "-bit\n"
+				  << Copyright << ". Version " << Version << " (" << ReleaseDate << ")\n";
 		KernelFirstRun = false;
 	}
 

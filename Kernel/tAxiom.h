@@ -184,7 +184,7 @@ public:		// interface
 	{
 		if ( Disjuncts.size() != ax.Disjuncts.size() )
 			return false;
-		const_iterator p = begin(), q = ax.begin(), p_end = end(), q_end = ax.end();
+		const_iterator p = begin(), q = ax.begin(), p_end = end();
 		for ( ; p != p_end; ++p, ++q )
 			if ( !equalTrees(*p,*q) )
 				return false;

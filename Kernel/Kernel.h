@@ -92,7 +92,7 @@ private:
 
 private:
 	static const char* Version;
-	static const char* ProductName;
+	static const char* SupportedDL;
 	static const char* Copyright;
 	static const char* ReleaseDate;
 		/// header of the file with internal state; defined in SaveLoad.cpp
