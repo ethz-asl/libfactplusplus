@@ -21,6 +21,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "logging.h"
 #include "dlTBox.h"
 
+namespace Stat
+{
+class SAbsTry: public counter<SAbsTry> {};
+class SAbsIteration: public counter<SAbsIteration> {};
+}
+
 /// d'tor
 TAxiomSet :: ~TAxiomSet ( void )
 {
@@ -89,10 +95,10 @@ bool TAxiomSet :: absorbGCI ( TAxiom* p )
 	p->dump(std::cout);
 #endif
 
-	++nAbsorptionTried;
+	Stat::SAbsTry();
 	for (;;)	// 1) -- beginning
 	{
-		++nAbsorptionIterations;
+		Stat::SAbsIteration();
 
 		// always check absorption into TOP first
 		if ( absorbIntoTop(p) )
@@ -227,11 +233,11 @@ bool TAxiomSet :: isAbsorptionFlagsCorrect ( bool useRnD ) const
 
 void TAxiomSet :: PrintStatistics ( void ) const
 {
-	if ( useAbsorption && nAbsorptionTried > 0 && LLM.isWritable(llAlways) )
-		LL << "\nThere were " << nAbsorptionIterations
-		   << " absorption attempts for " << nAbsorptionTried << " axioms."
-		   << "\nThere were used " << nConceptAbsorbed << " concept absorption with "
-		   << nConceptAbsorbAlternatives << " possibilities\nThere were used "
-		   << nRoleDomainAbsorbed << " role domain absorption with "
-		   << nRoleDomainAbsorbAlternatives << " possibilities";
+	if ( useAbsorption && Stat::SAbsTry::objects_created > 0 && LLM.isWritable(llAlways) )
+		LL << "\nThere were " << Stat::SAbsIteration::objects_created
+		   << " absorption attempts for " << Stat::SAbsTry::objects_created << " axioms."
+		   << "\nThere were used " << Stat::SAbsCApply::objects_created << " concept absorption with "
+		   << Stat::SAbsCAttempt::objects_created << " possibilities\nThere were used "
+		   << Stat::SAbsRApply::objects_created << " role domain absorption with "
+		   << Stat::SAbsRAttempt::objects_created << " possibilities";
 }

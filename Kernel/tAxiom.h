@@ -24,8 +24,19 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "globaldef.h"
 #include "dltree.h"
 #include "tConcept.h"
+#include "counter.h"
 
 class TBox;
+
+namespace Stat
+{
+class SAbsSimplify: public counter<SAbsSimplify> {};
+class SAbsSplit: public counter<SAbsSplit> {};
+class SAbsCApply: public counter<SAbsCApply> {};
+class SAbsCAttempt: public counter<SAbsCAttempt> {};
+class SAbsRApply: public counter<SAbsRApply> {};
+class SAbsRAttempt: public counter<SAbsRAttempt> {};
+}
 
 class TAxiom
 {
@@ -107,6 +118,7 @@ protected:	// methods
 		/// simplify (OR C ...) for a non-primitive C in a given position
 	void simplifyPosNP ( unsigned int pos )
 	{
+		Stat::SAbsSimplify();
 		replace ( createSNFNot(clone(getConcept(Disjuncts[pos]->Left())->Description)),
 				  pos );
 #	ifdef RKG_DEBUG_ABSORPTION
@@ -117,6 +129,7 @@ protected:	// methods
 		/// simplify (OR ~C ...) for a non-primitive C in a given position
 	void simplifyNegNP ( unsigned int pos )
 	{
+		Stat::SAbsSimplify();
 		replace ( clone(getConcept(Disjuncts[pos])->Description),
 				  pos );
 #	ifdef RKG_DEBUG_ABSORPTION
@@ -127,6 +140,7 @@ protected:	// methods
 		/// simplify (OR (OR ...)) in a given position
 	void simplifyOr ( unsigned int pos )
 	{
+		Stat::SAbsSimplify();
 		DLTree* pAnd = Disjuncts[pos];
 		add(clone(pAnd->Right()));
 		replace ( clone(pAnd->Left()), pos );
@@ -138,6 +152,7 @@ protected:	// methods
 		/// split (OR (AND...) ...) in a given position
 	TAxiom* split ( unsigned int pos )
 	{
+		Stat::SAbsSplit();
 		DLTree* pOr = Disjuncts[pos]->Left();
 		TAxiom* ret = new TAxiom(*this);
 		ret->replace ( createSNFNot(clone(pOr->Left())), pos );
@@ -202,12 +217,12 @@ public:		// interface
 
 		return NULL;
 	}
-		/// absorb into TOP; @return true if absorption performs
+		/// absorb into TOP; @return true if absorption is performed
 	bool absorbIntoTop ( TBox& KB );
-		/// absorb into concept; @return number of alternatives
-	unsigned int absorbIntoConcept ( TBox& KB );
-		/// absorb into role domain; @return number of alternatives
-	unsigned int absorbIntoDomain ( void );
+		/// absorb into concept; @return true if absorption is performed
+	bool absorbIntoConcept ( TBox& KB );
+		/// absorb into role domain; @return true if absorption is performed
+	bool absorbIntoDomain ( void );
 		/// create a concept expression corresponding to a given GCI; ignore REPLACED entry
 	DLTree* createAnAxiom ( const_iterator replaced ) const;
 		/// create a concept expression corresponding to a given GCI

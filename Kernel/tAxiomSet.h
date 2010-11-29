@@ -55,21 +55,6 @@ protected:	// members
 		/// flag for choosing if R will be absorbed late
 	bool lateR;
 
-	// statistic part
-
-		/// number of axioms for which absrption was tried
-	unsigned int nAbsorptionTried;
-		/// number of iterations absorption algorithm made
-	unsigned int nAbsorptionIterations;
-		/// number of axioms absorbed by concept absorption
-	unsigned int nConceptAbsorbed;
-		/// number of possible ways of concept absorptions
-	unsigned int nConceptAbsorbAlternatives;
-		/// number of axioms absorbed by role absorption
-	unsigned int nRoleDomainAbsorbed;
-		/// number of possible ways of role absorptions
-	unsigned int nRoleDomainAbsorbAlternatives;
-
 protected:	// methods
 
 		/// add already built GCI p
@@ -90,55 +75,17 @@ protected:	// methods
 		/// simplify given axiom.
 	bool simplify ( TAxiom* p ) { return p->simplify(); }
 
-	// absorption statistics
-
-		/// increase Concept Absorption statistic to N variants
-	void incConceptAbsorption ( unsigned int n )
-	{
-		++nConceptAbsorbed;
-		nConceptAbsorbAlternatives += n;
-	}
-		/// increase Role Domain Absorption statistic to N variants
-	void incRoleDomainAbsorption ( unsigned int n )
-	{
-		++nRoleDomainAbsorbed;
-		nRoleDomainAbsorbAlternatives += n;
-	}
-
 		/// absorb single axiom AX into TOP; @return true if succeed
 	bool absorbIntoTop ( TAxiom* ax ) { return ax->absorbIntoTop(Host); }
 		/// absorb single axiom AX into concept; @return true if succeed
-	bool absorbIntoConcept ( TAxiom* ax )
-	{
-		unsigned int n = ax->absorbIntoConcept(Host);
-		if ( n == 0 )
-			return false;
-		incConceptAbsorption(n);
-		return true;
-	}
+	bool absorbIntoConcept ( TAxiom* ax ) { return ax->absorbIntoConcept(Host); }
 		/// absorb single axiom AX into role domain; @return true if succeed
-	bool absorbIntoDomain ( TAxiom* ax )
-	{
-		if ( !useRoleAbsorption )
-			return false;
-
-		unsigned int n = ax->absorbIntoDomain();
-		if ( n == 0 )
-			return false;
-		incRoleDomainAbsorption(n);
-		return true;
-	}
+	bool absorbIntoDomain ( TAxiom* ax ) { return useRoleAbsorption && ax->absorbIntoDomain(); }
 
 public:		// interface
 		/// c'tor
 	TAxiomSet ( TBox& host )
 		: Host(host)
-		, nAbsorptionTried(0)
-		, nAbsorptionIterations(0)
-		, nConceptAbsorbed(0)
-		, nConceptAbsorbAlternatives(0)
-		, nRoleDomainAbsorbed(0)
-		, nRoleDomainAbsorbAlternatives(0)
 		{}
 		/// d'tor
 	~TAxiomSet ( void );
@@ -161,7 +108,7 @@ public:		// interface
 		/// get number of (not absorbed) GCIs
 	unsigned int size ( void ) const { return Accum.size(); }
 		/// @return true if non-concept aborption were executed
-	bool wasRoleAbsorptionApplied ( void ) const { return nRoleDomainAbsorbed > 0; }
+	bool wasRoleAbsorptionApplied ( void ) const { return Stat::SAbsRApply::objects_created > 0; }
 		/// get GCI of all non-absorbed axioms
 	DLTree* getGCI ( void ) const
 	{

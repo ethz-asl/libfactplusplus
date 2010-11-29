@@ -107,7 +107,8 @@ TAxiom :: absorbIntoTop ( TBox& KB )
 	return true;
 }
 
-unsigned int TAxiom :: absorbIntoConcept ( TBox& KB )
+bool
+TAxiom :: absorbIntoConcept ( TBox& KB )
 {
 	WorkSet Cons;
 
@@ -115,12 +116,16 @@ unsigned int TAxiom :: absorbIntoConcept ( TBox& KB )
 	for ( iterator p = begin(); p != end(); ++p )
 		if ( isName(*p) &&		// FIXME!! review this during implementation of Nominal Absorption
 			 getConcept(*p)->isPrimitive() )
+		{
+			Stat::SAbsCAttempt();
 			Cons.push_back(p);
+		}
 
 	// if no concept names -- return;
 	if ( Cons.empty() )
-		return 0;
+		return false;
 
+	Stat::SAbsCApply();
 	// FIXME!! as for now: just take the 1st concept name
 	iterator bestConcept = Cons[0];
 
@@ -142,10 +147,11 @@ unsigned int TAxiom :: absorbIntoConcept ( TBox& KB )
 	KB.checkToldCycle(Concept);
 	KB.clearRelevanceInfo();
 
-	return Cons.size();
+	return true;
 }
 
-unsigned int TAxiom :: absorbIntoDomain ( void )
+bool
+TAxiom :: absorbIntoDomain ( void )
 {
 	std::vector<iterator> Cons;
 	iterator bestSome = end();
@@ -156,6 +162,7 @@ unsigned int TAxiom :: absorbIntoDomain ( void )
 			 ( (*p)->Left()->Element() == FORALL	// \neg ER.C
 			   || (*p)->Left()->Element() == LE ))	// \neg >= n R.C
 		{
+			Stat::SAbsRAttempt();
 			Cons.push_back(p);
 			// check for the direct domain case
 			if ( (*p)->Left()->Right()->Element() == BOTTOM )
@@ -167,8 +174,9 @@ unsigned int TAxiom :: absorbIntoDomain ( void )
 
 	// if there are no EXISTS concepts -- return;
 	if ( Cons.empty() )
-		return 0;
+		return false;
 
+	Stat::SAbsRApply();
 	TRole* Role;
 
 	if ( bestSome != end() )
@@ -185,5 +193,5 @@ unsigned int TAxiom :: absorbIntoDomain ( void )
 	// here bestSome is either actual domain, or END(); both cases are fine
 	Role->setDomain(createAnAxiom(bestSome));
 
-	return Cons.size();
+	return true;
 }
