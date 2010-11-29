@@ -73,7 +73,18 @@ protected:	// methods
 		/// split given axiom
 	bool split ( TAxiom* p );
 		/// simplify given axiom.
-	bool simplify ( TAxiom* p ) { return p->simplify(); }
+	bool simplify ( TAxiom* p )
+	{
+		TAxiom* q = p->simplify();
+		if ( q == NULL )
+			return false;
+		if ( insertIfNew(q) )
+		{
+			delete q;
+			return false;
+		}
+		return true;
+	}
 
 		/// absorb single axiom AX into TOP; @return true if succeed
 	bool absorbIntoTop ( TAxiom* ax ) { return ax->absorbIntoTop(Host); }

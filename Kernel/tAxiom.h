@@ -116,38 +116,42 @@ protected:	// methods
 	// single disjunct's optimisations
 
 		/// simplify (OR C ...) for a non-primitive C in a given position
-	void simplifyPosNP ( unsigned int pos )
+	TAxiom* simplifyPosNP ( unsigned int pos )
 	{
 		Stat::SAbsSimplify();
-		replace ( createSNFNot(clone(getConcept(Disjuncts[pos]->Left())->Description)),
-				  pos );
+		TAxiom* ret = new TAxiom(*this);
+		ret->replace ( createSNFNot(clone(getConcept(Disjuncts[pos]->Left())->Description)), pos );
 #	ifdef RKG_DEBUG_ABSORPTION
 		std::cout << " simplify CN at position " << pos << ": ";
-		dump(std::cout);
+		ret->dump(std::cout);
 #	endif
+		return ret;
 	}
 		/// simplify (OR ~C ...) for a non-primitive C in a given position
-	void simplifyNegNP ( unsigned int pos )
+	TAxiom* simplifyNegNP ( unsigned int pos )
 	{
 		Stat::SAbsSimplify();
-		replace ( clone(getConcept(Disjuncts[pos])->Description),
-				  pos );
+		TAxiom* ret = new TAxiom(*this);
+		ret->replace ( clone(getConcept(Disjuncts[pos])->Description), pos );
 #	ifdef RKG_DEBUG_ABSORPTION
 		std::cout << " simplify ~CN at position " << pos << ": ";
-		dump(std::cout);
+		ret->dump(std::cout);
 #	endif
+		return ret;
 	}
 		/// simplify (OR (OR ...)) in a given position
-	void simplifyOr ( unsigned int pos )
+	TAxiom* simplifyOr ( unsigned int pos )
 	{
 		Stat::SAbsSimplify();
+		TAxiom* ret = new TAxiom(*this);
 		DLTree* pAnd = Disjuncts[pos];
-		add(clone(pAnd->Right()));
-		replace ( clone(pAnd->Left()), pos );
+		ret->add(clone(pAnd->Right()));
+		ret->replace ( clone(pAnd->Left()), pos );
 #	ifdef RKG_DEBUG_ABSORPTION
 		std::cout << " simplify OR at position " << pos << ": ";
-		dump(std::cout);
+		ret->dump(std::cout);
 #	endif
+		return ret;
 	}
 		/// split (OR (AND...) ...) in a given position
 	TAxiom* split ( unsigned int pos )
@@ -207,7 +211,7 @@ public:		// interface
 	}
 
 		/// simplify an axiom
-	bool simplify ( void );
+	TAxiom* simplify ( void );
 		/// split an axiom; @return new axiom and/or NULL
 	TAxiom* split ( void )
 	{

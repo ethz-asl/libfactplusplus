@@ -20,26 +20,22 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "tRole.h"
 #include "dlTBox.h"
 
-bool TAxiom :: simplify ( void )
+TAxiom*
+TAxiom :: simplify ( void )
 {
 	for ( unsigned int i = 0; i < Disjuncts.size(); ++i )
 	{
 		DLTree* p = Disjuncts[i];
 
 		if ( isPosNP(p) )
-			simplifyPosNP(i);
+			return simplifyPosNP(i);
 		else if ( isNegNP(p) )
-			simplifyNegNP(i);
+			return simplifyNegNP(i);
 		else if ( isOr(p) )
-			simplifyOr(i);
-		else
-			continue;
-
-		// something was simplified
-		return true;
+			return simplifyOr(i);
 	}
 
-	return false;
+	return NULL;
 }
 
 DLTree*

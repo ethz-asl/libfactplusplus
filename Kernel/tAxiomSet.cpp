@@ -107,7 +107,7 @@ bool TAxiomSet :: absorbGCI ( TAxiom* p )
 		// steps 2-3. Simplify and unfold
 		if ( absorbSimplifyFirst )
 			if ( simplify(p) )
-				continue;
+				break;
 
 		// R-or-C part a): necessary
 		if ( begC )	// C is first
@@ -130,7 +130,7 @@ bool TAxiomSet :: absorbGCI ( TAxiom* p )
 		// steps 2-3. Simplify and unfold
 		if ( !absorbSimplifyFirst )
 			if ( simplify(p) )
-				continue;
+				break;
 
 		// R-or-C part c): late
 		if ( lateC )	// C is late
