@@ -26,6 +26,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "tConcept.h"
 #include "counter.h"
 
+// uncomment this to have absorption debug messages
+//#define RKG_DEBUG_ABSORPTION
+
 class TBox;
 
 namespace Stat
