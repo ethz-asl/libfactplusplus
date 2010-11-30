@@ -27,7 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "counter.h"
 
 // uncomment this to have absorption debug messages
-#define RKG_DEBUG_ABSORPTION
+//#define RKG_DEBUG_ABSORPTION
 
 class TBox;
 
@@ -156,17 +156,19 @@ protected:	// methods
 		return ret;
 	}
 		/// split (OR (AND...) ...) in a given position
-	TAxiom* split ( unsigned int pos )
+	void split ( std::vector<TAxiom*>& acc, unsigned int pos, DLTree* pAnd ) const
 	{
-		Stat::SAbsSplit();
-		DLTree* pOr = Disjuncts[pos]->Left();
-		TAxiom* ret = new TAxiom(*this);
-		ret->replace ( createSNFNot(clone(pOr->Left())), pos );
-		replace ( createSNFNot(clone(pOr->Right())), pos );
-#	ifdef RKG_DEBUG_ABSORPTION
-		std::cout << " split AND at position " << pos;
-#	endif
-		return ret;
+		if ( pAnd->Element().getToken() == AND )
+		{	// split the AND
+			split ( acc, pos, pAnd->Left() );
+			split ( acc, pos, pAnd->Right() );
+		}
+		else
+		{
+			TAxiom* ret = new TAxiom(*this);
+			ret->replace ( createSNFNot(clone(pAnd)), pos );
+			acc.push_back(ret);
+		}
 	}
 
 public:		// interface
@@ -200,25 +202,56 @@ public:		// interface
 		/// check whether 2 axioms are the same
 	bool operator == ( const TAxiom& ax ) const
 	{
+#	ifdef RKG_DEBUG_ABSORPTION
+//		std::cout << "\n  comparing "; dump(std::cout);
+//		std::cout << "  with      "; ax.dump(std::cout);
+#	endif
 		if ( Disjuncts.size() != ax.Disjuncts.size() )
+		{
+#		ifdef RKG_DEBUG_ABSORPTION
+//			std::cout << "  different size";
+#		endif
 			return false;
+		}
 		const_iterator p = begin(), q = ax.begin(), p_end = end();
 		for ( ; p != p_end; ++p, ++q )
 			if ( !equalTrees(*p,*q) )
+			{
+#			ifdef RKG_DEBUG_ABSORPTION
+//				std::cout << "  different tree:" << *p << " vs" << *q;
+#			endif
 				return false;
+			}
+#	ifdef RKG_DEBUG_ABSORPTION
+//		std::cout << "  equal!";
+#	endif
 		return true;
 	}
 
 		/// simplify an axiom
 	TAxiom* simplify ( void );
 		/// split an axiom; @return new axiom and/or NULL
-	TAxiom* split ( void )
+	bool split ( std::vector<TAxiom*>& acc ) const
 	{
-		for ( iterator p_beg = begin(), p_end = end(), p = p_beg; p != p_end; ++p )
+		acc.clear();
+		for ( const_iterator p_beg = begin(), p_end = end(), p = p_beg; p != p_end; ++p )
 			if ( isAnd(*p) )
-				return split(p-p_beg);
+			{
+				Stat::SAbsSplit();
+				unsigned int pos = p-p_beg;
+#			ifdef RKG_DEBUG_ABSORPTION
+				std::cout << " split AND at position " << pos;
+#			endif
+				split ( acc, pos, (*p)->Left() );
+				// no need to split more than once:
+				// every extra splits would be together with unsplitted parts
+				// like: (A or B) and (C or D) would be transform into
+				// A and (C or D), B and (C or D), (A or B) and C, (A or B) and D
+				// so just return here
+				return true;
+			}
 
-		return NULL;
+		return false;
 	}
 		/// absorb into TOP; @return true if absorption is performed
 	bool absorbIntoTop ( TBox& KB );

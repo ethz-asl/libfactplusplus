@@ -31,27 +31,20 @@ TAxiomSet :: ~TAxiomSet ( void )
 bool
 TAxiomSet :: split ( TAxiom* p )
 {
-	TAxiom* q = NULL;
-	TAxiom* clone = new TAxiom(*p);
-	bool untouched = true;
-
-	while ( (q=clone->split()) != NULL )
-	{
-		untouched = false;
-		if ( insertIfNew(q) )
-		{	// there is already such an axiom in process; stop now
-			delete q;
-			delete clone;
-			return false;
-		}
-	}
-
-	if ( untouched || insertIfNew(clone) )
-	{
-		delete clone;
+	AxiomCollection Splitted;
+	if ( !p->split(Splitted) )	// nothing to split
 		return false;
-	}
-	return true;
+
+	AxiomCollection::iterator q = Splitted.begin(), q_end = Splitted.end();
+	bool cont = true;
+	for ( ; q != q_end; ++q )
+		if ( insertIfNew(*q) )
+		{	// there is already such an axiom in process; delete it
+			// FIXME!! check whether we need to check this upfront and don't add other axioms
+			delete *q;
+			cont = false;
+		}
+	return cont;
 }
 
 unsigned int TAxiomSet :: absorb ( void )
