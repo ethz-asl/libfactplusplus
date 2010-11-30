@@ -125,8 +125,7 @@ protected:	// methods
 		TAxiom* ret = new TAxiom(*this);
 		ret->replace ( createSNFNot(clone(getConcept(Disjuncts[pos]->Left())->Description)), pos );
 #	ifdef RKG_DEBUG_ABSORPTION
-		std::cout << " simplify CN at position " << pos << ": ";
-		ret->dump(std::cout);
+		std::cout << " simplify CN at position " << pos;
 #	endif
 		return ret;
 	}
@@ -137,8 +136,7 @@ protected:	// methods
 		TAxiom* ret = new TAxiom(*this);
 		ret->replace ( clone(getConcept(Disjuncts[pos])->Description), pos );
 #	ifdef RKG_DEBUG_ABSORPTION
-		std::cout << " simplify ~CN at position " << pos << ": ";
-		ret->dump(std::cout);
+		std::cout << " simplify ~CN at position " << pos;
 #	endif
 		return ret;
 	}
@@ -151,8 +149,7 @@ protected:	// methods
 		ret->add(clone(pAnd->Right()));
 		ret->replace ( clone(pAnd->Left()), pos );
 #	ifdef RKG_DEBUG_ABSORPTION
-		std::cout << " simplify OR at position " << pos << ": ";
-		ret->dump(std::cout);
+		std::cout << " simplify OR at position " << pos;
 #	endif
 		return ret;
 	}
@@ -165,10 +162,7 @@ protected:	// methods
 		ret->replace ( createSNFNot(clone(pOr->Left())), pos );
 		replace ( createSNFNot(clone(pOr->Right())), pos );
 #	ifdef RKG_DEBUG_ABSORPTION
-		std::cout << " split AND at position " << pos << "\n  GCI 1 = ";
-		ret->dump(std::cout);
-		std::cout << "  GCI 2 = ";
-		dump(std::cout);
+		std::cout << " split AND at position " << pos;
 #	endif
 		return ret;
 	}

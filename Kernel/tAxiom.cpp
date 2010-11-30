@@ -57,10 +57,10 @@ TAxiom :: createAnAxiom ( const_iterator replaced ) const
 #ifdef RKG_DEBUG_ABSORPTION
 void TAxiom :: dump ( std::ostream& o ) const
 {
-	o << "(neg-and";
+	o << " (neg-and";
 	for ( const_iterator p = begin(), p_end = end(); p != p_end; ++p )
 		o << *p;
-	o << ")" << std::endl;
+	o << ")";
 }
 #endif
 
@@ -94,8 +94,7 @@ TAxiom :: absorbIntoTop ( TBox& KB )
 	std::cout << " T-Absorb GCI to axiom";
 	if ( desc )
 		std::cout << "s *TOP* [=" << desc << " and";
-	std::cout << " " << C->getName() << " = *TOP*: ";
-	dump(std::cout);
+	std::cout << " " << C->getName() << " = *TOP*";
 #endif
 	if ( desc )
 		KB.addSubsumeAxiom ( createTop(), desc );
@@ -129,8 +128,7 @@ TAxiom :: absorbIntoConcept ( TBox& KB )
 	TConcept* Concept = getConcept(*bestConcept);
 
 #ifdef RKG_DEBUG_ABSORPTION
-	std::cout << " C-Absorb GCI to concept " << Concept->getName() << ": ";
-	dump(std::cout);
+	std::cout << " C-Absorb GCI to concept " << Concept->getName();
 #endif
 
 	// adds a new definition
@@ -182,8 +180,7 @@ TAxiom :: absorbIntoDomain ( void )
 		Role = resolveRole ( (*Cons[0])->Left()->Left() );
 
 #ifdef RKG_DEBUG_ABSORPTION
-	std::cout << " R-Absorb GCI to the domain of role " << Role->getName() << ": ";
-	dump(std::cout);
+	std::cout << " R-Absorb GCI to the domain of role " << Role->getName();
 #endif
 
 	// here bestSome is either actual domain, or END(); both cases are fine

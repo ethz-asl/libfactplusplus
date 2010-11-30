@@ -58,13 +58,25 @@ protected:	// members
 protected:	// methods
 
 		/// add already built GCI p
-	void insertGCI ( TAxiom* p ) { Accum.push_back(p); }
+	void insertGCI ( TAxiom* p )
+	{
+#	ifdef RKG_DEBUG_ABSORPTION
+		std::cout << "\n new axiom (" << Accum.size() << "):";
+		p->dump(std::cout);
+#	endif
+		Accum.push_back(p);
+	}
 		/// insert GCI if new; @return true iff already exists
 	bool insertIfNew ( TAxiom* q )
 	{
 		for ( AxiomCollection::const_iterator p = Accum.begin(), p_end = Accum.end(); p != p_end; ++p )
 			if ( *q == **p )
+			{
+#			ifdef RKG_DEBUG_ABSORPTION
+				std::cout << " same as (" << p-Accum.begin() << ")";
+#			endif
 				return true;
+			}
 		insertGCI(q);
 		return false;
 	}

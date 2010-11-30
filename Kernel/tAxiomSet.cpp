@@ -71,6 +71,9 @@ unsigned int TAxiomSet :: absorb ( void )
 	// we will change Accum (via split rule), so indexing and compare with size
 	for ( unsigned int i = 0; i < Accum.size(); ++i )
 	{
+#	ifdef RKG_DEBUG_ABSORPTION
+		std::cout << "\nProcessing (" << i << "):";
+#	endif
 		TAxiom* ax = Accum[i];
 		if ( absorbGCI(ax) )
 			Absorbed.push_back(ax);
@@ -84,17 +87,15 @@ unsigned int TAxiomSet :: absorb ( void )
 	Accum.swap(GCIs);
 
 final:
+#ifdef RKG_DEBUG_ABSORPTION
+	std::cout << "\nAbsorption done with " << Accum.size() << " GCIs left\n";
+#endif
 	PrintStatistics();
 	return size();
 }
 
 bool TAxiomSet :: absorbGCI ( TAxiom* p )
 {
-#ifdef RKG_DEBUG_ABSORPTION
-	std::cout << "\nBegin absorption of ";
-	p->dump(std::cout);
-#endif
-
 	Stat::SAbsTry();
 	for (;;)	// 1) -- beginning
 	{
@@ -144,6 +145,10 @@ bool TAxiomSet :: absorbGCI ( TAxiom* p )
 		// step 5: recursive step -- split OR verteces
 		if ( split(p) )
 			break;
+
+#ifdef RKG_DEBUG_ABSORPTION
+	std::cout << " keep as GCI";
+#endif
 
 		return false;
 	}
