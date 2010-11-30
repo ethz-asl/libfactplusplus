@@ -27,14 +27,16 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "counter.h"
 
 // uncomment this to have absorption debug messages
-//#define RKG_DEBUG_ABSORPTION
+#define RKG_DEBUG_ABSORPTION
 
 class TBox;
 
 namespace Stat
 {
 class SAbsSimplify: public counter<SAbsSimplify> {};
+class SAbsFlatten: public counter<SAbsFlatten> {};
 class SAbsSplit: public counter<SAbsSplit> {};
+class SAbsTApply: public counter<SAbsTApply> {};
 class SAbsCApply: public counter<SAbsCApply> {};
 class SAbsCAttempt: public counter<SAbsCAttempt> {};
 class SAbsRApply: public counter<SAbsRApply> {};
@@ -143,7 +145,7 @@ protected:	// methods
 		/// simplify (OR (OR ...)) in a given position
 	TAxiom* simplifyOr ( unsigned int pos )
 	{
-		Stat::SAbsSimplify();
+		Stat::SAbsFlatten();
 		TAxiom* ret = new TAxiom(*this);
 		DLTree* pAnd = Disjuncts[pos];
 		ret->add(clone(pAnd->Right()));

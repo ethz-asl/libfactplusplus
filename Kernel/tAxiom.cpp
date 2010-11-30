@@ -88,6 +88,7 @@ TAxiom :: absorbIntoTop ( TBox& KB )
 		return false;
 
 	// make an absorption
+	Stat::SAbsTApply();
 	DLTree* desc = KB.makeNonPrimitive ( C, createTop() );
 
 #ifdef RKG_DEBUG_ABSORPTION

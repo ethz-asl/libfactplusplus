@@ -25,6 +25,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 class TBox;
 
+namespace Stat
+{
+	class SAbsInput: public counter<SAbsInput> {};
+	class SAbsAction: public counter<SAbsAction> {};
+}
+
 /// set of GCIs, absorbable and not
 class TAxiomSet
 {
@@ -120,6 +126,7 @@ public:		// interface
 		/// add axiom for the GCI C [= D
 	void addAxiom ( DLTree* C, DLTree* D )
 	{
+		Stat::SAbsInput();
 		TAxiom* p = new TAxiom();
 		p->add(C);
 		p->add(createSNFNot(D));

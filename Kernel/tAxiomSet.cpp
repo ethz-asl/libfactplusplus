@@ -21,12 +21,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "logging.h"
 #include "dlTBox.h"
 
-namespace Stat
-{
-class SAbsTry: public counter<SAbsTry> {};
-class SAbsIteration: public counter<SAbsIteration> {};
-}
-
 /// d'tor
 TAxiomSet :: ~TAxiomSet ( void )
 {
@@ -96,65 +90,59 @@ final:
 
 bool TAxiomSet :: absorbGCI ( TAxiom* p )
 {
-	Stat::SAbsTry();
-	for (;;)	// 1) -- beginning
-	{
-		Stat::SAbsIteration();
+	// 1) -- beginning
+	Stat::SAbsAction();
 
-		// always check absorption into TOP first
-		if ( absorbIntoTop(p) )
-			break;
+	// always check absorption into TOP first
+	if ( absorbIntoTop(p) )
+		return true;
 
-		// steps 2-3. Simplify and unfold
-		if ( absorbSimplifyFirst )
-			if ( simplify(p) )
-				break;
+	// steps 2-3. Simplify and unfold
+	if ( absorbSimplifyFirst )
+		if ( simplify(p) )
+			return true;
 
-		// R-or-C part a): necessary
-		if ( begC )	// C is first
-			if ( absorbIntoConcept(p) )	// (C)
-				break;
+	// R-or-C part a): necessary
+	if ( begC )	// C is first
+		if ( absorbIntoConcept(p) )	// (C)
+			return true;
 
-		if ( begR )	// R is first
-			if ( absorbIntoDomain(p) )	// (R)
-				break;
+	if ( begR )	// R is first
+		if ( absorbIntoDomain(p) )	// (R)
+			return true;
 
-		// R-or-C part b): optional
-		if ( begR && !lateC )	// C is second
-			if ( absorbIntoConcept(p) )	// (C)
-				break;
+	// R-or-C part b): optional
+	if ( begR && !lateC )	// C is second
+		if ( absorbIntoConcept(p) )	// (C)
+			return true;
 
-		if ( begC && !lateR )	// R is second
-			if ( absorbIntoDomain(p) )	// (R)
-				break;
+	if ( begC && !lateR )	// R is second
+		if ( absorbIntoDomain(p) )	// (R)
+			return true;
 
-		// steps 2-3. Simplify and unfold
-		if ( !absorbSimplifyFirst )
-			if ( simplify(p) )
-				break;
+	// steps 2-3. Simplify and unfold
+	if ( !absorbSimplifyFirst )
+		if ( simplify(p) )
+			return true;
 
-		// R-or-C part c): late
-		if ( lateC )	// C is late
-			if ( absorbIntoConcept(p) )	// (C)
-				break;
+	// R-or-C part c): late
+	if ( lateC )	// C is late
+		if ( absorbIntoConcept(p) )	// (C)
+			return true;
 
-		if ( lateR )	// R is late
-			if ( absorbIntoDomain(p) )	// (R)
-				break;
+	if ( lateR )	// R is late
+		if ( absorbIntoDomain(p) )	// (R)
+			return true;
 
-		// step 5: recursive step -- split OR verteces
-		if ( split(p) )
-			break;
+	// step 5: recursive step -- split OR verteces
+	if ( split(p) )
+		return true;
 
 #ifdef RKG_DEBUG_ABSORPTION
 	std::cout << " keep as GCI";
 #endif
 
-		return false;
-	}
-
-	// here axiom is absorbed
-	return true;
+	return false;
 }
 
 bool TAxiomSet :: initAbsorptionFlags ( const std::string& flags )
@@ -238,11 +226,26 @@ bool TAxiomSet :: isAbsorptionFlagsCorrect ( bool useRnD ) const
 
 void TAxiomSet :: PrintStatistics ( void ) const
 {
-	if ( useAbsorption && Stat::SAbsTry::objects_created > 0 && LLM.isWritable(llAlways) )
-		LL << "\nThere were " << Stat::SAbsIteration::objects_created
-		   << " absorption attempts for " << Stat::SAbsTry::objects_created << " axioms."
-		   << "\nThere were used " << Stat::SAbsCApply::objects_created << " concept absorption with "
-		   << Stat::SAbsCAttempt::objects_created << " possibilities\nThere were used "
-		   << Stat::SAbsRApply::objects_created << " role domain absorption with "
+	if ( !useAbsorption || Stat::SAbsAction::objects_created == 0 || !LLM.isWritable(llAlways) )
+		return;
+
+	LL << "\nAbsorption dealt with "
+	   << Stat::SAbsInput::objects_created << " input axioms\nThere were made "
+	   << Stat::SAbsAction::objects_created << " absorption actions, of which:";
+	if ( Stat::SAbsSimplify::objects_created )
+		LL << "\n\t" << Stat::SAbsSimplify::objects_created << " concept name replacements";
+	if ( Stat::SAbsFlatten::objects_created )
+		LL << "\n\t" << Stat::SAbsFlatten::objects_created << " disjunction flattenings";
+	if ( Stat::SAbsSplit::objects_created )
+		LL << "\n\t" << Stat::SAbsSplit::objects_created << " conjunction splits";
+	if ( Stat::SAbsTApply::objects_created )
+		LL << "\n\t" << Stat::SAbsTApply::objects_created << " TOP absorptions";
+	if ( Stat::SAbsCApply::objects_created )
+		LL << "\n\t" << Stat::SAbsCApply::objects_created << " concept absorption with "
+		   << Stat::SAbsCAttempt::objects_created << " possibilities";
+	if ( Stat::SAbsRApply::objects_created )
+		LL << "\n\t" << Stat::SAbsRApply::objects_created << " role domain absorption with "
 		   << Stat::SAbsRAttempt::objects_created << " possibilities";
+	if ( !Accum.empty() )
+		LL << "\nThere are " << Accum.size() << " GCIs left";
 }
