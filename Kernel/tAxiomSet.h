@@ -72,8 +72,8 @@ protected:	// methods
 #	endif
 		Accum.push_back(p);
 	}
-		/// insert GCI if new; @return true iff already exists
-	bool insertIfNew ( TAxiom* q )
+		/// @return true iff axiom Q is new in the set
+	bool needed ( TAxiom* q )
 	{
 		for ( AxiomCollection::const_iterator p = Accum.begin(), p_end = Accum.end(); p != p_end; ++p )
 			if ( *q == **p )
@@ -81,10 +81,19 @@ protected:	// methods
 #			ifdef RKG_DEBUG_ABSORPTION
 				std::cout << " same as (" << p-Accum.begin() << ")";
 #			endif
-				return true;
+				return false;
 			}
-		insertGCI(q);
-		return false;
+		return true;
+	}
+		/// insert GCI if new; @return true iff already exists
+	bool insertIfNew ( TAxiom* q )
+	{
+		if ( needed(q) )
+		{
+			insertGCI(q);
+			return false;
+		}
+		return true;
 	}
 		/// absorb single GCI wrt absorption flags
 	bool absorbGCI ( TAxiom* p );

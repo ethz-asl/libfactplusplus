@@ -38,12 +38,18 @@ TAxiomSet :: split ( TAxiom* p )
 	AxiomCollection::iterator q = Splitted.begin(), q_end = Splitted.end();
 	bool cont = true;
 	for ( ; q != q_end; ++q )
-		if ( insertIfNew(*q) )
+		if ( !needed(*q) )
 		{	// there is already such an axiom in process; delete it
-			// FIXME!! check whether we need to check this upfront and don't add other axioms
-			delete *q;
 			cont = false;
+			break;
 		}
+	// do the actual insertion if necessary
+	for ( q = Splitted.begin(); q != q_end; ++q )
+		if ( cont )
+			insertGCI(*q);
+		else
+			delete *q;
+
 	return cont;
 }
 
