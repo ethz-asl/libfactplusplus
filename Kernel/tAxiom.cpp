@@ -130,6 +130,13 @@ TAxiom :: absorbIntoConcept ( TBox& KB )
 
 #ifdef RKG_DEBUG_ABSORPTION
 	std::cout << " C-Absorb GCI to concept " << Concept->getName();
+	if ( Cons.size() > 1 )
+	{
+		std::cout << " (other options are";
+		for ( int j = 1; j < Cons.size(); ++j )
+			std::cout << " " << getConcept(*Cons[j])->getName();
+		std::cout << ")";
+	}
 #endif
 
 	// adds a new definition
@@ -182,6 +189,13 @@ TAxiom :: absorbIntoDomain ( void )
 
 #ifdef RKG_DEBUG_ABSORPTION
 	std::cout << " R-Absorb GCI to the domain of role " << Role->getName();
+	if ( Cons.size() > 1 )
+	{
+		std::cout << " (other options are";
+		for ( int j = 1; j < Cons.size(); ++j )
+			std::cout << " " << resolveRole((*Cons[j])->Left()->Left())->getName();
+		std::cout << ")";
+	}
 #endif
 
 	// here bestSome is either actual domain, or END(); both cases are fine
