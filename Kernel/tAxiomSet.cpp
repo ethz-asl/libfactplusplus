@@ -92,6 +92,10 @@ bool TAxiomSet :: absorbGCI ( TAxiom* p )
 	// 1) -- beginning
 	Stat::SAbsAction();
 
+	// always check absorption into BOTTOM first
+	if ( p->absorbIntoBottom() )
+		return true;
+
 	// always check absorption into TOP first
 	if ( absorbIntoTop(p) )
 		return true;
@@ -237,6 +241,8 @@ void TAxiomSet :: PrintStatistics ( void ) const
 		LL << "\n\t" << Stat::SAbsFlatten::objects_created << " disjunction flattenings";
 	if ( Stat::SAbsSplit::objects_created )
 		LL << "\n\t" << Stat::SAbsSplit::objects_created << " conjunction splits";
+	if ( Stat::SAbsBApply::objects_created )
+		LL << "\n\t" << Stat::SAbsBApply::objects_created << " BOTTOM absorptions";
 	if ( Stat::SAbsTApply::objects_created )
 		LL << "\n\t" << Stat::SAbsTApply::objects_created << " TOP absorptions";
 	if ( Stat::SAbsCApply::objects_created )

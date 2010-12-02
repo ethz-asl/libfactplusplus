@@ -36,6 +36,7 @@ namespace Stat
 class SAbsSimplify: public counter<SAbsSimplify> {};
 class SAbsFlatten: public counter<SAbsFlatten> {};
 class SAbsSplit: public counter<SAbsSplit> {};
+class SAbsBApply: public counter<SAbsBApply> {};
 class SAbsTApply: public counter<SAbsTApply> {};
 class SAbsCApply: public counter<SAbsCApply> {};
 class SAbsCAttempt: public counter<SAbsCAttempt> {};
@@ -248,6 +249,21 @@ public:		// interface
 				// like: (A or B) and (C or D) would be transform into
 				// A and (C or D), B and (C or D), (A or B) and C, (A or B) and D
 				// so just return here
+				return true;
+			}
+
+		return false;
+	}
+		/// absorb into BOTTOM; @return true if absorption is performed
+	bool absorbIntoBottom ( void )
+	{
+		for ( const_iterator p = begin(), p_end = end(); p != p_end; ++p )
+			if ( (*p)->Element().getToken() == BOTTOM )
+			{	// axiom in the form T [= T or ...; nothing to do
+				Stat::SAbsBApply();
+#			ifdef RKG_DEBUG_ABSORPTION
+				std::cout << " Absorb into BOTTOM";
+#			endif
 				return true;
 			}
 
