@@ -902,7 +902,18 @@ public:
 	// single satisfiability
 
 		/// @return true iff C is satisfiable
-	bool isSatisfiable ( const TConceptExpr* C ) { preprocessKB(); return checkSat(e(C)); }
+	bool isSatisfiable ( const TConceptExpr* C )
+	{
+		preprocessKB();
+		try { return checkSat(e(C)); }
+		catch ( EFPPCantRegName crn )
+		{
+			if ( dynamic_cast<const TDLConceptName*>(C) != NULL )	// this is an unknown concept
+				return true;
+			// complex expression, involving unknown names
+			throw crn;
+		}
+	}
 		/// @return true iff C [= D holds
 	bool isSubsumedBy ( const TConceptExpr* C, const TConceptExpr* D ) { preprocessKB(); return checkSub ( e(C), e(D) ); }
 		/// @return true iff C is disjoint with D; that is, C [= \not D holds
