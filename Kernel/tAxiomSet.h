@@ -102,7 +102,7 @@ protected:	// methods
 		/// simplify given axiom.
 	bool simplify ( TAxiom* p )
 	{
-		TAxiom* q = p->simplify();
+		TAxiom* q = p->simplify(Host);
 		if ( q == NULL )
 			return false;
 		if ( insertIfNew(q) )

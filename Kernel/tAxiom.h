@@ -27,7 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "counter.h"
 
 // uncomment this to have absorption debug messages
-//#define RKG_DEBUG_ABSORPTION
+#define RKG_DEBUG_ABSORPTION
 
 class TBox;
 
@@ -110,6 +110,13 @@ protected:	// methods
 		/// check whether P is in the form (and C D)
 	static bool isAnd ( const DLTree* p )
 		{ return p->Element() == NOT && p->Left()->Element() == AND; }
+		/// check whether P is in the form (all R C)
+	static bool isForall ( const DLTree* p )
+	{
+		return p->Element() == NOT && p->Left()->Element() == FORALL
+			   && (!isName(p->Left()->Right())
+				 	 || !getConcept(p->Left()->Right())->isSystem());
+	}
 
 	// single disjunct's optimisations
 
@@ -148,6 +155,8 @@ protected:	// methods
 #	endif
 		return ret;
 	}
+		/// simplify (OR (SOME R C) ...)) in a given position
+	TAxiom* simplifyForall ( const_iterator pos, TBox& KB );
 		/// split (OR (AND...) ...) in a given position
 	void split ( std::vector<TAxiom*>& acc, const_iterator pos, DLTree* pAnd ) const
 	{
@@ -221,7 +230,7 @@ public:		// interface
 	}
 
 		/// simplify an axiom
-	TAxiom* simplify ( void );
+	TAxiom* simplify ( TBox& KB );
 		/// split an axiom; @return new axiom and/or NULL
 	bool split ( std::vector<TAxiom*>& acc ) const
 	{

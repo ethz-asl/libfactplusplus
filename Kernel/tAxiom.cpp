@@ -21,7 +21,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "dlTBox.h"
 
 TAxiom*
-TAxiom :: simplify ( void )
+TAxiom :: simplify ( TBox& KB )
 {
 	for ( const_iterator i = begin(), i_end = end(); i != i_end; ++i )
 	{
@@ -33,9 +33,24 @@ TAxiom :: simplify ( void )
 			return simplifyNegNP(i);
 		else if ( isOr(p) )
 			return simplifyOr(i);
+		// FIXME!! switched off for now
+		else if ( 0 && isForall(p) )
+			return simplifyForall ( i, KB );
 	}
 
 	return NULL;
+}
+
+TAxiom*
+TAxiom :: simplifyForall ( const_iterator pos, TBox& KB )
+{
+	DLTree* pAll = (*pos)->Left();	// (all R ~C)
+	TAxiom* ret = copy(pos);
+	ret->add ( KB.getTree ( KB.replaceForall ( clone(pAll->Left()), createSNFNot(clone(pAll->Right())) ) ) );
+#ifdef RKG_DEBUG_ABSORPTION
+	std::cout << " simplify ALL expression" << pAll;
+#endif
+	return ret;
 }
 
 DLTree*
@@ -133,7 +148,7 @@ TAxiom :: absorbIntoConcept ( TBox& KB )
 	if ( Cons.size() > 1 )
 	{
 		std::cout << " (other options are";
-		for ( int j = 1; j < Cons.size(); ++j )
+		for ( size_t j = 1; j < Cons.size(); ++j )
 			std::cout << " " << getConcept(*Cons[j])->getName();
 		std::cout << ")";
 	}
@@ -192,7 +207,7 @@ TAxiom :: absorbIntoDomain ( void )
 	if ( Cons.size() > 1 )
 	{
 		std::cout << " (other options are";
-		for ( int j = 1; j < Cons.size(); ++j )
+		for ( size_t j = 1; j < Cons.size(); ++j )
 			std::cout << " " << resolveRole((*Cons[j])->Left()->Left())->getName();
 		std::cout << ")";
 	}
