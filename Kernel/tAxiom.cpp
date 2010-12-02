@@ -23,9 +23,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 TAxiom*
 TAxiom :: simplify ( void )
 {
-	for ( unsigned int i = 0; i < Disjuncts.size(); ++i )
+	for ( const_iterator i = begin(), i_end = end(); i != i_end; ++i )
 	{
-		DLTree* p = Disjuncts[i];
+		DLTree* p = *i;
 
 		if ( isPosNP(p) )
 			return simplifyPosNP(i);
@@ -125,7 +125,7 @@ TAxiom :: absorbIntoConcept ( TBox& KB )
 	// FIXME!! as for now: just take the 1st concept name
 	iterator bestConcept = Cons[0];
 
-	// locate concept
+	// normal concept absorption
 	TConcept* Concept = getConcept(*bestConcept);
 
 #ifdef RKG_DEBUG_ABSORPTION

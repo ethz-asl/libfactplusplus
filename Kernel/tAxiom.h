@@ -64,24 +64,6 @@ protected:	// members
 	absorptionSet Disjuncts;
 
 protected:	// methods
-		/// update internal indeces for an expression P in a given POSition
-	void gather ( const DLTree* p ATTR_UNUSED, unsigned int pos ATTR_UNUSED ) {}
-		/// replace element in POS with P
-	void replace ( DLTree* p, unsigned int pos )
-	{
-		deleteTree(Disjuncts[pos]);
-		gather ( p, pos );
-		// don't create duplicated operands
-		for ( unsigned int i = 0; i < Disjuncts.size(); ++i )
-			if ( i != pos && equalTrees ( Disjuncts[i], p ) )
-			{
-				deleteTree(p);
-				Disjuncts[pos] = createTop();
-				return;
-			}
-		Disjuncts[pos] = p;
-	}
-
 	// access to labels
 
 		/// RW begin
@@ -92,6 +74,16 @@ protected:	// methods
 	const_iterator begin ( void ) const { return Disjuncts.begin(); }
 		/// RO end
 	const_iterator end ( void ) const { return Disjuncts.end(); }
+
+		/// create a copy of a given GCI; ignore SKIP entry
+	TAxiom* copy ( const_iterator skip ) const
+	{
+		TAxiom* ret = new TAxiom();
+		for ( const_iterator i = begin(), i_end = end(); i != i_end; ++i )
+			if ( i != skip )
+				ret->Disjuncts.push_back(clone(*i));
+		return ret;
+	}
 
 	// recognisable patterns in disjuncts
 
@@ -122,42 +114,42 @@ protected:	// methods
 	// single disjunct's optimisations
 
 		/// simplify (OR C ...) for a non-primitive C in a given position
-	TAxiom* simplifyPosNP ( unsigned int pos )
+	TAxiom* simplifyPosNP ( const_iterator pos )
 	{
 		Stat::SAbsSimplify();
-		TAxiom* ret = new TAxiom(*this);
-		ret->replace ( createSNFNot(clone(getConcept(Disjuncts[pos]->Left())->Description)), pos );
+		TAxiom* ret = copy(pos);
+		ret->add(createSNFNot(clone(getConcept((*pos)->Left())->Description)));
 #	ifdef RKG_DEBUG_ABSORPTION
-		std::cout << " simplify CN at position " << pos;
+		std::cout << " simplify CN expression for" << (*pos)->Left();
 #	endif
 		return ret;
 	}
 		/// simplify (OR ~C ...) for a non-primitive C in a given position
-	TAxiom* simplifyNegNP ( unsigned int pos )
+	TAxiom* simplifyNegNP ( const_iterator pos )
 	{
 		Stat::SAbsSimplify();
-		TAxiom* ret = new TAxiom(*this);
-		ret->replace ( clone(getConcept(Disjuncts[pos])->Description), pos );
+		TAxiom* ret = copy(pos);
+		ret->add(clone(getConcept(*pos)->Description));
 #	ifdef RKG_DEBUG_ABSORPTION
-		std::cout << " simplify ~CN at position " << pos;
+		std::cout << " simplify ~CN expression for" << *pos;
 #	endif
 		return ret;
 	}
 		/// simplify (OR (OR ...)) in a given position
-	TAxiom* simplifyOr ( unsigned int pos )
+	TAxiom* simplifyOr ( const_iterator pos )
 	{
 		Stat::SAbsFlatten();
-		TAxiom* ret = new TAxiom(*this);
-		DLTree* pAnd = Disjuncts[pos];
+		TAxiom* ret = copy(pos);
+		DLTree* pAnd = *pos;
+		ret->add(clone(pAnd->Left()));
 		ret->add(clone(pAnd->Right()));
-		ret->replace ( clone(pAnd->Left()), pos );
 #	ifdef RKG_DEBUG_ABSORPTION
-		std::cout << " simplify OR at position " << pos;
+		std::cout << " simplify OR expression" << *pos;
 #	endif
 		return ret;
 	}
 		/// split (OR (AND...) ...) in a given position
-	void split ( std::vector<TAxiom*>& acc, unsigned int pos, DLTree* pAnd ) const
+	void split ( std::vector<TAxiom*>& acc, const_iterator pos, DLTree* pAnd ) const
 	{
 		if ( pAnd->Element().getToken() == AND )
 		{	// split the AND
@@ -166,8 +158,8 @@ protected:	// methods
 		}
 		else
 		{
-			TAxiom* ret = new TAxiom(*this);
-			ret->replace ( createSNFNot(clone(pAnd)), pos );
+			TAxiom* ret = copy(pos);
+			ret->add(createSNFNot(clone(pAnd)));
 			acc.push_back(ret);
 		}
 	}
@@ -197,7 +189,6 @@ public:		// interface
 				deleteTree(p);
 				return;
 			}
-		gather ( p, Disjuncts.size() );
 		Disjuncts.push_back(p);
 	}
 		/// check whether 2 axioms are the same
@@ -235,15 +226,14 @@ public:		// interface
 	bool split ( std::vector<TAxiom*>& acc ) const
 	{
 		acc.clear();
-		for ( const_iterator p_beg = begin(), p_end = end(), p = p_beg; p != p_end; ++p )
+		for ( const_iterator p = begin(), p_end = end(); p != p_end; ++p )
 			if ( isAnd(*p) )
 			{
 				Stat::SAbsSplit();
-				unsigned int pos = p-p_beg;
 #			ifdef RKG_DEBUG_ABSORPTION
-				std::cout << " split AND at position " << pos;
+				std::cout << " split AND expression" << (*p)->Left();
 #			endif
-				split ( acc, pos, (*p)->Left() );
+				split ( acc, p, (*p)->Left() );
 				// no need to split more than once:
 				// every extra splits would be together with unsplitted parts
 				// like: (A or B) and (C or D) would be transform into
@@ -275,8 +265,8 @@ public:		// interface
 	bool absorbIntoConcept ( TBox& KB );
 		/// absorb into role domain; @return true if absorption is performed
 	bool absorbIntoDomain ( void );
-		/// create a concept expression corresponding to a given GCI; ignore REPLACED entry
-	DLTree* createAnAxiom ( const_iterator replaced ) const;
+		/// create a concept expression corresponding to a given GCI; ignore SKIP entry
+	DLTree* createAnAxiom ( const_iterator skip ) const;
 		/// create a concept expression corresponding to a given GCI
 	DLTree* createAnAxiom ( void ) const { return createAnAxiom(end());	}
 

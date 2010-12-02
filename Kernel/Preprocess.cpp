@@ -137,8 +137,8 @@ void TBox :: Preprocess ( void )
 	// GALEN-like flag is known here, so we can set OR defaults
 	BEGIN_PASS("Set defaults for OR orderings");
 	DLHeap.setOrderDefaults (
-		isGalenLikeTBox() ? "Fdn" : isWineLikeTBox() ? "Sdn" : "Sap",	// SAT settings
-		isGalenLikeTBox() ? "Ban" : isWineLikeTBox() ? "Dap" : "Dap"	// SUB settings
+		isGalenLikeTBox() ? "Fdn" : isWineLikeTBox() ? "Sdp" : "Sap",	// SAT settings
+		isGalenLikeTBox() ? "Ban" : isWineLikeTBox() ? "Fdn" : "Dap"	// SUB settings
 		);
 	END_PASS();
 
