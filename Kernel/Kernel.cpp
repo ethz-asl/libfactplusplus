@@ -46,7 +46,7 @@ ReasoningKernel :: ReasoningKernel ( void )
 	// Intro
 	if ( KernelFirstRun )
 	{
-		std::cerr << "FaCT++.Kernel: Reasoner for the " << SupportedDL << " Description Logic, " << 8*sizeof(int) << "-bit\n"
+		std::cerr << "FaCT++.Kernel: Reasoner for the " << SupportedDL << " Description Logic, " << 8*sizeof(void*) << "-bit\n"
 				  << Copyright << ". Version " << Version << " (" << ReleaseDate << ")\n";
 		KernelFirstRun = false;
 	}
