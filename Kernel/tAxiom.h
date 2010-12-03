@@ -190,16 +190,7 @@ public:		// interface
 	}
 
 		/// add DLTree to an axiom
-	void add ( DLTree* p )
-	{
-		for ( iterator i = begin(), i_end = end(); i != i_end; ++i )
-			if ( equalTrees(p,*i) )
-			{
-				deleteTree(p);
-				return;
-			}
-		Disjuncts.push_back(p);
-	}
+	void add ( DLTree* p );
 		/// check whether 2 axioms are the same
 	bool operator == ( const TAxiom& ax ) const
 	{

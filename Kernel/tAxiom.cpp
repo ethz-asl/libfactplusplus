@@ -20,6 +20,21 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "tRole.h"
 #include "dlTBox.h"
 
+/// add DLTree to an axiom
+void
+TAxiom :: add ( DLTree* p )
+{
+	if ( p->Element().getToken() == TOP )
+		return;	// nothing to do
+	for ( iterator i = begin(), i_end = end(); i != i_end; ++i )
+		if ( equalTrees(p,*i) )
+		{
+			deleteTree(p);
+			return;
+		}
+	Disjuncts.push_back(p);
+}
+
 TAxiom*
 TAxiom :: simplify ( TBox& KB )
 {
@@ -54,17 +69,13 @@ TAxiom :: simplifyForall ( const_iterator pos, TBox& KB )
 }
 
 DLTree*
-TAxiom :: createAnAxiom ( const_iterator replaced ) const
+TAxiom :: createAnAxiom ( const_iterator skip ) const
 {
-	fpp_assert ( !Disjuncts.empty() );	// could not create an axiom from empty absorption set
-
 	// create new OR vertex for the axiom:
 	DLTree* Or = createTop();
 	for ( const_iterator p = begin(), p_end = end(); p != p_end; ++p )
-		if ( p != replaced )
+		if ( p != skip )
 			Or = createSNFAnd ( clone(*p), Or );
-
-	fpp_assert ( isSNF(Or) );	// safety check for G
 
 	return createSNFNot(Or);
 }
