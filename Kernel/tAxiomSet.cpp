@@ -237,8 +237,6 @@ void TAxiomSet :: PrintStatistics ( void ) const
 	   << Stat::SAbsAction::objects_created << " absorption actions, of which:";
 	if ( Stat::SAbsSimplify::objects_created )
 		LL << "\n\t" << Stat::SAbsSimplify::objects_created << " concept name replacements";
-	if ( Stat::SAbsFlatten::objects_created )
-		LL << "\n\t" << Stat::SAbsFlatten::objects_created << " disjunction flattenings";
 	if ( Stat::SAbsSplit::objects_created )
 		LL << "\n\t" << Stat::SAbsSplit::objects_created << " conjunction splits";
 	if ( Stat::SAbsBApply::objects_created )

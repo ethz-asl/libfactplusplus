@@ -26,6 +26,14 @@ TAxiom :: add ( DLTree* p )
 {
 	if ( p->Element().getToken() == TOP )
 		return;	// nothing to do
+	// flatten the disjunctions on the fly
+	if ( p->Element().getToken() == AND )
+	{
+		add(p->Left());
+		add(p->Right());
+		delete p;	// delete just AND entry, not the trees
+		return;
+	}
 	for ( iterator i = begin(), i_end = end(); i != i_end; ++i )
 		if ( equalTrees(p,*i) )
 		{
@@ -46,8 +54,6 @@ TAxiom :: simplify ( TBox& KB )
 			return simplifyPosNP(i);
 		else if ( isNegNP(p) )
 			return simplifyNegNP(i);
-		else if ( isOr(p) )
-			return simplifyOr(i);
 		// FIXME!! switched off for now
 		else if ( 0 && isForall(p) )
 			return simplifyForall ( i, KB );

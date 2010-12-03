@@ -27,14 +27,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "counter.h"
 
 // uncomment this to have absorption debug messages
-#define RKG_DEBUG_ABSORPTION
+//#define RKG_DEBUG_ABSORPTION
 
 class TBox;
 
 namespace Stat
 {
 class SAbsSimplify: public counter<SAbsSimplify> {};
-class SAbsFlatten: public counter<SAbsFlatten> {};
 class SAbsSplit: public counter<SAbsSplit> {};
 class SAbsBApply: public counter<SAbsBApply> {};
 class SAbsTApply: public counter<SAbsTApply> {};
@@ -105,8 +104,6 @@ protected:	// methods
 	{
 		return isName(p) && !getConcept(p)->isPrimitive();
 	}
-		/// check whether P is in the form (or C D)
-	static bool isOr ( const DLTree* p ) { return p->Element() == AND; }
 		/// check whether P is in the form (and C D)
 	static bool isAnd ( const DLTree* p )
 		{ return p->Element() == NOT && p->Left()->Element() == AND; }
@@ -139,19 +136,6 @@ protected:	// methods
 		ret->add(clone(getConcept(*pos)->Description));
 #	ifdef RKG_DEBUG_ABSORPTION
 		std::cout << " simplify ~CN expression for" << *pos;
-#	endif
-		return ret;
-	}
-		/// simplify (OR (OR ...)) in a given position
-	TAxiom* simplifyOr ( const_iterator pos )
-	{
-		Stat::SAbsFlatten();
-		TAxiom* ret = copy(pos);
-		DLTree* pAnd = *pos;
-		ret->add(clone(pAnd->Left()));
-		ret->add(clone(pAnd->Right()));
-#	ifdef RKG_DEBUG_ABSORPTION
-		std::cout << " simplify OR expression" << *pos;
 #	endif
 		return ret;
 	}
