@@ -94,13 +94,15 @@ TBox :: ~TBox ( void )
 }
 
 /// get unique aux concept
-TConcept* TBox :: getAuxConcept ( void )
+TConcept* TBox :: getAuxConcept ( DLTree* desc )
 {
 	std::stringstream name;
 	name << " aux" << ++auxConceptID;
 	TConcept* C = getConcept(name.str());
 	C->setSystem();
 	C->setNonClassifiable();
+	C->setPrimitive();
+	C->Description = desc;
 	C->initToldSubsumers();	// it is created after this is done centrally
 	return C;
 }
