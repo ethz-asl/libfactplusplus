@@ -1059,9 +1059,9 @@ public:
 		/// @return true iff individual C is known to be p-blocked by another one
 	bool isBlockedInd ( TConcept* C ) const { return SameI.find(C) != SameI.end(); }
 		/// get individual that blocks C; works only for blocked individuals C
-	TIndividual* getBlockingInd ( TConcept* C ) const { return SameI.at(C).first; }
+	TIndividual* getBlockingInd ( TConcept* C ) const { return SameI.find(C)->second.first; }
 		/// @return true iff an individual blocks C deterministically
-	bool isBlockingDet ( TConcept* C ) const { return SameI.at(C).second; }
+	bool isBlockingDet ( TConcept* C ) const { return SameI.find(C)->second.second; }
 
 //-----------------------------------------------------------------------------
 //--		public reasoning interface
