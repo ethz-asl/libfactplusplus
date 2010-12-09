@@ -29,7 +29,7 @@ TAxiomSet :: ~TAxiomSet ( void )
 }
 
 bool
-TAxiomSet :: split ( TAxiom* p )
+TAxiomSet :: split ( const TAxiom* p )
 {
 	AxiomCollection Splitted;
 	if ( !p->split(Splitted) )	// nothing to split
@@ -87,7 +87,7 @@ final:
 	return size();
 }
 
-bool TAxiomSet :: absorbGCI ( TAxiom* p )
+bool TAxiomSet :: absorbGCI ( const TAxiom* p )
 {
 	// 1) -- beginning
 	Stat::SAbsAction();

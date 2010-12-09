@@ -44,7 +44,7 @@ TAxiom :: add ( DLTree* p )
 }
 
 TAxiom*
-TAxiom :: simplify ( TBox& KB )
+TAxiom :: simplify ( TBox& KB ) const
 {
 	for ( const_iterator i = begin(), i_end = end(); i != i_end; ++i )
 	{
@@ -63,7 +63,7 @@ TAxiom :: simplify ( TBox& KB )
 }
 
 TAxiom*
-TAxiom :: simplifyForall ( const_iterator pos, TBox& KB )
+TAxiom :: simplifyForall ( const_iterator pos, TBox& KB ) const
 {
 	DLTree* pAll = (*pos)->Left();	// (all R ~C)
 	TAxiom* ret = copy(pos);
@@ -97,12 +97,12 @@ void TAxiom :: dump ( std::ostream& o ) const
 #endif
 
 bool
-TAxiom :: absorbIntoTop ( TBox& KB )
+TAxiom :: absorbIntoTop ( TBox& KB ) const
 {
 	TConcept* C = NULL;
 
 	// check whether the axiom is Top [= C
-	for ( iterator p = begin(); p != end(); ++p )
+	for ( const_iterator p = begin(), p_end = end(); p != p_end; ++p )
 		if ( (*p)->Element().getToken() == TOP )	// TOP here is fine
 			continue;
 		else if ( (*p)->Element() == NOT && isName((*p)->Left()) )	// C found
@@ -136,12 +136,13 @@ TAxiom :: absorbIntoTop ( TBox& KB )
 }
 
 bool
-TAxiom :: absorbIntoConcept ( TBox& KB )
+TAxiom :: absorbIntoConcept ( TBox& KB ) const
 {
 	WorkSet Cons;
+	const_iterator bestConcept = end();
 
 	// finds all primitive concept names
-	for ( iterator p = begin(); p != end(); ++p )
+	for ( const_iterator p = begin(), p_end = end(); p != p_end; ++p )
 		if ( isName(*p) &&		// FIXME!! review this during implementation of Nominal Absorption
 			 getConcept(*p)->isPrimitive() )
 		{
@@ -155,7 +156,8 @@ TAxiom :: absorbIntoConcept ( TBox& KB )
 
 	Stat::SAbsCApply();
 	// FIXME!! as for now: just take the 1st concept name
-	iterator bestConcept = Cons[0];
+	if ( bestConcept == end() )
+		bestConcept = Cons[0];
 
 	// normal concept absorption
 	TConcept* Concept = getConcept(*bestConcept);
@@ -185,13 +187,13 @@ TAxiom :: absorbIntoConcept ( TBox& KB )
 }
 
 bool
-TAxiom :: absorbIntoDomain ( void )
+TAxiom :: absorbIntoDomain ( void ) const
 {
-	std::vector<iterator> Cons;
-	iterator bestSome = end();
+	WorkSet Cons;
+	const_iterator bestSome = end();
 
 	// find all forall concepts
-	for ( iterator p = begin(); p != end(); ++p )
+	for ( const_iterator p = begin(), p_end = end(); p != p_end; ++p )
 		if ( (*p)->Element() == NOT &&
 			 ( (*p)->Left()->Element() == FORALL	// \neg ER.C
 			   || (*p)->Left()->Element() == LE ))	// \neg >= n R.C

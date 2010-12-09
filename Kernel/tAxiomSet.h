@@ -37,6 +37,8 @@ class TAxiomSet
 protected:	// internal types
 		/// set of GCIs
 	typedef std::vector<TAxiom*> AxiomCollection;
+		/// method applying to the axiom
+	typedef bool (*AbsMethod)(const TAxiom*);
 
 protected:	// members
 		/// host TBox that holds all concepts/etc
@@ -96,11 +98,11 @@ protected:	// methods
 		return true;
 	}
 		/// absorb single GCI wrt absorption flags
-	bool absorbGCI ( TAxiom* p );
+	bool absorbGCI ( const TAxiom* p );
 		/// split given axiom
-	bool split ( TAxiom* p );
+	bool split ( const TAxiom* p );
 		/// simplify given axiom.
-	bool simplify ( TAxiom* p )
+	bool simplify ( const TAxiom* p )
 	{
 		TAxiom* q = p->simplify(Host);
 		if ( q == NULL )
@@ -114,11 +116,11 @@ protected:	// methods
 	}
 
 		/// absorb single axiom AX into TOP; @return true if succeed
-	bool absorbIntoTop ( TAxiom* ax ) { return ax->absorbIntoTop(Host); }
+	bool absorbIntoTop ( const TAxiom* ax ) { return ax->absorbIntoTop(Host); }
 		/// absorb single axiom AX into concept; @return true if succeed
-	bool absorbIntoConcept ( TAxiom* ax ) { return ax->absorbIntoConcept(Host); }
+	bool absorbIntoConcept ( const TAxiom* ax ) { return ax->absorbIntoConcept(Host); }
 		/// absorb single axiom AX into role domain; @return true if succeed
-	bool absorbIntoDomain ( TAxiom* ax ) { return useRoleAbsorption && ax->absorbIntoDomain(); }
+	bool absorbIntoDomain ( const TAxiom* ax ) { return useRoleAbsorption && ax->absorbIntoDomain(); }
 
 public:		// interface
 		/// c'tor

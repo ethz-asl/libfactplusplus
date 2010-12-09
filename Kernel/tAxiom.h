@@ -56,7 +56,7 @@ protected:	// types
 		/// RO iterator for the elements of GCI
 	typedef absorptionSet::const_iterator const_iterator;
 		/// set of iterators to work with
-	typedef std::vector<iterator> WorkSet;
+	typedef std::vector<const_iterator> WorkSet;
 
 protected:	// members
 		/// GCI is presented in the form (or Disjuncts);
@@ -118,7 +118,7 @@ protected:	// methods
 	// single disjunct's optimisations
 
 		/// simplify (OR C ...) for a non-primitive C in a given position
-	TAxiom* simplifyPosNP ( const_iterator pos )
+	TAxiom* simplifyPosNP ( const_iterator pos ) const
 	{
 		Stat::SAbsSimplify();
 		TAxiom* ret = copy(pos);
@@ -129,7 +129,7 @@ protected:	// methods
 		return ret;
 	}
 		/// simplify (OR ~C ...) for a non-primitive C in a given position
-	TAxiom* simplifyNegNP ( const_iterator pos )
+	TAxiom* simplifyNegNP ( const_iterator pos ) const
 	{
 		Stat::SAbsSimplify();
 		TAxiom* ret = copy(pos);
@@ -140,7 +140,7 @@ protected:	// methods
 		return ret;
 	}
 		/// simplify (OR (SOME R C) ...)) in a given position
-	TAxiom* simplifyForall ( const_iterator pos, TBox& KB );
+	TAxiom* simplifyForall ( const_iterator pos, TBox& KB ) const;
 		/// split (OR (AND...) ...) in a given position
 	void split ( std::vector<TAxiom*>& acc, const_iterator pos, DLTree* pAnd ) const
 	{
@@ -205,7 +205,7 @@ public:		// interface
 	}
 
 		/// simplify an axiom
-	TAxiom* simplify ( TBox& KB );
+	TAxiom* simplify ( TBox& KB ) const;
 		/// split an axiom; @return new axiom and/or NULL
 	bool split ( std::vector<TAxiom*>& acc ) const
 	{
@@ -229,7 +229,7 @@ public:		// interface
 		return false;
 	}
 		/// absorb into BOTTOM; @return true if absorption is performed
-	bool absorbIntoBottom ( void )
+	bool absorbIntoBottom ( void ) const
 	{
 		for ( const_iterator p = begin(), p_end = end(); p != p_end; ++p )
 			if ( (*p)->Element().getToken() == BOTTOM )
@@ -244,11 +244,11 @@ public:		// interface
 		return false;
 	}
 		/// absorb into TOP; @return true if absorption is performed
-	bool absorbIntoTop ( TBox& KB );
+	bool absorbIntoTop ( TBox& KB ) const;
 		/// absorb into concept; @return true if absorption is performed
-	bool absorbIntoConcept ( TBox& KB );
+	bool absorbIntoConcept ( TBox& KB ) const;
 		/// absorb into role domain; @return true if absorption is performed
-	bool absorbIntoDomain ( void );
+	bool absorbIntoDomain ( void ) const;
 		/// create a concept expression corresponding to a given GCI; ignore SKIP entry
 	DLTree* createAnAxiom ( const_iterator skip ) const;
 		/// create a concept expression corresponding to a given GCI
