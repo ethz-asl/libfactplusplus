@@ -88,10 +88,9 @@ protected:	// methods
 	bool absorbGCI ( const TAxiom* p );
 		/// split given axiom
 	bool split ( const TAxiom* p );
-		/// simplify given axiom.
-	bool simplify ( const TAxiom* p )
+		/// helper that inserts an axiom into Accum; @return bool if success
+	bool processNewAxiom ( TAxiom* q )
 	{
-		TAxiom* q = p->simplify(Host);
 		if ( q == NULL )
 			return false;
 		if ( insertIfNew(q) )
@@ -101,6 +100,10 @@ protected:	// methods
 		}
 		return true;
 	}
+		/// replace a defined concept with its description
+	bool simplifyCN ( const TAxiom* p ) { return processNewAxiom(p->simplifyCN()); }
+		/// replace a universal restriction with a fresh concept
+	bool simplifyForall ( const TAxiom* p ) { return processNewAxiom(p->simplifyForall(Host)); }
 
 		/// absorb single axiom AX into BOTTOM; @return true if succeed
 	bool absorbIntoBottom ( const TAxiom* ax ) { return ax->absorbIntoBottom(); }

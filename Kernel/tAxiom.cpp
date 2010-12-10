@@ -44,7 +44,7 @@ TAxiom :: add ( DLTree* p )
 }
 
 TAxiom*
-TAxiom :: simplify ( TBox& KB ) const
+TAxiom :: simplifyCN ( void ) const
 {
 	for ( const_iterator i = begin(), i_end = end(); i != i_end; ++i )
 	{
@@ -54,10 +54,17 @@ TAxiom :: simplify ( TBox& KB ) const
 			return simplifyPosNP(i);
 		else if ( isNegNP(p) )
 			return simplifyNegNP(i);
-		// FIXME!! switched off for now
-		else if ( 0 && isForall(p) )
-			return simplifyForall ( i, KB );
 	}
+
+	return NULL;
+}
+
+TAxiom*
+TAxiom :: simplifyForall ( TBox& KB ) const
+{
+	for ( const_iterator i = begin(), i_end = end(); i != i_end; ++i )
+		if ( isForall(*i) )
+			return simplifyForall ( i, KB );
 
 	return NULL;
 }

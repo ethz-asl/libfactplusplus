@@ -156,6 +156,8 @@ protected:	// methods
 			acc.push_back(ret);
 		}
 	}
+		/// create a concept expression corresponding to a given GCI; ignore SKIP entry
+	DLTree* createAnAxiom ( const_iterator skip ) const;
 
 public:		// interface
 		/// create an empty GCI
@@ -204,8 +206,10 @@ public:		// interface
 		return true;
 	}
 
-		/// simplify an axiom
-	TAxiom* simplify ( TBox& KB ) const;
+		/// replace a defined concept with its description
+	TAxiom* simplifyCN ( void ) const;
+		/// replace a universal restriction with a fresh concept
+	TAxiom* simplifyForall ( TBox& KB ) const;
 		/// split an axiom; @return new axiom and/or NULL
 	bool split ( std::vector<TAxiom*>& acc ) const
 	{
@@ -249,8 +253,6 @@ public:		// interface
 	bool absorbIntoConcept ( TBox& KB ) const;
 		/// absorb into role domain; @return true if absorption is performed
 	bool absorbIntoDomain ( void ) const;
-		/// create a concept expression corresponding to a given GCI; ignore SKIP entry
-	DLTree* createAnAxiom ( const_iterator skip ) const;
 		/// create a concept expression corresponding to a given GCI
 	DLTree* createAnAxiom ( void ) const { return createAnAxiom(end());	}
 
