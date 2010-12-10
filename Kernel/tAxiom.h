@@ -33,7 +33,8 @@ class TBox;
 
 namespace Stat
 {
-class SAbsSimplify: public counter<SAbsSimplify> {};
+class SAbsRepCN: public counter<SAbsRepCN> {};
+class SAbsRepForall: public counter<SAbsRepForall> {};
 class SAbsSplit: public counter<SAbsSplit> {};
 class SAbsBApply: public counter<SAbsBApply> {};
 class SAbsTApply: public counter<SAbsTApply> {};
@@ -120,7 +121,7 @@ protected:	// methods
 		/// simplify (OR C ...) for a non-primitive C in a given position
 	TAxiom* simplifyPosNP ( const_iterator pos ) const
 	{
-		Stat::SAbsSimplify();
+		Stat::SAbsRepCN();
 		TAxiom* ret = copy(pos);
 		ret->add(createSNFNot(clone(getConcept((*pos)->Left())->Description)));
 #	ifdef RKG_DEBUG_ABSORPTION
@@ -131,7 +132,7 @@ protected:	// methods
 		/// simplify (OR ~C ...) for a non-primitive C in a given position
 	TAxiom* simplifyNegNP ( const_iterator pos ) const
 	{
-		Stat::SAbsSimplify();
+		Stat::SAbsRepCN();
 		TAxiom* ret = copy(pos);
 		ret->add(clone(getConcept(*pos)->Description));
 #	ifdef RKG_DEBUG_ABSORPTION

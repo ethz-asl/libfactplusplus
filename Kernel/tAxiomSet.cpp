@@ -128,8 +128,10 @@ void TAxiomSet :: PrintStatistics ( void ) const
 	LL << "\nAbsorption dealt with "
 	   << Stat::SAbsInput::objects_created << " input axioms\nThere were made "
 	   << Stat::SAbsAction::objects_created << " absorption actions, of which:";
-	if ( Stat::SAbsSimplify::objects_created )
-		LL << "\n\t" << Stat::SAbsSimplify::objects_created << " concept name replacements";
+	if ( Stat::SAbsRepCN::objects_created )
+		LL << "\n\t" << Stat::SAbsRepCN::objects_created << " concept name replacements";
+	if ( Stat::SAbsRepForall::objects_created )
+		LL << "\n\t" << Stat::SAbsRepForall::objects_created << " universals replacements";
 	if ( Stat::SAbsSplit::objects_created )
 		LL << "\n\t" << Stat::SAbsSplit::objects_created << " conjunction splits";
 	if ( Stat::SAbsBApply::objects_created )
