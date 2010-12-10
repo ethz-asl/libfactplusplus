@@ -108,6 +108,7 @@ bool TAxiomSet :: initAbsorptionFlags ( const std::string& flags )
 		case 'T': ActionVector.push_back(&TAxiomSet::absorbIntoTop); break;
 		case 'E': ActionVector.push_back(&TAxiomSet::simplifyCN); break;
 		case 'C': ActionVector.push_back(&TAxiomSet::absorbIntoConcept); break;
+		case 'N': ActionVector.push_back(&TAxiomSet::absorbIntoNegConcept); break;
 		case 'F': ActionVector.push_back(&TAxiomSet::simplifyForall); break;
 		case 'R': ActionVector.push_back(&TAxiomSet::absorbIntoDomain); break;
 		case 'S': ActionVector.push_back(&TAxiomSet::split); break;
@@ -141,6 +142,9 @@ void TAxiomSet :: PrintStatistics ( void ) const
 	if ( Stat::SAbsCApply::objects_created )
 		LL << "\n\t" << Stat::SAbsCApply::objects_created << " concept absorption with "
 		   << Stat::SAbsCAttempt::objects_created << " possibilities";
+	if ( Stat::SAbsNApply::objects_created )
+		LL << "\n\t" << Stat::SAbsNApply::objects_created << " negated concept absorption with "
+		   << Stat::SAbsNAttempt::objects_created << " possibilities";
 	if ( Stat::SAbsRApply::objects_created )
 		LL << "\n\t" << Stat::SAbsRApply::objects_created << " role domain absorption with "
 		   << Stat::SAbsRAttempt::objects_created << " possibilities";

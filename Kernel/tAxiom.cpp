@@ -194,6 +194,55 @@ TAxiom :: absorbIntoConcept ( TBox& KB ) const
 	return true;
 }
 
+/// absorb into negation of a concept; @return true if absorption is performed
+bool
+TAxiom :: absorbIntoNegConcept ( TBox& KB ) const
+{
+	WorkSet Cons;
+	TConcept* Concept;
+	const_iterator bestConcept = end();
+
+	// finds all primitive negated concept names without description
+	for ( const_iterator p = begin(), p_end = end(); p != p_end; ++p )
+		if ( (*p)->Element().getToken() == NOT && isName((*p)->Left())
+			 && (Concept = getConcept((*p)->Left()))->isPrimitive()
+			 && !Concept->isSingleton() && Concept->Description == NULL )
+		{
+			Stat::SAbsNAttempt();
+			Cons.push_back(p);
+		}
+
+	// if no concept names -- return;
+	if ( Cons.empty() )
+		return false;
+
+	Stat::SAbsNApply();
+	// FIXME!! as for now: just take the 1st concept name
+	if ( bestConcept == end() )
+		bestConcept = Cons[0];
+
+	// normal concept absorption
+	Concept = getConcept((*bestConcept)->Left());
+
+#ifdef RKG_DEBUG_ABSORPTION
+	std::cout << " N-Absorb GCI to concept " << Concept->getName();
+	if ( Cons.size() > 1 )
+	{
+		std::cout << " (other options are";
+		for ( size_t j = 1; j < Cons.size(); ++j )
+			std::cout << " " << getConcept((*Cons[j])->Left())->getName();
+		std::cout << ")";
+	}
+#endif
+
+	// replace ~C [= D with C=~notC, notC [= D:
+	// make notC [= D
+	TConcept* nC = KB.getAuxConcept(createAnAxiom(bestConcept));
+	// define C = ~notC; C had an empty desc, so it's safe not to delete it
+	KB.makeNonPrimitive ( Concept, createSNFNot(KB.getTree(nC)) );
+	return true;
+}
+
 bool
 TAxiom :: absorbIntoDomain ( void ) const
 {

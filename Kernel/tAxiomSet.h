@@ -111,6 +111,8 @@ protected:	// methods
 	bool absorbIntoTop ( const TAxiom* ax ) { return ax->absorbIntoTop(Host); }
 		/// absorb single axiom AX into concept; @return true if succeed
 	bool absorbIntoConcept ( const TAxiom* ax ) { return ax->absorbIntoConcept(Host); }
+		/// absorb single axiom AX into negated concept; @return true if succeed
+	bool absorbIntoNegConcept ( const TAxiom* ax ) { return ax->absorbIntoNegConcept(Host); }
 		/// absorb single axiom AX into role domain; @return true if succeed
 	bool absorbIntoDomain ( const TAxiom* ax ) { return ax->absorbIntoDomain(); }
 

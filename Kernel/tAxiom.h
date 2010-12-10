@@ -40,6 +40,8 @@ class SAbsBApply: public counter<SAbsBApply> {};
 class SAbsTApply: public counter<SAbsTApply> {};
 class SAbsCApply: public counter<SAbsCApply> {};
 class SAbsCAttempt: public counter<SAbsCAttempt> {};
+class SAbsNApply: public counter<SAbsNApply> {};
+class SAbsNAttempt: public counter<SAbsNAttempt> {};
 class SAbsRApply: public counter<SAbsRApply> {};
 class SAbsRAttempt: public counter<SAbsRAttempt> {};
 }
@@ -252,6 +254,8 @@ public:		// interface
 	bool absorbIntoTop ( TBox& KB ) const;
 		/// absorb into concept; @return true if absorption is performed
 	bool absorbIntoConcept ( TBox& KB ) const;
+		/// absorb into negation of a concept; @return true if absorption is performed
+	bool absorbIntoNegConcept ( TBox& KB ) const;
 		/// absorb into role domain; @return true if absorption is performed
 	bool absorbIntoDomain ( void ) const;
 		/// create a concept expression corresponding to a given GCI
