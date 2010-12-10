@@ -135,8 +135,6 @@ TBox :: addSubsumeForDefined ( TConcept* C, DLTree* D )
 
 bool TBox :: axiomToRangeDomain ( DLTree* sub, DLTree* sup )
 {
-	if ( !useRangeDomain )
-		return false;
 	// applicability check for T [= A R.C
 	if ( sub->Element() == TOP && sup->Element () == FORALL )
 	{

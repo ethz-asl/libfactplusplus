@@ -132,8 +132,8 @@ public:		// interface
 
 		/// init all absorption-related flags using given set of option
 	bool initAbsorptionFlags ( const std::string& flags );
-		/// check if absorption flags are set correctly wrt RangeAndDomain flag
-	bool isAbsorptionFlagsCorrect ( bool useRnD ) const;
+		/// check if absorption flags are set correctly
+	bool isAbsorptionFlagsCorrect ( void ) const;
 		/// add axiom for the GCI C [= D
 	void addAxiom ( DLTree* C, DLTree* D )
 	{

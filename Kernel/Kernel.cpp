@@ -422,16 +422,6 @@ bool ReasoningKernel :: initOptions ( void )
 		) )
 		return true;
 
-	// register "useRangeDomain" option
-	if ( KernelOptions.RegisterOption (
-		"useRangeDomain",
-		"Option 'useRangeDomain' switch on and off native support for the range and domain. "
-		"This option is of internal use only. It is crusial for reasoning performance to leave this option true.",
-		ifOption::iotBool,
-		"true"
-		) )
-		return true;
-
 	// register "dumpQuery" option -- 11-08-04
 	if ( KernelOptions.RegisterOption (
 		"dumpQuery",

@@ -202,15 +202,11 @@ bool TAxiomSet :: initAbsorptionFlags ( const std::string& flags )
 }
 
 /// check if absorption flags are set correctly
-bool TAxiomSet :: isAbsorptionFlagsCorrect ( bool useRnD ) const
+bool TAxiomSet :: isAbsorptionFlagsCorrect ( void ) const
 {
 	// no absorption at all -- OK
 	if ( !useAbsorption )
 		return true;
-
-	// no R&D absorption -- ensure no role absorption
-	if ( !useRnD )
-		return !useRoleAbsorption;
 
 	// exactly one from beg* should be set
 	if ( ( begC && begR ) || ( !begC && !begR ) )

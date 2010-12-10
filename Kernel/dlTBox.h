@@ -272,8 +272,6 @@ protected:	// members
 	/////////////////////////////////////////////////////
 		/// flag for full/short KB
 	bool useRelevantOnly;
-		/// flag for using native range and domain support
-	bool useRangeDomain;
 		/// flag for creating taxonomy
 	bool useCompletelyDefined;
 		/// flag for dumping TBox relevant to query

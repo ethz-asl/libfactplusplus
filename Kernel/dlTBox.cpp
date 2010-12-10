@@ -411,12 +411,11 @@ void TBox :: readConfig ( const ifOptionSet* Options )
 	addBoolOption(useCompletelyDefined);
 	addBoolOption(useRelevantOnly);
 	addBoolOption(dumpQuery);
-	addBoolOption(useRangeDomain);
 	addBoolOption(alwaysPreferEquals);
 	addBoolOption(usePrecompletion);
 
 	if ( Axioms.initAbsorptionFlags(Options->getText("absorptionFlags"))
-		 || !Axioms.isAbsorptionFlagsCorrect(useRangeDomain) )
+		 || !Axioms.isAbsorptionFlagsCorrect() )
 		throw EFaCTPlusPlus ( "Incorrect absorption flags given" );
 
 	verboseOutput = false;
