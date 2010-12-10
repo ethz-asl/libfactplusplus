@@ -414,8 +414,7 @@ void TBox :: readConfig ( const ifOptionSet* Options )
 	addBoolOption(alwaysPreferEquals);
 	addBoolOption(usePrecompletion);
 
-	if ( Axioms.initAbsorptionFlags(Options->getText("absorptionFlags"))
-		 || !Axioms.isAbsorptionFlagsCorrect() )
+	if ( Axioms.initAbsorptionFlags(Options->getText("absorptionFlags")) )
 		throw EFaCTPlusPlus ( "Incorrect absorption flags given" );
 
 	verboseOutput = false;

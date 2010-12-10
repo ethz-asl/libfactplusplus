@@ -435,13 +435,11 @@ bool ReasoningKernel :: initOptions ( void )
 	if ( KernelOptions.RegisterOption (
 		"absorptionFlags",
 		"Option 'absorptionFlags' sets up absorption process for general axioms. "
-		"It is 5-letters text field; "
-		"1st symbol -- 'n' or 'c' -- (doN't) use Concept absorption; "
-		"2nd symbol -- 'n', 'r' or 'e' -- (doN't) use (Extended) Role absorption; "
-		"the rest is symbols C,R,S; their order setup order of "
-		"Simplification, Concept and Role absorptions performed (if possible).",
+		"It text field of arbitrary length; every symbol means the absorption action: "
+		"(B)ottom Absorption), (T)op absorption, (S)implification, (C)oncept absorption, "
+		"(R)ole absorption, s(P)lit",
 		ifOption::iotText,
-		"ceSCR"
+		"BTSCRP"
 		) )
 		return true;
 

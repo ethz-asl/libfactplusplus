@@ -38,30 +38,17 @@ protected:	// internal types
 		/// set of GCIs
 	typedef std::vector<TAxiom*> AxiomCollection;
 		/// method applying to the axiom
-	typedef bool (*AbsMethod)(const TAxiom*);
+	typedef bool (TAxiomSet::*AbsMethod)(const TAxiom*);
+		/// array of methods in application order
+	typedef std::vector<AbsMethod> AbsActVector;
 
 protected:	// members
 		/// host TBox that holds all concepts/etc
 	TBox& Host;
 		/// set of axioms that accumilates incoming (and newly created) axioms; Tg
 	AxiomCollection Accum;
-
-	// flags that manages absorption
-
-		/// flag for using absorption
-	bool useAbsorption;
-		/// flag for simplifying absorption set before every check
-	bool absorbSimplifyFirst;
-		/// flag for using role absorption
-	bool useRoleAbsorption;
-		/// flag for choosing if C will be at the beginning of absorption process
-	bool begC;
-		/// flag for choosing if R will be at the beginning of absorption process
-	bool begR;
-		/// flag for choosing if C will be absorbed late
-	bool lateC;
-		/// flag for choosing if R will be absorbed late
-	bool lateR;
+		/// sett of absorption action, in order
+	AbsActVector ActionVector;
 
 protected:	// methods
 
@@ -115,12 +102,14 @@ protected:	// methods
 		return true;
 	}
 
+		/// absorb single axiom AX into BOTTOM; @return true if succeed
+	bool absorbIntoBottom ( const TAxiom* ax ) { return ax->absorbIntoBottom(); }
 		/// absorb single axiom AX into TOP; @return true if succeed
 	bool absorbIntoTop ( const TAxiom* ax ) { return ax->absorbIntoTop(Host); }
 		/// absorb single axiom AX into concept; @return true if succeed
 	bool absorbIntoConcept ( const TAxiom* ax ) { return ax->absorbIntoConcept(Host); }
 		/// absorb single axiom AX into role domain; @return true if succeed
-	bool absorbIntoDomain ( const TAxiom* ax ) { return useRoleAbsorption && ax->absorbIntoDomain(); }
+	bool absorbIntoDomain ( const TAxiom* ax ) { return ax->absorbIntoDomain(); }
 
 public:		// interface
 		/// c'tor
@@ -132,8 +121,6 @@ public:		// interface
 
 		/// init all absorption-related flags using given set of option
 	bool initAbsorptionFlags ( const std::string& flags );
-		/// check if absorption flags are set correctly
-	bool isAbsorptionFlagsCorrect ( void ) const;
 		/// add axiom for the GCI C [= D
 	void addAxiom ( DLTree* C, DLTree* D )
 	{
