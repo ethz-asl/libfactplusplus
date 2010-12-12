@@ -153,17 +153,17 @@ DLConceptTaxonomy :: propagateOneCommon ( TaxonomyVertex* node )
 	// checked if node already was visited this session
 	if ( node->isChecked(checkLabel) )
 		return;
-	
+
 	// mark node visited
 	node->setChecked(checkLabel);
 	node->setCommon();
-	Common.push_back(node);
-	
+	if ( node->correctCommon(nCommon) )
+		Common.push_back(node);
+
 	// mark all children
 	for ( iterator p = node->begin(/*upDirection=*/false), p_end = node->end(/*upDirection=*/false); p < p_end; ++p )
 		propagateOneCommon(*p);
 }
-
 
 bool DLConceptTaxonomy :: propagateUp ( void )
 {
@@ -174,7 +174,7 @@ bool DLConceptTaxonomy :: propagateUp ( void )
 	fpp_assert ( p != p_end );	// there is at least one parent (TOP)
 
 	TaxonomyLink aux;	// aux set for the verteces in ...
-	unsigned int nCommon = 1;	// number of common parents
+	nCommon = 1;	// number of common parents
 
 	// define possible successors of the node
 	propagateOneCommon(*p);
@@ -194,17 +194,9 @@ bool DLConceptTaxonomy :: propagateUp ( void )
 		propagateOneCommon(*p);
 		clearCheckedLabel();
 
-		// clear all non-common nodes that are in Common (visited on a previous run)
-		TaxonomyLink::iterator q, q_end;
-		for ( q = aux.begin(), q_end = aux.end(); q < q_end; ++q )
+		// clear all non-common nodes (visited on a previous run)
+		for ( TaxonomyLink::iterator q = aux.begin(), q_end = aux.end(); q < q_end; ++q )
 			(*q)->correctCommon(nCommon);
-
-		// put all common elements to Common here
-		aux.swap(Common);
-		Common.clear();
-		for ( q = aux.begin(), q_end = aux.end(); q < q_end; ++q )
-			if ( (*q)->correctCommon(nCommon) )
-				Common.push_back(*q);
 	}
 
 	return false;

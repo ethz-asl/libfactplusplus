@@ -31,6 +31,8 @@ protected:	// members
 	TBox& tBox;
 		/// common descendants of all parents of currently classified concept
 	TaxonomyLink Common;
+		/// number of processed common parents
+	unsigned int nCommon;
 
 	// statistic counters
 	unsigned long nConcepts;
