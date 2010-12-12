@@ -239,20 +239,7 @@ public:		// interface
 		return false;
 	}
 		/// absorb into BOTTOM; @return true if absorption is performed
-	bool absorbIntoBottom ( void ) const
-	{
-		for ( const_iterator p = begin(), p_end = end(); p != p_end; ++p )
-			if ( (*p)->Element().getToken() == BOTTOM )
-			{	// axiom in the form T [= T or ...; nothing to do
-				Stat::SAbsBApply();
-#			ifdef RKG_DEBUG_ABSORPTION
-				std::cout << " Absorb into BOTTOM";
-#			endif
-				return true;
-			}
-
-		return false;
-	}
+	bool absorbIntoBottom ( void ) const;
 		/// absorb into TOP; @return true if absorption is performed
 	bool absorbIntoTop ( TBox& KB ) const;
 		/// absorb into concept; @return true if absorption is performed

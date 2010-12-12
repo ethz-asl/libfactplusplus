@@ -104,6 +104,44 @@ void TAxiom :: dump ( std::ostream& o ) const
 }
 #endif
 
+/// absorb into BOTTOM; @return true if absorption is performed
+bool
+TAxiom :: absorbIntoBottom ( void ) const
+{
+	absorptionSet Pos, Neg;
+	for ( const_iterator p = begin(), p_end = end(); p != p_end; ++p )
+		switch ( (*p)->Element().getToken() )
+		{
+		case BOTTOM:	// axiom in the form T [= T or ...; nothing to do
+			Stat::SAbsBApply();
+#		ifdef RKG_DEBUG_ABSORPTION
+			std::cout << " Absorb into BOTTOM";
+#		endif
+			return true;
+		case TOP:	// skip it here
+			break;
+		case NOT:	// something negated: put it into NEG
+			Neg.push_back((*p)->Left());
+			break;
+		default:	// something positive: save in POS
+			Pos.push_back(*p);
+			break;
+		}
+
+	// now check whether there is a concept in both POS and NEG
+	for ( const_iterator q = Neg.begin(), q_end = Neg.end(); q != q_end; ++q )
+		for ( const_iterator s = Pos.begin(), s_end = Pos.end(); s != s_end; ++s )
+			if ( equalTrees ( *q, *s ) )
+			{
+				Stat::SAbsBApply();
+#			ifdef RKG_DEBUG_ABSORPTION
+				std::cout << " Absorb into BOTTOM due to (not" << *q << ") and" << *s;
+#			endif
+				return true;
+			}
+	return false;
+}
+
 bool
 TAxiom :: absorbIntoTop ( TBox& KB ) const
 {
