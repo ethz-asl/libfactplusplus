@@ -74,11 +74,11 @@ TAxiom :: simplifyForall ( const_iterator pos, TBox& KB ) const
 {
 	Stat::SAbsRepForall();
 	DLTree* pAll = (*pos)->Left();	// (all R ~C)
-	TAxiom* ret = copy(pos);
-	ret->add ( KB.getTree ( KB.replaceForall ( clone(pAll->Left()), createSNFNot(clone(pAll->Right())) ) ) );
 #ifdef RKG_DEBUG_ABSORPTION
 	std::cout << " simplify ALL expression" << pAll;
 #endif
+	TAxiom* ret = copy(pos);
+	ret->add ( KB.getTree ( KB.replaceForall ( clone(pAll->Left()), createSNFNot(clone(pAll->Right())) ) ) );
 	return ret;
 }
 

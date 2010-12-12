@@ -113,9 +113,12 @@ protected:	// methods
 		/// check whether P is in the form (all R C)
 	static bool isForall ( const DLTree* p )
 	{
-		return p->Element() == NOT && p->Left()->Element() == FORALL
-			   && (!isName(p->Left()->Right())
-				 	 || !getConcept(p->Left()->Right())->isSystem());
+		if ( p->Element() != NOT || p->Left()->Element() != FORALL )
+			return false;
+		const DLTree* C = p->Left()->Right();
+		if ( C->Element() == BOTTOM )
+			return false;	// no sense to replace \AR.BOTTOM as it well lead to the same GCI
+		return !isName(C) || !getConcept(C)->isSystem();
 	}
 
 	// single disjunct's optimisations
