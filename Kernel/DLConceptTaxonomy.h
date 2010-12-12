@@ -133,21 +133,28 @@ protected:	// methods
 //	virtual void buildToldSubsumers ( ClassifiableEntry* p ATTR_UNUSED ) {}
 		/// check if no classification needed (synonym, orphan, unsatisfiable)
 	virtual bool immediatelyClassified ( void );
+		/// check if no BU classification is required as C=TOP
+	bool isEqualToTop ( void );
 
-		/// setup TD phase (ie, identify/set parent candidates)
-	virtual void setupTopDown ( void );
 		/// check if it is possible to skip TD phase
-	virtual bool needTopDown ( void ) const;
+	virtual bool needTopDown ( void ) const
+		{ return !(useCompletelyDefined && curEntry->isCompletelyDefined ()); }
 		/// explicitely run TD phase
 	virtual void runTopDown ( void ) { searchBaader ( /*upDirection=*/false, getTopVertex() ); }
-		/// setup BU phase (ie, identify/set children candidates)
-	virtual void setupBottomUp ( void ) {}
 		/// check if it is possible to skip BU phase
-	virtual bool needBottomUp ( void ) const;
+	virtual bool needBottomUp ( void ) const
+	{
+		// we DON'T need bottom-up phase for primitive concepts during CD-like reasoning
+		// if no GCIs are in the TBox (C [= T, T [= X or Y, X [= D, Y [= D)
+		// or no reflexive roles w/RnD precent (Refl(R), Range(R)=D)
+		return flagNeedBottomUp || !useCompletelyDefined || curConcept()->isNonPrimitive();
+	}
 		/// explicitely run BU phase
 	virtual void runBottomUp ( void )
 	{
 		if ( propagateUp() )	// Common is set up here
+			goto finish;
+		if ( isEqualToTop() )	// nothing to do
 			goto finish;
 		if ( !willInsertIntoTaxonomy )
 		{	// after classification -- bottom set up already
@@ -230,29 +237,6 @@ inline bool DLConceptTaxonomy :: immediatelyClassified ( void )
 	tBox.initCache(const_cast<TConcept*>(curConcept()));
 
 	return isUnsatisfiable();
-}
-
-inline void DLConceptTaxonomy :: setupTopDown ( void )
-{
-	setToldSubsumers();
-	if ( !needTopDown() )
-	{
-		++nCDEntries;
-		setNonRedundantCandidates();
-	}
-}
-
-inline bool DLConceptTaxonomy :: needTopDown ( void ) const
-{
-	return !(useCompletelyDefined && curEntry->isCompletelyDefined ());
-}
-
-inline bool DLConceptTaxonomy :: needBottomUp ( void ) const
-{
-	// we DON'T need bottom-up phase for primitive concepts during CD-like reasoning
-	// if no GCIs are in the TBox (C [= T, T [= X or Y, X [= D, Y [= D)
-	// or no reflexive roles w/RnD precent (Refl(R), Range(R)=D)
-	return flagNeedBottomUp || !useCompletelyDefined || curConcept()->isNonPrimitive();
 }
 
 //-----------------------------------------------------------------------------

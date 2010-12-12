@@ -210,6 +210,19 @@ DLConceptTaxonomy :: clearCommon ( void )
 	Common.clear();
 }
 
+/// check if no BU classification is required as C=TOP
+bool
+DLConceptTaxonomy :: isEqualToTop ( void )
+{
+	// check this up-front to avoid Sorted check's flaw wrt equals-to-top
+	const modelCacheInterface* cache = tBox.initCache ( curConcept(), /*sub=*/true );
+	if ( cache->getState() != csInvalid )
+		return false;
+	// here concept = TOP
+	Current->addNeighbour ( /*upDirection=*/false, getTopVertex() );
+	return true;
+}
+
 /// @return true iff curEntry is classified as a synonym
 bool
 DLConceptTaxonomy :: classifySynonym ( void )

@@ -127,9 +127,6 @@ void Taxonomy :: generalTwoPhaseClassification ( void )
 
 	// Bottom-Up phase
 
-	// setup BU phase (ie, identify children candidates)
-	setupBottomUp();
-
 	// run BU if necessary
 	if ( needBottomUp() )
 	{

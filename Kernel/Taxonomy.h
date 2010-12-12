@@ -160,13 +160,19 @@ protected:	// methods
 		/// check if no classification needed (synonym, orphan, unsatisfiable)
 	virtual bool immediatelyClassified ( void ) { return classifySynonym(); }
 		/// setup TD phase (ie, identify/set parent candidates)
-	virtual void setupTopDown ( void );
+	void setupTopDown ( void )
+	{
+		setToldSubsumers();
+		if ( !needTopDown() )
+		{
+			++nCDEntries;
+			setNonRedundantCandidates();
+		}
+	}
 		/// check if it is possible to skip TD phase
 	virtual bool needTopDown ( void ) const { return false; }
 		/// explicitely run TD phase
 	virtual void runTopDown ( void ) {}
-		/// setup BU phase (ie, identify/set children candidates)
-	virtual void setupBottomUp ( void ) {}
 		/// check if it is possible to skip BU phase
 	virtual bool needBottomUp ( void ) const { return false; }
 		/// explicitely run BU phase
@@ -351,12 +357,5 @@ public:		// interface
 		/// load entry
 	void Load ( std::istream& i );
 }; // Taxonomy
-
-inline void Taxonomy :: setupTopDown ( void )
-{
-	++nCDEntries;
-	setToldSubsumers();
-	setNonRedundantCandidates();
-}
 
 #endif // TAXONOMY_H
