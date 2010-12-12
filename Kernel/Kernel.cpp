@@ -439,7 +439,7 @@ bool ReasoningKernel :: initOptions ( void )
 		"(B)ottom Absorption), (T)op absorption, (E)quivalent concepts replacement, (C)oncept absorption, "
 		"(N)egated concept absorption, (F)orall expression replacement, (R)ole absorption, (S)plit",
 		ifOption::iotText,
-		"BTECFRS"
+		"BTECFSR"
 		) )
 		return true;
 
