@@ -217,12 +217,8 @@ TBox :: and2dag ( DLVertex* v, const DLTree* t )
 {
 	BipolarPointer ret = bpBOTTOM;
 
-	if ( fillANDVertex ( v, t ) )
-	{	// clash found
-		// sorts are broken now (see bTR11)
-		useSortedReasoning = false;
+	if ( fillANDVertex ( v, t ) )	// clash found
 		delete v;
-	}
 	else	// AND vertex
 		switch ( v->end() - v->begin() )
 		{
