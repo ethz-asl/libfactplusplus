@@ -114,6 +114,8 @@ protected:	// methods
 		/// explicetely test appropriate subsumption relation
 	bool testSubsumption ( bool upDirection, TaxonomyVertex* cur );
 
+		/// propagate common value from NODE to all its descendants; save visited nodes
+	void propagateOneCommon ( TaxonomyVertex* node );
 		/// mark as COMMON all vertexes that are sub-concepts of every parent of CURRENT
 	bool propagateUp ( void );
 		/// clear all COMMON infornation
@@ -270,4 +272,4 @@ TBox :: classifyEntry ( TConcept* entry )
 		pTax->classifyEntry(entry);
 }
 
-#endif // _DLCONCEPTTAXONOMY_H
+#endif // DLCONCEPTTAXONOMY_H

@@ -147,6 +147,24 @@ bool DLConceptTaxonomy :: testSubsumption ( bool upDirection, TaxonomyVertex* cu
 		return testSub ( curConcept(), testC );
 }
 
+void
+DLConceptTaxonomy :: propagateOneCommon ( TaxonomyVertex* node )
+{
+	// checked if node already was visited this session
+	if ( node->isChecked(checkLabel) )
+		return;
+	
+	// mark node visited
+	node->setChecked(checkLabel);
+	node->setCommon();
+	Common.push_back(node);
+	
+	// mark all children
+	for ( iterator p = node->begin(/*upDirection=*/false), p_end = node->end(/*upDirection=*/false); p < p_end; ++p )
+		propagateOneCommon(*p);
+}
+
+
 bool DLConceptTaxonomy :: propagateUp ( void )
 {
 	const bool upDirection = true;
@@ -159,7 +177,7 @@ bool DLConceptTaxonomy :: propagateUp ( void )
 	unsigned int nCommon = 1;	// number of common parents
 
 	// define possible successors of the node
-	propagateOneCommon ( *p, Common );
+	propagateOneCommon(*p);
 	clearCheckedLabel();
 
 	for ( ++p; p < p_end; ++p )
@@ -170,16 +188,19 @@ bool DLConceptTaxonomy :: propagateUp ( void )
 			return true;
 
 		++nCommon;
-		aux.clear();
-		propagateOneCommon ( *p, aux );
+		// now Aux contain data from previous run
+		aux.swap(Common);
+		Common.clear();
+		propagateOneCommon(*p);
 		clearCheckedLabel();
 
 		// clear all non-common nodes that are in Common (visited on a previous run)
 		TaxonomyLink::iterator q, q_end;
-		for ( q = Common.begin(), q_end = Common.end(); q < q_end; ++q )
+		for ( q = aux.begin(), q_end = aux.end(); q < q_end; ++q )
 			(*q)->correctCommon(nCommon);
 
 		// put all common elements to Common here
+		aux.swap(Common);
 		Common.clear();
 		for ( q = aux.begin(), q_end = aux.end(); q < q_end; ++q )
 			if ( (*q)->correctCommon(nCommon) )
