@@ -681,6 +681,7 @@ void DlSatTester :: logStatisticData ( std::ostream& o, bool needLocal ) const
 	nIdCalls.Print		( o, needLocal, "\n    CN   operations: ", "" );
 	nSingletonCalls.Print(o, needLocal, "\n           including ", " singleton ones" );
 	nOrCalls.Print		( o, needLocal, "\n    OR   operations: ", "" );
+	nOrBrCalls.Print	( o, needLocal, "\n           ", " of which are branching" );
 	nAndCalls.Print		( o, needLocal, "\n    AND  operations: ", "" );
 	nSomeCalls.Print	( o, needLocal, "\n    SOME operations: ", "" );
 	nAllCalls.Print		( o, needLocal, "\n    ALL  operations: ", "" );

@@ -349,6 +349,7 @@ bool DlSatTester :: processOrEntry ( void )
 		save();
 		// new (just branched) dep-set
 		dep = getCurDepSet();
+		incStat(nOrBrCalls);
 	}
 
 	// if semantic branching is in use -- add previous entries to the label

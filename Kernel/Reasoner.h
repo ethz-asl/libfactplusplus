@@ -260,6 +260,7 @@ protected:	// members
 		nIdCalls,
 		nSingletonCalls,
 		nOrCalls,
+		nOrBrCalls,
 		nAndCalls,
 		nSomeCalls,
 		nAllCalls,
