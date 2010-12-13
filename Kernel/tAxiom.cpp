@@ -194,6 +194,8 @@ TAxiom :: absorbIntoConcept ( TBox& KB ) const
 		{
 			Stat::SAbsCAttempt();
 			Cons.push_back(p);
+			if ( getConcept(*p)->isSystem() )
+				bestConcept = p;
 		}
 
 	// if no concept names -- return;
