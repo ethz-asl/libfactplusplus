@@ -24,6 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "globaldef.h"
 #include "dltree.h"
 #include "tConcept.h"
+#include "tRole.h"
 #include "counter.h"
 
 // uncomment this to have absorption debug messages
@@ -113,7 +114,7 @@ protected:	// methods
 		/// check whether P is in the form (all R C)
 	static bool isForall ( const DLTree* p )
 	{
-		if ( p->Element() != NOT || p->Left()->Element() != FORALL )
+		if ( p->Element() != NOT || p->Left()->Element() != FORALL || resolveRole(p->Left()->Left())->isDataRole() )
 			return false;
 		const DLTree* C = p->Left()->Right();
 		if ( C->Element() == BOTTOM )
