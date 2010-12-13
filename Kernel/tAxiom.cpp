@@ -213,8 +213,9 @@ TAxiom :: absorbIntoConcept ( TBox& KB ) const
 	if ( Cons.size() > 1 )
 	{
 		std::cout << " (other options are";
-		for ( size_t j = 1; j < Cons.size(); ++j )
-			std::cout << " " << getConcept(*Cons[j])->getName();
+		for ( WorkSet::iterator q = Cons.begin(), q_end = Cons.end(); q != q_end; ++q )
+			if ( *q != bestConcept )
+				std::cout << " " << getConcept(**q)->getName();
 		std::cout << ")";
 	}
 #endif
@@ -267,8 +268,9 @@ TAxiom :: absorbIntoNegConcept ( TBox& KB ) const
 	if ( Cons.size() > 1 )
 	{
 		std::cout << " (other options are";
-		for ( size_t j = 1; j < Cons.size(); ++j )
-			std::cout << " " << getConcept((*Cons[j])->Left())->getName();
+		for ( WorkSet::iterator q = Cons.begin(), q_end = Cons.end(); q != q_end; ++q )
+			if ( *q != bestConcept )
+				std::cout << " " << getConcept((**q)->Left())->getName();
 		std::cout << ")";
 	}
 #endif
@@ -321,8 +323,9 @@ TAxiom :: absorbIntoDomain ( void ) const
 	if ( Cons.size() > 1 )
 	{
 		std::cout << " (other options are";
-		for ( size_t j = 1; j < Cons.size(); ++j )
-			std::cout << " " << resolveRole((*Cons[j])->Left()->Left())->getName();
+		for ( WorkSet::iterator q = Cons.begin(), q_end = Cons.end(); q != q_end; ++q )
+			if ( *q != bestSome )
+				std::cout << " " << resolveRole((**q)->Left()->Left())->getName();
 		std::cout << ")";
 	}
 #endif
