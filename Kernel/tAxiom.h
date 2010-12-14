@@ -32,6 +32,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 class TBox;
 
+// statistical counters lives here
 namespace Stat
 {
 class SAbsRepCN: public counter<SAbsRepCN> {};
@@ -46,6 +47,56 @@ class SAbsNAttempt: public counter<SAbsNAttempt> {};
 class SAbsRApply: public counter<SAbsRApply> {};
 class SAbsRAttempt: public counter<SAbsRAttempt> {};
 }
+
+// NS for different DLTree matchers for trees in axiom
+namespace InAx
+{
+		/// build an RW concept from a given [C|I]NAME-rooted DLTree
+	inline TConcept* getConcept ( DLTree* p )
+		{ return static_cast<TConcept*>(p->Element().getNE()); }
+		/// build an RO concept from a given [C|I]NAME-rooted DLTree
+	inline const TConcept* getConcept ( const DLTree* p )
+		{ return static_cast<const TConcept*>(p->Element().getNE()); }
+
+		/// @return true iff P is a TOP
+	inline bool isTop ( const DLTree* p ) { return p->Element() == BOTTOM; }
+		/// @return true iff P is a BOTTOM
+	inline bool isBot ( const DLTree* p ) { return p->Element() == TOP; }
+		/// @return true iff P is a positive concept name
+	inline bool isPosCN ( const DLTree* p ) { return p->Element() == NOT && isName(p->Left()); }
+		/// @return true iff P is a positive non-primitive CN
+	inline bool isPosNP ( const DLTree* p )
+		{ return isPosCN(p) && !getConcept(p->Left())->isPrimitive(); }
+		/// @return true iff P is a positive primitive CN
+	inline bool isPosPC ( const DLTree* p )
+		{ return isPosCN(p) && getConcept(p->Left())->isPrimitive(); }
+		/// @return true iff P is a negative concept name
+	inline bool isNegCN ( const DLTree* p ) { return isName(p); }
+		/// @return true iff P is a negative non-primitive CN
+	inline bool isNegNP ( const DLTree* p )
+		{ return isNegCN(p) && !getConcept(p)->isPrimitive(); }
+		/// @return true iff P is a negative primitive CN
+	inline bool isNegPC ( const DLTree* p )
+		{ return isNegCN(p) && getConcept(p)->isPrimitive(); }
+		/// @return true iff P is an AND expression
+	inline bool isAnd ( const DLTree* p ) { return p->Element() == NOT && p->Left()->Element() == AND; }
+		/// @return true iff P is an OR expression
+	inline bool isOr ( const DLTree* p ) { return p->Element() == AND; }
+		/// @return true iff P is a general FORALL expression
+	inline bool isForall ( const DLTree* p ) { return p->Element() == NOT && p->Left()->Element() == FORALL; }
+		/// @return true iff P is an object FORALL expression
+	inline bool isOForall ( const DLTree* p ) { return isForall(p) && !resolveRole(p->Left()->Left())->isDataRole(); }
+		/// @return true iff P is a FORALL expression suitable for absorption
+	inline bool isAbsForall ( const DLTree* p )
+	{
+		if ( !isOForall(p) )
+			return false;
+		const DLTree* C = p->Left()->Right();
+		if ( isTop(C) )	// no sense to replace \AR.BOTTOM as it well lead to the same GCI
+			return false;
+		return !isName(C) || !getConcept(C)->isSystem();
+	}
+} // InAx
 
 class TAxiom
 {
@@ -88,40 +139,6 @@ protected:	// methods
 		return ret;
 	}
 
-	// recognisable patterns in disjuncts
-
-		/// build an RW concept from a given [C|I]NAME-rooted DLTree
-	static TConcept* getConcept ( DLTree* p )
-		{ return static_cast<TConcept*>(p->Element().getNE()); }
-		/// build an RO concept from a given [C|I]NAME-rooted DLTree
-	static const TConcept* getConcept ( const DLTree* p )
-		{ return static_cast<const TConcept*>(p->Element().getNE()); }
-
-		/// check whether P is in the form C for non-primitive C
-	static bool isPosNP ( const DLTree* p )
-	{
-		return p->Element() == NOT && isName(p->Left()) &&
-			   !getConcept(p->Left())->isPrimitive();
-	}
-		/// check whether P is in the form ~C for non-primitive C
-	static bool isNegNP ( const DLTree* p )
-	{
-		return isName(p) && !getConcept(p)->isPrimitive();
-	}
-		/// check whether P is in the form (and C D)
-	static bool isAnd ( const DLTree* p )
-		{ return p->Element() == NOT && p->Left()->Element() == AND; }
-		/// check whether P is in the form (all R C)
-	static bool isForall ( const DLTree* p )
-	{
-		if ( p->Element() != NOT || p->Left()->Element() != FORALL || resolveRole(p->Left()->Left())->isDataRole() )
-			return false;
-		const DLTree* C = p->Left()->Right();
-		if ( C->Element() == BOTTOM )
-			return false;	// no sense to replace \AR.BOTTOM as it well lead to the same GCI
-		return !isName(C) || !getConcept(C)->isSystem();
-	}
-
 	// single disjunct's optimisations
 
 		/// simplify (OR C ...) for a non-primitive C in a given position
@@ -129,7 +146,7 @@ protected:	// methods
 	{
 		Stat::SAbsRepCN();
 		TAxiom* ret = copy(pos);
-		ret->add(createSNFNot(clone(getConcept((*pos)->Left())->Description)));
+		ret->add(createSNFNot(clone(InAx::getConcept((*pos)->Left())->Description)));
 #	ifdef RKG_DEBUG_ABSORPTION
 		std::cout << " simplify CN expression for" << (*pos)->Left();
 #	endif
@@ -140,7 +157,7 @@ protected:	// methods
 	{
 		Stat::SAbsRepCN();
 		TAxiom* ret = copy(pos);
-		ret->add(clone(getConcept(*pos)->Description));
+		ret->add(clone(InAx::getConcept(*pos)->Description));
 #	ifdef RKG_DEBUG_ABSORPTION
 		std::cout << " simplify ~CN expression for" << *pos;
 #	endif
@@ -222,7 +239,7 @@ public:		// interface
 	{
 		acc.clear();
 		for ( const_iterator p = begin(), p_end = end(); p != p_end; ++p )
-			if ( isAnd(*p) )
+			if ( InAx::isAnd(*p) )
 			{
 				Stat::SAbsSplit();
 #			ifdef RKG_DEBUG_ABSORPTION

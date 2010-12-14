@@ -24,10 +24,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 void
 TAxiom :: add ( DLTree* p )
 {
-	if ( p->Element().getToken() == TOP )
+	if ( InAx::isBot(p) )	// BOT or X == X
 		return;	// nothing to do
 	// flatten the disjunctions on the fly
-	if ( p->Element().getToken() == AND )
+	if ( InAx::isOr(p) )
 	{
 		add(p->Left());
 		add(p->Right());
@@ -50,9 +50,9 @@ TAxiom :: simplifyCN ( void ) const
 	{
 		DLTree* p = *i;
 
-		if ( isPosNP(p) )
+		if ( InAx::isPosNP(p) )
 			return simplifyPosNP(i);
-		else if ( isNegNP(p) )
+		else if ( InAx::isNegNP(p) )
 			return simplifyNegNP(i);
 	}
 
@@ -63,7 +63,7 @@ TAxiom*
 TAxiom :: simplifyForall ( TBox& KB ) const
 {
 	for ( const_iterator i = begin(), i_end = end(); i != i_end; ++i )
-		if ( isForall(*i) )
+		if ( InAx::isAbsForall(*i) )
 			return simplifyForall ( i, KB );
 
 	return NULL;
@@ -149,13 +149,13 @@ TAxiom :: absorbIntoTop ( TBox& KB ) const
 
 	// check whether the axiom is Top [= C
 	for ( const_iterator p = begin(), p_end = end(); p != p_end; ++p )
-		if ( (*p)->Element().getToken() == TOP )	// TOP here is fine
+		if ( InAx::isBot(*p) )	// BOTTOMS are fine
 			continue;
-		else if ( (*p)->Element() == NOT && isName((*p)->Left()) )	// C found
+		else if ( InAx::isPosCN(*p) )	// CN found
 		{
 			if ( C != NULL )	// more than one concept
 				return false;
-			C = getConcept((*p)->Left());
+			C = InAx::getConcept((*p)->Left());
 			if ( C->isSingleton() )	// doesn't work with nominals
 				return false;
 		}
@@ -189,12 +189,11 @@ TAxiom :: absorbIntoConcept ( TBox& KB ) const
 
 	// finds all primitive concept names
 	for ( const_iterator p = begin(), p_end = end(); p != p_end; ++p )
-		if ( isName(*p) &&		// FIXME!! review this during implementation of Nominal Absorption
-			 getConcept(*p)->isPrimitive() )
+		if ( InAx::isNegPC(*p) )	// FIXME!! review this during implementation of Nominal Absorption
 		{
 			Stat::SAbsCAttempt();
 			Cons.push_back(p);
-			if ( getConcept(*p)->isSystem() )
+			if ( InAx::getConcept(*p)->isSystem() )
 				bestConcept = p;
 		}
 
@@ -208,7 +207,7 @@ TAxiom :: absorbIntoConcept ( TBox& KB ) const
 		bestConcept = Cons[0];
 
 	// normal concept absorption
-	TConcept* Concept = getConcept(*bestConcept);
+	TConcept* Concept = InAx::getConcept(*bestConcept);
 
 #ifdef RKG_DEBUG_ABSORPTION
 	std::cout << " C-Absorb GCI to concept " << Concept->getName();
@@ -217,7 +216,7 @@ TAxiom :: absorbIntoConcept ( TBox& KB ) const
 		std::cout << " (other options are";
 		for ( WorkSet::iterator q = Cons.begin(), q_end = Cons.end(); q != q_end; ++q )
 			if ( *q != bestConcept )
-				std::cout << " " << getConcept(**q)->getName();
+				std::cout << " " << InAx::getConcept(**q)->getName();
 		std::cout << ")";
 	}
 #endif
@@ -246,7 +245,7 @@ TAxiom :: absorbIntoNegConcept ( TBox& KB ) const
 	// finds all primitive negated concept names without description
 	for ( const_iterator p = begin(), p_end = end(); p != p_end; ++p )
 		if ( (*p)->Element().getToken() == NOT && isName((*p)->Left())
-			 && (Concept = getConcept((*p)->Left()))->isPrimitive()
+			 && (Concept = InAx::getConcept((*p)->Left()))->isPrimitive()
 			 && !Concept->isSingleton() && Concept->Description == NULL )
 		{
 			Stat::SAbsNAttempt();
@@ -263,7 +262,7 @@ TAxiom :: absorbIntoNegConcept ( TBox& KB ) const
 		bestConcept = Cons[0];
 
 	// normal concept absorption
-	Concept = getConcept((*bestConcept)->Left());
+	Concept = InAx::getConcept((*bestConcept)->Left());
 
 #ifdef RKG_DEBUG_ABSORPTION
 	std::cout << " N-Absorb GCI to concept " << Concept->getName();
@@ -272,7 +271,7 @@ TAxiom :: absorbIntoNegConcept ( TBox& KB ) const
 		std::cout << " (other options are";
 		for ( WorkSet::iterator q = Cons.begin(), q_end = Cons.end(); q != q_end; ++q )
 			if ( *q != bestConcept )
-				std::cout << " " << getConcept((**q)->Left())->getName();
+				std::cout << " " << InAx::getConcept((**q)->Left())->getName();
 		std::cout << ")";
 	}
 #endif
