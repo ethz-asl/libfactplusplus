@@ -34,7 +34,7 @@ TAxiom :: add ( DLTree* p )
 		delete p;	// delete just AND entry, not the trees
 		return;
 	}
-	for ( iterator i = begin(), i_end = end(); i != i_end; ++i )
+	for ( const_iterator i = begin(), i_end = end(); i != i_end; ++i )
 		if ( equalTrees(p,*i) )
 		{
 			deleteTree(p);
@@ -48,12 +48,12 @@ TAxiom :: simplifyCN ( void ) const
 {
 	for ( const_iterator i = begin(), i_end = end(); i != i_end; ++i )
 	{
-		DLTree* p = *i;
+		const DLTree* p = *i;
 
 		if ( InAx::isPosNP(p) )
-			return simplifyPosNP(i);
+			return simplifyPosNP(p);
 		else if ( InAx::isNegNP(p) )
-			return simplifyNegNP(i);
+			return simplifyNegNP(p);
 	}
 
 	return NULL;
@@ -64,31 +64,31 @@ TAxiom :: simplifyForall ( TBox& KB ) const
 {
 	for ( const_iterator i = begin(), i_end = end(); i != i_end; ++i )
 		if ( InAx::isAbsForall(*i) )
-			return simplifyForall ( i, KB );
+			return simplifyForall ( *i, KB );
 
 	return NULL;
 }
 
 TAxiom*
-TAxiom :: simplifyForall ( const_iterator pos, TBox& KB ) const
+TAxiom :: simplifyForall ( const DLTree* rep, TBox& KB ) const
 {
 	Stat::SAbsRepForall();
-	DLTree* pAll = (*pos)->Left();	// (all R ~C)
+	DLTree* pAll = rep->Left();	// (all R ~C)
 #ifdef RKG_DEBUG_ABSORPTION
 	std::cout << " simplify ALL expression" << pAll;
 #endif
-	TAxiom* ret = copy(pos);
+	TAxiom* ret = copy(rep);
 	ret->add ( KB.getTree ( KB.replaceForall ( clone(pAll->Left()), createSNFNot(clone(pAll->Right())) ) ) );
 	return ret;
 }
 
 DLTree*
-TAxiom :: createAnAxiom ( const_iterator skip ) const
+TAxiom :: createAnAxiom ( const DLTree* skip ) const
 {
 	// create new OR vertex for the axiom:
 	DLTree* Or = createTop();
 	for ( const_iterator p = begin(), p_end = end(); p != p_end; ++p )
-		if ( p != skip )
+		if ( *p != skip )
 			Or = createSNFAnd ( clone(*p), Or );
 
 	return createSNFNot(Or);
@@ -185,16 +185,16 @@ bool
 TAxiom :: absorbIntoConcept ( TBox& KB ) const
 {
 	WorkSet Cons;
-	const_iterator bestConcept = end();
+	DLTree* bestConcept = NULL;
 
 	// finds all primitive concept names
 	for ( const_iterator p = begin(), p_end = end(); p != p_end; ++p )
 		if ( InAx::isNegPC(*p) )	// FIXME!! review this during implementation of Nominal Absorption
 		{
 			Stat::SAbsCAttempt();
-			Cons.push_back(p);
+			Cons.push_back(*p);
 			if ( InAx::getConcept(*p)->isSystem() )
-				bestConcept = p;
+				bestConcept = *p;
 		}
 
 	// if no concept names -- return;
@@ -203,11 +203,11 @@ TAxiom :: absorbIntoConcept ( TBox& KB ) const
 
 	Stat::SAbsCApply();
 	// FIXME!! as for now: just take the 1st concept name
-	if ( bestConcept == end() )
+	if ( bestConcept == NULL )
 		bestConcept = Cons[0];
 
 	// normal concept absorption
-	TConcept* Concept = InAx::getConcept(*bestConcept);
+	TConcept* Concept = InAx::getConcept(bestConcept);
 
 #ifdef RKG_DEBUG_ABSORPTION
 	std::cout << " C-Absorb GCI to concept " << Concept->getName();
@@ -216,7 +216,7 @@ TAxiom :: absorbIntoConcept ( TBox& KB ) const
 		std::cout << " (other options are";
 		for ( WorkSet::iterator q = Cons.begin(), q_end = Cons.end(); q != q_end; ++q )
 			if ( *q != bestConcept )
-				std::cout << " " << InAx::getConcept(**q)->getName();
+				std::cout << " " << InAx::getConcept(*q)->getName();
 		std::cout << ")";
 	}
 #endif
@@ -240,7 +240,7 @@ TAxiom :: absorbIntoNegConcept ( TBox& KB ) const
 {
 	WorkSet Cons;
 	TConcept* Concept;
-	const_iterator bestConcept = end();
+	const DLTree* bestConcept = NULL;
 
 	// finds all primitive negated concept names without description
 	for ( const_iterator p = begin(), p_end = end(); p != p_end; ++p )
@@ -249,7 +249,7 @@ TAxiom :: absorbIntoNegConcept ( TBox& KB ) const
 			 && !Concept->isSingleton() && Concept->Description == NULL )
 		{
 			Stat::SAbsNAttempt();
-			Cons.push_back(p);
+			Cons.push_back(*p);
 		}
 
 	// if no concept names -- return;
@@ -258,11 +258,11 @@ TAxiom :: absorbIntoNegConcept ( TBox& KB ) const
 
 	Stat::SAbsNApply();
 	// FIXME!! as for now: just take the 1st concept name
-	if ( bestConcept == end() )
+	if ( bestConcept == NULL )
 		bestConcept = Cons[0];
 
 	// normal concept absorption
-	Concept = InAx::getConcept((*bestConcept)->Left());
+	Concept = InAx::getConcept(bestConcept->Left());
 
 #ifdef RKG_DEBUG_ABSORPTION
 	std::cout << " N-Absorb GCI to concept " << Concept->getName();
@@ -271,7 +271,7 @@ TAxiom :: absorbIntoNegConcept ( TBox& KB ) const
 		std::cout << " (other options are";
 		for ( WorkSet::iterator q = Cons.begin(), q_end = Cons.end(); q != q_end; ++q )
 			if ( *q != bestConcept )
-				std::cout << " " << InAx::getConcept((**q)->Left())->getName();
+				std::cout << " " << InAx::getConcept((*q)->Left())->getName();
 		std::cout << ")";
 	}
 #endif
@@ -288,7 +288,7 @@ bool
 TAxiom :: absorbIntoDomain ( void ) const
 {
 	WorkSet Cons;
-	const_iterator bestSome = end();
+	const DLTree* bestSome = NULL;
 
 	// find all forall concepts
 	for ( const_iterator p = begin(), p_end = end(); p != p_end; ++p )
@@ -297,11 +297,11 @@ TAxiom :: absorbIntoDomain ( void ) const
 			   || (*p)->Left()->Element() == LE ))	// \neg >= n R.C
 		{
 			Stat::SAbsRAttempt();
-			Cons.push_back(p);
+			Cons.push_back(*p);
 			// check for the direct domain case
 			if ( (*p)->Left()->Right()->Element() == BOTTOM )
 			{	// found proper absorption candidate
-				bestSome = p;
+				bestSome = *p;
 				break;
 			}
 		}
@@ -313,11 +313,11 @@ TAxiom :: absorbIntoDomain ( void ) const
 	Stat::SAbsRApply();
 	TRole* Role;
 
-	if ( bestSome != end() )
-		Role = resolveRole ( (*bestSome)->Left()->Left() );
+	if ( bestSome != NULL )
+		Role = resolveRole(bestSome->Left()->Left());
 	else
-		// FIXME!! as for now: just take the 1st concept name
-		Role = resolveRole ( (*Cons[0])->Left()->Left() );
+		// FIXME!! as for now: just take the 1st role name
+		Role = resolveRole(Cons[0]->Left()->Left());
 
 #ifdef RKG_DEBUG_ABSORPTION
 	std::cout << " R-Absorb GCI to the domain of role " << Role->getName();
@@ -326,7 +326,7 @@ TAxiom :: absorbIntoDomain ( void ) const
 		std::cout << " (other options are";
 		for ( WorkSet::iterator q = Cons.begin(), q_end = Cons.end(); q != q_end; ++q )
 			if ( *q != bestSome )
-				std::cout << " " << resolveRole((**q)->Left()->Left())->getName();
+				std::cout << " " << resolveRole((*q)->Left()->Left())->getName();
 		std::cout << ")";
 	}
 #endif

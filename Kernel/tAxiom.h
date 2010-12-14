@@ -111,7 +111,7 @@ protected:	// types
 		/// RO iterator for the elements of GCI
 	typedef absorptionSet::const_iterator const_iterator;
 		/// set of iterators to work with
-	typedef std::vector<const_iterator> WorkSet;
+	typedef absorptionSet WorkSet;
 
 protected:	// members
 		/// GCI is presented in the form (or Disjuncts);
@@ -130,11 +130,11 @@ protected:	// methods
 	const_iterator end ( void ) const { return Disjuncts.end(); }
 
 		/// create a copy of a given GCI; ignore SKIP entry
-	TAxiom* copy ( const_iterator skip ) const
+	TAxiom* copy ( const DLTree* skip ) const
 	{
 		TAxiom* ret = new TAxiom();
 		for ( const_iterator i = begin(), i_end = end(); i != i_end; ++i )
-			if ( i != skip )
+			if ( *i != skip )
 				ret->Disjuncts.push_back(clone(*i));
 		return ret;
 	}
@@ -142,46 +142,46 @@ protected:	// methods
 	// single disjunct's optimisations
 
 		/// simplify (OR C ...) for a non-primitive C in a given position
-	TAxiom* simplifyPosNP ( const_iterator pos ) const
+	TAxiom* simplifyPosNP ( const DLTree* rep ) const
 	{
 		Stat::SAbsRepCN();
-		TAxiom* ret = copy(pos);
-		ret->add(createSNFNot(clone(InAx::getConcept((*pos)->Left())->Description)));
+		TAxiom* ret = copy(rep);
+		ret->add(createSNFNot(clone(InAx::getConcept(rep->Left())->Description)));
 #	ifdef RKG_DEBUG_ABSORPTION
-		std::cout << " simplify CN expression for" << (*pos)->Left();
+		std::cout << " simplify CN expression for" << rep->Left();
 #	endif
 		return ret;
 	}
 		/// simplify (OR ~C ...) for a non-primitive C in a given position
-	TAxiom* simplifyNegNP ( const_iterator pos ) const
+	TAxiom* simplifyNegNP ( const DLTree* rep ) const
 	{
 		Stat::SAbsRepCN();
-		TAxiom* ret = copy(pos);
-		ret->add(clone(InAx::getConcept(*pos)->Description));
+		TAxiom* ret = copy(rep);
+		ret->add(clone(InAx::getConcept(rep)->Description));
 #	ifdef RKG_DEBUG_ABSORPTION
-		std::cout << " simplify ~CN expression for" << *pos;
+		std::cout << " simplify ~CN expression for" << rep;
 #	endif
 		return ret;
 	}
 		/// simplify (OR (SOME R C) ...)) in a given position
-	TAxiom* simplifyForall ( const_iterator pos, TBox& KB ) const;
+	TAxiom* simplifyForall ( const DLTree* rep, TBox& KB ) const;
 		/// split (OR (AND...) ...) in a given position
-	void split ( std::vector<TAxiom*>& acc, const_iterator pos, DLTree* pAnd ) const
+	void split ( std::vector<TAxiom*>& acc, const DLTree* rep, DLTree* pAnd ) const
 	{
 		if ( pAnd->Element().getToken() == AND )
 		{	// split the AND
-			split ( acc, pos, pAnd->Left() );
-			split ( acc, pos, pAnd->Right() );
+			split ( acc, rep, pAnd->Left() );
+			split ( acc, rep, pAnd->Right() );
 		}
 		else
 		{
-			TAxiom* ret = copy(pos);
+			TAxiom* ret = copy(rep);
 			ret->add(createSNFNot(clone(pAnd)));
 			acc.push_back(ret);
 		}
 	}
 		/// create a concept expression corresponding to a given GCI; ignore SKIP entry
-	DLTree* createAnAxiom ( const_iterator skip ) const;
+	DLTree* createAnAxiom ( const DLTree* skip ) const;
 
 public:		// interface
 		/// create an empty GCI
@@ -245,7 +245,7 @@ public:		// interface
 #			ifdef RKG_DEBUG_ABSORPTION
 				std::cout << " split AND expression" << (*p)->Left();
 #			endif
-				split ( acc, p, (*p)->Left() );
+				split ( acc, *p, (*p)->Left() );
 				// no need to split more than once:
 				// every extra splits would be together with unsplitted parts
 				// like: (A or B) and (C or D) would be transform into
@@ -267,7 +267,7 @@ public:		// interface
 		/// absorb into role domain; @return true if absorption is performed
 	bool absorbIntoDomain ( void ) const;
 		/// create a concept expression corresponding to a given GCI
-	DLTree* createAnAxiom ( void ) const { return createAnAxiom(end());	}
+	DLTree* createAnAxiom ( void ) const { return createAnAxiom(NULL);	}
 
 #ifdef RKG_DEBUG_ABSORPTION
 		/// dump GCI for debug purposes
