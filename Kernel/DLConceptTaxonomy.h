@@ -145,7 +145,7 @@ protected:	// methods
 	virtual bool needBottomUp ( void ) const
 	{
 		// we DON'T need bottom-up phase for primitive concepts during CD-like reasoning
-		// if no GCIs are in the TBox (C [= T, T [= X or Y, X [= D, Y [= D)
+		// if no GCIs are in the TBox (C [= T, T [= X or Y, X [= D, Y [= D) or (T [= {o})
 		// or no reflexive roles w/RnD precent (Refl(R), Range(R)=D)
 		return flagNeedBottomUp || !useCompletelyDefined || curConcept()->isNonPrimitive();
 	}
