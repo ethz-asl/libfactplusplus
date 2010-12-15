@@ -339,9 +339,8 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
 	JString name(env,str);
 	std::string DTName(name());
 	TExpressionManager* EM = getEM(env,obj);
-	// FIXME!! Data Top
 	if ( DTName == "http://www.w3.org/2000/01/rdf-schema#Literal" )
-		return DataType ( env, EM->getStrDataType() );
+		return DataType ( env, EM->DataTop() );
 
 	if ( DTName == "http://www.w3.org/1999/02/22-rdf-syntax-ns#PlainLiteral" )
 		return DataType ( env, EM->getStrDataType() );
