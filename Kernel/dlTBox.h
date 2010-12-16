@@ -118,45 +118,8 @@ protected:	// types
 	}; // TSimpleRule
 		/// all simple rules in KB
 	typedef std::vector<TSimpleRule*> TSimpleRules;
-
 		/// R-C cache for the \forall R.C replacement in GCIs
-	class TRCCache
-	{
-	protected:	// types
-			/// array of CE used for given role
-		typedef std::vector<std::pair<const DLTree*,TConcept*> > DTVec;
-			/// "map" role ID -> array
-		typedef std::vector<DTVec> BaseType;
-
-	protected:	// members
-			/// cache for direct and inverse roles
-		BaseType DCache, ICache;
-
-	protected:	// methods
-			/// get the array for a given role
-		DTVec& getArray ( const TRole* R ) { return R->getId() > 0 ? DCache[R->getId()] : ICache[-R->getId()]; }
-			/// @return pointer to CN, corresponding to given C in an array. @return NULL if no C registered
-		TConcept* find ( const DLTree* C, const DTVec& vec ) const
-		{
-			if ( vec.empty() )
-				return NULL;
-			for ( DTVec::const_iterator p = vec.begin(), p_end = vec.end(); p < p_end; ++p )
-				if ( equalTrees ( C, p->first ) )
-					return p->second;
-			return NULL;
-		}
-
-	public:		// interface
-			/// init c'tor
-		TRCCache ( size_t n ) : DCache(n+1), ICache(n+1) {}
-			/// empty d'tor
-		~TRCCache ( void ) {}
-
-			/// get concept corresponding to <R,C> pair. @return NULL if there are none
-		TConcept* get ( const TRole* R, const DLTree* C ) { return find ( C, getArray(R) ); }
-			/// add CN as a cache entry for <R,C>
-		void add ( const TRole* R, const DLTree* C, TConcept* CN ) { getArray(R).push_back(std::make_pair(C,CN)); }
-	}; // TRCCache
+	typedef std::vector<std::pair<DLTree*,TConcept*> > TRCCache;
 
 protected:	// typedefs
 		/// RW concept iterator
@@ -241,7 +204,7 @@ protected:	// members
 	TKBFlags GCIs;
 
 		/// cache for the \forall R.C replacements during absorption
-	TRCCache* RCCache;
+	TRCCache RCCache;
 
 		/// number of concepts and individuals; used to set index for modelCache
 	unsigned int nC;
@@ -507,6 +470,17 @@ protected:	// methods
 		DagTag tag = DLHeap[bp].Type();
 		return isCNameTag(tag) || tag == dtDataType || tag == dtDataValue;
 	}
+
+		/// get aux concept obtained from C=\AR.~D by forall replacement
+	TConcept* getRCCache ( const DLTree* C ) const
+	{
+		for ( TRCCache::const_iterator p = RCCache.begin(), p_end = RCCache.end(); p < p_end; ++p )
+			if ( equalTrees ( C, p->first ) )
+				return p->second;
+		return NULL;
+	}
+		/// add CN as a cache entry for C=\AR.~D>
+	void setRCCache ( DLTree* C, TConcept* CN ) { RCCache.push_back(std::make_pair(C,CN)); }
 
 		/// check if TBox contains too many GCIs to switch strategy
 	bool isGalenLikeTBox ( void ) const { return isLikeGALEN; }
@@ -941,8 +915,8 @@ public:
 
 		/// get unique aux concept
 	TConcept* getAuxConcept ( DLTree* desc = NULL );
-		/// replace (AR:C) with X such that C [= AR^-:X for fresh X. @return X
-	TConcept* replaceForall ( DLTree* R, DLTree* C );
+		/// replace RC=(AR:~C) with X such that C [= AR^-:X for fresh X. @return X
+	TConcept* replaceForall ( DLTree* RC );
 
 //-----------------------------------------------------------------------------
 //--		public parser (input) interface

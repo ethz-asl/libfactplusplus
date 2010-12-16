@@ -77,6 +77,10 @@ TBox :: ~TBox ( void )
 	for ( TSimpleRules::iterator q = SimpleRules.begin(), q_end = SimpleRules.end(); q < q_end; ++q )
 		delete *q;
 
+	// empty R-C cache
+	for ( TRCCache::iterator r = RCCache.begin(), r_end = RCCache.end(); r < r_end; ++r )
+		deleteTree(r->first);
+
 	// remove all concepts
 	delete pTop;
 	delete pBottom;
@@ -90,7 +94,6 @@ TBox :: ~TBox ( void )
 	delete stdReasoner;
 	delete nomReasoner;
 	delete pTax;
-	delete RCCache;
 }
 
 /// get unique aux concept
@@ -109,26 +112,24 @@ TConcept* TBox :: getAuxConcept ( DLTree* desc )
 
 /// replace (AR:C) with X such that C [= AR^-:X for fresh X. @return X
 TConcept*
-TBox :: replaceForall ( DLTree* R, DLTree* C )
+TBox :: replaceForall ( DLTree* RC )
 {
-	// init cache if necessary
-	if ( RCCache == NULL )
-		RCCache = new TRCCache((ORM.end()-ORM.begin())/2);
-
 	// check whether we already did this before for given R,C
-	const TRole* r = resolveRole(R);
-	TConcept* X = RCCache->get(r,C);
+	TConcept* X = getRCCache(RC);
 
 	if ( X != NULL )
+	{
+		deleteTree(RC);
 		return X;
+	}
 
 	// see R and C at the first time
 	X = getAuxConcept();
-	DLTree* c = clone(C);
+	DLTree* C = createSNFNot(clone(RC->Right()));
 	// create ax axiom C [= AR^-.X
-	addSubsumeAxiom ( C, createSNFForall ( createInverse(R), getTree(X) ) );
+	addSubsumeAxiom ( C, createSNFForall ( createInverse(clone(RC->Left())), getTree(X) ) );
 	// save cache for R,C
-	RCCache->add ( r, c, X );
+	setRCCache ( RC, X );
 
 	return X;
 }

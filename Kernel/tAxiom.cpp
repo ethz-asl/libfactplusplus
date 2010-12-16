@@ -78,7 +78,7 @@ TAxiom :: simplifyForall ( const DLTree* rep, TBox& KB ) const
 	std::cout << " simplify ALL expression" << pAll;
 #endif
 	TAxiom* ret = copy(rep);
-	ret->add ( KB.getTree ( KB.replaceForall ( clone(pAll->Left()), createSNFNot(clone(pAll->Right())) ) ) );
+	ret->add(KB.getTree(KB.replaceForall(clone(pAll))));
 	return ret;
 }
 
