@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2010 by Dmitry Tsarkov
+Copyright (C) 2003-2011 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -20,11 +20,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "tOntologyLoader.h"
 #include "tOntologyPrinterLISP.h"
 
-const char* ReasoningKernel :: Version = "1.5.0";
+const char* ReasoningKernel :: Version = "1.5.1";
 const char* ReasoningKernel :: SupportedDL = "SROIQ(D)";
 const char* ReasoningKernel :: Copyright =
-	"Copyright (C) Dmitry Tsarkov, 2002-2010";
-const char* ReasoningKernel :: ReleaseDate = "5 October 2010";
+	"Copyright (C) Dmitry Tsarkov, 2002-2011";
+const char* ReasoningKernel :: ReleaseDate = "18 January 2011";
 
 // print the FaCT++ information only once
 static bool KernelFirstRun = true;
