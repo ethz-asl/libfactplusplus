@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2010 by Dmitry Tsarkov
+Copyright (C) 2010-2011 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -40,7 +40,7 @@ protected:	// members
 protected:	// methods
 		/// array helper
 	template <class Argument>
-	void printArray ( TDLNAryExpression<Argument> expr )
+	void printArray ( const TDLNAryExpression<Argument>& expr )
 	{
 		for ( typename TDLNAryExpression<Argument>::iterator p = expr.begin(), p_end = expr.end(); p != p_end; ++p )
 			(*p)->accept(*this);

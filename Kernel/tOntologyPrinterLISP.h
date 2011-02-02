@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2009-2010 by Dmitry Tsarkov
+Copyright (C) 2009-2011 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -62,7 +62,7 @@ public:		// visitor interface
 			 iname ? "individual" :
 			 rname ? "primrole" :
 				    "datarole")
-		<< decl << ")\n";
+			  << decl << ")\n";
 	}
 
 	virtual void visit ( TDLAxiomEquivalentConcepts& axiom ) { o << "(equal_c"; print ( axiom.begin(), axiom.end() ); o << ")\n"; }
