@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2008-2010 by Dmitry Tsarkov
+Copyright (C) 2008-2011 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -64,41 +64,41 @@ class TOntology;
 class DLAxiomVisitor
 {
 public:		// visitor interface
-	virtual void visit ( TDLAxiomDeclaration& axiom ) = 0;
+	virtual void visit ( const TDLAxiomDeclaration& axiom ) = 0;
 
-	virtual void visit ( TDLAxiomEquivalentConcepts& axiom ) = 0;
-	virtual void visit ( TDLAxiomDisjointConcepts& axiom ) = 0;
-	virtual void visit ( TDLAxiomDisjointUnion& axiom ) = 0;
-	virtual void visit ( TDLAxiomEquivalentORoles& axiom ) = 0;
-	virtual void visit ( TDLAxiomEquivalentDRoles& axiom ) = 0;
-	virtual void visit ( TDLAxiomDisjointORoles& axiom ) = 0;
-	virtual void visit ( TDLAxiomDisjointDRoles& axiom ) = 0;
-	virtual void visit ( TDLAxiomSameIndividuals& axiom ) = 0;
-	virtual void visit ( TDLAxiomDifferentIndividuals& axiom ) = 0;
-	virtual void visit ( TDLAxiomFairnessConstraint& axiom ) = 0;
+	virtual void visit ( const TDLAxiomEquivalentConcepts& axiom ) = 0;
+	virtual void visit ( const TDLAxiomDisjointConcepts& axiom ) = 0;
+	virtual void visit ( const TDLAxiomDisjointUnion& axiom ) = 0;
+	virtual void visit ( const TDLAxiomEquivalentORoles& axiom ) = 0;
+	virtual void visit ( const TDLAxiomEquivalentDRoles& axiom ) = 0;
+	virtual void visit ( const TDLAxiomDisjointORoles& axiom ) = 0;
+	virtual void visit ( const TDLAxiomDisjointDRoles& axiom ) = 0;
+	virtual void visit ( const TDLAxiomSameIndividuals& axiom ) = 0;
+	virtual void visit ( const TDLAxiomDifferentIndividuals& axiom ) = 0;
+	virtual void visit ( const TDLAxiomFairnessConstraint& axiom ) = 0;
 
-	virtual void visit ( TDLAxiomRoleInverse& axiom ) = 0;
-	virtual void visit ( TDLAxiomORoleSubsumption& axiom ) = 0;
-	virtual void visit ( TDLAxiomDRoleSubsumption& axiom ) = 0;
-	virtual void visit ( TDLAxiomORoleDomain& axiom ) = 0;
-	virtual void visit ( TDLAxiomDRoleDomain& axiom ) = 0;
-	virtual void visit ( TDLAxiomORoleRange& axiom ) = 0;
-	virtual void visit ( TDLAxiomDRoleRange& axiom ) = 0;
-	virtual void visit ( TDLAxiomRoleTransitive& axiom ) = 0;
-	virtual void visit ( TDLAxiomRoleReflexive& axiom ) = 0;
-	virtual void visit ( TDLAxiomRoleIrreflexive& axiom ) = 0;
-	virtual void visit ( TDLAxiomRoleSymmetric& axiom ) = 0;
-	virtual void visit ( TDLAxiomRoleAsymmetric& axiom ) = 0;
-	virtual void visit ( TDLAxiomORoleFunctional& axiom ) = 0;
-	virtual void visit ( TDLAxiomDRoleFunctional& axiom ) = 0;
-	virtual void visit ( TDLAxiomRoleInverseFunctional& axiom ) = 0;
+	virtual void visit ( const TDLAxiomRoleInverse& axiom ) = 0;
+	virtual void visit ( const TDLAxiomORoleSubsumption& axiom ) = 0;
+	virtual void visit ( const TDLAxiomDRoleSubsumption& axiom ) = 0;
+	virtual void visit ( const TDLAxiomORoleDomain& axiom ) = 0;
+	virtual void visit ( const TDLAxiomDRoleDomain& axiom ) = 0;
+	virtual void visit ( const TDLAxiomORoleRange& axiom ) = 0;
+	virtual void visit ( const TDLAxiomDRoleRange& axiom ) = 0;
+	virtual void visit ( const TDLAxiomRoleTransitive& axiom ) = 0;
+	virtual void visit ( const TDLAxiomRoleReflexive& axiom ) = 0;
+	virtual void visit ( const TDLAxiomRoleIrreflexive& axiom ) = 0;
+	virtual void visit ( const TDLAxiomRoleSymmetric& axiom ) = 0;
+	virtual void visit ( const TDLAxiomRoleAsymmetric& axiom ) = 0;
+	virtual void visit ( const TDLAxiomORoleFunctional& axiom ) = 0;
+	virtual void visit ( const TDLAxiomDRoleFunctional& axiom ) = 0;
+	virtual void visit ( const TDLAxiomRoleInverseFunctional& axiom ) = 0;
 
-	virtual void visit ( TDLAxiomConceptInclusion& axiom ) = 0;
-	virtual void visit ( TDLAxiomInstanceOf& axiom ) = 0;
-	virtual void visit ( TDLAxiomRelatedTo& axiom ) = 0;
-	virtual void visit ( TDLAxiomRelatedToNot& axiom ) = 0;
-	virtual void visit ( TDLAxiomValueOf& axiom ) = 0;
-	virtual void visit ( TDLAxiomValueOfNot& axiom ) = 0;
+	virtual void visit ( const TDLAxiomConceptInclusion& axiom ) = 0;
+	virtual void visit ( const TDLAxiomInstanceOf& axiom ) = 0;
+	virtual void visit ( const TDLAxiomRelatedTo& axiom ) = 0;
+	virtual void visit ( const TDLAxiomRelatedToNot& axiom ) = 0;
+	virtual void visit ( const TDLAxiomValueOf& axiom ) = 0;
+	virtual void visit ( const TDLAxiomValueOfNot& axiom ) = 0;
 
 	virtual void visitOntology ( class TOntology& ontology ) = 0;
 	virtual ~DLAxiomVisitor ( void ) {}
@@ -112,10 +112,12 @@ protected:	// members
 	unsigned int id;
 		/// flag to show whether it is used (to support retraction)
 	bool used;
+		/// flag to show whether or not the axiom is in the module
+	bool inModule;
 
 public:
 		/// empty c'tor
-	TDLAxiom ( void ) : used(true) {}
+	TDLAxiom ( void ) : used(true), inModule(false) {}
 		/// empty d'tor
 	virtual ~TDLAxiom ( void ) {}
 
@@ -133,8 +135,15 @@ public:
 		/// get the value of the used flag
 	bool isUsed ( void ) const { return used; }
 
+	// modularity management
+
+		/// set the used flag
+	void setInModule ( bool flag ) { inModule = flag; }
+		/// get the value of the used flag
+	bool isInModule ( void ) const { return inModule; }
+
 		/// accept method for the visitor pattern
-	virtual void accept ( DLAxiomVisitor& visitor ) = 0;
+	virtual void accept ( DLAxiomVisitor& visitor ) const = 0;
 }; // TDLAxiom
 
 //------------------------------------------------------------------
@@ -152,9 +161,9 @@ public:		// interface
 	virtual ~TDLAxiomDeclaration ( void ) {}
 
 		/// access
-	const TDLExpression* getDeclaration ( void ) { return D; }
+	const TDLExpression* getDeclaration ( void ) const { return D; }
 		/// accept method for the visitor pattern
-	void accept ( DLAxiomVisitor& visitor ) { visitor.visit(*this); }
+	void accept ( DLAxiomVisitor& visitor ) const { visitor.visit(*this); }
 }; // TDLAxiomIndividual
 
 //------------------------------------------------------------------
@@ -175,7 +184,7 @@ public:		// interface
 		/// d'tor
 	virtual ~TDLAxiomEquivalentConcepts ( void ) {}
 		/// accept method for the visitor pattern
-	void accept ( DLAxiomVisitor& visitor ) { visitor.visit(*this); }
+	void accept ( DLAxiomVisitor& visitor ) const { visitor.visit(*this); }
 }; // TDLAxiomEquivalentConcepts
 
 //------------------------------------------------------------------
@@ -192,7 +201,7 @@ public:		// interface
 		/// d'tor
 	virtual ~TDLAxiomDisjointConcepts ( void ) {}
 		/// accept method for the visitor pattern
-	void accept ( DLAxiomVisitor& visitor ) { visitor.visit(*this); }
+	void accept ( DLAxiomVisitor& visitor ) const { visitor.visit(*this); }
 }; // TDLAxiomDisjointConcepts
 
 //------------------------------------------------------------------
@@ -213,7 +222,7 @@ public:		// interface
 		/// d'tor
 	virtual ~TDLAxiomDisjointUnion ( void ) {}
 		/// accept method for the visitor pattern
-	void accept ( DLAxiomVisitor& visitor ) { visitor.visit(*this); }
+	void accept ( DLAxiomVisitor& visitor ) const { visitor.visit(*this); }
 
 		/// access
 	const TDLConceptExpression* getC ( void ) const { return C; }
@@ -233,7 +242,7 @@ public:		// interface
 		/// d'tor
 	virtual ~TDLAxiomEquivalentORoles ( void ) {}
 		/// accept method for the visitor pattern
-	void accept ( DLAxiomVisitor& visitor ) { visitor.visit(*this); }
+	void accept ( DLAxiomVisitor& visitor ) const { visitor.visit(*this); }
 }; // TDLAxiomEquivalentORoles
 
 //------------------------------------------------------------------
@@ -250,7 +259,7 @@ public:		// interface
 		/// d'tor
 	virtual ~TDLAxiomEquivalentDRoles ( void ) {}
 		/// accept method for the visitor pattern
-	void accept ( DLAxiomVisitor& visitor ) { visitor.visit(*this); }
+	void accept ( DLAxiomVisitor& visitor ) const { visitor.visit(*this); }
 }; // TDLAxiomEquivalentDRoles
 
 //------------------------------------------------------------------
@@ -267,7 +276,7 @@ public:		// interface
 		/// d'tor
 	virtual ~TDLAxiomDisjointORoles ( void ) {}
 		/// accept method for the visitor pattern
-	void accept ( DLAxiomVisitor& visitor ) { visitor.visit(*this); }
+	void accept ( DLAxiomVisitor& visitor ) const { visitor.visit(*this); }
 }; // TDLAxiomDisjointORoles
 
 //------------------------------------------------------------------
@@ -284,7 +293,7 @@ public:		// interface
 		/// d'tor
 	virtual ~TDLAxiomDisjointDRoles ( void ) {}
 		/// accept method for the visitor pattern
-	void accept ( DLAxiomVisitor& visitor ) { visitor.visit(*this); }
+	void accept ( DLAxiomVisitor& visitor ) const { visitor.visit(*this); }
 }; // TDLAxiomDisjointDRoles
 
 //------------------------------------------------------------------
@@ -301,7 +310,7 @@ public:		// interface
 		/// d'tor
 	virtual ~TDLAxiomSameIndividuals ( void ) {}
 		/// accept method for the visitor pattern
-	void accept ( DLAxiomVisitor& visitor ) { visitor.visit(*this); }
+	void accept ( DLAxiomVisitor& visitor ) const { visitor.visit(*this); }
 }; // TDLAxiomSameIndividuals
 
 //------------------------------------------------------------------
@@ -318,7 +327,7 @@ public:		// interface
 		/// d'tor
 	virtual ~TDLAxiomDifferentIndividuals ( void ) {}
 		/// accept method for the visitor pattern
-	void accept ( DLAxiomVisitor& visitor ) { visitor.visit(*this); }
+	void accept ( DLAxiomVisitor& visitor ) const { visitor.visit(*this); }
 }; // TDLAxiomDifferentIndividuals
 
 //------------------------------------------------------------------
@@ -335,7 +344,7 @@ public:		// interface
 		/// d'tor
 	virtual ~TDLAxiomFairnessConstraint ( void ) {}
 		/// accept method for the visitor pattern
-	void accept ( DLAxiomVisitor& visitor ) { visitor.visit(*this); }
+	void accept ( DLAxiomVisitor& visitor ) const { visitor.visit(*this); }
 }; // TDLAxiomFairnessConstraint
 
 //------------------------------------------------------------------
@@ -401,7 +410,7 @@ public:		// interface
 		/// d'tor
 	virtual ~TDLAxiomRoleInverse ( void ) {}
 		/// accept method for the visitor pattern
-	void accept ( DLAxiomVisitor& visitor ) { visitor.visit(*this); }
+	void accept ( DLAxiomVisitor& visitor ) const { visitor.visit(*this); }
 
 		/// access to role
 	const TDLObjectRoleExpression* getInvRole ( void ) const { return InvRole; }
@@ -424,7 +433,7 @@ public:		// interface
 		/// d'tor
 	virtual ~TDLAxiomORoleSubsumption ( void ) {}
 		/// accept method for the visitor pattern
-	void accept ( DLAxiomVisitor& visitor ) { visitor.visit(*this); }
+	void accept ( DLAxiomVisitor& visitor ) const { visitor.visit(*this); }
 
 		/// access to role
 	const TDLObjectRoleComplexExpression* getSubRole ( void ) const { return SubRole; }
@@ -447,7 +456,7 @@ public:		// interface
 		/// d'tor
 	virtual ~TDLAxiomDRoleSubsumption ( void ) {}
 		/// accept method for the visitor pattern
-	void accept ( DLAxiomVisitor& visitor ) { visitor.visit(*this); }
+	void accept ( DLAxiomVisitor& visitor ) const { visitor.visit(*this); }
 
 		/// access to role
 	const TDLDataRoleExpression* getSubRole ( void ) const { return SubRole; }
@@ -470,7 +479,7 @@ public:		// interface
 		/// d'tor; nothing to do as Domain is consumed
 	virtual ~TDLAxiomORoleDomain ( void ) {}
 		/// accept method for the visitor pattern
-	void accept ( DLAxiomVisitor& visitor ) { visitor.visit(*this); }
+	void accept ( DLAxiomVisitor& visitor ) const { visitor.visit(*this); }
 
 		/// access
 	const TDLConceptExpression* getDomain ( void ) const { return Domain; }
@@ -493,7 +502,7 @@ public:		// interface
 		/// d'tor; nothing to do as Domain is consumed
 	virtual ~TDLAxiomDRoleDomain ( void ) {}
 		/// accept method for the visitor pattern
-	void accept ( DLAxiomVisitor& visitor ) { visitor.visit(*this); }
+	void accept ( DLAxiomVisitor& visitor ) const { visitor.visit(*this); }
 
 		/// access
 	const TDLConceptExpression* getDomain ( void ) const { return Domain; }
@@ -516,7 +525,7 @@ public:		// interface
 		/// d'tor; nothing to do as Domain is consumed
 	virtual ~TDLAxiomORoleRange ( void ) {}
 		/// accept method for the visitor pattern
-	void accept ( DLAxiomVisitor& visitor ) { visitor.visit(*this); }
+	void accept ( DLAxiomVisitor& visitor ) const { visitor.visit(*this); }
 
 		/// access
 	const TDLConceptExpression* getRange ( void ) const { return Range; }
@@ -539,7 +548,7 @@ public:		// interface
 		/// d'tor; nothing to do as Domain is consumed
 	virtual ~TDLAxiomDRoleRange ( void ) {}
 		/// accept method for the visitor pattern
-	void accept ( DLAxiomVisitor& visitor ) { visitor.visit(*this); }
+	void accept ( DLAxiomVisitor& visitor ) const { visitor.visit(*this); }
 
 		/// access
 	const TDLDataExpression* getRange ( void ) const { return Range; }
@@ -558,7 +567,7 @@ public:		// interface
 		/// d'tor;
 	virtual ~TDLAxiomRoleTransitive ( void ) {}
 		/// accept method for the visitor pattern
-	void accept ( DLAxiomVisitor& visitor ) { visitor.visit(*this); }
+	void accept ( DLAxiomVisitor& visitor ) const { visitor.visit(*this); }
 }; // TDLAxiomRoleTransitive
 
 //------------------------------------------------------------------
@@ -574,7 +583,7 @@ public:		// interface
 		/// d'tor;
 	virtual ~TDLAxiomRoleReflexive ( void ) {}
 		/// accept method for the visitor pattern
-	void accept ( DLAxiomVisitor& visitor ) { visitor.visit(*this); }
+	void accept ( DLAxiomVisitor& visitor ) const { visitor.visit(*this); }
 }; // TDLAxiomRoleReflexive
 
 //------------------------------------------------------------------
@@ -590,7 +599,7 @@ public:		// interface
 		/// d'tor;
 	virtual ~TDLAxiomRoleIrreflexive ( void ) {}
 		/// accept method for the visitor pattern
-	void accept ( DLAxiomVisitor& visitor ) { visitor.visit(*this); }
+	void accept ( DLAxiomVisitor& visitor ) const { visitor.visit(*this); }
 }; // TDLAxiomRoleIrreflexive
 
 //------------------------------------------------------------------
@@ -606,7 +615,7 @@ public:		// interface
 		/// d'tor;
 	virtual ~TDLAxiomRoleSymmetric ( void ) {}
 		/// accept method for the visitor pattern
-	void accept ( DLAxiomVisitor& visitor ) { visitor.visit(*this); }
+	void accept ( DLAxiomVisitor& visitor ) const { visitor.visit(*this); }
 }; // TDLAxiomRoleSymmetric
 
 //------------------------------------------------------------------
@@ -622,7 +631,7 @@ public:		// interface
 		/// d'tor;
 	virtual ~TDLAxiomRoleAsymmetric ( void ) {}
 		/// accept method for the visitor pattern
-	void accept ( DLAxiomVisitor& visitor ) { visitor.visit(*this); }
+	void accept ( DLAxiomVisitor& visitor ) const { visitor.visit(*this); }
 }; // TDLAxiomRoleAsymmetric
 
 //------------------------------------------------------------------
@@ -638,7 +647,7 @@ public:		// interface
 		/// d'tor;
 	virtual ~TDLAxiomORoleFunctional ( void ) {}
 		/// accept method for the visitor pattern
-	void accept ( DLAxiomVisitor& visitor ) { visitor.visit(*this); }
+	void accept ( DLAxiomVisitor& visitor ) const { visitor.visit(*this); }
 }; // TDLAxiomORoleFunctional
 
 //------------------------------------------------------------------
@@ -654,7 +663,7 @@ public:		// interface
 		/// d'tor;
 	virtual ~TDLAxiomDRoleFunctional ( void ) {}
 		/// accept method for the visitor pattern
-	void accept ( DLAxiomVisitor& visitor ) { visitor.visit(*this); }
+	void accept ( DLAxiomVisitor& visitor ) const { visitor.visit(*this); }
 }; // TDLAxiomDRoleFunctional
 
 //------------------------------------------------------------------
@@ -670,7 +679,7 @@ public:		// interface
 		/// d'tor;
 	virtual ~TDLAxiomRoleInverseFunctional ( void ) {}
 		/// accept method for the visitor pattern
-	void accept ( DLAxiomVisitor& visitor ) { visitor.visit(*this); }
+	void accept ( DLAxiomVisitor& visitor ) const { visitor.visit(*this); }
 }; // TDLAxiomRoleInverseFunctional
 
 
@@ -693,7 +702,7 @@ public:		// interface
 		/// d'tor
 	virtual ~TDLAxiomConceptInclusion ( void ) {}
 		/// accept method for the visitor pattern
-	void accept ( DLAxiomVisitor& visitor ) { visitor.visit(*this); }
+	void accept ( DLAxiomVisitor& visitor ) const { visitor.visit(*this); }
 
 		/// access
 	const TDLConceptExpression* getSubC ( void ) const { return Sub; }
@@ -733,7 +742,7 @@ public:		// interface
 		/// d'tor
 	virtual ~TDLAxiomInstanceOf ( void ) {}
 		/// accept method for the visitor pattern
-	void accept ( DLAxiomVisitor& visitor ) { visitor.visit(*this); }
+	void accept ( DLAxiomVisitor& visitor ) const { visitor.visit(*this); }
 
 		/// access
 	const TDLConceptExpression* getC ( void ) const { return C; }
@@ -758,7 +767,7 @@ public:		// interface
 		/// d'tor
 	virtual ~TDLAxiomRelatedTo ( void ) {}
 		/// accept method for the visitor pattern
-	void accept ( DLAxiomVisitor& visitor ) { visitor.visit(*this); }
+	void accept ( DLAxiomVisitor& visitor ) const { visitor.visit(*this); }
 
 		/// access
 	const TDLObjectRoleExpression* getRelation ( void ) const { return R; }
@@ -785,7 +794,7 @@ public:		// interface
 		/// d'tor
 	virtual ~TDLAxiomRelatedToNot ( void ) {}
 		/// accept method for the visitor pattern
-	void accept ( DLAxiomVisitor& visitor ) { visitor.visit(*this); }
+	void accept ( DLAxiomVisitor& visitor ) const { visitor.visit(*this); }
 
 		/// access
 	const TDLObjectRoleExpression* getRelation ( void ) const { return R; }
@@ -812,7 +821,7 @@ public:		// interface
 		/// d'tor
 	virtual ~TDLAxiomValueOf ( void ) {}
 		/// accept method for the visitor pattern
-	void accept ( DLAxiomVisitor& visitor ) { visitor.visit(*this); }
+	void accept ( DLAxiomVisitor& visitor ) const { visitor.visit(*this); }
 
 		/// access to role
 	const TDLDataRoleExpression* getAttribute ( void ) const { return A; }
@@ -839,7 +848,7 @@ public:		// interface
 		/// d'tor
 	virtual ~TDLAxiomValueOfNot ( void ) {}
 		/// accept method for the visitor pattern
-	void accept ( DLAxiomVisitor& visitor ) { visitor.visit(*this); }
+	void accept ( DLAxiomVisitor& visitor ) const { visitor.visit(*this); }
 
 		/// access to role
 	const TDLDataRoleExpression* getAttribute ( void ) const { return A; }

@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2010 by Dmitry Tsarkov
+Copyright (C) 2010-2011 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -164,7 +164,7 @@ public:		// visitor interface
 }; // DLExpressionVisitor
 
 /// empty visitor for DL expressions implementation
-class DLExpressionVisitorEmpty
+class DLExpressionVisitorEmpty: public DLExpressionVisitor
 {
 public:		// visitor interface
 	// concept expressions
@@ -264,6 +264,8 @@ public:		// interface
 
 		/// get access to the name
 	const char* getName ( void ) const { return Name.c_str(); }
+		/// get access to the element itself
+	const TNamedEntity* getEntity ( void ) const { return this; }
 }; // TNamedEntity
 
 //------------------------------------------------------------------

@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2008-2010 by Dmitry Tsarkov
+Copyright (C) 2008-2011 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -71,6 +71,12 @@ public:		// interface
 			changed = true;
 			p->setUsed(false);
 		}
+	}
+		/// mark all the axioms as not in the module
+	void clearModuleInfo ( void )
+	{
+		for ( iterator p = Axioms.begin(), p_end = Axioms.end(); p < p_end; ++p )
+			(*p)->setInModule(false);
 	}
 		/// clear the ontology
 	void clear ( void )
