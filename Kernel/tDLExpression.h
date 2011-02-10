@@ -428,6 +428,11 @@ public:		// interface
 		/// empty d'tor
 	virtual ~TDLNAryExpression ( void ) {}
 
+		/// @return true iff the expression has no elements
+	bool empty ( void ) const { return Base.empty(); }
+		/// @return number of elements
+	size_t size ( void ) const { return Base.size(); }
+
 	// add elements to the array
 
 		/// add a single element to the array
