@@ -68,9 +68,9 @@ protected:	// members
 
 protected:	// methods
 		/// check whether the expression is top-equivalent
-	bool isTopEq ( const TDLExpression& expr );
+	bool isTopEquivalent ( const TDLExpression& expr );
 		/// convinience helper
-	bool isTopEq ( const TDLExpression* expr ) { return isTopEq(*expr); }
+	bool isTopEquivalent ( const TDLExpression* expr ) { return isTopEquivalent(*expr); }
 
 public:		// interface
 		/// init c'tor
@@ -88,24 +88,26 @@ public:		// interface
 		expr.accept(*this);
 		return isBotEq;
 	}
+		/// @return true iff an EXPRession is equivalent to bottom wrt defined policy
+	bool isBotEquivalent ( const TDLExpression* expr ) { return isBotEquivalent(*expr); }
 
 public:		// visitor interface
 	// concept expressions
 	virtual void visit ( const TDLConceptTop& expr ATTR_UNUSED ) { isBotEq = false; }
 	virtual void visit ( const TDLConceptBottom& expr ATTR_UNUSED ) { isBotEq = true; }
 	virtual void visit ( const TDLConceptName& expr ) { isBotEq = !topCLocal() && nc(expr.getEntity()); }
-	virtual void visit ( const TDLConceptNot& expr ) { isBotEq = isTopEq(expr); }
+	virtual void visit ( const TDLConceptNot& expr ) { isBotEq = isTopEquivalent(expr); }
 	virtual void visit ( const TDLConceptAnd& expr )
 	{
 		for ( TDLConceptAnd::iterator p = expr.begin(), p_end = expr.end(); p != p_end; ++p )
-			if ( isBotEquivalent(**p) )	// here isBotEq is true, so just return
+			if ( isBotEquivalent(*p) )	// here isBotEq is true, so just return
 				return;
 		isBotEq = false;
 	}
 	virtual void visit ( const TDLConceptOr& expr )
 	{
 		for ( TDLConceptAnd::iterator p = expr.begin(), p_end = expr.end(); p != p_end; ++p )
-			if ( !isBotEquivalent(**p) )	// here isBotEq is false, so just return
+			if ( !isBotEquivalent(*p) )	// here isBotEq is false, so just return
 				return;
 		isBotEq = true;
 	}
@@ -114,19 +116,19 @@ public:		// visitor interface
 	virtual void visit ( const TDLConceptObjectValue& expr ) { isBotEq = topRLocal() ? false : nc(expr.getOR()); }
 	virtual void visit ( const TDLConceptObjectExists& expr )
 	{
-		isBotEq = isBotEquivalent(*expr.getC());
+		isBotEq = isBotEquivalent(expr.getC());
 		if ( !topRLocal() )
 			isBotEq |= nc(expr.getOR());
 	}
-	virtual void visit ( const TDLConceptObjectForall& expr ) { isBotEq = topRLocal() && nc(expr.getOR()) && isBotEquivalent(*expr.getC()); }
+	virtual void visit ( const TDLConceptObjectForall& expr ) { isBotEq = topRLocal() && nc(expr.getOR()) && isBotEquivalent(expr.getC()); }
 	virtual void visit ( const TDLConceptObjectMinCardinality& expr )
-		{ isBotEq = expr.getNumber() > 0 && (isBotEquivalent(*expr.getC()) || (topRLocal() ? false : nc(expr.getOR())) ); }
+		{ isBotEq = expr.getNumber() > 0 && (isBotEquivalent(expr.getC()) || (topRLocal() ? false : nc(expr.getOR())) ); }
 	virtual void visit ( const TDLConceptObjectMaxCardinality& expr )
-		{ isBotEq = topRLocal() ? expr.getNumber() > 0 && nc(expr.getOR()) && isTopEq(expr.getC()) : false; }
+		{ isBotEq = topRLocal() ? expr.getNumber() > 0 && nc(expr.getOR()) && isTopEquivalent(expr.getC()) : false; }
 	virtual void visit ( const TDLConceptObjectExactCardinality& expr )
 	{
 		isBotEq = expr.getNumber() > 0 &&
-			( isBotEquivalent(*expr.getC()) || ( nc(expr.getOR()) && topRLocal() ? isTopEq(expr.getC()) : true ) );
+			( isBotEquivalent(expr.getC()) || ( nc(expr.getOR()) && topRLocal() ? isTopEquivalent(expr.getC()) : true ) );
 	}
 	virtual void visit ( const TDLConceptDataValue& expr ) { isBotEq = !topRLocal() && nc(expr.getDR()); }
 	virtual void visit ( const TDLConceptDataExists& expr ) { isBotEq = !topRLocal() && nc(expr.getDR()); }
@@ -166,9 +168,9 @@ protected:	// members
 
 protected:	// methods
 		/// check whether the expression is top-equivalent
-	bool isBotEq ( const TDLExpression& expr ) { return BotEval->isBotEquivalent(expr); }
+	bool isBotEquivalent ( const TDLExpression& expr ) { return BotEval->isBotEquivalent(expr); }
 		/// convinience helper
-	bool isBotEq ( const TDLExpression* expr ) { return isBotEq(*expr); }
+	bool isBotEquivalent ( const TDLExpression* expr ) { return isBotEquivalent(*expr); }
 
 public:		// interface
 		/// init c'tor
@@ -186,24 +188,26 @@ public:		// interface
 		expr.accept(*this);
 		return isTopEq;
 	}
+		/// @return true iff an EXPRession is equivalent to top wrt defined policy
+	bool isTopEquivalent ( const TDLExpression* expr ) { return isTopEquivalent(*expr); }
 
 public:		// visitor interface
 	// concept expressions
 	virtual void visit ( const TDLConceptTop& expr ATTR_UNUSED ) { isTopEq = true; }
 	virtual void visit ( const TDLConceptBottom& expr ATTR_UNUSED ) { isTopEq = false; }
 	virtual void visit ( const TDLConceptName& expr ) { isTopEq = topCLocal() && nc(expr.getEntity()); }
-	virtual void visit ( const TDLConceptNot& expr ) { isTopEq = isBotEq(expr); }
+	virtual void visit ( const TDLConceptNot& expr ) { isTopEq = isBotEquivalent(expr); }
 	virtual void visit ( const TDLConceptAnd& expr )
 	{
 		for ( TDLConceptAnd::iterator p = expr.begin(), p_end = expr.end(); p != p_end; ++p )
-			if ( !isTopEquivalent(**p) )	// here isTopEq is false, so just return
+			if ( !isTopEquivalent(*p) )	// here isTopEq is false, so just return
 				return;
 		isTopEq = true;
 	}
 	virtual void visit ( const TDLConceptOr& expr )
 	{
 		for ( TDLConceptOr::iterator p = expr.begin(), p_end = expr.end(); p != p_end; ++p )
-			if ( isTopEquivalent(**p) )	// here isTopEq is true, so just return
+			if ( isTopEquivalent(*p) )	// here isTopEq is true, so just return
 				return;
 		isTopEq = false;
 	}
@@ -211,17 +215,17 @@ public:		// visitor interface
 	virtual void visit ( const TDLConceptObjectSelf& expr ) { isTopEq = topRLocal() && nc(expr.getOR()); }
 	virtual void visit ( const TDLConceptObjectValue& expr ) { isTopEq = topRLocal() && nc(expr.getOR()); }
 	virtual void visit ( const TDLConceptObjectExists& expr )
-		{ isTopEq = topRLocal() && nc(expr.getOR()) && isTopEquivalent(*expr.getC()); }
+		{ isTopEq = topRLocal() && nc(expr.getOR()) && isTopEquivalent(expr.getC()); }
 	virtual void visit ( const TDLConceptObjectForall& expr )
-		{ isTopEq = isTopEquivalent(*expr.getC()) || (topRLocal() ? false : nc(expr.getOR())); }
+		{ isTopEq = isTopEquivalent(expr.getC()) || (topRLocal() ? false : nc(expr.getOR())); }
 	virtual void visit ( const TDLConceptObjectMinCardinality& expr )
-		{ isTopEq = expr.getNumber() == 0 || ( topRLocal() ? nc(expr.getOR()) && isTopEquivalent(*expr.getC()) : false ); }
+		{ isTopEq = expr.getNumber() == 0 || ( topRLocal() ? nc(expr.getOR()) && isTopEquivalent(expr.getC()) : false ); }
 	virtual void visit ( const TDLConceptObjectMaxCardinality& expr )
-		{ isTopEq = isBotEq(expr.getC()) || ( topRLocal() ? false : nc(expr.getOR()) ); }
+		{ isTopEq = isBotEquivalent(expr.getC()) || ( topRLocal() ? false : nc(expr.getOR()) ); }
 	virtual void visit ( const TDLConceptObjectExactCardinality& expr )
 	{
 		isTopEq = expr.getNumber() == 0 &&
-			( isBotEq(expr.getC()) || ( topRLocal() ? false : nc(expr.getOR()) ) );
+			( isBotEquivalent(expr.getC()) || ( topRLocal() ? false : nc(expr.getOR()) ) );
 	}
 	virtual void visit ( const TDLConceptDataValue& expr ) { isTopEq = topRLocal() && nc(expr.getDR()); }
 	virtual void visit ( const TDLConceptDataExists& expr ) { isTopEq = topRLocal() && nc(expr.getDR()) && isTopBuiltInDT(expr.getExpr()); }
@@ -239,7 +243,7 @@ public:		// visitor interface
 }; // TopEquivalenceEvaluator
 
 inline bool
-BotEquivalenceEvaluator :: isTopEq ( const TDLExpression& expr )
+BotEquivalenceEvaluator :: isTopEquivalent ( const TDLExpression& expr )
 {
 	return TopEval->isTopEquivalent(expr);
 }
