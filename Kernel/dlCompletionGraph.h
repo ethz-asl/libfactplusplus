@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2005-2010 by Dmitry Tsarkov
+Copyright (C) 2005-2011 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -177,8 +177,6 @@ protected:	// methods
 	bool isBlockedBy ( const DlCompletionTree* node, const DlCompletionTree* blocker ) const;
 		/// check if d-blocked node is still d-blocked
 	bool isStillDBlocked ( const DlCompletionTree* node ) const { return node->isDBlocked() && isBlockedBy ( node, node->Blocker ); }
-		/// detect blocked status of current node by checking whether NODE and/or its ancestors are d-blocked
-	void detectBlockedStatus ( DlCompletionTree* node );
 		/// try to find d-blocker for a node using ancestor blocking
 	void findDAncestorBlocker ( DlCompletionTree* node );
 		/// try to find d-blocker for a node using anywhere blocking
@@ -335,6 +333,8 @@ public:		// interface
 
 	// blocking
 
+		/// detect blocked status of current node by checking whether NODE and/or its ancestors are d-blocked
+	void detectBlockedStatus ( DlCompletionTree* node );
 		/// update blocked status for d-blocked node
 	void updateDBlockedStatus ( DlCompletionTree* node )
 	{

@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2010 by Dmitry Tsarkov
+Copyright (C) 2003-2011 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -515,8 +515,6 @@ bool DlSatTester :: checkSatisfiability ( void )
 				CGraph.retestCGBlockedStatus();
 				if ( LLM.isWritable(llGTA) )
 					LL << "]";
-				// clear blocker cache
-				dBlocked = NULL;
 				if ( TODO.empty() )
 #				ifndef RKG_USE_FAIRNESS
 					return true;

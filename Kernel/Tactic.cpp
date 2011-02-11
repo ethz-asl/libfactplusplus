@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2010 by Dmitry Tsarkov
+Copyright (C) 2003-2011 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -92,7 +92,6 @@ bool DlSatTester :: commonTacticBody ( const DLVertex& cur )
 
 	case dtPSingleton:
 	case dtNSingleton:
-		dBlocked = NULL;	// invalidate cache for the blocked node
 		if ( isPositive (curConcept.bp()) )	// real singleton
 			return commonTacticBodySingleton(cur);
 		else	// negated singleton -- nothing to do with.
@@ -100,11 +99,9 @@ bool DlSatTester :: commonTacticBody ( const DLVertex& cur )
 
 	case dtNConcept:
 	case dtPConcept:
-		dBlocked = NULL;	// invalidate cache for the blocked node
 		return commonTacticBodyId(cur);
 
 	case dtAnd:
-		dBlocked = NULL;	// invalidate cache for the blocked node
 		if ( isPositive (curConcept.bp()) )	// this is AND vertex
 			return commonTacticBodyAnd(cur);
 		else	// OR
@@ -599,7 +596,7 @@ bool DlSatTester :: commonTacticBodyValue ( const TRole* R, const TIndividual* n
 	DepSet dep(curConcept.getDep());
 
 	// check blocking conditions
-	if ( recheckNodeDBlocked() )
+	if ( isCurNodeBlocked() )
 		return false;
 
 	incStat(nSomeCalls);
@@ -633,7 +630,7 @@ bool DlSatTester :: createNewEdge ( const TRole* R, BipolarPointer C, unsigned i
 	const DepSet& dep = curConcept.getDep();
 
 	// check blocking conditions
-	if ( recheckNodeDBlocked() )
+	if ( isCurNodeBlocked() )
 	{
 		incStat(nUseless);
 		return false;
@@ -675,40 +672,20 @@ DlCompletionTreeArc* DlSatTester :: createOneNeighbour ( const TRole* R, const D
 	return pA;
 }
 
-bool DlSatTester :: recheckNodeDBlocked ( void )
+bool DlSatTester :: isCurNodeBlocked ( void )
 {
 	// for non-lazy blocking blocked status is correct
 	if ( !useLazyBlocking )
 		return curNode->isBlocked();
 
-	// several \E concepts in a row with the same node
-	if ( curNode == dBlocked )
-		return true;
-
 	// update node's blocked status
-	// FIXME!! if you remove the 1st check, more unblocks would be possible during reasoning
 	if ( !curNode->isBlocked() && curNode->isAffected() )
 	{
 		updateLevel ( curNode, curConcept.getDep() );
-		CGraph.updateDBlockedStatus(curNode);
+		CGraph.detectBlockedStatus(curNode);
 	}
 
-	// if node became d-blocked -- update cache
-	if ( curNode->isDBlocked() )
-	{
-		dBlocked = curNode;
-		return true;
-	}
-
-	// clear d-blocker cache
-	dBlocked = NULL;
-
-	// if node became i-blocked -- don't need to do anything
-	if ( curNode->isIBlocked() )
-		return true;
-
-	// not blocked
-	return false;
+	return curNode->isBlocked();
 }
 
 void
@@ -1018,7 +995,7 @@ bool DlSatTester :: commonTacticBodyGE ( const DLVertex& cur )	// for >=nR.C con
 #endif
 
 	// check blocking conditions
-	if ( recheckNodeDBlocked() )
+	if ( isCurNodeBlocked() )
 		return false;
 
 	incStat(nGeCalls);
@@ -1372,7 +1349,7 @@ bool DlSatTester :: isNNApplicable ( const TRole* r, BipolarPointer C, BipolarPo
 bool DlSatTester :: commonTacticBodySomeSelf ( const TRole* R )
 {
 	// check blocking conditions
-	if ( recheckNodeDBlocked() )
+	if ( isCurNodeBlocked() )
 		return false;
 
 	// nothing to do if R-loop already exists

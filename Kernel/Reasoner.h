@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2010 by Dmitry Tsarkov
+Copyright (C) 2003-2011 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -302,9 +302,6 @@ protected:	// members
 		/// currently processed Concept
 	ConceptWDep curConcept;
 
-		/// last processed d-blocked node
-	DlCompletionTree* dBlocked;
-
 		/// size of the DAG with some extra space
 	size_t dagSize;
 
@@ -526,8 +523,8 @@ protected:	// methods
 
 	// support for creating/updating edge methods
 
-		/// check if current node is directly blocked (or became directly blocked)
-	bool recheckNodeDBlocked ( void );
+		/// check whether current node is blocked
+	bool isCurNodeBlocked ( void );
 		/// apply all the generating rules for the (unblocked) current node
 	void applyAllGeneratingRules ( DlCompletionTree* node );
 		/// add C and T_G with given DEP-set to a NODE; @return DONE/CLASH
@@ -920,7 +917,6 @@ inline void DlSatTester :: resetSessionFlags ( void )
 
 	encounterNominal = false;
 	checkDataNode = true;
-	dBlocked = NULL;
 }
 
 inline bool
