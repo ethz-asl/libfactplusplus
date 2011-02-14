@@ -345,13 +345,19 @@ ReasoningKernel :: buildRelatedCache ( TIndividual* I, const TRole* R )
 	if ( R->isDataRole() )
 		return CIVec();
 
+	// empty role has no fillers
+	if ( R->isBottom() )
+		return CIVec();
+
 	// now fills the query
 	RIActor actor;
 	// ask for instances of \exists R^-.{i}
 	TORoleExpr* InvR = R->getId() > 0
 		? getExpressionManager()->Inverse(getExpressionManager()->ObjectRole(R->getName()))
 		: getExpressionManager()->ObjectRole(R->inverse()->getName());
-	TConceptExpr* query = getExpressionManager()->Value ( InvR, getExpressionManager()->Individual(I->getName()) );
+	TConceptExpr* query =
+		R->isTop() ? getExpressionManager()->Top() : 	// universal role has all the named individuals as a filler
+		getExpressionManager()->Value ( InvR, getExpressionManager()->Individual(I->getName()) );
 	getInstances ( query, actor );
 	return actor.getAcc();
 }
