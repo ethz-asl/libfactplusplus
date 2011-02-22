@@ -102,6 +102,8 @@ public:		// interface
 	iterator beginUnprocessed ( void ) { return Axioms.begin()+axiomToProcess; }
 		/// RW end() for the processed part of the ontology
 	iterator endProcessed ( void ) { return beginUnprocessed(); }
+		/// get access to the I'th axiom
+	TDLAxiom* operator [] ( int i ) { return Axioms[i]; }
 
 		/// size of the ontology
 	size_t size ( void ) const { return Axioms.size(); }

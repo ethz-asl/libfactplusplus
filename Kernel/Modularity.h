@@ -109,6 +109,8 @@ public:
 		extract ( O, signature, type );
 		ModuleAsSet ( O, Set );
 	}
+		/// get access to a signature
+	const TSignature& getSignature ( void ) const { return sig; }
 }; // TModularizer
 
 #endif
