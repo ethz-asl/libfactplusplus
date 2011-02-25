@@ -1319,7 +1319,7 @@ bool DlSatTester :: isNNApplicable ( const TRole* r, BipolarPointer C, BipolarPo
 		return false;
 
 	// check whether the NN-rule was already applied here for a given concept
-	if ( curNode->isLabelledBy(stopper) )
+	if ( isUsed(stopper) && curNode->isLabelledBy(stopper) )
 		return false;
 
 	// check for the real applicability of the NN-rule here
