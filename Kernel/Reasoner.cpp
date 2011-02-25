@@ -105,10 +105,9 @@ DlSatTester :: prepareReasoner ( void )
 	resetSessionFlags();
 }
 
-addConceptResult
-DlSatTester :: checkAddedConcept ( const CWDArray& lab, const ConceptWDep& C )
+bool
+DlSatTester :: findConcept ( const CWDArray& lab, BipolarPointer p )
 {
-	register const BipolarPointer p = C.bp();
 #ifdef ENABLE_CHECKING
 	fpp_assert ( isCorrect(p) );	// sanity checking
 	// constants are not allowed here
@@ -117,47 +116,12 @@ DlSatTester :: checkAddedConcept ( const CWDArray& lab, const ConceptWDep& C )
 #endif
 
 	incStat(nLookups);
-	incStat(nLookups);
-
-	register const BipolarPointer inv_p = inverse(p);
-
-	for ( const_label_iterator i = lab.begin(), i_end = lab.end(); i < i_end; ++i )
-	{
-		if ( i->bp() == p )
-			return acrExist;
-		else if ( i->bp() == inv_p )
-		{
-			// create clashSet
-			clashSet = i->getDep();
-			clashSet.add(C.getDep());
-			return acrClash;
-		}
-	}
-
-	// we are able to insert a concept
-	return acrDone;
+	return lab.contains(p);
 }
 
 bool
-DlSatTester :: findConcept ( const CWDArray& lab, const ConceptWDep& C )
+DlSatTester :: findConceptClash ( const CWDArray& lab, BipolarPointer p, const DepSet& dep )
 {
-	const BipolarPointer p = C.bp();
-#ifdef ENABLE_CHECKING
-	fpp_assert ( isCorrect(p) );	// sanity checking
-	// constants are not allowed here
-	fpp_assert ( p != bpTOP );
-	fpp_assert ( p != bpBOTTOM );
-#endif
-
-	incStat(nLookups);
-
-	return std::find ( lab.begin(), lab.end(), p ) != lab.end();
-}
-
-bool
-DlSatTester :: findConceptClash ( const CWDArray& lab, const ConceptWDep& C )
-{
-	register const BipolarPointer p = C.bp();
 #ifdef ENABLE_CHECKING
 	fpp_assert ( isCorrect(p) );	// sanity checking
 	// constants are not allowed here
@@ -172,7 +136,7 @@ DlSatTester :: findConceptClash ( const CWDArray& lab, const ConceptWDep& C )
 		{
 			// create clashSet
 			clashSet = i->getDep();
-			clashSet.add(C.getDep());
+			clashSet.add(dep);
 			return true;
 		}
 
@@ -181,24 +145,45 @@ DlSatTester :: findConceptClash ( const CWDArray& lab, const ConceptWDep& C )
 }
 
 addConceptResult
-DlSatTester :: tryAddConcept ( const CWDArray& lab, const ConceptWDep& C )
+DlSatTester :: checkAddedConcept ( const CWDArray& lab, BipolarPointer p, const DepSet& dep )
+{
+#ifdef ENABLE_CHECKING
+	fpp_assert ( isCorrect(p) );	// sanity checking
+	// constants are not allowed here
+	fpp_assert ( p != bpTOP );
+	fpp_assert ( p != bpBOTTOM );
+#endif
+
+	if ( findConcept ( lab, p ) )
+		return acrExist;
+
+	if ( findConceptClash ( lab, inverse(p), dep ) )
+		return acrClash;
+
+	// we are able to insert a concept
+	return acrDone;
+}
+
+addConceptResult
+DlSatTester :: tryAddConcept ( const CWDArray& lab, BipolarPointer bp, const DepSet& dep )
 {
 	// check whether C or ~C can occurs in a node label
-	bool canC = isUsed(C.bp());
-	bool canNegC = isUsed(inverse(C.bp()));
+	register const BipolarPointer inv_p = inverse(bp);
+	bool canC = isUsed(bp);
+	bool canNegC = isUsed(inv_p);
 
 	// if either C or ~C is used already, it's not new in a label
 	if ( canC )
 	{
 		if ( canNegC )	// both C and ~C can be in the label
-			return checkAddedConcept(lab,C);
+			return checkAddedConcept ( lab, bp, dep );
 		else			// C but not ~C can be in the label
-			return findConcept(lab,C) ? acrExist : acrDone;
+			return findConcept ( lab, bp ) ? acrExist : acrDone;
 	}
 	else
 	{
 		if ( canNegC )	// ~C but not C can be in the label
-			return findConceptClash(lab,inverse(C)) ? acrClash : acrDone;
+			return findConceptClash ( lab, inv_p, dep ) ? acrClash : acrDone;
 		else			// neither C nor ~C can be in the label
 			return acrDone;
 	}
@@ -238,7 +223,7 @@ DlSatTester :: addToDoEntry ( DlCompletionTree* node, const ConceptWDep& C, cons
 	}
 
 	// try to add a concept to a node label
-	switch ( tryAddConcept ( node->label().getLabel(tag), C ) )
+	switch ( tryAddConcept ( node->label().getLabel(tag), C.bp(), C.getDep() ) )
 	{
 	case acrClash:	// clash -- return
 		if ( LLM.isWritable(llGTA) )
