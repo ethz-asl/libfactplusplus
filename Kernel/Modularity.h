@@ -35,35 +35,28 @@ protected:	// members
 	SyntacticLocalityChecker Checker;
 		/// signature updater
 	TSignatureUpdater Updater;
-		/// size of a module
-	unsigned int mSize;
+		/// module as a list of axioms
+	std::vector<TDLAxiom*> Module;
 
 protected:	// methods
-		/// build a set of axioms out of a module in the ontology
-	void ModuleAsSet ( TOntology& O, std::set<TDLAxiom*>& Set )
-	{
-		Set.clear();
-		for ( TOntology::iterator p = O.begin(), p_end = O.end(); p != p_end; ++p )
-			if ( (*p)->isInModule() && (*p)->isUsed() )
-				Set.insert(*p);
-	}
 		/// add an axiom to a module
 	void addAxiomToModule ( TDLAxiom* axiom )
 	{
 		axiom->setInModule(true);
+		Module.push_back(axiom);
 		// update the signature
 		axiom->accept(Updater);
-		// size of the module is increased
-		++mSize;
 	}
 		/// mark the ontology O such that all the marked axioms creates the module wrt SIG
-	void extractModule ( TOntology& O )
+	template<class Iterator>
+	void extractModule ( Iterator begin, Iterator end )
 	{
 		size_t sigSize;
-        do
+		Module.clear();
+		do
 		{
 			sigSize = sig.size();
-			for ( TOntology::iterator p = O.begin(), p_end = O.end(); p != p_end; ++p )
+			for ( Iterator p = begin; p != end; ++p )
 				if ( !(*p)->isInModule() && (*p)->isUsed() && !Checker.local(*p) )
 					addAxiomToModule(*p);
 
@@ -83,31 +76,34 @@ public:
 	void extract ( TOntology& O, const TSignature& signature, ModuleType type )
 	{
 		sig = signature;
-		mSize = 0;
 		O.clearModuleInfo();
 
 		bool topLocality = (type == M_TOP);
 		sig.setLocality(topLocality);
- 		extractModule(O);
+ 		extractModule ( O.begin(), O.end() );
 
 		if ( type != M_STAR )
 			return;
 
-		// here there is a star: do cycle until stabilizastion
-		unsigned int size;
+		// here there is a star: do the cycle until stabilizastion
+		size_t size;
+		std::vector<TDLAxiom*> oldModule;
 		do
 		{
-			size = mSize;
+			size = Module.size();
 			topLocality = !topLocality;
+			oldModule.swap(Module);
+			sig = signature;
 			sig.setLocality(topLocality);
-	 		extractModule(O);
-		} while ( size != mSize );
+	 		extractModule ( oldModule.begin(), oldModule.end() );
+		} while ( size != Module.size() );
 	}
 		/// extract module wrt SIGNATURE and TYPE from O; @return result in the Set
 	void extract ( TOntology& O, const TSignature& signature, ModuleType type, std::set<TDLAxiom*>& Set )
 	{
 		extract ( O, signature, type );
-		ModuleAsSet ( O, Set );
+		Set.clear();
+		Set.insert ( Module.begin(), Module.end() );
 	}
 		/// get access to a signature
 	const TSignature& getSignature ( void ) const { return sig; }
