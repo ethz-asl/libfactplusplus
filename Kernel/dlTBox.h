@@ -35,6 +35,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "DataTypeCenter.h"
 #include "tProgressMonitor.h"
 #include "tKBFlags.h"
+#include "tSplitVars.h"
 
 class DlSatTester;
 class DLConceptTaxonomy;
@@ -197,6 +198,8 @@ protected:	// members
 	TSimpleRules SimpleRules;
 		/// map to show the possible equivalence between individuals
 	std::map<TConcept*, std::pair<TIndividual*,bool> > SameI;
+		/// set of split vars
+	TSplitVars* Splits;
 
 		/// internalisation of a general axioms
 	BipolarPointer T_G;
@@ -854,6 +857,9 @@ public:
 	DataTypeCenter& getDataTypeCenter ( void ) { return DTCenter; }
 		/// get RO access to a DT center
 	const DataTypeCenter& getDataTypeCenter ( void ) const { return DTCenter; }
+
+		/// set split vars
+	void setSplitVars ( TSplitVars* s ) { Splits = s; }
 
 		/// set the value of a test timeout in milliseconds to VALUE
 	void setTestTimeout ( unsigned long value );
