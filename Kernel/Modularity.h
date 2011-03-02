@@ -53,10 +53,15 @@ protected:	// methods
 	{
 		size_t sigSize;
 		Module.clear();
+		Module.reserve(end-begin);
+		// clear the module flag in the input
+		Iterator p;
+		for ( p = begin; p != end; ++p )
+			(*p)->setInModule(false);
 		do
 		{
 			sigSize = sig.size();
-			for ( Iterator p = begin; p != end; ++p )
+			for ( p = begin; p != end; ++p )
 				if ( !(*p)->isInModule() && (*p)->isUsed() && !Checker.local(*p) )
 					addAxiomToModule(*p);
 
@@ -75,10 +80,9 @@ public:
 		/// extract module wrt SIGNATURE and TYPE from O
 	void extract ( TOntology& O, const TSignature& signature, ModuleType type )
 	{
-		sig = signature;
-		O.clearModuleInfo();
-
 		bool topLocality = (type == M_TOP);
+
+		sig = signature;
 		sig.setLocality(topLocality);
  		extractModule ( O.begin(), O.end() );
 
@@ -91,8 +95,9 @@ public:
 		do
 		{
 			size = Module.size();
-			topLocality = !topLocality;
 			oldModule.swap(Module);
+			topLocality = !topLocality;
+
 			sig = signature;
 			sig.setLocality(topLocality);
 	 		extractModule ( oldModule.begin(), oldModule.end() );
