@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2006-2010 by Dmitry Tsarkov
+Copyright (C) 2006-2011 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -131,6 +131,8 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_delete
 {
 	TRACE_JNI("deleteKernel");
 	delete getK(env,obj);
+	// set to NULL
+	env->SetLongField ( obj, KernelFID, 0 );
 }
 
 /*
