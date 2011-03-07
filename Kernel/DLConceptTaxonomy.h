@@ -22,6 +22,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Taxonomy.h"
 #include "dlTBox.h"
 #include "tProgressMonitor.h"
+#include "tSplitVars.h"
 
 /// Taxonomy of named DL concepts (and mapped individuals)
 class DLConceptTaxonomy: public Taxonomy
@@ -29,6 +30,8 @@ class DLConceptTaxonomy: public Taxonomy
 protected:	// members
 		/// host tBox
 	TBox& tBox;
+		/// set of split vars
+	TSplitVars* Splits;
 		/// common descendants of all parents of currently classified concept
 	TaxonomyLink Common;
 		/// number of processed common parents
@@ -206,6 +209,8 @@ public:		// interface
 	void setBottomUp ( const TKBFlags& GCIs ) { flagNeedBottomUp = (GCIs.isGCI() || (GCIs.isReflexive() && GCIs.isRnD())); }
 		/// set progress indicator
 	void setProgressIndicator ( TProgressMonitor* pMon ) { pTaxProgress = pMon; }
+		/// set split vars
+	void setSplitVars ( TSplitVars* s ) { Splits = s; }
 		/// output taxonomy to a stream
 	virtual void print ( std::ostream& o ) const;
 }; // DLConceptTaxonomy
