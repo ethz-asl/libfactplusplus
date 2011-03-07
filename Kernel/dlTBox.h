@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2010 by Dmitry Tsarkov
+Copyright (C) 2003-2011 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -620,8 +620,6 @@ protected:	// methods
 
 		/// init reasoning service: create reasoner(s)
 	void initReasoner ( void );				// implemented in Reasoner.h
-		/// init taxonomy (for the first time)
-	void initTaxonomy ( void );				// implemented in DLConceptTaxonomy.h
 		/// creating taxonomy for given TBox; include individuals if necessary
 	void createTaxonomy ( bool needIndividuals );
 		/// distribute all elements in [begin,end) range wtr theif tags

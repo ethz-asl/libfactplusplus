@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2008-2010 by Dmitry Tsarkov
+Copyright (C) 2008-2011 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -344,7 +344,7 @@ TBox :: Load ( istream& i, KBStatus status )
 	DLHeap.Load(i);
 	if ( Status > kbCChecked )
 	{
-		initTaxonomy();
+		pTax->setBottomUp(GCIs);
 		expectChar(i,'C');
 		expectChar(i,'T');
 		pTax->Load(i);

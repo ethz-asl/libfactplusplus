@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2010 by Dmitry Tsarkov
+Copyright (C) 2003-2011 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -269,15 +269,12 @@ void TBox :: createTaxonomy ( bool needIndividual )
 	bool needConcept = !needIndividual;
 
 	// here we sure that ontology is consistent
-
-	if ( pTax == NULL )	// first run
-	{
-		DLHeap.setSubOrder();	// init priorities in order to do subsumption tests
-		initTaxonomy();
-		needConcept |= needIndividual;	// together with concepts
-	}
-	else	// not a first run
-		return;	// FIXME!! now we don't perform staged reasoning, so everything is done
+	// FIXME!! distinguish later between the 1st run and the following runs
+	DLHeap.setSubOrder();	// init priorities in order to do subsumption tests
+	pTax->setBottomUp(GCIs);
+	needConcept |= needIndividual;	// together with concepts
+//	else	// not a first run
+//		return;	// FIXME!! now we don't perform staged reasoning, so everything is done
 /*
 	{
 		fpp_assert ( needIndividual );

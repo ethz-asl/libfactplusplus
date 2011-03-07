@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2010 by Dmitry Tsarkov
+Copyright (C) 2003-2011 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -37,7 +37,6 @@ TBox :: TBox ( const ifOptionSet* Options, const std::string& TopORoleName, cons
 	, stdReasoner(NULL)
 	, nomReasoner(NULL)
 	, pMonitor(NULL)
-	, pTax (NULL)
 	, pOptions (Options)
 	, Status(kbLoading)
 	, curFeature(NULL)
@@ -63,6 +62,7 @@ TBox :: TBox ( const ifOptionSet* Options, const std::string& TopORoleName, cons
 {
 	readConfig ( Options );
 	initTopBottom ();
+	pTax = new DLConceptTaxonomy ( pTop, pBottom, *this );
 
 	setForbidUndefinedNames(false);
 }

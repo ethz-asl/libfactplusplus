@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2010 by Dmitry Tsarkov
+Copyright (C) 2003-2011 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -186,8 +186,7 @@ protected:	// methods
 
 public:		// interface
 		/// the only c'tor
-	DLConceptTaxonomy ( const TConcept* pTop, const TConcept* pBottom, TBox& kb,
-						const TKBFlags& GCIs )
+	DLConceptTaxonomy ( const TConcept* pTop, const TConcept* pBottom, TBox& kb )
 		: Taxonomy ( pTop, pBottom )
 		, tBox(kb)
 		, nConcepts (0), nTries (0), nPositives (0), nNegatives (0)
@@ -198,12 +197,13 @@ public:		// interface
 		, nCachedNegative(0)
 		, nSortedNegative(0)
 		, pTaxProgress (NULL)
-		, flagNeedBottomUp(GCIs.isGCI() || (GCIs.isReflexive() && GCIs.isRnD()))
 	{
 	}
 		/// d'tor
 	~DLConceptTaxonomy ( void ) {}
 
+		/// set bottom-up flag
+	void setBottomUp ( const TKBFlags& GCIs ) { flagNeedBottomUp = (GCIs.isGCI() || (GCIs.isReflexive() && GCIs.isRnD())); }
 		/// set progress indicator
 	void setProgressIndicator ( TProgressMonitor* pMon ) { pTaxProgress = pMon; }
 		/// output taxonomy to a stream
@@ -242,12 +242,6 @@ inline bool DLConceptTaxonomy :: immediatelyClassified ( void )
 //-----------------------------------------------------------------------------
 //--		implemenation of taxonomy-related parts of TBox
 //-----------------------------------------------------------------------------
-
-inline void
-TBox :: initTaxonomy ( void )
-{
-	pTax = new DLConceptTaxonomy ( pTop, pBottom, *this, GCIs );
-}
 
 inline void
 TBox :: classifyEntry ( TConcept* entry )
