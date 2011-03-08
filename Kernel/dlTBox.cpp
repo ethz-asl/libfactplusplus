@@ -138,12 +138,14 @@ void TBox :: initTopBottom ( void )
 {
 	// create BOTTOM concept
 	TConcept* p = new TConcept ("BOTTOM");
+	p->setBottom();
 	p->setId(-1);
 	p->pName = p->pBody = bpBOTTOM;
 	pBottom = p;
 
 	// create TOP concept
 	p = new TConcept ("TOP");
+	p->setTop();
 	p->setId(-1);
 	p->pName = p->pBody = bpTOP;
 	p->tsDepth=1;

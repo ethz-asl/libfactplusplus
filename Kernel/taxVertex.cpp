@@ -98,7 +98,8 @@ TaxonomyVertex :: mergeIndepNode ( TaxonomyVertex* node )
 	iterator p, p_end;
 	for ( p = node->begin(upDirection), p_end = node->end(upDirection); p != p_end; ++p )
 	{
-		addNeighbour ( upDirection, *p );
+		if ( !(*p)->getPrimer()->isTop() )	// skip tops
+			addNeighbour ( upDirection, *p );
 		(*p)->removeLink ( !upDirection, node );
 	}
 	upDirection = false;

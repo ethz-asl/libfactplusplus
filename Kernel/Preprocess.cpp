@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2010 by Dmitry Tsarkov
+Copyright (C) 2003-2011 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -178,9 +178,10 @@ replaceSynonymsFromTree ( DLTree* desc )
 		{
 			entry = resolveSynonym(entry);
 			// check for TOP/BOTTOM
-			//FIXME!! may be, better use ID for TOP/BOTTOM
-			if ( entry->getId() == -1 )
-				cur = TLexeme ( !strcmp(entry->getName(), "TOP") ? TOP : BOTTOM );
+			if ( entry->isTop() )
+				cur = TLexeme(TOP);
+			else if ( entry->isBottom() )
+				cur = TLexeme(BOTTOM);
 			else
 				cur = TLexeme ( static_cast<TConcept*>(entry)->isSingleton() ? INAME : CNAME, entry );
 			return true;
