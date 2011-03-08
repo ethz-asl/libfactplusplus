@@ -314,6 +314,8 @@ void TBox :: createTaxonomy ( bool needIndividual )
 //	sort ( arrayNP.begin(), arrayNP.end(), TSDepthCompare() );
 	classifyConcepts ( arrayNP, false, "non-primitive" );
 
+	pTax->processSplits();
+
 	if ( pMonitor )
 	{
 		pMonitor->setFinished();

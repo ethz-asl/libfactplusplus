@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2010 by Dmitry Tsarkov
+Copyright (C) 2003-2011 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -187,6 +187,8 @@ public:
 	void removeLastLink ( bool upDirection ) { neigh(upDirection).resize(neigh(upDirection).size()-1); }
 		/// clear all links in a given direction
 	void clearLinks ( bool upDirection ) { neigh(upDirection).clear(); }
+		/// merge NODE which is independent to THIS
+	void mergeIndepNode ( TaxonomyVertex* node );
 
 		/// print entry name and its synonyms (if any)
 	void printSynonyms ( std::ostream& o ) const;

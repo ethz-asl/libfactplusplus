@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2010 by Dmitry Tsarkov
+Copyright (C) 2003-2011 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -191,6 +191,18 @@ protected:	// methods
 	void generalTwoPhaseClassification ( void );
 		/// insert current node into taxonomy wrt flag willIIT; SYN is synonym (if any)
 	void insertCurrent ( TaxonomyVertex* syn );
+		/// remove node from the taxonomy; assume no references to the node
+	void removeNode ( TaxonomyVertex* node )
+	{
+		for ( iterator p = begin(), p_end = end(); p != p_end; ++p )
+			if ( (*p) == node )
+			{
+				*p = Graph.back();
+				Graph.pop_back();
+				delete node;
+				return;
+			}
+	}
 
 	//-----------------------------------------------------------------
 	//--	DFS-based classification

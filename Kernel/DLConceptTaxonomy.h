@@ -184,6 +184,21 @@ protected:	// methods
 		/// @return true iff curEntry is classified as a synonym
 	virtual bool classifySynonym ( void );
 
+		/// merge vars came from a given SPLIT together
+	void mergeSplitVars ( TSplitVar* split )
+	{
+		setCurrentEntry(split->C);
+		TaxonomyVertex* v;
+		for ( TSplitVar::CNameVector::iterator q = split->Ci.begin(), q_end = split->Ci.end(); q != q_end; ++q )
+		{
+			v = (*q)->getTaxVertex();
+			Current->mergeIndepNode(v);
+			removeNode(v);
+		}
+		v = Current;
+		insertCurrent(NULL);
+//		v->print(std::cout);
+	}
 		/// check if it is necessary to log taxonomy action
 	virtual bool needLogging ( void ) const { return true; }
 
@@ -205,6 +220,12 @@ public:		// interface
 		/// d'tor
 	~DLConceptTaxonomy ( void ) {}
 
+		/// process all splits
+	void processSplits ( void )
+	{
+		for ( TSplitVars::iterator p = Splits->begin(), p_end = Splits->end(); p != p_end; ++p )
+			mergeSplitVars(*p);
+	}
 		/// set bottom-up flag
 	void setBottomUp ( const TKBFlags& GCIs ) { flagNeedBottomUp = (GCIs.isGCI() || (GCIs.isReflexive() && GCIs.isRnD())); }
 		/// set progress indicator
