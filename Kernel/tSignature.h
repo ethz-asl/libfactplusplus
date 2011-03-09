@@ -75,6 +75,8 @@ public:		// interface
 	}
 		/// @return size of the signature
 	size_t size ( void ) const { return Set.size(); }
+		/// clear the signature
+	void clear ( void ) { Set.clear(); }
 
 		/// @return true iff concepts are treated as TOPs
 	bool topCLocal ( void ) const { return topLocality; }

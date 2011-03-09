@@ -19,6 +19,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Kernel.h"
 #include "tOntologyLoader.h"
 #include "tOntologyPrinterLISP.h"
+#include "AxiomSplitter.h"
 
 const char* ReasoningKernel :: Version = "1.5.1";
 const char* ReasoningKernel :: SupportedDL = "SROIQ(D)";
@@ -83,6 +84,10 @@ ReasoningKernel :: forceReload ( void )
 	// Protege (as the only user of non-trivial monitors with reload) does not accept multiple usage of a monitor
 	// so switch it off after the 1st usage
 	pMonitor = NULL;
+
+	// split ontological axioms
+	TAxiomSplitter AxiomSplitter(&Ontology);
+//	AxiomSplitter.buildSplit();
 
 	// (re)load ontology
 	TOntologyLoader OntologyLoader(*getTBox());

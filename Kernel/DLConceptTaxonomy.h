@@ -197,7 +197,7 @@ protected:	// methods
 		}
 		v = Current;
 		insertCurrent(NULL);
-//		v->print(std::cout);
+		v->print(std::cout);
 	}
 		/// check if it is necessary to log taxonomy action
 	virtual bool needLogging ( void ) const { return true; }
