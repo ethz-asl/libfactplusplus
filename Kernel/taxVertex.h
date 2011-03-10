@@ -188,7 +188,7 @@ public:
 		/// clear all links in a given direction
 	void clearLinks ( bool upDirection ) { neigh(upDirection).clear(); }
 		/// merge NODE which is independent to THIS
-	void mergeIndepNode ( TaxonomyVertex* node );
+	void mergeIndepNode ( TaxonomyVertex* node, const ClassifiableEntry* curEntry );
 
 		/// print entry name and its synonyms (if any)
 	void printSynonyms ( std::ostream& o ) const;

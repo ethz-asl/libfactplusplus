@@ -88,10 +88,11 @@ void TaxonomyVertex :: incorporate ( const ClassifiableEntry* entry )
 
 /// merge NODE which is independent to THIS
 void
-TaxonomyVertex :: mergeIndepNode ( TaxonomyVertex* node )
+TaxonomyVertex :: mergeIndepNode ( TaxonomyVertex* node, const ClassifiableEntry* curEntry )
 {
 	// copy synonyms here
-	addSynonym(node->getPrimer());
+	if ( node->getPrimer() != curEntry )
+		addSynonym(node->getPrimer());
 	for ( syn_iterator q = node->begin_syn(), q_end = node->end_syn(); q != q_end; ++q )
 		addSynonym(*q);
 	bool upDirection = true;
