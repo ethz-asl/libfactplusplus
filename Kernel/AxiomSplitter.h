@@ -78,6 +78,18 @@ protected:	// methods
 		s << oldName->getName() << "+" << ++newNameId;
 		return dynamic_cast<const TDLConceptName*>(O->getExpressionManager()->Concept(s.str()));
 	}
+		/// create a signature of a module corresponding to a new axiom in record
+	void buildSig ( TRecord* rec )
+	{
+		sig.clear();	// make sig a signature of a new axiom
+		rec->newAxiom->accept(Updater);
+		mod.extract ( *O, sig, M_STAR );	// build a module/signature for the axiom
+//		std::cout << "Module for " << rec->oldName->getName() << ":\n";
+//		for ( std::set<TDLAxiom*>::const_iterator z = module.begin(), z_end = module.end(); z != z_end; ++z )
+//			(*z)->accept(pr);
+		rec->newAxSig = mod.getSignature();	// FIXME!! check that SIG wouldn't change after some axiom retractions
+//		std::cout << " with module size " << module.size() << "\n";
+	}
 		/// add axiom CI in a form C [= D for D != TOP
 	void addSingleCI ( TDLAxiomConceptInclusion* ci )
 	{
@@ -152,29 +164,21 @@ protected:	// methods
 		/// check whether the record is independent wrt modularity
 	void checkSplitCorrectness ( TRecord* rec )
 	{
-		sig.clear();	// make sig a signature of a new axiom
-		rec->newAxiom->accept(Updater);
-//		O->clearModuleInfo();
-		mod.extract ( *O, sig, M_STAR );	// build a module/signature for the axiom
-//		std::cout << "Module for " << rec->oldName->getName() << ":\n";
-//		for ( std::set<TDLAxiom*>::const_iterator z = module.begin(), z_end = module.end(); z != z_end; ++z )
-//			(*z)->accept(pr);
-		if ( mod.getSignature().contains(static_cast<const TNamedEntity*>(rec->oldName)) )
+		buildSig(rec);
+		if ( rec->newAxSig.contains(static_cast<const TNamedEntity*>(rec->oldName)) )
 		{
 			// restore the old axiom, get rid of the new one
 			rec->oldAxiom->setUsed(true);
 			rec->newAxiom->setUsed(false);
-			std::cout << "unsplit " << rec->oldName->getName();
+			std::cout << "unsplit " << rec->oldName->getName() << "\n";
 			delete rec;
 		}
 		else	// keep the split
 		{
-			rec->newAxSig = mod.getSignature();	// FIXME!! check that SIG wouldn't change after some axiom retractions
 			R2.push_back(rec);
 			Introduction[rec->newName] = rec;
-			std::cout << "keep split " << rec->oldName->getName();
+			std::cout << "keep split " << rec->oldName->getName() << "\n";
 		}
-//		std::cout << " with module size " << module.size() << "\n";
 	}
 		/// move all independent splits in R2; delete all the rest
 	void keepIndependentSplits ( void )
