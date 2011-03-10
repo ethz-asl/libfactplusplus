@@ -188,16 +188,24 @@ protected:	// methods
 	void mergeSplitVars ( TSplitVar* split )
 	{
 		setCurrentEntry(split->C);
+		std::set<TaxonomyVertex*> excludes;
+		excludes.insert(getTopVertex());
 		TaxonomyVertex* v = split->C->getTaxVertex();
 		if ( v != NULL )	// there is C-node in the taxonomy
+			excludes.insert(v);
+		TSplitVar::CNameVector::iterator q = split->Ci.begin(), q_end = split->Ci.end();
+		for ( ; q != q_end; ++q )
+			excludes.insert((*q)->getTaxVertex());
+
+		if ( v != NULL )	// there is C-node in the taxonomy
 		{
-			Current->mergeIndepNode(v,curEntry);
+			Current->mergeIndepNode(v,excludes,curEntry);
 			removeNode(v);
 		}
-		for ( TSplitVar::CNameVector::iterator q = split->Ci.begin(), q_end = split->Ci.end(); q != q_end; ++q )
+		for ( q = split->Ci.begin(); q != q_end; ++q )
 		{
 			v = (*q)->getTaxVertex();
-			Current->mergeIndepNode(v,curEntry);
+			Current->mergeIndepNode(v,excludes,curEntry);
 			removeNode(v);
 		}
 		v = Current;

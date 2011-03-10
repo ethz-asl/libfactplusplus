@@ -88,7 +88,7 @@ void TaxonomyVertex :: incorporate ( const ClassifiableEntry* entry )
 
 /// merge NODE which is independent to THIS
 void
-TaxonomyVertex :: mergeIndepNode ( TaxonomyVertex* node, const ClassifiableEntry* curEntry )
+TaxonomyVertex :: mergeIndepNode ( TaxonomyVertex* node, const std::set<TaxonomyVertex*>& excludes, const ClassifiableEntry* curEntry )
 {
 	// copy synonyms here
 	if ( node->getPrimer() != curEntry )
@@ -99,14 +99,15 @@ TaxonomyVertex :: mergeIndepNode ( TaxonomyVertex* node, const ClassifiableEntry
 	iterator p, p_end;
 	for ( p = node->begin(upDirection), p_end = node->end(upDirection); p != p_end; ++p )
 	{
-		if ( !(*p)->getPrimer()->isTop() )	// skip tops
+		if ( excludes.count(*p) == 0 )
 			addNeighbour ( upDirection, *p );
 		(*p)->removeLink ( !upDirection, node );
 	}
 	upDirection = false;
 	for ( p = node->begin(upDirection), p_end = node->end(upDirection); p != p_end; ++p )
 	{
-		addNeighbour ( upDirection, *p );
+		if ( excludes.count(*p) == 0 )
+			addNeighbour ( upDirection, *p );
 		(*p)->removeLink ( !upDirection, node );
 	}
 }

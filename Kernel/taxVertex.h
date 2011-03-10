@@ -19,6 +19,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef TAXVERTEX_H
 #define TAXVERTEX_H
 
+#include <set>
 #include <vector>
 #include <iostream>
 
@@ -188,7 +189,7 @@ public:
 		/// clear all links in a given direction
 	void clearLinks ( bool upDirection ) { neigh(upDirection).clear(); }
 		/// merge NODE which is independent to THIS
-	void mergeIndepNode ( TaxonomyVertex* node, const ClassifiableEntry* curEntry );
+	void mergeIndepNode ( TaxonomyVertex* node, const std::set<TaxonomyVertex*>& excludes, const ClassifiableEntry* curEntry );
 
 		/// print entry name and its synonyms (if any)
 	void printSynonyms ( std::ostream& o ) const;
