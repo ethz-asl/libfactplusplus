@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2005 by Dmitry Tsarkov
+Copyright (C) 2003-2011 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -16,8 +16,8 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef _TRESTORER_H
-#define _TRESTORER_H
+#ifndef TRESTORER_H
+#define TRESTORER_H
 
 /**
  *	Generic class for restore some property.
@@ -25,13 +25,24 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 class TRestorer
 {
-public:	// interface
+protected:	// members
+		/// restore level
+	unsigned int lev;
+
+public:		// interface
 		/// empty c'tor
 	TRestorer ( void ) {}
 		/// empty d'tor
 	virtual ~TRestorer ( void ) {}
 		/// restore an object based on saved information
 	virtual void restore ( void ) = 0;
+
+	// level operations
+
+		/// set restore level
+	void setLevel ( unsigned int l ) { lev = l; }
+		/// get restore level
+	unsigned int level ( void ) const { return lev; }
 }; // TRestorer
 
 #endif

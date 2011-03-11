@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2009 by Dmitry Tsarkov
+Copyright (C) 2003-2011 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -16,8 +16,8 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef _TRARESAVESTACK_H
-#define _TRARESAVESTACK_H
+#ifndef TRARESAVESTACK_H
+#define TRARESAVESTACK_H
 
 #include <vector>
 
@@ -30,32 +30,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 class TRareSaveStack
 {
-protected:	// classes
-		/// class to represent restoring information together with level
-	class RestoreElement
-	{
-	public:		// members
-			/// level of restoring
-		unsigned int level;
-			/// pointer to restoring information
-		TRestorer* p;
-
-	public:		// interface
-			/// create c'tor
-		RestoreElement ( unsigned int l, TRestorer* q ) : level(l), p(q) {}
-			/// d'tor
-		~RestoreElement ( void ) { delete p; }
-	}; // RestoreElement
-
 protected:	// typedefs
-		/// type of the heap
-	typedef std::vector<RestoreElement*> baseType;
-		/// iterator on the heap
-	typedef baseType::iterator iterator;
+		/// vector of restorers
+	typedef std::vector<TRestorer*> TBaseType;
 
 protected:	// members
 		/// heap of saved objects
-	baseType Base;
+	TBaseType Base;
 		/// current level
 	unsigned int curLevel;
 
@@ -73,7 +54,10 @@ public:		// interface
 	bool empty ( void ) const { return Base.empty(); }
 		/// add a new object to the stack
 	void push ( TRestorer* p )
-		{ Base.push_back ( new RestoreElement ( curLevel, p ) ); }
+	{
+		p->setLevel(curLevel);
+		Base.push_back(p);
+	}
 		/// get all object from the top of the stack with levels >= LEVEL
 	void restore ( unsigned int level )
 	{
@@ -81,12 +65,12 @@ public:		// interface
 		unsigned int n = Base.size();
 		while ( n > 0 )
 		{
-			RestoreElement* cur = Base[n-1];
-			if ( cur->level <= level )
+			TRestorer* cur = Base[n-1];
+			if ( cur->level() <= level )
 				break;
 
 			// need to restore: restore last element, remove it from stack
-			cur->p->restore();
+			cur->restore();
 			delete cur;
 			--n;
 		}
@@ -95,7 +79,7 @@ public:		// interface
 		/// clear stack
 	void clear ( void )
 	{
-		for ( iterator p = Base.begin(), p_end = Base.end(); p < p_end; ++p )
+		for ( TBaseType::iterator p = Base.begin(), p_end = Base.end(); p < p_end; ++p )
 			delete *p;
 		Base.clear();
 		curLevel = InitBranchingLevelValue;
