@@ -78,7 +78,6 @@ protected:	// members
 	TSignature sig;	// seed signature
 	TSignatureUpdater Updater;
 	TOntology* O;
-	TDLConceptAnd* And;	// keep track of RHS of implications
 
 protected:	// methods
 		/// rename old concept into a new one with a fresh name
@@ -207,14 +206,14 @@ protected:	// methods
 		TRecord* rec = new TRecord();
 		rec->oldName = oldName;
 		rec->newName = newName;
-		And = static_cast<TDLConceptAnd*>(O->getExpressionManager()->And());
+		O->getExpressionManager()->newArgList();
 		for ( std::set<TDLAxiomConceptInclusion*>::iterator s = ImplNames[oldName].begin(), s_end = ImplNames[oldName].end(); s != s_end; ++s )
 		{
 			rec->oldAxioms.push_back(*s);
-			And->add((*s)->getSupC());
+			O->getExpressionManager()->addArg((*s)->getSupC());
 			(*s)->accept(pr);
 		}
-		rec->setImpAx(And);
+		rec->setImpAx(O->getExpressionManager()->And());
 		buildSig(rec);
 		rec->Register(O);
 		R2.push_back(rec);
