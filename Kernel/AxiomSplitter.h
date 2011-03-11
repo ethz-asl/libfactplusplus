@@ -28,13 +28,15 @@ protected:	// types
 		/// keep the single rename: named concept C in an axiom (C=D or C[=D) into a new name C' and new axiom C'=D or C'[=D
 	struct TRecord
 	{
+		typedef std::vector<TDLAxiom*> AxVec;
 		const TDLConceptName* oldName, *newName;
-		TDLAxiom* oldAxiom, *newAxiom;
+		AxVec oldAxioms;
+		TDLAxiom* newAxiom;
 		TSignature newAxSig;
 			/// set old axiom as an equivalent AX; create a new one
 		void setEqAx ( TDLAxiomEquivalentConcepts* ax )
 		{
-			oldAxiom = ax;
+			oldAxioms.push_back(ax);
 			TDLAxiomEquivalentConcepts::ExpressionArray copy;
 			for ( TDLAxiomEquivalentConcepts::iterator p = ax->begin(), p_end = ax->end(); p != p_end; ++p )
 				if ( *p == oldName )
@@ -43,17 +45,24 @@ protected:	// types
 					copy.push_back(*p);
 			newAxiom = new TDLAxiomEquivalentConcepts(copy);
 		}
-			/// set old axiom as an implication AX; create a new one
-		void setImpAx ( TDLAxiomConceptInclusion* ax )
+			/// set a new implication axiom based on a (known) set of old ones
+		void setImpAx ( const TDLConceptExpression* Desc )
 		{
-			oldAxiom = ax;
-			newAxiom = new TDLAxiomConceptInclusion ( newName, ax->getSupC() );
+			newAxiom = new TDLAxiomConceptInclusion ( newName, Desc );
 		}
 			/// register the new axiom and retract the old one
 		void Register ( TOntology* O )
 		{
-			O->retract(oldAxiom);
+			for ( AxVec::iterator p = oldAxioms.begin(), p_end = oldAxioms.end(); p != p_end; ++p )
+				O->retract(*p);
 			O->add(newAxiom);
+		}
+			/// un-register record
+		void Unregister ( void )
+		{
+			for ( AxVec::iterator p = oldAxioms.begin(), p_end = oldAxioms.end(); p != p_end; ++p )
+				(*p)->setUsed(true);
+			newAxiom->setUsed(false);
 		}
 	};
 
@@ -69,6 +78,7 @@ protected:	// members
 	TSignature sig;	// seed signature
 	TSignatureUpdater Updater;
 	TOntology* O;
+	TDLConceptAnd* And;	// keep track of RHS of implications
 
 protected:	// methods
 		/// rename old concept into a new one with a fresh name
@@ -168,8 +178,7 @@ protected:	// methods
 		if ( rec->newAxSig.contains(static_cast<const TNamedEntity*>(rec->oldName)) )
 		{
 			// restore the old axiom, get rid of the new one
-			rec->oldAxiom->setUsed(true);
-			rec->newAxiom->setUsed(false);
+			rec->Unregister();
 			std::cout << "unsplit " << rec->oldName->getName() << "\n";
 			delete rec;
 		}
@@ -187,18 +196,6 @@ protected:	// methods
 			checkSplitCorrectness(*r);
 		std::cout << "There were made " << R2.size() << " splits out of " << Renames.size() << " tries\n";
 	}
-		/// make the axiom split for the equivalence axiom
-	void makeImpSplit ( TDLAxiomConceptInclusion* ci, const TDLConceptName* oldName, const TDLConceptName* newName )
-	{
-		TRecord* rec = new TRecord();
-		rec->oldName = oldName;
-		rec->newName = newName;
-		rec->setImpAx(ci);
-		rec->Register(O);
-		R2.push_back(rec);
-		ci->accept(pr); rec->newAxiom->accept(pr);
-		rec->newAxiom->accept(Updater);	// keep the signature of a new item
-	}
 		/// split all implications corresponding to oldName; @return split pointer
 	TSplitVar* splitImplicationsFor ( const TDLConceptName* oldName )
 	{
@@ -206,16 +203,22 @@ protected:	// methods
 		if ( O->Splits.hasCN(oldName) )
 			return O->Splits.get(oldName);
 		const TDLConceptName* newName = rename(oldName);
-		// build signatures
-		sig.clear();
-		size_t i = R2.size();
 		std::cout << "split " << oldName->getName() << " into " << newName->getName() << "\n";
+		TRecord* rec = new TRecord();
+		rec->oldName = oldName;
+		rec->newName = newName;
+		And = static_cast<TDLConceptAnd*>(O->getExpressionManager()->And());
 		for ( std::set<TDLAxiomConceptInclusion*>::iterator s = ImplNames[oldName].begin(), s_end = ImplNames[oldName].end(); s != s_end; ++s )
-			makeImpSplit ( *s, oldName, newName );
-		// create module for newName and put the extended signature
-		mod.extract ( *O, sig, M_STAR );	// build a module/signature for the axiom
-		for ( ; i < R2.size(); ++i )
-			R2[i]->newAxSig = mod.getSignature();
+		{
+			rec->oldAxioms.push_back(*s);
+			And->add((*s)->getSupC());
+			(*s)->accept(pr);
+		}
+		rec->setImpAx(And);
+		buildSig(rec);
+		rec->Register(O);
+		R2.push_back(rec);
+		rec->newAxiom->accept(pr);
 		// create new split
 		TSplitVar* split = new TSplitVar();
 		split->oldName = oldName;
