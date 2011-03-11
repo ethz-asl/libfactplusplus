@@ -62,19 +62,17 @@ public:		// interface
 	void restore ( unsigned int level )
 	{
 		curLevel = level;
-		unsigned int n = Base.size();
-		while ( n > 0 )
+		while ( !Base.empty() )
 		{
-			TRestorer* cur = Base[n-1];
+			TRestorer* cur = Base.back();
 			if ( cur->level() <= level )
 				break;
 
 			// need to restore: restore last element, remove it from stack
 			cur->restore();
 			delete cur;
-			--n;
+			Base.pop_back();
 		}
-		Base.resize(n);
 	}
 		/// clear stack
 	void clear ( void )
