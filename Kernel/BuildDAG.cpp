@@ -289,14 +289,14 @@ BipolarPointer TBox :: atmost2dag ( unsigned int n, const TRole* R, BipolarPoint
 }
 
 /// transform splitted concept registered in SPLIT to a dag representation
-BipolarPointer
+void
 TBox :: split2dag ( TSplitVar* split )
 {
 	DLVertex* v = new DLVertex(dtSplitConcept);
 	for ( TSplitVar::CNameVector::iterator p = split->Ci.begin(), p_end = split->Ci.end(); p != p_end; ++p )
 		v->addChild((*p)->pName);
 	split->C->pBody = DLHeap.directAdd(v);
-	DLHeap.directAdd(new DLVertex ( dtChoose, split->C->pName )); 
+	DLHeap.directAdd(new DLVertex ( dtChoose, split->C->pName ));
 }
 
 bool TBox :: fillANDVertex ( DLVertex* v, const DLTree* t )

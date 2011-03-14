@@ -444,7 +444,7 @@ protected:	// methods
 		return p->resolveId();
 	}
 		/// transform splitted concept registered in SPLIT to a dag representation
-	BipolarPointer split2dag ( TSplitVar* split );
+	void split2dag ( TSplitVar* split );
 
 //-----------------------------------------------------------------------------
 //--		internal parser (input) interface
