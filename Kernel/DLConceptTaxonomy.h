@@ -245,6 +245,8 @@ public:		// interface
 	void setProgressIndicator ( TProgressMonitor* pMon ) { pTaxProgress = pMon; }
 		/// set split vars
 	void setSplitVars ( TSplitVars* s ) { Splits = s; }
+		/// get access to split vars
+	TSplitVars* getSplits ( void ) { return Splits; }
 		/// output taxonomy to a stream
 	virtual void print ( std::ostream& o ) const;
 }; // DLConceptTaxonomy

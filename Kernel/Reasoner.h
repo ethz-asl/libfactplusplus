@@ -501,6 +501,8 @@ protected:	// methods
 	bool commonTacticBodyNN ( const DLVertex& cur );
 		/// expansion rule for auxilliary projection-construction
 	bool commonTacticBodyProj ( const TRole* R, BipolarPointer C, const TRole* ProjR );
+		/// expansion rule for split
+	bool commonTacticBodySplit ( const DLVertex& cur );
 
 	// support for inapplicable tactics
 

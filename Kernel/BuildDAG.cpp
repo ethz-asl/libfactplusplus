@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2010 by Dmitry Tsarkov
+Copyright (C) 2003-2011 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -36,6 +36,10 @@ void TBox :: buildDAG ( void )
 	// builds Roles range and domain
 	initRangeDomain(ORM);
 	initRangeDomain(DRM);
+
+	// build all splits
+	for ( TSplitVars::iterator s = getSplits()->begin(), s_end = getSplits()->end(); s != s_end; ++s )
+		split2dag(*s);
 
 	RoleMaster::iterator p, p_end;
 
@@ -282,6 +286,17 @@ BipolarPointer TBox :: atmost2dag ( unsigned int n, const TRole* R, BipolarPoint
 	DLHeap.directAddAndCache(new DLVertex(dtNN));
 
 	return ret;
+}
+
+/// transform splitted concept registered in SPLIT to a dag representation
+BipolarPointer
+TBox :: split2dag ( TSplitVar* split )
+{
+	DLVertex* v = new DLVertex(dtSplitConcept);
+	for ( TSplitVar::CNameVector::iterator p = split->Ci.begin(), p_end = split->Ci.end(); p != p_end; ++p )
+		v->addChild((*p)->pName);
+	split->C->pBody = DLHeap.directAdd(v);
+	DLHeap.directAdd(new DLVertex ( dtChoose, split->C->pName )); 
 }
 
 bool TBox :: fillANDVertex ( DLVertex* v, const DLTree* t )

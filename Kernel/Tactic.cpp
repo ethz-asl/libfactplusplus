@@ -134,6 +134,9 @@ bool DlSatTester :: commonTacticBody ( const DLVertex& cur )
 		fpp_assert ( isPositive (curConcept.bp()) );
 		return commonTacticBodyProj ( cur.getRole(), cur.getC(), cur.getProjRole() );
 
+	case dtSplitConcept:
+		return commonTacticBodySplit(cur);
+
 	default:
 		fpp_unreachable();
 		return false;
@@ -1433,3 +1436,14 @@ bool DlSatTester :: checkProjection ( DlCompletionTreeArc* pA, BipolarPointer C,
 	return setupEdge ( pA, dep, redoForall|redoFunc|redoAtMost|redoIrr );
 }
 
+/// expansion rule for split
+bool
+DlSatTester :: commonTacticBodySplit ( const DLVertex& cur )
+{
+	const DepSet& dep = curConcept.getDep();
+
+	for ( DLVertex::const_iterator q = cur.begin(), q_end = cur.end(); q != q_end; ++q )
+		switchResult ( addToDoEntry ( curNode, *q, dep ) );
+
+	return false;
+}

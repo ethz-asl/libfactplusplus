@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2010 by Dmitry Tsarkov
+Copyright (C) 2003-2011 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -143,6 +143,7 @@ const char* DLVertex :: getTagName ( void ) const
 	case dtPConcept:return "primconcept";
 	case dtPSingleton:return "prim-singleton";
 	case dtNSingleton:return "singleton";
+	case dtSplitConcept:return "split-concept";
 	case dtDataType: return "data-type";
 	case dtDataValue: return "data-value";
 	case dtDataExpr: return "data-expr";
@@ -154,6 +155,7 @@ const char* DLVertex :: getTagName ( void ) const
 	case dtIrr:		return "irreflexive";
 	case dtProj:	return "projection";
 	case dtNN:		return "NN-stopper";
+	case dtChoose:	return "choose";
 	default:		return "UNKNOWN";
 	};
 }
@@ -173,6 +175,7 @@ DLVertex :: Print ( std::ostream& o ) const
 	{
 	case dtAnd:		// nothing to do (except for printing operands)
 	case dtCollection:
+	case dtSplitConcept:
 		break;
 
 	case dtTop:		// nothing to do
@@ -208,6 +211,10 @@ DLVertex :: Print ( std::ostream& o ) const
 
 	case dtProj:
 		o << ' ' << getRole()->getName() << ", " << getC() << " => " << getProjRole()->getName();
+		return;
+
+	case dtChoose:
+		o << ' ' << getC();
 		return;
 
 	default:

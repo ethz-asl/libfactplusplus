@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2010 by Dmitry Tsarkov
+Copyright (C) 2003-2011 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -138,6 +138,7 @@ DLDag :: computeVertexStat ( BipolarPointer p )
 			break;
 		// fallthrough
 	case dtAnd:	// check all the conjuncts
+	case dtSplitConcept:
 		for ( DLVertex::const_iterator q = v.begin(), q_end = v.end(); q < q_end; ++q )
 			computeVertexStat ( *q, pos );
 		break;
@@ -148,6 +149,7 @@ DLDag :: computeVertexStat ( BipolarPointer p )
 	case dtName:
 	case dtForall:
 	case dtUAll:
+	case dtChoose:
 	case dtLE:	// check a single referenced concept
 		computeVertexStat ( v.getC(), pos );
 		break;

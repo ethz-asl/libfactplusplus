@@ -35,6 +35,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "DataTypeCenter.h"
 #include "tProgressMonitor.h"
 #include "tKBFlags.h"
+#include "tSplitVars.h"
 
 class DlSatTester;
 class DLConceptTaxonomy;
@@ -442,6 +443,8 @@ protected:	// methods
 			addConceptToHeap(p);
 		return p->resolveId();
 	}
+		/// transform splitted concept registered in SPLIT to a dag representation
+	BipolarPointer split2dag ( TSplitVar* split );
 
 //-----------------------------------------------------------------------------
 //--		internal parser (input) interface
@@ -1043,10 +1046,12 @@ public:
 		/// perform realisation (assuming KB is consistent)
 	void performRealisation ( void ) { createTaxonomy ( /*needIndividuals=*/true ); }
 
-	/// get (READ-WRITE) access to internal Taxonomy of concepts
+		/// get (READ-WRITE) access to internal Taxonomy of concepts
 	DLConceptTaxonomy* getTaxonomy ( void ) { return pTax; }
-	/// get (READ-ONLY) access to internal Taxonomy of concepts
+		/// get (READ-ONLY) access to internal Taxonomy of concepts
 	const DLConceptTaxonomy* getTaxonomy ( void ) const { return pTax; }
+		/// get RW access to the splits
+	TSplitVars* getSplits ( void );	// defined in DLConceptTaxonomy.h
 
 		/// set given structure as a progress monitor
 	void setProgressMonitor ( TProgressMonitor* pMon ) { pMonitor = pMon; }

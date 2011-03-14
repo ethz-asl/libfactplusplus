@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2006-2010 by Dmitry Tsarkov
+Copyright (C) 2006-2011 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -55,7 +55,20 @@ protected:	// members
 protected:	// methods
 		/// @return true iff TAG represents complex concept
 	static bool isComplexConcept ( DagTag tag )
-		{ return tag == dtForall || tag == dtLE || tag == dtIrr || tag == dtUAll || tag == dtNN; }
+	{
+		switch(tag)
+		{
+		case dtForall:
+		case dtLE:
+		case dtIrr:
+		case dtUAll:
+		case dtNN:
+		case dtChoose:
+			return true;
+		default:
+			return false;
+		}
+	}
 
 public:		// interface
 		/// init newly created node

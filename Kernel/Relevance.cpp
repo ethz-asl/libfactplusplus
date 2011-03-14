@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2005-2010 by Dmitry Tsarkov
+Copyright (C) 2005-2011 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -58,6 +58,7 @@ void TBox :: setRelevant ( BipolarPointer p )
 		break;
 
 	case dtProj:	// no need to set (inverse) roles as it doesn't really matter
+	case dtChoose:
 		setRelevant(v.getC());
 		break;
 
@@ -67,6 +68,7 @@ void TBox :: setRelevant ( BipolarPointer p )
 
 	case dtAnd:
 	case dtCollection:
+	case dtSplitConcept:
 		for ( DLVertex::const_iterator q = v.begin(); q != v.end(); ++q )
 			setRelevant(*q);
 		break;

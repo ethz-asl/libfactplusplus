@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2010 by Dmitry Tsarkov
+Copyright (C) 2003-2011 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -89,12 +89,16 @@ inline unsigned int ToDoPriorMatrix :: getIndex ( DagTag Op, bool Sign, bool Nom
 	case dtAnd:
 		return (Sign?iAnd:iOr);
 
+	case dtSplitConcept:
+		return iAnd;
+
 	case dtForall:
 	case dtUAll:
 	case dtIrr:		// process local (ir-)reflexivity as a FORALL
 		return (Sign?iForall:iExists);
 
 	case dtProj:	// it should be the lowest priority but now just OR's one
+	case dtChoose:	// probably should be highest branching one
 		return iOr;
 
 	case dtLE:

@@ -595,6 +595,7 @@ void TBox :: PrintDagEntry ( std::ostream& o, BipolarPointer p ) const
 
 	case dtCollection:
 	case dtAnd:
+	case dtSplitConcept:
 		o << " (" << v.getTagName();
 		for ( DLVertex::const_iterator q = v.begin(); q != v.end(); ++q )
 			PrintDagEntry ( o, *q );
@@ -618,6 +619,7 @@ void TBox :: PrintDagEntry ( std::ostream& o, BipolarPointer p ) const
 		return;
 
 	case dtNN:	// shouldn't appears in the expressions
+	case dtChoose:
 		fpp_unreachable();
 
 	default:	// invalid value

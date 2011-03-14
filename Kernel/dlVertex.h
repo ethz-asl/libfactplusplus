@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2010 by Dmitry Tsarkov
+Copyright (C) 2003-2011 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -38,7 +38,9 @@ class TNamedEntry;
  *	- Additional fields in the class DLVertex
  *		=> operator ==
  *		=> hash functions
- *	- DLVertex methods *Stat(), getTagName(), Print()
+ *	- DLVertex methods omitStat(), getTagName(), Print()
+ *	- DLDag methods *Stat()
+ *	- DLDag methods getIndex(), updateIndex()
  *	- tree2dag()
  *	- mergeSorts(v)
  *	- setRelevant()
@@ -60,12 +62,14 @@ enum DagTag {
 	dtIrr,		// \neg\exists R.Self
 	dtProj,		// aux vertex with Projection FROM the current node
 	dtNN,		// NN-rule was applied
+	dtChoose,	// choose-rule
 
 	// ID's
 	dtPConcept,	// primitive concept
 	dtNConcept,			// non-primitive concept
 	dtPSingleton,
 	dtNSingleton,
+	dtSplitConcept,		// splitted concept
 	dtDataType,
 	dtDataValue,
 	dtDataExpr,		// data type with restrictions
@@ -461,7 +465,8 @@ DLVertex :: omitStat ( bool pos ) const
 	case dtDataType:
 	case dtDataValue:
 	case dtDataExpr:
-	case dtNN:
+	case dtNN:		// no way to get it in expressions
+	case dtChoose:	// same
 	case dtBad:
 	case dtTop:
 		return true;
