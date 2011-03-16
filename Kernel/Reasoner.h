@@ -305,6 +305,8 @@ protected:	// members
 	std::vector<BipolarPointer> SessionGCIs;
 		/// set of active splits
 	std::set<BipolarPointer> ActiveSplits;
+		/// concept signature of current CGraph
+	std::set<const TNamedEntity*> ActiveSignature;
 
 		/// size of the DAG with some extra space
 	size_t dagSize;
@@ -324,6 +326,8 @@ protected:	// members
 	bool useLazyBlocking;
 		/// flag for switching between Anywhere and Ancestor blockings
 	bool useAnywhereBlocking;
+		/// flag for using active signature
+	bool useActiveSignature;
 
 	// session status flags:
 
@@ -362,6 +366,8 @@ protected:	// methods
 	bool correctCachedEntry ( DlCompletionTree* n );
 		/// add C to a set of session GCIs; init all nodes with (C,dep)
 	bool addSessionGCI ( BipolarPointer C, const DepSet& dep );
+		/// update active signature wrt given entity
+	bool updateActiveSignature ( const TNamedEntity* entity );
 
 	// label access interface
 

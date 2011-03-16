@@ -66,6 +66,7 @@ DlSatTester :: DlSatTester ( TBox& tbox, const ifOptionSet* Options )
 	// init blocking statistics
 	clearBlockingStat();
 
+	useActiveSignature = tBox.getSplits() != NULL;
 	resetSessionFlags ();
 }
 
@@ -98,6 +99,7 @@ DlSatTester :: prepareReasoner ( void )
 	nUsed.clear();
 	SessionGCIs.clear();
 	ActiveSplits.clear();
+	ActiveSignature.clear();
 
 	curNode = NULL;
 	bContext = NULL;

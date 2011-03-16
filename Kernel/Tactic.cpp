@@ -150,6 +150,8 @@ bool DlSatTester :: commonTacticBodyId ( const DLVertex& cur )
 #endif
 
 	incStat(nIdCalls);
+	if ( useActiveSignature )
+		switchResult ( updateActiveSignature(static_cast<const TConcept*>(cur.getConcept())->getEntity()) );
 
 #ifdef RKG_USE_SIMPLE_RULES
 	// check if we have some simple rules
@@ -160,6 +162,15 @@ bool DlSatTester :: commonTacticBodyId ( const DLVertex& cur )
 	// get either body(p) or inverse(body(p)), depends on sign of current ID
 	BipolarPointer C = isPositive(curConcept.bp()) ? cur.getC() : inverse(cur.getC());
 	return addToDoEntry ( curNode, C, curConcept.getDep() );
+}
+
+bool
+DlSatTester :: updateActiveSignature ( const TNamedEntity* entity )
+{
+	if ( ActiveSignature.count(entity) > 0 )
+		return false;
+	ActiveSignature.insert(entity);
+	return false;
 }
 
 /// @return true if the rule is applicable; set the dep-set accordingly
