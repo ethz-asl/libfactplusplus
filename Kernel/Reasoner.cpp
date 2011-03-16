@@ -96,6 +96,7 @@ DlSatTester :: prepareReasoner ( void )
 
 	pUsed.clear();
 	nUsed.clear();
+	SessionGCIs.clear();
 
 	curNode = NULL;
 	bContext = NULL;
@@ -565,6 +566,8 @@ void DlSatTester :: restoreBC ( void )
 	curConcept = bContext->curConcept;
 	pUsed.resize(bContext->pUsedIndex);
 	nUsed.resize(bContext->nUsedIndex);
+	if ( unlikely ( !SessionGCIs.empty() ) )
+		SessionGCIs.resize(bContext->SGsize);
 
 	// update branch dep-set
 	updateBranchDep();

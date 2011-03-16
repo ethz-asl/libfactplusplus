@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2010 by Dmitry Tsarkov
+Copyright (C) 2003-2011 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -37,6 +37,8 @@ public:		// members
 	ConceptWDep curConcept;
 		/// positions of the Used members
 	size_t pUsedIndex, nUsedIndex;
+		/// size of a session GCIs vector
+	size_t SGsize;
 		/// dependences for branching clashes
 	DepSet branchDep;
 

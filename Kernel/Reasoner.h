@@ -301,6 +301,8 @@ protected:	// members
 	DlCompletionTree* curNode;
 		/// currently processed Concept
 	ConceptWDep curConcept;
+		/// GCIs local to session
+	std::vector<BipolarPointer> SessionGCIs;
 
 		/// size of the DAG with some extra space
 	size_t dagSize;
@@ -356,6 +358,8 @@ protected:	// methods
 								  DagTag tag, const char* reason );
 		/// if something was added to cached node N, un- or re-cache it; @return result of re-cache
 	bool correctCachedEntry ( DlCompletionTree* n );
+		/// add C to a set of session GCIs; init all nodes with (C,dep)
+	bool addSessionGCI ( BipolarPointer C, const DepSet& dep );
 
 	// label access interface
 
@@ -399,7 +403,7 @@ protected:	// methods
 		/// make sure that the DAG does not grow larger than that was recorded
 	void ensureDAGSize ( void )
 	{
-		if ( dagSize < DLHeap.size() )
+		if ( unlikely ( dagSize < DLHeap.size() ) )
 		{
 			dagSize = DLHeap.maxSize();
 			pUsed.ensureMaxSetSize(dagSize);
@@ -583,6 +587,7 @@ protected:	// methods
 		bContext->branchDep = curConcept.getDep();
 		bContext->pUsedIndex = pUsed.size();
 		bContext->nUsedIndex = nUsed.size();
+		bContext->SGsize = SessionGCIs.size();
 	}
 		/// clear branching context
 	void clearBC ( void ) { bContext = NULL; }
@@ -939,6 +944,10 @@ DlSatTester :: initNewNode ( DlCompletionTree* node, const DepSet& dep, BipolarP
 		return true;
 	if ( unlikely ( GCIs.isReflexive() && applyReflexiveRoles ( node, dep ) ) )
 		return true;
+	if ( unlikely ( !SessionGCIs.empty() ) )
+		for ( std::vector<BipolarPointer>::iterator p = SessionGCIs.begin(), p_end = SessionGCIs.end(); p != p_end; ++p )
+			if ( unlikely ( addToDoEntry ( node, *p, dep, "sg" ) ) )
+				return true;
 
 	return false;
 }

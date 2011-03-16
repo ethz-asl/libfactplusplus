@@ -315,7 +315,7 @@ public:		// interface
 		/// get a root node (const)
 	const DlCompletionTree* getRoot ( void ) const { return NodeBase[0]->resolvePBlocker(); }
 		/// get a node by it's ID
-	const DlCompletionTree* getNode ( unsigned int id ) const
+	DlCompletionTree* getNode ( unsigned int id )
 	{
 		if ( id >= endUsed )
 			return NULL;

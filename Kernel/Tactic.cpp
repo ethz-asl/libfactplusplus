@@ -203,6 +203,19 @@ DlSatTester :: applyExtraRules ( const TConcept* C )
 	return false;
 }
 
+/// add C to a set of session GCIs; init all nodes with (C,dep)
+bool
+DlSatTester :: addSessionGCI ( BipolarPointer C, const DepSet& dep )
+{
+	SessionGCIs.push_back(C);
+	unsigned int n = 0;
+	DlCompletionTree* node = NULL;
+	while ( (node = CGraph.getNode(n++)) != NULL )
+		if ( addToDoEntry ( node, C, dep, "sg" ) )
+			return true;
+	return false;
+}
+
 bool DlSatTester :: commonTacticBodySingleton ( const DLVertex& cur )
 {
 #ifdef ENABLE_CHECKING
