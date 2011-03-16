@@ -26,9 +26,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 /// class to hold the signature of a module
 class TSignature
 {
+public:		// types
+	typedef std::set<const TNamedEntity*> BaseType;
+	typedef BaseType::const_iterator iterator;
+
 protected:	// members
 		/// set to keep all the elements in signature
-	std::set<const TNamedEntity*> Set;
+	BaseType Set;
 		/// true if TOP-locality; false if BOTTOM-locality
 	bool topLocality;
 
@@ -77,6 +81,11 @@ public:		// interface
 	size_t size ( void ) const { return Set.size(); }
 		/// clear the signature
 	void clear ( void ) { Set.clear(); }
+
+		/// RO access to the elements of signature
+	iterator begin ( void ) const { return Set.begin(); }
+		/// RO access to the elements of signature
+	iterator end ( void ) const { return Set.end(); }
 
 		/// @return true iff concepts are treated as TOPs
 	bool topCLocal ( void ) const { return topLocality; }

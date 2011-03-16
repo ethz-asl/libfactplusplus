@@ -201,6 +201,23 @@ protected:	// classes
 		}
 	}; // BCStack
 
+	typedef std::set<const TNamedEntity*> SigSet;
+	/// class to check whether there is a need to unsplit splitted var
+	struct SingleSplit
+	{
+			/// signature of equivalent part of the split
+		SigSet eqSig;
+			/// signature of subsumption part of the split
+		SigSet impSig;
+			/// pointer to split vertex to activate
+		BipolarPointer bp;
+
+		SingleSplit ( void ) {}
+		SingleSplit ( const SigSet& es, const SigSet& is, BipolarPointer p ) : eqSig(es), impSig(is), bp(p) {} 
+	};
+
+	typedef std::vector<SingleSplit> TSplitRules;
+
 protected:	// members
 		/// host TBox
 	TBox& tBox;
@@ -208,6 +225,8 @@ protected:	// members
 	DLDag& DLHeap;
 		/// all the reflexive roles
 	RoleMaster::TRoleVec ReflexiveRoles;
+		/// split rules
+	TSplitRules SplitRules;
 
 		/// manager for all the dep-sets corresponding to a graph here
 	TDepSetManager Manager;
@@ -366,8 +385,24 @@ protected:	// methods
 	bool correctCachedEntry ( DlCompletionTree* n );
 		/// add C to a set of session GCIs; init all nodes with (C,dep)
 	bool addSessionGCI ( BipolarPointer C, const DepSet& dep );
+
+	// split rules support
+
 		/// update active signature wrt given entity
 	bool updateActiveSignature ( const TNamedEntity* entity );
+		/// add new split rule
+	void addSplitRule ( const SigSet& eqSig, const SigSet impSig, BipolarPointer bp )
+		{ SplitRules.push_back(SingleSplit(eqSig,impSig,bp)); }
+		/// build a set out of signature SIG w/o given ENTITY
+	SigSet buildSet ( const TSignature& sig, const TNamedEntity* entity );
+		/// init split as a set-of-sets
+	void initSplit ( const TSplitVar* split );
+		/// init splits
+	void initSplits ( void )
+	{
+		for ( TSplitVars::iterator p = tBox.getSplits()->begin(), p_end = tBox.getSplits()->end(); p != p_end; ++p )
+			initSplit(*p);
+	}
 
 	// label access interface
 

@@ -67,6 +67,9 @@ DlSatTester :: DlSatTester ( TBox& tbox, const ifOptionSet* Options )
 	clearBlockingStat();
 
 	useActiveSignature = tBox.getSplits() != NULL;
+	if ( useActiveSignature )
+		initSplits();
+
 	resetSessionFlags ();
 }
 
@@ -107,6 +110,31 @@ DlSatTester :: prepareReasoner ( void )
 
 	// clear last session information
 	resetSessionFlags();
+}
+
+DlSatTester::SigSet
+DlSatTester :: buildSet ( const TSignature& sig, const TNamedEntity* entity )
+{
+	SigSet Set;
+//	std::cout << "Building set for " << entity->getName() << "\n";
+	for ( TSignature::iterator p = sig.begin(), p_end = sig.end(); p != p_end; ++p )
+		if ( *p != entity && dynamic_cast<const TDLConceptName*>(*p) != NULL )
+		{
+//			std::cout << "In the set: " << (*p)->getName() << "\n";
+			Set.insert(*p);
+		}
+//	std::cout << "done\n";
+	return Set;
+}
+
+void
+DlSatTester :: initSplit ( const TSplitVar* split )
+{
+//	std::cout << "Processing split for " << split->oldName->getName() << ":\n";
+	SigSet impSet = buildSet ( split->Sigs[0], split->splitNames[0] );
+	BipolarPointer bp = split->C->pBody+1;	// choose-rule stays next to a split-definition of C
+	for ( size_t i = 1; i < split->Sigs.size(); ++i )
+		addSplitRule ( buildSet ( split->Sigs[i], split->splitNames[i] ), impSet, bp );
 }
 
 bool
