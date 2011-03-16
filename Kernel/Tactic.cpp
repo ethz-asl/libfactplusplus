@@ -1454,9 +1454,10 @@ bool
 DlSatTester :: commonTacticBodySplit ( const DLVertex& cur )
 {
 	const DepSet& dep = curConcept.getDep();
+	bool pos = isPositive(curConcept.bp());
 
 	for ( DLVertex::const_iterator q = cur.begin(), q_end = cur.end(); q != q_end; ++q )
-		switchResult ( addToDoEntry ( curNode, *q, dep ) );
+		switchResult ( addToDoEntry ( curNode, createBiPointer(*q, pos), dep ) );
 
 	return false;
 }

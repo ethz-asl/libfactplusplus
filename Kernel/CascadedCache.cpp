@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2010 by Dmitry Tsarkov
+Copyright (C) 2003-2011 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -78,9 +78,10 @@ DlSatTester :: prepareCascadedCache ( BipolarPointer p )
 
 	case dtAnd:
 	case dtCollection:
+	case dtSplitConcept:
 	{
 		for ( DLVertex::const_iterator q = v.begin(), q_end = v.end(); q < q_end; ++q )
-			prepareCascadedCache ( pos ? *q : inverse(*q) );
+			prepareCascadedCache(createBiPointer(*q,pos));
 		break;
 	}
 
@@ -94,7 +95,7 @@ DlSatTester :: prepareCascadedCache ( BipolarPointer p )
 #	ifdef TMP_CACHE_DEBUG
 		std::cerr << " expanding " << p << ";";
 #	endif
-		prepareCascadedCache ( pos ? v.getC() : inverse(v.getC()) );
+		prepareCascadedCache(createBiPointer(v.getC(),pos));
 		inProcess.erase(p);
 		break;
 
@@ -104,7 +105,7 @@ DlSatTester :: prepareCascadedCache ( BipolarPointer p )
 		const TRole* R = v.getRole();
 		if ( R->isDataRole() )	// skip data-related stuff
 			break;
-		BipolarPointer x = pos ? v.getC() : inverse(v.getC());
+		BipolarPointer x = createBiPointer(v.getC(),pos);
 
 		// build cache for C in \AR.C
 		if ( x != bpTOP )

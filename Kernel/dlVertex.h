@@ -47,6 +47,7 @@ class TNamedEntry;
  *	- PrintDagEntry()
  *	- ToDoPriorMatrix::getIndex()
  *	- CGLabel::isComplexConcept()
+ *	- prepareCascadedCache()
  *	- commonTacticBody()
  */
 enum DagTag {
