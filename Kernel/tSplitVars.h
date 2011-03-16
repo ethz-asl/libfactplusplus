@@ -22,6 +22,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <vector>
 #include <set>
 
+#include "tSignature.h"
+
 // forward declarations
 class TDLConceptName;
 class TConcept;
@@ -36,6 +38,7 @@ struct TSplitVar
 	DLNameVector splitNames;
 	TConcept* C;	// concept on DLTree level
 	CNameVector Ci;	// split concepts
+	std::vector<TSignature> Sigs;
 }; // TSplitVar
 
 /// set of all known var splits with access by name

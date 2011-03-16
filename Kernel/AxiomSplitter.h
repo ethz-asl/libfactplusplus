@@ -222,6 +222,7 @@ protected:	// methods
 		TSplitVar* split = new TSplitVar();
 		split->oldName = oldName;
 		split->splitNames.push_back(newName);
+		split->Sigs.push_back(rec->newAxSig);
 		O->Splits.set ( oldName, split );
 		return split;
 	}
@@ -231,7 +232,11 @@ protected:	// methods
 		Renames.swap(R2);
 		R2.clear();
 		for ( std::vector<TRecord*>::iterator r = Renames.begin(), r_end = Renames.end(); r != r_end; ++r )
-			splitImplicationsFor((*r)->oldName)->splitNames.push_back((*r)->newName);
+		{
+			TSplitVar* split = splitImplicationsFor((*r)->oldName);
+			split->splitNames.push_back((*r)->newName);
+			split->Sigs.push_back((*r)->newAxSig);
+		}
 	}
 
 public:		// interaface
