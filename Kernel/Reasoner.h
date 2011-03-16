@@ -213,7 +213,7 @@ protected:	// classes
 		BipolarPointer bp;
 
 		SingleSplit ( void ) {}
-		SingleSplit ( const SigSet& es, const SigSet& is, BipolarPointer p ) : eqSig(es), impSig(is), bp(p) {} 
+		SingleSplit ( const SigSet& es, const SigSet& is, BipolarPointer p ) : eqSig(es), impSig(is), bp(p) {}
 	};
 
 	typedef std::vector<SingleSplit> TSplitRules;

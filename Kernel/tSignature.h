@@ -93,4 +93,12 @@ public:		// interface
 	bool topRLocal ( void ) const { return topLocality; }
 }; // TSignature
 
+inline std::vector<const TNamedEntity*>
+intersect ( const TSignature& s1, const TSignature& s2 )
+{
+	std::vector<const TNamedEntity*> ret;
+	set_intersection(s1.begin(), s1.end(), s2.begin(), s2.end(), inserter(ret, ret.begin()));
+	return ret;
+}
+
 #endif

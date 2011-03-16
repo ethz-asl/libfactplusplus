@@ -67,16 +67,16 @@ protected:	// types
 	};
 
 protected:	// members
-	std::set<const TDLConceptName*> SubNames;
+	std::set<const TDLConceptName*> SubNames, Rejects;
 	std::vector<TRecord*> Renames, R2;
-	std::map<TDLAxiom*, TDLAxiom*> Replacement;
+	std::map<const TDLConceptName*, TRecord*> ImpRens;
 	std::map<const TDLConceptName*, std::set<TDLAxiomConceptInclusion*> > ImplNames;
-	std::map<const TDLConceptName*, TRecord*> Introduction;
 	TLISPOntologyPrinter pr;
 	int newNameId;
 	TModularizer mod;
 	TSignature sig;	// seed signature
 	TSignatureUpdater Updater;
+	std::set<TSplitVar*> RejSplits;
 	TOntology* O;
 
 protected:	// methods
@@ -170,6 +170,27 @@ protected:	// methods
 			if ( (*O)[i]->isUsed() )
 				makeEqSplit(dynamic_cast<TDLAxiomEquivalentConcepts*>((*O)[i]));
 	}
+		/// make implication split for a given old NAME
+	TRecord* makeImpSplit ( const TDLConceptName* oldName )
+	{
+		const TDLConceptName* newName = rename(oldName);
+		std::cout << "split " << oldName->getName() << " into " << newName->getName() << "\n";
+		TRecord* rec = new TRecord();
+		rec->oldName = oldName;
+		rec->newName = newName;
+		O->getExpressionManager()->newArgList();
+		for ( std::set<TDLAxiomConceptInclusion*>::iterator s = ImplNames[oldName].begin(), s_end = ImplNames[oldName].end(); s != s_end; ++s )
+		{
+			rec->oldAxioms.push_back(*s);
+			O->getExpressionManager()->addArg((*s)->getSupC());
+			(*s)->accept(pr);
+		}
+		rec->setImpAx(O->getExpressionManager()->And());
+		buildSig(rec);
+		rec->Register(O);
+		rec->newAxiom->accept(pr);
+		return rec;
+	}
 		/// check whether the record is independent wrt modularity
 	void checkSplitCorrectness ( TRecord* rec )
 	{
@@ -184,7 +205,6 @@ protected:	// methods
 		else	// keep the split
 		{
 			R2.push_back(rec);
-			Introduction[rec->newName] = rec;
 			std::cout << "keep split " << rec->oldName->getName() << "\n";
 		}
 	}
@@ -201,27 +221,13 @@ protected:	// methods
 		// check whether we already did translation for such a name
 		if ( O->Splits.hasCN(oldName) )
 			return O->Splits.get(oldName);
-		const TDLConceptName* newName = rename(oldName);
-		std::cout << "split " << oldName->getName() << " into " << newName->getName() << "\n";
-		TRecord* rec = new TRecord();
-		rec->oldName = oldName;
-		rec->newName = newName;
-		O->getExpressionManager()->newArgList();
-		for ( std::set<TDLAxiomConceptInclusion*>::iterator s = ImplNames[oldName].begin(), s_end = ImplNames[oldName].end(); s != s_end; ++s )
-		{
-			rec->oldAxioms.push_back(*s);
-			O->getExpressionManager()->addArg((*s)->getSupC());
-			(*s)->accept(pr);
-		}
-		rec->setImpAx(O->getExpressionManager()->And());
-		buildSig(rec);
-		rec->Register(O);
+
+		TRecord* rec = makeImpSplit(oldName);
 		R2.push_back(rec);
-		rec->newAxiom->accept(pr);
 		// create new split
 		TSplitVar* split = new TSplitVar();
 		split->oldName = oldName;
-		split->splitNames.push_back(newName);
+		split->splitNames.push_back(rec->newName);
 		split->Sigs.push_back(rec->newAxSig);
 		O->Splits.set ( oldName, split );
 		return split;
@@ -236,7 +242,13 @@ protected:	// methods
 			TSplitVar* split = splitImplicationsFor((*r)->oldName);
 			split->splitNames.push_back((*r)->newName);
 			split->Sigs.push_back((*r)->newAxSig);
+			if ( !intersect((*r)->newAxSig, R2.back()->newAxSig).empty() )
+			{
+				std::cout << "Intersection for concept " << (*r)->oldName->getName() << "!\n";
+				RejSplits.insert(split);
+			}
 		}
+		std::cout << "There are " << R2.size() << " splits with " << RejSplits.size() << " rejected\n";
 	}
 
 public:		// interaface
