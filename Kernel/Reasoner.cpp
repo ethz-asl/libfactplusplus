@@ -97,6 +97,7 @@ DlSatTester :: prepareReasoner ( void )
 	pUsed.clear();
 	nUsed.clear();
 	SessionGCIs.clear();
+	ActiveSplits.clear();
 
 	curNode = NULL;
 	bContext = NULL;

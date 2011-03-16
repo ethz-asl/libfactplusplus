@@ -303,6 +303,8 @@ protected:	// members
 	ConceptWDep curConcept;
 		/// GCIs local to session
 	std::vector<BipolarPointer> SessionGCIs;
+		/// set of active splits
+	std::set<BipolarPointer> ActiveSplits;
 
 		/// size of the DAG with some extra space
 	size_t dagSize;

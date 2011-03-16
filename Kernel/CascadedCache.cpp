@@ -69,6 +69,7 @@ DlSatTester :: prepareCascadedCache ( BipolarPointer p )
 	switch ( v.Type() )
 	{
 	case dtTop:
+	case dtSplitConcept:	// no need to put cache for this
 		break;
 
 	case dtDataType:	// data things are checked by data inferer
@@ -78,7 +79,6 @@ DlSatTester :: prepareCascadedCache ( BipolarPointer p )
 
 	case dtAnd:
 	case dtCollection:
-	case dtSplitConcept:
 	{
 		for ( DLVertex::const_iterator q = v.begin(), q_end = v.end(); q < q_end; ++q )
 			prepareCascadedCache(createBiPointer(*q,pos));

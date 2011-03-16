@@ -1453,6 +1453,9 @@ bool DlSatTester :: checkProjection ( DlCompletionTreeArc* pA, BipolarPointer C,
 bool
 DlSatTester :: commonTacticBodySplit ( const DLVertex& cur )
 {
+	if ( ActiveSplits.count(getValue(curConcept.bp())) == 0 )
+		return false;
+
 	const DepSet& dep = curConcept.getDep();
 	bool pos = isPositive(curConcept.bp());
 
