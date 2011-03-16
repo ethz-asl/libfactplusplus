@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2009 by Dmitry Tsarkov
+Copyright (C) 2003-2011 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -16,8 +16,8 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef _TNAMEDENTRY_H
-#define _TNAMEDENTRY_H
+#ifndef TNAMEDENTRY_H
+#define TNAMEDENTRY_H
 
 #include <string>
 #include <iostream>
@@ -25,6 +25,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "flags.h"
 
 //#include "SmallObj.h"
+
+class TNamedEntity;
 
 class TNamedEntry: public Flags//: public Loki::SmallObject<>
 {
@@ -39,12 +41,15 @@ protected:	// members
 	std::string extName;
 		/// entry identifier
 	int extId;
+		/// original entity
+	const TNamedEntity* entity;
 
 public:		// interface
 		/// the only c'tor
 	explicit TNamedEntry ( const std::string& name )
 		: extName (name)		// copy name
 		, extId (0)				// sets local id
+		, entity(NULL)
 		{}
 		/// empty d'tor
 	virtual ~TNamedEntry ( void ) {}
@@ -56,6 +61,11 @@ public:		// interface
 	void setId ( int id ) { extId = id; }
 		/// get internal ID
 	int getId ( void ) const { return extId; }
+
+		/// set entity
+	void setEntity ( const TNamedEntity* e ) { entity = e; }
+		/// get entity
+	const TNamedEntity* getEntity ( void ) const { return entity; }
 
 		/// register a System flag
 	FPP_ADD_FLAG(System,0x1);

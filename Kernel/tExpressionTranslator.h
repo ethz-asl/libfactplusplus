@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2010 by Dmitry Tsarkov
+Copyright (C) 2010-2011 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -42,12 +42,19 @@ public:		// interface
 
 		/// get (single) access to the tree
 	operator DLTree* ( void ) { DLTree* ret = tree; tree = NULL; return ret; }
+		/// create DLTree of given TAG and named ENTRY; set the entry's ENTITY if necessary
+	void setEntry ( Token tag, TNamedEntry* entry, const TNamedEntity* entity )
+	{
+		if ( unlikely ( entry->getEntity() == NULL ) )
+			entry->setEntity(entity);
+		tree = new DLTree(TLexeme(tag,entry));
+	}
 
 public:		// visitor interface
 	// concept expressions
 	virtual void visit ( const TDLConceptTop& expr ATTR_UNUSED ) { tree = createTop(); }
 	virtual void visit ( const TDLConceptBottom& expr ATTR_UNUSED ) { tree = createBottom(); }
-	virtual void visit ( const TDLConceptName& expr ) { tree = new DLTree(TLexeme(CNAME,KB.getConcept(expr.getName()))); }
+	virtual void visit ( const TDLConceptName& expr ) { setEntry ( CNAME, KB.getConcept(expr.getName()), &expr ); }
 	virtual void visit ( const TDLConceptNot& expr ) { expr.getC()->accept(*this); tree = createSNFNot(*this); }
 	virtual void visit ( const TDLConceptAnd& expr )
 	{
@@ -178,12 +185,12 @@ public:		// visitor interface
 	}
 
 	// individual expressions
-	virtual void visit ( const TDLIndividualName& expr ) { tree = new DLTree(TLexeme(INAME,KB.getIndividual(expr.getName()))); }
+	virtual void visit ( const TDLIndividualName& expr ) { setEntry ( INAME, KB.getIndividual(expr.getName()), &expr ); }
 
 	// object role expressions
 	virtual void visit ( const TDLObjectRoleTop& expr ATTR_UNUSED ) { THROW_UNSUPPORTED("top object role"); }
 	virtual void visit ( const TDLObjectRoleBottom& expr ATTR_UNUSED ) { THROW_UNSUPPORTED("bottom object role"); }
-	virtual void visit ( const TDLObjectRoleName& expr ) { tree = new DLTree(TLexeme(RNAME,KB.getORM()->ensureRoleName(expr.getName()))); }
+	virtual void visit ( const TDLObjectRoleName& expr ) { setEntry ( RNAME, KB.getORM()->ensureRoleName(expr.getName()), &expr ); }
 	virtual void visit ( const TDLObjectRoleInverse& expr ) { expr.getOR()->accept(*this); tree = createInverse(*this); }
 	virtual void visit ( const TDLObjectRoleChain& expr )
 	{
@@ -222,7 +229,7 @@ public:		// visitor interface
 	// data role expressions
 	virtual void visit ( const TDLDataRoleTop& expr ATTR_UNUSED ) { THROW_UNSUPPORTED("top data role");  }
 	virtual void visit ( const TDLDataRoleBottom& expr ATTR_UNUSED ) { THROW_UNSUPPORTED("bottom data role"); }
-	virtual void visit ( const TDLDataRoleName& expr ) { tree = new DLTree(TLexeme(DNAME,KB.getDRM()->ensureRoleName(expr.getName()))); }
+	virtual void visit ( const TDLDataRoleName& expr ){ setEntry ( DNAME, KB.getDRM()->ensureRoleName(expr.getName()), &expr ); }
 
 	// data expressions
 	virtual void visit ( const TDLDataTop& expr ATTR_UNUSED ) { tree = createTop(); }
