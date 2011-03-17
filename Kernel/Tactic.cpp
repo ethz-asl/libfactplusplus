@@ -137,6 +137,10 @@ bool DlSatTester :: commonTacticBody ( const DLVertex& cur )
 	case dtSplitConcept:
 		return commonTacticBodySplit(cur);
 
+	case dtChoose:
+		fpp_assert ( isPositive (curConcept.bp()) );
+		return applyChooseRule ( curNode, cur.getC() );
+
 	default:
 		fpp_unreachable();
 		return false;
@@ -150,8 +154,10 @@ bool DlSatTester :: commonTacticBodyId ( const DLVertex& cur )
 #endif
 
 	incStat(nIdCalls);
+	const DepSet& dep = curConcept.getDep();
+
 	if ( useActiveSignature )
-		switchResult ( updateActiveSignature(static_cast<const TConcept*>(cur.getConcept())->getEntity()) );
+		switchResult ( updateActiveSignature ( static_cast<const TConcept*>(cur.getConcept())->getEntity(), dep ) );
 
 #ifdef RKG_USE_SIMPLE_RULES
 	// check if we have some simple rules
@@ -161,15 +167,24 @@ bool DlSatTester :: commonTacticBodyId ( const DLVertex& cur )
 
 	// get either body(p) or inverse(body(p)), depends on sign of current ID
 	BipolarPointer C = isPositive(curConcept.bp()) ? cur.getC() : inverse(cur.getC());
-	return addToDoEntry ( curNode, C, curConcept.getDep() );
+	return addToDoEntry ( curNode, C, dep );
 }
 
 bool
-DlSatTester :: updateActiveSignature ( const TNamedEntity* entity )
+DlSatTester :: updateActiveSignature ( const TNamedEntity* entity, const DepSet& dep  )
 {
 	if ( ActiveSignature.count(entity) > 0 )
 		return false;
+
 	ActiveSignature.insert(entity);
+	// check whether some of the split rules require unsplitting
+	for ( TSplitRules::const_iterator p = SplitRules.begin(), p_end = SplitRules.end(); p != p_end; ++p )
+		if ( containsInActive(p->eqSig) && containsInActive(p->impSig) )
+		{
+			ActiveSplits.insert(p->bp-1);
+			switchResult ( addSessionGCI ( p->bp, dep ) );
+		}
+
 	return false;
 }
 

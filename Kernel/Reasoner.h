@@ -325,7 +325,7 @@ protected:	// members
 		/// set of active splits
 	std::set<BipolarPointer> ActiveSplits;
 		/// concept signature of current CGraph
-	std::set<const TNamedEntity*> ActiveSignature;
+	SigSet ActiveSignature;
 
 		/// size of the DAG with some extra space
 	size_t dagSize;
@@ -389,7 +389,7 @@ protected:	// methods
 	// split rules support
 
 		/// update active signature wrt given entity
-	bool updateActiveSignature ( const TNamedEntity* entity );
+	bool updateActiveSignature ( const TNamedEntity* entity, const DepSet& dep );
 		/// add new split rule
 	void addSplitRule ( const SigSet& eqSig, const SigSet impSig, BipolarPointer bp )
 		{ SplitRules.push_back(SingleSplit(eqSig,impSig,bp)); }
@@ -403,6 +403,9 @@ protected:	// methods
 		for ( TSplitVars::iterator p = tBox.getSplits()->begin(), p_end = tBox.getSplits()->end(); p != p_end; ++p )
 			initSplit(*p);
 	}
+		/// check whether split-set S contains in the active set
+	bool containsInActive ( const SigSet& S ) const
+		{ return includes(ActiveSignature.begin(), ActiveSignature.end(), S.begin(), S.end()); }
 
 	// label access interface
 

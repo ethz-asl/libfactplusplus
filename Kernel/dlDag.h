@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2010 by Dmitry Tsarkov
+Copyright (C) 2003-2011 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -234,6 +234,12 @@ public:		// interface
 	}
 		/// RO access by index in complex concept
 	const DLVertex& operator [] ( const ConceptWDep& cwd ) const { return (*this)[cwd.bp()]; }
+		/// replace existing vertex at index I with a vertex V
+	void replaceVertex ( BipolarPointer i, DLVertex* v )
+	{
+		delete Heap[getValue(i)];
+		Heap[getValue(i)] = v;
+	}
 
 		/// get size of DAG
 	size_t size ( void ) const { return Heap.size (); }

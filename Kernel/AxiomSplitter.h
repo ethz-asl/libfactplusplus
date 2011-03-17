@@ -191,16 +191,34 @@ protected:	// methods
 		rec->newAxiom->accept(pr);
 		return rec;
 	}
+		/// get imp record of a given name; create if necessary
+	TRecord* getImpRec ( const TDLConceptName* oldName )
+	{
+		if ( ImpRens.find(oldName) == ImpRens.end() )
+			ImpRens[oldName] = makeImpSplit(oldName);
+		return ImpRens[oldName];
+	}
 		/// check whether the record is independent wrt modularity
 	void checkSplitCorrectness ( TRecord* rec )
 	{
-		buildSig(rec);
-		if ( rec->newAxSig.contains(static_cast<const TNamedEntity*>(rec->oldName)) )
+		if ( Rejects.count(rec->oldName) > 0 )
 		{
-			// restore the old axiom, get rid of the new one
+		unsplit:	// restore the old axiom, get rid of the new one
 			rec->Unregister();
 			std::cout << "unsplit " << rec->oldName->getName() << "\n";
 			delete rec;
+			return;
+		}
+
+		TRecord* imp = getImpRec(rec->oldName);
+		buildSig(rec);
+		if ( rec->newAxSig.contains(static_cast<const TNamedEntity*>(rec->oldName)) )
+//			|| !intersect(rec->newAxSig, imp->newAxSig).empty() )
+		{
+			// mark name as rejected, un-register imp
+			Rejects.insert(rec->oldName);
+			imp->Unregister();
+			goto unsplit;
 		}
 		else	// keep the split
 		{
@@ -222,8 +240,7 @@ protected:	// methods
 		if ( O->Splits.hasCN(oldName) )
 			return O->Splits.get(oldName);
 
-		TRecord* rec = makeImpSplit(oldName);
-		R2.push_back(rec);
+		TRecord* rec = getImpRec(oldName);
 		// create new split
 		TSplitVar* split = new TSplitVar();
 		split->oldName = oldName;
@@ -238,17 +255,14 @@ protected:	// methods
 		Renames.swap(R2);
 		R2.clear();
 		for ( std::vector<TRecord*>::iterator r = Renames.begin(), r_end = Renames.end(); r != r_end; ++r )
-		{
-			TSplitVar* split = splitImplicationsFor((*r)->oldName);
-			split->splitNames.push_back((*r)->newName);
-			split->Sigs.push_back((*r)->newAxSig);
-			if ( !intersect((*r)->newAxSig, R2.back()->newAxSig).empty() )
+			if ( Rejects.count((*r)->oldName) == 0 )
 			{
-				std::cout << "Intersection for concept " << (*r)->oldName->getName() << "!\n";
-				RejSplits.insert(split);
+				TSplitVar* split = splitImplicationsFor((*r)->oldName);
+				split->splitNames.push_back((*r)->newName);
+				split->Sigs.push_back((*r)->newAxSig);
 			}
-		}
-		std::cout << "There are " << R2.size() << " splits with " << RejSplits.size() << " rejected\n";
+			else
+				(*r)->Unregister();
 	}
 
 public:		// interaface
