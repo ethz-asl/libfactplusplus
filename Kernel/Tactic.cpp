@@ -156,9 +156,6 @@ bool DlSatTester :: commonTacticBodyId ( const DLVertex& cur )
 	incStat(nIdCalls);
 	const DepSet& dep = curConcept.getDep();
 
-	if ( useActiveSignature )
-		switchResult ( updateActiveSignature ( static_cast<const TConcept*>(cur.getConcept())->getEntity(), dep ) );
-
 #ifdef RKG_USE_SIMPLE_RULES
 	// check if we have some simple rules
 	if ( isPositive(curConcept.bp()) )
@@ -173,7 +170,7 @@ bool DlSatTester :: commonTacticBodyId ( const DLVertex& cur )
 bool
 DlSatTester :: updateActiveSignature ( const TNamedEntity* entity, const DepSet& dep  )
 {
-	if ( ActiveSignature.count(entity) > 0 )
+	if ( likely ( entity == NULL ) || ActiveSignature.count(entity) > 0 )
 		return false;
 
 	ActiveSignature.insert(entity);

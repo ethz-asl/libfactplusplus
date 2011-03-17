@@ -326,6 +326,8 @@ protected:	// members
 	std::set<BipolarPointer> ActiveSplits;
 		/// concept signature of current CGraph
 	SigSet ActiveSignature;
+		/// map between BP and TNamedEntities
+	std::vector<const TNamedEntity*> EntityMap;
 
 		/// size of the DAG with some extra space
 	size_t dagSize;
@@ -406,6 +408,14 @@ protected:	// methods
 		/// check whether split-set S contains in the active set
 	bool containsInActive ( const SigSet& S ) const
 		{ return includes(ActiveSignature.begin(), ActiveSignature.end(), S.begin(), S.end()); }
+		/// @return named entity corresponding to a given bp
+	const TNamedEntity* getEntity ( BipolarPointer bp ) const
+	{
+		if ( likely ( getValue(bp) < EntityMap.size() ) )
+			return EntityMap[getValue(bp)];
+		else
+			return NULL;
+	}
 
 	// label access interface
 

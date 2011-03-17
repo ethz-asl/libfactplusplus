@@ -235,10 +235,11 @@ public:		// interface
 		/// RO access by index in complex concept
 	const DLVertex& operator [] ( const ConceptWDep& cwd ) const { return (*this)[cwd.bp()]; }
 		/// replace existing vertex at index I with a vertex V
-	void replaceVertex ( BipolarPointer i, DLVertex* v )
+	void replaceVertex ( BipolarPointer i, DLVertex* v, TNamedEntry* C )
 	{
 		delete Heap[getValue(i)];
 		Heap[getValue(i)] = v;
+		v->setConcept(C);
 	}
 
 		/// get size of DAG

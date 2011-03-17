@@ -68,7 +68,19 @@ DlSatTester :: DlSatTester ( TBox& tbox, const ifOptionSet* Options )
 
 	useActiveSignature = tBox.getSplits() != NULL;
 	if ( useActiveSignature )
+	{
 		initSplits();
+		// make entity map
+		const size_t size = DLHeap.size();
+		EntityMap.resize(size);
+		EntityMap[0] = EntityMap[1] = NULL;
+		for ( size_t i = 2; i < size-1; ++i )
+			if ( DLHeap[i].getConcept() != NULL )
+				EntityMap[i] = DLHeap[i].getConcept()->getEntity();
+			else
+				EntityMap[i] = NULL;
+		EntityMap[size-1] = NULL;	// query concept
+	}
 
 	resetSessionFlags ();
 }
@@ -280,6 +292,10 @@ DlSatTester :: insertToDoEntry ( DlCompletionTree* node, const ConceptWDep& C,
 	CGraph.addConceptToNode ( node, C, tag );
 
 	setUsed(C.bp());
+
+	if ( useActiveSignature )
+		if ( updateActiveSignature ( getEntity(C.bp()), C.getDep() ) )
+			return true;
 
 	if ( node->isCached() )
 		return correctCachedEntry(node);

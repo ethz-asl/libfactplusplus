@@ -297,7 +297,7 @@ TBox :: split2dag ( TSplitVar* split )
 		v->addChild((*p)->pName);
 	split->C->pBody = DLHeap.directAdd(v);
 	split->C->setPrimitive(false);
-	DLHeap.replaceVertex ( split->C->pName, new DLVertex ( dtNConcept, split->C->pBody ) );
+	DLHeap.replaceVertex ( split->C->pName, new DLVertex ( dtNConcept, split->C->pBody ), split->C );
 	DLHeap.directAdd(new DLVertex ( dtChoose, split->C->pName ));
 }
 
