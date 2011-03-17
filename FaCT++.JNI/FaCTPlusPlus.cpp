@@ -379,7 +379,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
  * Signature: (Ljava/lang/String;Luk/ac/manchester/cs/factplusplus/DataTypeExpressionPointer;)Luk/ac/manchester/cs/factplusplus/DataTypeExpressionPointer;
  */
 JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_getDataSubType
-  (JNIEnv * env, jobject obj, jstring str, jobject type)
+  (JNIEnv * env ATTR_UNUSED, jobject obj ATTR_UNUSED, jstring str ATTR_UNUSED, jobject type ATTR_UNUSED)
 {
 	TRACE_JNI("getDataSubType");
 	JString name(env,str);
