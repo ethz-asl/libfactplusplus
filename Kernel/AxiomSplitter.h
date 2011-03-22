@@ -186,9 +186,9 @@ protected:	// methods
 			(*s)->accept(pr);
 		}
 		rec->setImpAx(O->getExpressionManager()->And());
-		buildSig(rec);
 		rec->Register(O);
 		rec->newAxiom->accept(pr);
+		buildSig(rec);
 		return rec;
 	}
 		/// get imp record of a given name; create if necessary
