@@ -186,6 +186,8 @@ protected:	// methods
 
 		/// merge vars came from a given SPLIT together
 	void mergeSplitVars ( TSplitVar* split );
+		/// after merging, check whether there are extra neighbours that should be taken into account
+	void checkExtraParents ( void );
 		/// check if it is necessary to log taxonomy action
 	virtual bool needLogging ( void ) const { return true; }
 

@@ -328,6 +328,8 @@ protected:	// members
 	SigSet ActiveSignature;
 		/// map between BP and TNamedEntities
 	std::vector<const TNamedEntity*> EntityMap;
+		/// concept name to add to an active splits
+	BipolarPointer ASCN;
 
 		/// size of the DAG with some extra space
 	size_t dagSize;
@@ -945,6 +947,8 @@ public:
 	void setBlockingMethod ( bool hasInverse, bool hasQCR ) { CGraph.setBlockingMethod ( hasInverse, hasQCR ); }
 		/// set SAT test timeout in milliseconds
 	void setTestTimeout ( unsigned int ms ) { testTimeout = ms; }
+		/// set the usage of a given split concept C according to VALUE
+	void setASCN ( BipolarPointer bp ) { ASCN = bp; }
 
 		/// build cache entry for given DAG node, using cascaded schema; @return cache
 	const modelCacheInterface* createCache ( BipolarPointer p );
@@ -984,6 +988,10 @@ inline void DlSatTester :: resetSessionFlags ( void )
 
 	encounterNominal = false;
 	checkDataNode = true;
+
+	//FIXME!! check later that ASCN is not there after it dropped to 0 (nominal case)
+	if ( unlikely ( isValid(ASCN) ) )
+		ActiveSplits.insert(ASCN);
 }
 
 inline bool
@@ -1134,6 +1142,14 @@ TBox :: setTestTimeout ( unsigned long value )
 		nomReasoner->setTestTimeout(value);
 }
 
+inline void
+TBox :: useSplitConcept ( const TConcept* C, bool value )
+{
+	BipolarPointer bp = value ? C->pBody : bpINVALID;
+	stdReasoner->setASCN(bp);
+	if ( nomReasoner != NULL )
+		nomReasoner->setASCN(bp);
+}
 
 inline bool
 TBox::TSimpleRule :: applicable ( DlSatTester& Reasoner ) const { return Reasoner.applicable(*this); }

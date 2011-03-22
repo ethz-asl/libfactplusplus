@@ -260,7 +260,23 @@ DLConceptTaxonomy :: classifySynonym ( void )
 	return false;
 }
 
-		/// merge vars came from a given SPLIT together
+void
+DLConceptTaxonomy :: checkExtraParents ( void )
+{
+	for ( TaxonomyVertex::iterator p = Current->begin(/*upDirection=*/true), p_end = Current->end(/*upDirection=*/true); p != p_end; ++p )
+		for ( TaxonomyVertex::iterator q = (*p)->begin(/*upDirection=*/false), q_end = (*p)->end(/*upDirection=*/false); q != q_end; ++q )
+		{
+			const TConcept* C = static_cast<const TConcept*>((*q)->getPrimer());
+			if ( C->isNonPrimitive() && testSubTBox ( curConcept(), C ) )
+			{	// we found a child of P which is a parent of CUR. remove link CUR->P
+				(*p)->removeLink ( /*upDirection=*/false, Current );
+				Current->removeLink ( /*upDirection=*/true, *p );
+				Current->addNeighbour ( /*upDirection=*/true, *q );
+			}
+		}
+}
+
+/// merge vars came from a given SPLIT together
 void
 DLConceptTaxonomy :: mergeSplitVars ( TSplitVar* split )
 {
@@ -285,6 +301,9 @@ DLConceptTaxonomy :: mergeSplitVars ( TSplitVar* split )
 		Current->mergeIndepNode(v,excludes,curEntry);
 		removeNode(v);
 	}
+	tBox.useSplitConcept ( split->C, true );
+	checkExtraParents();
+	tBox.useSplitConcept ( split->C, false );
 	v = Current;
 	insertCurrent(NULL);
 //	v->print(std::cout);

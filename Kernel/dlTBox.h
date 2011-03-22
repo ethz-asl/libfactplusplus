@@ -1052,6 +1052,8 @@ public:
 	const DLConceptTaxonomy* getTaxonomy ( void ) const { return pTax; }
 		/// get RW access to the splits
 	TSplitVars* getSplits ( void );	// defined in DLConceptTaxonomy.h
+		/// set the usage of a given split concept C according to VALUE
+	void useSplitConcept ( const TConcept* C, bool value );
 
 		/// set given structure as a progress monitor
 	void setProgressMonitor ( TProgressMonitor* pMon ) { pMonitor = pMon; }
