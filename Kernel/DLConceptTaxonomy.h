@@ -60,6 +60,8 @@ protected:	// members
 
 		/// flag to use Bottom-Up search
 	bool flagNeedBottomUp;
+		/// flag shows that subsumption check could be simplified
+	bool inSplitCheck;
 
 private:	// no copy
 		/// no copy c'tor
@@ -204,6 +206,7 @@ public:		// interface
 		, nCachedNegative(0)
 		, nSortedNegative(0)
 		, pTaxProgress (NULL)
+		, inSplitCheck(false)
 	{
 	}
 		/// d'tor

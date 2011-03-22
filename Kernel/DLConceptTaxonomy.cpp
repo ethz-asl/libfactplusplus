@@ -40,6 +40,13 @@ bool DLConceptTaxonomy :: testSub ( const TConcept* p, const TConcept* q )
 		 && !q->isNominal() )	// nominals should be classified as usual concepts
 		return false;
 
+	if ( unlikely(inSplitCheck) )
+	{
+		if ( q->isPrimitive() )	// only defined ones in split checks
+			return false;
+		return testSubTBox ( p, q );
+	}
+
 	if ( LLM.isWritable(llTaxTrying) )
 		LL << "\nTAX: trying '" << p->getName() << "' [= '" << q->getName() << "'... ";
 
@@ -263,19 +270,24 @@ DLConceptTaxonomy :: classifySynonym ( void )
 void
 DLConceptTaxonomy :: checkExtraParents ( void )
 {
-	for ( TaxonomyVertex::iterator p = Current->begin(/*upDirection=*/true), p_end = Current->end(/*upDirection=*/true); p != p_end; ++p )
-		for ( TaxonomyVertex::iterator q = (*p)->begin(/*upDirection=*/false), q_end = (*p)->end(/*upDirection=*/false); q != q_end; ++q )
-		{
-			const TConcept* C = static_cast<const TConcept*>((*q)->getPrimer());
-			if ( C->isNonPrimitive() && testSubTBox ( curConcept(), C ) )
-			{	// we found a child of P which is a parent of CUR. remove link CUR->P
-				(*p)->removeLink ( /*upDirection=*/false, Current );
-				Current->removeLink ( /*upDirection=*/true, *p );
-				Current->addNeighbour ( /*upDirection=*/true, *q );
-			}
-		}
+	inSplitCheck = true;
+	TaxonomyVertex::iterator p, p_end;
+	for ( p = Current->begin(/*upDirection=*/true), p_end = Current->end(/*upDirection=*/true); p != p_end; ++p )
+		propagateTrueUp(*p);
+	Current->clearLinks(/*upDirection=*/true);
+	runTopDown();
+	std::vector<TaxonomyVertex*> vec;
+	for ( p = Current->begin(/*upDirection=*/true), p_end = Current->end(/*upDirection=*/true); p != p_end; ++p )
+		if ( !isDirectParent(*p) )
+			vec.push_back(*p);
+	for ( p = vec.begin(), p_end = vec.end(); p != p_end; ++p )
+	{
+		(*p)->removeLink ( /*upDirection=*/false, Current );
+		Current->removeLink ( /*upDirection=*/true, *p );
+	}
 
 	clearLabels();
+	inSplitCheck = false;
 }
 
 /// merge vars came from a given SPLIT together
