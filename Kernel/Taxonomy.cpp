@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2010 by Dmitry Tsarkov
+Copyright (C) 2003-2011 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -154,6 +154,22 @@ bool Taxonomy :: classifySynonym ( void )
 	return true;
 }
 
+bool
+Taxonomy :: isDirectParent ( TaxonomyVertex* v ) const
+{
+	for ( TaxonomyVertex::const_iterator q = v->begin(/*upDirection=*/false), q_end = v->end(/*upDirection=*/false); q < q_end; ++q )
+		if ( (*q)->isValued(valueLabel) )
+		{
+#		ifdef WARN_EXTRA_SUBSUMPTION
+			std::cout << "\nCTAX!!: Definition (implies '" << curEntry->getName()
+					  << "','" << (*p)->getName() << "') is extra because of definition (implies '"
+					  << curEntry->getName() << "','" << (*q)->getPrimer()->getName() << "')\n";
+#		endif
+			return false;
+		}
+	return true;
+}
+
 void Taxonomy :: setNonRedundantCandidates ( void )
 {
 	if ( LLM.isWritable(llCDConcept) && needLogging() )
@@ -167,25 +183,7 @@ void Taxonomy :: setNonRedundantCandidates ( void )
 	for ( ss_iterator p = told_begin(), p_end = told_end(); p < p_end; ++p )
 	{
 		TaxonomyVertex* par = (*p)->getTaxVertex();
-		bool stillParent = true;
-		TaxonomyVertex :: const_iterator
-			q = par->begin(/*upDirection=*/false),
-			q_end = par->end(/*upDirection=*/false);
-
-		// if a child is labelled, remove it from parents candidates
-		for ( ; q < q_end; ++q )
-			if ( (*q)->isValued(valueLabel) )
-			{
-#			ifdef WARN_EXTRA_SUBSUMPTION
-				std::cout << "\nCTAX!!: Definition (implies '" << curEntry->getName()
-						  << "','" << (*p)->getName() << "') is extra because of definition (implies '"
-						  << curEntry->getName() << "','" << (*q)->getPrimer()->getName() << "')\n";
-#			endif
-				stillParent = false;
-				break;
-			}
-
-		if ( stillParent )
+		if ( isDirectParent(par) )
 			Current->addNeighbour ( /*upDirection=*/true, par );
 	}
 }

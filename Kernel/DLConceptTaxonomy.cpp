@@ -274,6 +274,8 @@ DLConceptTaxonomy :: checkExtraParents ( void )
 				Current->addNeighbour ( /*upDirection=*/true, *q );
 			}
 		}
+
+	clearLabels();
 }
 
 /// merge vars came from a given SPLIT together

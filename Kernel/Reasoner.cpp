@@ -40,11 +40,11 @@ DlSatTester :: DlSatTester ( TBox& tbox, const ifOptionSet* Options )
 	, newNodeEdges ( false, tBox.nC, tBox.nR )
 	, GCIs(tbox.GCIs)
 	, testTimeout(0)
-	, ASCN(bpINVALID)
 	, bContext(NULL)
 	, tryLevel(InitBranchingLevelValue)
 	, nonDetShift(0)
 	, curNode(NULL)
+	, ASCN(bpINVALID)
 	, dagSize(0)
 {
 	// init local options

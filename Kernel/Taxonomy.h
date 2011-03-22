@@ -203,6 +203,8 @@ protected:	// methods
 				return;
 			}
 	}
+		/// @return true if V is a direct parent of current wrt labels
+	bool isDirectParent ( TaxonomyVertex* v ) const;
 
 	//-----------------------------------------------------------------
 	//--	DFS-based classification
