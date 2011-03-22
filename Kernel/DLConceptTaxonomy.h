@@ -185,33 +185,7 @@ protected:	// methods
 	virtual bool classifySynonym ( void );
 
 		/// merge vars came from a given SPLIT together
-	void mergeSplitVars ( TSplitVar* split )
-	{
-		setCurrentEntry(split->C);
-		std::set<TaxonomyVertex*> excludes;
-		excludes.insert(getTopVertex());
-		TaxonomyVertex* v = split->C->getTaxVertex();
-		if ( v != NULL )	// there is C-node in the taxonomy
-			excludes.insert(v);
-		TSplitVar::CNameVector::iterator q = split->Ci.begin(), q_end = split->Ci.end();
-		for ( ; q != q_end; ++q )
-			excludes.insert((*q)->getTaxVertex());
-
-		if ( v != NULL )	// there is C-node in the taxonomy
-		{
-			Current->mergeIndepNode(v,excludes,curEntry);
-			removeNode(v);
-		}
-		for ( q = split->Ci.begin(); q != q_end; ++q )
-		{
-			v = (*q)->getTaxVertex();
-			Current->mergeIndepNode(v,excludes,curEntry);
-			removeNode(v);
-		}
-		v = Current;
-		insertCurrent(NULL);
-//		v->print(std::cout);
-	}
+	void mergeSplitVars ( TSplitVar* split );
 		/// check if it is necessary to log taxonomy action
 	virtual bool needLogging ( void ) const { return true; }
 
