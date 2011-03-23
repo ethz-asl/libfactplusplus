@@ -418,6 +418,25 @@ protected:	// methods
 		else
 			return NULL;
 	}
+	void updateName ( DlCompletionTree* node, BipolarPointer bp )
+	{
+		const CGLabel& lab = node->label();
+		CGLabel::const_iterator p;
+		for ( p = lab.begin_sc(); p != lab.end_sc(); ++p )
+			if ( p->bp() == bp || p->bp() == inverse(bp) )
+			{
+				addExistingToDoEntry ( node, lab.getSCOffset(p), "sp" );
+				break;
+			}
+	}
+	void updateName ( BipolarPointer bp )
+	{
+		unsigned int n = 0;
+		DlCompletionTree* node = NULL;
+		while ( (node = CGraph.getNode(n++)) != NULL )
+			if ( !node->isDataNode() )
+				updateName ( node, bp );
+	}
 
 	// label access interface
 

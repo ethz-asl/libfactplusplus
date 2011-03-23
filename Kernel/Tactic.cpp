@@ -178,8 +178,11 @@ DlSatTester :: updateActiveSignature ( const TNamedEntity* entity, const DepSet&
 	for ( TSplitRules::const_iterator p = SplitRules.begin(), p_end = SplitRules.end(); p != p_end; ++p )
 		if ( containsInActive(p->eqSig) && containsInActive(p->impSig) )
 		{
+			// here p->bp points to Choose(C) node, p->bp-1 -- to the split node
 			ActiveSplits.insert(p->bp-1);
 			switchResult ( addSessionGCI ( p->bp, dep ) );
+			// make sure that all existing splits will be re-applied
+			updateName(p->bp-1);
 		}
 
 	return false;
