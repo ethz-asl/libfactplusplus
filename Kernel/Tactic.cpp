@@ -1476,7 +1476,7 @@ bool DlSatTester :: checkProjection ( DlCompletionTreeArc* pA, BipolarPointer C,
 bool
 DlSatTester :: commonTacticBodySplit ( const DLVertex& cur )
 {
-	if ( ActiveSplits.count(getValue(curConcept.bp())) == 0 )
+	if ( duringClassification && likely ( ActiveSplits.count(getValue(curConcept.bp())) == 0 ) )
 		return false;
 
 	const DepSet& dep = curConcept.getDep();
