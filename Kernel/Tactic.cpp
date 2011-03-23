@@ -234,7 +234,7 @@ DlSatTester :: addSessionGCI ( BipolarPointer C, const DepSet& dep )
 	unsigned int n = 0;
 	DlCompletionTree* node = NULL;
 	while ( (node = CGraph.getNode(n++)) != NULL )
-		if ( addToDoEntry ( node, C, dep, "sg" ) )
+		if ( !node->isDataNode() && addToDoEntry ( node, C, dep, "sg" ) )
 			return true;
 	return false;
 }

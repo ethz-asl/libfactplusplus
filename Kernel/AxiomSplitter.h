@@ -160,7 +160,7 @@ protected:	// methods
 		// register rec
 		Renames.push_back(rec);
 		std::cout << "split " << splitName->getName() << " into " << rec->newName->getName() << "\n";
-		ce->accept(pr); rec->newAxiom->accept(pr);
+//		ce->accept(pr); rec->newAxiom->accept(pr);
 	}
 		/// split all possible EQ axioms
 	void registerEQ ( void )
@@ -183,11 +183,11 @@ protected:	// methods
 		{
 			rec->oldAxioms.push_back(*s);
 			O->getExpressionManager()->addArg((*s)->getSupC());
-			(*s)->accept(pr);
+//			(*s)->accept(pr);
 		}
 		rec->setImpAx(O->getExpressionManager()->And());
 		rec->Register(O);
-		rec->newAxiom->accept(pr);
+//		rec->newAxiom->accept(pr);
 		buildSig(rec);
 		return rec;
 	}
