@@ -158,7 +158,7 @@ bool
 Taxonomy :: isDirectParent ( TaxonomyVertex* v ) const
 {
 	for ( TaxonomyVertex::const_iterator q = v->begin(/*upDirection=*/false), q_end = v->end(/*upDirection=*/false); q < q_end; ++q )
-		if ( (*q)->isValued(valueLabel) )
+		if ( (*q)->isValued(valueLabel) && (*q)->getValue() == true )
 		{
 #		ifdef WARN_EXTRA_SUBSUMPTION
 			std::cout << "\nCTAX!!: Definition (implies '" << curEntry->getName()
