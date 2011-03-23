@@ -315,9 +315,7 @@ DLConceptTaxonomy :: mergeSplitVars ( TSplitVar* split )
 		Current->mergeIndepNode(v,excludes,curEntry);
 		removeNode(v);
 	}
-	tBox.useSplitConcept ( split->C, true );
 	checkExtraParents();
-	tBox.useSplitConcept ( split->C, false );
 	v = Current;
 	insertCurrent(NULL);
 //	v->print(std::cout);

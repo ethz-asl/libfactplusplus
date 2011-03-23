@@ -1138,17 +1138,6 @@ TBox :: setTestTimeout ( unsigned long value )
 		nomReasoner->setTestTimeout(value);
 }
 
-inline void
-TBox :: useSplitConcept ( const TConcept* C, bool value )
-{
-	BipolarPointer bp = value ? C->pBody : bpINVALID;
-/*
-	stdReasoner->setASCN(bp);
-	if ( nomReasoner != NULL )
-		nomReasoner->setASCN(bp);
-*/
-}
-
 inline bool
 TBox::TSimpleRule :: applicable ( DlSatTester& Reasoner ) const { return Reasoner.applicable(*this); }
 

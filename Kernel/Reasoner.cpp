@@ -44,8 +44,8 @@ DlSatTester :: DlSatTester ( TBox& tbox, const ifOptionSet* Options )
 	, tryLevel(InitBranchingLevelValue)
 	, nonDetShift(0)
 	, curNode(NULL)
-	, duringClassification(false)
 	, dagSize(0)
+	, duringClassification(false)
 {
 	// init local options
 	readConfig ( Options );
