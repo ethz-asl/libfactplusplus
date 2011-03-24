@@ -394,8 +394,16 @@ protected:	// methods
 
 	// split rules support
 
+		/// update active signature wrt given new non-null entity
+	bool updateActiveSignature1 ( const TNamedEntity* entity, const DepSet& dep );
 		/// update active signature wrt given entity
-	bool updateActiveSignature ( const TNamedEntity* entity, const DepSet& dep );
+	bool updateActiveSignature ( const TNamedEntity* entity, const DepSet& dep )
+	{
+		if ( likely ( entity == NULL ) ||			// not a named one
+			 ActiveSignature.count(entity) > 0 )	// already exists
+			return false;
+		return updateActiveSignature1 ( entity, dep );
+	}
 		/// add new split rule
 	void addSplitRule ( const SigSet& eqSig, const SigSet impSig, BipolarPointer bp )
 		{ SplitRules.push_back(SingleSplit(eqSig,impSig,bp)); }
@@ -408,6 +416,10 @@ protected:	// methods
 	{
 		for ( TSplitVars::iterator p = tBox.getSplits()->begin(), p_end = tBox.getSplits()->end(); p != p_end; ++p )
 			initSplit(*p);
+		// now mark all the entities not in PossibleSignatures NULLs
+		for ( size_t i = 1; i < EntityMap.size(); ++i )
+			if ( PossibleSignature.count(EntityMap[i]) == 0 )
+				EntityMap[i] = NULL;
 	}
 		/// check whether split-set S contains in the active set
 	bool containsInActive ( const SigSet& S ) const
@@ -417,13 +429,8 @@ protected:	// methods
 		return !ret.empty();
 	}
 		/// @return named entity corresponding to a given bp
-	const TNamedEntity* getEntity ( BipolarPointer bp ) const
-	{
-		if ( likely ( getValue(bp) < EntityMap.size() ) )
-			return EntityMap[getValue(bp)];
-		else
-			return NULL;
-	}
+	const TNamedEntity* getEntity ( BipolarPointer bp ) const { return EntityMap[getValue(bp)]; }
+		/// put TODO entry for either BP or inverse(BP) in NODE's label
 	void updateName ( DlCompletionTree* node, BipolarPointer bp )
 	{
 		const CGLabel& lab = node->label();
@@ -435,6 +442,7 @@ protected:	// methods
 				break;
 			}
 	}
+		/// re-do every BP or inverse(BP) in labels of CGraph
 	void updateName ( BipolarPointer bp )
 	{
 		unsigned int n = 0;
@@ -491,6 +499,7 @@ protected:	// methods
 			dagSize = DLHeap.maxSize();
 			pUsed.ensureMaxSetSize(dagSize);
 			nUsed.ensureMaxSetSize(dagSize);
+			EntityMap.resize(dagSize);
 		}
 	}
 

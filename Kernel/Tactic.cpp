@@ -168,11 +168,8 @@ bool DlSatTester :: commonTacticBodyId ( const DLVertex& cur )
 }
 
 bool
-DlSatTester :: updateActiveSignature ( const TNamedEntity* entity, const DepSet& dep  )
+DlSatTester :: updateActiveSignature1 ( const TNamedEntity* entity, const DepSet& dep  )
 {
-	if ( likely ( entity == NULL ) || likely ( PossibleSignature.count(entity) == 0 ) || ActiveSignature.count(entity) > 0 )
-		return false;
-
 	ActiveSignature.insert(entity);
 	// check whether some of the split rules require unsplitting
 	for ( TSplitRules::const_iterator p = SplitRules.begin(), p_end = SplitRules.end(); p != p_end; ++p )
