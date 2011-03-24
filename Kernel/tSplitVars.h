@@ -76,6 +76,8 @@ public:		// interface
 	iterator begin ( void ) { return Base.begin(); }
 		/// access to the last element
 	iterator end ( void ) { return Base.end(); }
+		/// @return true iff split-set is empty
+	bool empty ( void ) const { return Base.empty(); }
 }; // TSplitVars
 
 #endif

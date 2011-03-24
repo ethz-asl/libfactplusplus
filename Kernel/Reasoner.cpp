@@ -67,7 +67,7 @@ DlSatTester :: DlSatTester ( TBox& tbox, const ifOptionSet* Options )
 	// init blocking statistics
 	clearBlockingStat();
 
-	useActiveSignature = tBox.getSplits() != NULL;
+	useActiveSignature = !tBox.getSplits()->empty();
 	if ( useActiveSignature )
 	{
 		initSplits();
