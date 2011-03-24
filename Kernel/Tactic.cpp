@@ -170,7 +170,7 @@ bool DlSatTester :: commonTacticBodyId ( const DLVertex& cur )
 bool
 DlSatTester :: updateActiveSignature ( const TNamedEntity* entity, const DepSet& dep  )
 {
-	if ( likely ( entity == NULL ) || ActiveSignature.count(entity) > 0 )
+	if ( likely ( entity == NULL ) || likely ( PossibleSignature.count(entity) == 0 ) || ActiveSignature.count(entity) > 0 )
 		return false;
 
 	ActiveSignature.insert(entity);

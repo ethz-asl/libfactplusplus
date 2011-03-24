@@ -326,6 +326,8 @@ protected:	// members
 	std::set<BipolarPointer> ActiveSplits;
 		/// concept signature of current CGraph
 	SigSet ActiveSignature;
+		/// signature related to a split
+	SigSet PossibleSignature;
 		/// map between BP and TNamedEntities
 	std::vector<const TNamedEntity*> EntityMap;
 

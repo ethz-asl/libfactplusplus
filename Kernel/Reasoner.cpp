@@ -137,6 +137,8 @@ DlSatTester :: buildSet ( const TSignature& sig, const TNamedEntity* entity )
 			Set.insert(*p);
 		}
 //	std::cout << "done\n";
+	// register all elements in the set in PossibleSignature
+	PossibleSignature.insert ( Set.begin(), Set.end() );
 	return Set;
 }
 
@@ -326,8 +328,7 @@ DlSatTester :: canBeCached ( DlCompletionTree* node )
 	// nominal nodes can not be cached
 	if ( node->isNominalNode() )
 		return false;
-	if ( !duringClassification )
-		return false;
+
 	incStat(nCacheTry);
 
 	// check applicability of the caching
