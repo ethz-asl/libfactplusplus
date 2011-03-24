@@ -434,6 +434,8 @@ public class FaCTPlusPlus {
 
     public native ClassPointer [] askEquivalentClasses(ClassPointer c) throws FaCTPlusPlusException;
 
+    public native ClassPointer [][] askDisjointClasses(ClassPointer c) throws FaCTPlusPlusException;
+
 
     public native ObjectPropertyPointer [][] askSuperObjectProperties(ObjectPropertyPointer r, boolean direct) throws FaCTPlusPlusException;
 
