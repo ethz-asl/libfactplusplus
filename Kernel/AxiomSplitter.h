@@ -159,7 +159,7 @@ protected:	// methods
 		rec->Register(O);
 		// register rec
 		Renames.push_back(rec);
-		std::cout << "split " << splitName->getName() << " into " << rec->newName->getName() << "\n";
+//		std::cout << "split " << splitName->getName() << " into " << rec->newName->getName() << "\n";
 //		ce->accept(pr); rec->newAxiom->accept(pr);
 	}
 		/// split all possible EQ axioms
@@ -174,7 +174,7 @@ protected:	// methods
 	TRecord* makeImpSplit ( const TDLConceptName* oldName )
 	{
 		const TDLConceptName* newName = rename(oldName);
-		std::cout << "split " << oldName->getName() << " into " << newName->getName() << "\n";
+//		std::cout << "split " << oldName->getName() << " into " << newName->getName() << "\n";
 		TRecord* rec = new TRecord();
 		rec->oldName = oldName;
 		rec->newName = newName;
@@ -205,7 +205,7 @@ protected:	// methods
 		{
 		unsplit:	// restore the old axiom, get rid of the new one
 			rec->Unregister();
-			std::cout << "unsplit " << rec->oldName->getName() << "\n";
+//			std::cout << "unsplit " << rec->oldName->getName() << "\n";
 			delete rec;
 			return;
 		}
@@ -223,7 +223,7 @@ protected:	// methods
 		else	// keep the split
 		{
 			R2.push_back(rec);
-			std::cout << "keep split " << rec->oldName->getName() << "\n";
+//			std::cout << "keep split " << rec->oldName->getName() << "\n";
 		}
 	}
 		/// move all independent splits in R2; delete all the rest
