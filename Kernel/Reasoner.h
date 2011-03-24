@@ -409,7 +409,11 @@ protected:	// methods
 	}
 		/// check whether split-set S contains in the active set
 	bool containsInActive ( const SigSet& S ) const
-		{ return includes(ActiveSignature.begin(), ActiveSignature.end(), S.begin(), S.end()); }
+	{
+		std::vector<const TNamedEntity*> ret;
+		set_intersection(S.begin(), S.end(), ActiveSignature.begin(), ActiveSignature.end(), inserter(ret, ret.begin()));
+		return !ret.empty();
+	}
 		/// @return named entity corresponding to a given bp
 	const TNamedEntity* getEntity ( BipolarPointer bp ) const
 	{

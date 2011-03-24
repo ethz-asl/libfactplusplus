@@ -176,7 +176,7 @@ DlSatTester :: updateActiveSignature ( const TNamedEntity* entity, const DepSet&
 	ActiveSignature.insert(entity);
 	// check whether some of the split rules require unsplitting
 	for ( TSplitRules::const_iterator p = SplitRules.begin(), p_end = SplitRules.end(); p != p_end; ++p )
-		if ( containsInActive(p->eqSig) && containsInActive(p->impSig) )
+		if ( likely ( ActiveSplits.count(p->bp-1) == 0 ) && containsInActive(p->eqSig) && containsInActive(p->impSig) )
 		{
 			// here p->bp points to Choose(C) node, p->bp-1 -- to the split node
 			ActiveSplits.insert(p->bp-1);

@@ -326,7 +326,8 @@ DlSatTester :: canBeCached ( DlCompletionTree* node )
 	// nominal nodes can not be cached
 	if ( node->isNominalNode() )
 		return false;
-
+	if ( !duringClassification )
+		return false;
 	incStat(nCacheTry);
 
 	// check applicability of the caching
