@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2010 by Dmitry Tsarkov
+Copyright (C) 2003-2011 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -955,6 +955,16 @@ public:
 		classifyKB();	// ensure KB is ready to answer the query
 		setUpCache ( e(C), csClassified );
 		actor.apply(*cachedVertex);
+	}
+		/// apply actor::apply() to all named concepts disjoint with [complex] C
+	template<class Actor>
+	void getDisjointConcepts ( const TConceptExpr* C, Actor& actor )
+	{
+		classifyKB();	// ensure KB is ready to answer the query
+		setUpCache ( createSNFNot(e(C)), csClassified );
+		Taxonomy* tax = getCTaxonomy();
+		// we are looking for all sub-concepts of (not C) (including synonyms to it)
+		tax->getRelativesInfo</*needCurrent=*/true, /*onlyDirect=*/false, /*upDirection=*/false> ( cachedVertex, actor );
 	}
 
 	// role hierarchy
