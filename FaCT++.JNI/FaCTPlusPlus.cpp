@@ -379,7 +379,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
  * Signature: (Ljava/lang/String;Luk/ac/manchester/cs/factplusplus/DataTypeExpressionPointer;)Luk/ac/manchester/cs/factplusplus/DataTypeExpressionPointer;
  */
 JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_getDataSubType
-  (JNIEnv * env ATTR_UNUSED, jobject obj ATTR_UNUSED, jstring str ATTR_UNUSED, jobject type ATTR_UNUSED)
+  (JNIEnv * env, jobject obj ATTR_UNUSED, jstring str ATTR_UNUSED, jobject type ATTR_UNUSED)
 {
 	TRACE_JNI("getDataSubType");
 	JString name(env,str);
@@ -441,7 +441,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
  * Signature: (Luk/ac/manchester/cs/factplusplus/DataValuePointer;)Luk/ac/manchester/cs/factplusplus/DataTypeFacet;
  */
 JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_getLength
-  (JNIEnv * env ATTR_UNUSED, jobject obj ATTR_UNUSED, jobject arg ATTR_UNUSED)
+  (JNIEnv * env, jobject obj ATTR_UNUSED, jobject arg ATTR_UNUSED)
 {
 	TRACE_JNI("getLength");
 	Throw ( env, "FaCT++ Kernel: unsupported facet 'getLength'" );
@@ -454,7 +454,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
  * Signature: (Luk/ac/manchester/cs/factplusplus/DataValuePointer;)Luk/ac/manchester/cs/factplusplus/DataTypeFacet;
  */
 JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_getMinLength
-  (JNIEnv * env ATTR_UNUSED, jobject obj ATTR_UNUSED, jobject arg ATTR_UNUSED)
+  (JNIEnv * env, jobject obj ATTR_UNUSED, jobject arg ATTR_UNUSED)
 {
 	TRACE_JNI("getMinLength");
 	Throw ( env, "FaCT++ Kernel: unsupported facet 'getMinLength'" );
@@ -467,7 +467,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
  * Signature: (Luk/ac/manchester/cs/factplusplus/DataValuePointer;)Luk/ac/manchester/cs/factplusplus/DataTypeFacet;
  */
 JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_getMaxLength
-  (JNIEnv * env ATTR_UNUSED, jobject obj ATTR_UNUSED, jobject arg ATTR_UNUSED)
+  (JNIEnv * env, jobject obj ATTR_UNUSED, jobject arg ATTR_UNUSED)
 {
 	TRACE_JNI("getMaxLength");
 	Throw ( env, "FaCT++ Kernel: unsupported facet 'getMaxLength'" );
@@ -480,7 +480,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
  * Signature: (Luk/ac/manchester/cs/factplusplus/DataValuePointer;)Luk/ac/manchester/cs/factplusplus/DataTypeFacet;
  */
 JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_getPattern
-  (JNIEnv * env ATTR_UNUSED, jobject obj ATTR_UNUSED, jobject arg ATTR_UNUSED)
+  (JNIEnv * env, jobject obj ATTR_UNUSED, jobject arg ATTR_UNUSED)
 {
 	TRACE_JNI("getPattern");
 	Throw ( env, "FaCT++ Kernel: unsupported facet 'getPattern'" );
@@ -541,7 +541,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
  * Signature: (Luk/ac/manchester/cs/factplusplus/DataValuePointer;)Luk/ac/manchester/cs/factplusplus/DataTypeFacet;
  */
 JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_getTotalDigitsFacet
-  (JNIEnv * env ATTR_UNUSED, jobject obj ATTR_UNUSED, jobject arg ATTR_UNUSED)
+  (JNIEnv * env, jobject obj ATTR_UNUSED, jobject arg ATTR_UNUSED)
 {
 	TRACE_JNI("getTotalDigitsFacet");
 	Throw ( env, "FaCT++ Kernel: unsupported facet 'getTotalDigitsFacet'" );
@@ -554,7 +554,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
  * Signature: (Luk/ac/manchester/cs/factplusplus/DataValuePointer;)Luk/ac/manchester/cs/factplusplus/DataTypeFacet;
  */
 JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_getFractionDigitsFacet
-  (JNIEnv * env ATTR_UNUSED, jobject obj ATTR_UNUSED, jobject arg ATTR_UNUSED)
+  (JNIEnv * env, jobject obj ATTR_UNUSED, jobject arg ATTR_UNUSED)
 {
 	TRACE_JNI("getFractionDigitsFacet");
 	Throw ( env, "FaCT++ Kernel: unsupported facet 'getFractionDigitsFacet'" );
@@ -829,7 +829,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
  * Signature: ()Luk/ac/manchester/cs/factplusplus/DataPropertyPointer;
  */
 JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_getDataPropertyKey
-  (JNIEnv * env ATTR_UNUSED, jobject obj ATTR_UNUSED)
+  (JNIEnv * env, jobject obj ATTR_UNUSED)
 {
 	TRACE_JNI("getDataPropertyKey");
 	Throw ( env, "FaCT++ Kernel: unsupported operation 'getDataPropertyKey'" );
@@ -843,7 +843,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
  * Signature: ()Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;
  */
 JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_getObjectPropertyKey
-  (JNIEnv * env ATTR_UNUSED, jobject obj ATTR_UNUSED)
+  (JNIEnv * env, jobject obj ATTR_UNUSED)
 {
 	TRACE_JNI("getObjectPropertyKey");
 	Throw ( env, "FaCT++ Kernel: unsupported operation 'getObjectPropertyKey'" );
@@ -947,7 +947,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tel
  * Signature: (Luk/ac/manchester/cs/factplusplus/DataTypePointer;)Luk/ac/manchester/cs/factplusplus/AxiomPointer;
  */
 JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellDatatypeDeclaration
-  (JNIEnv * env ATTR_UNUSED, jobject obj ATTR_UNUSED, jobject arg ATTR_UNUSED)
+  (JNIEnv * env, jobject obj ATTR_UNUSED, jobject arg ATTR_UNUSED)
 {
 	TRACE_JNI("tellDatatypeDeclaration");
 	Throw ( env, "FaCT++ Kernel: unsupported operation 'tellDatatypeDeclaration'" );
@@ -1005,7 +1005,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tel
  * Signature: (Luk/ac/manchester/cs/factplusplus/ClassPointer;Luk/ac/manchester/cs/factplusplus/DataPropertyPointer;Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;)Luk/ac/manchester/cs/factplusplus/AxiomPointer;
  */
 JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellHasKey
-  (JNIEnv * env ATTR_UNUSED, jobject obj ATTR_UNUSED, jobject cls ATTR_UNUSED, jobject dataprops ATTR_UNUSED, jobject objectprops ATTR_UNUSED)
+  (JNIEnv * env, jobject obj ATTR_UNUSED, jobject cls ATTR_UNUSED, jobject dataprops ATTR_UNUSED, jobject objectprops ATTR_UNUSED)
 {
 	TRACE_JNI("tellHasKey");
 	Throw ( env, "FaCT++ Kernel: unsupported operation 'tellHasKey'" );
@@ -1495,6 +1495,22 @@ JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlu
 
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
+ * Method:    askDisjointClasses
+ * Signature: (Luk/ac/manchester/cs/factplusplus/ClassPointer;)[[Luk/ac/manchester/cs/factplusplus/ClassPointer;
+ */
+JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_askDisjointClasses
+  (JNIEnv * env, jobject obj, jobject arg)
+{
+	TRACE_JNI("askDisjointClasses");
+	TRACE_ARG(env,obj,arg);
+	JTaxonomyActor<ClassPolicy> actor(env,obj);
+	const TConceptExpr* p = getROConceptExpr(env,arg);
+	PROCESS_ASK_QUERY ( getK(env,obj)->getDisjointConcepts(p,actor),"askDisjointClasses");
+	return actor.getElements();
+}
+
+/*
+ * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
  * Method:    askSuperObjectProperties
  * Signature: (Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;Z)[[Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;
  */
@@ -1921,7 +1937,7 @@ JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlu
  * Signature: (Luk/ac/manchester/cs/factplusplus/IndividualPointer;Luk/ac/manchester/cs/factplusplus/DataPropertyPointer;)[Luk/ac/manchester/cs/factplusplus/DataValuePointer;
  */
 JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_askRelatedValues
-  (JNIEnv * env ATTR_UNUSED, jobject obj ATTR_UNUSED, jobject arg1 ATTR_UNUSED, jobject arg2 ATTR_UNUSED)
+  (JNIEnv * env, jobject obj ATTR_UNUSED, jobject arg1 ATTR_UNUSED, jobject arg2 ATTR_UNUSED)
 {
 	TRACE_JNI("askRelatedValues");
 	TRACE_ARG(env,obj,arg1);
@@ -1944,7 +1960,7 @@ JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlu
  * Signature: (Luk/ac/manchester/cs/factplusplus/IndividualPointer;Luk/ac/manchester/cs/factplusplus/DataPropertyPointer;Luk/ac/manchester/cs/factplusplus/DataValuePointer;)Z
  */
 JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_hasDataPropertyRelationship
-  (JNIEnv * env ATTR_UNUSED, jobject obj ATTR_UNUSED, jobject arg1 ATTR_UNUSED, jobject arg2 ATTR_UNUSED, jobject arg3 ATTR_UNUSED)
+  (JNIEnv * env, jobject obj ATTR_UNUSED, jobject arg1 ATTR_UNUSED, jobject arg2 ATTR_UNUSED, jobject arg3 ATTR_UNUSED)
 {
 	TRACE_JNI("hasDataPropertyRelationship");
 	TRACE_ARG(env,obj,arg1);

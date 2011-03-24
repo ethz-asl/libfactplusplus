@@ -7,6 +7,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+/* Inaccessible static: initDone */
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
  * Method:    initMethodsFieldsIDs
@@ -829,6 +830,14 @@ JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlu
  * Signature: (Luk/ac/manchester/cs/factplusplus/ClassPointer;)[Luk/ac/manchester/cs/factplusplus/ClassPointer;
  */
 JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_askEquivalentClasses
+  (JNIEnv *, jobject, jobject);
+
+/*
+ * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
+ * Method:    askDisjointClasses
+ * Signature: (Luk/ac/manchester/cs/factplusplus/ClassPointer;)[[Luk/ac/manchester/cs/factplusplus/ClassPointer;
+ */
+JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_askDisjointClasses
   (JNIEnv *, jobject, jobject);
 
 /*

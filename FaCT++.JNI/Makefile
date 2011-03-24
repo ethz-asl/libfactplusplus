@@ -6,7 +6,7 @@
 LIBRARY = FaCTPlusPlusJNI
 LTYPE = shared
 
-INCLUDES = -I/System/Library/Frameworks/JavaVM.framework/Headers
+INCLUDES = -I/Developer/SDKs/MacOSX10.6.sdk/System/Library/Frameworks/JavaVM.framework/Headers -I/System/Library/Frameworks/JavaVM.framework/Headers
 USE_IL = ../Kernel
 
 SOURCES = \
