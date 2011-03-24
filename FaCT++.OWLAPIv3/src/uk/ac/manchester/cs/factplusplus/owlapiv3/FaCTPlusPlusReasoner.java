@@ -487,9 +487,8 @@ public class FaCTPlusPlusReasoner implements OWLReasoner,
 	public synchronized NodeSet<OWLClass> getDisjointClasses(
 			OWLClassExpression ce) {
 		checkConsistency();
-		// TODO:
-		// Not supported directly by FaCT++
-		return new OWLClassNodeSet();
+		return classExpressionTranslator.getNodeSetFromPointers(kernel
+				.askDisjointClasses(toClassPointer(ce)));
 	}
 
 	// object properties
