@@ -212,8 +212,8 @@ protected:	// methods
 
 		TRecord* imp = getImpRec(rec->oldName);
 		buildSig(rec);
-		if ( rec->newAxSig.contains(static_cast<const TNamedEntity*>(rec->oldName)) )
-//			|| !intersect(rec->newAxSig, imp->newAxSig).empty() )
+		if ( rec->newAxSig.contains(static_cast<const TNamedEntity*>(rec->oldName))
+			|| !intersect(rec->newAxSig, imp->newAxSig).empty() )
 		{
 			// mark name as rejected, un-register imp
 			Rejects.insert(rec->oldName);
