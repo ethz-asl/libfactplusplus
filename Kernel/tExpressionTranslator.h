@@ -245,6 +245,8 @@ public:		// visitor interface
 			tree = DTC.getRealType();
 		else if ( isBoolDataType(&expr) )
 			tree = DTC.getBoolType();	// get-by-name("bool")??
+		else if ( isTimeDataType(&expr) )
+			tree = DTC.getTimeType();
 		else
 			THROW_UNSUPPORTED("data type name");
 	}
