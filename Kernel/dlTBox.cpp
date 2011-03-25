@@ -357,6 +357,10 @@ TBox :: isSubHolds ( const TConcept* pConcept, const TConcept* qConcept )
 /// check that 2 individuals are the same
 bool TBox :: isSameIndividuals ( const TIndividual* a, const TIndividual* b )
 {
+	a = resolveSynonym(a);
+	b = resolveSynonym(b);
+	if ( a == b )	// known synonyms
+		return true;
 	if ( !isIndividual(a) || !isIndividual(b) )
 		throw EFaCTPlusPlus("Individuals are expected in the isSameIndividuals() query");
 	if ( a->node == NULL || b->node == NULL )
