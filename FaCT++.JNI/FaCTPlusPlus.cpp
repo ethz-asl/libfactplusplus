@@ -367,6 +367,9 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
 	if ( DTName == "http://www.w3.org/2001/XMLSchema#boolean" )
 		return DataType ( env, EM->getBoolDataType() );
 
+	if ( DTName == "http://www.w3.org/2001/XMLSchema#dateTime" )
+		return DataType ( env, EM->getTimeDataType() );
+
 	std::stringstream err;
 	err << "Unsupported datatype '" << DTName.c_str() << "'";
 	Throw ( env, err.str().c_str() );
