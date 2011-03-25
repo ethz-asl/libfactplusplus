@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2010 by Dmitry Tsarkov
+Copyright (C) 2010-2011 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -275,6 +275,8 @@ public:		// interface
 	TDLDataTypeName* getRealDataType ( void ) { return DataType(TDataTypeManager::getRealTypeName()); }
 		/// get basic boolean data type
 	TDLDataTypeName* getBoolDataType ( void ) { return DataType(TDataTypeManager::getBoolTypeName()); }
+		/// get basic date-time data type
+	TDLDataTypeName* getTimeDataType ( void ) { return DataType(TDataTypeManager::getTimeTypeName()); }
 
 		/// get basic boolean data type
 	TDLDataTypeRestriction* RestrictedType ( TDLDataTypeExpression* type, const TDLFacetExpression* facet )

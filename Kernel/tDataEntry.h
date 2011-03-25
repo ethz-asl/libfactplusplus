@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2005-2010 by Dmitry Tsarkov
+Copyright (C) 2005-2011 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -209,6 +209,15 @@ protected:	// methods
 			comp = ComparableDT((float)atof(getName()));
 		else if ( typeName == "bool" )	// FIXME!! dirty hack
 			comp = ComparableDT(getName());
+		else if ( typeName == "time" )
+		{
+			struct tm temp;
+			// decode time value in format YYYY-MM-DDThh:mm:ssTZ, as in xsd:dateTime
+			strptime ( getName(), "%Y-%m-%dT%H:%M:%S%z", &temp );
+			comp = ComparableDT ( timegm(&temp), 0 );
+		}
+		else	// no more types available
+			fpp_unreachable();
 	}
 
 public:		// interface

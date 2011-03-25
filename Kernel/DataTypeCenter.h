@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2010 by Dmitry Tsarkov
+Copyright (C) 2003-2011 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -65,6 +65,8 @@ protected:	// methods
 	TDataType* getRealDataType ( void ) const { return *(begin()+2); }
 		/// get type corresponding to Bool
 	TDataType* getBoolDataType ( void ) const { return *(begin()+3); }
+		/// get type corresponding to date-time
+	TDataType* getTimeDataType ( void ) const { return *(begin()+4); }
 		/// get type by name
 	TDataType* getTypeByName ( const std::string& name ) const;
 
@@ -96,6 +98,7 @@ public:		// interface
 		RegisterDataType(new TDataType("string"));
 		RegisterDataType(new TDataType("real"));
 		RegisterDataType(new TDataTypeBool());
+		RegisterDataType(new TDataType("time"));
 	}
 		/// d'tor: delete all datatypes
 	~DataTypeCenter ( void );
@@ -110,6 +113,8 @@ public:		// interface
 	DLTree* getRealType ( void ) { return wrap(getRealDataType()->getType()); }
 		/// get BOOL DT that can be used in TBox
 	DLTree* getBoolType ( void ) { return wrap(getBoolDataType()->getType()); }
+		/// get TIME DT that can be used in TBox
+	DLTree* getTimeType ( void ) { return wrap(getTimeDataType()->getType()); }
 
 		/// return registered data value by given NAME of a Type, given by SAMPLE
 	DLTree* getDataValue ( const std::string& name, const DLTree* sample ) const throw(EFPPCantRegName)

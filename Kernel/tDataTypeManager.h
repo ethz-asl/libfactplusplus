@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2010 by Dmitry Tsarkov
+Copyright (C) 2010-2011 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -41,6 +41,8 @@ public:		// interface
 	static const char* getRealTypeName ( void ) { return "http://www.w3.org/2001/XMLSchema#float"; }
 		/// get name of the default boolean datatype
 	static const char* getBoolTypeName ( void ) { return "http://www.w3.org/2001/XMLSchema#boolean"; }
+		/// get name of the default date-time datatype
+	static const char* getTimeTypeName ( void ) { return "http://www.w3.org/2001/XMLSchema#dateTime"; }
 }; // TDataTypeManager
 
 // helpers for the users
@@ -53,5 +55,7 @@ inline bool isIntDataType ( const TDLDataTypeName* type ) { return std::string(t
 inline bool isRealDataType ( const TDLDataTypeName* type ) { return std::string(type->getName()) == TDataTypeManager::getRealTypeName(); }
 	/// @return true iff TYPE is a default boolean data type
 inline bool isBoolDataType ( const TDLDataTypeName* type ) { return std::string(type->getName()) == TDataTypeManager::getBoolTypeName(); }
+	/// @return true iff TYPE is a default date-time data type
+inline bool isTimeDataType ( const TDLDataTypeName* type ) { return std::string(type->getName()) == TDataTypeManager::getTimeTypeName(); }
 
 #endif
