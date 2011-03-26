@@ -44,7 +44,10 @@ void Taxonomy :: print ( std::ostream& o ) const
 	o << "            of which " << nCDEntries << " are completely defined\n\n";
 	o << "All entries are in format:\n\"entry\" {n: parent_1 ... parent_n} {m: child_1 child_m}\n\n";
 
-	for ( const_iterator p = itop(), p_end = end(); p < p_end; ++p )
+	TVSet sorted(itop()+1, end());
+
+	getTopVertex()->print(o);
+	for ( TVSet::const_iterator p = sorted.begin(), p_end = sorted.end(); p != p_end; ++p )
 		(*p)->print(o);
 	getBottomVertex()->print(o);
 }

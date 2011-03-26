@@ -216,4 +216,14 @@ public:
 	void LoadNeighbours ( std::istream& i );
 }; // TaxonomyVertex
 
+/// structure to sort tax vertices
+struct TaxVertexLess
+{
+	bool operator()(const TaxonomyVertex* s1, const TaxonomyVertex* s2) const
+		{ return strcmp(s1->getPrimer()->getName(), s2->getPrimer()->getName()) < 0; }
+};
+
+/// sorted vertices set
+typedef std::set<const TaxonomyVertex*, TaxVertexLess> TVSet;
+
 #endif // TAXVERTEX_H

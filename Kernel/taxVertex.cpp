@@ -132,7 +132,8 @@ void TaxonomyVertex :: printNeighbours ( std::ostream& o, bool upDirection ) con
 	// write number of elements
 	o << " {" << neigh(upDirection).size() << ":";
 
-	for ( const_iterator p = begin(upDirection), p_end = end(upDirection); p < p_end; ++p )
+	TVSet sorted ( begin(upDirection), end(upDirection) );
+	for ( TVSet::const_iterator p = sorted.begin(), p_end = sorted.end(); p != p_end; ++p )
 		o << ' ' << '"' << (*p)->getPrimer()->getName() << '"';
 
 	o << "}";
