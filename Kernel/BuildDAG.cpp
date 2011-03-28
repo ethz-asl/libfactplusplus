@@ -198,7 +198,7 @@ BipolarPointer TBox :: tree2dag ( const DLTree* t )
 	case FORALL:
 		ret = forall2dag ( resolveRole(t->Left()), tree2dag(t->Right()) );
 		break;
-	case REFLEXIVE:
+	case SELF:
 		ret = reflexive2dag(resolveRole(t->Left()));
 		break;
 	case LE:

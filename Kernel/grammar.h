@@ -42,6 +42,7 @@ enum Token {
 	RCOMPOSITION,	// role composition
 	PROJINTO,		// role projection into
 	PROJFROM,		// role projection from
+	SELF,
 
 	TOP,
 	BOTTOM,

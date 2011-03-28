@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2009 by Dmitry Tsarkov
+Copyright (C) 2003-2011 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -233,8 +233,7 @@ void dumpCExpression ( dumpInterface* dump, const DLTree* C )
 		return dump->finishOp(diNot);
 	case AND:
 	case OR:
-	case ONEOF:
-		tag = t == AND ? diAnd : t == OR ? diOr : diOneOf;
+		tag = t == AND ? diAnd : diOr;
 		dump->startOp(tag);
 		dumpCExpression ( dump, C->Left() );
 		dump->contOp(tag);

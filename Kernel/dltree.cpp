@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2010 by Dmitry Tsarkov
+Copyright (C) 2003-2011 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -210,7 +210,7 @@ bool isSNF ( const DLTree* t )
 	case AND:
 	case FORALL:
 	case LE:
-	case REFLEXIVE:
+	case SELF:
 	case RCOMPOSITION:
 	case PROJFROM:
 	case PROJINTO:
@@ -232,8 +232,6 @@ const char* TokenName ( Token t )
 	case RNAME:		return "rname";
 	case DNAME:		return "dname";
 	case DATAEXPR:	return "dataexpr";
-	case CONCEPT:	return "concept";
-	case PCONCEPT:	return "primconcept";
 	case INV:		return "inv";
 	case OR:		return "or";
 	case AND:		return "and";
@@ -243,7 +241,7 @@ const char* TokenName ( Token t )
 	case GE:	return "at-least";
 	case LE:	return "at-most";
 	case RCOMPOSITION: return "compose";
-	case REFLEXIVE: return "self-ref";
+	case SELF: return "self-ref";
 	case PROJINTO: return "project_into";
 	case PROJFROM: return "project_from";
 	default:
@@ -280,7 +278,7 @@ std::ostream& operator << ( std::ostream& o, const DLTree *form )
 
 	case NOT:
 	case INV:
-	case REFLEXIVE:
+	case SELF:
 		o << " (" << TokenName (lex.getToken()) << form->Left() << ')';
 		break;
 

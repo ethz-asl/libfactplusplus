@@ -92,7 +92,7 @@ public:		// visitor interface
 
 		tree = acc;
 	}
-	virtual void visit ( const TDLConceptObjectSelf& expr ) { expr.getOR()->accept(*this); tree = new DLTree ( TLexeme(REFLEXIVE), *this ); }
+	virtual void visit ( const TDLConceptObjectSelf& expr ) { expr.getOR()->accept(*this); tree = new DLTree ( TLexeme(SELF), *this ); }
 	virtual void visit ( const TDLConceptObjectValue& expr )
 	{
 		expr.getOR()->accept(*this);

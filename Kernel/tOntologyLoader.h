@@ -47,7 +47,7 @@ protected:	// methods
 		{
 			return resolveRole(TreeDeleter(e(r)));
 		}
-		catch ( EFaCTPlusPlus e ) { throw EFaCTPlusPlus(reason); }
+		catch ( const EFaCTPlusPlus& e ) { throw EFaCTPlusPlus(reason); }
 	}
 		/// get an individual be the DLTree; throw exception if unable
 	TIndividual* getIndividual ( const TDLIndividualExpression* I, const char* reason )
@@ -231,7 +231,7 @@ public:		// visitor interface
 		if ( isUniversalRole(axiom.getRole()) )	// KB became inconsistent
 			throw EFPPInconsistentKB();
 		TRole* R = getRole ( axiom.getRole(), "Role expression expected in Role Irreflexivity axiom" );
-		R->setDomain(createSNFNot(new DLTree(TLexeme(REFLEXIVE),e(axiom.getRole()))));
+		R->setDomain(createSNFNot(new DLTree(TLexeme(SELF),e(axiom.getRole()))));
 		R->setIrreflexive(true);
 	}
 	virtual void visit ( const TDLAxiomRoleSymmetric& axiom )
