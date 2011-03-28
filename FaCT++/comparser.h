@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2004 by Dmitry Tsarkov
+Copyright (C) 2003-2011 by Dmitry Tsarkov
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -16,36 +16,37 @@ along with this program; if not, write to the Free Software
 Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 */
 
-#ifndef _COMMON_PARSER_H
-#define _COMMON_PARSER_H
+#ifndef COMPARSER_H
+#define COMPARSER_H
 
-#include "scanner.h"
+#include "comscanner.h"
 
-/// generic class for parsing with usage of TsScanner
+/// generic class for parsing with usage of scanner derived from CommonScanner
+template<class Scanner>
 class CommonParser
 {
 protected:	// members
 		/// used scanner
-	TsScanner scan;
+	Scanner scan;
 		/// last scanned token
-	Token Current;
+	GenericToken Current;
 
 protected:	// methods
 		/// get current token
-	Token Code ( void ) const { return Current; }
+	GenericToken Code ( void ) const { return Current; }
 		/// receive (and save) next token
 	void NextLex ( void ) { Current = scan. GetLex (); }
 		/// ensure that current token has given value; return error if it's not a case
-	void MustBe ( Token t, const char* p = NULL ) const
+	void MustBe ( GenericToken t, const char* p = NULL ) const
 	{
 		if ( Current != t )
 			scan. error (p);
 	}
 		/// ensure that current token has given value; return error if it's not a case; get new token
-	void MustBeM ( Token t, const char* p = NULL )
+	void MustBeM ( GenericToken t, const char* p = NULL )
 		{ MustBe ( t, p ); NextLex (); }
 		/// general error message
-	void parseError ( const char* p ) const { MustBe ( UNUSED, p ); }
+	void parseError ( const char* p ) const { scan.error(p); }
 
 public:		// interface
 		/// c'tor

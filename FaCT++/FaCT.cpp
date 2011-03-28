@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2010 by Dmitry Tsarkov
+Copyright (C) 2003-2011 by Dmitry Tsarkov
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -70,10 +70,10 @@ getNextName ( TsScanner& sc, ReasoningKernel& Kernel )
 	{
 		if ( sc.GetLex() == LEXEOF )
 			return NULL;
-		Token t = sc.getNameKeyword();
+		LispToken t = sc.getNameKeyword();
 
 		if ( t != ID )
-			return t == TOP ? pEM->Top() : pEM->Bottom();
+			return t == L_TOP ? pEM->Top() : pEM->Bottom();
 		try
 		{
 			return pEM->Concept(sc.GetName());

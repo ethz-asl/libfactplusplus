@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2010 by Dmitry Tsarkov
+Copyright (C) 2003-2011 by Dmitry Tsarkov
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -73,7 +73,7 @@ void TsScanner :: FillNameBuffer ( register char c )
 	}
 }
 
-Token TsScanner :: GetLex ( void )
+LispToken TsScanner :: GetLex ( void )
 {
 	register char c;
 
@@ -135,53 +135,53 @@ Token TsScanner :: GetLex ( void )
 }
 
 // recognize TOP, BOTTOM or general ID
-Token TsScanner :: getNameKeyword ( void ) const
+LispToken TsScanner :: getNameKeyword ( void ) const
 {
 	if ( isKeyword ("*TOP*") || isKeyword ("TOP") )
-		return TOP;
+		return L_TOP;
 
 	if ( isKeyword ("*BOTTOM*") || isKeyword ("BOTTOM") )
-		return BOTTOM;
+		return L_BOTTOM;
 
 	// not a keyword just an ID
 	return ID;
 }
 
 // concept/role constructors; return BAD_LEX in case of error
-Token TsScanner :: getExpressionKeyword ( void ) const
+LispToken TsScanner :: getExpressionKeyword ( void ) const
 {
 	if ( isKeyword ("and") )
-		return AND;
+		return L_AND;
 
 	if ( isKeyword ("or") )
-		return OR;
+		return L_OR;
 
 	if ( isKeyword ("not") )
-		return NOT;
+		return L_NOT;
 
 	if ( isKeyword ("inv") || isKeyword ("inverse") )
-		return INV;
+		return L_INV;
 
 	if ( isKeyword ("compose") )
-		return RCOMPOSITION;
+		return L_RCOMPOSITION;
 
 	if ( isKeyword ("project_into") )
-		return PROJINTO;
+		return L_PROJINTO;
 
 	if ( isKeyword ("project_from") )
-		return PROJFROM;
+		return L_PROJFROM;
 
 	if ( isKeyword ("some") )
-		return EXISTS;
+		return L_EXISTS;
 
 	if ( isKeyword ("all") )
-		return FORALL;
+		return L_FORALL;
 
 	if ( isKeyword("min") || isKeyword("at-least") || isKeyword("atleast") )
-		return GE;
+		return L_GE;
 
 	if ( isKeyword("max") || isKeyword("at-most") || isKeyword("atmost") )
-		return LE;
+		return L_LE;
 
 	if ( isKeyword ("one-of") )
 		return ONEOF;
@@ -221,7 +221,7 @@ Token TsScanner :: getExpressionKeyword ( void ) const
 }
 
 // recognize FaCT++ keywords; return BAD_LEX if not found
-Token TsScanner :: getCommandKeyword ( void ) const
+LispToken TsScanner :: getCommandKeyword ( void ) const
 {
 	// definitions
 	if ( isKeyword ("defprimconcept") )

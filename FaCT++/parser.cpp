@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2010 by Dmitry Tsarkov
+Copyright (C) 2003-2011 by Dmitry Tsarkov
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -35,7 +35,7 @@ void DLLispParser :: parseCommand ( void )
 {
 	MustBeM (LBRACK);
 	MustBe(ID);
-	Token t = scan.getCommandKeyword();
+	LispToken t = scan.getCommandKeyword();
 	NextLex ();
 
 	switch (t)
@@ -242,7 +242,7 @@ void DLLispParser :: parseCommand ( void )
 
 /// generate object role axiom between R and S according to the operation TAG
 void
-DLLispParser :: tellRoleAxiom ( Token tag, TORoleExpr* R, TORoleExpr* S )
+DLLispParser :: tellRoleAxiom ( LispToken tag, TORoleExpr* R, TORoleExpr* S )
 {
 	try
 	{
@@ -293,7 +293,7 @@ DLLispParser :: tellRoleAxiom ( Token tag, TORoleExpr* R, TORoleExpr* S )
 }
 /// generate data role axiom between R and S according to the operation TAG
 void
-DLLispParser :: tellRoleAxiom ( Token tag, TDRoleExpr* R, TDRoleExpr* S )
+DLLispParser :: tellRoleAxiom ( LispToken tag, TDRoleExpr* R, TDRoleExpr* S )
 {
 	try
 	{
@@ -396,8 +396,8 @@ DLLispParser :: getConceptExpression ( void )
 	{
 		switch ( scan.getNameKeyword() )
 		{	// Top/Bottom or real ID
-		case TOP: NextLex(); return EManager->Top();
-		case BOTTOM: NextLex(); return EManager->Bottom();
+		case L_TOP: NextLex(); return EManager->Top();
+		case L_BOTTOM: NextLex(); return EManager->Bottom();
 		default: return getConcept();
 		}
 	}
@@ -411,7 +411,7 @@ DLLispParser::TConceptExpr*
 DLLispParser :: getComplexConceptExpression ( void )
 {
 	MustBeM ( LBRACK );
-	Token T = scan.getExpressionKeyword();
+	LispToken T = scan.getExpressionKeyword();
 	unsigned int n = 0;	// number for >= (<=) expression (or just 0)
 	TRoleExpr* R = NULL;
 	TConceptExpr* C = NULL;
@@ -420,14 +420,14 @@ DLLispParser :: getComplexConceptExpression ( void )
 
 	switch (T)
 	{
-	case GE:
-	case LE:
+	case L_GE:
+	case L_LE:
 		// hack: id here is a number restriction
 		n = scan.GetNumber ();
 		NextLex ();
 		// hack: throughout
-	case FORALL:
-	case EXISTS:
+	case L_FORALL:
+	case L_EXISTS:
 		// first argument -- role name
 		R = getRoleExpression();
 		if ( isDataRole(R) )	// data expression
@@ -444,11 +444,11 @@ DLLispParser :: getComplexConceptExpression ( void )
 			// skip right bracket
 			MustBeM(RBRACK);
 
-			if ( T == EXISTS )
+			if ( T == L_EXISTS )
 				return EManager->Exists ( A, E );
-			else if ( T == FORALL )
+			else if ( T == L_FORALL )
 				return EManager->Forall ( A, E );
-			else if ( T == GE )
+			else if ( T == L_GE )
 				return EManager->MinCardinality ( n, A, E );
 			else
 				return EManager->MaxCardinality ( n, A, E );
@@ -467,11 +467,11 @@ DLLispParser :: getComplexConceptExpression ( void )
 			// skip right bracket
 			MustBeM(RBRACK);
 
-			if ( T == EXISTS )
+			if ( T == L_EXISTS )
 				return EManager->Exists ( S, C );
-			else if ( T == FORALL )
+			else if ( T == L_FORALL )
 				return EManager->Forall ( S, C );
-			else if ( T == GE )
+			else if ( T == L_GE )
 				return EManager->MinCardinality ( n, S, C );
 			else
 				return EManager->MaxCardinality ( n, S, C );
@@ -483,14 +483,14 @@ DLLispParser :: getComplexConceptExpression ( void )
 		MustBeM(RBRACK);
 		return EManager->SelfReference(dynamic_cast<TORoleExpr*>(R));
 
-	case NOT:
+	case L_NOT:
 		C = getConceptExpression();
 		// skip right bracket
 		MustBeM(RBRACK);
 		return EManager->Not(C);
 
-	case AND:
-	case OR:	// multiple And's/Or's
+	case L_AND:
+	case L_OR:	// multiple And's/Or's
 		EManager->newArgList();
 		do
 		{
@@ -499,7 +499,7 @@ DLLispParser :: getComplexConceptExpression ( void )
 
 		// list is parsed here
 		NextLex();	// skip ')'
-		return T == AND ? EManager->And() : EManager->Or();
+		return T == L_AND ? EManager->And() : EManager->Or();
 
 	case ONEOF:
 		parseConceptList(/*singletonsOnly=*/true);
@@ -525,8 +525,8 @@ DLLispParser :: getORoleExpression ( void )
 		return getObjectRole();
 
 	NextLex();	// skip '('
-	if ( scan.getExpressionKeyword() != INV )
-		MustBe ( INV, "only role names and their inverses are allowed as a role expression" );
+	if ( scan.getExpressionKeyword() != L_INV )
+		MustBe ( L_INV, "only role names and their inverses are allowed as a role expression" );
 	NextLex();	// skip INV
 	TORoleExpr* ret = EManager->Inverse(getORoleExpression());
 	MustBeM(RBRACK);
@@ -540,8 +540,8 @@ DLLispParser :: getRoleExpression ( void )
 		return getRole();
 
 	NextLex();	// skip '('
-	if ( scan.getExpressionKeyword() != INV )
-		MustBe ( INV, "only role names and their inverses are allowed as a role expression" );
+	if ( scan.getExpressionKeyword() != L_INV )
+		MustBe ( L_INV, "only role names and their inverses are allowed as a role expression" );
 	NextLex();	// skip INV
 	TORoleExpr* ret = EManager->Inverse(getORoleExpression());
 	MustBeM(RBRACK);
@@ -555,31 +555,31 @@ DLLispParser :: getComplexRoleExpression ( void )
 		return getRole();
 
 	NextLex();	// skip '('
-	Token keyword = scan.getExpressionKeyword();
+	LispToken keyword = scan.getExpressionKeyword();
 	NextLex();	// skip keyword
 	TORoleComplexExpr* ret = NULL;
 	TORoleExpr* R;
 	switch ( keyword )
 	{
-	case INV:	// inverse of a simple role
+	case L_INV:	// inverse of a simple role
 		ret = EManager->Inverse(getORoleExpression());
 		break;
-	case RCOMPOSITION:	// role composition expression = list of simple roles
+	case L_RCOMPOSITION:	// role composition expression = list of simple roles
 		EManager->newArgList();
 		while ( Current != RBRACK )
 			EManager->addArg(getORoleExpression());
 		ret = EManager->Compose();
 		break;
-	case PROJINTO:	// role projection operator, parse simple role and concept
+	case L_PROJINTO:	// role projection operator, parse simple role and concept
 		R = getORoleExpression();
 		ret = EManager->ProjectInto ( R, getConceptExpression() );
 		break;
-	case PROJFROM:	// role projection operator, parse simple role and concept
+	case L_PROJFROM:	// role projection operator, parse simple role and concept
 		R = getORoleExpression();
 		ret = EManager->ProjectFrom ( R, getConceptExpression() );
 		break;
 	default:
-		MustBe ( INV, "unknown expression in complex role constructor" );
+		MustBe ( L_INV, "unknown expression in complex role constructor" );
 	}
 
 	MustBeM(RBRACK);
@@ -594,14 +594,14 @@ DLLispParser :: getDataExpression ( void )
 	{
 		switch ( scan.getNameKeyword() )
 		{	// Top/Bottom; can not be name
-		case TOP: NextLex(); return EManager->DataTop();
-		case BOTTOM: NextLex(); return EManager->DataBottom();
+		case L_TOP: NextLex(); return EManager->DataTop();
+		case L_BOTTOM: NextLex(); return EManager->DataBottom();
 		default: parseError ( "Unknown data constructor" ); return NULL;
 		}
 	}
 
 	MustBeM(LBRACK);	// always complex expression
-	Token T = scan.getExpressionKeyword();
+	LispToken T = scan.getExpressionKeyword();
 
 	NextLex ();
 
@@ -647,7 +647,7 @@ DLLispParser :: getDataExpression ( void )
 		TDataTypeExpr* type = const_cast<TDataTypeExpr*>(value->getExpr());
 		return EManager->RestrictedType ( type, EManager->FacetMaxInclusive(value) );
 	}
-	case NOT:
+	case L_NOT:
 	{
 		TDataExpr* expr = getDataExpression();
 		// skip right bracket
@@ -655,8 +655,8 @@ DLLispParser :: getDataExpression ( void )
 		return EManager->DataNot(expr);
 	}
 	case DONEOF:
-	case AND:
-	case OR:	// multiple And's/Or's
+	case L_AND:
+	case L_OR:	// multiple And's/Or's
 		EManager->newArgList();
 		do
 		{
@@ -665,7 +665,7 @@ DLLispParser :: getDataExpression ( void )
 
 		// list is parsed here
 		NextLex();	// skip ')'
-		return T == AND ? EManager->DataAnd() : T == OR ? EManager->DataOr() : EManager->DataOneOf();
+		return T == L_AND ? EManager->DataAnd() : T == L_OR ? EManager->DataOr() : EManager->DataOneOf();
 
 	case STRING:	// expression (string <value>)
 	case NUMBER:	// expression (number <value>)

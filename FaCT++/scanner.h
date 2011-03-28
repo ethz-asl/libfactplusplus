@@ -24,7 +24,7 @@ Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #ifndef SCANNER_H
 #define SCANNER_H
 
-#include "grammar.h"
+#include "lispgrammar.h"
 #include "comscanner.h"
 
 /// more-or-less general simple scanner implementation
@@ -45,13 +45,13 @@ public:		// interface
 	~TsScanner ( void ) {}
 
 		/// get next token from stream
-	Token GetLex ( void );
+	LispToken GetLex ( void );
 		/// get keyword for a command by given text in buffer; @return BAD_LEX if no keyword found
-	Token getCommandKeyword ( void ) const;
+	LispToken getCommandKeyword ( void ) const;
 		/// get keyword for a concept/role expression; @return BAD_LEX if no keyword found
-	Token getExpressionKeyword ( void ) const;
+	LispToken getExpressionKeyword ( void ) const;
 		/// get keyword for a concept/role special name; @return ID if no keyword found
-	Token getNameKeyword ( void ) const;
+	LispToken getNameKeyword ( void ) const;
 };	// TsScanner
 
 #endif

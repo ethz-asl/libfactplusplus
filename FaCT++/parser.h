@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2010 by Dmitry Tsarkov
+Copyright (C) 2003-2011 by Dmitry Tsarkov
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -19,12 +19,13 @@ Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #ifndef PARSER_H
 #define PARSER_H
 
+#include "scanner.h"
+#define GenericToken LispToken
 #include "comparser.h"
-#include "dltree.h"
 #include "Kernel.h"
 
 /// class for parsing LISP-like ontologies
-class DLLispParser: public CommonParser
+class DLLispParser: public CommonParser<TsScanner>
 {
 protected:	// typedefs
 		/// general expression
@@ -111,9 +112,9 @@ protected:	// methods
 		/// check whether expression R is data role
 	bool isDataRole ( const TRoleExpr* R ) const { return dynamic_cast<const TDRoleExpr*>(R) != NULL; }
 		/// generate object role axiom between R and S according to the operation TAG
-	void tellRoleAxiom ( Token tag, TORoleExpr* R, TORoleExpr* S );
+	void tellRoleAxiom ( LispToken tag, TORoleExpr* R, TORoleExpr* S );
 		/// generate data role axiom between R and S according to the operation TAG
-	void tellRoleAxiom ( Token tag, TDRoleExpr* R, TDRoleExpr* S );
+	void tellRoleAxiom ( LispToken tag, TDRoleExpr* R, TDRoleExpr* S );
 		/// get role expression, ie (data)role or its inverse
 	TRoleExpr* getRoleExpression ( void );
 		/// get object role expression, ie object role, OR constant or their inverse
@@ -138,7 +139,7 @@ protected:	// methods
 public:		// interface
 		/// the only c'tor
 	DLLispParser ( std::istream* in, ReasoningKernel* kernel )
-		: CommonParser (in)
+		: CommonParser<TsScanner>(in)
 		, Kernel (kernel)
 		, EManager(kernel->getExpressionManager())
 	{
