@@ -208,7 +208,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
 	{
 		ret = Class ( env, getCName(env,obj,name()) );
 	}
-	catch (EFPPCantRegName)
+	catch (const EFPPCantRegName&)
 	{
 		Throw ( env, "FaCT++ Kernel: Can not register new class name" );
 	}
@@ -254,7 +254,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
 	{
 		ret = ObjectProperty ( env, getOName(env,obj,name()) );
 	}
-	catch (EFPPCantRegName)
+	catch (const EFPPCantRegName&)
 	{
 		Throw ( env, "FaCT++ Kernel: Can not register new object property name" );
 	}
@@ -300,7 +300,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
 	{
 		ret = DataProperty ( env, getDName(env,obj,name()) );
 	}
-	catch (EFPPCantRegName)
+	catch (const EFPPCantRegName&)
 	{
 		Throw ( env, "FaCT++ Kernel: Can not register new data property name" );
 	}
@@ -322,7 +322,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
 	{
 		ret = Individual ( env, getIName(env,obj,name()) );
 	}
-	catch (EFPPCantRegName)
+	catch (const EFPPCantRegName&)
 	{
 		Throw ( env, "FaCT++ Kernel: Can not register new individual name" );
 	}
@@ -394,7 +394,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
 		ret = DataTypeExpression ( env, getK(env,obj)->getDataTypeCenter().
 								   getDataType ( name(), getDataExpr(env,type) ) );
 	}
-	catch (EFPPCantRegName)
+	catch (const EFPPCantRegName&)
 	{
 		Throw ( env, "FaCT++ Kernel: Can not register new data type" );
 	}
@@ -615,7 +615,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
 	{
 		ret = DataValue ( env, getEM(env,obj)->DataValue ( name(), getDataTypeExpr(env,type) ) );
 	}
-	catch (EFPPCantRegName)
+	catch (const EFPPCantRegName&)
 	{
 		Throw ( env, "FaCT++ Kernel: Can not register new data value" );
 	}
@@ -886,15 +886,15 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
 #define PROCESS_QUERY(Action,Name)				\
 	do { TRACE_JNI(Name);						\
 	try { return Axiom(env,Action); }			\
-	catch ( EFPPInconsistentKB )				\
+	catch ( const EFPPInconsistentKB& )			\
 	{ ThrowICO(env); }							\
-	catch ( EFPPNonSimpleRole nsr )				\
+	catch ( const EFPPNonSimpleRole& nsr )		\
 	{ ThrowNSR ( env, nsr.getRoleName() ); }	\
-	catch ( EFPPCycleInRIA cir )				\
+	catch ( const EFPPCycleInRIA& cir )			\
 	{ ThrowRIC ( env, cir.getRoleName() ); }	\
-	catch ( EFaCTPlusPlus fpp )					\
+	catch ( const EFaCTPlusPlus& fpp )			\
 	{ Throw ( env, fpp.what() ); }				\
-	catch ( std::exception ex )					\
+	catch ( const std::exception& ex )			\
 	{ Throw ( env, ex.what() ); }				\
 		return NULL;  } while(0)
 //	Throw ( env, "FaCT++ Kernel: error during " Name " processing" )
@@ -1322,16 +1322,17 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_retrac
 
 #define PROCESS_ASK_QUERY(Action,Name)			\
 	do { try { Action; }						\
-	catch ( EFPPInconsistentKB )				\
+	catch ( const EFPPInconsistentKB& )			\
 	{ ThrowICO(env); }							\
-	catch ( EFPPNonSimpleRole nsr )				\
+	catch ( const EFPPNonSimpleRole& nsr )		\
 	{ ThrowNSR ( env, nsr.getRoleName() ); }	\
-	catch ( EFPPCycleInRIA cir )				\
+	catch ( const EFPPCycleInRIA& cir )			\
 	{ ThrowRIC ( env, cir.getRoleName() ); }	\
-	catch ( EFPPTimeout ) { ThrowTO(env); }		\
-	catch ( EFaCTPlusPlus fpp )					\
+	catch ( const EFPPTimeout& )				\
+	{ ThrowTO(env); }							\
+	catch ( const EFaCTPlusPlus& fpp )			\
 	{ Throw ( env, fpp.what() ); }				\
-	catch ( std::exception ex )					\
+	catch ( const std::exception& ex )			\
 	{ Throw ( env, ex.what() ); }  } while(0)
 
 /*

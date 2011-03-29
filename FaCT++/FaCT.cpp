@@ -78,13 +78,13 @@ getNextName ( TsScanner& sc, ReasoningKernel& Kernel )
 		{
 			return pEM->Concept(sc.GetName());
 		}
-		catch ( EFPPCantRegName )
+		catch ( const EFPPCantRegName& )
 		{
 			try
 			{
 				return pEM->OneOf(pEM->Individual(sc.GetName()));
 			}
-			catch ( EFPPCantRegName )
+			catch ( const EFPPCantRegName& )
 			{
 				std::cout << "Query name " << sc.GetName() << " is undefined in TBox\n";
 			}
@@ -96,15 +96,15 @@ getNextName ( TsScanner& sc, ReasoningKernel& Kernel )
 #define TryReasoning(action)			\
 	do {								\
 		try { action; }					\
-		catch ( EFPPInconsistentKB ) {}	\
-		catch ( EFPPCantRegName crn )	\
+		catch ( const EFPPInconsistentKB& ) {}	\
+		catch ( const EFPPCantRegName& crn )	\
 		{ std::cout << "Query name " << crn.getName()		\
 			<< " is undefined in TBox\n"; }					\
-		catch ( EFPPNonSimpleRole nsr )	\
+		catch ( const EFPPNonSimpleRole& nsr )	\
 		{ std::cerr << "WARNING: KB is incorrect: " 		\
 			<< nsr.what() << ". Query is NOT processed\n";	\
 		  exit(0); }					\
-		catch ( EFPPCycleInRIA cir )	\
+		catch ( const EFPPCycleInRIA& cir )	\
 		{ std::cerr << "WARNING: KB is incorrect: " 		\
 			<< cir.what() << ". Query is NOT processed\n";	\
 		  exit(0); }					\
@@ -275,7 +275,7 @@ int main ( int argc, char *argv[] )
 	delete pMon;
 
 	}
-	catch ( EFaCTPlusPlus e )
+	catch ( const EFaCTPlusPlus& e )
 	{
 		std::cerr << "\n" << e.what() << "\n";
 		exit(1);
