@@ -47,7 +47,7 @@ protected:	// members
 protected:	// methods
 		/// check whether actor is applicable to the ENTRY
 	bool applicable ( const ClassifiableEntry* entry );
-	/// try current entry
+		/// try current entry
 	void tryEntry ( const ClassifiableEntry* p )
 	{
 		if ( p->isSystem() )
@@ -59,6 +59,15 @@ protected:	// methods
 			plain.push_back(p);
 
 		}*/
+	}
+		/// build the NULL-terminated array of names of entries
+	const char** buildArray ( const SynVector& vec ) const
+	{
+		const char** ret = new const char*[vec.size()+1];
+		for ( size_t i = 0; i < vec.size(); ++i )
+			ret[i] = vec[i]->getName();
+		ret[vec.size()] = NULL;
+		return ret;
 	}
 
 public:		// interface
@@ -81,22 +90,26 @@ public:		// interface
 	void setInterruptAfterFirstFound ( bool value ) { interrupt = value; }
 
 	// return values
-/*
-		/// get single vector of synonyms (necessary for Equivalents, for example)
-	jobjectArray getSynonyms ( void ) const { return getArray ( acc.empty() ? SynVector() : acc[0] ); }
-		/// get 2D array of all required elements of the taxonomy
-	jobjectArray getElements ( void ) const
+		/// get 1-d NULL-terminated array of synonyms of the 1st entry(necessary for Equivalents, for example)
+	const char** getSynonyms ( void ) const { return buildArray ( acc.empty() ? SynVector() : acc[0] ); }
+		/// get NULL-terminated 2D array of all required elements of the taxonomy
+	const char*** getElements2D ( void ) const
 	{
-		if ( AccessPolicy::needPlain() )
-			return getArray(plain);
-		jclass ArrayClassID = env->FindClass(AccessPolicy::getIDs().ArrayClassName);
-		jobjectArray ret = env->NewObjectArray ( acc.size(), ArrayClassID, NULL );
-		for ( unsigned int i = 0; i < acc.size(); ++i )
-			env->SetObjectArrayElement ( ret, i, getArray(acc[i]) );
+		const char*** ret = new const char**[acc.size()+1];
+		for ( size_t i = 0; i < acc.size(); ++i )
+			ret[i] = buildArray(acc[i]);
+		ret[acc.size()] = NULL;
 		return ret;
 	}
+		/// get NULL-terminated 1D array of all required elements of the taxonomy
+	const char** getElements1D ( void ) const
+	{
+		SynVector vec;
+		for ( SetOfNodes::const_iterator p = acc.begin(), p_end = acc.end(); p != p_end; ++p )
+			vec.insert ( vec.end(), p->begin(), p->end() );
+		return buildArray(vec);
+	}
 
-	*/
 		/// taxonomy walking method.
 		/// @return true if node was processed, and there is no need to go further
 		/// @return false if node can not be processed in current settings
