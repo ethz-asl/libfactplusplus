@@ -24,6 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "taxVertex.h"
 #include "SearchableStack.h"
+#include "Actor.h"
 
 class Taxonomy
 {
@@ -241,6 +242,26 @@ protected:	// methods
 		/// check if it is necessary to log taxonomy action
 	virtual bool needLogging ( void ) const { return false; }
 
+	/// apply ACTOR to subgraph starting from NODE as defined by flags
+	template<bool onlyDirect, bool upDirection>
+	void getRelativesInfoRec ( TaxonomyVertex* node, Actor* actor )
+	{
+		// recursive applicability checking
+		if ( node->isChecked(checkLabel) )
+			return;
+
+		// label node as visited
+		node->setChecked(checkLabel);
+
+		// if current node processed OK and there is no need to continue -- exit
+		// if node is NOT processed for some reasons -- go to another level
+		if ( actor->apply(*node) && onlyDirect )
+			return;
+
+		// apply method to the proper neighbours with proper parameters
+		for ( iterator p = node->begin(upDirection), p_end = node->end(upDirection); p != p_end; ++p )
+			getRelativesInfoRec<onlyDirect, upDirection> ( *p, actor );
+	}
 		/// apply ACTOR to subgraph starting from NODE as defined by flags
 	template<bool onlyDirect, bool upDirection, class Actor>
 	void getRelativesInfoRec ( TaxonomyVertex* node, Actor& actor )
@@ -300,6 +321,23 @@ public:		// interface
 	TaxonomyVertex* getTopVertex ( void ) const { return *itop(); }
 		/// special access to BOTTOM of taxonomy
 	TaxonomyVertex* getBottomVertex ( void ) const { return *ibottom(); }
+
+		/// apply ACTOR to subgraph starting from NODE as defined by flags;
+	template<bool needCurrent, bool onlyDirect, bool upDirection>
+	void getRelativesInfo ( TaxonomyVertex* node, Actor* actor )
+	{
+		// if current node processed OK and there is no need to continue -- exit
+		// this is the helper to the case like getDomain():
+		//   if there is a named concept that represent's a domain -- that's what we need
+		if ( needCurrent )
+			if ( actor->apply(*node) && onlyDirect )
+				return;
+
+		for ( iterator p = node->begin(upDirection), p_end = node->end(upDirection); p != p_end; ++p )
+			getRelativesInfoRec<onlyDirect, upDirection> ( *p, actor );
+
+		clearCheckedLabel();
+	}
 
 		/// apply ACTOR to subgraph starting from NODE as defined by flags;
 	template<bool needCurrent, bool onlyDirect, bool upDirection, class Actor>

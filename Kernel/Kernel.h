@@ -421,6 +421,12 @@ protected:	// methods
 		return R->getTaxVertex();
 	}
 
+		/// try to perform the incremental reasoning on the changed ontology
+	bool tryIncremental ( void );
+		/// force the re-classification of the changed ontology
+	void forceReload ( void );
+
+
 	//----------------------------------------------
 	//-- save/load support; implementation in SaveLoad.cpp
 	//----------------------------------------------
@@ -718,10 +724,6 @@ public:
 		if ( !isKBConsistent() )
 			throw EFPPInconsistentKB();
 	}
-		/// try to perform the incremental reasoning on the changed ontology
-	bool tryIncremental ( void );
-		/// force the re-classification of the changed ontology
-	void forceReload ( void );
 
 	// role info retrieval
 
@@ -1093,6 +1095,47 @@ public:
 	void getRoleFillers ( const TIndividualExpr* I, const TORoleExpr* R, IndividualSet& Result );
 		/// set RESULT into set of J's such that R(I,J)
 	bool isRelated ( const TIndividualExpr* I, const TORoleExpr* R, const TIndividualExpr* J );
+
+	//----------------------------------------------------------------------------------
+	//	All the following are the duplicates of the above with Actor as a template
+	//  replaced with a parameter of class Actor
+	//----------------------------------------------------------------------------------
+		/// apply actor::apply() to all DIRECT super-concepts of [complex] C
+	void getSupConcepts ( const TConceptExpr* C, bool direct, Actor* actor );
+		/// apply actor::apply() to all DIRECT sub-concepts of [complex] C
+	void getSubConcepts ( const TConceptExpr* C, bool direct, Actor* actor );
+		/// apply actor::apply() to all synonyms of [complex] C
+	void getEquivalentConcepts ( const TConceptExpr* C, Actor* actor );
+		/// apply actor::apply() to all named concepts disjoint with [complex] C
+	void getDisjointConcepts ( const TConceptExpr* C, Actor* actor );
+
+	// role hierarchy
+
+		/// apply actor::apply() to all DIRECT super-roles of [complex] R
+	void getSupRoles ( const TRoleExpr* r, bool direct, Actor* actor );
+		/// apply actor::apply() to all DIRECT sub-roles of [complex] R
+	void getSubRoles ( const TRoleExpr* r, bool direct, Actor* actor );
+		/// apply actor::apply() to all synonyms of [complex] R
+	void getEquivalentRoles ( const TRoleExpr* r, Actor* actor );
+
+	// domain and range as a set of named concepts
+
+		/// apply actor::apply() to all DIRECT NC that are in the domain of [complex] R
+	void getRoleDomain ( const TRoleExpr* r, bool direct, Actor* actor );
+		/// apply actor::apply() to all DIRECT NC that are in the range of [complex] R
+	void getRoleRange ( const TORoleExpr* r, bool direct, Actor* actor );
+
+	// instances
+
+		/// apply actor::apply() to all direct instances of given [complex] C
+	void getDirectInstances ( const TConceptExpr* C, Actor* actor );
+		/// apply actor::apply() to all instances of given [complex] C
+	void getInstances ( const TConceptExpr* C, Actor* actor );
+		/// apply actor::apply() to all DIRECT concepts that are types of an individual I
+	void getTypes ( const TIndividualExpr* I, bool direct, Actor* actor );
+		/// apply actor::apply() to all synonyms of an individual I
+	void getSameAs ( const TIndividualExpr* I, Actor* actor );
+
 }; // ReasoningKernel
 
 #endif
