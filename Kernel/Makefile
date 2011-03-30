@@ -48,5 +48,6 @@ SOURCES = \
           CascadedCache.cpp\
           TriRelation.cpp\
           tSubsumptionMap.cpp\
+          Actor.cpp\
 
 include ../Makefile.include
