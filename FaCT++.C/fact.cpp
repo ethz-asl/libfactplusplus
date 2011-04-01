@@ -3,84 +3,38 @@
 #include "Kernel.h"
 // type declarations
 
+#define DECLARE_STRUCT(name,type)	\
+struct name ## _st { type* p; name ## _st(type* q) : p(q) {} }
 // FaCT++ kernel
-struct fact_reasoning_kernel_st
-{
-	ReasoningKernel* p;
-	fact_reasoning_kernel_st(ReasoningKernel* q) : p(q) {}
-};
+DECLARE_STRUCT(fact_reasoning_kernel,ReasoningKernel);
 // progress monitor
-struct fact_progress_monitor_st
-{
-	TProgressMonitor* p;
-};
-// expression manager
-struct fact_expression_manager_st
-{
-	TExpressionManager* p;
-	fact_expression_manager_st(TExpressionManager*q) : p(q) {}
-};
+DECLARE_STRUCT(fact_progress_monitor,TProgressMonitor);
 // axiom
-struct fact_axiom_st
-{
-	TDLAxiom* p;
-	fact_axiom_st(TDLAxiom*q) : p(q) {}
-};
+DECLARE_STRUCT(fact_axiom,TDLAxiom);
 // expression
-struct fact_expression_st
-{
-	ReasoningKernel::TExpr* p;
-};
+DECLARE_STRUCT(fact_expression,ReasoningKernel::TExpr);
 // concept expression
-struct fact_concept_expression_st
-{
-	ReasoningKernel::TConceptExpr* p;
-};
-// role expression
-struct fact_role_expression_st
-{
-	ReasoningKernel::TRoleExpr* p;
-};
+DECLARE_STRUCT(fact_concept_expression,ReasoningKernel::TConceptExpr);
+// data- or object-role expression
+DECLARE_STRUCT(fact_role_expression,ReasoningKernel::TRoleExpr);
 // object role expression
-struct fact_o_role_expression_st
-{
-	ReasoningKernel::TORoleExpr* p;
-};
+DECLARE_STRUCT(fact_o_role_expression,ReasoningKernel::TORoleExpr);
 // complex object role expression
-struct fact_o_role_complex_expression_st
-{
-	ReasoningKernel::TORoleComplexExpr* p;
-};
+DECLARE_STRUCT(fact_o_role_complex_expression,ReasoningKernel::TORoleComplexExpr);
 // data role expression
-struct fact_d_role_expression_st
-{
-	ReasoningKernel::TDRoleExpr* p;
-};
+DECLARE_STRUCT(fact_d_role_expression,ReasoningKernel::TDRoleExpr);
 // individual expression
-struct fact_individual_expression_st
-{
-	ReasoningKernel::TIndividualExpr* p;
-};
+DECLARE_STRUCT(fact_individual_expression,ReasoningKernel::TIndividualExpr);
 // general data expression
-struct fact_data_expression_st
-{
-	ReasoningKernel::TDataExpr* p;
-};
+DECLARE_STRUCT(fact_data_expression,ReasoningKernel::TDataExpr);
 // data type expression
-struct fact_data_type_expression_st
-{
-	ReasoningKernel::TDataTypeExpr* p;
-};
+DECLARE_STRUCT(fact_data_type_expression,ReasoningKernel::TDataTypeExpr);
 // data value expression
-struct fact_data_value_expression_st
-{
-	ReasoningKernel::TDataValueExpr* p;
-};
-// actor
-struct fact_actor_st
-{
-	Actor* p;
-};
+DECLARE_STRUCT(fact_data_value_expression,ReasoningKernel::TDataValueExpr);
+// facet expression
+DECLARE_STRUCT(fact_facet_expression,ReasoningKernel::TFacetExpr);
+// actor to traverse taxonomy
+DECLARE_STRUCT(fact_actor,Actor);
 
 const char *fact_get_version ()
 {
@@ -137,11 +91,6 @@ void fact_set_operation_timeout (fact_reasoning_kernel *k,
 		unsigned long timeout)
 {
 	k->p->setOperationTimeout(timeout);
-}
-
-fact_expression_manager *fact_get_expression_manager (fact_reasoning_kernel *k)
-{
-	return new fact_expression_manager_st(k->p->getExpressionManager());
 }
 
 bool fact_new_kb (fact_reasoning_kernel *k)
@@ -525,4 +474,326 @@ bool fact_is_related (fact_reasoning_kernel *k,
 		fact_individual_expression *j)
 {
 	return k->p->isRelated(i->p,r->p,j->p);
+}
+fact_actor* fact_concept_actor_new()
+{
+	fact_actor* ret = new fact_actor(new Actor());
+	ret->p->needConcepts();
+	return ret;
+}
+fact_actor* fact_individual_actor_new()
+{
+	fact_actor* ret = new fact_actor(new Actor());
+	ret->p->needIndividuals();
+	return ret;
+}
+fact_actor* fact_o_role_actor_new()
+{
+	fact_actor* ret = new fact_actor(new Actor());
+	ret->p->needObjectRoles();
+	return ret;
+}
+fact_actor* fact_d_role_actor_new()
+{
+	fact_actor* ret = new fact_actor(new Actor());
+	ret->p->needDataRoles();
+	return ret;
+}
+void fact_actor_free ( fact_actor* actor )
+{
+	delete actor->p;
+	delete actor;
+}
+/// get 1-d NULL-terminated array of synonyms of the 1st entry(necessary for Equivalents, for example)
+const char** fact_get_synonyms ( fact_actor* actor )
+{
+	return actor->p->getSynonyms();
+}
+/// get NULL-terminated 2D array of all required elements of the taxonomy
+const char*** fact_get_elements_2d ( fact_actor* actor )
+{
+	return actor->p->getElements2D();
+}
+/// get NULL-terminated 1D array of all required elements of the taxonomy
+const char** fact_get_elements_1d ( fact_actor* actor )
+{
+	return actor->p->getElements1D();
+}
+
+/// opens new argument list
+void fact_new_arg_list ( fact_reasoning_kernel *k )
+{
+	k->p->getExpressionManager()->newArgList();
+}
+/// add argument E to the current argument list
+void fact_add_arg ( fact_reasoning_kernel *k,fact_expression* e )
+{
+	k->p->getExpressionManager()->addArg(e->p);
+}
+
+// create expressions methods
+
+// concepts
+
+/// get TOP concept
+fact_concept_expression* fact_top ( fact_reasoning_kernel *k )
+{
+	return new fact_concept_expression(k->p->getExpressionManager()->Top());
+}
+/// get BOTTOM concept
+fact_concept_expression* fact_bottom ( fact_reasoning_kernel *k )
+{
+	return new fact_concept_expression(k->p->getExpressionManager()->Bottom());
+}
+/// get named concept
+fact_concept_expression* fact_concept ( fact_reasoning_kernel *k,const char* name )
+{
+	return new fact_concept_expression(k->p->getExpressionManager()->Concept(name));
+}
+/// get negation of a concept c
+fact_concept_expression* fact_not ( fact_reasoning_kernel *k,fact_concept_expression* c )
+{
+	return new fact_concept_expression(k->p->getExpressionManager()->Not(c->p));
+}
+/// get an n-ary conjunction expression; take the arguments from the last argument list
+fact_concept_expression* fact_and ( fact_reasoning_kernel *k )
+{
+	return new fact_concept_expression(k->p->getExpressionManager()->And());
+}
+/// get an n-ary disjunction expression; take the arguments from the last argument list
+fact_concept_expression* fact_or ( fact_reasoning_kernel *k )
+{
+	return new fact_concept_expression(k->p->getExpressionManager()->Or());
+}
+/// get an n-ary one-of expression; take the arguments from the last argument list
+fact_concept_expression* fact_one_of ( fact_reasoning_kernel *k )
+{
+	return new fact_concept_expression(k->p->getExpressionManager()->OneOf());
+}
+
+/// get self-reference restriction of an object role r
+fact_concept_expression* fact_self_reference ( fact_reasoning_kernel *k,fact_o_role_expression* r )
+{
+	return new fact_concept_expression(k->p->getExpressionManager()->SelfReference(r->p));
+}
+/// get value restriction wrt an object role r and an individual i
+fact_concept_expression* fact_o_value ( fact_reasoning_kernel *k,fact_o_role_expression* r, fact_individual_expression* i )
+{
+	return new fact_concept_expression(k->p->getExpressionManager()->Value(r->p,i->p));
+}
+/// get existential restriction wrt an object role r and a concept c
+fact_concept_expression* fact_o_exists ( fact_reasoning_kernel *k,fact_o_role_expression* r, fact_concept_expression* c )
+{
+	return new fact_concept_expression(k->p->getExpressionManager()->Exists(r->p,c->p));
+}
+/// get universal restriction wrt an object role r and a concept c
+fact_concept_expression* fact_o_forall ( fact_reasoning_kernel *k,fact_o_role_expression* r, fact_concept_expression* c )
+{
+	return new fact_concept_expression(k->p->getExpressionManager()->Forall(r->p,c->p));
+}
+/// get min cardinality restriction wrt number _n, an object role r and a concept c
+fact_concept_expression* fact_o_min_cardinality ( fact_reasoning_kernel *k,unsigned int n, fact_o_role_expression* r, fact_concept_expression* c )
+{
+	return new fact_concept_expression(k->p->getExpressionManager()->MinCardinality(n,r->p,c->p));
+}
+/// get max cardinality restriction wrt number _n, an object role r and a concept c
+fact_concept_expression* fact_o_max_cardinality ( fact_reasoning_kernel *k,unsigned int n, fact_o_role_expression* r, fact_concept_expression* c )
+{
+	return new fact_concept_expression(k->p->getExpressionManager()->MaxCardinality(n,r->p,c->p));
+}
+/// get exact cardinality restriction wrt number _n, an object role r and a concept c
+fact_concept_expression* fact_o_cardinality ( fact_reasoning_kernel *k,unsigned int n, fact_o_role_expression* r, fact_concept_expression* c )
+{
+	return new fact_concept_expression(k->p->getExpressionManager()->Cardinality(n,r->p,c->p));
+}
+
+/// get value restriction wrt a data role r and a data value v
+fact_concept_expression* fact_d_value ( fact_reasoning_kernel *k,fact_d_role_expression* r, fact_data_value_expression* v )
+{
+	return new fact_concept_expression(k->p->getExpressionManager()->Value(r->p,v->p));
+}
+/// get existential restriction wrt a data role r and a data expression e
+fact_concept_expression* fact_d_exists ( fact_reasoning_kernel *k,fact_d_role_expression* r, fact_data_expression* e )
+{
+	return new fact_concept_expression(k->p->getExpressionManager()->Exists(r->p,e->p));
+}
+/// get universal restriction wrt a data role r and a data expression e
+fact_concept_expression* fact_d_forall ( fact_reasoning_kernel *k,fact_d_role_expression* r, fact_data_expression* e )
+{
+	return new fact_concept_expression(k->p->getExpressionManager()->Forall(r->p,e->p));
+}
+/// get min cardinality restriction wrt number _n, a data role r and a data expression e
+fact_concept_expression* fact_d_min_cardinality ( fact_reasoning_kernel *k,unsigned int n, fact_d_role_expression* r, fact_data_expression* e )
+{
+	return new fact_concept_expression(k->p->getExpressionManager()->MinCardinality(n,r->p,e->p));
+}
+/// get max cardinality restriction wrt number _n, a data role r and a data expression e
+fact_concept_expression* fact_d_max_cardinality ( fact_reasoning_kernel *k,unsigned int n, fact_d_role_expression* r, fact_data_expression* e )
+{
+	return new fact_concept_expression(k->p->getExpressionManager()->MaxCardinality(n,r->p,e->p));
+}
+/// get exact cardinality restriction wrt number _n, a data role r and a data expression e
+fact_concept_expression* fact_d_cardinality ( fact_reasoning_kernel *k,unsigned int n, fact_d_role_expression* r, fact_data_expression* e )
+{
+	return new fact_concept_expression(k->p->getExpressionManager()->Cardinality(n,r->p,e->p));
+}
+
+// individuals
+
+/// get named individual
+fact_individual_expression* fact_individual ( fact_reasoning_kernel *k,const char* name )
+{
+	return new fact_individual_expression(k->p->getExpressionManager()->Individual(name));
+}
+
+// object roles
+
+/// get TOP object role
+fact_o_role_expression* fact_object_role_top ( fact_reasoning_kernel *k )
+{
+	return new fact_o_role_expression(k->p->getExpressionManager()->ObjectRoleTop());
+}
+/// get BOTTOM object role
+fact_o_role_expression* fact_object_role_bottom ( fact_reasoning_kernel *k )
+{
+	return new fact_o_role_expression(k->p->getExpressionManager()->ObjectRoleBottom());
+}
+/// get named object role
+fact_o_role_expression* fact_object_role ( fact_reasoning_kernel *k,const char* name )
+{
+	return new fact_o_role_expression(k->p->getExpressionManager()->ObjectRole(name));
+}
+/// get an inverse of a given object role expression r
+fact_o_role_expression* fact_inverse ( fact_reasoning_kernel *k,fact_o_role_expression* r )
+{
+	return new fact_o_role_expression(k->p->getExpressionManager()->Inverse(r->p));
+}
+/// get a role chain corresponding to _r1 o ... o _rn; take the arguments from the last argument list
+fact_o_role_complex_expression* fact_compose ( fact_reasoning_kernel *k )
+{
+	return new fact_o_role_complex_expression(k->p->getExpressionManager()->Compose());
+}
+/// get a expression corresponding to r projected from c
+fact_o_role_complex_expression* fact_project_from ( fact_reasoning_kernel *k,fact_o_role_expression* r, fact_concept_expression* c )
+{
+	return new fact_o_role_complex_expression(k->p->getExpressionManager()->ProjectFrom(r->p,c->p));
+}
+/// get a expression corresponding to r projected into c
+fact_o_role_complex_expression* fact_project_into ( fact_reasoning_kernel *k,fact_o_role_expression* r, fact_concept_expression* c )
+{
+	return new fact_o_role_complex_expression(k->p->getExpressionManager()->ProjectInto(r->p,c->p));
+}
+
+// data roles
+
+/// get TOP data role
+fact_d_role_expression* fact_data_role_top ( fact_reasoning_kernel *k )
+{
+	return new fact_d_role_expression(k->p->getExpressionManager()->DataRoleTop());
+}
+/// get BOTTOM data role
+fact_d_role_expression* fact_data_role_bottom ( fact_reasoning_kernel *k )
+{
+	return new fact_d_role_expression(k->p->getExpressionManager()->DataRoleBottom());
+}
+/// get named data role
+fact_d_role_expression* fact_data_role ( fact_reasoning_kernel *k,const char* name )
+{
+	return new fact_d_role_expression(k->p->getExpressionManager()->DataRole(name));
+}
+
+// data expressions
+
+/// get TOP data element
+fact_data_expression* fact_data_top ( fact_reasoning_kernel *k )
+{
+	return new fact_data_expression(k->p->getExpressionManager()->DataTop());
+}
+/// get BOTTOM data element
+fact_data_expression* fact_data_bottom ( fact_reasoning_kernel *k )
+{
+	return new fact_data_expression(k->p->getExpressionManager()->DataBottom());
+}
+
+/// get named data type
+fact_data_type_expression* fact_data_type ( fact_reasoning_kernel *k,const char* name )
+{
+	return new fact_data_type_expression(k->p->getExpressionManager()->DataType(name));
+}
+/// get basic string data type
+fact_data_type_expression* fact_get_str_data_type ( fact_reasoning_kernel *k )
+{
+	return new fact_data_type_expression(k->p->getExpressionManager()->getStrDataType());
+}
+/// get basic integer data type
+fact_data_type_expression* fact_get_int_data_type ( fact_reasoning_kernel *k )
+{
+	return new fact_data_type_expression(k->p->getExpressionManager()->getIntDataType());
+}
+/// get basic floating point data type
+fact_data_type_expression* fact_get_real_data_type ( fact_reasoning_kernel *k )
+{
+	return new fact_data_type_expression(k->p->getExpressionManager()->getRealDataType());
+}
+/// get basic boolean data type
+fact_data_type_expression* fact_get_bool_data_type ( fact_reasoning_kernel *k )
+{
+	return new fact_data_type_expression(k->p->getExpressionManager()->getBoolDataType());
+}
+/// get basic date-time data type
+fact_data_type_expression* fact_get_time_data_type ( fact_reasoning_kernel *k )
+{
+	return new fact_data_type_expression(k->p->getExpressionManager()->getTimeDataType());
+}
+
+/// get basic boolean data type
+fact_data_type_expression* fact_restricted_type ( fact_reasoning_kernel *k,fact_data_type_expression* type, fact_facet_expression* facet )
+{
+	return new fact_data_type_expression(k->p->getExpressionManager()->RestrictedType(type->p,facet->p));
+}
+
+/// get data value with given VALUE and TYPE;
+fact_data_value_expression* fact_data_value ( fact_reasoning_kernel *k,const char* value, fact_data_type_expression* type )
+{
+	return new fact_data_value_expression(k->p->getExpressionManager()->DataValue(value,type->p));
+}
+/// get negation of a data expression e
+fact_data_expression* fact_data_not ( fact_reasoning_kernel *k,fact_data_expression* e )
+{
+	return new fact_data_expression(k->p->getExpressionManager()->DataNot(e->p));
+}
+/// get an n-ary data conjunction expression; take the arguments from the last argument list
+fact_data_expression* fact_data_and ( fact_reasoning_kernel *k )
+{
+	return new fact_data_expression(k->p->getExpressionManager()->DataAnd());
+}
+/// get an n-ary data disjunction expression; take the arguments from the last argument list
+fact_data_expression* fact_data_or ( fact_reasoning_kernel *k )
+{
+	return new fact_data_expression(k->p->getExpressionManager()->DataOr());
+}
+/// get an n-ary data one-of expression; take the arguments from the last argument list
+fact_data_expression* fact_data_one_of ( fact_reasoning_kernel *k )
+{
+	return new fact_data_expression(k->p->getExpressionManager()->DataOneOf());
+}
+/// get min_inclusive facet with a given _v
+fact_facet_expression* fact_facet_min_inclusive ( fact_reasoning_kernel *k,fact_data_value_expression* v )
+{
+	return new fact_facet_expression(k->p->getExpressionManager()->FacetMinInclusive(v->p));
+}
+/// get min_exclusive facet with a given _v
+fact_facet_expression* fact_facet_min_exclusive ( fact_reasoning_kernel *k,fact_data_value_expression* v )
+{
+	return new fact_facet_expression(k->p->getExpressionManager()->FacetMinExclusive(v->p));
+}
+/// get max_inclusive facet with a given _v
+fact_facet_expression* fact_facet_max_inclusive ( fact_reasoning_kernel *k,fact_data_value_expression* v )
+{
+	return new fact_facet_expression(k->p->getExpressionManager()->FacetMaxInclusive(v->p));
+}
+/// get max_exclusive facet with a given _v
+fact_facet_expression* fact_facet_max_exclusive ( fact_reasoning_kernel *k,fact_data_value_expression* v )
+{
+	return new fact_facet_expression(k->p->getExpressionManager()->FacetMaxExclusive(v->p));
 }
