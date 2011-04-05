@@ -410,7 +410,7 @@ protected:	// methods
 		/// build a set out of signature SIG w/o given ENTITY
 	SigSet buildSet ( const TSignature& sig, const TNamedEntity* entity );
 		/// init split as a set-of-sets
-	void initSplit ( const TSplitVar* split );
+	void initSplit ( TSplitVar* split );
 		/// init splits
 	void initSplits ( void )
 	{

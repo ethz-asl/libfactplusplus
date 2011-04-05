@@ -293,8 +293,8 @@ void
 TBox :: split2dag ( TSplitVar* split )
 {
 	DLVertex* v = new DLVertex(dtSplitConcept);
-	for ( TSplitVar::CNameVector::iterator p = split->Ci.begin(), p_end = split->Ci.end(); p != p_end; ++p )
-		v->addChild((*p)->pName);
+	for ( TSplitVar::iterator p = split->begin(), p_end = split->end(); p != p_end; ++p )
+		v->addChild(p->C->pName);
 	split->C->pBody = DLHeap.directAdd(v);
 	split->C->setPrimitive(false);
 	DLHeap.replaceVertex ( split->C->pName, new DLVertex ( dtNConcept, split->C->pBody ), split->C );

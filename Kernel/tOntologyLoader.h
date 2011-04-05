@@ -85,11 +85,11 @@ protected:	// methods
 	{
 		sv->C = kb.getConcept(sv->oldName->getName());
 		sv->C->setNonClassifiable();
-		for ( TSplitVar::DLNameVector::const_iterator p = sv->splitNames.begin(), p_end = sv->splitNames.end(); p != p_end; ++p )
+		for ( TSplitVar::iterator p = sv->begin(), p_end = sv->end(); p != p_end; ++p )
 		{
-			TConcept* C = kb.getConcept((*p)->getName());
+			TConcept* C = kb.getConcept(p->name->getName());
 			C->setSystem();
-			sv->Ci.push_back(C);
+			p->C = C;
 		}
 	}
 

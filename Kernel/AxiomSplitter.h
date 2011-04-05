@@ -22,6 +22,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Modularity.h"
 #include <sstream>
 
+// #define FPP_DEBUG_SPLIT_MODULES
+
 class TAxiomSplitter
 {
 protected:	// types
@@ -33,6 +35,7 @@ protected:	// types
 		AxVec oldAxioms;
 		TDLAxiom* newAxiom;
 		TSignature newAxSig;
+		std::set<TDLAxiom*> Module;	// module for a new axiom
 			/// set old axiom as an equivalent AX; create a new one
 		void setEqAx ( TDLAxiomEquivalentConcepts* ax )
 		{
@@ -92,12 +95,14 @@ protected:	// methods
 	{
 		sig.clear();	// make sig a signature of a new axiom
 		rec->newAxiom->accept(Updater);
-		mod.extract ( *O, sig, M_STAR );	// build a module/signature for the axiom
-//		std::cout << "Module for " << rec->oldName->getName() << ":\n";
-//		for ( std::set<TDLAxiom*>::const_iterator z = module.begin(), z_end = module.end(); z != z_end; ++z )
-//			(*z)->accept(pr);
+		mod.extract ( *O, sig, M_STAR, rec->Module );	// build a module/signature for the axiom
 		rec->newAxSig = mod.getSignature();	// FIXME!! check that SIG wouldn't change after some axiom retractions
-//		std::cout << " with module size " << module.size() << "\n";
+#ifdef FPP_DEBUG_SPLIT_MODULES
+		std::cout << "Module for " << rec->oldName->getName() << ":\n";
+		for ( std::set<TDLAxiom*>::const_iterator z = rec->Module.begin(), z_end = rec->Module.end(); z != z_end; ++z )
+			(*z)->accept(pr);
+		std::cout << " with module size " << rec->Module.size() << "\n";
+#endif
 	}
 		/// add axiom CI in a form C [= D for D != TOP
 	void addSingleCI ( TDLAxiomConceptInclusion* ci )
@@ -244,8 +249,7 @@ protected:	// methods
 		// create new split
 		TSplitVar* split = new TSplitVar();
 		split->oldName = oldName;
-		split->splitNames.push_back(rec->newName);
-		split->Sigs.push_back(rec->newAxSig);
+		split->addEntry ( rec->newName, rec->newAxSig, rec->Module );
 		O->Splits.set ( oldName, split );
 		return split;
 	}
@@ -258,8 +262,7 @@ protected:	// methods
 			if ( Rejects.count((*r)->oldName) == 0 )
 			{
 				TSplitVar* split = splitImplicationsFor((*r)->oldName);
-				split->splitNames.push_back((*r)->newName);
-				split->Sigs.push_back((*r)->newAxSig);
+				split->addEntry ( (*r)->newName, (*r)->newAxSig, (*r)->Module );
 			}
 			else
 				(*r)->Unregister();

@@ -23,6 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <set>
 
 #include "tSignature.h"
+#include "tDLAxiom.h"
 
 // forward declarations
 class TDLConceptName;
@@ -31,14 +32,31 @@ class TConcept;
 /// this is to keep the track of new vars/axioms for C >< C0, C1, ..., Cn
 struct TSplitVar
 {
-	typedef std::vector<const TDLConceptName*> DLNameVector;
-	typedef std::vector<TConcept*> CNameVector;
-
-	const TDLConceptName* oldName;
-	DLNameVector splitNames;
-	TConcept* C;	// concept on DLTree level
-	CNameVector Ci;	// split concepts
-	std::vector<TSignature> Sigs;
+// types
+	struct Entry
+	{
+		const TDLConceptName* name;	// entry name
+		TConcept* C;				// internal name
+		TSignature sig;
+		std::set<TDLAxiom*> Module;
+	};
+	typedef std::vector<Entry>::iterator iterator;
+// members
+	const TDLConceptName* oldName;	// name of split concept
+	TConcept* C;					// split concept itself
+	std::vector<Entry> Entries;
+// methods
+	void addEntry ( const TDLConceptName* name, const TSignature& sig, const std::set<TDLAxiom*>& mod )
+	{
+		Entry e;
+		e.name = name;
+		e.C = NULL;
+		e.sig = sig;
+		e.Module = mod;
+		Entries.push_back(e);
+	}
+	iterator begin ( void ) { return Entries.begin(); }
+	iterator end ( void ) { return Entries.end(); }
 }; // TSplitVar
 
 /// set of all known var splits with access by name

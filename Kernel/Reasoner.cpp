@@ -143,13 +143,14 @@ DlSatTester :: buildSet ( const TSignature& sig, const TNamedEntity* entity )
 }
 
 void
-DlSatTester :: initSplit ( const TSplitVar* split )
+DlSatTester :: initSplit ( TSplitVar* split )
 {
 //	std::cout << "Processing split for " << split->oldName->getName() << ":\n";
-	SigSet impSet = buildSet ( split->Sigs[0], split->splitNames[0] );
+	TSplitVar::iterator p = split->begin(), p_end = split->end();
+	SigSet impSet = buildSet ( p->sig, p->name );
 	BipolarPointer bp = split->C->pBody+1;	// choose-rule stays next to a split-definition of C
-	for ( size_t i = 1; i < split->Sigs.size(); ++i )
-		addSplitRule ( buildSet ( split->Sigs[i], split->splitNames[i] ), impSet, bp );
+	while ( ++p != p_end )
+		addSplitRule ( buildSet ( p->sig, p->name ), impSet, bp );
 }
 
 bool
