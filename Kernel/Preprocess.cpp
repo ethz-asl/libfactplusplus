@@ -414,13 +414,14 @@ void
 TBox :: setAllIndexes ( void )
 {
 	nC = 1;	// start with 1 to make index 0 an indicator of "not processed"
-	pTemp->setIndex(nC++);
+	ConceptMap.push_back(NULL);
+	setConceptIndex(pTemp);
 	for ( c_const_iterator pc = c_begin(), pc_end = c_end(); pc != pc_end; ++pc )
 		if ( !(*pc)->isSynonym() )
-			(*pc)->setIndex(nC++);
+			setConceptIndex(*pc);
 	for ( i_const_iterator pi = i_begin(), pi_end = i_end(); pi != pi_end; ++pi )
 		if ( !(*pi)->isSynonym() )
-			(*pi)->setIndex(nC++);
+			setConceptIndex(*pi);
 	++nC;	// place for the query concept
 	nR = 1;	// the same
 	RoleMaster::iterator r, r_end;

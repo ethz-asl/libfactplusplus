@@ -207,6 +207,9 @@ protected:	// members
 		/// cache for the \forall R.C replacements during absorption
 	TRCCache RCCache;
 
+		/// maps from concept index to concept itself
+	ConceptVector ConceptMap;
+
 		/// number of concepts and individuals; used to set index for modelCache
 	unsigned int nC;
 		/// number of all distinct roles; used to set index for modelCache
@@ -592,6 +595,13 @@ protected:	// methods
 			(*pc)->getClassTag();
 		for ( i_const_iterator pi = i_begin(); pi != i_end(); ++pi )
 			(*pi)->getClassTag();
+	}
+		/// set new concept index for given C wrt existing nC
+	void setConceptIndex ( TConcept* C )
+	{
+		C->setIndex(nC);
+		ConceptMap.push_back(C);
+		++nC;
 	}
 		/// set index on all classifiable entries
 	void setAllIndexes ( void );
