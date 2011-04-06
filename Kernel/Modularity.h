@@ -28,6 +28,12 @@ enum ModuleType { M_TOP, M_BOT, M_STAR };
 /// class to create modules of an ontology wrt module type
 class TModularizer
 {
+protected:	// types
+		/// copy axiom array definition from an ontology
+	typedef TOntology::TAxiomArray TAxiomArray;
+		/// iterator over axiom array
+	typedef TAxiomArray::iterator iterator;
+
 protected:	// members
 		/// shared signature signature
 	TSignature sig;
@@ -48,14 +54,13 @@ protected:	// methods
 		axiom->accept(Updater);
 	}
 		/// mark the ontology O such that all the marked axioms creates the module wrt SIG
-	template<class Iterator>
-	void extractModule ( Iterator begin, Iterator end )
+	void extractModule ( iterator begin, iterator end )
 	{
 		size_t sigSize;
 		Module.clear();
 		Module.reserve(end-begin);
 		// clear the module flag in the input
-		Iterator p;
+		iterator p;
 		for ( p = begin; p != end; ++p )
 			(*p)->setInModule(false);
 		do
@@ -77,14 +82,14 @@ public:
 		// empty d'tor
 	~TModularizer ( void ) {}
 
-		/// extract module wrt SIGNATURE and TYPE from O
-	void extract ( TOntology& O, const TSignature& signature, ModuleType type )
+		/// extract module wrt SIGNATURE and TYPE from the set of axioms [BEGIN,END)
+	void extract ( iterator begin, iterator end, const TSignature& signature, ModuleType type )
 	{
 		bool topLocality = (type == M_TOP);
 
 		sig = signature;
 		sig.setLocality(topLocality);
- 		extractModule ( O.begin(), O.end() );
+ 		extractModule ( begin, end );
 
 		if ( type != M_STAR )
 			return;
@@ -103,13 +108,19 @@ public:
 	 		extractModule ( oldModule.begin(), oldModule.end() );
 		} while ( size != Module.size() );
 	}
-		/// extract module wrt SIGNATURE and TYPE from O; @return result in the Set
-	void extract ( TOntology& O, const TSignature& signature, ModuleType type, std::set<TDLAxiom*>& Set )
+		/// extract module wrt SIGNATURE and TYPE from the set of axioms [BEGIN,END); @return result in the Set
+	void extract ( iterator begin, iterator end, const TSignature& signature, ModuleType type, std::set<TDLAxiom*>& Set )
 	{
-		extract ( O, signature, type );
+		extract ( begin, end, signature, type );
 		Set.clear();
 		Set.insert ( Module.begin(), Module.end() );
 	}
+		/// extract module wrt SIGNATURE and TYPE from O
+	void extract ( TOntology& O, const TSignature& signature, ModuleType type )
+		{ extract ( O.begin(), O.end(), signature, type ); }
+		/// extract module wrt SIGNATURE and TYPE from O; @return result in the Set
+	void extract ( TOntology& O, const TSignature& signature, ModuleType type, std::set<TDLAxiom*>& Set )
+		{ extract ( O.begin(), O.end(), signature, type, Set ); }
 		/// get access to a signature
 	const TSignature& getSignature ( void ) const { return sig; }
 }; // TModularizer
