@@ -55,6 +55,8 @@ public:		// interface
 
 		/// add pointer to named object to signature
 	void add ( const TNamedEntity* p ) { Set.insert(p); }
+		/// remove given element from a signature
+	void remove ( const TNamedEntity* p ) { Set.erase(p); }
 		/// set new locality polarity
 	void setLocality ( bool top ) { topLocality = top; }
 
@@ -64,6 +66,8 @@ public:		// interface
 	bool operator == ( const TSignature& sig ) const { return Set == sig.Set; }
 		/// check whether 2 signatures are different
 	bool operator != ( const TSignature& sig ) const { return Set != sig.Set; }
+		/// operator <
+	bool operator < ( const TSignature& sig ) const { return Set < sig.Set; }
 		/// @return true iff signature contains given element
 	bool contains ( const TNamedEntity* p ) const { return Set.count(p) > 0; }
 		/// @return true iff signature contains given element

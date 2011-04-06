@@ -423,6 +423,9 @@ protected:	// methods
 	}
 		/// check whether split-set S contains in the active set
 	bool containsInActive ( const SigSet& S ) const
+		{ return includes ( ActiveSignature.begin(), ActiveSignature.end(), S.begin(), S.end() ); }
+		/// check whether split-set S intersects with the active set
+	bool intersectsWithActive ( const SigSet& S ) const
 	{
 		SigSet::const_iterator q = S.begin(), q_end = S.end(), p = ActiveSignature.begin(), p_end = ActiveSignature.end();
 		while ( p != p_end && q != q_end )
@@ -436,6 +439,7 @@ protected:	// methods
 		}
 		return false;
 	}
+
 		/// @return named entity corresponding to a given bp
 	const TNamedEntity* getEntity ( BipolarPointer bp ) const { return EntityMap[getValue(bp)]; }
 		/// put TODO entry for either BP or inverse(BP) in NODE's label
