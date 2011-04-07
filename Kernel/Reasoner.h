@@ -202,6 +202,8 @@ protected:	// classes
 	}; // BCStack
 
 	typedef std::set<const TNamedEntity*> SigSet;
+	typedef std::vector<const TNamedEntity*> SigVec;
+
 	/// class to check whether there is a need to unsplit splitted var
 	struct SingleSplit
 	{
@@ -329,7 +331,7 @@ protected:	// members
 		/// signature related to a split
 	SigSet PossibleSignature;
 		/// map between BP and TNamedEntities
-	std::vector<const TNamedEntity*> EntityMap;
+	SigVec EntityMap;
 
 		/// size of the DAG with some extra space
 	size_t dagSize;
@@ -463,6 +465,10 @@ protected:	// methods
 			if ( !node->isDataNode() )
 				updateName ( node, bp );
 	}
+		/// prepare start signature
+	void prepareStartSig ( const std::vector<TDLAxiom*>& Module, TSignature& FinalSig, SigVec& Allowed ) const;
+		/// build all the seed signatures
+	void BuildAllSeedSigs ( const SigVec& Allowed, const TSignature& sig, std::vector<TDLAxiom*>& Module, std::set<TSignature>& Out ) const;
 
 	// label access interface
 
