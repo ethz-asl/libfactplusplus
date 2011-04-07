@@ -25,6 +25,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "BiPointer.h"
 #include "tLabeller.h"
 #include "DataTypeComparator.h"
+#include "parseTime.h"
 
 class TDataEntry;
 
@@ -210,12 +211,7 @@ protected:	// methods
 		else if ( typeName == "bool" )	// FIXME!! dirty hack
 			comp = ComparableDT(getName());
 		else if ( typeName == "time" )
-		{
-			struct tm temp;
-			// decode time value in format YYYY-MM-DDThh:mm:ssTZ, as in xsd:dateTime
-			strptime ( getName(), "%Y-%m-%dT%H:%M:%S%z", &temp );
-			comp = ComparableDT ( timegm(&temp), 0 );
-		}
+			comp = ComparableDT ( parseTimeString(getName()), 0 );
 		else	// no more types available
 			fpp_unreachable();
 	}
