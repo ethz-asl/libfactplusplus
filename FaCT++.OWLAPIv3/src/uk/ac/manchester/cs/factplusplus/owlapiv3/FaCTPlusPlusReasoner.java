@@ -858,11 +858,21 @@ public class FaCTPlusPlusReasoner implements OWLReasoner,
 		if (datatype == null) {
 			throw new NullPointerException();
 		}
-		String name = datatype.toStringID();
-		if(datatype.getBuiltInDatatype() == OWL2Datatype.XSD_DATE_TIME) {
-			name = name + "AsLong";
-		}
+		String name = checkDateTime(datatype);
+
 		return kernel.getBuiltInDataType(name);
+	}
+
+	protected static final String checkDateTime(OWLDatatype datatype) {
+		String name = datatype.toStringID();
+		if (datatype.isBuiltIn()) {
+			OWL2Datatype builtInDatatype = datatype.getBuiltInDatatype();
+			OWL2Datatype xsdDateTime = OWL2Datatype.XSD_DATE_TIME;
+			if (builtInDatatype == xsdDateTime) {
+				name = name + "AsLong";
+			}
+		}
+		return name;
 	}
 
 	protected synchronized DataValuePointer toDataValuePointer(
@@ -1106,11 +1116,11 @@ public class FaCTPlusPlusReasoner implements OWLReasoner,
 
 		@Override
 		protected DataTypePointer createPointerForEntity(OWLDatatype entity) {
-			return kernel.getBuiltInDataType(entity.toStringID());
+			return kernel.getBuiltInDataType(checkDateTime(entity));
 		}
 
 		public DataTypeExpressionPointer visit(OWLDatatype node) {
-			return kernel.getBuiltInDataType(node.getIRI().toString());
+			return kernel.getBuiltInDataType(checkDateTime(node));
 		}
 
 		public DataTypeExpressionPointer visit(OWLDataOneOf node) {
