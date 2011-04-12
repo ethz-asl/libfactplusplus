@@ -9,7 +9,8 @@ Update-Url: http://factplusplus.googlecode.com/svn/trunk/update.properties.p4.1
 Bundle-ClassPath: .,lib/FaCTPlusPlus.jar
 Import-Package: org.osgi.framework,
  org.apache.log4j,
- javax.swing
+ javax.swing,
+ javax.xml.datatype
 Require-Bundle: org.protege.common,
  org.protege.editor.core.application,
  org.protege.editor.owl,
