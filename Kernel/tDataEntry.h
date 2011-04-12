@@ -25,7 +25,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "BiPointer.h"
 #include "tLabeller.h"
 #include "DataTypeComparator.h"
-#include "parseTime.h"
 
 class TDataEntry;
 
@@ -211,7 +210,7 @@ protected:	// methods
 		else if ( typeName == "bool" )	// FIXME!! dirty hack
 			comp = ComparableDT(getName());
 		else if ( typeName == "time" )
-			comp = ComparableDT ( parseTimeString(getName()), 0 );
+			comp = ComparableDT ( (long)atoi(getName()), 0 );
 		else	// no more types available
 			fpp_unreachable();
 	}

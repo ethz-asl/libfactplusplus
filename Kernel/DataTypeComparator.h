@@ -39,7 +39,7 @@ private:
 		/// value as a float
 	float floatValue;
 		/// value as a date
-	time_t timeValue;
+	long timeValue;	// FIXME!! FORNOW
 		/// tag of a value
 	enum { UNUSED = 0, INT, STR, FLOAT, TIME } vType;
 
@@ -77,7 +77,7 @@ public:
 		, vType(FLOAT)
 		{}
 		/// create dateTime's dt; use dummy to distinguish it from INT one
-	explicit ComparableDT ( time_t value, int dummy ATTR_UNUSED )
+	explicit ComparableDT ( long value, int dummy ATTR_UNUSED )
 		: strValue("")
 		, longIntValue(0)
 		, floatValue(0.0)
@@ -112,7 +112,7 @@ public:
 		/// get FLOAT
 	float getFloatValue ( void ) const { return floatValue; }
 		/// get TIME
-	time_t getTimeValue ( void ) const { return timeValue; }
+	long getTimeValue ( void ) const { return timeValue; }
 		/// check if the datatype is discrete
 	bool hasDiscreteType ( void ) const { return vType == INT || vType == TIME; }
 		/// check whether the comparator is inited
@@ -193,7 +193,7 @@ public:
 		case INT:	o << getLongIntValue(); break;
 		case FLOAT:	o << getFloatValue(); break;
 		case STR:	o << '"' << getStringValue().c_str() << '"'; break;
-			case TIME:	o << getTimeValue(); break;
+		case TIME:	o << getTimeValue(); break;
 		default:	fpp_unreachable();
 		}
 		return o;

@@ -341,7 +341,8 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
 	JString name(env,str);
 	std::string DTName(name());
 	TExpressionManager* EM = getEM(env,obj);
-	if ( DTName == "http://www.w3.org/2000/01/rdf-schema#Literal" )
+	if ( DTName == "http://www.w3.org/2000/01/rdf-schema#Literal" ||
+		 DTName == "http://www.w3.org/2000/01/rdf-schema#anySimpleType" )
 		return DataType ( env, EM->DataTop() );
 
 	if ( DTName == "http://www.w3.org/1999/02/22-rdf-syntax-ns#PlainLiteral" )
@@ -367,7 +368,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
 	if ( DTName == "http://www.w3.org/2001/XMLSchema#boolean" )
 		return DataType ( env, EM->getBoolDataType() );
 
-	if ( DTName == "http://www.w3.org/2001/XMLSchema#dateTime" )
+	if ( DTName == "http://www.w3.org/2001/XMLSchema#dateTimeAsLong" )
 		return DataType ( env, EM->getTimeDataType() );
 
 	std::stringstream err;

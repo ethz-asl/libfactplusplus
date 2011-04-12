@@ -42,7 +42,7 @@ public:		// interface
 		/// get name of the default boolean datatype
 	static const char* getBoolTypeName ( void ) { return "http://www.w3.org/2001/XMLSchema#boolean"; }
 		/// get name of the default date-time datatype
-	static const char* getTimeTypeName ( void ) { return "http://www.w3.org/2001/XMLSchema#dateTime"; }
+	static const char* getTimeTypeName ( void ) { return "http://www.w3.org/2001/XMLSchema#dateTimeAsLong"; }
 }; // TDataTypeManager
 
 // helpers for the users

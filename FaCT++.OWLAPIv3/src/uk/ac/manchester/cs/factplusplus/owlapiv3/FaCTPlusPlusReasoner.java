@@ -5,10 +5,16 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeConstants;
+import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.XMLGregorianCalendar;
+
 import org.semanticweb.owlapi.model.*;
 import org.semanticweb.owlapi.reasoner.*;
 import org.semanticweb.owlapi.reasoner.impl.*;
 import org.semanticweb.owlapi.util.Version;
+import org.semanticweb.owlapi.vocab.OWL2Datatype;
 import org.semanticweb.owlapi.vocab.OWLFacet;
 
 import uk.ac.manchester.cs.factplusplus.*;
@@ -266,6 +272,9 @@ public class FaCTPlusPlusReasoner implements OWLReasoner,
 	//
 	///////////////////////////////////////////////////////////////////////////
 	private void loadAxiom(OWLAxiom axiom) {
+		if (axiom2PtrMap.containsKey(axiom)) {
+			return;
+		}
 		final AxiomPointer axiomPointer = axiom.accept(axiomTranslator);
 		if (axiomPointer != null) {
 			axiom2PtrMap.put(axiom, axiomPointer);
@@ -534,8 +543,10 @@ public class FaCTPlusPlusReasoner implements OWLReasoner,
 			throws InconsistentOntologyException, ReasonerInterruptedException,
 			TimeOutException {
 		checkConsistency();
-		// TODO:
-		return new OWLObjectPropertyNodeSet();
+		// TODO: incomplete
+		OWLObjectPropertyNodeSet toReturn = new OWLObjectPropertyNodeSet();
+		toReturn.addNode(getBottomObjectPropertyNode());
+		return toReturn;
 	}
 
 	public synchronized Node<OWLObjectPropertyExpression> getInverseObjectProperties(
@@ -647,7 +658,7 @@ public class FaCTPlusPlusReasoner implements OWLReasoner,
 	public NodeSet<OWLClass> getDataPropertyDomains(OWLDataProperty pe,
 			boolean direct) throws InconsistentOntologyException,
 			ReasonerInterruptedException, TimeOutException {
-			checkConsistency();
+		checkConsistency();
 		if (pe.equals(getOWLDataFactory().getOWLTopDataProperty())) {
 			Node<OWLClass> node = classExpressionTranslator
 					.getNodeFromPointers(kernel
@@ -847,7 +858,11 @@ public class FaCTPlusPlusReasoner implements OWLReasoner,
 		if (datatype == null) {
 			throw new NullPointerException();
 		}
-		return kernel.getBuiltInDataType(datatype.toStringID());
+		String name = datatype.toStringID();
+		if(datatype.getBuiltInDatatype() == OWL2Datatype.XSD_DATE_TIME) {
+			name = name + "AsLong";
+		}
+		return kernel.getBuiltInDataType(name);
 	}
 
 	protected synchronized DataValuePointer toDataValuePointer(
@@ -856,8 +871,31 @@ public class FaCTPlusPlusReasoner implements OWLReasoner,
 		if (literal.isRDFPlainLiteral()) {
 			value = value + "@" + literal.getLang();
 		}
+		if (literal.getDatatype().getBuiltInDatatype() == OWL2Datatype.XSD_DATE_TIME) {
+			return kernel.getDataValue(convertToLongDateTime(value),
+					toDataTypePointer(literal.getDatatype()));
+		}
 		return kernel.getDataValue(value,
 				toDataTypePointer(literal.getDatatype()));
+	}
+
+	private static final String convertToLongDateTime(String input) {
+		XMLGregorianCalendar calendar;
+		try {
+			calendar = DatatypeFactory.newInstance().newXMLGregorianCalendar(
+					input);
+			if (calendar.getTimezone() == DatatypeConstants.FIELD_UNDEFINED) {
+				// set it to 0 (UTC) in this case; not perfect but avoids 
+				// indeterminate situations where two datetime literals cannot be compared
+				calendar.setTimezone(0);
+			}
+			long l = calendar.toGregorianCalendar().getTimeInMillis();
+			return Long.toString(l);
+		} catch (DatatypeConfigurationException e) {
+			throw new OWLRuntimeException(
+					"Error: the datatype support in the Java VM is broken! Cannot parse: "
+							+ input, e);
+		}
 	}
 
 	private NodeSet<OWLNamedIndividual> translateIndividualPointersToNodeSet(
@@ -1359,7 +1397,7 @@ public class FaCTPlusPlusReasoner implements OWLReasoner,
 		}
 
 		private void translateClassExpressionSet(
-				Set<OWLClassExpression> classExpressions) {
+				Collection<OWLClassExpression> classExpressions) {
 			kernel.initArgList();
 			for (OWLClassExpression ce : classExpressions) {
 				ClassPointer cp = toClassPointer(ce);
@@ -1595,12 +1633,10 @@ public class FaCTPlusPlusReasoner implements OWLReasoner,
 		}
 
 		public Boolean visit(OWLSubClassOfAxiom axiom) {
-			if (axiom.getSuperClass().equals(
-					getOWLDataFactory().getOWLThing())) {
+			if (axiom.getSuperClass().equals(getOWLDataFactory().getOWLThing())) {
 				return true;
 			}
-			if (axiom.getSubClass().equals(
-					getOWLDataFactory().getOWLNothing())) {
+			if (axiom.getSubClass().equals(getOWLDataFactory().getOWLNothing())) {
 				return true;
 			}
 			return kernel.isClassSubsumedBy(
@@ -1872,7 +1908,7 @@ public class FaCTPlusPlusReasoner implements OWLReasoner,
 		objectPropertyTranslator = null;
 		dataPropertyTranslator = null;
 		individualTranslator = null;
-		entailmentChecker=null;
+		entailmentChecker = null;
 		axiom2PtrMap.clear();
 		ptr2AxiomMap.clear();
 		rawChanges.clear();
@@ -1885,10 +1921,10 @@ public class FaCTPlusPlusReasoner implements OWLReasoner,
 		private int total = 0;
 		private final ReasonerProgressMonitor progressMonitor;
 		private final AtomicBoolean interrupted;
-		
+
 		public ProgressMonitorAdapter(ReasonerProgressMonitor p, AtomicBoolean interr) {
-			this.progressMonitor=p;
-			this.interrupted=interr;
+			this.progressMonitor = p;
+			this.interrupted = interr;
 		}
 
 		public void setClassificationStarted(int classCount) {
@@ -1896,19 +1932,16 @@ public class FaCTPlusPlusReasoner implements OWLReasoner,
 			total = classCount;
 			progressMonitor
 					.reasonerTaskStarted(ReasonerProgressMonitor.CLASSIFYING);
-			progressMonitor
-					.reasonerTaskProgressChanged(count, classCount);
+			progressMonitor.reasonerTaskProgressChanged(count, classCount);
 		}
 
 		public void nextClass() {
 			count++;
-			progressMonitor
-					.reasonerTaskProgressChanged(count, total);
+			progressMonitor.reasonerTaskProgressChanged(count, total);
 		}
 
 		public void setFinished() {
-			progressMonitor
-					.reasonerTaskStopped();
+			progressMonitor.reasonerTaskStopped();
 		}
 
 		public boolean isCancelled() {
