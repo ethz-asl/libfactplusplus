@@ -160,7 +160,7 @@ DlSatTester :: initSplit ( TSplitVar* split )
 			std::set<TSignature> Out;
 			// prepare vector of available entities
 			SigVec Allowed;
-			std::cout << "\n\n\nMaking split for module with " << p->name->getName();
+//			std::cout << "\n\n\nMaking split for module with " << p->name->getName();
 			std::vector<TDLAxiom*> Module ( p->Module.begin(), p->Module.end() );
 			// prepare signature for the process
 			TSignature sig = p->sig;
@@ -202,7 +202,7 @@ DlSatTester :: BuildAllSeedSigs ( const SigVec& Allowed, const TSignature& Start
 {
 	// copy the signature
 	TSignature sig = StartSig;
-	std::cout << "\nBuilding seed signatures:";
+//	std::cout << "\nBuilding seed signatures:";
 	// create a set of allowed entities for the next round
 	SigVec RecAllowed, Keepers;
 	std::set<TDLAxiom*> outModule;
@@ -212,21 +212,21 @@ DlSatTester :: BuildAllSeedSigs ( const SigVec& Allowed, const TSignature& Start
 		if ( likely(sig.contains(*p)))
 		{
 			sig.remove(*p);
-			std::cout << "\nTrying " << (*p)->getName() << ": ";
+//			std::cout << "\nTrying " << (*p)->getName() << ": ";
 			mod.extract ( Module.begin(), Module.end(), sig, M_STAR, outModule );
 			if ( outModule.size() == Module.size() )
 			{	// possible to remove one
-				std::cout << "remove";
+//				std::cout << "remove";
 				RecAllowed.push_back(*p);
 			}
 			else
 			{
-				std::cout << "keep";
+//				std::cout << "keep";
 				Keepers.push_back(*p);
 			}
 			sig.add(*p);
 		}
-	std::cout << "\nDone with " << RecAllowed.size() << " sigs left";
+//	std::cout << "\nDone with " << RecAllowed.size() << " sigs left";
 	if ( RecAllowed.empty() )	// minimal seed signature
 	{
 		Out.insert(StartSig);

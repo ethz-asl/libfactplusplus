@@ -193,7 +193,6 @@ protected:	// methods
 		rec->setImpAx(O->getExpressionManager()->And());
 		rec->Register(O);
 //		rec->newAxiom->accept(pr);
-		buildSig(rec);
 		return rec;
 	}
 		/// get imp record of a given name; create if necessary
@@ -203,8 +202,22 @@ protected:	// methods
 			ImpRens[oldName] = makeImpSplit(oldName);
 		return ImpRens[oldName];
 	}
-		/// check whether the record is independent wrt modularity
-	void checkSplitCorrectness ( TRecord* rec )
+		/// create all the necessary records for the implications
+	void createAllImplications ( void )
+	{
+		for ( std::vector<TRecord*>::iterator r = Renames.begin(), r_end = Renames.end(); r != r_end; ++r )
+			getImpRec((*r)->oldName);
+	}
+		/// clear modules of Imp and Eq split records
+	void clearModules ( void )
+	{
+		for ( std::map<const TDLConceptName*, TRecord*>::iterator p = ImpRens.begin(), p_end = ImpRens.end(); p != p_end; ++p )
+			p->second->newAxSig.clear();
+		for ( std::vector<TRecord*>::iterator r = Renames.begin(), r_end = Renames.end(); r != r_end; ++r )
+			(*r)->newAxSig.clear();
+	}
+		/// check whether the record is independent wrt modularity; @return true iff split was incorrect
+	bool checkSplitCorrectness ( TRecord* rec )
 	{
 		if ( Rejects.count(rec->oldName) > 0 )
 		{
@@ -212,10 +225,12 @@ protected:	// methods
 			rec->Unregister();
 //			std::cout << "unsplit " << rec->oldName->getName() << "\n";
 			delete rec;
-			return;
+			return true;
 		}
 
 		TRecord* imp = getImpRec(rec->oldName);
+		if ( imp->newAxSig.size() == 0 )
+			buildSig(imp);
 		buildSig(rec);
 		if ( rec->newAxSig.contains(static_cast<const TNamedEntity*>(rec->oldName))
 			|| !intersect(rec->newAxSig, imp->newAxSig).empty() )
@@ -229,14 +244,25 @@ protected:	// methods
 		{
 			R2.push_back(rec);
 //			std::cout << "keep split " << rec->oldName->getName() << "\n";
+			return false;
 		}
 	}
 		/// move all independent splits in R2; delete all the rest
 	void keepIndependentSplits ( void )
 	{
-		for ( std::vector<TRecord*>::iterator r = Renames.begin(), r_end = Renames.end(); r != r_end; ++r )
-			checkSplitCorrectness(*r);
-		std::cout << "There were made " << R2.size() << " splits out of " << Renames.size() << " tries\n";
+		bool change;
+		size_t oSize = Renames.size();
+		do
+		{
+			change = false;
+			std::cout << "Check correctness...\n";
+			clearModules();
+			for ( std::vector<TRecord*>::iterator r = Renames.begin(), r_end = Renames.end(); r != r_end; ++r )
+				change |= checkSplitCorrectness(*r);
+			Renames.swap(R2);
+			R2.clear();
+		} while ( change );
+		std::cout << "There were made " << Renames.size() << " splits out of " << oSize << " tries\n";
 	}
 		/// split all implications corresponding to oldName; @return split pointer
 	TSplitVar* splitImplicationsFor ( const TDLConceptName* oldName )
@@ -256,8 +282,6 @@ protected:	// methods
 		/// split all implications for which equivalences were split as well
 	void splitImplications ( void )
 	{
-		Renames.swap(R2);
-		R2.clear();
 		for ( std::vector<TRecord*>::iterator r = Renames.begin(), r_end = Renames.end(); r != r_end; ++r )
 			if ( Rejects.count((*r)->oldName) == 0 )
 			{
@@ -278,6 +302,8 @@ public:		// interaface
 		registerEQ();
 		if ( Renames.size() == 0 )
 			return;
+		// make records for the implications
+		createAllImplications();
 		// here we have a maximal split; check whether modules are fine
 		keepIndependentSplits();
 		// now R2 contains all separated axioms; make one replacement for every C [= D axiom
