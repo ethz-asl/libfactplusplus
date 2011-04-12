@@ -24,6 +24,7 @@ Bundle-NativeCode: lib/native/64bit/FaCTPlusPlusJNI.dll;
  osname=WindowsVista ;
  osname=Windows Vista ;
  osname=Windows2003 ;
+ osname=Windows2008 ;
  osname=Windows 7 ;
  processor=x86_64 ;
  processor = amd64 ,
@@ -46,6 +47,7 @@ Bundle-NativeCode: lib/native/64bit/FaCTPlusPlusJNI.dll;
  osname=WindowsVista ;
  osname=Windows Vista ;
  osname=Windows2003 ;
+ osname=Windows2008 ;
  osname=Windows 7 ;
  processor = i386 ;
  processor = x86 ,
