@@ -26,6 +26,7 @@
                 <attribute name="Built-By" value="${user.name}"/>
                 <attribute name="Build-Date" value="${TODAY}"/>
                 <attribute name="Version" value="${factplusplus.version}"/>
+                <attribute name="Import-Package" value="javax.xml.datatype"/>
             </manifest>
         </jar>
         <mkdir dir="${distdir}/lib"/>
