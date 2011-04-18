@@ -180,12 +180,20 @@ DlSatTester :: prepareStartSig ( const std::vector<TDLAxiom*>& Module, TSignatur
 	for ( std::vector<TDLAxiom*>::const_iterator p = Module.begin(), p_end = Module.end(); p != p_end; ++p )
 	{
 		const TDLAxiomEquivalentConcepts* ax = dynamic_cast<const TDLAxiomEquivalentConcepts*>(*p);
-		if ( ax == NULL )
-			continue;
-		// we don't need class names here
-		for ( TDLAxiomEquivalentConcepts::iterator q = ax->begin(), q_end = ax->end(); q != q_end; ++q )
+		if ( ax != NULL )	// we don't need class names here
+			for ( TDLAxiomEquivalentConcepts::iterator q = ax->begin(), q_end = ax->end(); q != q_end; ++q )
+			{	// FIXME!! check for the case A=B for named classes
+				const TDLConceptName* cn = dynamic_cast<const TDLConceptName*>(*q);
+				if ( cn != NULL )
+					sig.remove(cn);
+			}
+		else
 		{
-			const TDLConceptName* cn = dynamic_cast<const TDLConceptName*>(*q);
+			const TDLAxiomConceptInclusion* ci = dynamic_cast<const TDLAxiomConceptInclusion*>(*p);
+			if ( ci == NULL )
+				continue;
+			// don't need the left-hand part either if it is a name
+			const TDLConceptName* cn = dynamic_cast<const TDLConceptName*>(ci->getSubC());
 			if ( cn != NULL )
 				sig.remove(cn);
 		}
