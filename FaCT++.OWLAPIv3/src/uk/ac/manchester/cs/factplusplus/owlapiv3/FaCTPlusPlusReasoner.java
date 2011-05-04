@@ -881,7 +881,8 @@ public class FaCTPlusPlusReasoner implements OWLReasoner,
 		if (literal.isRDFPlainLiteral()) {
 			value = value + "@" + literal.getLang();
 		}
-		if (literal.getDatatype().getBuiltInDatatype() == OWL2Datatype.XSD_DATE_TIME) {
+		if (literal.getDatatype().isBuiltIn() && 
+				literal.getDatatype().getBuiltInDatatype() == OWL2Datatype.XSD_DATE_TIME) {
 			return kernel.getDataValue(convertToLongDateTime(value),
 					toDataTypePointer(literal.getDatatype()));
 		}
