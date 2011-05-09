@@ -241,6 +241,10 @@ Taxonomy :: propagateTrueUp ( TaxonomyVertex* node )
 ClassifiableEntry*
 Taxonomy :: prepareTS ( ClassifiableEntry* cur )
 {
+	// we just found that TS forms a cycle -- return stop-marker
+	if ( waitStack.contains(cur) )
+		return cur;
+
 	// starting from the topmost entry
 	addTop(cur);
 	// true iff CUR is a reason of the cycle
@@ -249,32 +253,26 @@ Taxonomy :: prepareTS ( ClassifiableEntry* cur )
 	for ( ss_iterator p = told_begin(), p_end = told_end(); p < p_end; ++p )
 		if ( !(*p)->isClassified() )	// need to classify it first
 		{
-			if ( waitStack.contains(*p) )
+			// prepare top for *p
+			ClassifiableEntry* v = prepareTS(*p);
+			// if NULL is returned -- just continue
+			if ( v == NULL )
+				continue;
+			if ( v == cur )	// current cycle is finished, all saved in Syns
 			{
-				// p makes a cycle; remove p from the stack and make it a stop-marker
-				removeTop();
-				return cur;
+				// after classification of CUR we need to mark all the Syns as synonyms
+				cycleFound = true;
+				// continue to prepare its classification
+				continue;
 			}
-			// prepare top for *p; if NULL is returned -- just continue
-			ClassifiableEntry* v;
-			if ( (v=prepareTS(*p)) != NULL )
+			else
 			{
-				if ( v == cur )	// current cycle is finished, all saved in Syns
-				{
-					// after classification of CUR we need to mark all the Syns as synonyms
-					cycleFound = true;
-					// continue to prepare its classification
-					continue;
-				}
-				else
-				{
-					// arbitrary vertex in a cycle: save in synonyms of a root cause
-					Syns.push_back(cur);
-					// don't need to classify it
-					removeTop();
-					// return the cycle cause
-					return v;
-				}
+				// arbitrary vertex in a cycle: save in synonyms of a root cause
+				Syns.push_back(cur);
+				// don't need to classify it
+				removeTop();
+				// return the cycle cause
+				return v;
 			}
 		}
 	// all TS are ready here -- let's classify!
