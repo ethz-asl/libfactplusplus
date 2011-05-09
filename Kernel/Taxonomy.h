@@ -100,6 +100,8 @@ public:		// typedefs
 protected:	// members
 		/// array of taxonomy verteces
 	SetOfVertex Graph;
+		/// aux array to keep synonyms found during TS classification
+	std::vector<ClassifiableEntry*> Syns;
 
 		/// labellers for marking taxonomy
 	TLabeller checkLabel, valueLabel;
@@ -227,12 +229,16 @@ protected:	// methods
 		delete ksStack.top();
 		ksStack.pop();
 	}
-		/// ensure that all TS of top entries are classified. @return true if cycle detected.
-	bool checkToldSubsumers ( void );
-		/// classify top entry in the stack
-	void classifyTop ( void );
-		/// deal with a TS cycle.
-	void classifyCycle ( void );
+		/// ensure that all TS of the top entry are classified. @return the reason of cycle or NULL.
+	ClassifiableEntry* prepareTop ( void );
+		/// classify top entry of the stack
+	void classifyTop ( void )
+	{
+		fpp_assert ( !waitStack.empty() );	// sanity check
+		setCurrentEntry(waitStack.top());
+		performClassification();
+		removeTop();
+	}
 		/// propagate the TRUE value of the KS subsumption up the taxonomy
 	void propagateTrueUp ( TaxonomyVertex* node );
 
@@ -361,7 +367,16 @@ public:		// interface
 	//------------------------------------------------------------------------------
 
 		/// classify given entry: general method is by DFS
-	void classifyEntry ( ClassifiableEntry* p );
+	void classifyEntry ( ClassifiableEntry* p )
+	{
+		fpp_assert ( waitStack.empty() );	// sanity check
+
+		// don't classify artificial concepts
+		if ( p->isNonClassifiable() )
+			return;
+		addTop(p);	// put entry into stack
+		prepareTop();
+	}
 		/// clear the CHECKED label from all the taxonomy vertex
 	void clearCheckedLabel ( void ) { checkLabel.newLabel(); }
  		/// clear all labels from Taxonomy verteces

@@ -238,130 +238,58 @@ Taxonomy :: propagateTrueUp ( TaxonomyVertex* node )
 //--	DFS-based classification methods
 //-----------------------------------------------------------------
 
-#ifdef TMP_PRINT_TAXONOMY_INFO
-static unsigned int level;
-
-static void printHeader ( void )
+ClassifiableEntry*
+Taxonomy :: prepareTop ( void )
 {
-	std::cout << "\n";
-	for ( register unsigned int i = 0; i < level; ++i )
-		std::cout << " ";
-}
-#endif
-
-void Taxonomy :: classifyEntry ( ClassifiableEntry* p )
-{
-	fpp_assert ( waitStack.empty() );	// safety check
-
-	// don't classify artificial concepts
-	if ( p->isNonClassifiable() )
-		return;
-
-#ifdef TMP_PRINT_TAXONOMY_INFO
-	std::cout << "\n\nClassifying " << p->getName();
-#endif
-	addTop(p);	// put entry into stack
-
-	// classify last concept from the stack
-	while ( !waitStack.empty () )
-		if ( checkToldSubsumers () )	// ensure all TS are classified
-			classifyTop();		// classify top of the stack
-		else
-			classifyCycle();	// TS cycle found -- deal with it
-
-#ifdef TMP_PRINT_TAXONOMY_INFO
-	std::cout << "\nDone classifying " << p->getName();
-#endif
-}
-
-bool Taxonomy :: checkToldSubsumers ( void )
-{
-	fpp_assert ( !waitStack.empty() );	// safety check
-	bool ret = true;
-
-#ifdef TMP_PRINT_TAXONOMY_INFO
-	++level;
-#endif
-		// check that all the TS are classified (if necessary)
+	// starting from the topmost entry
+	ClassifiableEntry* cur = waitStack.top();
+	// true iff CUR is a reason of the cycle
+	bool cycleFound = false;
+	// for all the told subsumers...
 	for ( ss_iterator p = told_begin(), p_end = told_end(); p < p_end; ++p )
-	{
-		ClassifiableEntry* r = *p;
-		fpp_assert ( r != NULL );
-
-#ifdef TMP_PRINT_TAXONOMY_INFO
-		printHeader();
-		std::cout << "try told subsumer " << r->getName() << "... ";
-#endif
-		if ( !r->isClassified() )	// need to classify *q first
+		if ( !(*p)->isClassified() )	// need to classify it first
 		{
-			// check if *q is in stack already
-			if ( waitStack.contains (r) )
-			{	// cycle found
-				addTop(r);		// set last element
-				ret = false;	// not all told subsumers are collected
-				break;
+			if ( waitStack.contains(*p) )
+			{
+				// p makes a cycle; remove p from the stack and make it a stop-marker
+				removeTop();
+				return cur;
 			}
-			// else - check all told subsumers of new on
-			addTop(r);
-			ret = checkToldSubsumers ();
-			break;
+			// p is a new unclassified TS; put it into a queue to classify
+			addTop(*p);
+			// prepare top for p; if NULL is returned -- just continue
+			ClassifiableEntry* v;
+			if ( (v=prepareTop()) != NULL )
+			{
+				if ( v == cur )	// current cycle is finished, all saved in Syns
+				{
+					// after classification of CUR we need to mark all the Syns as synonyms
+					cycleFound = true;
+					// continue to prepare its classification
+					continue;
+				}
+				else
+				{
+					// arbitrary vertex in a cycle: save in synonyms of a root cause
+					Syns.push_back(cur);
+					// don't need to classify it
+					removeTop();
+					// return the cycle cause
+					return v;
+				}
+			}
 		}
-#ifdef TMP_PRINT_TAXONOMY_INFO
-		else
-			std::cout << "already classified";
-#endif
-	}
-#ifdef TMP_PRINT_TAXONOMY_INFO
-	--level;
-#endif
-	// all told subsumers are classified => OK
-	return ret;
-}
-
-void Taxonomy :: classifyTop ( void )
-{
-	fpp_assert ( !waitStack.empty() );	// safety check
-
-	// load last concept
-	setCurrentEntry(waitStack.top());
-
-#ifdef TMP_PRINT_TAXONOMY_INFO
-	std::cout << "\nTrying classify" << (p->isCompletelyDefined()? " CD " : " " ) << p->getName() << "... ";
-#endif
-	performClassification();
-#ifdef TMP_PRINT_TAXONOMY_INFO
-	std::cout << "done";
-#endif
-	removeTop();
-}
-
-void Taxonomy :: classifyCycle ( void )
-{
-	fpp_assert ( !waitStack.empty() );	// safety check
-
-	// classify the top element
-	ClassifiableEntry* p = waitStack.top ();
+	// all TS are ready here -- let's classify!
 	classifyTop();
-
-	// inform about concepts
-	std::cerr << "\n* Concept definitions cycle found: " << p->getName();
-
-	// make all other elements classified and of the same class
-	while ( !waitStack.empty() )
+	// now if CUR is the reason of cycle mark all SYNs as synonyms
+	if ( cycleFound )
 	{
-		// inform about cycle:
-		std::cerr << ", " << waitStack.top()->getName();
-
-		// add the concept to the same class
-		waitStack.top()->setTaxVertex ( p->getTaxVertex() );
-		removeTop();
-
-		// indicate progress
-		//pTaxProgress->incIndicator (); -- // FIXME!! later
+		TaxonomyVertex* syn = cur->getTaxVertex();
+		for ( std::vector<ClassifiableEntry*>::iterator q = Syns.begin(), q_end = Syns.end(); q != q_end; ++q )
+			syn->addSynonym(*q);
+		Syns.clear();
 	}
-
-	std::cerr << "\n";
-
-	//FIXME!! still thinking it is not correct. So..
-	fpp_unreachable();
+	// here the cycle is gone
+	return NULL;
 }
+
