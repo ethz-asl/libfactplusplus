@@ -239,10 +239,10 @@ Taxonomy :: propagateTrueUp ( TaxonomyVertex* node )
 //-----------------------------------------------------------------
 
 ClassifiableEntry*
-Taxonomy :: prepareTop ( void )
+Taxonomy :: prepareTS ( ClassifiableEntry* cur )
 {
 	// starting from the topmost entry
-	ClassifiableEntry* cur = waitStack.top();
+	addTop(cur);
 	// true iff CUR is a reason of the cycle
 	bool cycleFound = false;
 	// for all the told subsumers...
@@ -255,11 +255,9 @@ Taxonomy :: prepareTop ( void )
 				removeTop();
 				return cur;
 			}
-			// p is a new unclassified TS; put it into a queue to classify
-			addTop(*p);
-			// prepare top for p; if NULL is returned -- just continue
+			// prepare top for *p; if NULL is returned -- just continue
 			ClassifiableEntry* v;
-			if ( (v=prepareTop()) != NULL )
+			if ( (v=prepareTS(*p)) != NULL )
 			{
 				if ( v == cur )	// current cycle is finished, all saved in Syns
 				{

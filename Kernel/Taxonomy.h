@@ -230,7 +230,7 @@ protected:	// methods
 		ksStack.pop();
 	}
 		/// ensure that all TS of the top entry are classified. @return the reason of cycle or NULL.
-	ClassifiableEntry* prepareTop ( void );
+	ClassifiableEntry* prepareTS ( ClassifiableEntry* cur );
 		/// classify top entry of the stack
 	void classifyTop ( void )
 	{
@@ -374,8 +374,7 @@ public:		// interface
 		// don't classify artificial concepts
 		if ( p->isNonClassifiable() )
 			return;
-		addTop(p);	// put entry into stack
-		prepareTop();
+		prepareTS(p);
 	}
 		/// clear the CHECKED label from all the taxonomy vertex
 	void clearCheckedLabel ( void ) { checkLabel.newLabel(); }
