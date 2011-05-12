@@ -253,7 +253,9 @@ Taxonomy :: prepareTS ( ClassifiableEntry* cur )
 	for ( ss_iterator p = told_begin(), p_end = told_end(); p < p_end; ++p )
 		if ( !(*p)->isClassified() )	// need to classify it first
 		{
-			// prepare top for *p
+			if ( unlikely((*p)->isNonClassifiable()) )
+				continue;
+			// prepare TS for *p
 			ClassifiableEntry* v = prepareTS(*p);
 			// if NULL is returned -- just continue
 			if ( v == NULL )

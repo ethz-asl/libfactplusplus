@@ -64,6 +64,8 @@ protected:	// internal typedefs
 		bool s_empty ( void ) { return s_begin() == s_end(); }
 			/// whether there are no possible subsumers
 		bool p_empty ( void ) { return p_begin() == p_end(); }
+			/// @return true iff CE is the possible subsumer
+		virtual bool isPossibleSub ( const ClassifiableEntry* ce ATTR_UNUSED ) const { return true; }
 	}; // KnownSubsumers
 
 		/// class to represent the TS's
