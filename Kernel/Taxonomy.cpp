@@ -186,7 +186,9 @@ void Taxonomy :: setNonRedundantCandidates ( void )
 	for ( ss_iterator p = told_begin(), p_end = told_end(); p < p_end; ++p )
 	{
 		TaxonomyVertex* par = (*p)->getTaxVertex();
-		if ( par && isDirectParent(par) )
+		if ( par == NULL )	// non-classifiable TS
+			continue;
+		if ( isDirectParent(par) )
 			Current->addNeighbour ( /*upDirection=*/true, par );
 	}
 }

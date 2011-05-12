@@ -142,6 +142,9 @@ protected:	// methods
 		// if bottom-up search and CUR is not a successor of checking entity -- return false
 		if ( unlikely(upDirection && !cur->isCommon()) )
 			return false;
+		// for top-down search it's enough to look at defined concepts and non-det ones
+		if ( likely(!upDirection) && !possibleSub(cur) )
+			return false;
 		return enhancedSubs1 ( upDirection, cur );
 	}
 		// wrapper for the ENHANCED_SUBS
@@ -156,6 +159,16 @@ protected:	// methods
 	}
 		/// explicetely test appropriate subsumption relation
 	bool testSubsumption ( bool upDirection, TaxonomyVertex* cur );
+		/// test whether a node could be a super-node of CUR
+	bool possibleSub ( TaxonomyVertex* v ) const
+	{
+		const TConcept* C = static_cast<const TConcept*>(v->getPrimer());
+		// non-prim concepts are candidates
+		if ( !C->isPrimitive() )
+			return true;
+		// all others should be in the possible sups list
+		return ksStack.top()->isPossibleSub(C);
+	}
 
 		/// propagate common value from NODE to all its descendants; save visited nodes
 	void propagateOneCommon ( TaxonomyVertex* node );
