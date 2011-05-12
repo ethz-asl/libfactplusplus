@@ -58,6 +58,7 @@ class TBox
 	friend class NominalReasoner;
 	friend class ReasoningKernel;
 	friend class TAxiom;	// FIXME!! while TConcept can't get rid of told cycles
+	friend class DLConceptTaxonomy;
 
 public:		// type interface
 		/// vector of CONCEPT-like elements

@@ -85,6 +85,12 @@ bool DLConceptTaxonomy :: testSub ( const TConcept* p, const TConcept* q )
 	return testSubTBox ( p, q );
 }
 
+Taxonomy::KnownSubsumers*
+DLConceptTaxonomy :: buildKnownSubsumers ( ClassifiableEntry* ce )
+{
+	return Taxonomy::buildKnownSubsumers(ce);
+}
+
 void DLConceptTaxonomy :: print ( std::ostream& o ) const
 {
 	o << "Totally " << nTries << " subsumption tests was made\nAmong them ";

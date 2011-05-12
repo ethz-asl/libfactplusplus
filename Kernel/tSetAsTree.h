@@ -97,6 +97,9 @@ public:		// interface
 		}
 		o << "}";
 	}
+	typedef BaseType::const_iterator const_iterator;
+	const_iterator begin ( void ) const { return Base.begin(); }
+	const_iterator end ( void ) const { return Base.end(); }
 }; // TSetAsTree
 
 #endif

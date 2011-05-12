@@ -27,6 +27,42 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 /// Taxonomy of named DL concepts (and mapped individuals)
 class DLConceptTaxonomy: public Taxonomy
 {
+protected:	// types
+		/// all the derived subsumers of a class (came from the model)
+	class DerivedSubsumers: public KnownSubsumers
+	{
+	protected:	// typedefs
+			/// set of the subsumers
+		typedef Taxonomy::SubsumerSet SubsumerSet;
+			/// SS RW iterator
+		typedef SubsumerSet::iterator ss_iterator;
+
+	protected:	// members
+			/// set of sure- and possible subsumers
+		SubsumerSet Sure, Possible;
+
+	public:		// interface
+			/// c'tor: copy given sets
+		DerivedSubsumers ( const SubsumerSet& sure, const SubsumerSet& possible )
+			: KnownSubsumers()
+			, Sure(sure)
+			, Possible(possible)
+			{}
+			/// empty d'tor
+		virtual ~DerivedSubsumers ( void ) {}
+
+		// iterators
+
+			/// begin of the Sure subsumers interval
+		virtual ss_iterator s_begin ( void ) { return Sure.begin(); }
+			/// end of the Sure subsumers interval
+		virtual ss_iterator s_end ( void ) { return Sure.end(); }
+			/// begin of the Possible subsumers interval
+		virtual ss_iterator p_begin ( void ) { return Possible.begin(); }
+			/// end of the Possible subsumers interval
+		virtual ss_iterator p_end ( void ) { return Possible.end(); }
+	}; // DerivedSubsumers
+
 protected:	// members
 		/// host tBox
 	TBox& tBox;
@@ -135,7 +171,7 @@ protected:	// methods
 	//-----------------------------------------------------------------
 
 		/// prepare told subsumers for given entry if necessary
-//	virtual void buildToldSubsumers ( ClassifiableEntry* p ATTR_UNUSED ) {}
+	virtual KnownSubsumers* buildKnownSubsumers ( ClassifiableEntry* p );
 		/// check if no classification needed (synonym, orphan, unsatisfiable)
 	virtual bool immediatelyClassified ( void );
 		/// check if no BU classification is required as C=TOP

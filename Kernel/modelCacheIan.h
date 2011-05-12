@@ -29,6 +29,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 class modelCacheIan: public modelCacheInterface
 {
+// FIXME!! for now only
+friend class DLConceptTaxonomy;
 protected:	// types
 		/// define the type of an index set
 	typedef TSetAsTree IndexSet;
