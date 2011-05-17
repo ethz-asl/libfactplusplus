@@ -99,6 +99,8 @@ public:		// interface
 		RegisterDataType(new TDataType("real"));
 		RegisterDataType(new TDataTypeBool());
 		RegisterDataType(new TDataType("time"));
+		// fresh DT that doesn't appear in KB. FIXME!! make it as TOP later on
+		RegisterDataType(new TDataType(""));
 	}
 		/// d'tor: delete all datatypes
 	~DataTypeCenter ( void );
@@ -115,6 +117,8 @@ public:		// interface
 	DLTree* getBoolType ( void ) { return wrap(getBoolDataType()->getType()); }
 		/// get TIME DT that can be used in TBox
 	DLTree* getTimeType ( void ) { return wrap(getTimeDataType()->getType()); }
+		/// get fresh DT that can be used in TBox
+	DLTree* getFreshDataType ( void ) { return wrap((*(begin()+5))->getType()); }
 
 		/// return registered data value by given NAME of a Type, given by SAMPLE
 	DLTree* getDataValue ( const std::string& name, const DLTree* sample ) const throw(EFPPCantRegName)

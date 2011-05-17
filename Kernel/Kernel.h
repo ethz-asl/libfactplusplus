@@ -209,6 +209,14 @@ protected:	// methods
 		expr->accept(*pET);
 		return *pET;
 	}
+		/// get fresh filled depending of a type of R
+	DLTree* getFreshFiller ( const DLTree* R )
+	{
+		if ( resolveRole(R)->isDataRole() )
+			return getTBox()->getDataTypeCenter().getFreshDataType();
+		else
+			return getTBox()->getFreshConcept();
+	}
 		/// set up cache for query, performing additional (re-)classification if necessary
 	void setUpCache ( DLTree* query, cacheStatus level );
 		/// clear cache and flags
@@ -268,8 +276,8 @@ protected:	// methods
 	bool checkFunctionality ( DLTree* R )
 	{
 		// R is transitive iff \ER.C and \ER.\not C is unsatisfiable
-		DLTree* tmp = createSNFExists ( clone(R), createSNFNot(getTBox()->getFreshConcept()) );
-		tmp = createSNFAnd ( tmp, createSNFExists ( R, getTBox()->getFreshConcept() ) );
+		DLTree* tmp = createSNFExists ( clone(R), createSNFNot(getFreshFiller(R)) );
+		tmp = createSNFAnd ( tmp, createSNFExists ( R, getFreshFiller(R) ) );
 		return !checkSat(tmp);
 	}
 		/// @return true if R is functional; set the value for R if necessary
@@ -307,9 +315,11 @@ protected:	// methods
 		/// @return true if R [= S wrt ontology
 	bool checkRoleSubsumption ( DLTree* R, DLTree* S )
 	{
+		if ( resolveRole(R)->isDataRole() != resolveRole(S)->isDataRole() )
+			return false;
 		// R [= S iff \ER.C and \AS.(not C) is unsatisfiable
-		DLTree* tmp = createSNFForall ( S, createSNFNot(getTBox()->getFreshConcept()) );
-		tmp = createSNFAnd ( createSNFExists ( R, getTBox()->getFreshConcept() ), tmp );
+		DLTree* tmp = createSNFForall ( S, createSNFNot(getFreshFiller(S)) );
+		tmp = createSNFAnd ( createSNFExists ( R, getFreshFiller(R) ), tmp );
 		return !checkSat(tmp);
 	}
 		/// @return true iff the chain contained in the arg-list is a sub-property of R
@@ -861,8 +871,10 @@ public:
 		if ( *getRole ( R, "Role expression expected in isSubRoles()" ) <=
 			 *getRole ( S, "Role expression expected in isSubRoles()" ) )
 			return true;
-		// FIXME!! we can hardly do better, but need to think more here
-		return false;
+		// check the general case
+		// FIXME!! cache it later
+		DLTree* r = e(R), *s = e(S);
+		return checkRoleSubsumption ( r, s );
 	}
 		/// @return true iff two roles are disjoint
 	bool isDisjointRoles ( const TORoleExpr* R, const TORoleExpr* S )
@@ -908,7 +920,7 @@ public:
 	{
 		preprocessKB();
 		try { return checkSat(e(C)); }
-		catch ( EFPPCantRegName crn )
+		catch ( const EFPPCantRegName& crn )
 		{
 			if ( dynamic_cast<const TDLConceptName*>(C) != NULL )	// this is an unknown concept
 				return true;
