@@ -24,7 +24,8 @@ void TBox :: buildDAG ( void )
 {
 	nNominalReferences = 0;
 
-	// make fresh datatype
+	// make fresh concept and datatype
+	concept2dag(pTemp);
 	DLTree* freshDT = DTCenter.getFreshDataType();
 	addDataExprToHeap ( static_cast<TDataEntry*>(freshDT->Element().getNE()) );
 	deleteTree(freshDT);
@@ -70,9 +71,6 @@ void TBox :: buildDAG ( void )
 	for ( p = DRM.begin(), p_end = DRM.end(); p < p_end; ++p )
 		if ( !(*p)->isSynonym() && (*p)->isTopFunc() )
 			(*p)->setFunctional ( atmost2dag ( 1, *p, bpTOP ) );
-
-	// make the temp concept
-	concept2dag(pTemp);
 
 	// check the type of the ontology
 	if ( nNominalReferences > 0 )

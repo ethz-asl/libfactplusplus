@@ -100,7 +100,7 @@ public:		// interface
 		RegisterDataType(new TDataTypeBool());
 		RegisterDataType(new TDataType("time"));
 		// fresh DT that doesn't appear in KB. FIXME!! make it as TOP later on
-		RegisterDataType(new TDataType(""));
+		RegisterDataType(new TDataType(" "));
 	}
 		/// d'tor: delete all datatypes
 	~DataTypeCenter ( void );
