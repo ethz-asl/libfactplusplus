@@ -24,6 +24,11 @@ void TBox :: buildDAG ( void )
 {
 	nNominalReferences = 0;
 
+	// make fresh datatype
+	DLTree* freshDT = DTCenter.getFreshDataType();
+	addDataExprToHeap ( static_cast<TDataEntry*>(freshDT->Element().getNE()) );
+	deleteTree(freshDT);
+
 	for ( c_const_iterator pc = c_begin(); pc != c_end(); ++pc )
 		concept2dag(*pc);
 	for ( i_const_iterator pi = i_begin(); pi != i_end(); ++pi )
