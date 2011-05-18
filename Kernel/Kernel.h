@@ -499,6 +499,8 @@ public:	// general staff
 		BotORoleName = botORoleName;
 		TopDRoleName = topDRoleName;
 		BotDRoleName = botDRoleName;
+		// make sure expression manager knows the top/bot names
+		Ontology.getExpressionManager()->setTopBottomRoles ( topORoleName, botORoleName,topDRoleName, botDRoleName );
 	}
 
 		/// dump query processing TIME, reasoning statistics and a (preprocessed) TBox
@@ -741,9 +743,9 @@ public:
 	bool isFunctional ( const TORoleExpr* R )
 	{
 		preprocessKB();	// ensure KB is ready to answer the query
-		if ( isUniversalRole(R) )
+		if ( getExpressionManager()->isUniversalRole(R) )
 			return false;	// universal role is not functional
-		if ( isEmptyRole(R) )
+		if ( getExpressionManager()->isEmptyRole(R) )
 			return true;	// empty role is functional
 
 		return getFunctionality ( getRole ( R, "Role expression expected in isFunctional()" ) );
@@ -752,9 +754,9 @@ public:
 	bool isFunctional ( const TDRoleExpr* R )
 	{
 		preprocessKB();	// ensure KB is ready to answer the query
-		if ( isUniversalRole(R) )
+		if ( getExpressionManager()->isUniversalRole(R) )
 			return false;	// universal role is not functional
-		if ( isEmptyRole(R) )
+		if ( getExpressionManager()->isEmptyRole(R) )
 			return true;	// empty role is functional
 
 		return getFunctionality ( getRole ( R, "Role expression expected in isFunctional()" ) );
@@ -763,9 +765,9 @@ public:
 	bool isInverseFunctional ( const TORoleExpr* R )
 	{
 		preprocessKB();	// ensure KB is ready to answer the query
-		if ( isUniversalRole(R) )
+		if ( getExpressionManager()->isUniversalRole(R) )
 			return false;	// universal role is not functional
-		if ( isEmptyRole(R) )
+		if ( getExpressionManager()->isEmptyRole(R) )
 			return true;	// empty role is functional
 
 		return getFunctionality ( getRole ( R, "Role expression expected in isInverseFunctional()" )->inverse() );
@@ -774,9 +776,9 @@ public:
 	bool isTransitive ( const TORoleExpr* R )
 	{
 		preprocessKB();	// ensure KB is ready to answer the query
-		if ( isUniversalRole(R) )
+		if ( getExpressionManager()->isUniversalRole(R) )
 			return true;	// universal role is transitive
-		if ( isEmptyRole(R) )
+		if ( getExpressionManager()->isEmptyRole(R) )
 			return true;	// empty role is transitive
 
 		TRole* r = getRole ( R, "Role expression expected in isTransitive()" );
@@ -788,9 +790,9 @@ public:
 	bool isSymmetric ( const TORoleExpr* R )
 	{
 		preprocessKB();	// ensure KB is ready to answer the query
-		if ( isUniversalRole(R) )
+		if ( getExpressionManager()->isUniversalRole(R) )
 			return true;	// universal role is symmetric
-		if ( isEmptyRole(R) )
+		if ( getExpressionManager()->isEmptyRole(R) )
 			return true;	// empty role is symmetric
 
 		TRole* r = getRole ( R, "Role expression expected in isSymmetric()" );
@@ -802,9 +804,9 @@ public:
 	bool isAsymmetric ( const TORoleExpr* R )
 	{
 		preprocessKB();	// ensure KB is ready to answer the query
-		if ( isUniversalRole(R) )
+		if ( getExpressionManager()->isUniversalRole(R) )
 			return false;	// universal role is not asymmetric
-		if ( isEmptyRole(R) )
+		if ( getExpressionManager()->isEmptyRole(R) )
 			return true;	// empty role is asymmetric
 
 		TRole* r = getRole ( R, "Role expression expected in isAsymmetric()" );
@@ -816,9 +818,9 @@ public:
 	bool isReflexive ( const TORoleExpr* R )
 	{
 		preprocessKB();	// ensure KB is ready to answer the query
-		if ( isUniversalRole(R) )
+		if ( getExpressionManager()->isUniversalRole(R) )
 			return true;	// universal role is reflexive
-		if ( isEmptyRole(R) )
+		if ( getExpressionManager()->isEmptyRole(R) )
 			return false;	// empty role is not reflexive
 
 		TRole* r = getRole ( R, "Role expression expected in isReflexive()" );
@@ -830,9 +832,9 @@ public:
 	bool isIrreflexive ( const TORoleExpr* R )
 	{
 		preprocessKB();	// ensure KB is ready to answer the query
-		if ( isUniversalRole(R) )
+		if ( getExpressionManager()->isUniversalRole(R) )
 			return false;	// universal role is not irreflexive
-		if ( isEmptyRole(R) )
+		if ( getExpressionManager()->isEmptyRole(R) )
 			return true;	// empty role is irreflexive
 
 		TRole* r = getRole ( R, "Role expression expected in isIrreflexive()" );
@@ -844,9 +846,9 @@ public:
 	bool isSubRoles ( const TORoleExpr* R, const TORoleExpr* S )
 	{
 		preprocessKB();	// ensure KB is ready to answer the query
-		if ( isEmptyRole(R) || isUniversalRole(S) )
+		if ( getExpressionManager()->isEmptyRole(R) || getExpressionManager()->isUniversalRole(S) )
 			return true;	// \bot [= X [= \top
-		if ( isUniversalRole(R) && isEmptyRole(S) )
+		if ( getExpressionManager()->isUniversalRole(R) && getExpressionManager()->isEmptyRole(S) )
 			return false;	// as \top [= \bot leads to inconsistent ontology
 
 		// told case first
@@ -862,9 +864,9 @@ public:
 	bool isSubRoles ( const TDRoleExpr* R, const TDRoleExpr* S )
 	{
 		preprocessKB();	// ensure KB is ready to answer the query
-		if ( isEmptyRole(R) || isUniversalRole(S) )
+		if ( getExpressionManager()->isEmptyRole(R) || getExpressionManager()->isUniversalRole(S) )
 			return true;	// \bot [= X [= \top
-		if ( isUniversalRole(R) && isEmptyRole(S) )
+		if ( getExpressionManager()->isUniversalRole(R) && getExpressionManager()->isEmptyRole(S) )
 			return false;	// as \top [= \bot leads to inconsistent ontology
 
 		// told case first
@@ -880,9 +882,9 @@ public:
 	bool isDisjointRoles ( const TORoleExpr* R, const TORoleExpr* S )
 	{
 		preprocessKB();	// ensure KB is ready to answer the query
-		if ( isUniversalRole(R) || isUniversalRole(S) )
+		if ( getExpressionManager()->isUniversalRole(R) || getExpressionManager()->isUniversalRole(S) )
 			return false;	// universal role is not disjoint with anything
-		if ( isEmptyRole(R) || isEmptyRole(S) )
+		if ( getExpressionManager()->isEmptyRole(R) || getExpressionManager()->isEmptyRole(S) )
 			return true;	// empty role is disjoint with everything
 		return getTBox()->isDisjointRoles (
 			getRole ( R, "Role expression expected in isDisjointRoles()" ),
@@ -892,9 +894,9 @@ public:
 	bool isDisjointRoles ( const TDRoleExpr* R, const TDRoleExpr* S )
 	{
 		preprocessKB();	// ensure KB is ready to answer the query
-		if ( isUniversalRole(R) || isUniversalRole(S) )
+		if ( getExpressionManager()->isUniversalRole(R) || getExpressionManager()->isUniversalRole(S) )
 			return false;	// universal role is not disjoint with anything
-		if ( isEmptyRole(R) || isEmptyRole(S) )
+		if ( getExpressionManager()->isEmptyRole(R) || getExpressionManager()->isEmptyRole(S) )
 			return true;	// empty role is disjoint with everything
 		return getTBox()->isDisjointRoles (
 			getRole ( R, "Role expression expected in isDisjointRoles()" ),
@@ -906,9 +908,9 @@ public:
 	bool isSubChain ( const TORoleExpr* R )
 	{
 		preprocessKB();	// ensure KB is ready to answer the query
-		if ( isUniversalRole(R) )
+		if ( getExpressionManager()->isUniversalRole(R) )
 			return true;	// universal role is a super of any chain
-		if ( isEmptyRole(R) )
+		if ( getExpressionManager()->isEmptyRole(R) )	// FIXME!! true in case empty role is in chain
 			return false;	// empty role is not a super of any chain
 		return checkSubChain ( getRole ( R, "Role expression expected in isSubChain()" ) );
 	}

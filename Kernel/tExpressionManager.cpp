@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2010 by Dmitry Tsarkov
+Copyright (C) 2010-2011 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -21,12 +21,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 TExpressionManager::TExpressionManager ( void )
 	: CTop(new TDLConceptTop)
 	, CBottom(new TDLConceptBottom)
+	, DTop(new TDLDataTop)
+	, DBottom(new TDLDataBottom)
 	, ORTop(new TDLObjectRoleTop)
 	, ORBottom(new TDLObjectRoleBottom)
 	, DRTop(new TDLDataRoleTop)
 	, DRBottom(new TDLDataRoleBottom)
-	, DTop(new TDLDataTop)
-	, DBottom(new TDLDataBottom)
 	, InverseRoleCache(this)
 {
 }

@@ -216,30 +216,37 @@ public:		// visitor interface
 	virtual void visit ( const TDLAxiomRoleTransitive& axiom )
 	{
 		ensureNames(axiom.getRole());
-		if ( !isUniversalRole(axiom.getRole()) )	// universal role always transitive
-			getRole ( axiom.getRole(), "Role expression expected in Role Transitivity axiom" )->setTransitive();
+		TRole* R = getRole ( axiom.getRole(), "Role expression expected in Role Transitivity axiom" );
+		if ( !R->isTop() && !R->isBottom() )	// top/bottom roles are always transitive
+			R->setTransitive();
 	}
 	virtual void visit ( const TDLAxiomRoleReflexive& axiom )
 	{
 		ensureNames(axiom.getRole());
-		if ( !isUniversalRole(axiom.getRole()) )	// universal role always reflexive
-			getRole ( axiom.getRole(), "Role expression expected in Role Reflexivity axiom" )->setReflexive(true);
+		TRole* R = getRole ( axiom.getRole(), "Role expression expected in Role Reflexivity axiom" );
+		if ( R->isBottom() )	// empty role can't be reflexive
+			throw EFPPInconsistentKB();
+		if ( !R->isTop() )	// universal role always reflexive
+			R->setReflexive(true);
 	}
 	virtual void visit ( const TDLAxiomRoleIrreflexive& axiom )
 	{
 		ensureNames(axiom.getRole());
-		if ( isUniversalRole(axiom.getRole()) )	// KB became inconsistent
-			throw EFPPInconsistentKB();
 		TRole* R = getRole ( axiom.getRole(), "Role expression expected in Role Irreflexivity axiom" );
-		R->setDomain(createSNFNot(new DLTree(TLexeme(SELF),e(axiom.getRole()))));
-		R->setIrreflexive(true);
+		if ( R->isTop() )	// KB became inconsistent
+			throw EFPPInconsistentKB();
+		if ( !R->isBottom() )	// empty role already irreflexive
+		{
+			R->setDomain(createSNFNot(new DLTree(TLexeme(SELF),e(axiom.getRole()))));
+			R->setIrreflexive(true);
+		}
 	}
 	virtual void visit ( const TDLAxiomRoleSymmetric& axiom )
 	{
 		ensureNames(axiom.getRole());
-		if ( !isUniversalRole(axiom.getRole()) )
+		TRole* R = getRole ( axiom.getRole(), "Role expression expected in Role Symmetry axiom" );
+		if ( !R->isTop() && !R->isBottom() )	// both are symmetric
 		{
-			TRole* R = getRole ( axiom.getRole(), "Role expression expected in Role Symmetry axiom" );
 			R->setSymmetric(true);
 			kb.getORM()->addRoleParent ( R, R->inverse() );
 		}
@@ -247,32 +254,41 @@ public:		// visitor interface
 	virtual void visit ( const TDLAxiomRoleAsymmetric& axiom )
 	{
 		ensureNames(axiom.getRole());
-		if ( isUniversalRole(axiom.getRole()) )	// KB became inconsistent
-			throw EFPPInconsistentKB();
 		TRole* R = getRole ( axiom.getRole(), "Role expression expected in Role Asymmetry axiom" );
-		R->setAsymmetric(true);
-		kb.getORM()->addDisjointRoles ( R, R->inverse() );
+		if ( R->isTop() )	// KB became inconsistent
+			throw EFPPInconsistentKB();
+		if ( !R->isBottom() )
+		{
+			R->setAsymmetric(true);
+			kb.getORM()->addDisjointRoles ( R, R->inverse() );
+		}
 	}
 	virtual void visit ( const TDLAxiomORoleFunctional& axiom )
 	{
 		ensureNames(axiom.getRole());
-		if ( isUniversalRole(axiom.getRole()) )	// KB became inconsistent
+		TRole* R = getRole ( axiom.getRole(), "Role expression expected in Object Role Functionality axiom" );
+		if ( R->isTop() )	// NOTE!! not really the case (1-point models are fine here), but OWL 2 forbid this
 			throw EFPPInconsistentKB();
-		getRole ( axiom.getRole(), "Role expression expected in Object Role Functionality axiom" )->setFunctional();
+		if ( !R->isBottom() )
+			R->setFunctional();
 	}
 	virtual void visit ( const TDLAxiomDRoleFunctional& axiom )
 	{
 		ensureNames(axiom.getRole());
-		if ( isUniversalRole(axiom.getRole()) )	// KB became inconsistent
+		TRole* R = getRole ( axiom.getRole(), "Role expression expected in Data Role Functionality axiom" );
+		if ( R->isTop() )	// KB became inconsistent
 			throw EFPPInconsistentKB();
-		getRole ( axiom.getRole(), "Role expression expected in Data Role Functionality axiom" )->setFunctional();
+		if ( !R->isBottom() )
+			R->setFunctional();
 	}
 	virtual void visit ( const TDLAxiomRoleInverseFunctional& axiom )
 	{
 		ensureNames(axiom.getRole());
-		if ( isUniversalRole(axiom.getRole()) )	// KB became inconsistent
+		TRole* R = getRole ( axiom.getRole(), "Role expression expected in Role Inverse Functionality axiom" );
+		if ( R->isTop() )	// NOTE!! not really the case (1-point models are fine here), but OWL 2 forbid this
 			throw EFPPInconsistentKB();
-		getRole ( axiom.getRole(), "Role expression expected in Role Inverse Functionality axiom" )->inverse()->setFunctional();
+		if ( !R->isBottom() )
+			R->inverse()->setFunctional();
 	}
 
 	// concept/individual axioms
@@ -299,10 +315,12 @@ public:		// visitor interface
 		ensureNames(axiom.getIndividual());
 		ensureNames(axiom.getRelation());
 		ensureNames(axiom.getRelatedIndividual());
-		if ( !isUniversalRole(axiom.getRelation()) )	// nothing to do for universal role
+		TRole* R = getRole ( axiom.getRelation(), "Role expression expected in Related To axiom" );
+		if ( R->isBottom() )
+			throw EFPPInconsistentKB();
+		if ( !R->isTop() )	// nothing to do for universal role
 		{
 			TIndividual* I = getIndividual ( axiom.getIndividual(), "Individual expected in Related To axiom" );
-			TRole* R = getRole ( axiom.getRelation(), "Role expression expected in Related To axiom" );
 			TIndividual* J = getIndividual ( axiom.getRelatedIndividual(), "Individual expected in Related To axiom" );
 			kb.RegisterIndividualRelation ( I, R, J );
 		}
@@ -312,13 +330,14 @@ public:		// visitor interface
 		ensureNames(axiom.getIndividual());
 		ensureNames(axiom.getRelation());
 		ensureNames(axiom.getRelatedIndividual());
-		if ( isUniversalRole(axiom.getRelation()) )	// inconsistent ontology
+		TRole* R = getRole ( axiom.getRelation(), "Role expression expected in Related To Not axiom" );
+		if ( R->isTop() )	// inconsistent ontology
 			throw EFPPInconsistentKB();
 		// make sure everything is consistent
 		getIndividual ( axiom.getIndividual(), "Individual expected in Related To Not axiom" ),
 		getIndividual ( axiom.getRelatedIndividual(), "Individual expected in Related To Not axiom" );
-		// make an axiom i:AR.\neg{j}
-		kb.addSubsumeAxiom (
+		if ( !R->isBottom() )	// nothing to do
+			kb.addSubsumeAxiom (	// make an axiom i:AR.\neg{j}
 				e(axiom.getIndividual()),
 				createSNFForall ( e(axiom.getRelation()), createSNFNot(e(axiom.getRelatedIndividual())) ) );
 	}
@@ -328,8 +347,11 @@ public:		// visitor interface
 		ensureNames(axiom.getAttribute());
 		getIndividual ( axiom.getIndividual(), "Individual expected in Value Of axiom" );
 		// FIXME!! think about ensuring the value
-		// make an axiom i:EA.V
-		kb.addSubsumeAxiom (
+		TRole* R = getRole ( axiom.getAttribute(), "Role expression expected in Value Of axiom" );
+		if ( R->isBottom() )
+			throw EFPPInconsistentKB();
+		if ( !R->isTop() )	// nothing to do for universal role
+			kb.addSubsumeAxiom (	// make an axiom i:EA.V
 				e(axiom.getIndividual()),
 				createSNFExists ( e(axiom.getAttribute()), e(axiom.getValue())) );
 	}
@@ -339,10 +361,11 @@ public:		// visitor interface
 		ensureNames(axiom.getAttribute());
 		getIndividual ( axiom.getIndividual(), "Individual expected in Value Of Not axiom" );
 		// FIXME!! think about ensuring the value
-		if ( isUniversalRole(axiom.getAttribute()) )	// inconsistent ontology
+		TRole* R = getRole ( axiom.getAttribute(), "Role expression expected in Value Of Not axiom" );
+		if ( R->isTop() )
 			throw EFPPInconsistentKB();
-		// make an axiom i:AA.\neg V
-		kb.addSubsumeAxiom (
+		if ( !R->isBottom() )	// nothing to do for empty role
+			kb.addSubsumeAxiom (	// make an axiom i:AA.\neg V
 				e(axiom.getIndividual()),
 				createSNFForall ( e(axiom.getAttribute()), createSNFNot(e(axiom.getValue()))) );
 	}

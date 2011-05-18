@@ -25,30 +25,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "tDataTypeManager.h"
 #include "tHeadTailCache.h"
 
-inline bool
-isUniversalRole ( const TDLObjectRoleExpression* R )
-{
-	return dynamic_cast<const TDLObjectRoleTop*>(R) != NULL;
-}
-
-inline bool
-isUniversalRole ( const TDLDataRoleExpression* R )
-{
-	return dynamic_cast<const TDLDataRoleTop*>(R) != NULL;
-}
-
-inline bool
-isEmptyRole ( const TDLObjectRoleExpression* R )
-{
-	return dynamic_cast<const TDLObjectRoleBottom*>(R) != NULL;
-}
-
-inline bool
-isEmptyRole ( const TDLDataRoleExpression* R )
-{
-	return dynamic_cast<const TDLDataRoleBottom*>(R) != NULL;
-}
-
 inline TDLDataTypeName* getBasicDataType ( TDLDataTypeExpression* type )
 {
 	TDLDataTypeName* ret = dynamic_cast<TDLDataTypeName*>(type);
@@ -105,18 +81,18 @@ protected:	// members
 	TDLConceptTop* CTop;
 		/// BOTTOM concept
 	TDLConceptBottom* CBottom;
-		/// TOP object role
-	TDLObjectRoleTop* ORTop;
-		/// BOTTOM object role
-	TDLObjectRoleBottom* ORBottom;
-		/// TOP data role
-	TDLDataRoleTop* DRTop;
-		/// BOTTOM data role
-	TDLDataRoleBottom* DRBottom;
 		/// TOP data element
 	TDLDataTop* DTop;
 		/// BOTTOM data element
 	TDLDataBottom* DBottom;
+		/// TOP object role
+	TDLObjectRoleExpression* ORTop;
+		/// BOTTOM object role
+	TDLObjectRoleExpression* ORBottom;
+		/// TOP data role
+	TDLDataRoleExpression* DRTop;
+		/// BOTTOM data role
+	TDLDataRoleExpression* DRBottom;
 
 		/// record all the references
 	std::vector<TDLExpression*> RefRecorder;
@@ -137,6 +113,29 @@ public:		// interface
 
 		/// clear the ontology
 	void clear ( void );
+
+	// top/bottom roles
+
+		/// set Top/Bot properties
+	void setTopBottomRoles ( const char* topORoleName, const char* botORoleName, const char* topDRoleName, const char* botDRoleName )
+	{
+		delete ORTop;
+		ORTop = new TDLObjectRoleName(topORoleName);
+		delete ORBottom;
+		ORBottom = new TDLObjectRoleName(botORoleName);
+		delete DRTop;
+		DRTop = new TDLDataRoleName(topDRoleName);
+		delete DRBottom;
+		DRBottom = new TDLDataRoleName(botDRoleName);
+	}
+		/// @return true iff R is a top object role
+	bool isUniversalRole ( const TDLObjectRoleExpression* R ) const { return R == ORTop; }
+		/// @return true iff R is a top data role
+	bool isUniversalRole ( const TDLDataRoleExpression* R ) const { return R == DRTop; }
+		/// @return true iff R is a bottom object role
+	bool isEmptyRole ( const TDLObjectRoleExpression* R ) const { return R == ORBottom; }
+		/// @return true iff R is a bottom data role
+	bool isEmptyRole ( const TDLDataRoleExpression* R ) const { return R == DRBottom; }
 
 	// entries count
 

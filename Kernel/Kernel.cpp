@@ -266,9 +266,9 @@ ReasoningKernel :: isDisjointRoles ( void )
 		TORoleExpr* ORole = dynamic_cast<TORoleExpr*>(*p);
 		if ( ORole != NULL )
 		{
-			if ( isUniversalRole(ORole) )
+			if ( getExpressionManager()->isUniversalRole(ORole) )
 				return false;	// universal role is not disjoint with anything
-			if ( isEmptyRole(ORole) )
+			if ( getExpressionManager()->isEmptyRole(ORole) )
 				continue;		// empty role is disjoint with everything
 
 			Roles.push_back ( getRole ( ORole, "Role expression expected in isDisjointRoles()" ) );
@@ -279,9 +279,9 @@ ReasoningKernel :: isDisjointRoles ( void )
 			if ( DRole == NULL )
 				throw EFaCTPlusPlus("Role expression expected in isDisjointRoles()");
 
-			if ( isUniversalRole(DRole) )
+			if ( getExpressionManager()->isUniversalRole(DRole) )
 				return false;	// universal role is not disjoint with anything
-			if ( isEmptyRole(DRole) )
+			if ( getExpressionManager()->isEmptyRole(DRole) )
 				continue;		// empty role is disjoint with everything
 
 			Roles.push_back ( getRole ( DRole, "Role expression expected in isDisjointRoles()" ) );
