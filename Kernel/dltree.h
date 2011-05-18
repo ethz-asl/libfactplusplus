@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2010 by Dmitry Tsarkov
+Copyright (C) 2003-2011 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -159,18 +159,7 @@ inline DLTree* createSNFExists ( DLTree* R, DLTree* C )
 	/// create at-least (GE) restriction of given formulas (>= n R.C)
 extern DLTree* createSNFGE ( unsigned int n, DLTree* R, DLTree* C );
 	/// create at-most (LE) restriction of given formulas (<= n R.C)
-inline DLTree* createSNFLE ( unsigned int n, DLTree* R, DLTree* C )
-{
-	if ( C->Element() == BOTTOM )
-	{				// <= n R.F -> T;
-		deleteTree(R);
-		deleteTree(C);
-		return createTop();
-	}
-	if ( n == 0 )	// <= 0 R.C -> \AR.\not C
-		return createSNFForall ( R, createSNFNot(C) );
-	return new DLTree ( TLexeme ( LE, n ), R, C );
-}
+extern DLTree* createSNFLE ( unsigned int n, DLTree* R, DLTree* C );
 
 // prints formula
 

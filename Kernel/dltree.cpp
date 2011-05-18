@@ -21,6 +21,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "dltree.h"
 #include "fpp_assert.h"
 #include "tDataEntry.h"
+#include "tRole.h"
 
 	/// create inverse of role R
 DLTree* createInverse ( DLTree* R )
@@ -136,10 +137,34 @@ DLTree* createSNFForall ( DLTree* R, DLTree* C )
 		deleteTree(R);
 		return C;
 	}
+	if ( resolveRole(R)->isBottom() )
+	{	// \A Bot.C = T
+		deleteTree(R);
+		deleteTree(C);
+		return createTop();
+	}
 	else	// no simplification possible
 		return new DLTree ( TLexeme(FORALL), R, C );
 }
-
+	/// create at-most (LE) restriction of given formulas (<= n R.C)
+DLTree* createSNFLE ( unsigned int n, DLTree* R, DLTree* C )
+{
+	if ( C->Element() == BOTTOM )
+	{				// <= n R.F -> T;
+		deleteTree(R);
+		deleteTree(C);
+		return createTop();
+	}
+	if ( n == 0 )	// <= 0 R.C -> \AR.\not C
+		return createSNFForall ( R, createSNFNot(C) );
+	if ( resolveRole(R)->isBottom() )
+	{	// <=n Bot.C = T
+		deleteTree(R);
+		deleteTree(C);
+		return createTop();
+	}
+	return new DLTree ( TLexeme ( LE, n ), R, C );
+}
 	/// create at-least (GE) restriction of given formulas (>= n R.C)
 DLTree* createSNFGE ( unsigned int n, DLTree* R, DLTree* C )
 {

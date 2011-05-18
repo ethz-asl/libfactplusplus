@@ -38,7 +38,7 @@ public:		// interface
 		/// empty c'tor
 	TExpressionTranslator ( TBox& kb ) : tree(NULL), KB(kb) {}
 		/// empty d'tor
-	~TExpressionTranslator ( void ) { deleteTree(tree); }
+	virtual ~TExpressionTranslator ( void ) { deleteTree(tree); }
 
 		/// get (single) access to the tree
 	operator DLTree* ( void ) { DLTree* ret = tree; tree = NULL; return ret; }
@@ -92,7 +92,12 @@ public:		// visitor interface
 
 		tree = acc;
 	}
-	virtual void visit ( const TDLConceptObjectSelf& expr ) { expr.getOR()->accept(*this); tree = new DLTree ( TLexeme(SELF), *this ); }
+	virtual void visit ( const TDLConceptObjectSelf& expr )
+	{
+		expr.getOR()->accept(*this);
+		DLTree* R = *this;
+		tree = R->Element().getNE()->isBottom() ? createBottom() : new DLTree ( TLexeme(SELF), R );
+	}
 	virtual void visit ( const TDLConceptObjectValue& expr )
 	{
 		expr.getOR()->accept(*this);

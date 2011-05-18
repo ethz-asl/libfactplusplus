@@ -143,6 +143,9 @@ public:		// interface
 		, Kernel (kernel)
 		, EManager(kernel->getExpressionManager())
 	{
+		// locally register Top/Bottom data properties
+		DataRoles.insert("*UDROLE*");
+		DataRoles.insert("*EDROLE*");
 	}
 		/// empty d'tor
 	~DLLispParser ( void ) {}

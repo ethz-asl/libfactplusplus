@@ -805,7 +805,7 @@ public:
 		if ( isUniversalRole(R) )
 			return false;	// universal role is not asymmetric
 		if ( isEmptyRole(R) )
-			return true;	// empty role is symmetric
+			return true;	// empty role is asymmetric
 
 		TRole* r = getRole ( R, "Role expression expected in isAsymmetric()" );
 		if ( !r->isAsymmetryKnown() )	// calculate asymmetry

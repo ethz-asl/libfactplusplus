@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2010 by Dmitry Tsarkov
+Copyright (C) 2003-2011 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -127,11 +127,16 @@ public:		// interface
 		emptyRole.setInverse(&emptyRole);
 		emptyRole.setDataRole(dataRoles);
 		emptyRole.setBPDomain(bpBOTTOM);
+		emptyRole.setBottom();
+		// OWL 2 says Bottom role is non-simple, but this is unnecessary
+		// and leads to inconsistent results wrt presence of an axiom Bot [= R
+		emptyRole.setSimple();
 		// setup universal role
 		universalRole.setId(0);
 		universalRole.setInverse(&universalRole);
 		universalRole.setDataRole(dataRoles);
 		universalRole.setBPDomain(bpTOP);
+		universalRole.setTop();
 
 		// create roles taxonomy
 		pTax = new Taxonomy ( &universalRole, &emptyRole );
