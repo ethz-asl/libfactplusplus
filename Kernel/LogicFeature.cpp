@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2008 by Dmitry Tsarkov
+Copyright (C) 2003-2011 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -30,6 +30,13 @@ void LogicFeatures :: fillConceptData ( const TConcept* p )
 
 void LogicFeatures :: fillRoleData ( const TRole* p, bool both )
 {
+	if ( unlikely(p->isTop()) )
+	{
+		if ( !p->isDataRole() )
+			setX(lfTopRole);
+		return;
+	}
+
 	if ( p->getId() > 0 )	// direct role
 		setX(lfDirectRoles);
 	else
@@ -98,6 +105,9 @@ void LogicFeatures :: writeState ( void ) const
 	if ( !hasTransitiveRole () )
 		LL << "NO ";
 	LL << "transitive role(s)\nKB contains ";
+	if ( !hasTopRole () )
+		LL << "NO ";
+	LL << "top role expressions\nKB contains ";
 	if ( !hasSomeAll () )
 		LL << "NO ";
 	LL << "quanitifier(s)\nKB contains ";

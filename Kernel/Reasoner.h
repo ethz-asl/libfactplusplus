@@ -593,6 +593,8 @@ protected:	// methods
 	bool commonTacticBodySome ( const DLVertex& cur );
 		/// expansion rule for existential quantifier in the form \ER{nom}
 	bool commonTacticBodyValue ( const TRole* R, const TIndividual* nom );
+		/// expansion rule for the existential quantifier with universal role
+	bool commonTacticBodySomeUniv ( const DLVertex& cur );
 		/// expansion rule for universal restriction
 	bool commonTacticBodyAll ( const DLVertex& cur );
 		/// expansion rule for universal restriction with simple role using RA
@@ -1168,6 +1170,11 @@ inline bool DlSatTester :: commonTacticBodyAll ( const DLVertex& cur )
 	fpp_assert ( isPositive(curConcept.bp()) && cur.Type() == dtForall );
 #endif
 
+	if ( unlikely(cur.getRole()->isTop()) )
+	{
+		incStat(nAllCalls);
+		return addSessionGCI ( curConcept.bp(), curConcept.getDep() );
+	}
 	// can't skip singleton models for complex roles due to empty transitions
 	if ( cur.getRole()->isSimple() )
 		return commonTacticBodyAllSimple(cur);

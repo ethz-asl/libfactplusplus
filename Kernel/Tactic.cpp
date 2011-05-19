@@ -500,6 +500,9 @@ bool DlSatTester :: commonTacticBodySome ( const DLVertex& cur )	// for ER.C con
 	const TRole* R = cur.getRole();
 	BipolarPointer C = inverse(cur.getC());
 
+	if ( unlikely(R->isTop()) )
+		return commonTacticBodySomeUniv(cur);
+
 	// check if we already have R-neighbour labelled with C
 	if ( isSomeExists ( R, C ) )
 		return false;
@@ -658,6 +661,27 @@ bool DlSatTester :: commonTacticBodyValue ( const TRole* R, const TIndividual* n
 
 	// add all necessary concepts to both ends of the edge
 	return setupEdge ( edge, dep, redoForall|redoFunc|redoAtMost|redoIrr );
+}
+
+bool
+DlSatTester :: commonTacticBodySomeUniv ( const DLVertex& cur )
+{
+	// check blocking conditions
+	if ( isCurNodeBlocked() )
+		return false;
+
+	incStat(nSomeCalls);
+
+	BipolarPointer C = curConcept.bp();
+	// check whether C is already in CGraph
+	unsigned int i = 0;;
+	DlCompletionTree* node;
+	while ( (node = CGraph.getNode(i++)) != NULL )
+		if ( node->label().contains(C) )
+			return false;
+	// make new node labelled with C
+	node = CGraph.getNewNode();
+	return initNewNode ( node, curConcept.getDep(), C );
 }
 
 //-------------------------------------------------------------------------------

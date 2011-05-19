@@ -105,6 +105,8 @@ DlSatTester :: prepareCascadedCache ( BipolarPointer p )
 		const TRole* R = v.getRole();
 		if ( R->isDataRole() )	// skip data-related stuff
 			break;
+		if ( unlikely(R->isTop()) )	// no need to cache top-role stuff
+			break;
 		BipolarPointer x = createBiPointer(v.getC(),pos);
 
 		// build cache for C in \AR.C

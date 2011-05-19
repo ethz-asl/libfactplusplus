@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2008 by Dmitry Tsarkov
+Copyright (C) 2003-2011 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -16,8 +16,8 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef __LOGICFEATURE_H
-#define __LOGICFEATURE_H
+#ifndef LOGICFEATURE_H
+#define LOGICFEATURE_H
 
 class TConcept;
 class TRole;
@@ -50,6 +50,7 @@ protected:	// types
 
 		// new constructions
 		lfSelfRef			= (1 << 13),
+		lfTopRole			= (1 << 14),
 	};
 
 protected:	// members
@@ -86,6 +87,7 @@ public:		// interface
 	bool hasQNumberRestriction ( void ) const { return getX(lfQConstructor); }
 	bool hasSingletons ( void ) const { return getX(lfSingleton); }
 	bool hasSelfRef ( void ) const { return getX(lfSelfRef); }
+	bool hasTopRole ( void ) const { return getX(lfTopRole); }
 
 	// overall state
 

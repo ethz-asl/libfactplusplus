@@ -166,4 +166,8 @@ void TBox :: gatherRelevanceInfo ( void )
 
 	// set up GALEN-like flag; based on r/n^{3/2}, add r/n^2<1
 	isLikeGALEN = (bRatio > sqBSize*20) && (bRatio < bSize);
+
+	// switch off sorted reasoning iff top role appears
+	if ( KBFeatures.hasTopRole() )
+		useSortedReasoning = false;
 }
