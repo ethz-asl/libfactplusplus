@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2010 by Dmitry Tsarkov
+Copyright (C) 2003-2011 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -31,10 +31,12 @@ protected:	// types
 protected:	// members
 		/// set implementation
 	BaseType Base;
+		/// maximal number of elements
+	unsigned int nElems;
 
 public:		// interface
 		/// empty c'tor taking max possible number of elements in the set
-	explicit TSetAsTree ( unsigned int size ATTR_UNUSED ) {}
+	explicit TSetAsTree ( unsigned int size ) : nElems(size) {}
 		/// copy c'tor
 	TSetAsTree ( const TSetAsTree& is ) : Base(is.Base) {}
 		/// assignment
@@ -53,6 +55,12 @@ public:		// interface
 		fpp_assert ( i > 0 );
 #	endif
 		Base.insert(i);
+	}
+		/// completes the set with [1,n)
+	void completeSet ( void )
+	{
+		for ( unsigned int i = 1; i < nElems; ++i )
+			Base.insert(i);
 	}
 		/// adds the given set to the current one
 	TSetAsTree& operator |= ( const TSetAsTree& is )

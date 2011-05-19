@@ -672,7 +672,7 @@ DlSatTester :: commonTacticBodySomeUniv ( const DLVertex& cur )
 
 	incStat(nSomeCalls);
 
-	BipolarPointer C = curConcept.bp();
+	BipolarPointer C = inverse(cur.getC());
 	// check whether C is already in CGraph
 	unsigned int i = 0;;
 	DlCompletionTree* node;
@@ -836,6 +836,8 @@ bool DlSatTester :: applyUniversalNR ( DlCompletionTree* Node,
 		case dtForall:
 		{
 			if ( (flags & redoForall) == 0 )
+				break;
+			if ( unlikely(vR->isTop()) )
 				break;
 
 			/// check whether transition is possible

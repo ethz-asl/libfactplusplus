@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2010 by Dmitry Tsarkov
+Copyright (C) 2003-2011 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -40,7 +40,7 @@ void modelCacheIan :: processConcept ( const DLVertex& cur, bool pos, bool det )
 {
 		switch ( cur.Type() )
 		{
-		case dtTop:		// safety checks
+		case dtTop:			// sanity checks
 		case dtDataType:	// data entries can not be cached
 		case dtDataValue:
 		case dtDataExpr:
@@ -57,7 +57,9 @@ void modelCacheIan :: processConcept ( const DLVertex& cur, bool pos, bool det )
 		case dtIrr:		// for \neg \ER.Self: add R to AR-set
 		case dtForall:	// add AR.C roles to forallRoles
 		case dtLE:		// for <= n R: add R to forallRoles
-			if ( pos )	// no need to deal with existantionals here: they would be created through edges
+			if ( unlikely ( cur.getRole()->isTop() ) )	// force clash to every other edge
+				(pos ? forallRoles : existsRoles).completeSet();
+			else if ( pos )	// no need to deal with existentials here: they would be created through edges
 			{
 				if ( cur.getRole()->isSimple() )
 					forallRoles.insert(cur.getRole()->index());

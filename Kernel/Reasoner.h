@@ -1173,7 +1173,7 @@ inline bool DlSatTester :: commonTacticBodyAll ( const DLVertex& cur )
 	if ( unlikely(cur.getRole()->isTop()) )
 	{
 		incStat(nAllCalls);
-		return addSessionGCI ( curConcept.bp(), curConcept.getDep() );
+		return addSessionGCI ( cur.getC(), curConcept.getDep() );
 	}
 	// can't skip singleton models for complex roles due to empty transitions
 	if ( cur.getRole()->isSimple() )
