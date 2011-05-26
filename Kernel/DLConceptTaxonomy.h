@@ -259,7 +259,7 @@ public:		// interface
 	{
 	}
 		/// d'tor
-	~DLConceptTaxonomy ( void ) {}
+	virtual ~DLConceptTaxonomy ( void ) {}
 
 		/// process all splits
 	void processSplits ( void )

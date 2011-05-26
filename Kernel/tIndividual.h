@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2010 by Dmitry Tsarkov
+Copyright (C) 2003-2011 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -71,8 +71,6 @@ class TIndividual: public TConcept
 public:		// types
 		/// pointers to RELATED constructors
 	typedef std::vector<TRelated*> RelatedSet;
-		/// pointers to concept expressions
-	typedef std::vector<const DLTree*> ConceptSearchSet;
 		/// vector of individuals
 	typedef TRelatedMap::CIVec CIVec;
 
@@ -84,13 +82,6 @@ public:		// members
 	RelatedSet RelatedIndex;
 		/// map for the related individuals: Map[R]={i:R(this,i)}
 	TRelatedMap* pRelatedMap;
-
-	// precompletion support
-
-		/// vector that contains LINKS to the concept expressions that are labels of an individual
-	ConceptSearchSet CSSet;
-		/// new concept expression to be added to the label
-	DLTree* PCConcept;
 
 private:	// no copy
 		/// no copy c'tor
@@ -104,10 +95,9 @@ public:		// interface
 		: TConcept(name)
 		, node(NULL)
 		, pRelatedMap(new TRelatedMap())
-		, PCConcept(NULL)
 		{}
 		/// empty d'tor
-	virtual ~TIndividual ( void ) { delete pRelatedMap; deleteTree(PCConcept); }
+	virtual ~TIndividual ( void ) { delete pRelatedMap; }
 
 		/// check whether a concept is indeed a singleton
 	virtual bool isSingleton ( void ) const { return true; }
@@ -158,48 +148,6 @@ public:		// interface
 	void setRelatedCache ( const TRole* R, const CIVec& v ) { pRelatedMap->setRelated ( R, v ); }
 		/// clear RM
 	void clearRelatedMap ( void ) { delete pRelatedMap; pRelatedMap = new TRelatedMap(); }
-
-	// precompletion interface
-
-		/// check whether EXPR already exists in the precompletion set
-	bool containsPCExpr ( const DLTree* expr ) const
-	{
-		if ( expr == NULL )	// special case it
-			return true;
-		for ( ConceptSearchSet::const_iterator p = CSSet.begin(), p_end = CSSet.end(); p < p_end; ++p )
-			if ( equalTrees ( *p, expr ) )
-				return true;
-
-		return false;
-	}
-		/// unconditionally adds EXPR to the precompletion information
-	void addPCExprAlways ( const DLTree* expr )
-	{
-		CSSet.push_back(expr);
-		PCConcept = createSNFAnd ( PCConcept, clone(expr) );
-	}
-		/// add EXPR to th ePC information if it is a new expression; @return true if was added
-	bool addPCExpr ( const DLTree* expr )
-	{
-		if ( containsPCExpr(expr) )
-			return false;
-		addPCExprAlways(expr);
-		return true;
-	}
-		/// update individual's description from precompletion information
-	void usePCInfo ( void )
-	{
-		deleteTree(Description);
-		Description = PCConcept;
-		PCConcept = NULL;
-
-		// we change description of a concept, so we need to rebuild the TS info
-		// note that precompletion succeed; so there is no need to take into account
-		// RELATED information
-		TConcept::initToldSubsumers();
-	}
-		/// remove all precompletion-related information
-	void clearPCInfo ( void ) { deleteTree(PCConcept); PCConcept = NULL; CSSet.clear(); }
 
 	// save/load interface; implementation is in SaveLoad.cpp
 

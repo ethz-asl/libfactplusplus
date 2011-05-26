@@ -56,7 +56,6 @@ TBox :: TBox ( const ifOptionSet* Options, const std::string& TopORoleName, cons
 	, isLikeGALEN(false)	// just in case Relevance part would be omited
 	, isLikeWINE(false)
 	, Consistent(true)
-	, Precompleted(false)
 	, preprocTime(0)
 	, consistTime(0)
 {
@@ -419,7 +418,6 @@ void TBox :: readConfig ( const ifOptionSet* Options )
 	addBoolOption(useRelevantOnly);
 	addBoolOption(dumpQuery);
 	addBoolOption(alwaysPreferEquals);
-	addBoolOption(usePrecompletion);
 
 	if ( Axioms.initAbsorptionFlags(Options->getText("absorptionFlags")) )
 		throw EFaCTPlusPlus ( "Incorrect absorption flags given" );

@@ -53,7 +53,6 @@ enum KBStatus
 
 class TBox
 {
-	friend class Precompletor;
 	friend class DlSatTester;
 	friend class NominalReasoner;
 	friend class ReasoningKernel;
@@ -256,13 +255,9 @@ protected:	// members
 	bool isLikeGALEN;
 		/// flag whether TBox is WINE-like
 	bool isLikeWINE;
-		/// flag whether precompletion should be used
-	bool usePrecompletion;
 
 		/// whether KB is consistent
 	bool Consistent;
-		/// whether KB(ABox) is precompleted
-	bool Precompleted;
 
 		/// time spend for preprocessing
 	float preprocTime;
@@ -513,8 +508,6 @@ protected:	// methods
 
 		/// pre-process RELATED axioms: resolve synonyms, mark individuals as related
 	void preprocessRelated ( void );
-		/// perform precompletion;
-	void performPrecompletion ( void );
 		/// determine all sorts in KB (make job only for SORTED_REASONING)
 	void determineSorts ( void );
 
@@ -1086,10 +1079,6 @@ public:
 //--		public reasoning interface
 //-----------------------------------------------------------------------------
 
-		/// inform that KB is precompleted
-	void setPrecompleted ( void ) { Precompleted = true; }
-		/// if KB is precompleted
-	bool isPrecompleted ( void ) const { return Precompleted; }
 		/// get status flag
 	KBStatus getStatus ( void ) const { return Status; }
 		/// set consistency flag

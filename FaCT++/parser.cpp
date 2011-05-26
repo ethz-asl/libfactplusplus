@@ -58,7 +58,7 @@ void DLLispParser :: parseCommand ( void )
 				Kernel->equalConcepts();
 			}
 		}
-		catch ( EFaCTPlusPlus ex )
+		catch ( const EFaCTPlusPlus& ex )
 		{
 			parseError(ex.what());
 		}
@@ -80,7 +80,7 @@ void DLLispParser :: parseCommand ( void )
 			{
 				Kernel->impliesORoles ( dynamic_cast<TORoleComplexExpr*>(R), getORoleExpression() );
 			}
-			catch ( EFaCTPlusPlus ex )
+			catch ( const EFaCTPlusPlus& ex )
 			{
 				parseError(ex.what());
 			}
@@ -125,7 +125,7 @@ void DLLispParser :: parseCommand ( void )
 					Kernel->setODomain ( S, getConceptExpression() );
 			}
 		}
-		catch ( EFaCTPlusPlus ex )
+		catch ( const EFaCTPlusPlus& ex )
 		{
 			parseError(ex.what());
 		}
@@ -158,7 +158,7 @@ void DLLispParser :: parseCommand ( void )
 				fpp_unreachable();
 			}
 		}
-		catch ( EFaCTPlusPlus ex )
+		catch ( const EFaCTPlusPlus& ex )
 		{
 			parseError(ex.what());
 		}
@@ -201,7 +201,7 @@ void DLLispParser :: parseCommand ( void )
 			TIndividualExpr* id2 = getSingleton();
 			Kernel->relatedTo ( id1, R, id2 );
 		}
-		catch ( EFaCTPlusPlus ex )
+		catch ( const EFaCTPlusPlus& ex )
 		{
 			parseError(ex.what());
 		}
@@ -217,7 +217,7 @@ void DLLispParser :: parseCommand ( void )
 			{
 				Kernel->setOFunctional(Name);
 			}
-			catch ( EFaCTPlusPlus ex )
+			catch ( const EFaCTPlusPlus& ex )
 			{
 				parseError(ex.what());
 			}
@@ -286,7 +286,7 @@ DLLispParser :: tellRoleAxiom ( LispToken tag, TORoleExpr* R, TORoleExpr* S )
 			parseError("Unrecognised object role command");
 		}
 	}
-	catch ( EFaCTPlusPlus ex )
+	catch ( const EFaCTPlusPlus& ex )
 	{
 		parseError(ex.what());
 	}
@@ -322,7 +322,7 @@ DLLispParser :: tellRoleAxiom ( LispToken tag, TDRoleExpr* R, TDRoleExpr* S )
 			parseError("Unrecognised data role command");
 		}
 	}
-	catch ( EFaCTPlusPlus ex )
+	catch ( const EFaCTPlusPlus& ex )
 	{
 		parseError(ex.what());
 	}
@@ -357,7 +357,7 @@ void DLLispParser :: parseRoleArguments ( TORoleExpr* R )
 				{	// only object roles can have arguments
 					Kernel->impliesORoles ( R, getORoleExpression() );
 				}
-				catch ( EFaCTPlusPlus ex )
+				catch ( const EFaCTPlusPlus& ex )
 				{
 					parseError(ex.what());
 				}
@@ -372,7 +372,7 @@ void DLLispParser :: parseRoleArguments ( TORoleExpr* R )
 			{
 				Kernel->setTransitive(R);
 			}
-			catch ( EFaCTPlusPlus ex )
+			catch ( const EFaCTPlusPlus& ex )
 			{
 				parseError(ex.what());
 			}

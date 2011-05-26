@@ -22,7 +22,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "procTimer.h"
 #include "logging.h"
-#include "Precomplete.h"
 
 //#define DEBUG_PREPROCESSING
 
@@ -90,14 +89,6 @@ void TBox :: Preprocess ( void )
 	BEGIN_PASS("Set told TOP");
 	setToldTop();
 	END_PASS();
-
-	// perform precompletion (if possible)
-	if ( usePrecompletion )
-	{
-		BEGIN_PASS("Build precompletion");
-		performPrecompletion();
-		END_PASS();
-	}
 
 	// no more axiom transformations allowed
 
@@ -398,16 +389,6 @@ TBox :: transformSingletonWithSP ( TConcept* p )
 	addSubsumeAxiom ( i, makeNonPrimitive ( p, getTree(i) )	);
 
 	return i;
-}
-
-void
-TBox :: performPrecompletion ( void )
-{
-	Precompletor PC(*this);
-	if ( PC.performPrecompletion() )
-		std::cerr << "\nPrecompletion failed";	// do nothing for now
-	else
-		std::cerr << "\nPrecompletion succeed";	// do nothing for now
 }
 
 void

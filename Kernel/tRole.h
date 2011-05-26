@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2010 by Dmitry Tsarkov
+Copyright (C) 2003-2011 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -208,7 +208,7 @@ public:		// interface
 		/// the only c'tor
 	TRole ( const std::string& name );
 		/// d'tor
-	~TRole ( void );
+	virtual ~TRole ( void );
 
 		/// get (unsigned) unique index of the role
 	unsigned int getIndex ( void ) const

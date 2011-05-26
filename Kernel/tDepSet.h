@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2006-2010 by Dmitry Tsarkov
+Copyright (C) 2006-2011 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -108,7 +108,7 @@ public:		// interface
 		HeadDepSet = new TDepSetElement ( Manager, Level, NULL );
 	}
 		/// d'tor: delete all the cached dep-sets and the head element
-	~TDepSetCache ( void )
+	virtual ~TDepSetCache ( void )
 	{
 		// don't delete tails as they are referenced outside
 		for ( iterator p = Map.begin(), p_end = Map.end(); p != p_end; ++p )

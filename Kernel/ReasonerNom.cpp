@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2010 by Dmitry Tsarkov
+Copyright (C) 2003-2011 by Dmitry Tsarkov
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -110,10 +110,9 @@ NominalReasoner :: initNominalCloud ( void )
 			return true;	// ABox is inconsistent
 
 	// create edges between related nodes
-	if ( !tBox.isPrecompleted() )	// not needed for precompleted KB
-		for ( TBox::RelatedCollection::const_iterator q = tBox.RelatedI.begin(); q != tBox.RelatedI.end(); ++q, ++q )
-			if ( initRelatedNominals(*q) )
-				return true;	// ABox is inconsistent
+	for ( TBox::RelatedCollection::const_iterator q = tBox.RelatedI.begin(); q != tBox.RelatedI.end(); ++q, ++q )
+		if ( initRelatedNominals(*q) )
+			return true;	// ABox is inconsistent
 
 	// create disjoint markers on nominal nodes
 	if ( tBox.Different.empty() )
