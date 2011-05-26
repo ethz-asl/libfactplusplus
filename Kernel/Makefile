@@ -41,7 +41,6 @@ SOURCES = \
 		  DataTypeCenter.cpp\
           Preprocess.cpp\
           Input.cpp\
-          Precomplete.cpp\
           SaveLoad.cpp\
           ReasonerNom.cpp\
           tExpressionManager.cpp\
