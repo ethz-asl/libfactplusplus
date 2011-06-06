@@ -204,13 +204,13 @@ protected:	// methods
 		if ( typeName == "string" )
 			comp = ComparableDT(getName());
 		else if ( typeName == "number" )
-			comp = ComparableDT((long)atoi(getName()));
+			comp = ComparableDT(atol(getName()));
 		else if ( typeName == "real" )
 			comp = ComparableDT((float)atof(getName()));
 		else if ( typeName == "bool" )	// FIXME!! dirty hack
 			comp = ComparableDT(getName());
 		else if ( typeName == "time" )
-			comp = ComparableDT ( (long)atoi(getName()), 0 );
+			comp = ComparableDT ( atol(getName()), 0 );
 		else	// no more types available
 			fpp_unreachable();
 	}
