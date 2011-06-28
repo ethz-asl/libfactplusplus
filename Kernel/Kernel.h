@@ -401,17 +401,8 @@ protected:	// methods
 		/// get individual by the TIndividualExpr
 	TIndividual* getIndividual ( const TIndividualExpr* i, const char* reason )
 	{
-		try
-		{
-			TreeDeleter I = e(i);
-			if ( I == NULL )
-				throw EFaCTPlusPlus(reason);
-			return static_cast<TIndividual*>(getTBox()->getCI(I));
-		}
-		catch(...)
-		{
-			throw EFaCTPlusPlus(reason);
-		}
+		try { return static_cast<TIndividual*>(getTBox()->getCI(e(i))); }
+		catch(...) { throw EFaCTPlusPlus(reason); }
 	}
 		/// get role by the TRoleExpr
 	TRole* getRole ( const TRoleExpr* r, const char* reason )
