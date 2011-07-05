@@ -46,12 +46,12 @@ import uk.ac.manchester.cs.factplusplus.*;
  * The University of Manchester<br>
  * Information Management Group<br>
  * Date: 29-Dec-2009
- * 
+ *
  * Synchronization policy: all methods for OWLReasoner are synchronized, except
  * the methods which do not touch the kernel or only affect threadsafe data
  * structures. inner private classes are not synchronized since methods from
  * those classes cannot be invoked from outsize synchronized methods.
- * 
+ *
  */
 public class FaCTPlusPlusReasoner implements OWLReasoner,
 		OWLOntologyChangeListener {
@@ -109,7 +109,7 @@ public class FaCTPlusPlusReasoner implements OWLReasoner,
 	 * then the changes will be stored in a buffer. If the reasoner is a
 	 * non-buffering reasoner then the changes will be automatically flushed
 	 * through to the change filter and passed on to the reasoner.
-	 * 
+	 *
 	 * @param changes
 	 *            The list of raw changes.
 	 */
@@ -177,7 +177,7 @@ public class FaCTPlusPlusReasoner implements OWLReasoner,
 	 * removed from the list of pending changes. Note that even if the list of
 	 * pending changes is non-empty then there may be no changes for the
 	 * reasoner to deal with.
-	 * 
+	 *
 	 * @param added
 	 *            The logical axioms that have been added to the imports closure
 	 *            of the reasoner root ontology
@@ -208,7 +208,7 @@ public class FaCTPlusPlusReasoner implements OWLReasoner,
 
 	/**
 	 * Gets the axioms that should be currently being reasoned over.
-	 * 
+	 *
 	 * @return A collections of axioms (not containing duplicates) that the
 	 *         reasoner should be taking into consideration when reasoning. This
 	 *         set of axioms many not correspond to the current state of the
@@ -295,7 +295,7 @@ public class FaCTPlusPlusReasoner implements OWLReasoner,
 	 * Asks the reasoner implementation to handle axiom additions and removals
 	 * from the imports closure of the root ontology. The changes will not
 	 * include annotation axiom additions and removals.
-	 * 
+	 *
 	 * @param addAxioms
 	 *            The axioms to be added to the reasoner.
 	 * @param removeAxioms
@@ -881,7 +881,7 @@ public class FaCTPlusPlusReasoner implements OWLReasoner,
 		if (literal.isRDFPlainLiteral()) {
 			value = value + "@" + literal.getLang();
 		}
-		if (literal.getDatatype().isBuiltIn() && 
+		if (literal.getDatatype().isBuiltIn() &&
 				literal.getDatatype().getBuiltInDatatype() == OWL2Datatype.XSD_DATE_TIME) {
 			return kernel.getDataValue(convertToLongDateTime(value),
 					toDataTypePointer(literal.getDatatype()));
@@ -896,11 +896,13 @@ public class FaCTPlusPlusReasoner implements OWLReasoner,
 			calendar = DatatypeFactory.newInstance().newXMLGregorianCalendar(
 					input);
 			if (calendar.getTimezone() == DatatypeConstants.FIELD_UNDEFINED) {
-				// set it to 0 (UTC) in this case; not perfect but avoids 
+				// set it to 0 (UTC) in this case; not perfect but avoids
 				// indeterminate situations where two datetime literals cannot be compared
 				calendar.setTimezone(0);
 			}
 			long l = calendar.toGregorianCalendar().getTimeInMillis();
+			System.out
+					.println("FaCTPlusPlusReasoner.convertToLongDateTime()\n"+input+"\n"+Long.toString(l));
 			return Long.toString(l);
 		} catch (DatatypeConfigurationException e) {
 			throw new OWLRuntimeException(
@@ -916,7 +918,10 @@ public class FaCTPlusPlusReasoner implements OWLReasoner,
 			if (pointer != null) {
 				OWLNamedIndividual ind = individualTranslator
 						.getEntityFromPointer(pointer);
-				ns.addEntity(ind);
+				// XXX skipping anonymous individuals - counterintuitive but that's the specs for you
+				if (ind != null) {
+					ns.addEntity(ind);
+				}
 			}
 		}
 		return ns;
