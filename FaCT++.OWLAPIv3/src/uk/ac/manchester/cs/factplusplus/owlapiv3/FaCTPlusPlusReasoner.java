@@ -612,8 +612,9 @@ public class FaCTPlusPlusReasoner implements OWLReasoner,
 
 	// data properties
 	public Node<OWLDataProperty> getTopDataPropertyNode() {
-		return getEquivalentDataProperties(getOWLDataFactory()
-				.getOWLTopDataProperty());
+		OWLDataPropertyNode toReturn=new OWLDataPropertyNode();
+		toReturn.add(getOWLDataFactory().getOWLTopDataProperty());
+		return toReturn;
 	}
 
 	public Node<OWLDataProperty> getBottomDataPropertyNode() {
