@@ -177,6 +177,10 @@ protected:	// members
 	bool reasoningFailed;
 		/// flag to gather trace information for the next reasoner's call
 	bool NeedTracing;
+		/// whether axiom splitting should be used
+	bool useAxiomSplitting;
+		/// whether EL polynomial reasoner should be used
+	bool useELReasoner;
 
 private:	// no copy
 		/// no copy c'tor
@@ -505,6 +509,8 @@ public:	// general staff
 		if ( pTBox != NULL )
 			pTBox->setTestTimeout(value);
 	}
+		/// choose whether axiom splitting should be used
+	void setAxiomSplitting ( bool value ) { useAxiomSplitting = value; }
 
 	//----------------------------------------------
 	//-- Tracing support

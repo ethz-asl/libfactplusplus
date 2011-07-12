@@ -43,6 +43,8 @@ ReasoningKernel :: ReasoningKernel ( void )
 	, OpTimeout(0)
 	, verboseOutput(false)
 	, cachedQuery(NULL)
+	, useAxiomSplitting(false)
+	, useELReasoner(false)
 {
 	// Intro
 	if ( KernelFirstRun )
@@ -86,8 +88,11 @@ ReasoningKernel :: forceReload ( void )
 	pMonitor = NULL;
 
 	// split ontological axioms
-	TAxiomSplitter AxiomSplitter(&Ontology);
-//	AxiomSplitter.buildSplit();
+	if ( useAxiomSplitting )
+	{
+		TAxiomSplitter AxiomSplitter(&Ontology);
+		AxiomSplitter.buildSplit();
+	}
 
 	// (re)load ontology
 	TOntologyLoader OntologyLoader(*getTBox());
