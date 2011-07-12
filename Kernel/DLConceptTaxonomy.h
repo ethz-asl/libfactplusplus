@@ -143,7 +143,7 @@ protected:	// methods
 		if ( unlikely(upDirection && !cur->isCommon()) )
 			return false;
 		// for top-down search it's enough to look at defined concepts and non-det ones
-		if ( likely(!upDirection) && !possibleSub(cur) )
+		if ( likely(!inSplitCheck && !upDirection) && !possibleSub(cur) )
 			return false;
 		return enhancedSubs1 ( upDirection, cur );
 	}
