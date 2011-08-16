@@ -20,6 +20,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "tOntologyLoader.h"
 #include "tOntologyPrinterLISP.h"
 #include "AxiomSplitter.h"
+#include "ELFNormalizer.h"
+#include "ELFReasoner.h"
 
 const char* ReasoningKernel :: Version = "1.5.2";
 const char* ReasoningKernel :: SupportedDL = "SROIQ(D)";
@@ -86,6 +88,24 @@ ReasoningKernel :: forceReload ( void )
 	// Protege (as the only user of non-trivial monitors with reload) does not accept multiple usage of a monitor
 	// so switch it off after the 1st usage
 	pMonitor = NULL;
+
+	if ( useELReasoner )
+	{
+		ELFAxiomChecker ac;
+		ac.visitOntology(Ontology);
+		if ( ac )
+		{
+			std::cerr << "Normalizing EL ontology... ";
+			ELFNormalizer normalizer (getExpressionManager());
+			normalizer.visitOntology(Ontology);
+			std::cerr << "done\nLoading EL ontology... ";
+			ELFReasoner reasoner (Ontology);
+			std::cerr << "done\nClassifying EL ontology... ";
+			reasoner.classify();
+			std::cerr << "done\n";
+			return;
+		}
+	}
 
 	// split ontological axioms
 	if ( useAxiomSplitting )
