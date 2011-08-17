@@ -44,9 +44,9 @@ public:		// interface
 		/// empty d'tor
 	virtual ~TELFRule ( void ) {}
 		/// apply rule with fresh class C added to watching part
-	virtual TELFAction* apply ( TELFConcept* C ATTR_UNUSED ) { return NULL; }
+	virtual TELFAction* apply ( TELFConcept* addedC ATTR_UNUSED ) { return NULL; }
 		/// apply rule with fresh pair (C,D) added to watching part
-	virtual TELFAction* apply ( TELFConcept* C ATTR_UNUSED, TELFConcept* D ATTR_UNUSED ) { return NULL; }
+	virtual TELFAction* apply ( TELFConcept* addedC ATTR_UNUSED, TELFConcept* addedD ATTR_UNUSED ) { return NULL; }
 }; // TELFRule
 
 //-------------------------------------------------------------
@@ -66,9 +66,9 @@ protected:	// members
 
 protected:	// methods
 		/// apply all rules with a single argument
-	void applyRules ( ELFReasoner& ER, TELFConcept* C );
+	void applyRules ( ELFReasoner& ER, TELFConcept* addedC );
 		/// apply all rules with two arguments
-	void applyRules ( ELFReasoner& ER, TELFConcept* C, TELFConcept* D );
+	void applyRules ( ELFReasoner& ER, TELFConcept* addedC, TELFConcept* addedD );
 
 public:		// interface
 		/// empty c'tor
@@ -249,17 +249,17 @@ public:
 };	// ELFReasoner
 
 void
-TRuleSet :: applyRules ( ELFReasoner& ER, TELFConcept* C )
+TRuleSet :: applyRules ( ELFReasoner& ER, TELFConcept* addedC )
 {
 	for ( RVec::iterator p = Rules.begin(), p_end = Rules.end(); p != p_end; ++p )
-		ER.addAction((*p)->apply(C));
+		ER.addAction((*p)->apply(addedC));
 }
 
 void
-TRuleSet :: applyRules ( ELFReasoner& ER, TELFConcept* C, TELFConcept* D )
+TRuleSet :: applyRules ( ELFReasoner& ER, TELFConcept* addedC, TELFConcept* addedD )
 {
 	for ( RVec::iterator p = Rules.begin(), p_end = Rules.end(); p != p_end; ++p )
-		ER.addAction((*p)->apply(C,D));
+		ER.addAction((*p)->apply(addedC,addedD));
 }
 
 //-------------------------------------------------------------
@@ -297,7 +297,7 @@ public:		// interface
 		/// empty d'tor
 	~CSubRule ( void ) {}
 		/// apply a method with a given S(C)
-	virtual TELFAction* apply ( TELFConcept* C ) { return new CAddAction ( C, Sup ); }
+	virtual TELFAction* apply ( TELFConcept* addedC ) { return new CAddAction ( addedC, Sup ); }
 		/// accept
 }; // CSubRule
 
@@ -352,16 +352,51 @@ public:		// interface
 // Rule and action for C [= \Er.D case; CR3
 //-------------------------------------------------------------
 
+/// action corresponding to addition of (C,D) to R
+class RAddAction: public TELFAction
+{
+protected:	// members
+		/// role R corresponded to R(C,D)
+	TELFRole* R;
+		/// concept C; to add
+	TELFConcept* C;
+		/// concept D; to add
+	TELFConcept* D;
+
+public:		// interface
+		/// init c'tor
+	RAddAction ( TELFRole* r, TELFConcept* c, TELFConcept* d ) : R(r), C(c), D(d) {}
+		/// empty d'tor
+	virtual ~RAddAction ( void ) {}
+		/// action
+	virtual void apply ( ELFReasoner& r ) { R->addR ( r, C, D ); }
+}; // RAddAction
+
+/// the rule for C [= \ER.D case
+class RAddRule: public TELFRule
+{
+protected:
+		/// role to add the pair
+	TELFRole* R;
+		/// filler (D) of the existential
+	TELFConcept* Filler;
+
+public:		// interface
+		/// init c'tor: remember D
+	RAddRule ( TELFRole* r, TELFConcept* C ) : R(r), Filler(C) {}
+		/// empty d'tor
+	~RAddRule ( void ) {}
+		/// apply a method with a given source S(C)
+	virtual TELFAction* apply ( TELFConcept* Source ) { return new RAddAction ( R, Source, Filler ); }
+		/// accept
+}; // RAddRule
+
 //-------------------------------------------------------------
 // Rule and action for \Er.C [= D case; CR4
 //-------------------------------------------------------------
 
 //-------------------------------------------------------------
 // Rule and action for R(C,D) with \bot\in S(D) case; CR5
-//-------------------------------------------------------------
-
-//-------------------------------------------------------------
-// Rule and action for C [= \Er.D case; CR3
 //-------------------------------------------------------------
 
 //-------------------------------------------------------------
@@ -386,8 +421,8 @@ ELFReasoner :: processCI ( const TDLAxiomConceptInclusion* axiom )
 	const TDLConceptObjectExists* Exists = dynamic_cast<const TDLConceptObjectExists*>(axiom->getSupC());
 	if ( Exists != NULL )	// C [= \E R.D
 	{
-		// do something with axiom->Sub and Exists
 		++nE2;
+		getC(axiom->getSubC())->addRule(new RAddRule(getR(Exists->getOR()), getC(Exists->getC())));
 		return;
 	}
 	// now RHS is a concept name or \bottom; record it
