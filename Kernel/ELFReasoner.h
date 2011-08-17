@@ -24,18 +24,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 class ELFReasoner;
 
-/// single algorithm action (application of a rule)
-class TELFAction
-{
-public:		// interface
-		/// main function
-	virtual void apply ( ELFReasoner& r ) {}
-		/// destructor does all the job
-	virtual ~TELFAction ( void ) {}
-}; // TELFAction
-
 // forward declaration to allow Rule specification
 class TELFConcept;
+class ELFAction;
 
 /// pattern for the rule. Contains apply() method with updates of the monitored set
 class TELFRule
@@ -44,9 +35,9 @@ public:		// interface
 		/// empty d'tor
 	virtual ~TELFRule ( void ) {}
 		/// apply rule with fresh class C added to watching part
-	virtual TELFAction* apply ( TELFConcept* addedC ATTR_UNUSED ) { return NULL; }
+	virtual ELFAction* apply ( TELFConcept* addedC ATTR_UNUSED ) { return NULL; }
 		/// apply rule with fresh pair (C,D) added to watching part
-	virtual TELFAction* apply ( TELFConcept* addedC ATTR_UNUSED, TELFConcept* addedD ATTR_UNUSED ) { return NULL; }
+	virtual ELFAction* apply ( TELFConcept* addedC ATTR_UNUSED, TELFConcept* addedD ATTR_UNUSED ) { return NULL; }
 }; // TELFRule
 
 //-------------------------------------------------------------
@@ -149,6 +140,38 @@ public:		// interface
 }; // TELFRole
 
 //-------------------------------------------------------------
+// Action class
+//-------------------------------------------------------------
+
+/// single algorithm action (application of a rule)
+class ELFAction
+{
+protected:	// members
+		/// role R corresponded to R(C,D)
+	TELFRole* R;
+		/// concept C; to add
+	TELFConcept* C;
+		/// concept D; to add
+	TELFConcept* D;
+
+public:		// interface
+		/// init c'tor for C action
+	ELFAction ( TELFConcept* c, TELFConcept* d ) : R(NULL), C(c), D(d) {}
+		/// init c'tor for R action
+	ELFAction ( TELFRole* r, TELFConcept* c, TELFConcept* d ) : R(r), C(c), D(d) {}
+		/// empty d'tor
+	~ELFAction ( void ) {}
+		/// action itself, depending on the R state
+	void apply ( ELFReasoner& Reasoner )
+	{
+		if ( R != NULL )
+			R->addR ( Reasoner, C, D );
+		else
+			C->addC ( Reasoner, D );
+	}
+}; // ELFAction
+
+//-------------------------------------------------------------
 // Reasoner class
 //-------------------------------------------------------------
 
@@ -166,7 +189,7 @@ protected:	// members
 		/// map between roles and structures
 	std::map<const TDLObjectRoleExpression*, TELFRole*> RMap;
 		/// queue of actions to perform
-	std::queue<TELFAction*> queue;
+	std::queue<ELFAction*> queue;
 		/// stat counters
 	unsigned int nE1, nE2, nA, nC, nR, nCh;
 
@@ -222,7 +245,7 @@ public:
 		/// empty d'tor
 	~ELFReasoner ( void ) {}
 		/// add action to a queue
-	void addAction ( TELFAction* action ) { queue.push(action); }
+	void addAction ( ELFAction* action ) { if ( action ) queue.push(action); }
 		/// classification method
 	void classify ( void )
 	{
@@ -263,26 +286,8 @@ TRuleSet :: applyRules ( ELFReasoner& ER, TELFConcept* addedC, TELFConcept* adde
 }
 
 //-------------------------------------------------------------
-// Rule and action for C [= D case; CR1
+// Rule for C [= D case; CR1
 //-------------------------------------------------------------
-
-/// action corresponding to addition of D to S(C)
-class CAddAction: public TELFAction
-{
-protected:	// members
-		/// concept C corresponded to S(C)
-	TELFConcept* C;
-		/// concept D; would be added to S(C)
-	TELFConcept* D;
-
-public:		// interface
-		/// init c'tor
-	CAddAction ( TELFConcept* c, TELFConcept* d ) : C(c), D(d) {}
-		/// empty d'tor
-	virtual ~CAddAction ( void ) {}
-		/// action
-	virtual void apply ( ELFReasoner& r ) { C->addC ( r, D ); }
-}; // CAddAction
 
 /// the rule for C [= D case
 class CSubRule: public TELFRule
@@ -297,37 +302,13 @@ public:		// interface
 		/// empty d'tor
 	~CSubRule ( void ) {}
 		/// apply a method with a given S(C)
-	virtual TELFAction* apply ( TELFConcept* addedC ) { return new CAddAction ( addedC, Sup ); }
+	virtual ELFAction* apply ( TELFConcept* addedC ) { return new ELFAction ( addedC, Sup ); }
 		/// accept
 }; // CSubRule
 
 //-------------------------------------------------------------
-// Rule and action for C1 and C2 [= D case; CR2
+// Rule for C1 and C2 [= D case; CR2
 //-------------------------------------------------------------
-
-/// action corresponding to addition of D to S(C)
-class CAddConjAction: public TELFAction
-{
-protected:	// members
-		/// concept C corresponded to S(C)
-	TELFConcept* C;
-		/// concept Conj; should be in S(C)
-	TELFConcept* Conj;
-		/// concept D; would be added to S(C)
-	TELFConcept* D;
-
-public:		// interface
-		/// init c'tor
-	CAddConjAction ( TELFConcept* c, TELFConcept* conj, TELFConcept* d ) : C(c), Conj(conj), D(d) {}
-		/// empty d'tor
-	virtual ~CAddConjAction ( void ) {}
-		/// action
-	virtual void apply ( ELFReasoner& r )
-	{
-		if ( C->hasSuper(Conj) )
-			C->addC ( r, D );
-	}
-}; // CAddConjAction
 
 /// the rule for C1 and C2 [= D case
 class CAndSubRule: public TELFRule
@@ -344,33 +325,18 @@ public:		// interface
 		/// empty d'tor
 	~CAndSubRule ( void ) {}
 		/// apply a method with a given S(C)
-	virtual TELFAction* apply ( TELFConcept* C ) { return new CAddConjAction ( C, Conj, Sup ); }
+	virtual ELFAction* apply ( TELFConcept* C )
+	{
+		if ( C->hasSuper(Conj) )
+			return new ELFAction ( C, Sup );
+		return NULL;
+	}
 		/// accept
 }; // CAndSubRule
 
 //-------------------------------------------------------------
-// Rule and action for C [= \Er.D case; CR3
+// Rule for C [= \Er.D case; CR3
 //-------------------------------------------------------------
-
-/// action corresponding to addition of (C,D) to R
-class RAddAction: public TELFAction
-{
-protected:	// members
-		/// role R corresponded to R(C,D)
-	TELFRole* R;
-		/// concept C; to add
-	TELFConcept* C;
-		/// concept D; to add
-	TELFConcept* D;
-
-public:		// interface
-		/// init c'tor
-	RAddAction ( TELFRole* r, TELFConcept* c, TELFConcept* d ) : R(r), C(c), D(d) {}
-		/// empty d'tor
-	virtual ~RAddAction ( void ) {}
-		/// action
-	virtual void apply ( ELFReasoner& r ) { R->addR ( r, C, D ); }
-}; // RAddAction
 
 /// the rule for C [= \ER.D case
 class RAddRule: public TELFRule
@@ -387,24 +353,53 @@ public:		// interface
 		/// empty d'tor
 	~RAddRule ( void ) {}
 		/// apply a method with a given source S(C)
-	virtual TELFAction* apply ( TELFConcept* Source ) { return new RAddAction ( R, Source, Filler ); }
-		/// accept
+	virtual ELFAction* apply ( TELFConcept* Source ) { return new ELFAction ( R, Source, Filler ); }
 }; // RAddRule
 
 //-------------------------------------------------------------
-// Rule and action for \Er.C [= D case; CR4
+// Rule for \Er.C [= D case; CR4
+//-------------------------------------------------------------
+
+/// rule that checks an addition of C to S(Y) and checks whether there is X s.t. R(X,Y)
+class CAddFillerRule
+{
+
+}; // CAddFillerRule
+
+/// rule that checks the addition of (X,Y) to R and finds a C in S(Y)
+class CExistSubRule: public TELFRule
+{
+protected:
+		/// filler of an existential
+	TELFConcept* Filler;
+		/// super of an axiom concept; it would be added to S(C)
+	TELFConcept* Sup;
+
+public:		// interface
+		/// init c'tor: remember D
+	CExistSubRule ( TELFConcept* filler, TELFConcept* sup ) : Filler(filler), Sup(sup) {}
+		/// empty d'tor
+	~CExistSubRule ( void ) {}
+		/// apply a method with an added pair (C,D)
+	virtual ELFAction* apply ( TELFConcept* addedC, TELFConcept* addedD )
+	{
+		if ( addedD->hasSuper(Filler) )
+			return new ELFAction ( addedC, Sup );
+		return NULL;
+	}
+}; // CExistSubRule
+
+
+//-------------------------------------------------------------
+// Rule for R(C,D) with \bot\in S(D) case; CR5
 //-------------------------------------------------------------
 
 //-------------------------------------------------------------
-// Rule and action for R(C,D) with \bot\in S(D) case; CR5
+// Rule for R [= S case; CR10
 //-------------------------------------------------------------
 
 //-------------------------------------------------------------
-// Rule and action for R [= S case; CR10
-//-------------------------------------------------------------
-
-//-------------------------------------------------------------
-// Rule and action for R o S [= T case; CR11
+// Rule for R o S [= T case; CR11
 //-------------------------------------------------------------
 
 
@@ -431,8 +426,10 @@ ELFReasoner :: processCI ( const TDLAxiomConceptInclusion* axiom )
 	Exists = dynamic_cast<const TDLConceptObjectExists*>(axiom->getSubC());
 	if ( Exists != NULL )	// \E R.C [= D
 	{
-		// do something with subE and axiom->Sup
 		++nE1;
+		// C from existential will have a C-adder rule
+		// R from the existential will have a C-adder here
+//		getR(Exists->getOR())->addRule(new CExistSubRule(getC(Exists->getC()),D));
 		return;
 	}
 	const TDLConceptAnd* And = dynamic_cast<const TDLConceptAnd*>(axiom->getSubC());
