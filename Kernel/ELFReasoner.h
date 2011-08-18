@@ -183,9 +183,14 @@ protected:	// typedefs
 	typedef std::vector<TELFConcept*> CVec;
 
 protected:	// members
-	std::map<const TDLConceptExpression*, TELFConcept*> CMap;
+		/// typedef for map concept expression -> concept structure
+	typedef std::map<const TDLConceptExpression*, TELFConcept*> ConceptMap;
 		/// set or all concepts
-	CVec Concepts;
+	ConceptMap CMap;
+		/// TOP Concept
+	TELFConcept* CTop;
+		/// BOTTOM Concept
+	TELFConcept* CBot;
 		/// map between roles and structures
 	std::map<const TDLObjectRoleExpression*, TELFRole*> RMap;
 		/// queue of actions to perform
@@ -197,12 +202,12 @@ protected:	// methods
 		/// get concept (expression) corresponding to a given DL expression
 	TELFConcept* getC ( const TDLConceptExpression* p )
 	{
-		if ( CMap.find(p) != CMap.end() )
-			return CMap[p];
+		ConceptMap::iterator i = CMap.find(p);
+		if ( i != CMap.end() )
+			return i->second;
 		// add new concept
 		TELFConcept* ret = new TELFConcept(p);
 		CMap[p] = ret;
-		Concepts.push_back(ret);
 		return ret;
 	}
 		/// get role (expression, but actually just a name)
@@ -224,8 +229,8 @@ public:
 	ELFReasoner ( TOntology& ont ) : nE1(0), nE2(0), nA(0), nC(0), nR(0), nCh(0)
 	{
 		// init top- and bottom entities
-		getC(ont.getExpressionManager()->Bottom());
-		getC(ont.getExpressionManager()->Top());
+		CBot = getC(ont.getExpressionManager()->Bottom());
+		CTop = getC(ont.getExpressionManager()->Top());
 		for ( TOntology::iterator p = ont.begin(), p_end = ont.end(); p != p_end; ++p )
 			if ( (*p)->isUsed() )
 			{
@@ -249,12 +254,12 @@ public:
 		/// classification method
 	void classify ( void )
 	{
-		TELFConcept* Top = Concepts[1];
 		// init all CIs
-		for ( CVec::iterator p = Concepts.begin(), p_end = Concepts.end(); p != p_end; ++p )
+		for ( ConceptMap::iterator p = CMap.begin(), p_end = CMap.end(); p != p_end; ++p )
 		{
-			(*p)->addC ( *this, Top );
-			(*p)->addC ( *this, *p );
+			TELFConcept* C = p->second;
+			C->addC ( *this, CTop );
+			C->addC ( *this, C );
 		}
 		// apply all rules
 		int i = 0;
