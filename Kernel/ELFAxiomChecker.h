@@ -47,7 +47,7 @@ public:		// visitor interface
 				return;
 		value = true;
 	}
-	virtual void visit ( const TDLAxiomDisjointUnion& axiom ) { value = (axiom.size() > 1); }
+	virtual void visit ( const TDLAxiomDisjointUnion& axiom ATTR_UNUSED ) { value = (axiom.size() > 1); }
 	virtual void visit ( const TDLAxiomEquivalentORoles& axiom )
 	{
 		value = false;
@@ -56,45 +56,45 @@ public:		// visitor interface
 				return;
 		value = true;
 	}
-	virtual void visit ( const TDLAxiomEquivalentDRoles& axiom ) { value = false; }
-	virtual void visit ( const TDLAxiomDisjointORoles& axiom ) { value = false; }
-	virtual void visit ( const TDLAxiomDisjointDRoles& axiom ) { value = false; }
-	virtual void visit ( const TDLAxiomSameIndividuals& axiom ) { value = false; }
-	virtual void visit ( const TDLAxiomDifferentIndividuals& axiom ) { value = false; }
-	virtual void visit ( const TDLAxiomFairnessConstraint& axiom ) { value = false; }
+	virtual void visit ( const TDLAxiomEquivalentDRoles& axiom ATTR_UNUSED ) { value = false; }
+	virtual void visit ( const TDLAxiomDisjointORoles& axiom ATTR_UNUSED ) { value = false; }
+	virtual void visit ( const TDLAxiomDisjointDRoles& axiom ATTR_UNUSED ) { value = false; }
+	virtual void visit ( const TDLAxiomSameIndividuals& axiom ATTR_UNUSED ) { value = false; }
+	virtual void visit ( const TDLAxiomDifferentIndividuals& axiom ATTR_UNUSED ) { value = false; }
+	virtual void visit ( const TDLAxiomFairnessConstraint& axiom ATTR_UNUSED ) { value = false; }
 
-	virtual void visit ( const TDLAxiomRoleInverse& axiom ) { value = false; }
+	virtual void visit ( const TDLAxiomRoleInverse& axiom ATTR_UNUSED ) { value = false; }
 	virtual void visit ( const TDLAxiomORoleSubsumption& axiom )
 	{
 		if ( v(axiom.getSubRole()) )
 			v(axiom.getRole());
 	}
-	virtual void visit ( const TDLAxiomDRoleSubsumption& axiom ) { value = false; }
+	virtual void visit ( const TDLAxiomDRoleSubsumption& axiom ATTR_UNUSED ) { value = false; }
 	// FIXME!! check later
-	virtual void visit ( const TDLAxiomORoleDomain& axiom ) { value = false; }
-	virtual void visit ( const TDLAxiomDRoleDomain& axiom ) { value = false; }
+	virtual void visit ( const TDLAxiomORoleDomain& axiom ATTR_UNUSED ) { value = false; }
+	virtual void visit ( const TDLAxiomDRoleDomain& axiom ATTR_UNUSED ) { value = false; }
 	// FIXME!! check later
-	virtual void visit ( const TDLAxiomORoleRange& axiom ){ value = false; }
-	virtual void visit ( const TDLAxiomDRoleRange& axiom ) { value = false; }
-	virtual void visit ( const TDLAxiomRoleTransitive& axiom ) { value = true; }
-	virtual void visit ( const TDLAxiomRoleReflexive& axiom ) { value = false; }
-	virtual void visit ( const TDLAxiomRoleIrreflexive& axiom ) { value = false; }
-	virtual void visit ( const TDLAxiomRoleSymmetric& axiom ) { value = false; }
-	virtual void visit ( const TDLAxiomRoleAsymmetric& axiom ) { value = false; }
-	virtual void visit ( const TDLAxiomORoleFunctional& axiom ) { value = false; }
-	virtual void visit ( const TDLAxiomDRoleFunctional& axiom ) { value = false; }
-	virtual void visit ( const TDLAxiomRoleInverseFunctional& axiom ) { value = false; }
+	virtual void visit ( const TDLAxiomORoleRange& axiom ATTR_UNUSED ){ value = false; }
+	virtual void visit ( const TDLAxiomDRoleRange& axiom ATTR_UNUSED ) { value = false; }
+	virtual void visit ( const TDLAxiomRoleTransitive& axiom ATTR_UNUSED ) { value = true; }
+	virtual void visit ( const TDLAxiomRoleReflexive& axiom ATTR_UNUSED ) { value = false; }
+	virtual void visit ( const TDLAxiomRoleIrreflexive& axiom ATTR_UNUSED ) { value = false; }
+	virtual void visit ( const TDLAxiomRoleSymmetric& axiom ATTR_UNUSED ) { value = false; }
+	virtual void visit ( const TDLAxiomRoleAsymmetric& axiom ATTR_UNUSED ) { value = false; }
+	virtual void visit ( const TDLAxiomORoleFunctional& axiom ATTR_UNUSED ) { value = false; }
+	virtual void visit ( const TDLAxiomDRoleFunctional& axiom ATTR_UNUSED ) { value = false; }
+	virtual void visit ( const TDLAxiomRoleInverseFunctional& axiom ATTR_UNUSED ) { value = false; }
 
 	virtual void visit ( const TDLAxiomConceptInclusion& axiom )
 	{
 		if ( v(axiom.getSubC()) )
 			v(axiom.getSupC());
 	}
-	virtual void visit ( const TDLAxiomInstanceOf& axiom ) { value = false; }
-	virtual void visit ( const TDLAxiomRelatedTo& axiom ) { value = false; }
-	virtual void visit ( const TDLAxiomRelatedToNot& axiom ) { value = false; }
-	virtual void visit ( const TDLAxiomValueOf& axiom ) { value = false; }
-	virtual void visit ( const TDLAxiomValueOfNot& axiom ) { value = false; }
+	virtual void visit ( const TDLAxiomInstanceOf& axiom ATTR_UNUSED ) { value = false; }
+	virtual void visit ( const TDLAxiomRelatedTo& axiom ATTR_UNUSED ) { value = false; }
+	virtual void visit ( const TDLAxiomRelatedToNot& axiom ATTR_UNUSED ) { value = false; }
+	virtual void visit ( const TDLAxiomValueOf& axiom ATTR_UNUSED ) { value = false; }
+	virtual void visit ( const TDLAxiomValueOfNot& axiom ATTR_UNUSED ) { value = false; }
 
 	virtual void visitOntology ( TOntology& ontology )
 	{

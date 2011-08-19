@@ -240,7 +240,7 @@ public:		// visitor interface
 		changed = true;
 	}
 		/// already canonical
-	virtual void visit ( const TDLAxiomORoleSubsumption& axiom ) { changed = false; }
+	virtual void visit ( const TDLAxiomORoleSubsumption& axiom ATTR_UNUSED ) { changed = false; }
 		/// normalize transitivity as role inclusion
 	virtual void visit ( const TDLAxiomRoleTransitive& axiom )
 	{
