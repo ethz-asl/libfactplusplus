@@ -31,13 +31,19 @@ class ELFAction;
 /// pattern for the rule. Contains apply() method with updates of the monitored set
 class TELFRule
 {
+protected:	// members
+		/// reasoner that is used to add actions. The number of rules = the number of axioms, so the price is not too bad memory-wise.
+	ELFReasoner& ER;
+
 public:		// interface
+		/// init c'tor
+	TELFRule ( ELFReasoner& er ) : ER(er) {}
 		/// empty d'tor
 	virtual ~TELFRule ( void ) {}
 		/// apply rule with fresh class C added to watching part
-	virtual ELFAction* apply ( TELFConcept* addedC ATTR_UNUSED ) { return NULL; }
+	virtual void apply ( TELFConcept* addedC ATTR_UNUSED ) {}
 		/// apply rule with fresh pair (C,D) added to watching part
-	virtual ELFAction* apply ( TELFConcept* addedC ATTR_UNUSED, TELFConcept* addedD ATTR_UNUSED ) { return NULL; }
+	virtual void apply ( TELFConcept* addedC ATTR_UNUSED, TELFConcept* addedD ATTR_UNUSED ) {}
 }; // TELFRule
 
 //-------------------------------------------------------------
@@ -57,9 +63,17 @@ protected:	// members
 
 protected:	// methods
 		/// apply all rules with a single argument
-	void applyRules ( ELFReasoner& ER, TELFConcept* addedC );
+	void applyRules ( TELFConcept* addedC )
+	{
+		for ( RVec::iterator p = Rules.begin(), p_end = Rules.end(); p != p_end; ++p )
+			(*p)->apply(addedC);
+	}
 		/// apply all rules with two arguments
-	void applyRules ( ELFReasoner& ER, TELFConcept* addedC, TELFConcept* addedD );
+	void applyRules ( TELFConcept* addedC, TELFConcept* addedD )
+	{
+		for ( RVec::iterator p = Rules.begin(), p_end = Rules.end(); p != p_end; ++p )
+			(*p)->apply(addedC,addedD);
+	}
 
 public:		// interface
 		/// empty c'tor
@@ -97,12 +111,12 @@ public:		// interface
 		/// check whether concept C is contained in supers
 	bool hasSuper ( TELFConcept* C ) const { return Supers.count(C) > 0; }
 		/// add an super concept
-	void addC ( ELFReasoner& ER, TELFConcept* C )
+	void addC ( TELFConcept* C )
 	{
 		if ( hasSuper(C) )
 			return;
 		addSuper(C);
-		applyRules(ER,C);
+		applyRules(C);
 	}
 };
 
@@ -130,12 +144,12 @@ public:		// interface
 		/// check whether (C,D) is in the R-set
 	bool hasLabel ( TELFConcept* C, TELFConcept* D ) const { return PairSet.count(std::make_pair(C,D)) > 0; }
 		/// add pair (C,D) to a set
-	void addR ( ELFReasoner& ER, TELFConcept* C, TELFConcept* D )
+	void addR ( TELFConcept* C, TELFConcept* D )
 	{
 		if ( hasLabel(C,D) )
 			return;
 		addLabel(C,D);
-		applyRules(ER,C,D);
+		applyRules(C,D);
 	}
 }; // TELFRole
 
@@ -162,12 +176,12 @@ public:		// interface
 		/// empty d'tor
 	~ELFAction ( void ) {}
 		/// action itself, depending on the R state
-	void apply ( ELFReasoner& Reasoner )
+	void apply ( void )
 	{
 		if ( R != NULL )
-			R->addR ( Reasoner, C, D );
+			R->addR(C,D);
 		else
-			C->addC ( Reasoner, D );
+			C->addC(D);
 	}
 }; // ELFAction
 
@@ -250,7 +264,7 @@ public:
 		/// empty d'tor
 	~ELFReasoner ( void ) {}
 		/// add action to a queue
-	void addAction ( ELFAction* action ) { if ( action ) queue.push(action); }
+	void addAction ( ELFAction* action ) { queue.push(action); }
 		/// classification method
 	void classify ( void )
 	{
@@ -258,8 +272,8 @@ public:
 		for ( ConceptMap::iterator p = CMap.begin(), p_end = CMap.end(); p != p_end; ++p )
 		{
 			TELFConcept* C = p->second;
-			C->addC ( *this, CTop );
-			C->addC ( *this, C );
+			C->addC(CTop);
+			C->addC(C);
 		}
 		// apply all rules
 		int i = 0;
@@ -268,27 +282,13 @@ public:
 			if ( i%100000 == 0 )
 				std::cerr << "\n" << i << " steps done; queue size is " << queue.size();
 			++i;
-			queue.front()->apply(*this);
+			queue.front()->apply();
 			delete queue.front();
 			queue.pop();
 		}
 		std::cerr << "\n" << i << " steps ";
 	}
 };	// ELFReasoner
-
-void
-TRuleSet :: applyRules ( ELFReasoner& ER, TELFConcept* addedC )
-{
-	for ( RVec::iterator p = Rules.begin(), p_end = Rules.end(); p != p_end; ++p )
-		ER.addAction((*p)->apply(addedC));
-}
-
-void
-TRuleSet :: applyRules ( ELFReasoner& ER, TELFConcept* addedC, TELFConcept* addedD )
-{
-	for ( RVec::iterator p = Rules.begin(), p_end = Rules.end(); p != p_end; ++p )
-		ER.addAction((*p)->apply(addedC,addedD));
-}
 
 //-------------------------------------------------------------
 // Rule for C [= D case; CR1
@@ -303,11 +303,11 @@ protected:
 
 public:		// interface
 		/// init c'tor: remember D
-	CSubRule ( TELFConcept* D ) : Sup(D) {}
+	CSubRule ( ELFReasoner& ER, TELFConcept* D ) : TELFRule(ER), Sup(D) {}
 		/// empty d'tor
 	~CSubRule ( void ) {}
 		/// apply a method with a given S(C)
-	virtual ELFAction* apply ( TELFConcept* addedC ) { return new ELFAction ( addedC, Sup ); }
+	virtual void apply ( TELFConcept* addedC ) { ER.addAction ( new ELFAction ( addedC, Sup ) ); }
 		/// accept
 }; // CSubRule
 
@@ -326,15 +326,14 @@ protected:
 
 public:		// interface
 		/// init c'tor: remember D
-	CAndSubRule ( TELFConcept* C, TELFConcept* D ) : Conj(C), Sup(D) {}
+	CAndSubRule ( ELFReasoner& ER, TELFConcept* C, TELFConcept* D ) : TELFRule(ER), Conj(C), Sup(D) {}
 		/// empty d'tor
 	~CAndSubRule ( void ) {}
 		/// apply a method with a given S(C)
-	virtual ELFAction* apply ( TELFConcept* C )
+	virtual void apply ( TELFConcept* C )
 	{
 		if ( C->hasSuper(Conj) )
-			return new ELFAction ( C, Sup );
-		return NULL;
+			ER.addAction ( new ELFAction ( C, Sup ) );
 	}
 		/// accept
 }; // CAndSubRule
@@ -354,11 +353,11 @@ protected:
 
 public:		// interface
 		/// init c'tor: remember D
-	RAddRule ( TELFRole* r, TELFConcept* C ) : R(r), Filler(C) {}
+	RAddRule ( ELFReasoner& ER, TELFRole* r, TELFConcept* C ) : TELFRule(ER), R(r), Filler(C) {}
 		/// empty d'tor
 	~RAddRule ( void ) {}
 		/// apply a method with a given source S(C)
-	virtual ELFAction* apply ( TELFConcept* Source ) { return new ELFAction ( R, Source, Filler ); }
+	virtual void apply ( TELFConcept* Source ) { ER.addAction ( new ELFAction ( R, Source, Filler ) ); }
 }; // RAddRule
 
 //-------------------------------------------------------------
@@ -382,15 +381,14 @@ protected:
 
 public:		// interface
 		/// init c'tor: remember D
-	CExistSubRule ( TELFConcept* filler, TELFConcept* sup ) : Filler(filler), Sup(sup) {}
+	CExistSubRule ( ELFReasoner& ER, TELFConcept* filler, TELFConcept* sup ) : TELFRule(ER), Filler(filler), Sup(sup) {}
 		/// empty d'tor
 	~CExistSubRule ( void ) {}
 		/// apply a method with an added pair (C,D)
-	virtual ELFAction* apply ( TELFConcept* addedC, TELFConcept* addedD )
+	virtual void apply ( TELFConcept* addedC, TELFConcept* addedD )
 	{
 		if ( addedD->hasSuper(Filler) )
-			return new ELFAction ( addedC, Sup );
-		return NULL;
+			ER.addAction ( new ELFAction ( addedC, Sup ) );
 	}
 }; // CExistSubRule
 
@@ -422,7 +420,7 @@ ELFReasoner :: processCI ( const TDLAxiomConceptInclusion* axiom )
 	if ( Exists != NULL )	// C [= \E R.D
 	{
 		++nE2;
-		getC(axiom->getSubC())->addRule(new RAddRule(getR(Exists->getOR()), getC(Exists->getC())));
+		getC(axiom->getSubC())->addRule(new RAddRule(*this, getR(Exists->getOR()), getC(Exists->getC())));
 		return;
 	}
 	// now RHS is a concept name or \bottom; record it
@@ -434,7 +432,7 @@ ELFReasoner :: processCI ( const TDLAxiomConceptInclusion* axiom )
 		++nE1;
 		// C from existential will have a C-adder rule
 		// R from the existential will have a C-adder here
-//		getR(Exists->getOR())->addRule(new CExistSubRule(getC(Exists->getC()),D));
+//		getR(Exists->getOR())->addRule(new CExistSubRule(*this, getC(Exists->getC()), D));
 		return;
 	}
 	const TDLConceptAnd* And = dynamic_cast<const TDLConceptAnd*>(axiom->getSubC());
@@ -442,14 +440,14 @@ ELFReasoner :: processCI ( const TDLAxiomConceptInclusion* axiom )
 	{
 		TELFConcept* C1 = getC(*(And->begin()));
 		TELFConcept* C2 = getC(*(And->begin()+1));
-		C1->addRule(new CAndSubRule(C2,D));
-		C2->addRule(new CAndSubRule(C1,D));
+		C1->addRule(new CAndSubRule(*this,C2,D));
+		C2->addRule(new CAndSubRule(*this,C1,D));
 		++nA;
 		return;
 	}
 	// the only possible thing here is C [= D
 	++nC;
-	getC(axiom->getSubC())->addRule(new CSubRule(D));
+	getC(axiom->getSubC())->addRule(new CSubRule(*this,D));
 }
 
 /// process role inclusion axiom into the internal structures
