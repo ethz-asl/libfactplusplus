@@ -19,8 +19,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef ELFNREASONER_H
 #define ELFNREASONER_H
 
+#include <stack>
 #include <queue>
 #include "tOntology.h"
+
+// uncomment the following t use stack instead of a queue as a queue ;)
+//#define TMP_QUEUE_AS_STACK
 
 class ELFReasoner;
 
@@ -125,12 +129,16 @@ class TELFRole: public TRuleSet
 protected:	// members
 		/// original role (if any)
 	const TDLObjectRoleExpression* Origin;
-		/// set of pairs
-	std::set<std::pair<const TELFConcept*, const TELFConcept*> > PairSet;
+		/// set of concepts
+	typedef std::set<const TELFConcept*> CSet;
+		/// map between concept and it's predecessors
+	typedef std::map<const TELFConcept*, CSet> CCMap;
+		/// map itself
+	CCMap PredMap;
 
 protected:	// methods
 		/// add (C,D) to label
-	void addLabel ( TELFConcept* C, TELFConcept* D ) { PairSet.insert(std::make_pair(C,D)); }
+	void addLabel ( TELFConcept* C, TELFConcept* D ) { PredMap[D].insert(C); }
 
 public:		// interface
 		/// empty c'tor
@@ -141,7 +149,7 @@ public:		// interface
 	~TELFRole ( void ) {}
 
 		/// check whether (C,D) is in the R-set
-	bool hasLabel ( TELFConcept* C, TELFConcept* D ) const { return PairSet.count(std::make_pair(C,D)) > 0; }
+	bool hasLabel ( TELFConcept* C, TELFConcept* D ) { return PredMap[D].count(C) > 0; }
 		/// add pair (C,D) to a set
 	void addR ( TELFConcept* C, TELFConcept* D )
 	{
@@ -207,7 +215,12 @@ protected:	// members
 		/// map between roles and structures
 	std::map<const TDLObjectRoleExpression*, TELFRole*> RMap;
 		/// queue of actions to perform
-	std::queue<ELFAction*> queue;
+#ifdef TMP_QUEUE_AS_STACK
+	std::stack
+#else
+	std::queue
+#endif
+			  <ELFAction*> queue;
 		/// stat counters
 	unsigned int nE1, nE2, nA, nC, nR, nCh;
 
@@ -281,8 +294,13 @@ public:
 			if ( i%100000 == 0 )
 				std::cerr << "\n" << i << " steps done; queue size is " << queue.size();
 			++i;
+#ifdef TMP_QUEUE_AS_STACK
+			queue.top()->apply();
+			delete queue.top();
+#else
 			queue.front()->apply();
 			delete queue.front();
+#endif
 			queue.pop();
 		}
 		std::cerr << "\n" << i << " steps ";
