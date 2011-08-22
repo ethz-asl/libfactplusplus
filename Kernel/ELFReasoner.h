@@ -26,7 +26,6 @@ class ELFReasoner;
 
 // forward declaration to allow Rule specification
 class TELFConcept;
-class ELFAction;
 
 /// pattern for the rule. Contains apply() method with updates of the monitored set
 class TELFRule
@@ -307,8 +306,11 @@ public:		// interface
 		/// empty d'tor
 	~CSubRule ( void ) {}
 		/// apply a method with a given S(C)
-	virtual void apply ( TELFConcept* addedC ) { ER.addAction ( new ELFAction ( addedC, Sup ) ); }
-		/// accept
+	virtual void apply ( TELFConcept* addedC )
+	{
+		if ( !addedC->hasSuper(Sup) )
+			ER.addAction ( new ELFAction ( addedC, Sup ) );
+	}
 }; // CSubRule
 
 //-------------------------------------------------------------
@@ -332,10 +334,9 @@ public:		// interface
 		/// apply a method with a given S(C)
 	virtual void apply ( TELFConcept* C )
 	{
-		if ( C->hasSuper(Conj) )
+		if ( C->hasSuper(Conj) && !C->hasSuper(Sup) )
 			ER.addAction ( new ELFAction ( C, Sup ) );
 	}
-		/// accept
 }; // CAndSubRule
 
 //-------------------------------------------------------------
@@ -357,7 +358,11 @@ public:		// interface
 		/// empty d'tor
 	~RAddRule ( void ) {}
 		/// apply a method with a given source S(C)
-	virtual void apply ( TELFConcept* Source ) { ER.addAction ( new ELFAction ( R, Source, Filler ) ); }
+	virtual void apply ( TELFConcept* Source )
+	{
+//		if ( !R->hasLabel ( Source, Filler ) )
+			ER.addAction ( new ELFAction ( R, Source, Filler ) );
+	}
 }; // RAddRule
 
 //-------------------------------------------------------------
@@ -387,7 +392,7 @@ public:		// interface
 		/// apply a method with an added pair (C,D)
 	virtual void apply ( TELFConcept* addedC, TELFConcept* addedD )
 	{
-		if ( addedD->hasSuper(Filler) )
+		if ( addedD->hasSuper(Filler) && !addedC->hasSuper(Sup) )
 			ER.addAction ( new ELFAction ( addedC, Sup ) );
 	}
 }; // CExistSubRule
