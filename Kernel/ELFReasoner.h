@@ -223,8 +223,10 @@ protected:	// members
 	TELFConcept* CTop;
 		/// BOTTOM Concept
 	TELFConcept* CBot;
+		/// typedef for map role expression -> role structure
+	typedef std::map<const TDLObjectRoleExpression*, TELFRole*> RoleMap;
 		/// map between roles and structures
-	std::map<const TDLObjectRoleExpression*, TELFRole*> RMap;
+	RoleMap RMap;
 		/// queue of actions to perform
 #ifdef TMP_QUEUE_AS_STACK
 	std::stack
@@ -278,6 +280,8 @@ protected:	// methods
 	void processCI ( const TDLAxiomConceptInclusion* axiom );
 		/// process role inclusion axiom into the internal structures
 	void processRI ( const TDLAxiomORoleSubsumption* axiom );
+		/// process declaration axiom
+	void processDeclaration ( const TDLAxiomDeclaration* axiom );
 
 public:
 		/// c'tor: take the ontology and init internal structures
@@ -291,9 +295,10 @@ public:
 			{
 				if ( likely(dynamic_cast<const TDLAxiomConceptInclusion*>(*p) != NULL) )
 					processCI(dynamic_cast<const TDLAxiomConceptInclusion*>(*p));
-				else
+				else if ( dynamic_cast<const TDLAxiomORoleSubsumption*>(*p) != NULL )
 					processRI(dynamic_cast<const TDLAxiomORoleSubsumption*>(*p));
-				// FIXME!! later -- process declarations
+				else
+					processDeclaration(dynamic_cast<const TDLAxiomDeclaration*>(*p));
 			}
 		std::cout << "\nFound "
 			<< nC2C << " axioms in the form C [= D\nFound "
@@ -647,8 +652,6 @@ ELFReasoner :: processCI ( const TDLAxiomConceptInclusion* axiom )
 inline void
 ELFReasoner :: processRI ( const TDLAxiomORoleSubsumption* axiom )
 {
-	if ( axiom == NULL )
-		return;
 	const TDLObjectRoleChain* Chain = dynamic_cast<const TDLObjectRoleChain*>(axiom->getSubRole());
 	TELFRole* rhs = getR(axiom->getRole());
 	if ( Chain != NULL )	// R o S [= T
@@ -662,6 +665,27 @@ ELFReasoner :: processRI ( const TDLAxiomORoleSubsumption* axiom )
 		fpp_assert ( R != NULL );
 		processR2R ( getR(R), rhs );
 	}
+}
+
+/// process declaration axiom
+inline void
+ELFReasoner :: processDeclaration ( const TDLAxiomDeclaration* axiom )
+{
+	fpp_assert ( axiom != NULL );
+	const TDLConceptExpression* C = dynamic_cast<const TDLConceptExpression*>(axiom->getDeclaration());
+	if ( C != NULL )
+	{
+		getC(C);
+		return;
+	}
+	const TDLObjectRoleExpression* R = dynamic_cast<const TDLObjectRoleExpression*>(axiom->getDeclaration());
+	if ( R != NULL )
+	{
+		getR(R);
+		return;
+	}
+	// nothing else could be here
+	fpp_unreachable();
 }
 
 #endif
