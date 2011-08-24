@@ -126,11 +126,13 @@ public:		// interface
 /// role, set R(C,D)
 class TELFRole: public TRuleSet
 {
+public:		// types
+		/// set of concepts
+	typedef std::set<TELFConcept*> CSet;
+
 protected:	// members
 		/// original role (if any)
 	const TDLObjectRoleExpression* Origin;
-		/// set of concepts
-	typedef std::set<const TELFConcept*> CSet;
 		/// map between concept and it's predecessors
 	typedef std::map<const TELFConcept*, CSet> CCMap;
 		/// map itself
@@ -148,8 +150,10 @@ public:		// interface
 		/// empty d'tor
 	~TELFRole ( void ) {}
 
+		/// get the (possibly empty) set of predecessors of given D
+	CSet& getPredSet ( const TELFConcept* D ) { return PredMap[D]; }
 		/// check whether (C,D) is in the R-set
-	bool hasLabel ( TELFConcept* C, TELFConcept* D ) { return PredMap[D].count(C) > 0; }
+	bool hasLabel ( TELFConcept* C, const TELFConcept* D ) { return PredMap[D].count(C) > 0; }
 		/// add pair (C,D) to a set
 	void addR ( TELFConcept* C, TELFConcept* D )
 	{
@@ -388,9 +392,28 @@ public:		// interface
 //-------------------------------------------------------------
 
 /// rule that checks an addition of C to S(Y) and checks whether there is X s.t. R(X,Y)
-class CAddFillerRule
+class CAddFillerRule: public TELFRule
 {
+protected:
+		/// role to add the pair
+	TELFRole* R;
+		/// super (E) of the existential
+	TELFConcept* Sup;
 
+public:		// interface
+		/// init c'tor: remember E
+	CAddFillerRule ( ELFReasoner& ER, TELFRole* r, TELFConcept* C ) : TELFRule(ER), R(r), Sup(C) {}
+		/// empty d'tor
+	~CAddFillerRule ( void ) {}
+		/// apply a method with a given source S(C)
+	virtual void apply ( TELFConcept* Source )
+	{
+		TELFRole::CSet& SupSet = R->getPredSet(Source);
+		if ( !SupSet.empty() )
+			for ( TELFRole::CSet::iterator p = SupSet.begin(), p_end = SupSet.end(); p != p_end; ++p )
+				if ( !(*p)->hasSuper(Sup) )
+					ER.addAction ( new ELFAction ( *p, Sup ) );
+	}
 }; // CAddFillerRule
 
 /// rule that checks the addition of (X,Y) to R and finds a C in S(Y)
@@ -424,6 +447,27 @@ public:		// interface
 // Rule for R [= S case; CR10
 //-------------------------------------------------------------
 
+/// the rule for R [= S case
+class RSubRule: public TELFRule
+{
+protected:
+		/// role to add the pair
+	TELFRole* S;
+
+public:		// interface
+		/// init c'tor: remember S
+	RSubRule ( ELFReasoner& ER, TELFRole* s ) : TELFRule(ER), S(s) {}
+		/// empty d'tor
+	~RSubRule ( void ) {}
+		/// apply a method with a given pair (C,D)
+	virtual void apply ( TELFConcept* addedC, TELFConcept* addedD )
+	{
+//		if ( !R->hasLabel ( addedC, addedD ) )
+			ER.addAction ( new ELFAction ( S, addedC, addedD ) );
+	}
+}; // RSubRule
+
+
 //-------------------------------------------------------------
 // Rule for R o S [= T case; CR11
 //-------------------------------------------------------------
@@ -453,9 +497,12 @@ ELFReasoner :: processCI ( const TDLAxiomConceptInclusion* axiom )
 	if ( Exists != NULL )	// \E R.C [= D
 	{
 		++nE1;
+		TELFConcept* Filler = getC(Exists->getC());
+		TELFRole* R = getR(Exists->getOR());
 		// C from existential will have a C-adder rule
+		Filler->addRule(new CAddFillerRule(*this, R, D));
 		// R from the existential will have a C-adder here
-//		getR(Exists->getOR())->addRule(new CExistSubRule(*this, getC(Exists->getC()), D));
+		R->addRule(new CExistSubRule(*this, Filler, D));
 		return;
 	}
 	const TDLConceptAnd* And = dynamic_cast<const TDLConceptAnd*>(axiom->getSubC());
@@ -487,6 +534,9 @@ ELFReasoner :: processRI ( const TDLAxiomORoleSubsumption* axiom )
 	}
 	else
 	{
+		const TDLObjectRoleExpression* R = dynamic_cast<const TDLObjectRoleExpression*>(axiom->getSubRole());
+		fpp_assert ( R != NULL );
+		getR(R)->addRule(new RSubRule(*this,rhs));
 		++nR;
 	}
 }
