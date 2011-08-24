@@ -129,12 +129,14 @@ class TELFRole: public TRuleSet
 public:		// types
 		/// set of concepts
 	typedef std::set<TELFConcept*> CSet;
+		/// map between concept and it's predecessors
+	typedef std::map<const TELFConcept*, CSet> CCMap;
+		/// iterator over a map
+	typedef CCMap::iterator iterator;
 
 protected:	// members
 		/// original role (if any)
 	const TDLObjectRoleExpression* Origin;
-		/// map between concept and it's predecessors
-	typedef std::map<const TELFConcept*, CSet> CCMap;
 		/// map itself
 	CCMap PredMap;
 
@@ -152,6 +154,11 @@ public:		// interface
 
 		/// get the (possibly empty) set of predecessors of given D
 	CSet& getPredSet ( const TELFConcept* D ) { return PredMap[D]; }
+		/// iterator begon over a map
+	iterator begin ( void ) { return PredMap.begin(); }
+		/// iterator end over a map
+	iterator end ( void ) { return PredMap.end(); }
+
 		/// check whether (C,D) is in the R-set
 	bool hasLabel ( TELFConcept* C, const TELFConcept* D ) { return PredMap[D].count(C) > 0; }
 		/// add pair (C,D) to a set
@@ -388,7 +395,7 @@ public:		// interface
 }; // RAddRule
 
 //-------------------------------------------------------------
-// Rule for \Er.C [= D case; CR4
+// Rules for \Er.C [= D case; CR4
 //-------------------------------------------------------------
 
 /// rule that checks an addition of C to S(Y) and checks whether there is X s.t. R(X,Y)
@@ -462,15 +469,70 @@ public:		// interface
 		/// apply a method with a given pair (C,D)
 	virtual void apply ( TELFConcept* addedC, TELFConcept* addedD )
 	{
-//		if ( !R->hasLabel ( addedC, addedD ) )
+//		if ( !S->hasLabel ( addedC, addedD ) )
 			ER.addAction ( new ELFAction ( S, addedC, addedD ) );
 	}
 }; // RSubRule
 
 
 //-------------------------------------------------------------
-// Rule for R o S [= T case; CR11
+// Rules for R o S [= T case; CR11
 //-------------------------------------------------------------
+
+/// the rule for R in R o S [= T case
+class RChainLRule: public TELFRule
+{
+protected:
+		/// role to check the chain
+	TELFRole* S;
+		/// role to add the pair
+	TELFRole* T;
+
+public:		// interface
+		/// init c'tor: remember S and T
+	RChainLRule ( ELFReasoner& ER, TELFRole* s, TELFRole* t ) : TELFRule(ER), S(s), T(t) {}
+		/// empty d'tor
+	~RChainLRule ( void ) {}
+		/// apply a method with a given pair (C,D)
+	virtual void apply ( TELFConcept* addedC, TELFConcept* addedD )
+	{
+		// we have R(C,D); so for all E in range(S), if S(D,E) then add T(C,E)
+		for ( TELFRole::iterator i = S->begin(), i_end = S->end(); i != i_end; ++i )
+			if ( i->second.count(addedD) > 0 )
+			{
+				TELFConcept* E = const_cast<TELFConcept*>(i->first);
+//				if ( !T->hasLabel ( addedC, E ) )
+					ER.addAction ( new ELFAction ( T, addedC, E ) );
+			}
+	}
+}; // RChainLRule
+
+/// the rule for S in R o S [= T case
+class RChainRRule: public TELFRule
+{
+protected:
+		/// role to check the chain
+	TELFRole* R;
+		/// role to add the pair
+	TELFRole* T;
+
+public:		// interface
+		/// init c'tor: remember R and T
+	RChainRRule ( ELFReasoner& ER, TELFRole* r, TELFRole* t ) : TELFRule(ER), R(r), T(t) {}
+		/// empty d'tor
+	~RChainRRule ( void ) {}
+		/// apply a method with a given pair (C,D)
+	virtual void apply ( TELFConcept* addedC, TELFConcept* addedD )
+	{
+		// we have S(C,D); so for all E in domain(R), if R(E,C) then add T(E,D)
+		TELFRole::CSet& SupSet = R->getPredSet(addedC);
+		if ( !SupSet.empty() )
+			for ( TELFRole::CSet::iterator p = SupSet.begin(), p_end = SupSet.end(); p != p_end; ++p )
+//				if ( !T->hasLabel ( *p, addedD ) )
+					ER.addAction ( new ELFAction ( T, *p, addedD ) );
+	}
+}; // RChainRRule
+
 
 
 //-------------------------------------------------------------

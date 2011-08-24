@@ -46,7 +46,7 @@ ReasoningKernel :: ReasoningKernel ( void )
 	, verboseOutput(false)
 	, cachedQuery(NULL)
 	, useAxiomSplitting(false)
-	, useELReasoner(false)
+	, useELReasoner(true)
 {
 	// Intro
 	if ( KernelFirstRun )
@@ -103,7 +103,7 @@ ReasoningKernel :: forceReload ( void )
 			std::cerr << "done\nClassifying EL ontology... ";
 			reasoner.classify();
 			std::cerr << "done\n";
-			return;
+			exit(0);
 		}
 	}
 
