@@ -233,7 +233,7 @@ protected:	// members
 #endif
 			  <ELFAction*> queue;
 		/// stat counters
-	unsigned int nE1, nE2, nA, nC, nR, nCh;
+	unsigned int nC2C, nA2C, nC2E, nE2C, nR2R, nC2R;
 
 protected:	// methods
 		/// get concept (expression) corresponding to a given DL expression
@@ -256,6 +256,24 @@ protected:	// methods
 		RMap[p] = ret;
 		return ret;
 	}
+
+	// process different normalized  axioms
+
+		/// process axiom C [= D
+	void processC2C ( TELFConcept* C, TELFConcept* D );
+		/// process axiom C1 and C2 [= D
+	void processA2C ( TELFConcept* C1, TELFConcept* C2, TELFConcept* D );
+		/// process axiom C [= \ER.D
+	void processC2E ( TELFConcept* C, TELFRole* R, TELFConcept* D );
+		/// process axiom \ER.C [= D
+	void processE2C ( TELFRole* R, TELFConcept* C, TELFConcept* D );
+		/// process axiom R [= S
+	void processR2R ( TELFRole* R, TELFRole* S );
+		/// process axiom R1 o R2 [= S
+	void processC2R ( TELFRole* R1, TELFRole* R2, TELFRole* S );
+
+	// process original axioms
+
 		/// process concept inclusion axiom into the internal structures
 	void processCI ( const TDLAxiomConceptInclusion* axiom );
 		/// process role inclusion axiom into the internal structures
@@ -263,7 +281,7 @@ protected:	// methods
 
 public:
 		/// c'tor: take the ontology and init internal structures
-	ELFReasoner ( TOntology& ont ) : nE1(0), nE2(0), nA(0), nC(0), nR(0), nCh(0)
+	ELFReasoner ( TOntology& ont ) : nC2C(0), nA2C(0), nC2E(0), nE2C(0), nR2R(0), nC2R(0)
 	{
 		// init top- and bottom entities
 		CBot = getC(ont.getExpressionManager()->Bottom());
@@ -277,12 +295,13 @@ public:
 					processRI(dynamic_cast<const TDLAxiomORoleSubsumption*>(*p));
 				// FIXME!! later -- process declarations
 			}
-		std::cout << "\nFound " << nC << " axioms in the form C [= D\nFound " << nA
-				  << " axioms in the form C1/\\C2 [= D\nFound " << nE1
-				  << " axioms in the form ER.C [= D\nFound " << nE2
-				  << " axioms in the form C [= ER.D\nFound " << nR
-				  << " axioms in the form R [= S\nFound " << nCh
-				  << " axioms in the form R o S [= T\n";
+		std::cout << "\nFound "
+			<< nC2C << " axioms in the form C [= D\nFound "
+			<< nA2C << " axioms in the form C1/\\C2 [= D\nFound "
+			<< nC2E << " axioms in the form C [= ER.D\nFound "
+			<< nE2C << " axioms in the form ER.C [= D\nFound "
+			<< nR2R << " axioms in the form R [= S\nFound "
+			<< nC2R << " axioms in the form R o S [= T\n";
 	}
 		/// empty d'tor
 	~ELFReasoner ( void ) {}
@@ -539,6 +558,59 @@ public:		// interface
 // inline ELFReasoner implementation
 //-------------------------------------------------------------
 
+/// process axiom C [= D
+inline void
+ELFReasoner :: processC2C ( TELFConcept* C, TELFConcept* D )
+{
+	++nC2C;
+	C->addRule(new CSubRule(*this,D));
+}
+
+/// process axiom C1 and C2 [= D
+inline void
+ELFReasoner :: processA2C ( TELFConcept* C1, TELFConcept* C2, TELFConcept* D )
+{
+	++nA2C;
+	C1->addRule(new CAndSubRule(*this,C2,D));
+	C2->addRule(new CAndSubRule(*this,C1,D));
+}
+
+/// process axiom C [= \ER.D
+inline void
+ELFReasoner :: processC2E ( TELFConcept* C, TELFRole* R, TELFConcept* D )
+{
+	++nC2E;
+	C->addRule(new RAddRule(*this, R, D));
+}
+
+/// process axiom \ER.C [= D
+inline void
+ELFReasoner :: processE2C ( TELFRole* R, TELFConcept* C, TELFConcept* D )
+{
+	++nE2C;
+	// C from existential will have a C-adder rule
+	C->addRule(new CAddFillerRule(*this, R, D));
+	// R from the existential will have a C-adder here
+	R->addRule(new CExistSubRule(*this, C, D));
+}
+
+/// process axiom R [= S
+inline void
+ELFReasoner :: processR2R ( TELFRole* R, TELFRole* S )
+{
+	++nR2R;
+	R->addRule(new RSubRule(*this,S));
+}
+
+/// process axiom R1 o R2 [= S
+inline void
+ELFReasoner :: processC2R ( TELFRole* R1, TELFRole* R2, TELFRole* S )
+{
+	++nC2R;
+	R1->addRule(new RChainLRule(*this, R2, S));
+	R2->addRule(new RChainRRule(*this, R1, S));
+}
+
 /// process concept inclusion axiom into the internal structures
 inline void
 ELFReasoner :: processCI ( const TDLAxiomConceptInclusion* axiom )
@@ -548,8 +620,7 @@ ELFReasoner :: processCI ( const TDLAxiomConceptInclusion* axiom )
 	const TDLConceptObjectExists* Exists = dynamic_cast<const TDLConceptObjectExists*>(axiom->getSupC());
 	if ( Exists != NULL )	// C [= \E R.D
 	{
-		++nE2;
-		getC(axiom->getSubC())->addRule(new RAddRule(*this, getR(Exists->getOR()), getC(Exists->getC())));
+		processC2E ( getC(axiom->getSubC()), getR(Exists->getOR()), getC(Exists->getC()) );
 		return;
 	}
 	// now RHS is a concept name or \bottom; record it
@@ -558,28 +629,18 @@ ELFReasoner :: processCI ( const TDLAxiomConceptInclusion* axiom )
 	Exists = dynamic_cast<const TDLConceptObjectExists*>(axiom->getSubC());
 	if ( Exists != NULL )	// \E R.C [= D
 	{
-		++nE1;
-		TELFConcept* Filler = getC(Exists->getC());
-		TELFRole* R = getR(Exists->getOR());
-		// C from existential will have a C-adder rule
-		Filler->addRule(new CAddFillerRule(*this, R, D));
-		// R from the existential will have a C-adder here
-		R->addRule(new CExistSubRule(*this, Filler, D));
+		processE2C ( getR(Exists->getOR()), getC(Exists->getC()), D );
 		return;
 	}
 	const TDLConceptAnd* And = dynamic_cast<const TDLConceptAnd*>(axiom->getSubC());
 	if ( And != NULL )	// C1 \and C2 [= D
 	{
-		TELFConcept* C1 = getC(*(And->begin()));
-		TELFConcept* C2 = getC(*(And->begin()+1));
-		C1->addRule(new CAndSubRule(*this,C2,D));
-		C2->addRule(new CAndSubRule(*this,C1,D));
-		++nA;
+		fpp_assert ( And->size() == 2 );
+		processA2C ( getC(*(And->begin())), getC(*(And->begin()+1)), D );
 		return;
 	}
 	// the only possible thing here is C [= D
-	++nC;
-	getC(axiom->getSubC())->addRule(new CSubRule(*this,D));
+	processC2C ( getC(axiom->getSubC()), D );
 }
 
 /// process role inclusion axiom into the internal structures
@@ -592,14 +653,14 @@ ELFReasoner :: processRI ( const TDLAxiomORoleSubsumption* axiom )
 	TELFRole* rhs = getR(axiom->getRole());
 	if ( Chain != NULL )	// R o S [= T
 	{
-		++nCh;
+		fpp_assert ( Chain->size() == 2 );
+		processC2R ( getR(*(Chain->begin())), getR(*(Chain->begin()+1)), rhs );
 	}
 	else
 	{
 		const TDLObjectRoleExpression* R = dynamic_cast<const TDLObjectRoleExpression*>(axiom->getSubRole());
 		fpp_assert ( R != NULL );
-		getR(R)->addRule(new RSubRule(*this,rhs));
-		++nR;
+		processR2R ( getR(R), rhs );
 	}
 }
 
