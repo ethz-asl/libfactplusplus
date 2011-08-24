@@ -82,7 +82,11 @@ public:		// interface
 		/// empty c'tor
 	TRuleSet ( void ) {}
 		/// empty d'tor
-	virtual ~TRuleSet ( void ) {}
+	virtual ~TRuleSet ( void )
+	{
+		for ( RVec::iterator p = Rules.begin(), p_end = Rules.end(); p != p_end; ++p )
+			delete *p;
+	}
 		/// add rule to a set
 	void addRule ( TELFRule* rule ) { Rules.push_back(rule); }
 }; // TRuleSet
@@ -283,6 +287,9 @@ protected:	// methods
 		/// process declaration axiom
 	void processDeclaration ( const TDLAxiomDeclaration* axiom );
 
+		/// helper that inits \bot-related rules
+	void initBotRules ( void );
+
 public:
 		/// c'tor: take the ontology and init internal structures
 	ELFReasoner ( TOntology& ont ) : nC2C(0), nA2C(0), nC2E(0), nE2C(0), nR2R(0), nC2R(0)
@@ -300,6 +307,9 @@ public:
 				else
 					processDeclaration(dynamic_cast<const TDLAxiomDeclaration*>(*p));
 			}
+		// now prepare rules for \bot with roles (if role filler is \bot, then so do domain)
+		initBotRules();
+		// dump statistics
 		std::cout << "\nFound "
 			<< nC2C << " axioms in the form C [= D\nFound "
 			<< nA2C << " axioms in the form C1/\\C2 [= D\nFound "
@@ -473,6 +483,28 @@ public:		// interface
 //-------------------------------------------------------------
 // Rule for R(C,D) with \bot\in S(D) case; CR5
 //-------------------------------------------------------------
+
+// rule that checks whether for R(C,D) S(D) contains \bot
+class RBotRule: public TELFRule
+{
+protected:
+		/// remember the Bottom concept
+	TELFConcept* CBot;
+
+public:		// interface
+		/// init c'tor: remember E
+	RBotRule ( ELFReasoner& ER, TELFConcept* bot ) : TELFRule(ER), CBot(bot) {}
+		/// empty d'tor
+	~RBotRule ( void ) {}
+		/// apply a method with a given new pair (C,D)
+	virtual void apply ( TELFConcept* addedC, TELFConcept* addedD )
+	{
+		// it seems like every other pair is already processed, either via that rule or via add(\bot)
+		if ( addedD->hasSuper(CBot) && !addedC->hasSuper(CBot))
+			ER.addAction ( new ELFAction ( addedC, CBot ) );
+	}
+}; // RBotRule
+
 
 //-------------------------------------------------------------
 // Rule for R [= S case; CR10
@@ -686,6 +718,19 @@ ELFReasoner :: processDeclaration ( const TDLAxiomDeclaration* axiom )
 	}
 	// nothing else could be here
 	fpp_unreachable();
+}
+
+/// helper that inits \bot-related rules
+inline void
+ELFReasoner :: initBotRules ( void )
+{
+	for ( RoleMap::iterator i = RMap.begin(), i_end = RMap.end(); i != i_end; ++i )
+	{
+		// for every R add listener that checks whether for R(C,D) S(D) contains \bot
+		i->second->addRule(new RBotRule(*this, CBot));
+		// add rule that adds \bot for every C in R(C,D), if S(D) contains \bot
+		CBot->addRule(new CAddFillerRule(*this, i->second, CBot));
+	}
 }
 
 #endif

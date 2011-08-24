@@ -46,7 +46,7 @@ ReasoningKernel :: ReasoningKernel ( void )
 	, verboseOutput(false)
 	, cachedQuery(NULL)
 	, useAxiomSplitting(false)
-	, useELReasoner(true)
+	, useELReasoner(false)
 {
 	// Intro
 	if ( KernelFirstRun )
