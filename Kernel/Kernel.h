@@ -159,6 +159,8 @@ protected:	// members
 	unsigned long OpTimeout;
 		/// tell reasoner to use verbose output
 	bool verboseOutput;
+		/// allow reasoner to use undefined names in queries
+	bool useUndefinedNames;
 
 	// reasoning cache
 
@@ -486,6 +488,13 @@ public:	// general staff
 		if ( pTBox != NULL )
 			pTBox->setVerboseOutput(value);
 	}
+		/// (dis-)allow reasoner to use the undefined names in queries
+	void setUseUndefinedNames ( bool value )
+	{
+		useUndefinedNames = value;
+		if ( pTBox != NULL )
+			pTBox->setUseUndefinedNames(value);
+	}
 
 		/// set top/bottom role names to use them in the related output
 	void setTopBottomRoleNames ( const char* topORoleName, const char* botORoleName, const char* topDRoleName, const char* botDRoleName )
@@ -556,6 +565,7 @@ public:
 		pTBox->setTestTimeout(OpTimeout);
 		pTBox->setProgressMonitor(pMonitor);
 		pTBox->setVerboseOutput(verboseOutput);
+		pTBox->setUseUndefinedNames(useUndefinedNames);
 		pET = new TExpressionTranslator(*pTBox);
 		initCacheAndFlags();
 		return false;
