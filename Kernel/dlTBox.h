@@ -615,6 +615,15 @@ protected:	// methods
 		else
 			return stdReasoner;
 	}
+		/// get RO reasoner wrt nominal case
+	const DlSatTester* getReasoner ( void ) const
+	{
+		fpp_assert ( curFeature != NULL );
+		if ( curFeature->hasSingletons() )
+			return nomReasoner;
+		else
+			return stdReasoner;
+	}
 		/// set ToDo priorities using OPTIONS
 	void setToDoPriorities ( void );		// implemented in Reasoner.h
 		/// check whether KB is consistent; @return true if it is
@@ -865,6 +874,8 @@ public:
 	DataTypeCenter& getDataTypeCenter ( void ) { return DTCenter; }
 		/// get RO access to a DT center
 	const DataTypeCenter& getDataTypeCenter ( void ) const { return DTCenter; }
+		/// get RO access to DAG (needed for KE)
+	const DLDag& getDag ( void ) const { return DLHeap; }
 
 		/// set the value of a test timeout in milliseconds to VALUE
 	void setTestTimeout ( unsigned long value );

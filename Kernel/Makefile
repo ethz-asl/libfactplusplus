@@ -48,5 +48,6 @@ SOURCES = \
           TriRelation.cpp\
           tSubsumptionMap.cpp\
           Actor.cpp\
+          tDag2Interface.cpp\
 
 include ../Makefile.include

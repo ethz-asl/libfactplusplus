@@ -30,6 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "DLConceptTaxonomy.h"	// for getRelatives()
 #include "tExpressionTranslator.h"
 #include "tOntology.h"
+#include "tDag2Interface.h"
 
 class ReasoningKernel
 {
@@ -86,6 +87,18 @@ public:	// types interface
 		/// typedef for intermediate instance related type
 	typedef TRelatedMap::CIVec CIVec;
 
+	// types for knowledge exploration
+
+		/// type for the object node in the completion graph
+	typedef const DlCompletionTree CGObjectNode;
+		/// type for the data node in the completion graph
+	typedef const DlCompletionTree CGDataNode;
+
+		/// type for an object  link (pair of role and node)
+	typedef std::pair<TORoleExpr*, CGObjectNode*> CGObjectLink;
+		/// type for a data link (pair of role and node)
+	typedef std::pair<TDRoleExpr*, CGDataNode*> CGDataLink;
+
 private:
 		/// options for the kernel and all related substructures
 	ifOptionSet KernelOptions;
@@ -139,6 +152,8 @@ protected:	// members
 	TExpressionTranslator* pET;
 		/// trace vector for the last operation (set from the TBox trace-sets)
 	std::vector<TDLAxiom*> TraceVec;
+		/// dag-2-interface translator used in knowledge exploration
+	TDag2Interface* D2I;
 
 	// Top/Bottom role names: if set, they will appear in all hierarchy-related output
 
@@ -367,6 +382,8 @@ protected:	// methods
 		pTBox = NULL;
 		delete pET;
 		pET = NULL;
+		delete D2I;
+		D2I = NULL;
 		deleteTree(cachedQuery);
 		cachedQuery = NULL;
 	}
@@ -1116,6 +1133,21 @@ public:
 	void getRoleFillers ( const TIndividualExpr* I, const TORoleExpr* R, IndividualSet& Result );
 		/// set RESULT into set of J's such that R(I,J)
 	bool isRelated ( const TIndividualExpr* I, const TORoleExpr* R, const TIndividualExpr* J );
+
+	//----------------------------------------------------------------------------------
+	// knowledge exploration queries
+	//----------------------------------------------------------------------------------
+
+		/// get the root node of the last classified query
+	const CGObjectNode* getRootNode ( void ) const { return getTBox()->getReasoner()->getRootNode(); }
+		/// build the set of data neighbours of a NODE, put the set into the RESULT variable
+	void getDataNeighbours ( const CGObjectNode* node, std::vector<CGDataLink>& Result );
+		/// build the set of object neighbours of a NODE; incoming edges are counted iff NEEDINCOMING is true
+	void getObjectNeighbours ( const CGObjectNode* node, std::vector<CGObjectLink>& Result, bool needIncoming );
+		/// put into RESULT all the data expressions from the NODE label
+	void getLabel ( const CGDataNode* node, std::vector<TDataExpr*>& Result );
+		/// put into RESULT all the concepts from the NODE label
+	void getLabel ( const CGObjectNode* node, std::vector<TConceptExpr*>& Result );
 
 	//----------------------------------------------------------------------------------
 	//	All the following are the duplicates of the above with Actor as a template
