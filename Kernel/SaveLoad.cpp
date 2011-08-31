@@ -718,10 +718,6 @@ DLVertex :: Save ( ostream& o ) const
 			saveSInt(o,*p);
 		break;
 
-	case dtUAll:
-		saveSInt(o,getC());
-		break;
-
 	case dtLE:
 		saveUInt(o,neMap.getI(const_cast<TRole*>(Role)));
 		saveSInt(o,getC());
@@ -774,10 +770,6 @@ DLVertex :: Load ( istream& i )
 			Child.push_back(loadSInt(i));
 		break;
 	}
-
-	case dtUAll:
-		setChild(loadSInt(i));
-		break;
 
 	case dtLE:
 		Role = static_cast<const TRole*>(neMap.getP(loadUInt(i)));

@@ -59,7 +59,6 @@ enum DagTag {
 	dtCollection,
 	dtForall,
 	dtLE,
-	dtUAll,		// \dall U.C
 	dtIrr,		// \neg\exists R.Self
 	dtProj,		// aux vertex with Projection FROM the current node
 	dtNN,		// NN-rule was applied

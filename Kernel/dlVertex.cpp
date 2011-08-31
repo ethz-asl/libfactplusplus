@@ -151,7 +151,6 @@ const char* DLVertex :: getTagName ( void ) const
 	case dtCollection:return "collection";
 	case dtForall:	return "all";
 	case dtLE:		return "at-most";
-	case dtUAll:	return "all U";
 	case dtIrr:		return "irreflexive";
 	case dtProj:	return "projection";
 	case dtNN:		return "NN-stopper";
@@ -179,7 +178,6 @@ DLVertex :: Print ( std::ostream& o ) const
 		break;
 
 	case dtTop:		// nothing to do
-	case dtUAll:
 	case dtNN:
 		return;
 

@@ -148,7 +148,6 @@ DLDag :: computeVertexStat ( BipolarPointer p )
 		// fallthrough
 	case dtName:
 	case dtForall:
-	case dtUAll:
 	case dtChoose:
 	case dtLE:	// check a single referenced concept
 		computeVertexStat ( v.getC(), pos );

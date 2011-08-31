@@ -61,7 +61,6 @@ protected:	// methods
 		case dtForall:
 		case dtLE:
 		case dtIrr:
-		case dtUAll:
 		case dtNN:
 		case dtChoose:
 			return true;

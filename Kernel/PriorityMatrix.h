@@ -93,7 +93,6 @@ inline unsigned int ToDoPriorMatrix :: getIndex ( DagTag Op, bool Sign, bool Nom
 		return iAnd;
 
 	case dtForall:
-	case dtUAll:
 	case dtIrr:		// process local (ir-)reflexivity as a FORALL
 		return (Sign?iForall:iExists);
 

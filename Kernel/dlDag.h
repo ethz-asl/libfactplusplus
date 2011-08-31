@@ -142,7 +142,6 @@ protected:	// methods
 		case dtCollection:
 		case dtAnd:		return indexAnd;
 		case dtIrr:
-		case dtUAll:
 		case dtForall:	return indexAll;
 		case dtLE:		return indexLE;
 		default:		fpp_unreachable();	// no such index
@@ -156,7 +155,6 @@ protected:	// methods
 		case dtCollection:
 		case dtAnd:		indexAnd.addElement(value); listAnds.push_back(value); break;
 		case dtIrr:
-		case dtUAll:
 		case dtForall:	indexAll.addElement(value); break;
 		case dtLE:		indexLE.addElement(value); break;
 		default:		break;	// nothing to do
