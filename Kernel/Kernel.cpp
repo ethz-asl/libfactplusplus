@@ -491,10 +491,12 @@ ReasoningKernel :: getLabel ( const CGObjectNode* node, std::vector<TConceptExpr
 		D2I->ensureDagSize();
 	DlCompletionTree::const_label_iterator p, p_end;
 	Result.clear();
+	// return only names ATM
 	for ( p = node->beginl_sc(), p_end = node->endl_sc(); p != p_end; ++p )
-		Result.push_back(D2I->getCExpr(p->bp()));
-	for ( p = node->beginl_cc(), p_end = node->endl_cc(); p != p_end; ++p )
-		Result.push_back(D2I->getCExpr(p->bp()));
+		if ( getTBox()->getDag()[*p].getConcept() != NULL )
+			Result.push_back(D2I->getCExpr(p->bp()));
+//	for ( p = node->beginl_cc(), p_end = node->endl_cc(); p != p_end; ++p )
+//		Result.push_back(D2I->getCExpr(p->bp()));
 }
 
 //----------------------------------------------------------------------------------
