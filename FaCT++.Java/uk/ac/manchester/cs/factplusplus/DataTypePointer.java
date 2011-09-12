@@ -10,7 +10,7 @@ package uk.ac.manchester.cs.factplusplus;
  * www.cs.man.ac.uk/~horridgm<br><br>
  */
 public class DataTypePointer extends DataTypeExpressionPointer {
-
+    @Override
     public String toString() {
         return "DataTypePointer" + super.toString();
     }

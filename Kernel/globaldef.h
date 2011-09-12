@@ -38,6 +38,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 // uncomment this to have sorted ontology reasoning
 #define RKG_USE_SORTED_REASONING
 
+//#define _USE_LOGGING
+
+//#define ENABLE_CHECKING
+
 // uncomment this to allow dynamic backjumping
 //#define RKG_USE_DYNAMIC_BACKJUMPING
 

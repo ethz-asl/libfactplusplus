@@ -1,51 +1,52 @@
 package uk.ac.manchester.cs.factplusplus;
 
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Author: Matthew Horridge<br>
  * The University Of Manchester<br>
  * Medical Informatics Group<br>
- * Date: 10-Jul-2006<br><br>
+ * Date: 10-Jul-2006<br>
+ * <br>
  * <p/>
  * matthew.horridge@cs.man.ac.uk<br>
- * www.cs.man.ac.uk/~horridgm<br><br>
- *
- * An interface to the native FaCT++ reasoner.  Use of this
- * class requires the FaCT++ JNI library for the appropriate
- * platform.
+ * www.cs.man.ac.uk/~horridgm<br>
+ * <br>
+ * 
+ * An interface to the native FaCT++ reasoner. Use of this class requires the
+ * FaCT++ JNI library for the appropriate platform.
  */
-import java.lang.System;
-
 public class FaCTPlusPlus {
-
+	private static final AtomicBoolean initDone=new AtomicBoolean(false);
 	static {
-		initDone=true;
-		// Load the FaCT++ JNI library
-		if (System.getProperty("factpp.jni.path","nope") == "nope")
-			System.loadLibrary("FaCTPlusPlusJNI");
-		else
-			System.load(System.getProperty("factpp.jni.path"));
-		// init all the IDs used
-		initMethodsFieldsIDs();
+		if (!initDone.getAndSet(true)) {
+			// Load the FaCT++ JNI library
+			if (System.getProperty("factpp.jni.path", "nope") == "nope") {
+				System.loadLibrary("FaCTPlusPlusJNI");
+			} else {
+				System.load(System.getProperty("factpp.jni.path"));
+			}
+			// init all the IDs used 
+			initMethodsFieldsIDs();
+		}
 	}
 
-	// used to ensure that TEST method forces JNI library to load
-	private static volatile boolean initDone;
-	// make sure FaCT++ JNI library is loaded afterwards
+
 	public static final boolean test() {
 		// this is only useful to force the native library loading
-		return initDone;
+		return initDone.get();
 	}
 
-    /**
-     * Used to initialise methods and fields that will be used by the native implementation
-     */
-    private static native void initMethodsFieldsIDs();
+	/**
+	 * Used to initialise methods and fields that will be used by the native
+	 * implementation
+	 */
+	private static native void initMethodsFieldsIDs();
 
-    /**
-     * Set internally on the native side - DO NOT ALTER!
-     */
-    private long KernelId;
+	/**
+	 * Set internally on the native side - DO NOT ALTER!
+	 */
+	private long KernelId;
 
     public FaCTPlusPlus() throws FaCTPlusPlusException {
         try{

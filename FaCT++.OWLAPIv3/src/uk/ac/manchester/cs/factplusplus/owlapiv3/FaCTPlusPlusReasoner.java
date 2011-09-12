@@ -436,6 +436,9 @@ public class FaCTPlusPlusReasoner implements OWLReasoner,
 	}
 
 	public boolean isEntailmentCheckingSupported(AxiomType<?> axiomType) {
+		if(axiomType.equals(AxiomType.SWRL_RULE)) {
+			return false;
+		}
 		// FIXME!! check later
 		return true;
 	}

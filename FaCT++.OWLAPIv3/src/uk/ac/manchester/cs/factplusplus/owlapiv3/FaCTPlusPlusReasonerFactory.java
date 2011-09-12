@@ -38,18 +38,27 @@ public class FaCTPlusPlusReasonerFactory implements OWLReasonerFactory {
     }
 
     public OWLReasoner createReasoner(OWLOntology ontology) {
-        return new FaCTPlusPlusReasoner(ontology, new SimpleConfiguration(), BufferingMode.BUFFERING);
+        final FaCTPlusPlusReasoner reasoner = new FaCTPlusPlusReasoner(ontology, new SimpleConfiguration(), BufferingMode.BUFFERING);
+        ontology.getOWLOntologyManager().addOntologyChangeListener(reasoner);
+		return reasoner;
     }
 
     public OWLReasoner createNonBufferingReasoner(OWLOntology ontology) {
-        return new FaCTPlusPlusReasoner(ontology, new SimpleConfiguration(), BufferingMode.NON_BUFFERING);
+    	final FaCTPlusPlusReasoner reasoner = new FaCTPlusPlusReasoner(ontology, new SimpleConfiguration(), BufferingMode.NON_BUFFERING);
+    	ontology.getOWLOntologyManager().addOntologyChangeListener(reasoner);
+		return reasoner;
     }
 
     public OWLReasoner createReasoner(OWLOntology ontology, OWLReasonerConfiguration config) throws IllegalConfigurationException {
-        return new FaCTPlusPlusReasoner(ontology, config, BufferingMode.BUFFERING);
+    	final FaCTPlusPlusReasoner reasoner = new FaCTPlusPlusReasoner(ontology, config, BufferingMode.BUFFERING);
+    	ontology.getOWLOntologyManager().addOntologyChangeListener(reasoner);
+		return reasoner;
     }
 
     public OWLReasoner createNonBufferingReasoner(OWLOntology ontology, OWLReasonerConfiguration config) throws IllegalConfigurationException {
-        return new FaCTPlusPlusReasoner(ontology, config, BufferingMode.NON_BUFFERING);
+    	final FaCTPlusPlusReasoner reasoner = new FaCTPlusPlusReasoner(ontology, config, BufferingMode.NON_BUFFERING);
+    	ontology.getOWLOntologyManager().addOntologyChangeListener(reasoner);
+		return reasoner;
     }
 }
+

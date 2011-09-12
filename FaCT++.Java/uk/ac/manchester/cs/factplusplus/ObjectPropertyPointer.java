@@ -10,7 +10,7 @@ package uk.ac.manchester.cs.factplusplus;
  * www.cs.man.ac.uk/~horridgm<br><br>
  */
 public class ObjectPropertyPointer extends Pointer {
-
+    @Override
     public String toString() {
         return "ObjectPropertyPointer" + super.toString();
     }

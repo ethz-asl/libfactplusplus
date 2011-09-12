@@ -110,6 +110,7 @@ ReasoningKernel :: forceReload ( void )
 	}
 
 	// split ontological axioms
+
 	if ( useAxiomSplitting )
 	{
 		TAxiomSplitter AxiomSplitter(&Ontology);

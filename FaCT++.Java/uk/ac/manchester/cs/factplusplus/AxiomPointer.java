@@ -31,7 +31,7 @@ package uk.ac.manchester.cs.factplusplus;
  * Date: Mar 25, 2009<br><br>
  */
 public class AxiomPointer extends Pointer {
-
+    @Override
     public String toString() {
         return "AxiomPointer" + super.toString();
     }

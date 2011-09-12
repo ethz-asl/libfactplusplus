@@ -10,7 +10,7 @@ package uk.ac.manchester.cs.factplusplus;
  * www.cs.man.ac.uk/~horridgm<br><br>
  */
 public class ClassPointer extends Pointer {
-
+    @Override
     public String toString() {
         return "ClassPointer" + super.toString();
     }

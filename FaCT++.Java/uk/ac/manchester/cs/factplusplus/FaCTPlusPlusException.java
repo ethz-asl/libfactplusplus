@@ -1,5 +1,7 @@
 package uk.ac.manchester.cs.factplusplus;
 
+import org.semanticweb.owlapi.model.OWLRuntimeException;
+
 /*
  * Copyright (C) 2007, University of Manchester
  *
@@ -30,7 +32,7 @@ package uk.ac.manchester.cs.factplusplus;
  * Bio-Health Informatics Group<br>
  * Date: 21-Sep-2007<br><br>
  */
-public class FaCTPlusPlusException extends RuntimeException {
+public class FaCTPlusPlusException extends OWLRuntimeException {
 
     
 

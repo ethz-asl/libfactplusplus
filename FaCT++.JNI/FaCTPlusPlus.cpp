@@ -342,7 +342,9 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
 	std::string DTName(name());
 	TExpressionManager* EM = getEM(env,obj);
 	if ( DTName == "http://www.w3.org/2000/01/rdf-schema#Literal" ||
-		 DTName == "http://www.w3.org/2000/01/rdf-schema#anySimpleType" )
+		 DTName == "http://www.w3.org/2000/01/rdf-schema#anySimpleType" ||
+		 DTName == "http://www.w3.org/2001/XMLSchema#anyType" ||
+		 DTName == "http://www.w3.org/2001/XMLSchema#anySimpleType")
 		return DataType ( env, EM->DataTop() );
 
 	if ( DTName == "http://www.w3.org/1999/02/22-rdf-syntax-ns#PlainLiteral" )
@@ -357,13 +359,26 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
 		return DataType ( env, EM->getIntDataType() );
 	if ( DTName == "http://www.w3.org/2001/XMLSchema#int" )
 		return DataType ( env, EM->getIntDataType() );
+	if ( DTName == "http://www.w3.org/2001/XMLSchema#long" )
+		return DataType ( env, EM->getIntDataType() );
 	if ( DTName == "http://www.w3.org/2001/XMLSchema#nonNegativeInteger" )
 		return DataType ( env, EM->getIntDataType() );
+	if ( DTName == "http://www.w3.org/2001/XMLSchema#positiveInteger" )
+		return DataType ( env, EM->getIntDataType() );
+	if ( DTName == "http://www.w3.org/2001/XMLSchema#negativeInteger" )
+		return DataType ( env, EM->getIntDataType() );
+	if ( DTName == "http://www.w3.org/2001/XMLSchema#short" )
+			return DataType ( env, EM->getIntDataType() );
+	if ( DTName == "http://www.w3.org/2001/XMLSchema#byte" )
+			return DataType ( env, EM->getIntDataType() );
 
 	if ( DTName == "http://www.w3.org/2001/XMLSchema#float" )
 		return DataType ( env, EM->getRealDataType() );
 	if ( DTName == "http://www.w3.org/2001/XMLSchema#double" )
 		return DataType ( env, EM->getRealDataType() );
+	if ( DTName == "http://www.w3.org/2001/XMLSchema#real" ||
+			DTName == "http://www.w3.org/2001/XMLSchema#decimal")
+			return DataType ( env, EM->getRealDataType() );
 
 	if ( DTName == "http://www.w3.org/2001/XMLSchema#boolean" )
 		return DataType ( env, EM->getBoolDataType() );
