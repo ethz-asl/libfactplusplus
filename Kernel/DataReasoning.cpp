@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2005-2010 by Dmitry Tsarkov
+Copyright (C) 2005-2011 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -21,9 +21,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 //toms code start
 bool DataTypeReasoner :: addDataEntry ( BipolarPointer p, const DepSet& dep )
 {
-	const DLVertex& v = DLHeap[p];
-
-	switch ( v.Type() )
+	switch ( DLHeap[p].Type() )
 	{
 	case dtDataType:		// get appropriate type
 	{
@@ -32,12 +30,8 @@ bool DataTypeReasoner :: addDataEntry ( BipolarPointer p, const DepSet& dep )
 		if ( LLM.isWritable(llCDAction) )	// level of logging
 			LL << ' ' << (isPositive(p) ? '+' : '-') << getDataEntry(p)->getName();
 
-		if ( isPositive(p) )
-			type->setPType(getDTE(p,dep));
-		else
-			type->NType = getDTE(p,dep);
-
-		return false;	// no clash found
+		type->setTypePresence ( isPositive(p), dep );
+		return type->checkPNTypeClash();
 	}
 	case dtDataValue:
 		return processDataValue ( isPositive(p), getDataEntry(p), dep );
@@ -78,13 +72,15 @@ bool DataTypeReasoner :: checkClash ( void )
 				if ( LLM.isWritable(llCDAction) )	// level of logging
 					LL << " DT-TT";					// inform about clash...
 
-				clashDep = type->PType.second+(*p)->PType.second;
+				clashDep = *(type->PType);
+				clashDep += *((*p)->PType);
 				return true;
 			}
 		}
 
-	// check the case where an interval /min..max/ is completed with !min,...,!max
-	return type ? type->checkPNTypeClash() : false;
+	// no clash like (PType, NType) can happen as this will be checked earlier
+	fpp_assert ( !type || !type->checkPNTypeClash() );
+	return false;
 }
 
 // ---------- Processing different alternatives

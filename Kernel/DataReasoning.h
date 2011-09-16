@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2005-2010 by Dmitry Tsarkov
+Copyright (C) 2005-2011 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -32,9 +32,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 class DataTypeAppearance
 {
-public:		// typedefs
-	typedef std::pair<const TDataEntry*, DepSet> DepDTE;
-
 protected:	// classes
 		/// data interval with dep-sets
 	class DepInterval
@@ -78,10 +75,10 @@ protected:	// classes
 	typedef DTConstraint::const_iterator const_iterator;
 
 public:		// members
-		/// positive type appearance
-	DepDTE PType;
-		/// negative type appearance
-	DepDTE NType;
+		/// dep-set for positive type appearance
+	DepSet* PType;
+		/// dep-set for negative type appearance
+	DepSet* NType;
 
 protected:	// members
 		/// interval of possible values
@@ -146,15 +143,17 @@ protected:	// methods
 
 public:		// methods
 		/// empty c'tor
-	DataTypeAppearance ( DepSet& dep ) : clashDep(dep) {}
+	DataTypeAppearance ( DepSet& dep ) : PType(NULL), NType(NULL), clashDep(dep) {}
 		/// empty d'tor
 	~DataTypeAppearance ( void ) {}
 
 		/// clear the appearance flags
 	void clear ( void )
 	{
-		PType = NType =
-			std::make_pair(static_cast<const TDataEntry*>(NULL),DepSet());
+		delete PType;
+		PType = NULL;
+		delete NType;
+		NType = NULL;
 		Constraints.clear();
 		Constraints.push_back(DepInterval());
 		accDep.clear();
@@ -163,20 +162,15 @@ public:		// methods
 	// presence interface
 
 		/// check if type is present positively in the node
-	bool hasPType ( void ) const { return PType.first != NULL; }
-		/// check if type is present negatively in the node
-	bool hasNType ( void ) const { return NType.first != NULL; }
-		/// set the precense of the PType
-	void setPType ( const DepDTE& type )
+	bool hasPType ( void ) const { return PType != NULL; }
+		/// set the presence of the type depending of polarity (POS) and save a dep-set DEP
+	void setTypePresence ( bool pos, const DepSet& dep )
 	{
-		if ( !hasPType() )
-			PType = type;
-	}
-		/// set the precense of the PType
-	void setPType ( const TDataEntry* value, const DepSet& dep )
-	{
-		if ( !hasPType() )
-			PType = std::make_pair(value->getType(),dep);
+		DepSet*& pDep = pos ? PType : NType;
+		if ( likely(pDep == NULL) )	// 1st access
+			pDep = new DepSet(dep);
+		else
+			pDep->add(dep);
 	}
 
 	// complex methods
@@ -192,8 +186,8 @@ public:		// methods
 		/// @return true iff PType and NType leads to clash
 	bool checkPNTypeClash ( void )
 	{
-		if ( hasNType() )
-			return reportClash ( PType.second+NType.second, "TNT" );
+		if ( PType != NULL && NType != NULL )
+			return reportClash ( *PType+*NType, "TNT" );
 
 		return false;
 	}
@@ -206,8 +200,6 @@ protected:	// types
 	typedef std::vector<DataTypeAppearance*> DTAVector;
 		/// map from positive BPs (DT pNames) to corresponding data type
 	typedef std::map<const TDataEntry*,size_t> TypeMap;
-		/// complex DTE type copied from DTA
-	typedef DataTypeAppearance::DepDTE DepDTE;
 
 protected:	// members
 		/// vector of a types
@@ -226,7 +218,7 @@ protected:	// methods
 		DataTypeAppearance* type = getDTAbyValue(c);
 
 		if (pos)
-			type->setPType(DepDTE(c,dep));
+			type->setTypePresence ( pos, dep );
 
 		// create interval [c,c]
 		TDataInterval constraints;
@@ -242,16 +234,13 @@ protected:	// methods
 			return false;
 		DataTypeAppearance* type = getDTAbyValue(c);
 		if (pos)
-			type->setPType(DepDTE(c,dep));
+			type->setTypePresence ( pos, dep );
 		return type->addInterval ( pos, constraints, dep );
 	}
 
 		/// get data entry structure by a BP
 	const TDataEntry* getDataEntry ( BipolarPointer p ) const
 		{ return static_cast<const TDataEntry*>(DLHeap[p].getConcept()); }
-		/// get TDE with a dep-set by a CWD
-	DepDTE getDTE ( BipolarPointer p, const DepSet& dep ) const
-		{ return DepDTE(getDataEntry(p),dep); }
 
 	// get access to proper DataTypeAppearance
 
