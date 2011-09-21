@@ -2,6 +2,7 @@ package uk.ac.manchester.cs.factplusplus.owlapiv3;
 
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.reasoner.*;
+
 /*
  * Copyright (C) 2009, University of Manchester
  *
@@ -33,32 +34,36 @@ import org.semanticweb.owlapi.reasoner.*;
  */
 public class FaCTPlusPlusReasonerFactory implements OWLReasonerFactory {
 
-    public String getReasonerName() {
-        return "FaCT++";
-    }
+	public String getReasonerName() {
+		return "FaCT++";
+	}
 
-    public OWLReasoner createReasoner(OWLOntology ontology) {
-        final FaCTPlusPlusReasoner reasoner = new FaCTPlusPlusReasoner(ontology, new SimpleConfiguration(), BufferingMode.BUFFERING);
-        ontology.getOWLOntologyManager().addOntologyChangeListener(reasoner);
+	/**
+	 * real implementation of the createReasoner method
+	 */
+	protected OWLReasoner createReasoner(OWLOntology ontology, OWLReasonerConfiguration config, boolean buffering)
+			throws IllegalConfigurationException {
+		BufferingMode bufferingMode = buffering ? BufferingMode.BUFFERING : BufferingMode.NON_BUFFERING;
+		final FaCTPlusPlusReasoner reasoner = new FaCTPlusPlusReasoner(ontology, config, bufferingMode);
+		ontology.getOWLOntologyManager().addOntologyChangeListener(reasoner);
 		return reasoner;
-    }
+	}
 
-    public OWLReasoner createNonBufferingReasoner(OWLOntology ontology) {
-    	final FaCTPlusPlusReasoner reasoner = new FaCTPlusPlusReasoner(ontology, new SimpleConfiguration(), BufferingMode.NON_BUFFERING);
-    	ontology.getOWLOntologyManager().addOntologyChangeListener(reasoner);
-		return reasoner;
-    }
+	public OWLReasoner createReasoner(OWLOntology ontology) {
+		return createReasoner(ontology, new SimpleConfiguration(), true);
+	}
 
-    public OWLReasoner createReasoner(OWLOntology ontology, OWLReasonerConfiguration config) throws IllegalConfigurationException {
-    	final FaCTPlusPlusReasoner reasoner = new FaCTPlusPlusReasoner(ontology, config, BufferingMode.BUFFERING);
-    	ontology.getOWLOntologyManager().addOntologyChangeListener(reasoner);
-		return reasoner;
-    }
+	public OWLReasoner createNonBufferingReasoner(OWLOntology ontology) {
+		return createReasoner(ontology, new SimpleConfiguration(), false);
+	}
 
-    public OWLReasoner createNonBufferingReasoner(OWLOntology ontology, OWLReasonerConfiguration config) throws IllegalConfigurationException {
-    	final FaCTPlusPlusReasoner reasoner = new FaCTPlusPlusReasoner(ontology, config, BufferingMode.NON_BUFFERING);
-    	ontology.getOWLOntologyManager().addOntologyChangeListener(reasoner);
-		return reasoner;
-    }
+	public OWLReasoner createReasoner(OWLOntology ontology, OWLReasonerConfiguration config)
+			throws IllegalConfigurationException {
+		return createReasoner(ontology, config, true);
+	}
+
+	public OWLReasoner createNonBufferingReasoner(OWLOntology ontology, OWLReasonerConfiguration config)
+			throws IllegalConfigurationException {
+		return createReasoner(ontology, config, false);
+	}
 }
-
