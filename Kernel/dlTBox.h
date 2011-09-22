@@ -36,6 +36,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "tProgressMonitor.h"
 #include "tKBFlags.h"
 #include "tSplitVars.h"
+#include "tSplitExpansionRules.h"
 
 class DlSatTester;
 class DLConceptTaxonomy;

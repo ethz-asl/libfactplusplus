@@ -201,25 +201,6 @@ protected:	// classes
 		}
 	}; // BCStack
 
-	typedef std::set<const TNamedEntity*> SigSet;
-	typedef std::vector<const TNamedEntity*> SigVec;
-
-	/// class to check whether there is a need to unsplit splitted var
-	struct SingleSplit
-	{
-			/// signature of equivalent part of the split
-		SigSet eqSig;
-			/// signature of subsumption part of the split
-		SigSet impSig;
-			/// pointer to split vertex to activate
-		BipolarPointer bp;
-
-		SingleSplit ( void ) {}
-		SingleSplit ( const SigSet& es, const SigSet& is, BipolarPointer p ) : eqSig(es), impSig(is), bp(p) {}
-	};
-
-	typedef std::vector<SingleSplit> TSplitRules;
-
 protected:	// members
 		/// host TBox
 	TBox& tBox;
@@ -327,11 +308,7 @@ protected:	// members
 		/// set of active splits
 	std::set<BipolarPointer> ActiveSplits;
 		/// concept signature of current CGraph
-	SigSet ActiveSignature;
-		/// signature related to a split
-	SigSet PossibleSignature;
-		/// map between BP and TNamedEntities
-	SigVec EntityMap;
+	TSplitRules::SigSet ActiveSignature;
 
 		/// size of the DAG with some extra space
 	size_t dagSize;
@@ -360,7 +337,7 @@ protected:	// members
 
 		/// true if nominal-related expansion rule was fired during reasoning
 	bool encounterNominal;
-		/// flag to show if it is necessary to produce DT reasoning immideately
+		/// flag to show if it is necessary to produce DT reasoning immediately
 	bool checkDataNode;
 
 private:	// no copy
@@ -406,44 +383,7 @@ protected:	// methods
 			return false;
 		return updateActiveSignature1 ( entity, dep );
 	}
-		/// add new split rule
-	void addSplitRule ( const SigSet& eqSig, const SigSet impSig, BipolarPointer bp )
-		{ SplitRules.push_back(SingleSplit(eqSig,impSig,bp)); }
-		/// build a set out of signature SIG w/o given ENTITY
-	SigSet buildSet ( const TSignature& sig, const TNamedEntity* entity );
-		/// init split as a set-of-sets
-	void initSplit ( TSplitVar* split );
-		/// init splits
-	void initSplits ( void )
-	{
-		for ( TSplitVars::iterator p = tBox.getSplits()->begin(), p_end = tBox.getSplits()->end(); p != p_end; ++p )
-			initSplit(*p);
-		// now mark all the entities not in PossibleSignatures NULLs
-		for ( size_t i = 1; i < EntityMap.size(); ++i )
-			if ( PossibleSignature.count(EntityMap[i]) == 0 )
-				EntityMap[i] = NULL;
-	}
-		/// check whether split-set S contains in the active set
-	bool containsInActive ( const SigSet& S ) const
-		{ return includes ( ActiveSignature.begin(), ActiveSignature.end(), S.begin(), S.end() ); }
-		/// check whether split-set S intersects with the active set
-	bool intersectsWithActive ( const SigSet& S ) const
-	{
-		SigSet::const_iterator q = S.begin(), q_end = S.end(), p = ActiveSignature.begin(), p_end = ActiveSignature.end();
-		while ( p != p_end && q != q_end )
-		{
-			if ( *p == *q )
-				return true;
-			if ( *p < *q )
-				++p;
-			else
-				++q;
-		}
-		return false;
-	}
 
-		/// @return named entity corresponding to a given bp
-	const TNamedEntity* getEntity ( BipolarPointer bp ) const { return EntityMap[getValue(bp)]; }
 		/// put TODO entry for either BP or inverse(BP) in NODE's label
 	void updateName ( DlCompletionTree* node, BipolarPointer bp )
 	{
@@ -465,10 +405,6 @@ protected:	// methods
 			if ( !node->isDataNode() )
 				updateName ( node, bp );
 	}
-		/// prepare start signature
-	void prepareStartSig ( const std::vector<TDLAxiom*>& Module, TSignature& FinalSig, SigVec& Allowed ) const;
-		/// build all the seed signatures
-	void BuildAllSeedSigs ( const SigVec& Allowed, const TSignature& sig, std::vector<TDLAxiom*>& Module, std::set<TSignature>& Out ) const;
 
 	// label access interface
 
@@ -517,7 +453,7 @@ protected:	// methods
 			dagSize = DLHeap.maxSize();
 			pUsed.ensureMaxSetSize(dagSize);
 			nUsed.ensureMaxSetSize(dagSize);
-			EntityMap.resize(dagSize);
+			SplitRules.ensureDagSize(dagSize);
 		}
 	}
 

@@ -173,14 +173,16 @@ DlSatTester :: updateActiveSignature1 ( const TNamedEntity* entity, const DepSet
 	ActiveSignature.insert(entity);
 	// check whether some of the split rules require unsplitting
 	for ( TSplitRules::const_iterator p = SplitRules.begin(), p_end = SplitRules.end(); p != p_end; ++p )
-		if ( likely ( ActiveSplits.count(p->bp-1) == 0 ) && containsInActive(p->eqSig) && intersectsWithActive(p->impSig) )
+	{
+		BipolarPointer bp = p->bp() - 1; 	// p->bp points to Choose(C) node, p->bp-1 -- to the split node
+		if ( likely ( ActiveSplits.count(bp) == 0 ) && p->canFire(ActiveSignature) )
 		{
-			// here p->bp points to Choose(C) node, p->bp-1 -- to the split node
-			ActiveSplits.insert(p->bp-1);
-			switchResult ( addSessionGCI ( p->bp, dep ) );
+			ActiveSplits.insert(bp);
+			switchResult ( addSessionGCI ( bp+1, dep ) );
 			// make sure that all existing splits will be re-applied
-			updateName(p->bp-1);
+			updateName(bp);
 		}
+	}
 
 	return false;
 }

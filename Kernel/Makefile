@@ -49,5 +49,6 @@ SOURCES = \
           tSubsumptionMap.cpp\
           Actor.cpp\
           tDag2Interface.cpp\
+          tSplitExpansionRules.cpp\
 
 include ../Makefile.include

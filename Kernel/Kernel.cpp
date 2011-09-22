@@ -47,7 +47,7 @@ ReasoningKernel :: ReasoningKernel ( void )
 	, verboseOutput(false)
 	, useUndefinedNames(false)
 	, cachedQuery(NULL)
-	, useAxiomSplitting(false)
+	, useAxiomSplitting(true)
 	, useELReasoner(false)
 {
 	// Intro
