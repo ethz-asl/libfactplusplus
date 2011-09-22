@@ -445,6 +445,8 @@ protected:	// methods
 
 		/// main reasoning function
 	bool checkSatisfiability ( void );
+		/// perform all the actions that should be done once, after all normal rules are not applicable. @return true if the concept is unsat
+	bool performAfterReasoning ( void );
 		/// make sure that the DAG does not grow larger than that was recorded
 	void ensureDAGSize ( void )
 	{

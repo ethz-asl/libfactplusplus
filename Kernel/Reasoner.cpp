@@ -506,38 +506,13 @@ bool DlSatTester :: checkSatisfiability ( void )
 	{
 		if ( curNode == NULL )
 		{
-			if ( TODO.empty() )	// nothing more to do
-			{	// make sure all blocked nodes are still blocked
-				if ( LLM.isWritable(llGTA) )
-				{
-					logIndentation();
-					LL << "[*ub:";
-				}
-				CGraph.retestCGBlockedStatus();
-				if ( LLM.isWritable(llGTA) )
-					LL << "]";
+			if ( TODO.empty() )	// no applicable rules
+			{	// do run-once things
+				if ( performAfterReasoning() )
+					return false;
+				// if nothing added -- that's it
 				if ( TODO.empty() )
-#				ifndef RKG_USE_FAIRNESS
 					return true;
-#				else
-				{	// check fairness constraints
-					if ( !tBox.hasFC() )
-						return true;
-					// reactive fairness: for every given FC, if it is violated, reject current model
-					for ( TBox::ConceptVector::const_iterator p = tBox.Fairness.begin(), p_end = tBox.Fairness.end(); p < p_end; ++p )
-						if ( CGraph.isFCViolated((*p)->pName) )
-						{
-							nFairnessViolations.inc();
-							if ( straightforwardRestore() )	// no more branching alternatives
-								return false;
-							else
-								break;
-						}
-
-					if ( TODO.empty() )
-						return true;
-				}
-#				endif
 			}
 
 			const ToDoEntry* curTDE = TODO.getNextEntry ();
@@ -565,6 +540,45 @@ bool DlSatTester :: checkSatisfiability ( void )
 		else
 			curNode = NULL;
 	}
+}
+
+/// perform all the actions that should be done once, after all normal rules are not applicable. @return true if the concept is unsat
+bool
+DlSatTester :: performAfterReasoning ( void )
+{
+	// make sure all blocked nodes are still blocked
+	if ( LLM.isWritable(llGTA) )
+	{
+		logIndentation();
+		LL << "[*ub:";
+	}
+	CGraph.retestCGBlockedStatus();
+	if ( LLM.isWritable(llGTA) )
+		LL << "]";
+	if ( !TODO.empty() )
+		return false;
+
+#ifdef RKG_USE_FAIRNESS
+	// check fairness constraints
+	if ( tBox.hasFC() )
+	{
+		// reactive fairness: for every given FC, if it is violated, reject current model
+		for ( TBox::ConceptVector::const_iterator p = tBox.Fairness.begin(), p_end = tBox.Fairness.end(); p < p_end; ++p )
+			if ( CGraph.isFCViolated((*p)->pName) )
+			{
+				nFairnessViolations.inc();
+				if ( straightforwardRestore() )	// no more branching alternatives
+					return true;
+				else
+					break;
+			}
+
+		if ( !TODO.empty() )
+			return false;
+	}
+#endif
+
+	return false;
 }
 
 /********************************************************************************
