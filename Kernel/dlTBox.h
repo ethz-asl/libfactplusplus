@@ -199,6 +199,8 @@ protected:	// members
 	TSimpleRules SimpleRules;
 		/// map to show the possible equivalence between individuals
 	std::map<TConcept*, std::pair<TIndividual*,bool> > SameI;
+		/// split rules
+	TSplitRules SplitRules;
 
 		/// internalisation of a general axioms
 	BipolarPointer T_G;
@@ -521,6 +523,15 @@ protected:	// methods
 
 		/// init Range and Domain for all roles of RM; sets hasGCI if R&D was found
 	void initRangeDomain ( RoleMaster& RM );
+		/// build up split rules for reasoners; create them after DAG is build
+	void buildSplitRules ( void )
+	{
+		if ( !getSplits()->empty() )
+		{
+			SplitRules.createSplitRules(getSplits());
+			SplitRules.initEntityMap(DLHeap);
+		}
+	}
 
 		/// set told TOP concept whether necessary
 	void initToldSubsumers ( void )

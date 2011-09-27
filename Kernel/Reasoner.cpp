@@ -69,11 +69,6 @@ DlSatTester :: DlSatTester ( TBox& tbox, const ifOptionSet* Options )
 	clearBlockingStat();
 
 	useActiveSignature = !tBox.getSplits()->empty();
-	if ( useActiveSignature )
-	{
-		SplitRules.createSplitRules(tBox.getSplits());
-		SplitRules.initEntityMap(DLHeap);
-	}
 
 	resetSessionFlags ();
 }
@@ -262,7 +257,7 @@ DlSatTester :: insertToDoEntry ( DlCompletionTree* node, const ConceptWDep& C,
 	setUsed(C.bp());
 
 	if ( useActiveSignature )
-		if ( updateActiveSignature ( SplitRules.getEntity(C.bp()), C.getDep() ) )
+		if ( updateActiveSignature ( tBox.SplitRules.getEntity(C.bp()), C.getDep() ) )
 			return true;
 
 	if ( node->isCached() )

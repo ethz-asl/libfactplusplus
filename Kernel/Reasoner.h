@@ -208,8 +208,6 @@ protected:	// members
 	DLDag& DLHeap;
 		/// all the reflexive roles
 	RoleMaster::TRoleVec ReflexiveRoles;
-		/// split rules
-	TSplitRules SplitRules;
 
 		/// manager for all the dep-sets corresponding to a graph here
 	TDepSetManager Manager;
@@ -455,7 +453,7 @@ protected:	// methods
 			dagSize = DLHeap.maxSize();
 			pUsed.ensureMaxSetSize(dagSize);
 			nUsed.ensureMaxSetSize(dagSize);
-			SplitRules.ensureDagSize(dagSize);
+			tBox.SplitRules.ensureDagSize(dagSize);
 		}
 	}
 
