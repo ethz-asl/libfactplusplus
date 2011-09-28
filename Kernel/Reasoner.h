@@ -361,9 +361,8 @@ protected:	// methods
 		/// synonym to the above
 	bool addToDoEntry ( DlCompletionTree* node, BipolarPointer c, const DepSet& dep, const char* reason = NULL )
 		{ return addToDoEntry ( node, ConceptWDep(c,dep), reason ); }
-		/// insert C to the label of NODE; do necessary updates; may return Clash in case of data P
-	bool insertToDoEntry ( DlCompletionTree* node, const ConceptWDep& C,
-								  DagTag tag, const char* reason );
+		/// insert C to the label of NODE; do necessary updates; may return Clash in case of data entry C
+	bool insertToDoEntry ( DlCompletionTree* node, const ConceptWDep& C, DagTag tag, const char* reason );
 		/// if something was added to cached node N, un- or re-cache it; @return result of re-cache
 	bool correctCachedEntry ( DlCompletionTree* n );
 		/// add C to a set of session GCIs; init all nodes with (C,dep)
@@ -371,6 +370,8 @@ protected:	// methods
 
 	// split rules support
 
+		/// check whether any split rules should be run and do it. @return true iff clash was found
+	bool checkSplitRules ( void );
 		/// update active signature wrt given new non-null entity
 	bool updateActiveSignature1 ( const TNamedEntity* entity, const DepSet& dep );
 		/// update active signature wrt given entity
@@ -388,7 +389,7 @@ protected:	// methods
 		const CGLabel& lab = node->label();
 		CGLabel::const_iterator p;
 		for ( p = lab.begin_sc(); p != lab.end_sc(); ++p )
-			if ( p->bp() == bp || p->bp() == inverse(bp) )
+			if ( unlikely ( p->bp() == bp || p->bp() == inverse(bp) ) )
 			{
 				addExistingToDoEntry ( node, lab.getSCOffset(p), "sp" );
 				break;

@@ -553,6 +553,15 @@ DlSatTester :: performAfterReasoning ( void )
 	if ( !TODO.empty() )
 		return false;
 
+	// check if any split expansion rule could be fired
+	if ( !tBox.getSplits()->empty() )
+	{
+		if ( checkSplitRules() )
+			return true;
+		if ( !TODO.empty() )
+			return false;
+	}
+
 #ifdef RKG_USE_FAIRNESS
 	// check fairness constraints
 	if ( tBox.hasFC() )

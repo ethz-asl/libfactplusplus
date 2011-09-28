@@ -187,6 +187,14 @@ DlSatTester :: updateActiveSignature1 ( const TNamedEntity* entity, const DepSet
 	return false;
 }
 
+/// check whether any split rules should be run and do it. @return true iff clash was found
+bool
+DlSatTester :: checkSplitRules ( void )
+{
+	// stub for now
+	return false;
+}
+
 /// @return true if the rule is applicable; set the dep-set accordingly
 bool
 DlSatTester :: applicable ( const TBox::TSimpleRule& rule )
