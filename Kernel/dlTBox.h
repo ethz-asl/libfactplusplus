@@ -29,6 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "LogicFeature.h"
 #include "dlDag.h"
 #include "ifOptions.h"
+#include "PriorityMatrix.h"
 #include "tRelated.h"
 #include "tNECollection.h"
 #include "tAxiomSet.h"
@@ -234,6 +235,8 @@ protected:	// members
 		/// fairness constraints
 	ConceptVector Fairness;
 
+		/// priority matrix for To-Do lists
+	ToDoPriorMatrix PriorityMatrix;
 		/// single SAT/SUB test timeout in milliseconds
 	unsigned long testTimeout;
 
@@ -636,8 +639,6 @@ protected:	// methods
 		else
 			return stdReasoner;
 	}
-		/// set ToDo priorities using OPTIONS
-	void setToDoPriorities ( void );		// implemented in Reasoner.h
 		/// check whether KB is consistent; @return true if it is
 	bool performConsistencyCheck ( void );	// implemented in Reasoner.h
 

@@ -184,7 +184,6 @@ void TBox :: prepareReasoning ( void )
 
 	// init values for SAT tests -- either cache, or consistency check
 	DLHeap.setSatOrder();
-	setToDoPriorities();
 }
 
 /// prepare features for SAT(P), or SUB(P,Q) test
@@ -426,6 +425,8 @@ void TBox :: readConfig ( const ifOptionSet* Options )
 	testTimeout = Options->getInt("testTimeout");
 	if ( LLM.isWritable(llAlways) )
 		LL << "Init testTimeout = " << testTimeout << "\n";
+
+	PriorityMatrix.initPriorities ( Options->getText("IAOEFLG"), "IAOEFLG" );
 
 	verboseOutput = false;
 #undef addBoolOption

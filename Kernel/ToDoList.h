@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2010 by Dmitry Tsarkov
+Copyright (C) 2003-2011 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -238,7 +238,7 @@ protected:	// members
 		/// stack of saved states
 	TSaveStack<SaveState> SaveStack;
 		/// priority matrix
-	ToDoPriorMatrix Matrix;
+	const ToDoPriorMatrix& Matrix;
 		/// number of un-processed entries
 	unsigned int noe;
 
@@ -265,16 +265,12 @@ protected:	// methods
 	}
 
 public:
-		/// the only c'tor
-	ToDoList ( void ) : noe(0) {}
-		/// d'tor declaration for derived classes
+		/// init c'tor
+	ToDoList ( const ToDoPriorMatrix& matrix ) : Matrix(matrix), noe(0) {}
+		/// d'tor: delete all entries
 	~ToDoList ( void ) { clear(); }
 
-	// initialisation and global methods
-
-		/// init priorities via Options
-	void initPriorities ( const ifOptionSet* Options, const char* optionName )
-		{ Matrix.initPriorities ( Options->getText(optionName), optionName ); }
+	// global methods
 
 		/// clear TODO table
 	void clear ( void )

@@ -35,6 +35,7 @@ DlSatTester :: DlSatTester ( TBox& tbox, const ifOptionSet* Options )
 	, DLHeap(tbox.DLHeap)
 	, Manager(64)
 	, CGraph(1,this)
+	, TODO(tBox.PriorityMatrix)
 	, DTReasoner(tbox.DLHeap)
 	// It's unsafe to have a cache that touchs a nominal in a node; set flagNominals to prevent it
 	, newNodeCache ( true, tBox.nC, tBox.nR )

@@ -928,13 +928,6 @@ public:
 		/// get the ROOT node of the completion graph
 	const DlCompletionTree* getRootNode ( void ) const { return CGraph.getRoot(); }
 
-		/// init TODO list priority for classification
-	void initToDoPriorities ( const ifOptionSet* OptionSet )
-	{
-		fpp_assert ( OptionSet != NULL );
-
-		TODO.initPriorities ( OptionSet, "IAOEFLG" );
-	}
 		/// set blocking method for a session
 	void setBlockingMethod ( bool hasInverse, bool hasQCR ) { CGraph.setBlockingMethod ( hasInverse, hasQCR ); }
 		/// set the in-classification flag
@@ -1124,15 +1117,6 @@ inline bool DlSatTester :: commonTacticBodyAll ( const DLVertex& cur )
 
 inline bool
 TBox::TSimpleRule :: applicable ( DlSatTester& Reasoner ) const { return Reasoner.applicable(*this); }
-
-/// set ToDo priorities using local OPTIONS
-inline void
-TBox :: setToDoPriorities ( void )
-{
-	stdReasoner->initToDoPriorities(pOptions);
-	if ( nomReasoner )
-		nomReasoner->initToDoPriorities(pOptions);
-}
 
 inline const modelCacheInterface*
 TBox :: initCache ( const TConcept* pConcept, bool sub )
