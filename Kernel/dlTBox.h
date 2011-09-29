@@ -890,7 +890,7 @@ public:
 	const DLDag& getDag ( void ) const { return DLHeap; }
 
 		/// set the value of a test timeout in milliseconds to VALUE
-	void setTestTimeout ( unsigned long value );
+	void setTestTimeout ( unsigned long value ) { testTimeout = value; }
 		/// (dis-)allow reasoner to use the undefined names in queries
 	void setUseUndefinedNames ( bool value ) { useUndefinedNames = value; }
 

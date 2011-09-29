@@ -236,8 +236,6 @@ protected:	// members
 	TsProcTimer subTimer;
 		/// timer for a single test; use it as a timeout checker
 	TsProcTimer testTimer;
-		/// SAT test timeout in seconds (if non-zero)
-	unsigned int testTimeout;
 
 	// save/restore option
 
@@ -352,6 +350,9 @@ protected:	// methods
 #else
 #	define incStat(stat)
 #endif
+
+		/// @return timeout value for a single SAT/Sub test in milliseconds; 0 means no timeout
+	unsigned long getSatTimeout ( void ) const { return tBox.testTimeout; }
 
 		/// reset all session flags
 	void resetSessionFlags ( void );
@@ -936,8 +937,6 @@ public:
 	}
 		/// set blocking method for a session
 	void setBlockingMethod ( bool hasInverse, bool hasQCR ) { CGraph.setBlockingMethod ( hasInverse, hasQCR ); }
-		/// set SAT test timeout in milliseconds
-	void setTestTimeout ( unsigned int ms ) { testTimeout = ms; }
 		/// set the in-classification flag
 	void setDuringClassification ( bool value ) { duringClassification = value; }
 
@@ -1122,17 +1121,6 @@ inline bool DlSatTester :: commonTacticBodyAll ( const DLVertex& cur )
 //-----------------------------------------------------------------------------
 //--		implemenation of reasoner-related parts of TBox
 //-----------------------------------------------------------------------------
-
-/// set the value of a test timeout in milliseconds to VALUE
-inline void
-TBox :: setTestTimeout ( unsigned long value )
-{
-	testTimeout = value;
-	if ( stdReasoner != NULL )
-		stdReasoner->setTestTimeout(value);
-	if ( nomReasoner != NULL )
-		nomReasoner->setTestTimeout(value);
-}
 
 inline bool
 TBox::TSimpleRule :: applicable ( DlSatTester& Reasoner ) const { return Reasoner.applicable(*this); }

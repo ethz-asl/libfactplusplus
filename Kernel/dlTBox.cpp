@@ -51,7 +51,7 @@ TBox :: TBox ( const ifOptionSet* Options, const std::string& TopORoleName, cons
 	, nC(0)
 	, nR(0)
 	, auxConceptID(0)
-	, Fairness(NULL)
+	, testTimeout(0)
 	, useUndefinedNames(false)
 	, useSortedReasoning(true)
 	, isLikeGALEN(false)	// just in case Relevance part would be omited
@@ -422,6 +422,10 @@ void TBox :: readConfig ( const ifOptionSet* Options )
 
 	if ( Axioms.initAbsorptionFlags(Options->getText("absorptionFlags")) )
 		throw EFaCTPlusPlus ( "Incorrect absorption flags given" );
+
+	testTimeout = Options->getInt("testTimeout");
+	if ( LLM.isWritable(llAlways) )
+		LL << "Init testTimeout = " << testTimeout << "\n";
 
 	verboseOutput = false;
 #undef addBoolOption

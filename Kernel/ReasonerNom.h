@@ -99,12 +99,10 @@ TBox :: initReasoner ( void )
 		fpp_assert ( nomReasoner == NULL );
 
 		stdReasoner = new DlSatTester ( *this, pOptions );
-		stdReasoner->setTestTimeout(testTimeout);
 
 		if ( NCFeatures.hasSingletons() )
 		{
 			nomReasoner = new NominalReasoner ( *this, pOptions );
-			nomReasoner->setTestTimeout(testTimeout);
 		}
 	}
 }

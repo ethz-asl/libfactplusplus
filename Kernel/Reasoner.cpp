@@ -40,7 +40,6 @@ DlSatTester :: DlSatTester ( TBox& tbox, const ifOptionSet* Options )
 	, newNodeCache ( true, tBox.nC, tBox.nR )
 	, newNodeEdges ( false, tBox.nC, tBox.nR )
 	, GCIs(tbox.GCIs)
-	, testTimeout(0)
 	, bContext(NULL)
 	, tryLevel(InitBranchingLevelValue)
 	, nonDetShift(0)
@@ -523,7 +522,7 @@ bool DlSatTester :: checkSatisfiability ( void )
 			loop = 0;
 			if ( tBox.isCancelled() )
 				return false;
-			if ( testTimeout && 1000*(float)testTimer >= testTimeout )
+			if ( unlikely(getSatTimeout()) && 1000*(float)testTimer >= getSatTimeout() )
 				throw EFPPTimeout();
 		}
 		// here curNode/curConcept are set
