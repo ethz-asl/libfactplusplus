@@ -52,6 +52,7 @@ TBox :: TBox ( const ifOptionSet* Options, const std::string& TopORoleName, cons
 	, nR(0)
 	, auxConceptID(0)
 	, testTimeout(0)
+	, duringClassification(false)
 	, useUndefinedNames(false)
 	, useSortedReasoning(true)
 	, isLikeGALEN(false)	// just in case Relevance part would be omited
@@ -418,6 +419,10 @@ void TBox :: readConfig ( const ifOptionSet* Options )
 	addBoolOption(useRelevantOnly);
 	addBoolOption(dumpQuery);
 	addBoolOption(alwaysPreferEquals);
+	addBoolOption(useSemanticBranching);
+	addBoolOption(useBackjumping);
+	addBoolOption(useLazyBlocking);
+	addBoolOption(useAnywhereBlocking);
 
 	if ( Axioms.initAbsorptionFlags(Options->getText("absorptionFlags")) )
 		throw EFaCTPlusPlus ( "Incorrect absorption flags given" );
@@ -537,6 +542,7 @@ TBox :: writeReasoningResult ( std::ostream& o, float time ) const
 	float sum = preprocTime + consistTime;
 	o << " check done in " << time << " seconds\nof which:\nPreproc. takes "
 	  << preprocTime << " seconds\nConsist. takes " << consistTime << " seconds";
+
 	if ( nomReasoner )
 	{
 		o << "\nReasoning NOM:";
@@ -544,6 +550,7 @@ TBox :: writeReasoningResult ( std::ostream& o, float time ) const
 	}
 	o << "\nReasoning STD:";
 	sum += stdReasoner->printReasoningTime(o);
+
 	o << "\nThe rest takes ";
 	// determine and normalize the rest
 	float f = time - sum;

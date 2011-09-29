@@ -30,7 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 AccumulatedStatistic* AccumulatedStatistic::root = NULL;
 #endif
 
-DlSatTester :: DlSatTester ( TBox& tbox, const ifOptionSet* Options )
+DlSatTester :: DlSatTester ( TBox& tbox )
 	: tBox(tbox)
 	, DLHeap(tbox.DLHeap)
 	, Manager(64)
@@ -46,48 +46,17 @@ DlSatTester :: DlSatTester ( TBox& tbox, const ifOptionSet* Options )
 	, nonDetShift(0)
 	, curNode(NULL)
 	, dagSize(0)
-	, duringClassification(false)
 {
-	// init local options
-	readConfig ( Options );
-
-	// in presence of fairness constraints use ancestor blocking
-	if ( tBox.hasFC() && useAnywhereBlocking )
-	{
-		useAnywhereBlocking = false;
-		if ( LLM.isWritable(llAlways) )
-			LL << "Fairness constraints: set useAnywhereBlocking = false\n";
-	}
-
 	// init static part of CTree
-	CGraph.initContext ( useLazyBlocking, useAnywhereBlocking );
+	CGraph.initContext ( tBox.useLazyBlocking, tBox.useAnywhereBlocking );
 	// init datatype reasoner
 	tBox.getDataTypeCenter().initDataTypeReasoner(DTReasoner);
 	// init set of reflexive roles
-	tbox.getORM()->fillReflexiveRoles(ReflexiveRoles);
+	tBox.getORM()->fillReflexiveRoles(ReflexiveRoles);
 	// init blocking statistics
 	clearBlockingStat();
 
-	useActiveSignature = !tBox.getSplits()->empty();
-
 	resetSessionFlags ();
-}
-
-// load init values from config file
-void DlSatTester :: readConfig ( const ifOptionSet* Options )
-{
-	fpp_assert ( Options != NULL );	// safety check
-
-// define a macro for registering boolean option
-#	define addBoolOption(name)				\
-	name = Options->getBool ( #name );		\
-	if ( LLM.isWritable(llAlways) )			\
-		LL << "Init " #name " = " << name << "\n"
-	addBoolOption(useSemanticBranching);
-	addBoolOption(useBackjumping);
-	addBoolOption(useLazyBlocking);
-	addBoolOption(useAnywhereBlocking);
-#undef addBoolOption
 }
 
 /// prerpare Nominal Reasoner to a new job
@@ -256,7 +225,7 @@ DlSatTester :: insertToDoEntry ( DlCompletionTree* node, const ConceptWDep& C,
 
 	setUsed(C.bp());
 
-	if ( useActiveSignature )
+	if ( useActiveSignature() )
 		if ( updateActiveSignature ( tBox.SplitRules.getEntity(C.bp()), C.getDep() ) )
 			return true;
 

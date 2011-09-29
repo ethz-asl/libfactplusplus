@@ -399,7 +399,7 @@ bool DlSatTester :: processOrEntry ( void )
 	}
 
 	// if semantic branching is in use -- add previous entries to the label
-	if ( useSemanticBranching )
+	if ( useSemanticBranching() )
 		for ( ; p < p_end; ++p )
 			if ( addToDoEntry ( curNode, ConceptWDep(inverse(*p),dep), "sb" ) )
 				fpp_unreachable();	// Both Exists and Clash are errors
@@ -748,7 +748,7 @@ DlCompletionTreeArc* DlSatTester :: createOneNeighbour ( const TRole* R, const D
 bool DlSatTester :: isCurNodeBlocked ( void )
 {
 	// for non-lazy blocking blocked status is correct
-	if ( !useLazyBlocking )
+	if ( !useLazyBlocking() )
 		return curNode->isBlocked();
 
 	// update node's blocked status
@@ -1512,7 +1512,7 @@ bool DlSatTester :: checkProjection ( DlCompletionTreeArc* pA, BipolarPointer C,
 bool
 DlSatTester :: commonTacticBodySplit ( const DLVertex& cur )
 {
-	if ( duringClassification && likely ( ActiveSplits.count(getValue(curConcept.bp())) == 0 ) )
+	if ( tBox.duringClassification && likely ( ActiveSplits.count(getValue(curConcept.bp())) == 0 ) )
 		return false;
 
 	const DepSet& dep = curConcept.getDep();

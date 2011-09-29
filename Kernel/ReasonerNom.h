@@ -75,8 +75,8 @@ protected:	// methods
 
 public:
 		/// c'tor
-	NominalReasoner ( TBox& tbox, const ifOptionSet* Options )
-		: DlSatTester(tbox,Options)
+	NominalReasoner ( TBox& tbox )
+		: DlSatTester(tbox)
 	{
 		initNominalVector();
 	}
@@ -94,16 +94,12 @@ public:
 inline void
 TBox :: initReasoner ( void )
 {
-	if ( stdReasoner == NULL )	// 1st action
+	fpp_assert ( !reasonersInited() );	// do init only once
+	stdReasoner = new DlSatTester(*this);
+
+	if ( NCFeatures.hasSingletons() )
 	{
-		fpp_assert ( nomReasoner == NULL );
-
-		stdReasoner = new DlSatTester ( *this, pOptions );
-
-		if ( NCFeatures.hasSingletons() )
-		{
-			nomReasoner = new NominalReasoner ( *this, pOptions );
-		}
+		nomReasoner = new NominalReasoner(*this);
 	}
 }
 

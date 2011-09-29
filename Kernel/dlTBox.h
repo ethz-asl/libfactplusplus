@@ -146,6 +146,11 @@ protected:	// members
 	DlSatTester* stdReasoner;
 		/// reasoner for TBox-related queries with nominals
 	DlSatTester* nomReasoner;
+		/// use this macro to do the same action with all available reasoners
+#	define REASONERS_DO(ACT) do {	\
+		nomReasoner->ACT;			\
+		stdReasoner->ACT; } while(0)
+
 		/// progress monitor
 	TProgressMonitor* pMonitor;
 
@@ -240,9 +245,24 @@ protected:	// members
 		/// single SAT/SUB test timeout in milliseconds
 	unsigned long testTimeout;
 
-	/////////////////////////////////////////////////////
+	//---------------------------------------------------------------------------
+	// Reasoner's members: there are many reasoner classes, some members are shared
+	//---------------------------------------------------------------------------
+
+		/// flag for switching semantic branching
+	bool useSemanticBranching;
+		/// flag for switching backjumping
+	bool useBackjumping;
+		/// whether or not check blocking status as late as possible
+	bool useLazyBlocking;
+		/// flag for switching between Anywhere and Ancestor blockings
+	bool useAnywhereBlocking;
+		/// let reasoner know that we are in the classificaton (for splits)
+	bool duringClassification;
+
+	//---------------------------------------------------------------------------
 	// Flags section
-	/////////////////////////////////////////////////////
+	//---------------------------------------------------------------------------
 		/// flag for full/short KB
 	bool useRelevantOnly;
 		/// flag for creating taxonomy
@@ -621,6 +641,8 @@ protected:	// methods
 //--		internal reasoner-related interface
 //-----------------------------------------------------------------------------
 
+		/// @return true iff reasoners were initialised
+	bool reasonersInited ( void ) const { return stdReasoner != NULL; }
 		/// get RW reasoner wrt nominal case
 	DlSatTester* getReasoner ( void )
 	{
@@ -1029,6 +1051,13 @@ public:
 			Fairness.push_back(fc);
 			// make an axiom: C [= FC
 			addSubsumeAxiom ( *beg, getTree(fc) );
+		}
+		// in presence of fairness constraints use ancestor blocking
+		if ( useAnywhereBlocking && hasFC() )
+		{
+			useAnywhereBlocking = false;
+			if ( LLM.isWritable(llAlways) )
+				LL << "\nFairness constraints: set useAnywhereBlocking = 0";
 		}
 	}
 

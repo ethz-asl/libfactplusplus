@@ -316,19 +316,6 @@ protected:	// members
 		/// contains clash set if clash is encountered in a node label
 	DepSet clashSet;
 
-		/// flag for switching semantic branching
-	bool useSemanticBranching;
-		/// flag for switching backjumping
-	bool useBackjumping;
-		/// whether or not check blocking status as late as possible
-	bool useLazyBlocking;
-		/// flag for switching between Anywhere and Ancestor blockings
-	bool useAnywhereBlocking;
-		/// flag for using active signature
-	bool useActiveSignature;
-		/// let reasoner know that we are in the classificaton (for splits)
-	bool duringClassification;
-
 	// session status flags:
 
 		/// true if nominal-related expansion rule was fired during reasoning
@@ -351,8 +338,18 @@ protected:	// methods
 #	define incStat(stat)
 #endif
 
+	//-----------------------------------------------------------------------------
+	// flags section
+	//-----------------------------------------------------------------------------
+
 		/// @return timeout value for a single SAT/Sub test in milliseconds; 0 means no timeout
 	unsigned long getSatTimeout ( void ) const { return tBox.testTimeout; }
+		/// @return true iff semantic branching is used
+	bool useSemanticBranching ( void ) const { return tBox.useSemanticBranching; }
+		/// @return true iff lazy blocking is used
+	bool useLazyBlocking ( void ) const { return tBox.useLazyBlocking; }
+		/// @return true iff active signature is in use
+	bool useActiveSignature ( void ) const { return !tBox.getSplits()->empty(); }
 
 		/// reset all session flags
 	void resetSessionFlags ( void );
@@ -458,9 +455,6 @@ protected:	// methods
 			tBox.SplitRules.ensureDagSize(dagSize);
 		}
 	}
-
-		/// init some flags using an external option set
-	void readConfig ( const ifOptionSet* Options );
 
 //-----------------------------------------------------------------------------
 //--		internal cache support
@@ -912,7 +906,7 @@ public:		// blocking support
 
 public:
 		/// c'tor
-	DlSatTester ( TBox& tbox, const ifOptionSet* Options );
+	DlSatTester ( TBox& tbox );
 		/// d'tor
 	virtual ~DlSatTester ( void ) {}
 
@@ -930,8 +924,6 @@ public:
 
 		/// set blocking method for a session
 	void setBlockingMethod ( bool hasInverse, bool hasQCR ) { CGraph.setBlockingMethod ( hasInverse, hasQCR ); }
-		/// set the in-classification flag
-	void setDuringClassification ( bool value ) { duringClassification = value; }
 
 		/// build cache entry for given DAG node, using cascaded schema; @return cache
 	const modelCacheInterface* createCache ( BipolarPointer p );
@@ -1087,7 +1079,7 @@ inline bool DlSatTester :: straightforwardRestore ( void )
 
 inline bool DlSatTester :: tunedRestore ( void )
 {
-	if ( useBackjumping )
+	if ( tBox.useBackjumping )
 		return backJumpedRestore ();
 	else
 		return straightforwardRestore ();

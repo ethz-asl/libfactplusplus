@@ -381,9 +381,7 @@ void TBox :: createTaxonomy ( bool needIndividual )
 		pTax->setProgressIndicator(pMonitor);
 	}
 
-	stdReasoner->setDuringClassification(true);
-	if ( nomReasoner != NULL )
-		nomReasoner->setDuringClassification(true);
+	duringClassification = true;
 
 //	sort ( arrayCD.begin(), arrayCD.end(), TSDepthCompare() );
 	classifyConcepts ( arrayCD, true, "completely defined" );
@@ -392,9 +390,7 @@ void TBox :: createTaxonomy ( bool needIndividual )
 //	sort ( arrayNP.begin(), arrayNP.end(), TSDepthCompare() );
 	classifyConcepts ( arrayNP, false, "non-primitive" );
 
-	stdReasoner->setDuringClassification(false);
-	if ( nomReasoner != NULL )
-		nomReasoner->setDuringClassification(false);
+	duringClassification = false;
 
 	pTax->processSplits();
 
