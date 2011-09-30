@@ -28,6 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "tDLExpression.h"
 #include "tNamedEntry.h"
 #include "tSplitVars.h"
+#include "DepSet.h"
 
 class DLDag;
 
@@ -41,6 +42,8 @@ protected:	// types
 	public:		// typedefs
 			/// set of signature elements
 		typedef std::set<const TNamedEntity*> SigSet;
+			/// map from entities to dep-sets
+		typedef std::map<const TNamedEntity*, DepSet> SigDeps;
 	protected:	// members
 			/// signature of equivalent part of the split
 		SigSet eqSig;
@@ -91,6 +94,22 @@ protected:	// types
 		BipolarPointer bp ( void ) const { return bpSplit; }
 			/// check whether signatures of a rule are related to current signature in such a way that allows rule to fire
 		bool canFire ( const SigSet& CurrentSig ) const { return containsIn ( eqSig, CurrentSig ) && intersectsWith ( impSig, CurrentSig ); }
+			/// calculates dep-set for a rule that can fire, write it to DEP.
+		void fireDep ( const SigSet& CurrentSig, const SigDeps& SigDep, DepSet& dep ) const
+		{
+			SigSet::const_iterator p, p_end;
+			// eqSig is contained in current, so need all
+			for ( p = eqSig.begin(), p_end = eqSig.end(); p != p_end; ++p )
+				dep += SigDep.at(*p);
+			// impSig has partial intersect with current; 1st common entity is fine
+			for ( p = impSig.begin(), p_end = impSig.end(); p != p_end; ++p )
+				if ( CurrentSig.count(*p) != 0 )
+				{
+					dep += SigDep.at(*p);
+					return;
+				}
+		}
+
 	}; // TSplitRule
 
 		/// base typedef
@@ -105,6 +124,8 @@ public:		// type interface
 	typedef TSplitRule::SigSet SigSet;
 		/// RO iterator
 	typedef BaseType::const_iterator const_iterator;
+		/// map from entities to dep-sets
+	typedef TSplitRule::SigDeps SigDeps;
 
 protected:	// members
 		/// all known rules

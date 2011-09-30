@@ -167,34 +167,6 @@ bool DlSatTester :: commonTacticBodyId ( const DLVertex& cur )
 	return addToDoEntry ( curNode, C, dep );
 }
 
-bool
-DlSatTester :: updateActiveSignature1 ( const TNamedEntity* entity, const DepSet& dep  )
-{
-	ActiveSignature.insert(entity);
-	// check whether some of the split rules require unsplitting
-	for ( TSplitRules::const_iterator p = tBox.SplitRules.begin(), p_end = tBox.SplitRules.end(); p != p_end; ++p )
-	{
-		BipolarPointer bp = p->bp() - 1; 	// p->bp points to Choose(C) node, p->bp-1 -- to the split node
-		if ( likely ( ActiveSplits.count(bp) == 0 ) && p->canFire(ActiveSignature) )
-		{
-			ActiveSplits.insert(bp);
-			switchResult ( addSessionGCI ( bp+1, dep ) );
-			// make sure that all existing splits will be re-applied
-			updateName(bp);
-		}
-	}
-
-	return false;
-}
-
-/// check whether any split rules should be run and do it. @return true iff clash was found
-bool
-DlSatTester :: checkSplitRules ( void )
-{
-	// stub for now
-	return false;
-}
-
 /// @return true if the rule is applicable; set the dep-set accordingly
 bool
 DlSatTester :: applicable ( const TBox::TSimpleRule& rule )
@@ -1458,7 +1430,7 @@ bool DlSatTester :: commonTacticBodyProj ( const TRole* R, BipolarPointer C, con
 	if ( curNode->isLabelledBy(inverse(C)) )
 		return false;
 
-	// FIXME!! checkProjection() might change curNode's edge vector and thusly invalidate iterators
+	// checkProjection() might change curNode's edge vector and thusly invalidate iterators
 	DlCompletionTree::const_edge_iterator p = curNode->begin(), p_end = curNode->end();
 
 	for ( int i = 0, n = p_end - p; i < n; ++i )

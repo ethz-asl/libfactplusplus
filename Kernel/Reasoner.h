@@ -247,6 +247,8 @@ protected:	// members
 	unsigned int tryLevel;
 		/// shift in order to determine the 1st non-det application
 	unsigned int nonDetShift;
+		/// last level when split rules were applied
+	unsigned int splitRuleLevel;
 
 	// statistic elements
 
@@ -304,7 +306,9 @@ protected:	// members
 		/// set of active splits
 	std::set<BipolarPointer> ActiveSplits;
 		/// concept signature of current CGraph
-	TSplitRules::SigSet ActiveSignature;
+	TSplitRules::SigSet SessionSignature;
+		/// signature to dep-set map for current session
+	TSplitRules::SigDeps SessionSigDepSet;
 
 		/// size of the DAG with some extra space
 	size_t dagSize;
@@ -368,17 +372,34 @@ protected:	// methods
 
 	// split rules support
 
+		/// apply split rule RULE to a reasoner. @return true if clash was found
+	bool applySplitRule ( TSplitRules::const_iterator rule );
 		/// check whether any split rules should be run and do it. @return true iff clash was found
 	bool checkSplitRules ( void );
-		/// update active signature wrt given new non-null entity
-	bool updateActiveSignature1 ( const TNamedEntity* entity, const DepSet& dep );
-		/// update active signature wrt given entity
-	bool updateActiveSignature ( const TNamedEntity* entity, const DepSet& dep )
+		/// add entity->dep to a session structures
+	void updateSessionSignature ( const TNamedEntity* entity, const DepSet& dep )
 	{
-		if ( likely ( entity == NULL ) ||			// not a named one
-			 ActiveSignature.count(entity) > 0 )	// already exists
-			return false;
-		return updateActiveSignature1 ( entity, dep );
+		if ( unlikely ( entity != NULL ) )
+		{
+			SessionSignature.insert(entity);
+			SessionSigDepSet[entity].add(dep);
+		}
+	}
+		/// update session signature with all names from a given node
+	void updateSignatureByNode ( DlCompletionTree* node)
+	{
+		const CGLabel& lab = node->label();
+		for ( CGLabel::const_iterator p = lab.begin_sc(), p_end = lab.end_sc(); p != p_end; ++p )
+			updateSessionSignature ( tBox.SplitRules.getEntity(p->bp()), p->getDep() );
+	}
+		/// update session signature for all non-data nodes
+	void updateSessionSignature ( void )
+	{
+		unsigned int n = 0;
+		DlCompletionTree* node = NULL;
+		while ( (node = CGraph.getNode(n++)) != NULL )
+			if ( !node->isDataNode() )
+				updateSignatureByNode(node);
 	}
 
 		/// put TODO entry for either BP or inverse(BP) in NODE's label
@@ -963,6 +984,7 @@ inline void DlSatTester :: resetSessionFlags ( void )
 
 	encounterNominal = false;
 	checkDataNode = true;
+	splitRuleLevel = 0;
 }
 
 inline bool

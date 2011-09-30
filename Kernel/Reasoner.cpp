@@ -70,8 +70,6 @@ DlSatTester :: prepareReasoner ( void )
 	pUsed.clear();
 	nUsed.clear();
 	SessionGCIs.clear();
-	ActiveSplits.clear();
-	ActiveSignature.clear();
 
 	curNode = NULL;
 	bContext = NULL;
@@ -224,10 +222,6 @@ DlSatTester :: insertToDoEntry ( DlCompletionTree* node, const ConceptWDep& C,
 	CGraph.addConceptToNode ( node, C, tag );
 
 	setUsed(C.bp());
-
-	if ( useActiveSignature() )
-		if ( updateActiveSignature ( tBox.SplitRules.getEntity(C.bp()), C.getDep() ) )
-			return true;
 
 	if ( node->isCached() )
 		return correctCachedEntry(node);
@@ -472,8 +466,9 @@ bool DlSatTester :: checkSatisfiability ( void )
 		{
 			if ( TODO.empty() )	// no applicable rules
 			{	// do run-once things
-				if ( performAfterReasoning() )
-					return false;
+				if ( performAfterReasoning() )	// clash found
+					if ( tunedRestore() )	// no more alternatives
+						return false;
 				// if nothing added -- that's it
 				if ( TODO.empty() )
 					return true;
@@ -525,7 +520,16 @@ DlSatTester :: performAfterReasoning ( void )
 	// check if any split expansion rule could be fired
 	if ( !tBox.getSplits()->empty() )
 	{
-		if ( checkSplitRules() )
+		if ( LLM.isWritable(llGTA) )
+		{
+			logIndentation();
+			LL << "[*split:";
+		}
+		bool clash = checkSplitRules();
+		if ( LLM.isWritable(llGTA) )
+			LL << "]";
+
+		if ( clash )
 			return true;
 		if ( !TODO.empty() )
 			return false;
@@ -550,6 +554,49 @@ DlSatTester :: performAfterReasoning ( void )
 			return false;
 	}
 #endif
+
+	return false;
+}
+
+//-----------------------------------------------------------------------------
+//			split code implementation
+//-----------------------------------------------------------------------------
+
+/// apply split rule RULE to a reasoner. @return true if clash was found
+bool
+DlSatTester :: applySplitRule ( TSplitRules::const_iterator rule )
+{
+	DepSet dep;
+	rule->fireDep ( SessionSignature, SessionSigDepSet, dep );
+	BipolarPointer bp = rule->bp() - 1; 	// p->bp points to Choose(C) node, p->bp-1 -- to the split node
+	// split became active
+	ActiveSplits.insert(bp);
+	// add corresponding choose to all
+	if ( addSessionGCI ( bp+1, dep ) )
+		return true;
+	// make sure that all existing splits will be re-applied
+	updateName(bp);
+	return false;
+}
+
+/// check whether any split rules should be run and do it. @return true iff clash was found
+bool
+DlSatTester :: checkSplitRules ( void )
+{
+	if ( splitRuleLevel == 0 )	// 1st application OR return was made before previous set
+	{
+		ActiveSplits.clear();
+		SessionSignature.clear();
+		SessionSigDepSet.clear();
+		splitRuleLevel = getCurLevel();
+	}
+	// fills in session signature for current CGraph. combine dep-sets for the same entities
+	updateSessionSignature();
+	// now for every split expansion rule check whether it can be fired
+	for ( TSplitRules::const_iterator p = tBox.SplitRules.begin(), p_end = tBox.SplitRules.end(); p != p_end; ++p )
+		if ( likely ( ActiveSplits.count(p->bp()-1) == 0 ) && p->canFire(SessionSignature) )
+			if ( applySplitRule(p) )	// p->bp points to Choose(C) node, p->bp-1 -- to the split node
+				return true;
 
 	return false;
 }
@@ -607,6 +654,10 @@ void DlSatTester :: restore ( unsigned int newTryLevel )
 
 	// skip all intermediate restorings
 	setCurLevel(newTryLevel);
+
+	// update split level
+	if ( getCurLevel() < splitRuleLevel )
+		splitRuleLevel = 0;
 
 	// restore local
 	bContext = Stack.top(getCurLevel());
