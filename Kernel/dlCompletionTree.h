@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2010 by Dmitry Tsarkov
+Copyright (C) 2003-2011 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -520,9 +520,14 @@ public:		// methods
 		fpp_assert ( isDBlocked() );
 		if ( Blocker->isLabelledBy(c) )
 			return true;
+		int n = 1;	// Blocker is the 1st node in the loop
 		for ( DlCompletionTree* p = getParentNode(); p->hasParent() && p != Blocker; p = p->getParentNode() )
 			if ( p->isLabelledBy(c) )
 				return true;
+			else
+				++n;
+		if ( LLM.isWritable(llGTA) )
+			LL << " loop(" << n << ")";
 		return false;
 	}
 

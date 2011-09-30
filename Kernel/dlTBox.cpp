@@ -433,6 +433,14 @@ void TBox :: readConfig ( const ifOptionSet* Options )
 
 	PriorityMatrix.initPriorities ( Options->getText("IAOEFLG"), "IAOEFLG" );
 
+#ifdef RKG_USE_FAIRNESS
+	nSkipBeforeBlock = Options->getInt("skipBeforeBlock");
+	if ( LLM.isWritable(llAlways) )
+		LL << "Init nSkipBeforeBlock = " << nSkipBeforeBlock << "\n";
+#else
+	nSkipBeforeBlock = 0;
+#endif
+
 	verboseOutput = false;
 #undef addBoolOption
 }

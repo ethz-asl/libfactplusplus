@@ -259,6 +259,8 @@ protected:	// members
 	bool useAnywhereBlocking;
 		/// let reasoner know that we are in the classificaton (for splits)
 	bool duringClassification;
+		/// how many nodes skip before block; work only with FAIRNESS
+	int nSkipBeforeBlock;
 
 	//---------------------------------------------------------------------------
 	// Flags section
@@ -1045,13 +1047,19 @@ public:
 	void setFairnessConstraint ( ea_iterator beg, ea_iterator end )
 	{
 		for ( ; beg < end; ++beg )
-		{
-			// build a flag for a FC
-			TConcept* fc = getAuxConcept();
-			Fairness.push_back(fc);
-			// make an axiom: C [= FC
-			addSubsumeAxiom ( *beg, getTree(fc) );
-		}
+			if ( isName(*beg) )
+			{
+				Fairness.push_back(getCI(*beg));
+				deleteTree(*beg);
+			}
+			else
+			{
+				// build a flag for a FC
+				TConcept* fc = getAuxConcept();
+				Fairness.push_back(fc);
+				// make an axiom: FC = C
+				addEqualityAxiom ( getTree(fc), *beg );
+			}
 		// in presence of fairness constraints use ancestor blocking
 		if ( useAnywhereBlocking && hasFC() )
 		{

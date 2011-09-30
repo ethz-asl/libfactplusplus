@@ -48,7 +48,7 @@ DlSatTester :: DlSatTester ( TBox& tbox )
 	, dagSize(0)
 {
 	// init static part of CTree
-	CGraph.initContext ( tBox.useLazyBlocking, tBox.useAnywhereBlocking );
+	CGraph.initContext ( tBox.nSkipBeforeBlock, tBox.useLazyBlocking, tBox.useAnywhereBlocking );
 	// init datatype reasoner
 	tBox.getDataTypeCenter().initDataTypeReasoner(DTReasoner);
 	// init set of reflexive roles
@@ -539,16 +539,19 @@ DlSatTester :: performAfterReasoning ( void )
 	// check fairness constraints
 	if ( tBox.hasFC() )
 	{
-		// reactive fairness: for every given FC, if it is violated, reject current model
+		DlCompletionTree* violator = NULL;
+		// for every given FC, if it is violated, reject current model
 		for ( TBox::ConceptVector::const_iterator p = tBox.Fairness.begin(), p_end = tBox.Fairness.end(); p < p_end; ++p )
-			if ( CGraph.isFCViolated((*p)->pName) )
+		{
+			violator = CGraph.getFCViolator((*p)->pName);
+			if ( violator )
 			{
 				nFairnessViolations.inc();
-				if ( straightforwardRestore() )	// no more branching alternatives
+				// try to fix violators
+				if ( addToDoEntry ( violator, (*p)->pName, getCurDepSet(), "fair" ) )
 					return true;
-				else
-					break;
 			}
+		}
 
 		if ( !TODO.empty() )
 			return false;

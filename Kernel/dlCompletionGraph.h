@@ -107,6 +107,8 @@ protected:	// members
 
 	// flags
 
+		/// how many nodes skip before block; work only with FAIRNESS
+	int nSkipBeforeBlock;
 		/// use or not lazy blocking (ie test blocking only expanding exists)
 	bool useLazyBlocking;
 		/// whether to use Anywhere blocking as opposed to an ancestor one
@@ -286,8 +288,9 @@ public:		// interface
 	// flag setting
 
 		/// set flags for blocking
-	void initContext ( bool useLB, bool useAB )
+	void initContext ( int nSkip, bool useLB, bool useAB )
 	{
+		nSkipBeforeBlock = nSkip;
 		useLazyBlocking = useLB;
 		useAnywhereBlocking = useAB;
 	}
@@ -373,12 +376,12 @@ public:		// interface
 	// fairness support
 
 		/// @ return true if a fairness constraint C is violated in one of the loops in the CGraph
-	bool isFCViolated ( BipolarPointer C ) const
+	DlCompletionTree* getFCViolator ( BipolarPointer C ) const
 	{
 		for ( const_iterator p = begin(), p_end = end(); p < p_end; ++p )
 			if ( (*p)->isDBlocked() && !(*p)->isLoopLabelled(C) )
-				return true;
-		return false;
+				return const_cast<DlCompletionTree*>((*p)->Blocker);
+		return NULL;
 	}
 
 		/// clear all the session statistics

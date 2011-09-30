@@ -798,6 +798,15 @@ bool ReasoningKernel :: initOptions ( void )
 		) )
 		return true;
 
+	// register "skipBeforeBlock" option (28/02/2009)
+	if ( KernelOptions.RegisterOption (
+		"skipBeforeBlock",
+		"Internal use only. Option 'skipBeforeBlock' allow user to skip given number of nodes before make a block.",
+		ifOption::iotInt,
+		"0"
+		) )
+		return true;
+
 	// options for Taxonomy
 
 	// register "useCompletelyDefined" option
