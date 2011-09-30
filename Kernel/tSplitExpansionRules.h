@@ -154,7 +154,7 @@ protected:	// methods
 			return NULL;
 		const TNamedEntity* ret = entry->getEntity();
 		// now keep only known signature concepts
-		return ret;//PossibleSignature.count(ret) > 0 ? ret : NULL;
+		return PossibleSignature.count(ret) > 0 ? ret : NULL;
 	}
 
 public:		// interface
