@@ -24,6 +24,10 @@ void TBox :: buildDAG ( void )
 {
 	nNominalReferences = 0;
 
+	// init concept indexing
+	nC = 1;	// start with 1 to make index 0 an indicator of "not processed"
+	ConceptMap.push_back(NULL);
+
 	// make fresh concept and datatype
 	concept2dag(pTemp);
 	DLTree* freshDT = DTCenter.getFreshDataType();
@@ -159,6 +163,8 @@ void TBox :: addConceptToHeap ( TConcept* pConcept )
 	// update concept's entry
 	pConcept->pBody = desc;
 	ver->setChild(desc);
+	if ( !pConcept->isSynonym() )
+		setConceptIndex(pConcept);
 }
 
 BipolarPointer TBox :: tree2dag ( const DLTree* t )
