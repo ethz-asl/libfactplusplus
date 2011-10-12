@@ -479,6 +479,16 @@ protected:	// methods
 //--		internal parser (input) interface
 //-----------------------------------------------------------------------------
 
+		/// set the flag that forbid usage of undefined names for concepts/roles; @return old value
+	bool setForbidUndefinedNames ( bool val )
+	{
+		if ( useUndefinedNames )	// don't do anything if the undefined names are allowed
+			return false;
+		ORM.setUndefinedNames(!val);
+		DRM.setUndefinedNames(!val);
+		Individuals.setLocked(val);
+		return Concepts.setLocked(val);
+	}
 		/// tries to apply axiom D [= CN; @return true if applicable
 	bool applyAxiomCToCN ( DLTree* D, DLTree*& CN );
 		/// tries to apply axiom CN [= D; @return true if applicable
@@ -980,19 +990,9 @@ public:
 	TConcept* replaceForall ( DLTree* RC );
 
 //-----------------------------------------------------------------------------
-//--		public parser (input) interface
+//--		public input axiom interface
 //-----------------------------------------------------------------------------
 
-		/// set the flag that forbid usage of undefined names for concepts/roles; @return old value
-	bool setForbidUndefinedNames ( bool val )
-	{
-		if ( useUndefinedNames )	// don't do anything if the undefined names are allowed
-			return false;
-		ORM.setUndefinedNames(!val);
-		DRM.setUndefinedNames(!val);
-		Individuals.setLocked(val);
-		return Concepts.setLocked(val);
-	}
 		/// register individual relation <a,b>:R
 	void RegisterIndividualRelation ( TNamedEntry* a, TNamedEntry* R, TNamedEntry* b )
 	{
@@ -1041,6 +1041,8 @@ public:
 	void processSame ( ea_iterator beg, ea_iterator end );
 	void processDifferent ( ea_iterator beg, ea_iterator end );
 
+		/// let TBox know that the whole ontology is loaded
+	void finishLoading ( void ) { setForbidUndefinedNames(true); }
 		/// @return true if KB contains fairness constraints
 	bool hasFC ( void ) const { return !Fairness.empty(); }
 		/// add concept expression C as a fairness constraint

@@ -387,6 +387,7 @@ public:		// interface
 			fillSplit(*q);
 
 		kb.getTaxonomy()->setSplitVars(&ontology.Splits);
+		kb.finishLoading();
 	}
 }; // TOntologyLoader
 

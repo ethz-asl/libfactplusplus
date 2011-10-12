@@ -102,7 +102,9 @@ TConcept* TBox :: getAuxConcept ( DLTree* desc )
 {
 	std::stringstream name;
 	name << " aux" << ++auxConceptID;
+	bool old = setForbidUndefinedNames(false);
 	TConcept* C = getConcept(name.str());
+	setForbidUndefinedNames(old);
 	C->setSystem();
 	C->setNonClassifiable();
 	C->setPrimitive();
@@ -167,9 +169,6 @@ void TBox :: prepareReasoning ( void )
 
 	// init reasoner (if not exist)
 	initReasoner();
-
-	// disallow to add new names into DL
-	setForbidUndefinedNames(true);
 
 	// check if it is necessary to dump relevant part TBox
 	if ( dumpQuery )
