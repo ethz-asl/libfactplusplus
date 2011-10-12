@@ -81,7 +81,7 @@ public:		// interface
 		/// set LOCKED value to a VAL; @return old value of LOCKED
 	bool setLocked ( bool val ) { bool old = locked; locked = val; return old; }
 		/// set FRESH value to a VAL; @return the old value
-	bool setAllowFresh ( bool val ) { bool old = allowFresh; allowFresh = val; return val; }
+	bool setAllowFresh ( bool val ) { bool old = allowFresh; allowFresh = val; return old; }
 
 	// add/remove elements
 

@@ -277,8 +277,6 @@ protected:	// members
 	bool alwaysPreferEquals;
 		/// shall verbose output be used
 	bool verboseOutput;
-		/// allow reasoner to use undefined names in queries
-	bool useUndefinedNames;
 		/// whether we use sorted reasoning; depends on some simplifications
 	bool useSortedReasoning;
 		/// flag whether TBox is GALEN-like
@@ -482,8 +480,6 @@ protected:	// methods
 		/// set the flag that forbid usage of undefined names for concepts/roles; @return old value
 	bool setForbidUndefinedNames ( bool val )
 	{
-		if ( useUndefinedNames )	// don't do anything if the undefined names are allowed
-			return false;
 		ORM.setUndefinedNames(!val);
 		DRM.setUndefinedNames(!val);
 		Individuals.setLocked(val);
@@ -927,7 +923,7 @@ public:
 		/// set the value of a test timeout in milliseconds to VALUE
 	void setTestTimeout ( unsigned long value ) { testTimeout = value; }
 		/// (dis-)allow reasoner to use the undefined names in queries
-	void setUseUndefinedNames ( bool value ) { useUndefinedNames = value; }
+	void setUseUndefinedNames ( bool value ) { Concepts.setAllowFresh(value); }
 
 //-----------------------------------------------------------------------------
 //--		public parser ensure* interface
