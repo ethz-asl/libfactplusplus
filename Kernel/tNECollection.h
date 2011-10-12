@@ -49,6 +49,8 @@ protected:	// members
 	std::string TypeName;
 		/// flag to lock the nameset (ie, prohibit to add new names there)
 	bool locked;
+		/// if true, allow fresh entities even when locked. treat them as System in this case
+	bool allowFresh;
 
 protected:	// methods
 		/// virtual method for additional tuning of newly created element
@@ -67,6 +69,7 @@ public:		// interface
 	TNECollection ( const std::string& name )
 		: TypeName(name)
 		, locked(false)
+		, allowFresh(false)
 		{ Base.push_back(NULL); }
 		/// empty d'tor: all elements will be deleted in other place
 	virtual ~TNECollection ( void ) {}
@@ -77,6 +80,8 @@ public:		// interface
 	bool isLocked ( void ) const { return locked; }
 		/// set LOCKED value to a VAL; @return old value of LOCKED
 	bool setLocked ( bool val ) { bool old = locked; locked = val; return old; }
+		/// set FRESH value to a VAL; @return the old value
+	bool setAllowFresh ( bool val ) { bool old = allowFresh; allowFresh = val; return val; }
 
 	// add/remove elements
 
@@ -92,11 +97,16 @@ public:		// interface
 			return p;
 
 		// check if it is possible to insert name
-		if ( isLocked() )
+		if ( isLocked() && !allowFresh )
 			throw EFPPCantRegName ( name, TypeName );
 
-		// register name in name set, and register it
-		return registerElem(NameSet.add(name));
+		// create name in name set, and register it
+		p = registerElem(NameSet.add(name));
+
+		// if fresh entity -- mark it System
+		if ( isLocked() )
+			p->setSystem();
+		return p;
 	}
 		/// remove given entry from the collection; @return true iff it was NOT the last entry.
 	bool Remove ( T* p )
