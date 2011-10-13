@@ -248,8 +248,12 @@ DlSatTester :: canBeCached ( DlCompletionTree* node )
 	bool shallow = true;
 	unsigned int size = 0;
 
+	// check whether node cache is allowed
+	if ( unlikely(!tBox.useNodeCache) )
+		return false;
+
 	// nominal nodes can not be cached
-	if ( node->isNominalNode() )
+	if ( unlikely(node->isNominalNode()) )
 		return false;
 
 	incStat(nCacheTry);

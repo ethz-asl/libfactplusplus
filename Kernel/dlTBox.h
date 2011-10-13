@@ -257,6 +257,8 @@ protected:	// members
 	bool useLazyBlocking;
 		/// flag for switching between Anywhere and Ancestor blockings
 	bool useAnywhereBlocking;
+		/// flag to use caching during completion tree construction
+	bool useNodeCache;
 		/// let reasoner know that we are in the classificaton (for splits)
 	bool duringClassification;
 		/// how many nodes skip before block; work only with FAIRNESS
@@ -924,6 +926,8 @@ public:
 	void setTestTimeout ( unsigned long value ) { testTimeout = value; }
 		/// (dis-)allow reasoner to use the undefined names in queries
 	void setUseUndefinedNames ( bool value ) { Concepts.setAllowFresh(value); }
+		/// set flag to use node cache to value VAL
+	void setUseNodeCache ( bool val ) { useNodeCache = val; }
 
 //-----------------------------------------------------------------------------
 //--		public parser ensure* interface
