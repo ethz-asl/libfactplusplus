@@ -20,6 +20,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "logging.h"
 #include "tDataEntry.h"
+#include "tConcept.h"
 
 DLDag :: DLDag ( const ifOptionSet* Options )
 	: indexAnd(*this)
@@ -41,21 +42,25 @@ DLDag :: ~DLDag ( void )
 }
 
 void
-DLDag :: removeAfter ( size_t n )
+DLDag :: removeAfter ( size_t n, TNECollection<TConcept>& Concepts  )
 {
 	fpp_assert ( n < size() );
-	for ( HeapType::iterator p = Heap.begin()+n, p_end = Heap.end(); p < p_end; ++p )
+	for ( size_t i = size()-1; i >= n; --i )
 	{
-		// make sure data elements can be reused
-		switch ( (*p)->Type() )
+		DLVertex* v = Heap[i];
+		switch ( v->Type() )
 		{
 		case dtData:
-			static_cast<TDataEntry*>((*p)->getConcept())->setBP(bpINVALID);
+			static_cast<TDataEntry*>(v->getConcept())->setBP(bpINVALID);
+			break;
+		case dtConcept:
+			if ( Concepts.Remove(dynamic_cast<TConcept*>(v->getConcept())) )
+				fpp_unreachable();	// can't remove non-last concept
 			break;
 		default:
 			break;
 		}
-		delete *p;
+		delete v;
 	}
 	Heap.resize (n);
 }

@@ -29,6 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ifOptions.h"
 #include "tRole.h"
 #include "ConceptWithDep.h"
+#include "tNECollection.h"
 
 class RoleMaster;
 class TConcept;
@@ -245,7 +246,7 @@ public:		// interface
 		/// get approximation of the size after query is added
 	size_t maxSize ( void ) const { return size() + ( size() < 220 ? 10 : size()/20 ); }
 		/// resize DAG to a given number (for clearing intermediate/deleting temp)
-	void removeAfter ( size_t n );
+	void removeAfter ( size_t n, TNECollection<TConcept>& Concepts );
 
 	// option interface
 

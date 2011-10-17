@@ -450,12 +450,11 @@ TBox :: removeConcept ( TConcept* p )
 {
 	fpp_assert ( p == defConcept);
 
-	// clear DAG and name indeces (if necessary)
+	// clear DAG and name indices (if necessary)
 	if ( isCorrect(p->pName) )
-		DLHeap.removeAfter(p->pName);
-
-	if ( Concepts.Remove(p) )
-		fpp_unreachable();	// can't remove non-last concept
+		DLHeap.removeAfter(p->pName,Concepts);
+	else
+		fpp_unreachable();
 }
 
 void
