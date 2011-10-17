@@ -28,6 +28,10 @@ class TLISPExpressionPrinter: public DLExpressionVisitor
 protected:	// members
 		/// main stream
 	std::ostream& o;
+		/// define str-str map
+	typedef std::map<std::string, std::string> SSMap;
+		/// map between OWL datatype names and FaCT++ ones
+	SSMap DTNames;
 		/// helper class for brackets
 	class BR
 	{
@@ -45,13 +49,33 @@ protected:	// methods
 		for ( typename TDLNAryExpression<Argument>::iterator p = expr.begin(), p_end = expr.end(); p != p_end; ++p )
 			(*p)->accept(*this);
 	}
+		/// datatype helper to get a LISP datatype name by a OWL one
+	const char* getDTName ( const char* owlName ) const
+	{
+		SSMap::const_iterator p = DTNames.find(owlName);
+		if ( p != DTNames.end() )	// known name
+			return p->second.c_str();
+		return owlName;
+	}
 
 #define THROW_UNSUPPORTED(name) \
 	throw EFaCTPlusPlus("Unsupported expression '" name "' in LISP printer")
 
 public:		// interface
 		/// init c'tor
-	TLISPExpressionPrinter ( std::ostream& o_ ) : o(o_) {}
+	TLISPExpressionPrinter ( std::ostream& o_ ) : o(o_)
+	{
+		DTNames["http://www.w3.org/1999/02/22-rdf-syntax-ns#PlainLiteral"] = "string";
+		DTNames["http://www.w3.org/2001/XMLSchema#string"] = "string";
+		DTNames["http://www.w3.org/2001/XMLSchema#anyURI"] = "string";
+
+		DTNames["http://www.w3.org/2001/XMLSchema#integer"] = "number";
+		DTNames["http://www.w3.org/2001/XMLSchema#int"] = "number";
+
+		DTNames["http://www.w3.org/2001/XMLSchema#float"] = "real";
+		DTNames["http://www.w3.org/2001/XMLSchema#double"] = "real";
+		DTNames["http://www.w3.org/2001/XMLSchema#real"] = "real";
+	}
 		/// empty d'tor
 	virtual ~TLISPExpressionPrinter ( void ) {}
 
@@ -118,7 +142,7 @@ public:		// visitor interface
 		// no need to use a type of a restriction here, as all contains in constants
 	virtual void visit ( const TDLDataTypeRestriction& expr ) { BR b(o,"and"); printArray(expr); }
 	virtual void visit ( const TDLDataValue& expr )
-		{ o << " (" << getBasicDataType(const_cast<TDLDataTypeExpression*>(expr.getExpr()))->getName() << " " << expr.getName() << ")"; }
+		{ o << " (" << getDTName(getBasicDataType(const_cast<TDLDataTypeExpression*>(expr.getExpr()))->getName()) << " " << expr.getName() << ")"; }
 	virtual void visit ( const TDLDataNot& expr ) { BR b(o,"not"); expr.getExpr()->accept(*this); }
 	virtual void visit ( const TDLDataAnd& expr ) { BR b(o,"and"); printArray(expr); }
 	virtual void visit ( const TDLDataOr& expr ) { BR b(o,"or"); printArray(expr); }
