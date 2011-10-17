@@ -105,19 +105,24 @@ public:		// interface
 
 		// if fresh entity -- mark it System
 		if ( isLocked() )
+		{
 			p->setSystem();
+			if ( dynamic_cast<ClassifiableEntry*>(p) != NULL )
+				dynamic_cast<ClassifiableEntry*>(p)->setNonClassifiable();
+		}
 		return p;
 	}
 		/// remove given entry from the collection; @return true iff it was NOT the last entry.
 	bool Remove ( T* p )
 	{
-		if ( !isRegistered(p->getName()) )
-			return true;
-		// check if the entry is the last entry
-		if ( Base.size() - p->getId() != 1 )
-			return true;
-
-		Base.resize(p->getId());
+		if ( !isRegistered(p->getName()) )	// not in a name-set: just delete it
+		{
+			delete p;
+			return false;
+		}
+		// we might delete vars in order (6,7), so the resize should be done to 6
+		if ( Base.size() > p->getId() )
+			Base.resize(p->getId());
 		NameSet.remove(p->getName());
 		return false;
 	}
