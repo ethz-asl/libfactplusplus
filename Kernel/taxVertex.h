@@ -117,10 +117,11 @@ public:		// flags interface
 		/// mark vertex as the one corresponding to a given ENTRY
 	void setHostVertex ( const ClassifiableEntry* entry ) { const_cast<ClassifiableEntry*>(entry)->setTaxVertex(this); }
 		/// set sample to ENTRY
-	void setSample ( const ClassifiableEntry* entry )
+	void setSample ( const ClassifiableEntry* entry, bool linkBack = true )
 	{
 		sample = entry;
-		setHostVertex(entry);
+		if ( likely(linkBack) )
+			setHostVertex(entry);
 	}
 
 public:

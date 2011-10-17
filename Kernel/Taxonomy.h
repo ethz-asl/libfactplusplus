@@ -107,8 +107,10 @@ protected:	// members
 
 		/// labellers for marking taxonomy
 	TLabeller checkLabel, valueLabel;
-		/// aux. vertex to be included to taxonomy
+		/// aux vertex to be included to taxonomy
 	TaxonomyVertex* Current;
+		/// vertex with parent Top and child Bot, represents the fresh entity
+	TaxonomyVertex FreshNode;
 		/// pointer to currently classified entry
 	const ClassifiableEntry* curEntry;
 
@@ -303,6 +305,9 @@ public:		// interface
 	{
 		Graph.push_back (new TaxonomyVertex(pBottom));	// bottom
 		Graph.push_back (new TaxonomyVertex(pTop));		// top
+		// set up fresh node
+		FreshNode.addNeighbour ( /*upDirection=*/true, getTopVertex() );
+		FreshNode.addNeighbour ( /*upDirection=*/false, getBottomVertex() );
 	}
 		/// d'tor
 	virtual ~Taxonomy ( void );
@@ -329,6 +334,8 @@ public:		// interface
 	TaxonomyVertex* getTopVertex ( void ) const { return *itop(); }
 		/// special access to BOTTOM of taxonomy
 	TaxonomyVertex* getBottomVertex ( void ) const { return *ibottom(); }
+		/// get node for fresh entity E
+	TaxonomyVertex* getFreshVertex ( const ClassifiableEntry* e ) { FreshNode.setSample(e,false); return &FreshNode; }
 
 		/// apply ACTOR to subgraph starting from NODE as defined by flags;
 	template<bool needCurrent, bool onlyDirect, bool upDirection>

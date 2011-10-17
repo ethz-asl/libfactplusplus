@@ -232,6 +232,7 @@ ReasoningKernel :: setUpCache ( DLTree* query, cacheStatus level )
 needSetup:
 	// clean cached info
 	cachedVertex = NULL;
+	cacheLevel = level;
 
 	// check if concept-to-cache is defined in ontology
 	if ( isCN (query) )
@@ -247,12 +248,12 @@ needSetup:
 			throw EFaCTPlusPlus("FaCT++ Kernel: incremental classification not supported");
 		}
 
-		cacheLevel = level;
-
 		if ( level == csClassified )	// need to set the pointers
 		{
 			classifyKB();
 			cachedVertex = cachedConcept->getTaxVertex();
+			if ( unlikely(cachedVertex == NULL) )	// fresh concept
+				cachedVertex = getCTaxonomy()->getFreshVertex(cachedConcept);
 		}
 		return;
 	}
@@ -261,7 +262,6 @@ needSetup:
 
 	// case of complex query
 	cachedConcept = getTBox()->createQueryConcept(query);
-	cacheLevel = level;
 
 needClassify:	// classification only needed for complex expression
 
