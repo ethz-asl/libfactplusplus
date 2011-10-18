@@ -121,7 +121,7 @@ public:		// interface
 			return false;
 		}
 		// we might delete vars in order (6,7), so the resize should be done to 6
-		if ( Base.size() > p->getId() )
+		if ( p->getId() > 0 && Base.size() > (size_t)p->getId() )
 			Base.resize(p->getId());
 		NameSet.remove(p->getName());
 		return false;
