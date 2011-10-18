@@ -1181,6 +1181,9 @@ public:
 		/// fills cache entry for given concept; SUB means that the concept is on the right side of a subsumption test
 	const modelCacheInterface* initCache ( const TConcept* pConcept, bool sub = false );
 
+		/// build a completion tree for a concept C (no caching as it breaks the idea of KE). @return the root node
+	const DlCompletionTree* buildCompletionTree ( const TConcept* C );
+
 		/// test if 2 concept non-subsumption can be determined by cache merging
 	enum modelCacheState testCachedNonSubsumption ( const TConcept* p, const TConcept* q );
 		/// test if 2 concept non-subsumption can be determined by sorts checking

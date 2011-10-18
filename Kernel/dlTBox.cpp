@@ -525,6 +525,23 @@ TBox :: classifyQueryConcept ( void )
 	pTax->classifyEntry (defConcept);
 }
 
+/// knowledge exploration: build a model and return a link to the root
+const DlCompletionTree*
+TBox :: buildCompletionTree ( const TConcept* pConcept )
+{
+	const DlCompletionTree* ret = NULL;
+	// perform reasoning with a proper logical features
+	prepareFeatures ( pConcept, NULL );
+	// turn off caching of CT nodes during reasoning
+	setUseNodeCache(false);
+	// do the SAT test, save the CT if satisfiable
+	if ( getReasoner()->runSat ( pConcept->resolveId() ) )
+		ret = getReasoner()->getRootNode();
+	// turn on caching of CT nodes during reasoning
+	setUseNodeCache(true);
+	clearFeatures();
+	return ret;
+}
 
 /// dump QUERY processing time, reasoning statistics and a (preprocessed) TBox
 void

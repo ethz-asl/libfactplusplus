@@ -265,9 +265,6 @@ protected:	// methods
 		/// @return true iff C is satisfiable
 	bool checkSat ( DLTree* C )
 	{
-		if ( isCN(C) )
-			return getTBox()->isSatisfiable(getTBox()->getCI(TreeDeleter(C)));
-
 		setUpCache ( C, csSat );
 		return getTBox()->isSatisfiable(cachedConcept);
 	}
@@ -1138,8 +1135,13 @@ public:
 	// knowledge exploration queries
 	//----------------------------------------------------------------------------------
 
-		/// get the root node of the last classified query
-	const CGObjectNode* getRootNode ( void ) const { return getTBox()->getReasoner()->getRootNode(); }
+		/// build a completion tree for a concept expression C (no caching as it breaks the idea of KE). @return the root node
+	const CGObjectNode* buildCompletionTree ( const TConceptExpr* C )
+	{
+		preprocessKB();
+		setUpCache ( e(C), csSat );
+		return getTBox()->buildCompletionTree(cachedConcept);
+	}
 		/// build the set of data neighbours of a NODE, put the set into the RESULT variable
 	void getDataNeighbours ( const CGObjectNode* node, std::vector<CGDataLink>& Result );
 		/// build the set of object neighbours of a NODE; incoming edges are counted iff NEEDINCOMING is true
