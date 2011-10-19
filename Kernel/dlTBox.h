@@ -1136,6 +1136,8 @@ public:
 
 		/// create (and DAG-ify) query concept via its definition
 	TConcept* createQueryConcept ( const DLTree* query );
+		/// preprocess query concept: put description into DAG
+	void preprocessQueryConcept ( TConcept* query );
 		/// classify query concept
 	void classifyQueryConcept ( void );
 		/// delete all query-related stuff

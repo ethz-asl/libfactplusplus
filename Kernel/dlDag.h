@@ -248,7 +248,7 @@ public:		// interface
 		/// get approximation of the size after query is added
 	size_t maxSize ( void ) const { return size() + ( size() < 220 ? 10 : size()/20 ); }
 		/// set the final DAG size
-	void setFinalSize ( void ) { finalDagSize = size(); }
+	void setFinalSize ( void ) { finalDagSize = size(); setExpressionCache(false); }
 		/// resize DAG to its original size (for clearing intermediate/deleting temp)
 	void removeQuery ( TNECollection<TConcept>& Concepts );
 

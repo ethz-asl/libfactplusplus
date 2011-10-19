@@ -471,12 +471,18 @@ TBox :: createQueryConcept ( const DLTree* desc )
 	defConcept->setSystem();
 	defConcept->setIndex(nC-1);
 
+	return defConcept;
+}
+
+/// preprocess query concept: put description into DAG
+void
+TBox :: preprocessQueryConcept ( TConcept* query )
+{
 	// build DAG entries for the default concept
-	DLHeap.setExpressionCache(false);
-	addConceptToHeap ( defConcept );
+	addConceptToHeap(query);
 
 	// gather statistics about the concept
-	setConceptRelevant(defConcept);
+	setConceptRelevant(query);
 
 	// DEBUG_ONLY: print the DAG info
 //	std::ofstream debugPrint ( defConceptName, std::ios::app|std::ios::out );
@@ -484,9 +490,7 @@ TBox :: createQueryConcept ( const DLTree* desc )
 //	debugPrint << std::endl;
 
 	// check satisfiability of the concept
-	initCache ( defConcept );
-
-	return defConcept;
+	initCache(query);
 }
 
 /// classify query concept

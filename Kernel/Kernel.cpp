@@ -234,14 +234,14 @@ ReasoningKernel :: setUpCache ( DLTree* query, cacheStatus level )
 
 	// check if concept-to-cache is defined in ontology
 	if ( isCN(cachedQuery) )
-	{
 		cachedConcept = getTBox()->getCI(cachedQuery);
-		fpp_assert ( cachedConcept != NULL );
-	}
 	else	// case of complex query
 		cachedConcept = getTBox()->createQueryConcept(cachedQuery);
 
-	// we are preprocessed here
+	fpp_assert ( cachedConcept != NULL );
+	// preprocess concept is necessary (fresh concept in query or complex one)
+	if ( !isValid(cachedConcept->pName) )
+		getTBox()->preprocessQueryConcept(cachedConcept);
 
 needClassify:	// classification only needed for complex expression
 
