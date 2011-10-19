@@ -45,13 +45,15 @@ protected:	// members
 	std::vector<TDLAxiom*> Module;
 
 protected:	// methods
+		/// update SIG wrt the axiom signature
+	void addAxiomSig ( TDLAxiom* axiom ) { axiom->accept(Updater); }
 		/// add an axiom to a module
 	void addAxiomToModule ( TDLAxiom* axiom )
 	{
 		axiom->setInModule(true);
 		Module.push_back(axiom);
 		// update the signature
-		axiom->accept(Updater);
+		addAxiomSig(axiom);
 	}
 		/// mark the ontology O such that all the marked axioms creates the module wrt SIG
 	void extractModule ( iterator begin, iterator end )
@@ -94,7 +96,7 @@ public:
 		if ( type != M_STAR )
 			return;
 
-		// here there is a star: do the cycle until stabilizastion
+		// here there is a star: do the cycle until stabilization
 		size_t size;
 		std::vector<TDLAxiom*> oldModule;
 		do

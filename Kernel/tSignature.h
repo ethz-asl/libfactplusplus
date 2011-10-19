@@ -56,6 +56,10 @@ public:		// interface
 
 		/// add pointer to named object to signature
 	void add ( const TNamedEntity* p ) { Set.insert(p); }
+		/// add set of named entities to signature
+	void add ( const BaseType& aSet ) { Set.insert ( aSet.begin(), aSet.end() ); }
+		/// add another signature to a given one
+	void add ( const TSignature& Sig ) { add(Sig.Set); }
 		/// remove given element from a signature
 	void remove ( const TNamedEntity* p ) { Set.erase(p); }
 		/// set new locality polarity
