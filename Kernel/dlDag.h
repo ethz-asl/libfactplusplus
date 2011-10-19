@@ -48,9 +48,11 @@ protected:	// members
 	HeapType Heap;
 		/// all the AND nodes (needs to recompute)
 	StatVector listAnds;
-		/// hash-table for verteces (and, all, LE) fast search
+		/// hash-table for vertices (and, all, LE) fast search
 	HashTable indexAnd, indexAll, indexLE;
 
+		/// DAG size after the whole ontology is loaded
+	size_t finalDagSize;
 		/// cache efficiency -- statistic purposes
 	unsigned int nCacheHits;
 
@@ -245,8 +247,10 @@ public:		// interface
 	size_t size ( void ) const { return Heap.size (); }
 		/// get approximation of the size after query is added
 	size_t maxSize ( void ) const { return size() + ( size() < 220 ? 10 : size()/20 ); }
-		/// resize DAG to a given number (for clearing intermediate/deleting temp)
-	void removeAfter ( size_t n, TNECollection<TConcept>& Concepts );
+		/// set the final DAG size
+	void setFinalSize ( void ) { finalDagSize = size(); }
+		/// resize DAG to its original size (for clearing intermediate/deleting temp)
+	void removeQuery ( TNECollection<TConcept>& Concepts );
 
 	// option interface
 

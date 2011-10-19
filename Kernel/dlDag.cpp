@@ -26,6 +26,7 @@ DLDag :: DLDag ( const ifOptionSet* Options )
 	: indexAnd(*this)
 	, indexAll(*this)
 	, indexLE(*this)
+	, finalDagSize(0)
 	, nCacheHits(0)
 	, useDLVCache(true)
 {
@@ -42,10 +43,9 @@ DLDag :: ~DLDag ( void )
 }
 
 void
-DLDag :: removeAfter ( size_t n, TNECollection<TConcept>& Concepts  )
+DLDag :: removeQuery ( TNECollection<TConcept>& Concepts )
 {
-	fpp_assert ( n < size() );
-	for ( size_t i = size()-1; i >= n; --i )
+	for ( size_t i = size()-1; i >= finalDagSize; --i )
 	{
 		DLVertex* v = Heap[i];
 		switch ( v->Type() )
@@ -62,7 +62,7 @@ DLDag :: removeAfter ( size_t n, TNECollection<TConcept>& Concepts  )
 		}
 		delete v;
 	}
-	Heap.resize (n);
+	Heap.resize(finalDagSize);
 }
 
 void DLDag :: readConfig ( const ifOptionSet* Options )

@@ -210,7 +210,7 @@ ReasoningKernel :: setUpCache ( DLTree* query, cacheStatus level )
 	fpp_assert ( !Ontology.isChanged() );
 
 	// check if the query is already cached
-	if ( cachedQuery && equalTrees ( cachedQuery, query ) )
+	if ( equalTrees ( cachedQuery, query ) )
 	{	// ... with the same level -- nothing to do
 		deleteTree(query);
 		if ( level <= cacheLevel )
@@ -218,56 +218,46 @@ ReasoningKernel :: setUpCache ( DLTree* query, cacheStatus level )
 		else
 		{	// concept was defined but not classified yet
 			fpp_assert ( level == csClassified && cacheLevel != csClassified );
-			if ( cacheLevel == csEmpty )
-				goto needSetup;
-			else
+			if ( cacheLevel == csSat )	// already check satisfiability
 				goto needClassify;
 		}
 	}
+	else
+	{	// change current query
+		deleteTree(cachedQuery);
+		cachedQuery = query;
+	}
 
-	// change current query
-	deleteTree(cachedQuery);
-	cachedQuery = query;
-
-needSetup:
 	// clean cached info
 	cachedVertex = NULL;
 	cacheLevel = level;
 
 	// check if concept-to-cache is defined in ontology
-	if ( isCN (query) )
+	if ( isCN(cachedQuery) )
 	{
-		cachedConcept = getTBox()->getCI(query);
-
-		// undefined/non-classified concept -- need to reclassify
-		if ( cachedConcept == NULL )
-		{
-			// invalidate cache
-			cacheLevel = csEmpty;
-			// FIXME!! reclassification
-			throw EFaCTPlusPlus("FaCT++ Kernel: incremental classification not supported");
-		}
-
-		if ( level == csClassified )	// need to set the pointers
-		{
-			classifyKB();
-			cachedVertex = cachedConcept->getTaxVertex();
-			if ( unlikely(cachedVertex == NULL) )	// fresh concept
-				cachedVertex = getCTaxonomy()->getFreshVertex(cachedConcept);
-		}
-		return;
+		cachedConcept = getTBox()->getCI(cachedQuery);
+		fpp_assert ( cachedConcept != NULL );
 	}
+	else	// case of complex query
+		cachedConcept = getTBox()->createQueryConcept(cachedQuery);
 
 	// we are preprocessed here
 
-	// case of complex query
-	cachedConcept = getTBox()->createQueryConcept(query);
-
 needClassify:	// classification only needed for complex expression
 
-	if ( level == csClassified )
+	if ( level != csClassified )
+		return;
+
+	classifyKB();
+
+	if ( isCN(cachedQuery) )
 	{
-		classifyKB();
+		cachedVertex = cachedConcept->getTaxVertex();
+		if ( unlikely(cachedVertex == NULL) )	// fresh concept
+			cachedVertex = getCTaxonomy()->getFreshVertex(cachedConcept);
+	}
+	else
+	{
 		getTBox()->classifyQueryConcept();
 		// cached concept now have to be classified
 		fpp_assert ( cachedConcept->isClassified() );

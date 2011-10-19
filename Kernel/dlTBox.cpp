@@ -87,9 +87,9 @@ TBox :: ~TBox ( void )
 	delete pBottom;
 	delete pTemp;
 
-	// right now -- to delete the appropriate tax-vertex; TODO: clear all newly introduced ones
+	// delete the appropriate tax-vertex;
 	if ( defConcept != NULL )
-		removeConcept(defConcept);
+		clearQueryConcept();
 
 	// remove aux structures
 	delete stdReasoner;
@@ -442,25 +442,6 @@ void TBox :: readConfig ( const ifOptionSet* Options )
 
 	verboseOutput = false;
 #undef addBoolOption
-}
-
-/// remove concept from TBox by given EXTERNAL id. WARNING!! tested only for TempConcept!!!
-void
-TBox :: removeConcept ( TConcept* p )
-{
-	fpp_assert ( p == defConcept);
-
-	// clear DAG and name indices (if necessary)
-	if ( isCorrect(p->pName) )
-		DLHeap.removeAfter(p->pName,Concepts);
-	else
-		fpp_unreachable();
-}
-
-void
-TBox :: clearQueryConcept ( void )
-{
-	removeConcept(defConcept);
 }
 
 /// create (and DAG-ify) query concept via its definition

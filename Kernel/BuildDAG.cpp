@@ -83,6 +83,9 @@ void TBox :: buildDAG ( void )
 		if ( nInd > 100 && nNominalReferences > nInd )
 			isLikeWINE = true;
 	}
+
+	// here DAG is complete; set its final size
+	DLHeap.setFinalSize();
 }
 
 void TBox :: initRangeDomain ( RoleMaster& RM )

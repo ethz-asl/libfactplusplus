@@ -403,9 +403,6 @@ protected:	// methods
 		p->initToldSubsumers();
 	}
 
-		/// remove concept from TBox by given EXTERNAL id. WARNING!! tested only for TempConcept!!!
-	void removeConcept ( TConcept* p );
-
 //-----------------------------------------------------------------------------
 //--		support for n-ary predicates
 //-----------------------------------------------------------------------------
@@ -1142,7 +1139,7 @@ public:
 		/// classify query concept
 	void classifyQueryConcept ( void );
 		/// delete all query-related stuff
-	void clearQueryConcept ( void );
+	void clearQueryConcept ( void ) { DLHeap.removeQuery(Concepts); }
 
 //-----------------------------------------------------------------------------
 //--		public reasoning interface

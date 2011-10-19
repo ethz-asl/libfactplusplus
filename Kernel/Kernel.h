@@ -381,8 +381,6 @@ protected:	// methods
 		pET = NULL;
 		delete D2I;
 		D2I = NULL;
-		deleteTree(cachedQuery);
-		cachedQuery = NULL;
 	}
 
 		/// get RW access to Object RoleMaster from TBox
