@@ -342,6 +342,13 @@ void TBox :: createTaxonomy ( bool needIndividual )
 {
 	bool needConcept = !needIndividual;
 
+	// if there were SAT queries before -- the query concept is in there. Delete it
+	if ( unlikely(defConcept != NULL) )
+	{
+		clearQueryConcept();
+		defConcept = NULL;
+	}
+
 	// here we sure that ontology is consistent
 	// FIXME!! distinguish later between the 1st run and the following runs
 	DLHeap.setSubOrder();	// init priorities in order to do subsumption tests
