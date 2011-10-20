@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2006-2010 by Dmitry Tsarkov
+Copyright (C) 2006-2011 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -51,8 +51,8 @@ public:
 		if ( iC == 0 )
 			Throw ( env, "Can't get method isCancelled" );
 	}
-		/// d'tor: allow JRE to delete object. Protege4 uses reasoner as a monitor, which leads to problems.
-	virtual ~JNIProgressMonitor ( void ) { /*env->DeleteGlobalRef(javaMonitor);*/ }
+		/// d'tor: allow JRE to delete object
+	virtual ~JNIProgressMonitor ( void ) { env->DeleteGlobalRef(javaMonitor); }
 
 		/// informs about beginning of classification with number of concepts to be classified
 	virtual void setClassificationStarted ( unsigned int nConcepts )
