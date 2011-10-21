@@ -263,6 +263,7 @@ public class FaCTPlusPlusReasoner implements OWLReasoner,
 		if (millis == Long.MAX_VALUE)
 			millis = 0;
 		kernel.setOperationTimeout(millis);
+		kernel.setFreshEntityPolicy(configuration.getFreshEntityPolicy() == FreshEntityPolicy.ALLOW);
 		loadReasonerAxioms();
 	}
 

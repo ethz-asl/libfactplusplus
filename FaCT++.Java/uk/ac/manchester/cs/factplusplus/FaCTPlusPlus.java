@@ -528,6 +528,8 @@ public class FaCTPlusPlus {
     // sets single operation timeout in milliseconds
     public native void setOperationTimeout(long millis);
 
+    // sets single operation timeout in milliseconds
+    public native void setFreshEntityPolicy(boolean allowFresh);
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
     //

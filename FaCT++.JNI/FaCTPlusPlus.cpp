@@ -2101,6 +2101,18 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_setOpe
 	getK(env,obj)->setOperationTimeout(delay > 0 ? static_cast<unsigned long>(delay) : 0);
 }
 
+/*
+ * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
+ * Method:    setFreshEntityPolicy
+ * Signature: (Z)V
+ */
+JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_setFreshEntityPolicy
+  (JNIEnv * env, jobject obj, jboolean value)
+{
+	TRACE_JNI("setFreshEntityPolicy");
+	getK(env,obj)->setUseUndefinedNames(value);
+}
+
 //-------------------------------------------------------------
 // Aux methods for lists of concepts/roles/individuals
 //-------------------------------------------------------------
