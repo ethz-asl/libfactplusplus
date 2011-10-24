@@ -13,10 +13,6 @@ include Makefile.include
 kernel:
 	make -C Kernel
 
-.PHONY: digparser
-digparser: kernel
-	make -C DIGParser
-
 .PHONY: fpp_lisp
 fpp_lisp: kernel
 	make -C FaCT++
@@ -24,12 +20,4 @@ fpp_lisp: kernel
 .PHONY: fpp_jni
 fpp_jni: kernel
 	make -C FaCT++.JNI
-
-.PHONY: fpp_dig
-fpp_dig: digparser
-	make -C FaCT++.DIG
-
-.PHONY: fpp_server
-fpp_server: digparser
-	make -C FaCT++.Server
 
