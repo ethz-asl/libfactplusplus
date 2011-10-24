@@ -138,7 +138,7 @@ public:		// visitor interface
 	// data expressions
 	virtual void visit ( const TDLDataTop& expr ATTR_UNUSED ) { o << " *TOP*"; }
 	virtual void visit ( const TDLDataBottom& expr ATTR_UNUSED ) { o << " *BOTTOM*"; }
-	virtual void visit ( const TDLDataTypeName& expr ) { o << " (" << expr.getName() << ")"; }
+	virtual void visit ( const TDLDataTypeName& expr ) { o << " (" << getDTName(expr.getName()) << ")"; }
 		// no need to use a type of a restriction here, as all contains in constants
 	virtual void visit ( const TDLDataTypeRestriction& expr ) { BR b(o,"and"); printArray(expr); }
 	virtual void visit ( const TDLDataValue& expr )
