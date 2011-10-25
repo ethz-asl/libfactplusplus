@@ -500,7 +500,7 @@ void
 ReasoningKernel :: getSupConcepts ( const TConceptExpr* C, bool direct, Actor* actor )
 {
 	classifyKB();	// ensure KB is ready to answer the query
-	setUpCache ( e(C), csClassified );
+	setUpCache ( C, csClassified );
 	Taxonomy* tax = getCTaxonomy();
 	if ( direct )
 		tax->getRelativesInfo</*needCurrent=*/false, /*onlyDirect=*/true, /*upDirection=*/true> ( cachedVertex, actor );
@@ -512,7 +512,7 @@ void
 ReasoningKernel :: getSubConcepts ( const TConceptExpr* C, bool direct, Actor* actor )
 {
 	classifyKB();	// ensure KB is ready to answer the query
-	setUpCache ( e(C), csClassified );
+	setUpCache ( C, csClassified );
 	Taxonomy* tax = getCTaxonomy();
 	if ( direct )
 		tax->getRelativesInfo</*needCurrent=*/false, /*onlyDirect=*/true, /*upDirection=*/false> ( cachedVertex, actor );
@@ -524,7 +524,7 @@ void
 ReasoningKernel :: getEquivalentConcepts ( const TConceptExpr* C, Actor* actor )
 {
 	classifyKB();	// ensure KB is ready to answer the query
-	setUpCache ( e(C), csClassified );
+	setUpCache ( C, csClassified );
 	actor->apply(*cachedVertex);
 }
 /// apply actor::apply() to all named concepts disjoint with [complex] C
@@ -532,7 +532,7 @@ void
 ReasoningKernel :: getDisjointConcepts ( const TConceptExpr* C, Actor* actor )
 {
 	classifyKB();	// ensure KB is ready to answer the query
-	setUpCache ( createSNFNot(e(C)), csClassified );
+	setUpCache ( getExpressionManager()->Not(C), csClassified );
 	Taxonomy* tax = getCTaxonomy();
 	// we are looking for all sub-concepts of (not C) (including synonyms to it)
 	tax->getRelativesInfo</*needCurrent=*/true, /*onlyDirect=*/false, /*upDirection=*/false> ( cachedVertex, actor );
@@ -601,7 +601,7 @@ void
 ReasoningKernel :: getDirectInstances ( const TConceptExpr* C, Actor* actor )
 {
 	realiseKB();	// ensure KB is ready to answer the query
-	setUpCache ( e(C), csClassified );
+	setUpCache ( C, csClassified );
 
 	// implement 1-level check by hand
 
@@ -621,7 +621,7 @@ void
 ReasoningKernel :: getInstances ( const TConceptExpr* C, Actor* actor )
 {	// FIXME!! check for Racer's/IS approach
 	realiseKB();	// ensure KB is ready to answer the query
-	setUpCache ( e(C), csClassified );
+	setUpCache ( C, csClassified );
 	Taxonomy* tax = getCTaxonomy();
 	tax->getRelativesInfo</*needCurrent=*/true, /*onlyDirect=*/false, /*upDirection=*/false> ( cachedVertex, actor );
 }
@@ -631,7 +631,7 @@ void
 ReasoningKernel :: getTypes ( const TIndividualExpr* I, bool direct, Actor* actor )
 {
 	realiseKB();	// ensure KB is ready to answer the query
-	setUpCache ( e(I), csClassified );
+	setUpCache ( getExpressionManager()->OneOf(I), csClassified );
 	Taxonomy* tax = getCTaxonomy();
 	if ( direct )
 		tax->getRelativesInfo</*needCurrent=*/true, /*onlyDirect=*/true, /*upDirection=*/true> ( cachedVertex, actor );

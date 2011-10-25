@@ -240,6 +240,8 @@ protected:	// methods
 	}
 		/// set up cache for query, performing additional (re-)classification if necessary
 	void setUpCache ( DLTree* query, cacheStatus level );
+		/// set up cache for query, performing additional (re-)classification if necessary
+	void setUpCache ( TConceptExpr* query, cacheStatus level ) { setUpCache(e(query),level); }
 		/// clear cache and flags
 	void initCacheAndFlags ( void )
 	{
@@ -964,7 +966,7 @@ public:
 	void getSupConcepts ( const TConceptExpr* C, bool direct, Actor& actor )
 	{
 		classifyKB();	// ensure KB is ready to answer the query
-		setUpCache ( e(C), csClassified );
+		setUpCache ( C, csClassified );
 		Taxonomy* tax = getCTaxonomy();
 		if ( direct )
 			tax->getRelativesInfo</*needCurrent=*/false, /*onlyDirect=*/true, /*upDirection=*/true> ( cachedVertex, actor );
@@ -976,7 +978,7 @@ public:
 	void getSubConcepts ( const TConceptExpr* C, bool direct, Actor& actor )
 	{
 		classifyKB();	// ensure KB is ready to answer the query
-		setUpCache ( e(C), csClassified );
+		setUpCache ( C, csClassified );
 		Taxonomy* tax = getCTaxonomy();
 		if ( direct )
 			tax->getRelativesInfo</*needCurrent=*/false, /*onlyDirect=*/true, /*upDirection=*/false> ( cachedVertex, actor );
@@ -988,7 +990,7 @@ public:
 	void getEquivalentConcepts ( const TConceptExpr* C, Actor& actor )
 	{
 		classifyKB();	// ensure KB is ready to answer the query
-		setUpCache ( e(C), csClassified );
+		setUpCache ( C, csClassified );
 		actor.apply(*cachedVertex);
 	}
 		/// apply actor::apply() to all named concepts disjoint with [complex] C
@@ -996,7 +998,7 @@ public:
 	void getDisjointConcepts ( const TConceptExpr* C, Actor& actor )
 	{
 		classifyKB();	// ensure KB is ready to answer the query
-		setUpCache ( createSNFNot(e(C)), csClassified );
+		setUpCache ( getExpressionManager()->Not(C), csClassified );
 		Taxonomy* tax = getCTaxonomy();
 		// we are looking for all sub-concepts of (not C) (including synonyms to it)
 		tax->getRelativesInfo</*needCurrent=*/true, /*onlyDirect=*/false, /*upDirection=*/false> ( cachedVertex, actor );
@@ -1063,7 +1065,7 @@ public:
 	void getDirectInstances ( const TConceptExpr* C, Actor& actor )
 	{
 		realiseKB();	// ensure KB is ready to answer the query
-		setUpCache ( e(C), csClassified );
+		setUpCache ( C, csClassified );
 
 		// implement 1-level check by hand
 
@@ -1083,7 +1085,7 @@ public:
 	void getInstances ( const TConceptExpr* C, Actor& actor )
 	{	// FIXME!! check for Racer's/IS approach
 		realiseKB();	// ensure KB is ready to answer the query
-		setUpCache ( e(C), csClassified );
+		setUpCache ( C, csClassified );
 		Taxonomy* tax = getCTaxonomy();
 		tax->getRelativesInfo</*needCurrent=*/true, /*onlyDirect=*/false, /*upDirection=*/false> ( cachedVertex, actor );
 	}
@@ -1093,7 +1095,7 @@ public:
 	void getTypes ( const TIndividualExpr* I, bool direct, Actor& actor )
 	{
 		realiseKB();	// ensure KB is ready to answer the query
-		setUpCache ( e(I), csClassified );
+		setUpCache ( getExpressionManager()->OneOf(I), csClassified );
 		Taxonomy* tax = getCTaxonomy();
 		if ( direct )
 			tax->getRelativesInfo</*needCurrent=*/true, /*onlyDirect=*/true, /*upDirection=*/true> ( cachedVertex, actor );
@@ -1137,7 +1139,7 @@ public:
 	const CGObjectNode* buildCompletionTree ( const TConceptExpr* C )
 	{
 		preprocessKB();
-		setUpCache ( e(C), csSat );
+		setUpCache ( C, csSat );
 		return getTBox()->buildCompletionTree(cachedConcept);
 	}
 		/// build the set of data neighbours of a NODE, put the set into the RESULT variable
