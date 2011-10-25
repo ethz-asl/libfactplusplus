@@ -20,6 +20,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "dlTBox.h"
 
+//#define RKG_OFF_SPECIAL_DOMAINS
+
 void TBox :: buildDAG ( void )
 {
 	nNominalReferences = 0;
@@ -56,10 +58,12 @@ void TBox :: buildDAG ( void )
 	// build all GCIs
 	DLTree* GCI = Axioms.getGCI();
 
+#ifndef RKG_OFF_SPECIAL_DOMAINS
 	// add special domains to the GCIs
 	for ( p = ORM.begin(), p_end = ORM.end(); p < p_end; ++p )
 		if ( !(*p)->isSynonym() && (*p)->hasSpecialDomain() )
 			GCI = createSNFAnd ( GCI, clone((*p)->getTSpecialDomain()) );
+#endif
 
 	T_G = tree2dag(GCI);
 	deleteTree(GCI);
