@@ -43,7 +43,10 @@ const char *fact_get_version ()
 
 fact_reasoning_kernel *fact_reasoning_kernel_new ()
 {
-	return new fact_reasoning_kernel_st(new ReasoningKernel());
+	fact_reasoning_kernel *ret = new fact_reasoning_kernel_st(new ReasoningKernel());
+	/* need this to work properly with top/bot roles */
+	ret->p->setTopBottomRoleNames("*UROLE*","*EROLE*","*UDROLE*","*EDROLE*");
+	return ret;
 }
 void fact_reasoning_kernel_free (fact_reasoning_kernel *k)
 {

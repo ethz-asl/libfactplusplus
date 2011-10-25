@@ -12,4 +12,6 @@ USE_IL = ../Kernel
 SOURCES = \
           fact.cpp\
 
+#          test.cpp
+
 include ../Makefile.include

@@ -46,7 +46,7 @@ const char *fact_get_version ();
 fact_reasoning_kernel *fact_reasoning_kernel_new (void);
 void fact_reasoning_kernel_free (fact_reasoning_kernel *);
 
-/* * */
+/*
 ifOptionSet* getOptions (  );
 const ifOptionSet* getOptions (  );
  */
@@ -222,7 +222,7 @@ bool fact_is_same_individuals (fact_reasoning_kernel *,
 bool fact_is_instance (fact_reasoning_kernel *,
 		fact_individual_expression *i,
 		fact_concept_expression *c);
-/* * */
+/*
 void fact_get_related_roles (fact_reasoning_kernel *,
 			     fact_individual_expression *i,
 			     bool data, bool needI,

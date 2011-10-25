@@ -8,6 +8,20 @@
 #include <stdio.h>
 #include "fact.h"
 
+void print2Darray ( const char*** names )
+{
+	printf("[\n");
+	int n,m;
+	for ( const char** syns = names[n=0]; syns != NULL; syns=names[++n] )
+	{
+		printf("[");
+		for ( const char* name = syns[m=0]; name != NULL; name=syns[++m] )
+			printf("%s ", name);
+		printf("]\n");
+	}
+	printf("]\n");
+}
+
 int main ( void )
 {
 	// create kernel
@@ -35,17 +49,14 @@ int main ( void )
 	// create a concept actor and use it to get all superclasses of D
 	fact_actor* actor = fact_concept_actor_new();
 	fact_get_sup_concepts(k,c,false,&actor);
-	const char*** names = fact_get_elements_2d(actor);
-	printf("[\n");
-	int n,m;
-	for ( const char** syns = names[n=0]; syns != NULL; syns=names[++n] )
-	{
-		printf("[");
-		for ( const char* name = syns[m=0]; name != NULL; name=syns[++m] )
-			printf("%s ", name);
-		printf("]\n");
-	}
-	printf("]\n");
+	print2Darray(fact_get_elements_2d(actor));
+	fact_actor_free(actor);
+
+	// get all the properties
+	fact_o_role_expression* o_top = fact_object_role_top(k);
+	actor = fact_o_role_actor_new();
+	fact_get_sub_roles(k,(fact_role_expression*)o_top,false,&actor);
+	print2Darray(fact_get_elements_2d(actor));
 	fact_actor_free(actor);
 
 	// we done so let's free memory
