@@ -1041,12 +1041,24 @@ public:
 
 	// domain and range as a set of named concepts
 
-		/// apply actor::apply() to all DIRECT NC that are in the domain of [complex] R
+		/// apply actor::apply() to all DIRECT NC that are in the domain of [complex] object role R
 	template<class Actor>
-	void getRoleDomain ( const TRoleExpr* r, bool direct, Actor& actor )
+	void getORoleDomain ( const TORoleExpr* r, bool direct, Actor& actor )
 	{
 		classifyKB();	// ensure KB is ready to answer the query
-		setUpCache ( createSNFExists ( e(r), createTop() ), csClassified );
+		setUpCache ( getExpressionManager()->Exists ( r, getExpressionManager()->Top() ), csClassified );
+		Taxonomy* tax = getCTaxonomy();
+		if ( direct )	// gets an exact domain is named concept; otherwise, set of the most specific concepts
+			tax->getRelativesInfo</*needCurrent=*/true, /*onlyDirect=*/true, /*upDirection=*/true> ( cachedVertex, actor );
+		else			// gets all named classes that are in the domain of a role
+			tax->getRelativesInfo</*needCurrent=*/true, /*onlyDirect=*/false, /*upDirection=*/true> ( cachedVertex, actor );
+	}
+		/// apply actor::apply() to all DIRECT NC that are in the domain of data role R
+	template<class Actor>
+	void getDRoleDomain ( const TDRoleExpr* r, bool direct, Actor& actor )
+	{
+		classifyKB();	// ensure KB is ready to answer the query
+		setUpCache ( getExpressionManager()->Exists ( r, getExpressionManager()->DataTop() ), csClassified );
 		Taxonomy* tax = getCTaxonomy();
 		if ( direct )	// gets an exact domain is named concept; otherwise, set of the most specific concepts
 			tax->getRelativesInfo</*needCurrent=*/true, /*onlyDirect=*/true, /*upDirection=*/true> ( cachedVertex, actor );
@@ -1056,7 +1068,7 @@ public:
 		/// apply actor::apply() to all DIRECT NC that are in the range of [complex] R
 	template<class Actor>
 	void getRoleRange ( const TORoleExpr* r, bool direct, Actor& actor )
-		{ getRoleDomain ( getExpressionManager()->Inverse(r), direct, actor ); }
+		{ getORoleDomain ( getExpressionManager()->Inverse(r), direct, actor ); }
 
 	// instances
 
@@ -1175,10 +1187,12 @@ public:
 
 	// domain and range as a set of named concepts
 
-		/// apply actor::apply() to all DIRECT NC that are in the domain of [complex] R
-	void getRoleDomain ( const TRoleExpr* r, bool direct, Actor* actor );
-		/// apply actor::apply() to all DIRECT NC that are in the range of [complex] R
-	void getRoleRange ( const TORoleExpr* r, bool direct, Actor* actor );
+		/// apply actor::apply() to all DIRECT NC that are in the domain of [complex] object role R
+	void getORoleDomain ( const TORoleExpr* r, bool direct, Actor* actor );
+		/// apply actor::apply() to all DIRECT NC that are in the domain of data role R
+	void getDRoleDomain ( const TDRoleExpr* r, bool direct, Actor* actor );
+		/// apply actor::apply() to all DIRECT NC that are in the range of [complex] object role R
+	void getRoleRange ( const TORoleExpr* r, bool direct, Actor* actor ) { getORoleDomain ( getExpressionManager()->Inverse(r), direct, actor ); }
 
 	// instances
 

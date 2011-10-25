@@ -428,10 +428,15 @@ void fact_get_equivalent_roles (fact_reasoning_kernel *k, fact_role_expression *
 {
 	k->p->getEquivalentRoles(r->p,(*actor)->p);
 }
-void fact_get_role_domain (fact_reasoning_kernel *k, fact_role_expression *r,
+void fact_get_o_role_domain (fact_reasoning_kernel *k, fact_o_role_expression *r,
 		bool direct, fact_actor **actor)
 {
-	k->p->getRoleDomain(r->p,direct,(*actor)->p);
+	k->p->getORoleDomain(r->p,direct,(*actor)->p);
+}
+void fact_get_d_role_domain (fact_reasoning_kernel *k, fact_d_role_expression *r,
+		bool direct, fact_actor **actor)
+{
+	k->p->getDRoleDomain(r->p,direct,(*actor)->p);
 }
 void fact_get_role_range (fact_reasoning_kernel *k, fact_o_role_expression *r,
 		bool direct, fact_actor **actor)

@@ -575,23 +575,30 @@ ReasoningKernel :: getEquivalentRoles ( const TRoleExpr* r, Actor* actor )
 
 // domain and range as a set of named concepts
 
-/// apply actor::apply() to all DIRECT NC that are in the domain of [complex] R
+/// apply actor::apply() to all DIRECT NC that are in the domain of [complex] object role R
 void
-ReasoningKernel :: getRoleDomain ( const TRoleExpr* r, bool direct, Actor* actor )
+ReasoningKernel :: getORoleDomain ( const TORoleExpr* r, bool direct, Actor* actor )
 {
 	classifyKB();	// ensure KB is ready to answer the query
-	setUpCache ( createSNFExists ( e(r), createTop() ), csClassified );
+	setUpCache ( getExpressionManager()->Exists ( r, getExpressionManager()->Top() ), csClassified );
 	Taxonomy* tax = getCTaxonomy();
 	if ( direct )	// gets an exact domain is named concept; otherwise, set of the most specific concepts
 		tax->getRelativesInfo</*needCurrent=*/true, /*onlyDirect=*/true, /*upDirection=*/true> ( cachedVertex, actor );
 	else			// gets all named classes that are in the domain of a role
 		tax->getRelativesInfo</*needCurrent=*/true, /*onlyDirect=*/false, /*upDirection=*/true> ( cachedVertex, actor );
 }
-/// apply actor::apply() to all DIRECT NC that are in the range of [complex] R
+
+/// apply actor::apply() to all DIRECT NC that are in the domain of [complex] object role R
 void
-ReasoningKernel :: getRoleRange ( const TORoleExpr* r, bool direct, Actor* actor )
+ReasoningKernel :: getDRoleDomain ( const TDRoleExpr* r, bool direct, Actor* actor )
 {
-	getRoleDomain ( getExpressionManager()->Inverse(r), direct, actor );
+	classifyKB();	// ensure KB is ready to answer the query
+	setUpCache ( getExpressionManager()->Exists ( r, getExpressionManager()->DataTop() ), csClassified );
+	Taxonomy* tax = getCTaxonomy();
+	if ( direct )	// gets an exact domain is named concept; otherwise, set of the most specific concepts
+		tax->getRelativesInfo</*needCurrent=*/true, /*onlyDirect=*/true, /*upDirection=*/true> ( cachedVertex, actor );
+	else			// gets all named classes that are in the domain of a role
+		tax->getRelativesInfo</*needCurrent=*/true, /*onlyDirect=*/false, /*upDirection=*/true> ( cachedVertex, actor );
 }
 
 // instances

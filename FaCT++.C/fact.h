@@ -203,7 +203,9 @@ void fact_get_sub_roles (fact_reasoning_kernel *, fact_role_expression *r,
 		bool direct, fact_actor **actor);
 void fact_get_equivalent_roles (fact_reasoning_kernel *, fact_role_expression *r,
 		fact_actor **actor);
-void fact_get_role_domain (fact_reasoning_kernel *, fact_role_expression *r,
+void fact_get_o_role_domain (fact_reasoning_kernel *, fact_o_role_expression *r,
+		bool direct, fact_actor **actor);
+void fact_get_d_role_domain (fact_reasoning_kernel *, fact_d_role_expression *r,
 		bool direct, fact_actor **actor);
 void fact_get_role_range (fact_reasoning_kernel *, fact_o_role_expression *r,
 		bool direct, fact_actor **actor);
