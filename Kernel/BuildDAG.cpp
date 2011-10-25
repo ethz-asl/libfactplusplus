@@ -285,6 +285,9 @@ BipolarPointer TBox :: atmost2dag ( unsigned int n, const TRole* R, BipolarPoint
 	if ( R->isDataRole() )
 		return dataAtMost2dag(n,R,C);
 
+	if ( unlikely ( C == bpBOTTOM ) )	// can happen as A & ~A
+		return bpTOP;
+
 	BipolarPointer ret = DLHeap.add ( new DLVertex ( dtLE, n, R, C ) );
 
 	// check if the concept is not last
