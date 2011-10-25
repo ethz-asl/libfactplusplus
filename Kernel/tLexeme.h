@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2010 by Dmitry Tsarkov
+Copyright (C) 2003-2011 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -31,13 +31,13 @@ private:	// members
 		/// pointer to information (for names)
 	union
 	{
-		TNamedEntry* pName;
+		TNamedEntry* pNE;
 		unsigned int data;
 	} value;
 
 public:		// interface
 		/// default c'tor for pointers
-	explicit TLexeme ( Token tok, TNamedEntry* p = NULL ) : token(tok) { value.pName = p; }
+	explicit TLexeme ( Token tok, TNamedEntry* p = NULL ) : token(tok) { value.pNE = p; }
 		/// default c'tor for numbers
 	TLexeme ( Token tok, unsigned int val ) : token(tok) { value.data = val; }
 		/// Copy c'tor
@@ -55,9 +55,9 @@ public:		// interface
 		/// get Token of given Lexeme
 	Token getToken ( void ) const { return token; }
 		/// get name pointer of given lexeme
-	TNamedEntry* getNE ( void ) const { return value.pName; }
+	TNamedEntry* getNE ( void ) const { return value.pNE; }
 		/// get name pointer of given lexeme
-	const char* getName ( void ) const { return value.pName->getName(); }
+	const char* getName ( void ) const { return value.pNE->getName(); }
 		/// get data value of given lexeme
 	unsigned int getData ( void ) const { return value.data; }
 
