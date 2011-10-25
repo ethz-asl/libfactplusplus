@@ -92,6 +92,17 @@ getNextName ( TsScanner& sc, ReasoningKernel& Kernel )
 	}
 }
 
+const char* getConceptName ( ReasoningKernel::TConceptExpr* C )
+{
+	if ( dynamic_cast<const TDLConceptTop*>(C) != NULL )
+		return "*TOP*";
+	if ( dynamic_cast<const TDLConceptBottom*>(C) != NULL )
+		return "*BOTTOM*";
+	if ( dynamic_cast<const TDLConceptName*>(C) != NULL )
+		return dynamic_cast<const TDLConceptName*>(C)->getName();
+	return "concept expression";
+}
+
 /// try to do a reasoning; react if exception was thrown
 #define TryReasoning(action)			\
 	do {								\
@@ -124,7 +135,7 @@ void testSat ( const std::string& names, ReasoningKernel& Kernel )
 		else
 			TryReasoning ( result = Kernel.isSatisfiable(sat) );
 
-		std::cout << "The '" << sat << "' concept is ";
+		std::cout << "The '" << getConceptName(sat) << "' concept is ";
 		if ( !result )
 			std::cout << "un";
 		std::cout << "satisfiable w.r.t. TBox\n";
@@ -145,7 +156,7 @@ void testSub ( const std::string& names1, const std::string& names2, ReasoningKe
 			bool result = false;
 			TryReasoning ( result = Kernel.isSubsumedBy ( sub, sup ) );
 
-			std::cout << "The '" << sub << " [= " << sup << "' subsumption does";
+			std::cout << "The '" << getConceptName(sub) << " [= " << getConceptName(sup) << "' subsumption does";
 			if ( !result )
 				std::cout << " NOT";
 			std::cout << " holds w.r.t. TBox\n";
