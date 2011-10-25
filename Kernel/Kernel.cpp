@@ -697,6 +697,16 @@ bool ReasoningKernel :: initOptions ( void )
 		) )
 		return true;
 
+	// register "useSpecialDomains" option (25/10/2011)
+	if ( KernelOptions.RegisterOption (
+		"useSpecialDomains",
+		"Option 'useSpecialDomains' (development) controls the special processing of R&D for non-simple roles. "
+		"Should always be set to true.",
+		ifOption::iotBool,
+		"true"
+		) )
+		return true;
+
 	// options for DLDag
 
 	// register "orSortSub" option (20/12/2004)

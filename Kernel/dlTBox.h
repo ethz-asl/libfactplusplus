@@ -265,8 +265,9 @@ protected:	// members
 	int nSkipBeforeBlock;
 
 	//---------------------------------------------------------------------------
-	// Flags section
+	// User-defined flags
 	//---------------------------------------------------------------------------
+
 		/// flag for full/short KB
 	bool useRelevantOnly;
 		/// flag for creating taxonomy
@@ -277,8 +278,15 @@ protected:	// members
 	bool needClassification;
 		/// shall we prefer C=D axioms to C[=E in definition of concepts
 	bool alwaysPreferEquals;
+		/// use special domains as GCIs
+	bool useSpecialDomains;
 		/// shall verbose output be used
 	bool verboseOutput;
+
+	//---------------------------------------------------------------------------
+	// Internally defined flags
+	//---------------------------------------------------------------------------
+
 		/// whether we use sorted reasoning; depends on some simplifications
 	bool useSortedReasoning;
 		/// flag whether TBox is GALEN-like

@@ -414,10 +414,13 @@ void TBox :: readConfig ( const ifOptionSet* Options )
 	if ( LLM.isWritable(llAlways) )			\
 		LL << "Init " #name " = " << name << "\n"
 
+	// TBox options
 	addBoolOption(useCompletelyDefined);
 	addBoolOption(useRelevantOnly);
 	addBoolOption(dumpQuery);
 	addBoolOption(alwaysPreferEquals);
+	addBoolOption(useSpecialDomains);
+	// reasoner's options
 	addBoolOption(useSemanticBranching);
 	addBoolOption(useBackjumping);
 	addBoolOption(useLazyBlocking);
