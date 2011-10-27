@@ -13,6 +13,7 @@ import javax.xml.datatype.XMLGregorianCalendar;
 import org.semanticweb.owlapi.model.*;
 import org.semanticweb.owlapi.reasoner.*;
 import org.semanticweb.owlapi.reasoner.impl.*;
+import org.semanticweb.owlapi.reasoner.knowledgeexploration.OWLKnowledgeExplorerReasoner;
 import org.semanticweb.owlapi.util.Version;
 import org.semanticweb.owlapi.vocab.OWL2Datatype;
 import org.semanticweb.owlapi.vocab.OWLFacet;
@@ -54,7 +55,7 @@ import uk.ac.manchester.cs.factplusplus.*;
  *
  */
 public class FaCTPlusPlusReasoner implements OWLReasoner,
-		OWLOntologyChangeListener {
+		OWLOntologyChangeListener, OWLKnowledgeExplorerReasoner<NodePointer> {
 	public static final String REASONER_NAME = "FaCT++";
 	public static final Version VERSION = new Version(1, 5, 2, 0);
 	protected final AtomicBoolean interrupted = new AtomicBoolean(false);
@@ -861,7 +862,7 @@ public class FaCTPlusPlusReasoner implements OWLReasoner,
 	protected synchronized DataTypePointer toDataTypePointer(
 			OWLDatatype datatype) {
 		if (datatype == null) {
-			throw new NullPointerException();
+			throw new IllegalArgumentException("datatype cannot be null");
 		}
 		String name = checkDateTime(datatype);
 
@@ -1989,5 +1990,40 @@ public class FaCTPlusPlusReasoner implements OWLReasoner,
 				dumpSubClasses(sub, pw, depth + 1, includeBottomNode);
 			}
 		}
+	}
+
+	@Override
+	public NodePointer getRoot(OWLClassExpression expression) {
+		return kernel.buildCompletionTree(toClassPointer(expression));
+	}
+
+	@Override
+	public NodeSet<? extends OWLObjectPropertyExpression> getObjectNeighbours(NodePointer object) {
+		return objectPropertyTranslator.getNodeSetFromPointers(kernel.getObjectNeighbours(object));
+	}
+
+	@Override
+	public NodeSet<OWLDataProperty> getDataNeighbours(NodePointer object) {
+		return dataPropertyTranslator.getNodeSetFromPointers(kernel.getDataNeighbours(object));
+	}
+
+	@Override
+	public Collection<NodePointer> getObjectNeighbours(OWLObjectProperty property) {
+		return Arrays.asList( kernel.getObjectNeighbours(toObjectPropertyPointer(property)));
+	}
+
+	@Override
+	public Collection<NodePointer> getDataNeighbours(OWLDataProperty property) {
+		return Arrays.asList( kernel.getDataNeighbours(toDataPropertyPointer(property)));
+	}
+
+	@Override
+	public NodeSet<? extends OWLClassExpression> getObjectLabel(NodePointer object) {
+		return classExpressionTranslator.getNodeSetFromPointers(kernel.getObjectLabel(object));
+	}
+
+	@Override
+	public NodeSet<? extends OWLDataRange> getDataLabel(NodePointer object) {
+		return dataRangeTranslator.getNodeSetFromPointers(kernel.getDataLabel(object));
 	}
 }
