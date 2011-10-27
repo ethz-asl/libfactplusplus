@@ -238,6 +238,15 @@ protected:	// methods
 		else
 			return getTBox()->getFreshConcept();
 	}
+
+	// internal query cache manipulation
+
+		/// clear query cache
+	void clearQueryCache ( void ) { deleteTree(cachedQuery); cachedQuery = NULL; }
+		/// set query cache value to QUERY
+	void setQueryCache ( DLTree* query ) { clearQueryCache(); cachedQuery = query; }
+		/// check whether query cache is the same as QUERY
+	bool checkQueryCache ( DLTree* query ) const { return equalTrees ( cachedQuery, query ); }
 		/// set up cache for query, performing additional (re-)classification if necessary
 	void setUpCache ( DLTree* query, cacheStatus level );
 		/// set up cache for query, performing additional (re-)classification if necessary
@@ -246,8 +255,7 @@ protected:	// methods
 	void initCacheAndFlags ( void )
 	{
 		cacheLevel = csEmpty;
-		deleteTree(cachedQuery);
-		cachedQuery = NULL;
+		clearQueryCache();
 		cachedConcept = NULL;
 		cachedVertex = NULL;
 		reasoningFailed = false;

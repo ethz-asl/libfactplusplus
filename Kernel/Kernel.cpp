@@ -210,7 +210,7 @@ ReasoningKernel :: setUpCache ( DLTree* query, cacheStatus level )
 	fpp_assert ( !Ontology.isChanged() );
 
 	// check if the query is already cached
-	if ( equalTrees ( cachedQuery, query ) )
+	if ( checkQueryCache(query) )
 	{	// ... with the same level -- nothing to do
 		deleteTree(query);
 		if ( level <= cacheLevel )
@@ -222,11 +222,8 @@ ReasoningKernel :: setUpCache ( DLTree* query, cacheStatus level )
 				goto needClassify;
 		}
 	}
-	else
-	{	// change current query
-		deleteTree(cachedQuery);
-		cachedQuery = query;
-	}
+	else	// change current query
+		setQueryCache(query);
 
 	// clean cached info
 	cachedVertex = NULL;
