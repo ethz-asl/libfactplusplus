@@ -278,6 +278,12 @@ protected:	// methods
 		setUpCache ( C, csSat );
 		return getTBox()->isSatisfiable(cachedConcept);
 	}
+		/// @return true iff C is satisfiable
+	bool checkSat ( const TConceptExpr* C )
+	{
+		setUpCache ( C, csSat );
+		return getTBox()->isSatisfiable(cachedConcept);
+	}
 		/// @return true iff C [= D holds
 	bool checkSub ( TConcept* C, TConcept* D )
 	{
@@ -289,13 +295,20 @@ protected:	// methods
 		try { tax->getRelativesInfo</*needCurrent=*/true, /*onlyDirect=*/false, /*upDirection=*/true> ( C->getTaxVertex(), actor ); return false; }
 		catch (...) { tax->clearCheckedLabel(); return true; }
 	}
-		/// @return true iff C [= D holds
-	bool checkSub ( DLTree* C, DLTree* D )
+		/// helper; @return true iff C is either named concept of Top/Bot
+	static bool isNameOrConst ( const TConceptExpr* C )
 	{
-		if ( isCN(C) && isCN(D) )
-			return checkSub ( getTBox()->getCI(TreeDeleter(C)), getTBox()->getCI(TreeDeleter(D)) );
+		return	likely ( dynamic_cast<const TDLConceptName*>(C) != NULL ) ||
+				unlikely ( dynamic_cast<const TDLConceptTop*>(C) != NULL ) ||
+				unlikely ( dynamic_cast<const TDLConceptBottom*>(C) != NULL );
+	}
+		/// @return true iff C [= D holds
+	bool checkSub ( const TConceptExpr* C, const TConceptExpr* D )
+	{
+		if ( isNameOrConst(D) && likely(isNameOrConst(C)) )
+			return checkSub ( getTBox()->getCI(TreeDeleter(e(C))), getTBox()->getCI(TreeDeleter(e(D))) );
 
-		return !checkSat ( createSNFAnd ( C, createSNFNot(D) ) );
+		return !checkSat ( getExpressionManager()->And ( C, getExpressionManager()->Not(D) ) );
 	}
 
 	// helper methods to query properties of roles
@@ -960,9 +973,9 @@ public:
 		}
 	}
 		/// @return true iff C [= D holds
-	bool isSubsumedBy ( const TConceptExpr* C, const TConceptExpr* D ) { preprocessKB(); return checkSub ( e(C), e(D) ); }
+	bool isSubsumedBy ( const TConceptExpr* C, const TConceptExpr* D ) { preprocessKB(); return checkSub ( C, D ); }
 		/// @return true iff C is disjoint with D; that is, C [= \not D holds
-	bool isDisjoint ( const TConceptExpr* C, const TConceptExpr* D ) { preprocessKB(); return checkSub ( e(C), createSNFNot(e(D)) ); }
+	bool isDisjoint ( const TConceptExpr* C, const TConceptExpr* D ) { preprocessKB(); return checkSub ( C, getExpressionManager()->Not(D) ); }
 		/// @return true iff C is equivalent to D
 	bool isEquivalent ( const TConceptExpr* C, const TConceptExpr* D )
 		{ preprocessKB(); return isSubsumedBy ( C, D ) && isSubsumedBy ( D, C ); }
