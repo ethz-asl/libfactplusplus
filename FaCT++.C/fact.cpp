@@ -392,76 +392,76 @@ bool fact_is_equivalent (fact_reasoning_kernel *k, fact_concept_expression *c,
 void fact_get_sup_concepts (fact_reasoning_kernel *k, fact_concept_expression *c,
 		bool direct, fact_actor **actor)
 {
-	k->p->getSupConcepts(c->p,direct,(*actor)->p);
+	k->p->getSupConcepts(c->p,direct,*(*actor)->p);
 }
 void fact_get_sub_concepts (fact_reasoning_kernel *k, fact_concept_expression *c,
 		bool direct, fact_actor **actor)
 {
-	k->p->getSubConcepts(c->p,direct,(*actor)->p);
+	k->p->getSubConcepts(c->p,direct,*(*actor)->p);
 }
 void fact_get_equivalent_concepts (fact_reasoning_kernel *k,
 		fact_concept_expression *c,
 		fact_actor **actor)
 {
-	k->p->getEquivalentConcepts(c->p,(*actor)->p);
+	k->p->getEquivalentConcepts(c->p,*(*actor)->p);
 }
 void fact_get_disjoint_concepts (fact_reasoning_kernel *k,
 		fact_concept_expression *c,
 		fact_actor **actor)
 {
-	k->p->getDisjointConcepts(c->p,(*actor)->p);
+	k->p->getDisjointConcepts(c->p,*(*actor)->p);
 }
 
 void fact_get_sup_roles (fact_reasoning_kernel *k, fact_role_expression *r,
 		bool direct,
 		fact_actor **actor)
 {
-	k->p->getSupRoles(r->p,direct,(*actor)->p);
+	k->p->getSupRoles(r->p,direct,*(*actor)->p);
 }
 void fact_get_sub_roles (fact_reasoning_kernel *k, fact_role_expression *r,
 		bool direct, fact_actor **actor)
 {
-	k->p->getSubRoles(r->p,direct,(*actor)->p);
+	k->p->getSubRoles(r->p,direct,*(*actor)->p);
 }
 void fact_get_equivalent_roles (fact_reasoning_kernel *k, fact_role_expression *r,
 		fact_actor **actor)
 {
-	k->p->getEquivalentRoles(r->p,(*actor)->p);
+	k->p->getEquivalentRoles(r->p,*(*actor)->p);
 }
 void fact_get_o_role_domain (fact_reasoning_kernel *k, fact_o_role_expression *r,
 		bool direct, fact_actor **actor)
 {
-	k->p->getORoleDomain(r->p,direct,(*actor)->p);
+	k->p->getORoleDomain(r->p,direct,*(*actor)->p);
 }
 void fact_get_d_role_domain (fact_reasoning_kernel *k, fact_d_role_expression *r,
 		bool direct, fact_actor **actor)
 {
-	k->p->getDRoleDomain(r->p,direct,(*actor)->p);
+	k->p->getDRoleDomain(r->p,direct,*(*actor)->p);
 }
 void fact_get_role_range (fact_reasoning_kernel *k, fact_o_role_expression *r,
 		bool direct, fact_actor **actor)
 {
-	k->p->getRoleRange(r->p,direct,(*actor)->p);
+	k->p->getRoleRange(r->p,direct,*(*actor)->p);
 }
 void fact_get_direct_instances (fact_reasoning_kernel *k,
 		fact_concept_expression *c, fact_actor **actor)
 {
-	k->p->getDirectInstances(c->p,(*actor)->p);
+	k->p->getDirectInstances(c->p,*(*actor)->p);
 }
 void fact_get_instances (fact_reasoning_kernel *k, fact_concept_expression *c,
 		fact_actor **actor)
 {
-	k->p->getInstances(c->p,(*actor)->p);
+	k->p->getInstances(c->p,*(*actor)->p);
 }
 void fact_get_types (fact_reasoning_kernel *k, fact_individual_expression *i,
 		bool direct, fact_actor **actor)
 {
-	k->p->getTypes(i->p,direct,(*actor)->p);
+	k->p->getTypes(i->p,direct,*(*actor)->p);
 }
 void fact_get_same_as (fact_reasoning_kernel *k,
 		fact_individual_expression *i, fact_actor **actor)
 {
-	k->p->getSameAs(i->p,(*actor)->p);
+	k->p->getSameAs(i->p,*(*actor)->p);
 }
 
 bool fact_is_same_individuals (fact_reasoning_kernel *k,
