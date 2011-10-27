@@ -22,17 +22,6 @@ package uk.ac.manchester.cs.factplusplus;
 * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-/**
- * Author: drummond<br>
- * http://www.cs.man.ac.uk/~drummond/<br><br>
- * <p/>
- * The University Of Manchester<br>
- * Bio Health Informatics Group<br>
- * Date: Mar 25, 2009<br><br>
- */
 public class AxiomPointer extends Pointer {
-    @Override
-    public String toString() {
-        return "AxiomPointer" + super.toString();
-    }
+
 }

@@ -1,6 +1,14 @@
 package uk.ac.manchester.cs.factplusplus;
 
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import org.semanticweb.owlapi.model.OWLClassExpression;
+import org.semanticweb.owlapi.model.OWLDataProperty;
+import org.semanticweb.owlapi.model.OWLDataRange;
+import org.semanticweb.owlapi.model.OWLObjectProperty;
+import org.semanticweb.owlapi.reasoner.NodeSet;
 
 /**
  * Author: Matthew Horridge<br>
@@ -12,7 +20,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * matthew.horridge@cs.man.ac.uk<br>
  * www.cs.man.ac.uk/~horridgm<br>
  * <br>
- * 
+ *
  * An interface to the native FaCT++ reasoner. Use of this class requires the
  * FaCT++ JNI library for the appropriate platform.
  */
@@ -26,7 +34,7 @@ public class FaCTPlusPlus {
 			} else {
 				System.load(System.getProperty("factpp.jni.path"));
 			}
-			// init all the IDs used 
+			// init all the IDs used
 			initMethodsFieldsIDs();
 		}
 	}
@@ -78,7 +86,7 @@ public class FaCTPlusPlus {
 
     /**
      * Set the names of Top/Bottom data and object properties.
-     * The call of this method automatically means that the 
+     * The call of this method automatically means that the
      * OWL API v3 (and higher) is used. Without this call,
      * Top/Bottom properties would not appear in the query
      * results.
@@ -139,7 +147,7 @@ public class FaCTPlusPlus {
     public native DataPropertyPointer getTopDataProperty() throws FaCTPlusPlusException;
 
     public native DataPropertyPointer getBottomDataProperty() throws FaCTPlusPlusException;
-    
+
     public native DataPropertyPointer getDataProperty(String name) throws FaCTPlusPlusException;
 
     public native IndividualPointer getIndividual(String name) throws FaCTPlusPlusException;
@@ -574,4 +582,20 @@ public class FaCTPlusPlus {
 	 * get the trace-set (set of axioms) for the last reasoning operation
 	 */
 	public native AxiomPointer[] getTrace();
+
+	/** knowledge exploration interface*/
+	public native NodePointer buildCompletionTree(ClassPointer classPointer);
+
+	public native ObjectPropertyPointer[][] getObjectNeighbours(NodePointer object);
+
+	public native DataPropertyPointer[][] getDataNeighbours(NodePointer object);
+
+	public native NodePointer[] getObjectNeighbours(ObjectPropertyPointer property);
+
+	public native NodePointer[] getDataNeighbours(DataPropertyPointer property);
+
+	public native ClassPointer[][] getObjectLabel(NodePointer object);
+
+	public native DataTypePointer[][] getDataLabel(NodePointer object);
+
 }
