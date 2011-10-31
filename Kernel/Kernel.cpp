@@ -47,6 +47,7 @@ ReasoningKernel :: ReasoningKernel ( void )
 	, verboseOutput(false)
 	, useUndefinedNames(false)
 	, cachedQuery(NULL)
+	, cachedQueryTree(NULL)
 	, useAxiomSplitting(false)
 	, useELReasoner(false)
 {
@@ -199,9 +200,27 @@ Realise:	// do realisation
 	pTBox->performRealisation();
 }
 
-//******************************************
-//* caching support
-//******************************************
+//-----------------------------------------------------------------------------
+//--		query caching support
+//-----------------------------------------------------------------------------
+
+/// classify query; cache is ready at the point. NAMED means whether concept is just a name
+void
+ReasoningKernel :: classifyQuery ( bool named )
+{
+	// make sure KB is classified
+	classifyKB();
+
+	if ( !named )	// general expression: classify query concept
+		getTBox()->classifyQueryConcept();
+
+	fpp_assert ( cachedConcept->isClassified() );
+	cachedVertex = cachedConcept->getTaxVertex();
+
+	if ( unlikely(cachedVertex == NULL) )	// fresh concept
+		cachedVertex = getCTaxonomy()->getFreshVertex(cachedConcept);
+}
+
 void
 ReasoningKernel :: setUpCache ( DLTree* query, cacheStatus level )
 {
@@ -219,7 +238,10 @@ ReasoningKernel :: setUpCache ( DLTree* query, cacheStatus level )
 		{	// concept was defined but not classified yet
 			fpp_assert ( level == csClassified && cacheLevel != csClassified );
 			if ( cacheLevel == csSat )	// already check satisfiability
-				goto needClassify;
+			{
+				classifyQuery(isCN(cachedQueryTree));
+				return;
+			}
 		}
 	}
 	else	// change current query
@@ -230,36 +252,62 @@ ReasoningKernel :: setUpCache ( DLTree* query, cacheStatus level )
 	cacheLevel = level;
 
 	// check if concept-to-cache is defined in ontology
-	if ( isCN(cachedQuery) )
-		cachedConcept = getTBox()->getCI(cachedQuery);
+	if ( isCN(cachedQueryTree) )
+		cachedConcept = getTBox()->getCI(cachedQueryTree);
 	else	// case of complex query
-		cachedConcept = getTBox()->createQueryConcept(cachedQuery);
+		cachedConcept = getTBox()->createQueryConcept(cachedQueryTree);
 
 	fpp_assert ( cachedConcept != NULL );
 	// preprocess concept is necessary (fresh concept in query or complex one)
 	if ( !isValid(cachedConcept->pName) )
 		getTBox()->preprocessQueryConcept(cachedConcept);
 
-needClassify:	// classification only needed for complex expression
+	if ( level == csClassified )
+		classifyQuery(isCN(cachedQueryTree));
+}
 
-	if ( level != csClassified )
-		return;
+void
+ReasoningKernel :: setUpCache ( TConceptExpr* query, cacheStatus level )
+{
+	// if KB was changed since it was classified,
+	// we should catch it before
+	fpp_assert ( !Ontology.isChanged() );
 
-	classifyKB();
-
-	if ( isCN(cachedQuery) )
-	{
-		cachedVertex = cachedConcept->getTaxVertex();
-		if ( unlikely(cachedVertex == NULL) )	// fresh concept
-			cachedVertex = getCTaxonomy()->getFreshVertex(cachedConcept);
+	// check if the query is already cached
+	if ( checkQueryCache(query) )
+	{	// ... with the same level -- nothing to do
+		if ( level <= cacheLevel )
+			return;
+		else
+		{	// concept was defined but not classified yet
+			fpp_assert ( level == csClassified && cacheLevel != csClassified );
+			if ( cacheLevel == csSat )	// already check satisfiability
+			{
+				classifyQuery(isNameOrConst(cachedQuery));
+				return;
+			}
+		}
 	}
-	else
-	{
-		getTBox()->classifyQueryConcept();
-		// cached concept now have to be classified
-		fpp_assert ( cachedConcept->isClassified() );
-		cachedVertex = cachedConcept->getTaxVertex();
-	}
+	else	// change current query
+		setQueryCache(query);
+
+	// clean cached info
+	cachedVertex = NULL;
+	cacheLevel = level;
+
+	// check if concept-to-cache is defined in ontology
+	if ( isNameOrConst(cachedQuery) )
+		cachedConcept = getTBox()->getCI(TreeDeleter(e(cachedQuery)));
+	else	// case of complex query
+		cachedConcept = getTBox()->createQueryConcept(e(cachedQuery));
+
+	fpp_assert ( cachedConcept != NULL );
+	// preprocess concept is necessary (fresh concept in query or complex one)
+	if ( !isValid(cachedConcept->pName) )
+		getTBox()->preprocessQueryConcept(cachedConcept);
+
+	if ( level == csClassified )
+		classifyQuery(isNameOrConst(cachedQuery));
 }
 
 //-------------------------------------------------

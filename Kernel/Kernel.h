@@ -181,8 +181,10 @@ protected:	// members
 
 		/// cache level
 	enum cacheStatus cacheLevel;
+		/// cached query input description
+	TConceptExpr* cachedQuery;
 		/// cached query concept description
-	DLTree* cachedQuery;
+	DLTree* cachedQueryTree;
 		/// cached concept (either defConcept or existing one)
 	TConcept* cachedConcept;
 		/// cached query result (taxonomy position)
@@ -239,18 +241,26 @@ protected:	// methods
 			return getTBox()->getFreshConcept();
 	}
 
-	// internal query cache manipulation
+	//-----------------------------------------------------------------------------
+	//--		internal query cache manipulation
+	//-----------------------------------------------------------------------------
 
 		/// clear query cache
-	void clearQueryCache ( void ) { deleteTree(cachedQuery); cachedQuery = NULL; }
+	void clearQueryCache ( void ) { cachedQuery = NULL; deleteTree(cachedQueryTree); cachedQueryTree = NULL; }
 		/// set query cache value to QUERY
-	void setQueryCache ( DLTree* query ) { clearQueryCache(); cachedQuery = query; }
+	void setQueryCache ( TConceptExpr* query ) { clearQueryCache(); cachedQuery = query; }
+		/// set query cache value to QUERY
+	void setQueryCache ( DLTree* query ) { clearQueryCache(); cachedQueryTree = query; }
 		/// check whether query cache is the same as QUERY
-	bool checkQueryCache ( DLTree* query ) const { return equalTrees ( cachedQuery, query ); }
+	bool checkQueryCache ( TConceptExpr* query ) const { return cachedQuery == query; }
+		/// check whether query cache is the same as QUERY
+	bool checkQueryCache ( DLTree* query ) const { return equalTrees ( cachedQueryTree, query ); }
+		/// classify query; cache is ready at the point. NAMED means whether concept is just a name
+	void classifyQuery ( bool named );
 		/// set up cache for query, performing additional (re-)classification if necessary
 	void setUpCache ( DLTree* query, cacheStatus level );
 		/// set up cache for query, performing additional (re-)classification if necessary
-	void setUpCache ( TConceptExpr* query, cacheStatus level ) { setUpCache(e(query),level); }
+	void setUpCache ( TConceptExpr* query, cacheStatus level );
 		/// clear cache and flags
 	void initCacheAndFlags ( void )
 	{
@@ -272,8 +282,12 @@ protected:	// methods
 		return I->getRelatedCache(R);
 	}
 
+	//-----------------------------------------------------------------------------
+	//--		internal reasoning methods
+	//-----------------------------------------------------------------------------
+
 		/// @return true iff C is satisfiable
-	bool checkSat ( DLTree* C )
+	bool checkSatTree ( DLTree* C )
 	{
 		setUpCache ( C, csSat );
 		return getTBox()->isSatisfiable(cachedConcept);
@@ -319,7 +333,7 @@ protected:	// methods
 		// R is transitive iff \ER.C and \ER.\not C is unsatisfiable
 		DLTree* tmp = createSNFExists ( clone(R), createSNFNot(getFreshFiller(R)) );
 		tmp = createSNFAnd ( tmp, createSNFExists ( R, getFreshFiller(R) ) );
-		return !checkSat(tmp);
+		return !checkSatTree(tmp);
 	}
 		/// @return true if R is functional; set the value for R if necessary
 	bool getFunctionality ( TRole* R )
@@ -335,7 +349,7 @@ protected:	// methods
 		DLTree* tmp = createSNFExists ( clone(R), createSNFNot(getTBox()->getFreshConcept()) );
 		tmp = createSNFExists ( clone(R), tmp );
 		tmp = createSNFAnd ( tmp, createSNFForall ( R, getTBox()->getFreshConcept() ) );
-		return !checkSat(tmp);
+		return !checkSatTree(tmp);
 	}
 		/// @return true if R is symmetric wrt ontology
 	bool checkSymmetry ( DLTree* R )
@@ -343,7 +357,7 @@ protected:	// methods
 		// R is symmetric iff C and \ER.\AR.(not C) is unsatisfiable
 		DLTree* tmp = createSNFForall ( clone(R), createSNFNot(getTBox()->getFreshConcept()) );
 		tmp = createSNFAnd ( getTBox()->getFreshConcept(), createSNFExists ( R, tmp ) );
-		return !checkSat(tmp);
+		return !checkSatTree(tmp);
 	}
 		/// @return true if R is reflexive wrt ontology
 	bool checkReflexivity ( DLTree* R )
@@ -351,7 +365,7 @@ protected:	// methods
 		// R is reflexive iff C and \AR.(not C) is unsatisfiable
 		DLTree* tmp = createSNFForall ( R, createSNFNot(getTBox()->getFreshConcept()) );
 		tmp = createSNFAnd ( getTBox()->getFreshConcept(), tmp );
-		return !checkSat(tmp);
+		return !checkSatTree(tmp);
 	}
 		/// @return true if R [= S wrt ontology
 	bool checkRoleSubsumption ( DLTree* R, DLTree* S )
@@ -361,7 +375,7 @@ protected:	// methods
 		// R [= S iff \ER.C and \AS.(not C) is unsatisfiable
 		DLTree* tmp = createSNFForall ( S, createSNFNot(getFreshFiller(S)) );
 		tmp = createSNFAnd ( createSNFExists ( R, getFreshFiller(R) ), tmp );
-		return !checkSat(tmp);
+		return !checkSatTree(tmp);
 	}
 		/// @return true iff the chain contained in the arg-list is a sub-property of R
 	bool checkSubChain ( TRole* R )
@@ -380,7 +394,7 @@ protected:	// methods
 			tmp = createSNFExists ( e(Ri), tmp );
 		}
 		tmp = createSNFAnd ( tmp, createSNFForall ( new DLTree(TLexeme(RNAME,R)), getTBox()->getFreshConcept() ) );
-		return !checkSat(tmp);
+		return !checkSatTree(tmp);
 	}
 
 	// get access to internal structures
@@ -963,7 +977,7 @@ public:
 	bool isSatisfiable ( const TConceptExpr* C )
 	{
 		preprocessKB();
-		try { return checkSat(e(C)); }
+		try { return checkSat(C); }
 		catch ( const EFPPCantRegName& crn )
 		{
 			if ( dynamic_cast<const TDLConceptName*>(C) != NULL )	// this is an unknown concept
