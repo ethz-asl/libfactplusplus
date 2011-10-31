@@ -1200,6 +1200,62 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_needTr
 JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_getTrace
   (JNIEnv *, jobject);
 
+/*
+ * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
+ * Method:    buildCompletionTree
+ * Signature: (Luk/ac/manchester/cs/factplusplus/ClassPointer;)Luk/ac/manchester/cs/factplusplus/NodePointer;
+ */
+JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_buildCompletionTree
+  (JNIEnv *, jobject, jobject);
+
+/*
+ * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
+ * Method:    getObjectNeighbours
+ * Signature: (Luk/ac/manchester/cs/factplusplus/NodePointer;)[[Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;
+ */
+JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_getObjectNeighbours__Luk_ac_manchester_cs_factplusplus_NodePointer_2
+  (JNIEnv *, jobject, jobject);
+
+/*
+ * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
+ * Method:    getDataNeighbours
+ * Signature: (Luk/ac/manchester/cs/factplusplus/NodePointer;)[[Luk/ac/manchester/cs/factplusplus/DataPropertyPointer;
+ */
+JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_getDataNeighbours__Luk_ac_manchester_cs_factplusplus_NodePointer_2
+  (JNIEnv *, jobject, jobject);
+
+/*
+ * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
+ * Method:    getObjectNeighbours
+ * Signature: (Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;)[Luk/ac/manchester/cs/factplusplus/NodePointer;
+ */
+JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_getObjectNeighbours__Luk_ac_manchester_cs_factplusplus_ObjectPropertyPointer_2
+  (JNIEnv *, jobject, jobject, jobject);
+
+/*
+ * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
+ * Method:    getDataNeighbours
+ * Signature: (Luk/ac/manchester/cs/factplusplus/DataPropertyPointer;)[Luk/ac/manchester/cs/factplusplus/NodePointer;
+ */
+JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_getDataNeighbours__Luk_ac_manchester_cs_factplusplus_DataPropertyPointer_2
+  (JNIEnv *, jobject, jobject, jobject);
+
+/*
+ * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
+ * Method:    getObjectLabel
+ * Signature: (Luk/ac/manchester/cs/factplusplus/NodePointer;)[[Luk/ac/manchester/cs/factplusplus/ClassPointer;
+ */
+JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_getObjectLabel
+  (JNIEnv *, jobject, jobject);
+
+/*
+ * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
+ * Method:    getDataLabel
+ * Signature: (Luk/ac/manchester/cs/factplusplus/NodePointer;)[[Luk/ac/manchester/cs/factplusplus/DataTypePointer;
+ */
+JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_getDataLabel
+  (JNIEnv *, jobject, jobject);
+
 #ifdef __cplusplus
 }
 #endif

@@ -68,6 +68,7 @@ TClassFieldMethodIDs
 	DataTypeExpressionPointer,
 	DataValuePointer,
 	DataTypeFacet,
+	NodePointer,
 	AxiomPointer;
 
 /*
@@ -95,6 +96,7 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_initMe
 	DataTypeExpressionPointer.init(env,"[Luk/ac/manchester/cs/factplusplus/DataTypeExpressionPointer;");
 	DataValuePointer.init(env,"[Luk/ac/manchester/cs/factplusplus/DataValuePointer;");
 	DataTypeFacet.init(env,"[Luk/ac/manchester/cs/factplusplus/DataTypeFacet;");
+	NodePointer.init(env,"[Luk/ac/manchester/cs/factplusplus/NodePointer;");
 	AxiomPointer.init(env,"[Luk/ac/manchester/cs/factplusplus/AxiomPointer;");
 }
 
@@ -2213,6 +2215,108 @@ JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlu
 {
 	TRACE_JNI("getTrace");
 	return buildArray ( env, getK(env,obj)->getTrace(), AxiomPointer );
+}
+
+/*
+ * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
+ * Method:    buildCompletionTree
+ * Signature: (Luk/ac/manchester/cs/factplusplus/ClassPointer;)Luk/ac/manchester/cs/factplusplus/NodePointer;
+ */
+JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_buildCompletionTree
+  (JNIEnv * env, jobject obj, jobject arg)
+{
+	TRACE_JNI("buildCompletionTree");
+	return Node ( env, getK(env,obj)->buildCompletionTree(getROConceptExpr(env,arg)) );
+}
+
+/*
+ * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
+ * Method:    getObjectNeighbours
+ * Signature: (Luk/ac/manchester/cs/factplusplus/NodePointer;)[[Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;
+ */
+JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_getObjectNeighbours__Luk_ac_manchester_cs_factplusplus_NodePointer_2
+  (JNIEnv * env, jobject obj, jobject arg)
+{
+	TRACE_JNI("getObjectNeighbours");
+	ReasoningKernel::TCGRoleSet Set;
+	getK(env,obj)->getObjectRoles ( getRONode(env,arg), Set, /*needIncoming=*/false );
+	std::vector<TORoleExpr*> ret;
+	for ( ReasoningKernel::TCGRoleSet::const_iterator p = Set.begin(), p_end = Set.end(); p != p_end; ++p )
+		ret.push_back(dynamic_cast<TORoleExpr*>(*p));
+	return buildArray ( env, ret, ObjectPropertyPointer );
+}
+
+/*
+ * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
+ * Method:    getDataNeighbours
+ * Signature: (Luk/ac/manchester/cs/factplusplus/NodePointer;)[[Luk/ac/manchester/cs/factplusplus/DataPropertyPointer;
+ */
+JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_getDataNeighbours__Luk_ac_manchester_cs_factplusplus_NodePointer_2
+  (JNIEnv * env, jobject obj, jobject arg)
+{
+	TRACE_JNI("getDataNeighbours");
+	ReasoningKernel::TCGRoleSet Set;
+	getK(env,obj)->getDataRoles ( getRONode(env,arg), Set );
+	std::vector<TDRoleExpr*> ret;
+	for ( ReasoningKernel::TCGRoleSet::const_iterator p = Set.begin(), p_end = Set.end(); p != p_end; ++p )
+		ret.push_back(dynamic_cast<TDRoleExpr*>(*p));
+	return buildArray ( env, ret, DataPropertyPointer );
+}
+
+/*
+ * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
+ * Method:    getObjectNeighbours
+ * Signature: (Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;)[Luk/ac/manchester/cs/factplusplus/NodePointer;
+ */
+JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_getObjectNeighbours__Luk_ac_manchester_cs_factplusplus_ObjectPropertyPointer_2
+  (JNIEnv * env, jobject obj, jobject arg1, jobject arg2 )
+{
+	TRACE_JNI("getObjectNeighbours");
+	ReasoningKernel::TCGNodeVec Vec;
+	getK(env,obj)->getNeighbours ( getRONode(env,arg1), getROORoleExpr(env,arg2), Vec );
+	return buildArray ( env, Vec, NodePointer );
+}
+
+/*
+ * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
+ * Method:    getDataNeighbours
+ * Signature: (Luk/ac/manchester/cs/factplusplus/DataPropertyPointer;)[Luk/ac/manchester/cs/factplusplus/NodePointer;
+ */
+JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_getDataNeighbours__Luk_ac_manchester_cs_factplusplus_DataPropertyPointer_2
+  (JNIEnv * env, jobject obj, jobject arg1, jobject arg2 )
+{
+	TRACE_JNI("getDataNeighbours");
+	ReasoningKernel::TCGNodeVec Vec;
+	getK(env,obj)->getNeighbours ( getRONode(env,arg1), getRODRoleExpr(env,arg2), Vec );
+	return buildArray ( env, Vec, NodePointer );
+}
+
+/*
+ * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
+ * Method:    getObjectLabel
+ * Signature: (Luk/ac/manchester/cs/factplusplus/NodePointer;)[[Luk/ac/manchester/cs/factplusplus/ClassPointer;
+ */
+JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_getObjectLabel
+  (JNIEnv * env, jobject obj, jobject arg)
+{
+	TRACE_JNI("getObjectLabel");
+	ReasoningKernel::TCGItemVec Vec;
+	getK(env,obj)->getLabel ( getRONode(env,arg), Vec, /*onlyDet=*/ false );
+	return buildArray ( env, Vec, ClassPointer );
+}
+
+/*
+ * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
+ * Method:    getDataLabel
+ * Signature: (Luk/ac/manchester/cs/factplusplus/NodePointer;)[[Luk/ac/manchester/cs/factplusplus/DataTypePointer;
+ */
+JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_getDataLabel
+  (JNIEnv * env, jobject obj, jobject arg)
+{
+	TRACE_JNI("getDataLabel");
+	ReasoningKernel::TCGItemVec Vec;
+	getK(env,obj)->getLabel ( getRONode(env,arg), Vec, /*onlyDet=*/ false );
+	return buildArray ( env, Vec, DataTypeExpressionPointer );
 }
 
 #ifdef __cplusplus

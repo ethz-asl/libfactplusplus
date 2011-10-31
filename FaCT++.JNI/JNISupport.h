@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2006-2010 by Dmitry Tsarkov
+Copyright (C) 2006-2011 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -60,6 +60,8 @@ typedef ReasoningKernel::TDataTypeExpr TDataTypeExpr;
 typedef ReasoningKernel::TDataValueExpr TDataValueExpr;
 	/// data facet expression
 typedef const TDLFacetExpression TFacetExpr;
+	/// completion tree node
+typedef const ReasoningKernel::TCGNode TCGNode;
 
 //-------------------------------------------------------------
 // Support functions
@@ -239,6 +241,7 @@ TClassFieldMethodIDs
 	DataTypeExpressionPointer,
 	DataValuePointer,
 	DataTypeFacet,
+	NodePointer,
 	AxiomPointer;
 
 // get trees for the names in the unified way
@@ -332,12 +335,22 @@ ACCESSOR(DataTypeExpr)
 ACCESSOR(DataValueExpr)
 ACCESSOR(FacetExpr)
 
+// ACCESSOR(NodeExpr) -- doesn't work as the type is not a TExpr's descendant
+inline TCGNode* getRONode ( JNIEnv * env, jobject obj )
+	{ return (TCGNode*)getPointer(env,obj); }
+
 #undef ACCESSOR
 
 inline
 TDLAxiom* getAxiom ( JNIEnv * env, jobject obj )
 {
 	return (TDLAxiom*)getPointer(env,obj);
+}
+
+inline
+TCGNode* getNode ( JNIEnv * env, jobject obj )
+{
+	return (TCGNode*)getPointer(env,obj);
 }
 
 inline
@@ -419,6 +432,12 @@ inline
 jobject Facet ( JNIEnv * env, TFacetExpr* t )
 {
 	return retObject ( env, t, DataTypeFacet );
+}
+
+inline
+jobject Node ( JNIEnv * env, TCGNode* t )
+{
+	return retObject ( env, t, NodePointer );
 }
 
 inline

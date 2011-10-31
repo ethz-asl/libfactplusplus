@@ -590,9 +590,9 @@ public class FaCTPlusPlus {
 
 	public native DataPropertyPointer[][] getDataNeighbours(NodePointer object);
 
-	public native NodePointer[] getObjectNeighbours(ObjectPropertyPointer property);
+	public native NodePointer[] getObjectNeighbours(NodePointer object, ObjectPropertyPointer property);
 
-	public native NodePointer[] getDataNeighbours(DataPropertyPointer property);
+	public native NodePointer[] getDataNeighbours(NodePointer object, DataPropertyPointer property);
 
 	public native ClassPointer[][] getObjectLabel(NodePointer object);
 
