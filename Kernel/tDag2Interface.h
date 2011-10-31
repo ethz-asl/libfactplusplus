@@ -39,6 +39,14 @@ protected:	// methods
 	const TDLConceptExpression* buildCExpr ( const DLVertex& v );
 		/// build data expression by a vertex V
 	const TDLDataExpression* buildDExpr ( const DLVertex& v );
+		/// build expression by a vertex V given the DATA flag
+	const TDLExpression* buildExpr ( const DLVertex& v, bool data )
+	{
+		if ( data )
+			return buildDExpr(v);
+		else
+			return buildCExpr(v);
+	}
 
 public:		// interface
 		/// init c'tor
@@ -79,5 +87,14 @@ public:		// interface
 			Trans[p] = buildDExpr(Dag[p]);
 		return dynamic_cast<const TDLDataExpression*>(Trans[p]);
 	}
+		/// get expression corresponding index of vertex given the DATA flag
+	const TDLExpression* getExpr ( BipolarPointer p, bool data )
+	{
+		if ( data )
+			return getDExpr(p);
+		else
+			return getCExpr(p);
+	}
 }; // TDag2Interface
+
 #endif

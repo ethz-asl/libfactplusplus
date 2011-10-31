@@ -89,15 +89,14 @@ public:	// types interface
 
 	// types for knowledge exploration
 
-		/// type for the object node in the completion graph
-	typedef const DlCompletionTree CGObjectNode;
-		/// type for the data node in the completion graph
-	typedef const DlCompletionTree CGDataNode;
-
-		/// type for an object  link (pair of role and node)
-	typedef std::pair<TORoleExpr*, CGObjectNode*> CGObjectLink;
-		/// type for a data link (pair of role and node)
-	typedef std::pair<TDRoleExpr*, CGDataNode*> CGDataLink;
+		/// type for the node in the completion graph
+	typedef const DlCompletionTree TCGNode;
+		/// type for the node vector
+	typedef std::vector<TCGNode*> TCGNodeVec;
+		/// type for a set of role expressions (used in KE to return stuff)
+	typedef std::set<TRoleExpr*> TCGRoleSet;
+		/// type for a vector of data/concept expressions (used in KE to return stuff)
+	typedef std::vector<TExpr*> TCGItemVec;
 
 private:
 		/// options for the kernel and all related substructures
@@ -1183,21 +1182,20 @@ public:
 	//----------------------------------------------------------------------------------
 
 		/// build a completion tree for a concept expression C (no caching as it breaks the idea of KE). @return the root node
-	const CGObjectNode* buildCompletionTree ( const TConceptExpr* C )
+	const TCGNode* buildCompletionTree ( const TConceptExpr* C )
 	{
 		preprocessKB();
 		setUpCache ( C, csSat );
 		return getTBox()->buildCompletionTree(cachedConcept);
 	}
-		/// build the set of data neighbours of a NODE, put the set into the RESULT variable
-	void getDataNeighbours ( const CGObjectNode* node, std::vector<CGDataLink>& Result );
-		/// build the set of object neighbours of a NODE; incoming edges are counted iff NEEDINCOMING is true
-	void getObjectNeighbours ( const CGObjectNode* node, std::vector<CGObjectLink>& Result, bool needIncoming );
-		/// put into RESULT all the data expressions from the NODE label
-	void getLabel ( const CGDataNode* node, std::vector<TDataExpr*>& Result );
-		/// put into RESULT all the concepts from the NODE label
-	void getLabel ( const CGObjectNode* node, std::vector<TConceptExpr*>& Result );
-
+		/// build the set of data neighbours of a NODE, put the set of data roles into the RESULT variable
+	void getDataRoles ( const TCGNode* node, TCGRoleSet& Result );
+		/// build the set of object neighbours of a NODE, put the set of object roles and inverses into the RESULT variable
+	void getObjectRoles ( const TCGNode* node, TCGRoleSet& Result, bool needIncoming );
+		/// build the set of neighbours of a NODE via role ROLE; put the resulting list into RESULT
+	void getNeighbours ( const TCGNode* node, TRoleExpr* role, TCGNodeVec& Result );
+		/// put into RESULT all the expressions from the NODE label; if ONLYDET is true, return only deterministic elements
+	void getLabel ( const TCGNode* node, TCGItemVec& Result, bool onlyDet );
 }; // ReasoningKernel
 
 #endif

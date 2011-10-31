@@ -482,57 +482,51 @@ ReasoningKernel :: isRelated ( const TIndividualExpr* I, const TORoleExpr* R, co
 
 /// build the set of data neighbours of a NODE, put the set into the RESULT variable
 void
-ReasoningKernel :: getDataNeighbours ( const CGObjectNode* node, std::vector<CGDataLink>& Result )
+ReasoningKernel :: getDataRoles ( const TCGNode* node, TCGRoleSet& Result )
 {
 	Result.clear();
 	for ( DlCompletionTree::const_edge_iterator p = node->begin(), p_end = node->end(); p != p_end; ++p )
 		if ( likely(!(*p)->isIBlocked()) && (*p)->getArcEnd()->isDataNode() )
-			Result.push_back(std::make_pair(
-				getExpressionManager()->DataRole((*p)->getRole()->getName()),
-				(*p)->getArcEnd() ));
+			// FIXME!! add also all supers
+			Result.insert(getExpressionManager()->DataRole((*p)->getRole()->getName()));
 }
 /// build the set of object neighbours of a NODE; incoming edges are counted iff NEEDINCOMING is true
 void
-ReasoningKernel :: getObjectNeighbours ( const CGObjectNode* node, std::vector<CGObjectLink>& Result, bool needIncoming )
+ReasoningKernel :: getObjectRoles ( const TCGNode* node, TCGRoleSet& Result, bool needIncoming )
 {
 	Result.clear();
 	for ( DlCompletionTree::const_edge_iterator p = node->begin(), p_end = node->end(); p != p_end; ++p )
 		if ( likely(!(*p)->isIBlocked()) && !(*p)->getArcEnd()->isDataNode() && (needIncoming || (*p)->isSuccEdge() ) )
-			Result.push_back(std::make_pair(
-				getExpressionManager()->ObjectRole((*p)->getRole()->getName()),
-				(*p)->getArcEnd() ));
+			Result.insert(getExpressionManager()->ObjectRole((*p)->getRole()->getName()));
+}
+/// build the set of neighbours of a NODE via role ROLE; put the resulting list into RESULT
+void
+ReasoningKernel :: getNeighbours ( const TCGNode* node, TRoleExpr* role, TCGNodeVec& Result )
+{
+	Result.clear();
+	TRole* R = getRole ( role, "Role expression expected in getNeighbours() method" );
+	for ( DlCompletionTree::const_edge_iterator p = node->begin(), p_end = node->end(); p != p_end; ++p )
+		if ( likely(!(*p)->isIBlocked()) && (*p)->isNeighbour(R) )
+			Result.push_back((*p)->getArcEnd());
 }
 /// put into RESULT all the data expressions from the NODE label
 void
-ReasoningKernel :: getLabel ( const CGDataNode* node, std::vector<TDataExpr*>& Result )
+ReasoningKernel :: getLabel ( const TCGNode* node, TCGItemVec& Result, bool onlyDet )
 {
+	// prepare D2I translator
 	if ( unlikely(D2I == NULL) )
 		D2I = new TDag2Interface ( getTBox()->getDag(), getExpressionManager() );
 	else
 		D2I->ensureDagSize();
 	DlCompletionTree::const_label_iterator p, p_end;
+	bool data = node->isDataNode();
 	Result.clear();
 	for ( p = node->beginl_sc(), p_end = node->endl_sc(); p != p_end; ++p )
-		Result.push_back(D2I->getDExpr(p->bp()));
+		if ( !onlyDet || p->getDep().empty() )
+			Result.push_back(D2I->getExpr(p->bp(),data));
 	for ( p = node->beginl_cc(), p_end = node->endl_cc(); p != p_end; ++p )
-		Result.push_back(D2I->getDExpr(p->bp()));
-}
-/// put into RESULT all the concepts from the NODE label
-void
-ReasoningKernel :: getLabel ( const CGObjectNode* node, std::vector<TConceptExpr*>& Result )
-{
-	if ( unlikely(D2I == NULL) )
-		D2I = new TDag2Interface ( getTBox()->getDag(), getExpressionManager() );
-	else
-		D2I->ensureDagSize();
-	DlCompletionTree::const_label_iterator p, p_end;
-	Result.clear();
-	// return only names ATM
-	for ( p = node->beginl_sc(), p_end = node->endl_sc(); p != p_end; ++p )
-		if ( getTBox()->getDag()[*p].getConcept() != NULL )
-			Result.push_back(D2I->getCExpr(p->bp()));
-//	for ( p = node->beginl_cc(), p_end = node->endl_cc(); p != p_end; ++p )
-//		Result.push_back(D2I->getCExpr(p->bp()));
+		if ( !onlyDet || p->getDep().empty() )
+			Result.push_back(D2I->getExpr(p->bp(),data));
 }
 
 //******************************************
