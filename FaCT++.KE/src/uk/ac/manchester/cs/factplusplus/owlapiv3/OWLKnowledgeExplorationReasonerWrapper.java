@@ -342,28 +342,28 @@ public class OWLKnowledgeExplorationReasonerWrapper implements
 		return this.r.getRoot(expression);
 	}
 
-	public NodeSet<? extends OWLObjectPropertyExpression> getObjectNeighbours(
-			NodePointer object) {
-		return this.r.getObjectNeighbours(object);
+	public Node<? extends OWLObjectPropertyExpression> getObjectNeighbours(
+			NodePointer object, boolean deterministicOnly) {
+		return this.r.getObjectNeighbours(object, deterministicOnly);
 	}
 
-	public NodeSet<OWLDataProperty> getDataNeighbours(NodePointer object) {
-		return this.r.getDataNeighbours(object);
+	public Node<OWLDataProperty> getDataNeighbours(NodePointer object, boolean deterministicOnly) {
+		return this.r.getDataNeighbours(object, deterministicOnly);
 	}
 
-	public Collection<NodePointer> getObjectNeighbours(OWLObjectProperty property) {
-		return this.r.getObjectNeighbours(property);
+	public Collection<NodePointer> getObjectNeighbours(NodePointer object, OWLObjectProperty property) {
+		return this.r.getObjectNeighbours(object, property);
 	}
 
-	public Collection<NodePointer> getDataNeighbours(OWLDataProperty property) {
-		return this.r.getDataNeighbours(property);
+	public Collection<NodePointer> getDataNeighbours(NodePointer object, OWLDataProperty property) {
+		return this.r.getDataNeighbours(object, property);
 	}
 
-	public NodeSet<? extends OWLClassExpression> getObjectLabel(NodePointer object) {
-		return this.r.getObjectLabel(object);
+	public Node<? extends OWLClassExpression> getObjectLabel(NodePointer object, boolean deterministicOnly) {
+		return this.r.getObjectLabel(object, deterministicOnly);
 	}
 
-	public NodeSet<? extends OWLDataRange> getDataLabel(NodePointer object) {
-		return this.r.getDataLabel(object);
+	public Node<? extends OWLDataRange> getDataLabel(NodePointer object, boolean deterministicOnly) {
+		return this.r.getDataLabel(object, deterministicOnly);
 	}
 }
