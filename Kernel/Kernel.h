@@ -1189,9 +1189,9 @@ public:
 		return getTBox()->buildCompletionTree(cachedConcept);
 	}
 		/// build the set of data neighbours of a NODE, put the set of data roles into the RESULT variable
-	void getDataRoles ( const TCGNode* node, TCGRoleSet& Result );
+	void getDataRoles ( const TCGNode* node, TCGRoleSet& Result, bool onlyDet );
 		/// build the set of object neighbours of a NODE, put the set of object roles and inverses into the RESULT variable
-	void getObjectRoles ( const TCGNode* node, TCGRoleSet& Result, bool needIncoming );
+	void getObjectRoles ( const TCGNode* node, TCGRoleSet& Result, bool onlyDet, bool needIncoming );
 		/// build the set of neighbours of a NODE via role ROLE; put the resulting list into RESULT
 	void getNeighbours ( const TCGNode* node, TRoleExpr* role, TCGNodeVec& Result );
 		/// put into RESULT all the expressions from the NODE label; if ONLYDET is true, return only deterministic elements

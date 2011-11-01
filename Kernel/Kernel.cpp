@@ -489,21 +489,21 @@ ReasoningKernel :: isRelated ( const TIndividualExpr* I, const TORoleExpr* R, co
 
 /// build the set of data neighbours of a NODE, put the set into the RESULT variable
 void
-ReasoningKernel :: getDataRoles ( const TCGNode* node, TCGRoleSet& Result )
+ReasoningKernel :: getDataRoles ( const TCGNode* node, TCGRoleSet& Result, bool onlyDet )
 {
 	Result.clear();
 	for ( DlCompletionTree::const_edge_iterator p = node->begin(), p_end = node->end(); p != p_end; ++p )
-		if ( likely(!(*p)->isIBlocked()) && (*p)->getArcEnd()->isDataNode() )
+		if ( likely(!(*p)->isIBlocked()) && (*p)->getArcEnd()->isDataNode() && (!onlyDet || (*p)->getDep().empty()) )
 			// FIXME!! add also all supers
 			Result.insert(getExpressionManager()->DataRole((*p)->getRole()->getName()));
 }
 /// build the set of object neighbours of a NODE; incoming edges are counted iff NEEDINCOMING is true
 void
-ReasoningKernel :: getObjectRoles ( const TCGNode* node, TCGRoleSet& Result, bool needIncoming )
+ReasoningKernel :: getObjectRoles ( const TCGNode* node, TCGRoleSet& Result, bool onlyDet, bool needIncoming )
 {
 	Result.clear();
 	for ( DlCompletionTree::const_edge_iterator p = node->begin(), p_end = node->end(); p != p_end; ++p )
-		if ( likely(!(*p)->isIBlocked()) && !(*p)->getArcEnd()->isDataNode() && (needIncoming || (*p)->isSuccEdge() ) )
+		if ( likely(!(*p)->isIBlocked()) && !(*p)->getArcEnd()->isDataNode() && (!onlyDet || (*p)->getDep().empty()) && (needIncoming || (*p)->isSuccEdge() ) )
 			Result.insert(getExpressionManager()->ObjectRole((*p)->getRole()->getName()));
 }
 /// build the set of neighbours of a NODE via role ROLE; put the resulting list into RESULT
