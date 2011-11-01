@@ -791,7 +791,13 @@ public class FaCTPlusPlusReasoner implements OWLReasoner,
 		public Node<E> getNodeFromPointers(P[] pointers) {
 			DefaultNode<E> node = createDefaultNode();
 			for (P pointer : pointers) {
-				node.add(getEntityFromPointer(pointer));
+				final E entityFromPointer = getEntityFromPointer(pointer);
+				if(entityFromPointer != null) {
+					node.add(entityFromPointer);
+				} else {
+					System.out
+							.println("FaCTPlusPlusReasoner.OWLEntityTranslator.getNodeFromPointers() WARNING: entity not in the map or unnamed expression: "+pointer);
+				}
 			}
 			return node;
 		}
