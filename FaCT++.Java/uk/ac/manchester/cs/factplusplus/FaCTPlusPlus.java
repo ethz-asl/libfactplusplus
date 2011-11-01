@@ -586,16 +586,16 @@ public class FaCTPlusPlus {
 	/** knowledge exploration interface*/
 	public native NodePointer buildCompletionTree(ClassPointer classPointer);
 
-	public native ObjectPropertyPointer[][] getObjectNeighbours(NodePointer object);
+	public native ObjectPropertyPointer[] getObjectNeighbours(NodePointer object, boolean deterministicOnly);
 
-	public native DataPropertyPointer[][] getDataNeighbours(NodePointer object);
+	public native DataPropertyPointer[] getDataNeighbours(NodePointer object, boolean deterministicOnly);
 
 	public native NodePointer[] getObjectNeighbours(NodePointer object, ObjectPropertyPointer property);
 
 	public native NodePointer[] getDataNeighbours(NodePointer object, DataPropertyPointer property);
 
-	public native ClassPointer[][] getObjectLabel(NodePointer object);
+	public native ClassPointer[] getObjectLabel(NodePointer object, boolean deterministicOnly);
 
-	public native DataTypePointer[][] getDataLabel(NodePointer object);
+	public native DataTypePointer[] getDataLabel(NodePointer object, boolean deterministicOnly);
 
 }
