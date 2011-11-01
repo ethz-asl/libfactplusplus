@@ -1995,27 +1995,27 @@ public class FaCTPlusPlusReasoner implements OWLReasoner,
 		return kernel.buildCompletionTree(toClassPointer(expression));
 	}
 
-	public NodeSet<? extends OWLObjectPropertyExpression> getObjectNeighbours(NodePointer object) {
-		return objectPropertyTranslator.getNodeSetFromPointers(kernel.getObjectNeighbours(object));
+	public Node<? extends OWLObjectPropertyExpression> getObjectNeighbours(NodePointer object, boolean deterministicOnly) {
+		return objectPropertyTranslator.getNodeFromPointers(kernel.getObjectNeighbours(object, deterministicOnly));
 	}
 
-	public NodeSet<OWLDataProperty> getDataNeighbours(NodePointer object) {
-		return dataPropertyTranslator.getNodeSetFromPointers(kernel.getDataNeighbours(object));
+	public Node<OWLDataProperty> getDataNeighbours(NodePointer object, boolean deterministicOnly) {
+		return dataPropertyTranslator.getNodeFromPointers(kernel.getDataNeighbours(object, deterministicOnly));
 	}
 
-	public Collection<NodePointer> getObjectNeighbours(OWLObjectProperty property) {
-		return Arrays.asList( kernel.getObjectNeighbours(toObjectPropertyPointer(property)));
+	public Collection<NodePointer> getObjectNeighbours(NodePointer n, OWLObjectProperty property) {
+		return Arrays.asList( kernel.getObjectNeighbours(n, toObjectPropertyPointer(property)));
 	}
 
-	public Collection<NodePointer> getDataNeighbours(OWLDataProperty property) {
-		return Arrays.asList( kernel.getDataNeighbours(toDataPropertyPointer(property)));
+	public Collection<NodePointer> getDataNeighbours(NodePointer n, OWLDataProperty property) {
+		return Arrays.asList( kernel.getDataNeighbours(n, toDataPropertyPointer(property)));
 	}
 
-	public NodeSet<? extends OWLClassExpression> getObjectLabel(NodePointer object) {
-		return classExpressionTranslator.getNodeSetFromPointers(kernel.getObjectLabel(object));
+	public Node<? extends OWLClassExpression> getObjectLabel(NodePointer object, boolean deterministicOnly) {
+		return classExpressionTranslator.getNodeFromPointers(kernel.getObjectLabel(object, deterministicOnly));
 	}
 
-	public NodeSet<? extends OWLDataRange> getDataLabel(NodePointer object) {
-		return dataRangeTranslator.getNodeSetFromPointers(kernel.getDataLabel(object));
+	public Node<? extends OWLDataRange> getDataLabel(NodePointer object, boolean deterministicOnly) {
+		return dataRangeTranslator.getNodeFromPointers(kernel.getDataLabel(object, deterministicOnly));
 	}
 }
