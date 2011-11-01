@@ -45,7 +45,7 @@ ReasoningKernel :: ReasoningKernel ( void )
 	, pMonitor(NULL)
 	, OpTimeout(0)
 	, verboseOutput(false)
-	, useUndefinedNames(false)
+	, useUndefinedNames(true)
 	, cachedQuery(NULL)
 	, cachedQueryTree(NULL)
 	, useAxiomSplitting(false)
@@ -214,7 +214,6 @@ ReasoningKernel :: classifyQuery ( bool named )
 	if ( !named )	// general expression: classify query concept
 		getTBox()->classifyQueryConcept();
 
-	fpp_assert ( cachedConcept->isClassified() );
 	cachedVertex = cachedConcept->getTaxVertex();
 
 	if ( unlikely(cachedVertex == NULL) )	// fresh concept
@@ -306,7 +305,7 @@ ReasoningKernel :: setUpCache ( TConceptExpr* query, cacheStatus level )
 		// need to clear the query before transform it into DLTree
 		getTBox()->clearQueryConcept();
 		// ... as if fresh names appears there, they would be cleaned up
-		cachedConcept = getTBox()->createQueryConcept(e(cachedQuery));
+		cachedConcept = getTBox()->createQueryConcept(TreeDeleter(e(cachedQuery)));
 	}
 
 	fpp_assert ( cachedConcept != NULL );
