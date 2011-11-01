@@ -255,7 +255,10 @@ ReasoningKernel :: setUpCache ( DLTree* query, cacheStatus level )
 	if ( isCN(cachedQueryTree) )
 		cachedConcept = getTBox()->getCI(cachedQueryTree);
 	else	// case of complex query
+	{
+		getTBox()->clearQueryConcept();
 		cachedConcept = getTBox()->createQueryConcept(cachedQueryTree);
+	}
 
 	fpp_assert ( cachedConcept != NULL );
 	// preprocess concept is necessary (fresh concept in query or complex one)
@@ -299,7 +302,12 @@ ReasoningKernel :: setUpCache ( TConceptExpr* query, cacheStatus level )
 	if ( isNameOrConst(cachedQuery) )
 		cachedConcept = getTBox()->getCI(TreeDeleter(e(cachedQuery)));
 	else	// case of complex query
+	{
+		// need to clear the query before transform it into DLTree
+		getTBox()->clearQueryConcept();
+		// ... as if fresh names appears there, they would be cleaned up
 		cachedConcept = getTBox()->createQueryConcept(e(cachedQuery));
+	}
 
 	fpp_assert ( cachedConcept != NULL );
 	// preprocess concept is necessary (fresh concept in query or complex one)

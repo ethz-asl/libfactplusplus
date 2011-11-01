@@ -455,16 +455,10 @@ TBox :: createQueryConcept ( const DLTree* desc )
 
 	fpp_assert ( desc != NULL );
 
-	// clear the default concept def=desc
-	if ( defConcept != NULL )
-		clearQueryConcept();
-//	else
-	{
-		// we have to add this concept in any cases. So change undefined names mode
-		bool old = setForbidUndefinedNames(false);
-		defConcept = getConcept(defConceptName);
-		setForbidUndefinedNames(old);
-	}
+	// we have to add this concept in any cases. So change undefined names mode
+	bool old = setForbidUndefinedNames(false);
+	defConcept = getConcept(defConceptName);
+	setForbidUndefinedNames(old);
 
 //	std::cerr << "Create new temp concept with description =" << desc << "\n";
 	fpp_assert ( defConcept != NULL );
