@@ -556,8 +556,11 @@ public:	// general staff
 	}
 
 		/// dump query processing TIME, reasoning statistics and a (preprocessed) TBox
-	void writeReasoningResult ( std::ostream& o, float time ) const
-		{ getTBox()->writeReasoningResult ( o, time ); }
+	void writeReasoningResult ( std::ostream& o, float time )
+	{
+		getTBox()->clearQueryConcept();	// get rid of the query leftovers
+		getTBox()->writeReasoningResult ( o, time );
+	}
 
 		/// set timeout value to VALUE
 	void setOperationTimeout ( unsigned long value )

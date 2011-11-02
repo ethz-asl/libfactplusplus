@@ -44,8 +44,11 @@ extern "C" {
 #ifdef JNI_TRACING
 #	define TRACE_JNI(func) std::cerr << "JNI Kernel " << getK(env,obj) << " Call " << func << "\n"
 #	define TRACE_ARG(env,obj,arg) do {	\
-		getK(env,obj);					\
-		} while(0)
+		std::cerr << " arg ";			\
+		TExpr* expr=getROExpr(env,arg);	\
+		const TNamedEntity* ne = dynamic_cast<const TNamedEntity*>(expr); \
+		if ( ne != NULL ) std::cerr << ne->getName();	\
+		std::cerr << "\n"; } while(0)
 #else
 #	define TRACE_JNI(func) (void)NULL
 #	define TRACE_ARG(env,obj,arg) (void)NULL
@@ -2023,6 +2026,8 @@ JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_is
   (JNIEnv * env, jobject obj, jobject arg1, jobject arg2)
 {
 	TRACE_JNI("isInstanceOf");
+	TRACE_ARG(env,obj,arg1);
+	TRACE_ARG(env,obj,arg2);
 	bool ret = false;
 	PROCESS_ASK_QUERY ( ret=getK(env,obj)->isInstance ( getROIndividualExpr(env,arg1), getROConceptExpr(env,arg2) ),"isInstanceOf");
 	return ret;
