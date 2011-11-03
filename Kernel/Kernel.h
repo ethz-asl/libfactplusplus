@@ -113,22 +113,6 @@ private:
 protected:	// types
 		/// enumeration for the cache
 	enum cacheStatus { csEmpty, csSat, csClassified };
-		/// class for exploring concept taxonomy to find super classes
-	class SupConceptActor
-	{
-	protected:
-		const ClassifiableEntry* pe;
-		void entry ( const ClassifiableEntry* q ) { if ( pe == q ) throw std::exception(); }
-	public:
-		SupConceptActor ( ClassifiableEntry* q ) :pe(q) {}
-		bool apply ( const TaxonomyVertex& v )
-		{
-			entry(v.getPrimer());
-			for ( TaxonomyVertex::syn_iterator p = v.begin_syn(), p_end=v.end_syn(); p != p_end; ++p )
-				entry(*p);
-			return true;
-		}
-	}; // SupConceptActor
 		/// set of TreeNE
 /*	class TreeNESet: public TNameSet<TTreeNamedEntry>
 	{
@@ -298,16 +282,7 @@ protected:	// methods
 		return getTBox()->isSatisfiable(cachedConcept);
 	}
 		/// @return true iff C [= D holds
-	bool checkSub ( TConcept* C, TConcept* D )
-	{
-		if ( getStatus() < kbClassified )	// unclassified => do via SAT test
-			return getTBox()->isSubHolds ( C, D );
-		// classified => do the taxonomy traversal
-		SupConceptActor actor(D);
-		Taxonomy* tax = getCTaxonomy();
-		try { tax->getRelativesInfo</*needCurrent=*/true, /*onlyDirect=*/false, /*upDirection=*/true> ( C->getTaxVertex(), actor ); return false; }
-		catch (...) { tax->clearCheckedLabel(); return true; }
-	}
+	bool checkSub ( TConcept* C, TConcept* D );
 		/// helper; @return true iff C is either named concept of Top/Bot
 	static bool isNameOrConst ( const TConceptExpr* C )
 	{

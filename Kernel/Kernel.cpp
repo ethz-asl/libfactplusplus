@@ -318,6 +318,53 @@ ReasoningKernel :: setUpCache ( TConceptExpr* query, cacheStatus level )
 }
 
 //-------------------------------------------------
+// concept subsumption query implementation
+//-------------------------------------------------
+
+/// class for exploring concept taxonomy to find super classes
+class SupConceptActor
+{
+protected:
+	const ClassifiableEntry* pe;
+	void entry ( const ClassifiableEntry* q ) { if ( pe == q ) throw std::exception(); }
+public:
+	SupConceptActor ( ClassifiableEntry* q ) :pe(q) {}
+	bool apply ( const TaxonomyVertex& v )
+	{
+		entry(v.getPrimer());
+		for ( TaxonomyVertex::syn_iterator p = v.begin_syn(), p_end=v.end_syn(); p != p_end; ++p )
+			entry(*p);
+		return true;
+	}
+}; // SupConceptActor
+
+/// @return true iff C [= D holds
+bool
+ReasoningKernel :: checkSub ( TConcept* C, TConcept* D )
+{
+	// check whether a concept is fresh
+	if ( unlikely(!isValid(D->pName)) )	// D is fresh
+	{
+		if ( unlikely(!isValid(C->pName)) )	// C is fresh
+			return C == D;	// 2 fresh concepts subsumes one another iff they are the same
+		else	// C is known
+			return !getTBox()->isSatisfiable(C);	// C [= D iff C=\bottom
+	}
+	else	// D is known
+		if ( unlikely(!isValid(C->pName)) )	// C is fresh
+			// C [= D iff D = \top, or ~D = \bottom
+			return !checkSatTree(createSNFNot(getTBox()->getTree(C)));
+	// here C and D are known (not fresh)
+	if ( getStatus() < kbClassified )	// unclassified => do via SAT test
+		return getTBox()->isSubHolds ( C, D );
+	// classified => do the taxonomy traversal
+	SupConceptActor actor(D);
+	Taxonomy* tax = getCTaxonomy();
+	try { tax->getRelativesInfo</*needCurrent=*/true, /*onlyDirect=*/false, /*upDirection=*/true> ( C->getTaxVertex(), actor ); return false; }
+	catch (...) { tax->clearCheckedLabel(); return true; }
+}
+
+//-------------------------------------------------
 // all-disjoint query implementation
 //-------------------------------------------------
 

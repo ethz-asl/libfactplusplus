@@ -330,7 +330,7 @@ TBox :: isSubHolds ( const TConcept* pConcept, const TConcept* qConcept )
 
 	// perform reasoning with a proper logical features
 	prepareFeatures ( pConcept, qConcept );
-	bool result = !getReasoner()->runSat ( pConcept->resolveId(), (qConcept ? inverse(qConcept->resolveId()) : bpTOP) );
+	bool result = !getReasoner()->runSat ( pConcept->resolveId(), inverse(qConcept->resolveId()) );
 	clearFeatures();
 
 #ifdef FPP_DEBUG_PRINT_CURRENT_SUBSUMPTION
