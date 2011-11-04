@@ -148,6 +148,8 @@ public:		// visitor interface
 	virtual ~DLAxiomVisitorEmpty ( void ) {}
 }; // DLAxiomVisitor
 
+/// signature of an axiom
+class TSignature;
 
 /// base class for the DL axiom, which include T-, A- and RBox ones
 class TDLAxiom
@@ -155,16 +157,22 @@ class TDLAxiom
 protected:	// members
 		/// id of the axiom
 	unsigned int id;
+		/// signature (built lazily on demand)
+	TSignature* sig;
 		/// flag to show whether it is used (to support retraction)
 	bool used;
 		/// flag to show whether or not the axiom is in the module
 	bool inModule;
 
-public:
+protected:	// methods
+		/// build signature of an axiom
+	void buildSignature ( void );
+
+public:		// interface
 		/// empty c'tor
-	TDLAxiom ( void ) : used(true), inModule(false) {}
-		/// empty d'tor
-	virtual ~TDLAxiom ( void ) {}
+	TDLAxiom ( void ) : sig(NULL), used(true), inModule(false) {}
+		/// d'tor: delete signature if it was created
+	virtual ~TDLAxiom ( void );
 
 	// id management
 
@@ -187,6 +195,14 @@ public:
 		/// get the value of the used flag
 	bool isInModule ( void ) const { return inModule; }
 
+	// signature access
+
+	TSignature* getSignature ( void )
+	{
+		if ( sig == NULL )	// 1st access: build it
+			buildSignature();
+		return sig;
+	}
 		/// accept method for the visitor pattern
 	virtual void accept ( DLAxiomVisitor& visitor ) const = 0;
 }; // TDLAxiom

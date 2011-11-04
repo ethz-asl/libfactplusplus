@@ -22,7 +22,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Modularity.h"
 #include <sstream>
 
-// #define FPP_DEBUG_SPLIT_MODULES
+// possible values:
+//  0: print nothing
+//  1: print every start of simplification cycle and final stat
+//  2: print progress of simplification
+//  3: print modules
+#define FPP_DEBUG_SPLIT_MODULES 1
 
 class TAxiomSplitter
 {
@@ -93,15 +98,16 @@ protected:	// methods
 		/// create a signature of a module corresponding to a new axiom in record
 	void buildSig ( TRecord* rec )
 	{
-		sig.clear();	// make sig a signature of a new axiom
-		rec->newAxiom->accept(Updater);
+//		sig.clear();	// make sig a signature of a new axiom
+//		rec->newAxiom->accept(Updater);
+		sig = *rec->newAxiom->getSignature();
 		mod.extract ( *O, sig, M_STAR, rec->Module );	// build a module/signature for the axiom
 		rec->newAxSig = mod.getSignature();	// FIXME!! check that SIG wouldn't change after some axiom retractions
-#ifdef FPP_DEBUG_SPLIT_MODULES
-		std::cout << "Module for " << rec->oldName->getName() << ":\n";
+#if FPP_DEBUG_SPLIT_MODULES >= 3
+		std::cout << "\nModule for " << rec->oldName->getName() << ":\n";
 		for ( std::set<TDLAxiom*>::const_iterator z = rec->Module.begin(), z_end = rec->Module.end(); z != z_end; ++z )
 			(*z)->accept(pr);
-		std::cout << " with module size " << rec->Module.size() << "\n";
+		std::cout << " with module size " << rec->Module.size();
 #endif
 	}
 		/// add axiom CI in a form C [= D for D != TOP
@@ -251,18 +257,33 @@ protected:	// methods
 	void keepIndependentSplits ( void )
 	{
 		bool change;
+#	if FPP_DEBUG_SPLIT_MODULES > 0
 		size_t oSize = Renames.size();
+		TsProcTimer timer;
+		timer.Start();
+#	endif
 		do
 		{
 			change = false;
-			std::cout << "Check correctness...\n";
+#		if FPP_DEBUG_SPLIT_MODULES > 0
+			unsigned int n = Renames.size();
+			std::cout << "\nCheck split correctness (total " << n << ")...";
+#		endif
 			clearModules();
 			for ( std::vector<TRecord*>::iterator r = Renames.begin(), r_end = Renames.end(); r != r_end; ++r )
+			{
+#			if FPP_DEBUG_SPLIT_MODULES > 1
+				std::cout << "\nCheck split " << r-Renames.begin() << " (of " << n << ")";
+#			endif
 				change |= checkSplitCorrectness(*r);
+			}
 			Renames.swap(R2);
 			R2.clear();
 		} while ( change );
-		std::cout << "There were made " << Renames.size() << " splits out of " << oSize << " tries\n";
+#	if FPP_DEBUG_SPLIT_MODULES > 0
+		timer.Stop();
+		std::cout << "\nThere were made " << Renames.size() << " splits out of " << oSize << " candidates\nIt takes " << timer << " sec";
+#	endif
 	}
 		/// split all implications corresponding to oldName; @return split pointer
 	TSplitVar* splitImplicationsFor ( const TDLConceptName* oldName )
