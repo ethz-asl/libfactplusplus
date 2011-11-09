@@ -163,6 +163,8 @@ protected:	// members
 	bool used;
 		/// flag to show whether or not the axiom is in the module
 	bool inModule;
+		/// flag to show whether or not the axiom is in the search space for the optimised modularization algorithm
+	bool inSearchSpace;
 
 protected:	// methods
 		/// build signature of an axiom
@@ -170,7 +172,7 @@ protected:	// methods
 
 public:		// interface
 		/// empty c'tor
-	TDLAxiom ( void ) : sig(NULL), used(true), inModule(false) {}
+	TDLAxiom ( void ) : sig(NULL), used(true), inModule(false), inSearchSpace(false) {}
 		/// d'tor: delete signature if it was created
 	virtual ~TDLAxiom ( void );
 
@@ -190,10 +192,14 @@ public:		// interface
 
 	// modularity management
 
-		/// set the used flag
+		/// set the inModule flag
 	void setInModule ( bool flag ) { inModule = flag; }
-		/// get the value of the used flag
+		/// get the value of the inModule flag
 	bool isInModule ( void ) const { return inModule; }
+		/// set the isSearchSpace flag
+	void setInSS ( bool flag ) { inSearchSpace = flag; }
+		/// get the value of the isSearchSpace flag
+	bool isInSS ( void ) const { return inSearchSpace; }
 
 	// signature access
 
