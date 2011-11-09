@@ -82,6 +82,12 @@ protected:	// methods
 		++nNonLocal;
 		return true;
 	}
+		/// add an axiom if it is non-local
+	void addNonLocal ( TDLAxiom* ax )
+	{
+		if ( unlikely(isNonLocal(ax)) )
+			addAxiomToModule(ax);
+	}
 		/// mark the ontology O such that all the marked axioms creates the module wrt SIG
 	void extractModuleLoop ( iterator begin, iterator end )
 	{
@@ -90,12 +96,12 @@ protected:	// methods
 		{
 			sigSize = sig.size();
 			for ( iterator p = begin; p != end; ++p )
-				if ( !(*p)->isInModule() && (*p)->isUsed() && isNonLocal(*p) )
-					addAxiomToModule(*p);
+				if ( !(*p)->isInModule() && (*p)->isUsed() )
+					addNonLocal(*p);
 
         } while ( sigSize != sig.size() );
 	}
-		/// add all t
+		/// build a module traversing axioms by a signature
 	void extractModuleQueue ( void )
 	{
 		// init queue with a sig
@@ -109,12 +115,9 @@ protected:	// methods
 			// for all the axioms that contains entity in their signature
 			const SigIndex::AxiomSet& AxSet = sigIndex->getAxioms(entity);
 			for ( SigIndex::iterator q = AxSet.begin(), q_end = AxSet.end(); q != q_end; ++q )
-				if ( !(*q)->isInModule() &&	// not in module already
-					 (*q)->isInSS() &&		// in the given range
-					 isNonLocal(*q) )		// non-local
-					addAxiomToModule(*q);
+				if ( !(*q)->isInModule() && (*q)->isInSS() )	// in the given range but not in module yet
+					addNonLocal(*q);
 		}
-
 	}
 		/// extract module wrt presence of a sig index
 	void extractModule ( iterator begin, iterator end )
@@ -137,7 +140,8 @@ protected:	// methods
 		else
 			extractModuleLoop ( begin, end );
 	}
-public:
+
+public:		// interface
 		/// init c'tor
 	TModularizer ( void )
 		: Checker(&sig)
