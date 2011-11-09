@@ -19,8 +19,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef MODULARITY_H
 #define MODULARITY_H
 
+#include <queue>
+
 #include "tOntology.h"
 #include "SyntacticLocalityChecker.h"
+#include "SigIndex.h"
 
 enum ModuleType { M_TOP, M_BOT, M_STAR };
 
@@ -40,12 +43,22 @@ protected:	// members
 	SyntacticLocalityChecker Checker;
 		/// module as a list of axioms
 	std::vector<TDLAxiom*> Module;
+		/// pointer to a sig index; if not NULL then use optimized algo
+	SigIndex* sigIndex;
+		/// queue of unprocessed entities
+	std::queue<const TNamedEntity*> WorkQueue;
 
 protected:	// methods
 		/// update SIG wrt the axiom signature
 	void addAxiomSig ( TDLAxiom* axiom )
 	{
 		const TSignature& axiomSig = *axiom->getSignature();
+		if ( sigIndex )
+		{
+			for ( TSignature::iterator p = axiomSig.begin(), p_end = axiomSig.end(); p != p_end; ++p )
+				if ( !sig.contains(*p) )	// new one
+					WorkQueue.push(*p);
+		}
 		sig.add(axiomSig);
 	}
 		/// add an axiom to a module
@@ -57,33 +70,71 @@ protected:	// methods
 		addAxiomSig(axiom);
 	}
 		/// mark the ontology O such that all the marked axioms creates the module wrt SIG
-	void extractModule ( iterator begin, iterator end )
+	void extractModuleLoop ( iterator begin, iterator end )
 	{
 		size_t sigSize;
+		do
+		{
+			sigSize = sig.size();
+			for ( iterator p = begin; p != end; ++p )
+				if ( !(*p)->isInModule() && (*p)->isUsed() && !Checker.local(*p) )
+					addAxiomToModule(*p);
+
+        } while ( sigSize != sig.size() );
+	}
+		/// add all t
+	void extractModuleQueue ( void )
+	{
+		// init queue with a sig
+		for ( TSignature::iterator p = sig.begin(), p_end = sig.end(); p != p_end; ++p )
+			WorkQueue.push(*p);
+		// main cycle
+		while ( !WorkQueue.empty() )
+		{
+			const TNamedEntity* entity = WorkQueue.front();
+			WorkQueue.pop();
+			// for all the axioms that contains entity in their signature
+			const SigIndex::AxiomSet& AxSet = sigIndex->getAxioms(entity);
+			for ( SigIndex::iterator q = AxSet.begin(), q_end = AxSet.end(); q != q_end; ++q )
+				if ( !(*q)->isInModule() &&	// not in module already
+					 (*q)->isInSS() &&		// in the given range
+					 !Checker.local(*q) )	// non-local
+					addAxiomToModule(*q);
+		}
+
+	}
+		/// extract module wrt presence of a sig index
+	void extractModule ( iterator begin, iterator end )
+	{
 		Module.clear();
 		Module.reserve(end-begin);
 		// clear the module flag in the input
 		iterator p;
 		for ( p = begin; p != end; ++p )
 			(*p)->setInModule(false);
-		do
+		if ( sigIndex != NULL )
 		{
-			sigSize = sig.size();
 			for ( p = begin; p != end; ++p )
-				if ( !(*p)->isInModule() && (*p)->isUsed() && !Checker.local(*p) )
-					addAxiomToModule(*p);
-
-        } while ( sigSize != sig.size() );
+				if ( (*p)->isUsed() )
+					(*p)->setInSS(true);
+			extractModuleQueue();
+			for ( p = begin; p != end; ++p )
+				(*p)->setInSS(false);
+		}
+		else
+			extractModuleLoop ( begin, end );
 	}
-
 public:
 		/// init c'tor
 	TModularizer ( void )
 		: Checker(&sig)
+		, sigIndex(NULL)
 		{}
 		// empty d'tor
 	~TModularizer ( void ) {}
 
+		/// set sig index to a given value
+	void setSigIndex ( SigIndex* p ) { sigIndex = p; }
 		/// extract module wrt SIGNATURE and TYPE from the set of axioms [BEGIN,END)
 	void extract ( iterator begin, iterator end, const TSignature& signature, ModuleType type )
 	{

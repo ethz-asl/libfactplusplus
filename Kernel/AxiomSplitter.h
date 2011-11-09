@@ -71,6 +71,7 @@ protected:	// members
 	TSignature sig;	// seed signature
 	std::set<TSplitVar*> RejSplits;
 	TOntology* O;
+	SigIndex sigIndex;
 
 protected:	// methods
 		/// rename old concept into a new one with a fresh name
@@ -86,8 +87,10 @@ protected:	// methods
 		for ( TRecord::AxVec::iterator p = rec->oldAxioms.begin(), p_end = rec->oldAxioms.end(); p != p_end; ++p )
 		{
 			O->retract(*p);
+			sigIndex.unregisterAx(*p);
 		}
 		O->add(rec->newAxiom);
+		sigIndex.registerAx(rec->newAxiom);
 	}
 		/// unregister a record
 	void unregisterRec ( TRecord* rec )
@@ -95,13 +98,16 @@ protected:	// methods
 		for ( TRecord::AxVec::iterator p = rec->oldAxioms.begin(), p_end = rec->oldAxioms.end(); p != p_end; ++p )
 		{
 			(*p)->setUsed(true);
+			sigIndex.registerAx(*p);
 		}
 		rec->newAxiom->setUsed(false);
+		sigIndex.unregisterAx(rec->newAxiom);
 	}
 		/// create a signature of a module corresponding to a new axiom in record
 	void buildSig ( TRecord* rec )
 	{
 		sig = *rec->newAxiom->getSignature();
+		mod.setSigIndex(&sigIndex);
 		mod.extract ( *O, sig, M_STAR, rec->Module );	// build a module/signature for the axiom
 		rec->newAxSig = mod.getSignature();	// FIXME!! check that SIG wouldn't change after some axiom retractions
 #if FPP_DEBUG_SPLIT_MODULES >= 3
@@ -318,6 +324,7 @@ public:		// interaface
 		/// init c'tor
 	TAxiomSplitter ( TOntology* o ) : pr(std::cout), newNameId(0), O(o)
 	{
+		sigIndex.processRange ( o->begin(), o->end() );
 	}
 		/// main split method
 	void buildSplit ( void )
