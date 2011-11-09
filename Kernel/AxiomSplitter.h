@@ -107,7 +107,6 @@ protected:	// methods
 	void buildSig ( TRecord* rec )
 	{
 		sig = *rec->newAxiom->getSignature();
-		mod.setSigIndex(&sigIndex);
 		mod.extract ( *O, sig, M_STAR, rec->Module );	// build a module/signature for the axiom
 		rec->newAxSig = mod.getSignature();	// FIXME!! check that SIG wouldn't change after some axiom retractions
 #if FPP_DEBUG_SPLIT_MODULES >= 3
@@ -325,6 +324,7 @@ public:		// interaface
 	TAxiomSplitter ( TOntology* o ) : pr(std::cout), newNameId(0), O(o)
 	{
 		sigIndex.processRange ( o->begin(), o->end() );
+//		mod.setSigIndex(&sigIndex);
 	}
 		/// main split method
 	void buildSplit ( void )
@@ -341,6 +341,9 @@ public:		// interaface
 		keepIndependentSplits();
 		// now R2 contains all separated axioms; make one replacement for every C [= D axiom
 		splitImplications();
+#	if FPP_DEBUG_SPLIT_MODULES > 1
+		std::cout << "\nThere were " << mod.getNNonLocal() << " non-local axioms out of " << mod.getNChecks() << " totally checked";
+#	endif
 	}
 }; // TAxiomSplitter
 

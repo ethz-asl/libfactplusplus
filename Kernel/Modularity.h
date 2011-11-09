@@ -47,6 +47,10 @@ protected:	// members
 	SigIndex* sigIndex;
 		/// queue of unprocessed entities
 	std::queue<const TNamedEntity*> WorkQueue;
+		/// number of locality check calls
+	unsigned long long nChecks;
+		/// number of non-local axioms
+	unsigned long long nNonLocal;
 
 protected:	// methods
 		/// update SIG wrt the axiom signature
@@ -69,6 +73,15 @@ protected:	// methods
 		// update the signature
 		addAxiomSig(axiom);
 	}
+		/// @return true iff an AXiom is non-local
+	bool isNonLocal ( const TDLAxiom* ax )
+	{
+		++nChecks;
+		if ( Checker.local(ax) )
+			return false;
+		++nNonLocal;
+		return true;
+	}
 		/// mark the ontology O such that all the marked axioms creates the module wrt SIG
 	void extractModuleLoop ( iterator begin, iterator end )
 	{
@@ -77,7 +90,7 @@ protected:	// methods
 		{
 			sigSize = sig.size();
 			for ( iterator p = begin; p != end; ++p )
-				if ( !(*p)->isInModule() && (*p)->isUsed() && !Checker.local(*p) )
+				if ( !(*p)->isInModule() && (*p)->isUsed() && isNonLocal(*p) )
 					addAxiomToModule(*p);
 
         } while ( sigSize != sig.size() );
@@ -98,7 +111,7 @@ protected:	// methods
 			for ( SigIndex::iterator q = AxSet.begin(), q_end = AxSet.end(); q != q_end; ++q )
 				if ( !(*q)->isInModule() &&	// not in module already
 					 (*q)->isInSS() &&		// in the given range
-					 !Checker.local(*q) )	// non-local
+					 isNonLocal(*q) )		// non-local
 					addAxiomToModule(*q);
 		}
 
@@ -129,6 +142,8 @@ public:
 	TModularizer ( void )
 		: Checker(&sig)
 		, sigIndex(NULL)
+		, nChecks(0)
+		, nNonLocal(0)
 		{}
 		// empty d'tor
 	~TModularizer ( void ) {}
@@ -175,7 +190,12 @@ public:
 	void extract ( TOntology& O, const TSignature& signature, ModuleType type, std::set<TDLAxiom*>& Set )
 		{ extract ( O.begin(), O.end(), signature, type, Set ); }
 		/// get access to a signature
+
 	const TSignature& getSignature ( void ) const { return sig; }
+		/// get number of checks made
+	unsigned long long getNChecks ( void ) const { return nChecks; }
+		/// get number of axioms that were local
+	unsigned long long getNNonLocal ( void ) const { return nNonLocal; }
 }; // TModularizer
 
 #endif
