@@ -58,20 +58,6 @@ protected:	// types
 		{
 			newAxiom = new TDLAxiomConceptInclusion ( newName, Desc );
 		}
-			/// register the new axiom and retract the old one
-		void Register ( TOntology* O )
-		{
-			for ( AxVec::iterator p = oldAxioms.begin(), p_end = oldAxioms.end(); p != p_end; ++p )
-				O->retract(*p);
-			O->add(newAxiom);
-		}
-			/// un-register record
-		void Unregister ( void )
-		{
-			for ( AxVec::iterator p = oldAxioms.begin(), p_end = oldAxioms.end(); p != p_end; ++p )
-				(*p)->setUsed(true);
-			newAxiom->setUsed(false);
-		}
 	};
 
 protected:	// members
@@ -93,6 +79,24 @@ protected:	// methods
 		std::stringstream s;
 		s << oldName->getName() << "+" << ++newNameId;
 		return dynamic_cast<const TDLConceptName*>(O->getExpressionManager()->Concept(s.str()));
+	}
+		/// register a record in the ontology
+	void registerRec ( TRecord* rec )
+	{
+		for ( TRecord::AxVec::iterator p = rec->oldAxioms.begin(), p_end = rec->oldAxioms.end(); p != p_end; ++p )
+		{
+			O->retract(*p);
+		}
+		O->add(rec->newAxiom);
+	}
+		/// unregister a record
+	void unregisterRec ( TRecord* rec )
+	{
+		for ( TRecord::AxVec::iterator p = rec->oldAxioms.begin(), p_end = rec->oldAxioms.end(); p != p_end; ++p )
+		{
+			(*p)->setUsed(true);
+		}
+		rec->newAxiom->setUsed(false);
 	}
 		/// create a signature of a module corresponding to a new axiom in record
 	void buildSig ( TRecord* rec )
@@ -164,7 +168,7 @@ protected:	// methods
 		rec->oldName = splitName;
 		rec->newName = rename(splitName);
 		rec->setEqAx(ce);
-		rec->Register(O);
+		registerRec(rec);
 		// register rec
 		Renames.push_back(rec);
 //		std::cout << "split " << splitName->getName() << " into " << rec->newName->getName() << "\n";
@@ -194,7 +198,7 @@ protected:	// methods
 //			(*s)->accept(pr);
 		}
 		rec->setImpAx(O->getExpressionManager()->And());
-		rec->Register(O);
+		registerRec(rec);
 //		rec->newAxiom->accept(pr);
 		return rec;
 	}
@@ -225,7 +229,7 @@ protected:	// methods
 		if ( Rejects.count(rec->oldName) > 0 )
 		{
 		unsplit:	// restore the old axiom, get rid of the new one
-			rec->Unregister();
+			unregisterRec(rec);
 //			std::cout << "unsplit " << rec->oldName->getName() << "\n";
 			delete rec;
 			return true;
@@ -240,7 +244,7 @@ protected:	// methods
 		{
 			// mark name as rejected, un-register imp
 			Rejects.insert(rec->oldName);
-			imp->Unregister();
+			unregisterRec(imp);
 			goto unsplit;
 		}
 		else	// keep the split
@@ -307,11 +311,15 @@ protected:	// methods
 				split->addEntry ( (*r)->newName, (*r)->newAxSig, (*r)->Module );
 			}
 			else
-				(*r)->Unregister();
+				unregisterRec(*r);
 	}
 
 public:		// interaface
-	TAxiomSplitter ( TOntology* o ) : pr(std::cout), newNameId(0), O(o) {}
+		/// init c'tor
+	TAxiomSplitter ( TOntology* o ) : pr(std::cout), newNameId(0), O(o)
+	{
+	}
+		/// main split method
 	void buildSplit ( void )
 	{
 		// first make a set of named concepts C s.t. C [= D is in the ontology
