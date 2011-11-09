@@ -83,7 +83,6 @@ protected:	// members
 	int newNameId;
 	TModularizer mod;
 	TSignature sig;	// seed signature
-	TSignatureUpdater Updater;
 	std::set<TSplitVar*> RejSplits;
 	TOntology* O;
 
@@ -98,8 +97,6 @@ protected:	// methods
 		/// create a signature of a module corresponding to a new axiom in record
 	void buildSig ( TRecord* rec )
 	{
-//		sig.clear();	// make sig a signature of a new axiom
-//		rec->newAxiom->accept(Updater);
 		sig = *rec->newAxiom->getSignature();
 		mod.extract ( *O, sig, M_STAR, rec->Module );	// build a module/signature for the axiom
 		rec->newAxSig = mod.getSignature();	// FIXME!! check that SIG wouldn't change after some axiom retractions
@@ -314,7 +311,7 @@ protected:	// methods
 	}
 
 public:		// interaface
-	TAxiomSplitter ( TOntology* o ) : pr(std::cout), newNameId(0), Updater(sig), O(o) {}
+	TAxiomSplitter ( TOntology* o ) : pr(std::cout), newNameId(0), O(o) {}
 	void buildSplit ( void )
 	{
 		// first make a set of named concepts C s.t. C [= D is in the ontology

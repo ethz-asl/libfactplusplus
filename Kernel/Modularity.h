@@ -21,7 +21,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "tOntology.h"
 #include "SyntacticLocalityChecker.h"
-#include "tSignatureUpdater.h"
 
 enum ModuleType { M_TOP, M_BOT, M_STAR };
 
@@ -39,14 +38,16 @@ protected:	// members
 	TSignature sig;
 		/// internal syntactic locality checker
 	SyntacticLocalityChecker Checker;
-		/// signature updater
-	TSignatureUpdater Updater;
 		/// module as a list of axioms
 	std::vector<TDLAxiom*> Module;
 
 protected:	// methods
 		/// update SIG wrt the axiom signature
-	void addAxiomSig ( TDLAxiom* axiom ) { axiom->accept(Updater); }
+	void addAxiomSig ( TDLAxiom* axiom )
+	{
+		const TSignature& axiomSig = *axiom->getSignature();
+		sig.add(axiomSig);
+	}
 		/// add an axiom to a module
 	void addAxiomToModule ( TDLAxiom* axiom )
 	{
@@ -79,7 +80,6 @@ public:
 		/// init c'tor
 	TModularizer ( void )
 		: Checker(&sig)
-		, Updater(sig)
 		{}
 		// empty d'tor
 	~TModularizer ( void ) {}
