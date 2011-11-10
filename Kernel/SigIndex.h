@@ -21,6 +21,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "tDLAxiom.h"
 #include "tSignature.h"
+#include "SyntacticLocalityChecker.h"
 
 class SigIndex
 {
@@ -37,10 +38,25 @@ protected:	// types
 protected:	// members
 		/// map itself
 	EntityAxiomMap Base;
+		/// locality checker
+	SyntacticLocalityChecker Checker;
+		/// sets of axioms non-local wrt the empty signature
+	AxiomSet NonLocal[2];
+		/// empty signature to test the non-locality
+	TSignature emptySig;
+
+protected:	// members
+		/// add axiom AX to the non-local set with top-locality value TOP
+	void checkNonLocal ( TDLAxiom* ax, bool top )
+	{
+		emptySig.setLocality(top);
+		if ( !Checker.local(ax) )
+			NonLocal[!top].insert(ax);
+	}
 
 public:		// interface
 		/// empty c'tor
-	SigIndex ( void ) {}
+	SigIndex ( void ) : Checker(&emptySig) {}
 		/// empty d'tor
 	~SigIndex ( void ) {}
 
@@ -51,12 +67,18 @@ public:		// interface
 	{
 		for ( TSignature::iterator p = ax->getSignature()->begin(), p_end = ax->getSignature()->end(); p != p_end; ++p )
 			Base[*p].insert(ax);
+		// check whether the axiom is non-local
+		checkNonLocal ( ax, /*top=*/false );
+		checkNonLocal ( ax, /*top=*/true );
 	}
 		/// unregister an axiom AX
 	void unregisterAx ( TDLAxiom* ax )
 	{
 		for ( TSignature::iterator p = ax->getSignature()->begin(), p_end = ax->getSignature()->end(); p != p_end; ++p )
 			Base[*p].erase(ax);
+		// remove from the non-locality
+		NonLocal[false].erase(ax);
+		NonLocal[true].erase(ax);
 	}
 		/// process an axiom wrt its Used status
 	void processAx ( TDLAxiom* ax )
@@ -78,6 +100,8 @@ public:		// interface
 
 		/// given an entity, return a set of all axioms that tontain this entity in a signature
 	const AxiomSet& getAxioms ( const TNamedEntity* entity ) { return Base[entity]; }
+		/// get the non-local axioms with top-locality value TOP
+	const AxiomSet& getNonLocal ( bool top ) const { return NonLocal[!top]; }
 }; // SigIndex
 
 #endif

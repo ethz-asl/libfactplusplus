@@ -82,10 +82,10 @@ protected:	// methods
 		++nNonLocal;
 		return true;
 	}
-		/// add an axiom if it is non-local
-	void addNonLocal ( TDLAxiom* ax )
+		/// add an axiom if it is non-local (or in noCheck is true)
+	void addNonLocal ( TDLAxiom* ax, bool noCheck )
 	{
-		if ( unlikely(isNonLocal(ax)) )
+		if ( unlikely(noCheck) || unlikely(isNonLocal(ax)) )
 			addAxiomToModule(ax);
 	}
 		/// mark the ontology O such that all the marked axioms creates the module wrt SIG
@@ -97,9 +97,16 @@ protected:	// methods
 			sigSize = sig.size();
 			for ( iterator p = begin; p != end; ++p )
 				if ( !(*p)->isInModule() && (*p)->isUsed() )
-					addNonLocal(*p);
+					addNonLocal ( *p, /*noCheck=*/false );
 
         } while ( sigSize != sig.size() );
+	}
+		/// add all the non-local axioms from given axiom-set AxSet
+	void addNonLocal ( const SigIndex::AxiomSet& AxSet, bool noCheck )
+	{
+		for ( SigIndex::iterator q = AxSet.begin(), q_end = AxSet.end(); q != q_end; ++q )
+			if ( !(*q)->isInModule() && (*q)->isInSS() )	// in the given range but not in module yet
+				addNonLocal ( *q, noCheck );
 	}
 		/// build a module traversing axioms by a signature
 	void extractModuleQueue ( void )
@@ -107,16 +114,15 @@ protected:	// methods
 		// init queue with a sig
 		for ( TSignature::iterator p = sig.begin(), p_end = sig.end(); p != p_end; ++p )
 			WorkQueue.push(*p);
+		// add all the axioms that are non-local wrt given value of a top-locality
+		addNonLocal ( sigIndex->getNonLocal(sig.topCLocal()), /*noCheck=*/true );
 		// main cycle
 		while ( !WorkQueue.empty() )
 		{
 			const TNamedEntity* entity = WorkQueue.front();
 			WorkQueue.pop();
 			// for all the axioms that contains entity in their signature
-			const SigIndex::AxiomSet& AxSet = sigIndex->getAxioms(entity);
-			for ( SigIndex::iterator q = AxSet.begin(), q_end = AxSet.end(); q != q_end; ++q )
-				if ( !(*q)->isInModule() && (*q)->isInSS() )	// in the given range but not in module yet
-					addNonLocal(*q);
+			addNonLocal ( sigIndex->getAxioms(entity), /*noCheck=*/false );
 		}
 	}
 		/// extract module wrt presence of a sig index
