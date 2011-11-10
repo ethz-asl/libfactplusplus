@@ -324,7 +324,7 @@ public:		// interaface
 	TAxiomSplitter ( TOntology* o ) : pr(std::cout), newNameId(0), O(o)
 	{
 		sigIndex.processRange ( o->begin(), o->end() );
-//		mod.setSigIndex(&sigIndex);
+		mod.setSigIndex(&sigIndex);
 	}
 		/// main split method
 	void buildSplit ( void )
