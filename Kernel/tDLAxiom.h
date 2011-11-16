@@ -150,6 +150,8 @@ public:		// visitor interface
 
 /// signature of an axiom
 class TSignature;
+/// atom that the axiom belongs to
+class TOntologyAtom;
 
 /// base class for the DL axiom, which include T-, A- and RBox ones
 class TDLAxiom
@@ -159,6 +161,8 @@ protected:	// members
 	unsigned int id;
 		/// signature (built lazily on demand)
 	TSignature* sig;
+		/// atom of the ontology (build lazily on demand)
+	const TOntologyAtom* Atom;
 		/// flag to show whether it is used (to support retraction)
 	bool used;
 		/// flag to show whether or not the axiom is in the module
@@ -172,7 +176,13 @@ protected:	// methods
 
 public:		// interface
 		/// empty c'tor
-	TDLAxiom ( void ) : sig(NULL), used(true), inModule(false), inSearchSpace(false) {}
+	TDLAxiom ( void )
+		: sig(NULL)
+		, Atom(NULL)
+		, used(true)
+		, inModule(false)
+		, inSearchSpace(false)
+		{}
 		/// d'tor: delete signature if it was created
 	virtual ~TDLAxiom ( void );
 
@@ -209,6 +219,16 @@ public:		// interface
 			buildSignature();
 		return sig;
 	}
+
+	// ontological atomic structure management
+
+		/// set atom to which the axiom belongs
+	void setAtom ( const TOntologyAtom* atom ) { Atom = atom; }
+		/// get the atom an axiom belongs to
+	const TOntologyAtom* getAtom ( void ) const { return Atom; }
+
+	// visitor interface
+
 		/// accept method for the visitor pattern
 	virtual void accept ( DLAxiomVisitor& visitor ) const = 0;
 }; // TDLAxiom
