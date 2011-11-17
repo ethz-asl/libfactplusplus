@@ -50,5 +50,6 @@ SOURCES = \
           Actor.cpp\
           tDag2Interface.cpp\
           tSplitExpansionRules.cpp\
+          tDLAxiom.cpp\
 
 include ../Makefile.include

@@ -74,7 +74,7 @@ public:		// interface
 		/// empty c'tor
 	Actor ( void ) {}
 		/// empty d'tor
-	~Actor ( void ) {}
+	virtual ~Actor ( void ) {}
 
 	// flags setup
 
