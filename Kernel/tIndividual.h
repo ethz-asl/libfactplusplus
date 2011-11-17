@@ -95,12 +95,12 @@ public:		// interface
 		: TConcept(name)
 		, node(NULL)
 		, pRelatedMap(new TRelatedMap())
-		{}
+	{
+		setSingleton(true);
+	}
 		/// empty d'tor
 	virtual ~TIndividual ( void ) { delete pRelatedMap; }
 
-		/// check whether a concept is indeed a singleton
-	virtual bool isSingleton ( void ) const { return true; }
 		/// init told subsumers of the individual by it's description
 	virtual void initToldSubsumers ( void )
 	{

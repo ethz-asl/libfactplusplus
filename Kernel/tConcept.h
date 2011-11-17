@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2010 by Dmitry Tsarkov
+Copyright (C) 2003-2011 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -180,11 +180,6 @@ public:		// methods
 		/// iterator for accessing DJ elements
 	er_iterator er_end ( void ) const { return erSet.end(); }
 
-	// Individual-related support
-
-		/// check whether a concept is indeed a singleton
-	virtual bool isSingleton ( void ) const { return false; }
-
 	// classification TAGs manipulation
 
 		/// get value of tag as it is
@@ -268,6 +263,8 @@ public:		// methods
 	FPP_ADD_FLAG(HasSP,0x20);
 		/// register a Nominal flag
 	FPP_ADD_FLAG(Nominal,0x40);
+		/// register a Singleton flag
+	FPP_ADD_FLAG(Singleton,0x80);
 
 	// concept non-primitivity methods
 
