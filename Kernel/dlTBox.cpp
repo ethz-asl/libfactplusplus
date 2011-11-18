@@ -362,9 +362,9 @@ bool TBox :: isSameIndividuals ( const TIndividual* a, const TIndividual* b )
 		return true;
 	if ( !isIndividual(a) || !isIndividual(b) )
 		throw EFaCTPlusPlus("Individuals are expected in the isSameIndividuals() query");
-	if ( a->node == NULL || b->node == NULL )
-		throw EFaCTPlusPlus("isSameIndividuals() query with non-realised ontology");
-	return a->node->resolvePBlocker() == b->node->resolvePBlocker();
+	if ( a->node == NULL || b->node == NULL )	// fresh individuals couldn't be the same
+		return false;
+	return a->getTaxVertex() == b->getTaxVertex();
 }
 
 /// check if 2 roles are disjoint
