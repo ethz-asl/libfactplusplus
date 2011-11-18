@@ -290,14 +290,6 @@ protected:	// methods
 				unlikely ( dynamic_cast<const TDLConceptTop*>(C) != NULL ) ||
 				unlikely ( dynamic_cast<const TDLConceptBottom*>(C) != NULL );
 	}
-		/// @return true iff C [= D holds
-	bool checkSub ( const TConceptExpr* C, const TConceptExpr* D )
-	{
-		if ( isNameOrConst(D) && likely(isNameOrConst(C)) )
-			return checkSub ( getTBox()->getCI(TreeDeleter(e(C))), getTBox()->getCI(TreeDeleter(e(D))) );
-
-		return !checkSat ( getExpressionManager()->And ( C, getExpressionManager()->Not(D) ) );
-	}
 
 	// helper methods to query properties of roles
 
@@ -964,13 +956,36 @@ public:
 		}
 	}
 		/// @return true iff C [= D holds
-	bool isSubsumedBy ( const TConceptExpr* C, const TConceptExpr* D ) { preprocessKB(); return checkSub ( C, D ); }
+	bool isSubsumedBy ( const TConceptExpr* C, const TConceptExpr* D )
+	{
+		preprocessKB();
+		if ( isNameOrConst(D) && likely(isNameOrConst(C)) )
+			return checkSub ( getTBox()->getCI(TreeDeleter(e(C))), getTBox()->getCI(TreeDeleter(e(D))) );
+
+		return !checkSat ( getExpressionManager()->And ( C, getExpressionManager()->Not(D) ) );
+	}
 		/// @return true iff C is disjoint with D; that is, C [= \not D holds
-	bool isDisjoint ( const TConceptExpr* C, const TConceptExpr* D ) { preprocessKB(); return checkSub ( C, getExpressionManager()->Not(D) ); }
+	bool isDisjoint ( const TConceptExpr* C, const TConceptExpr* D ) { return isSubsumedBy ( C, getExpressionManager()->Not(D) ); }
 		/// @return true iff C is equivalent to D
 	bool isEquivalent ( const TConceptExpr* C, const TConceptExpr* D )
-		{ preprocessKB(); return isSubsumedBy ( C, D ) && isSubsumedBy ( D, C ); }
-
+	{
+		if ( C == D )	// easy case
+			return true;
+		preprocessKB();
+		if ( isKBClassified() )
+		{	// try to detect C=D wrt named concepts
+			if ( isNameOrConst(D) && likely(isNameOrConst(C)) )
+			{
+				const TaxonomyVertex* cV = getTBox()->getCI(TreeDeleter(e(C)))->getTaxVertex();
+				const TaxonomyVertex* dV = getTBox()->getCI(TreeDeleter(e(D)))->getTaxVertex();
+				if ( unlikely(cV == NULL) && unlikely(dV == NULL) )
+					return false;	// 2 different fresh names
+				return cV == dV;
+			}
+		}
+		// not classified or not named constants
+		return isSubsumedBy ( C, D ) && isSubsumedBy ( D, C );
+	}
 	// concept hierarchy
 
 		/// apply actor::apply() to all DIRECT super-concepts of [complex] C
