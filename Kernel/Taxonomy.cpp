@@ -147,9 +147,6 @@ bool Taxonomy :: classifySynonym ( void )
 	if ( syn == curEntry )
 		return false;	// not a synonym
 
-	// I'm sure that there is impossible to have synonym here, but let's check
-	fpp_assert ( willInsertIntoTaxonomy );
-
 	// update synonym vertex:
 	fpp_assert ( syn->getTaxVertex() != NULL );
 	insertCurrent(syn->getTaxVertex());

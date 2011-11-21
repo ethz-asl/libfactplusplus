@@ -1161,6 +1161,7 @@ public:
 	{
 		realiseKB();	// ensure KB is ready to answer the query
 		getIndividual ( I, "individual name expected in the isInstance()" );
+		// FIXME!! this way a new concept is created; could be done more optimal
 		return isSubsumedBy ( getExpressionManager()->OneOf(I), C );
 	}
 		/// @return in Rs all (DATA)-roles R s.t. (I,x):R; add inverses if NEEDI is true
