@@ -248,8 +248,11 @@ public:		// interface
 	bool isFunctional ( void ) const { return Functionality.getValue(); }
 		/// check whether the functionality of a role is known
 	bool isFunctionalityKnown ( void ) const { return Functionality.isKnown(); }
-		/// check if the role is topmost-functional (ie, has no functional ancestors)
-	bool isTopFunc ( void ) const { return isFunctional() && *TopFunc.begin() == this; }
+		/// check if the role is topmost-functional (ie, has no functional ancestors).
+	bool isTopFunc ( void ) const
+	{	// check for emptyness is here due to case where a role is determined to be a functional
+		return !TopFunc.empty() && *TopFunc.begin() == this;
+	}
 		/// set role functionality value
 	void setFunctional ( bool value ) { Functionality.setValue(value); }
 		/// mark role (topmost) functional
