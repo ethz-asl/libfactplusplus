@@ -145,7 +145,7 @@ public:		// methods
 		/// empty c'tor
 	DataTypeAppearance ( DepSet& dep ) : PType(NULL), NType(NULL), clashDep(dep) {}
 		/// empty d'tor
-	~DataTypeAppearance ( void ) {}
+	~DataTypeAppearance ( void ) { delete PType; delete NType; }
 
 		/// clear the appearance flags
 	void clear ( void )
