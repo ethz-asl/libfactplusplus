@@ -964,8 +964,8 @@ public:
 
 		return !checkSat ( getExpressionManager()->And ( C, getExpressionManager()->Not(D) ) );
 	}
-		/// @return true iff C is disjoint with D; that is, C [= \not D holds
-	bool isDisjoint ( const TConceptExpr* C, const TConceptExpr* D ) { return isSubsumedBy ( C, getExpressionManager()->Not(D) ); }
+		/// @return true iff C is disjoint with D; that is, (C and D) is unsatisfiable
+	bool isDisjoint ( const TConceptExpr* C, const TConceptExpr* D ) { return !isSatisfiable(getExpressionManager()->And(C,D)); }
 		/// @return true iff C is equivalent to D
 	bool isEquivalent ( const TConceptExpr* C, const TConceptExpr* D )
 	{
