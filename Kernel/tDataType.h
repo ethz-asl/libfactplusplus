@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2005-2010 by Dmitry Tsarkov
+Copyright (C) 2005-2011 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -16,8 +16,8 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef _TDATATYPE_H
-#define _TDATATYPE_H
+#ifndef TDATATYPE_H
+#define TDATATYPE_H
 
 #include "tDataEntry.h"
 #include "tNECollection.h"
@@ -64,8 +64,6 @@ public:		// interface
 		/// create new expression of the type
 	TDataEntry* getExpr ( void )
 	{
-		if ( isLocked() )
-			return NULL;	// FIXME!! exception later
 		TDataEntry* ret = registerElem(new TDataEntry("expr"));
 		Expr.push_back(ret);
 		return ret;
