@@ -331,13 +331,6 @@ DLConceptTaxonomy :: mergeSplitVars ( TSplitVar* split )
 |* 			Implementation of class TBox				*|
 \********************************************************/
 
-/// get RW access to the splits
-TSplitVars*
-TBox :: getSplits ( void )
-{
-	return getTaxonomy()->getSplits();
-}
-
 void TBox :: createTaxonomy ( bool needIndividual )
 {
 	bool needConcept = !needIndividual;

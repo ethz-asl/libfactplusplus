@@ -66,8 +66,6 @@ protected:	// types
 protected:	// members
 		/// host tBox
 	TBox& tBox;
-		/// set of split vars
-	TSplitVars* Splits;
 		/// common descendants of all parents of currently classified concept
 	TaxonomyLink Common;
 		/// number of processed common parents
@@ -264,17 +262,13 @@ public:		// interface
 		/// process all splits
 	void processSplits ( void )
 	{
-		for ( TSplitVars::iterator p = Splits->begin(), p_end = Splits->end(); p != p_end; ++p )
+		for ( TSplitVars::iterator p = tBox.Splits->begin(), p_end = tBox.Splits->end(); p != p_end; ++p )
 			mergeSplitVars(*p);
 	}
 		/// set bottom-up flag
 	void setBottomUp ( const TKBFlags& GCIs ) { flagNeedBottomUp = (GCIs.isGCI() || (GCIs.isReflexive() && GCIs.isRnD())); }
 		/// set progress indicator
 	void setProgressIndicator ( TProgressMonitor* pMon ) { pTaxProgress = pMon; }
-		/// set split vars
-	void setSplitVars ( TSplitVars* s ) { Splits = s; }
-		/// get access to split vars
-	TSplitVars* getSplits ( void ) { return Splits; }
 		/// output taxonomy to a stream
 	virtual void print ( std::ostream& o ) const;
 }; // DLConceptTaxonomy

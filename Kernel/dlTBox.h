@@ -207,6 +207,8 @@ protected:	// members
 	std::map<TConcept*, std::pair<TIndividual*,bool> > SameI;
 		/// split rules
 	TSplitRules SplitRules;
+		/// set of split vars
+	TSplitVars* Splits;
 
 		/// internalisation of a general axioms
 	BipolarPointer T_G;
@@ -1133,7 +1135,9 @@ public:
 		/// get (READ-ONLY) access to internal Taxonomy of concepts
 	const DLConceptTaxonomy* getTaxonomy ( void ) const { return pTax; }
 		/// get RW access to the splits
-	TSplitVars* getSplits ( void );	// defined in DLConceptTaxonomy.h
+	TSplitVars* getSplits ( void ) { return Splits; }
+		/// set split vars
+	void setSplitVars ( TSplitVars* s ) { Splits = s; }
 
 		/// set given structure as a progress monitor
 	void setProgressMonitor ( TProgressMonitor* pMon ) { pMonitor = pMon; }

@@ -386,7 +386,7 @@ public:		// interface
 		for ( TSplitVars::iterator q = ontology.Splits.begin(), q_end = ontology.Splits.end(); q != q_end; ++q )
 			fillSplit(*q);
 
-		kb.getTaxonomy()->setSplitVars(&ontology.Splits);
+		kb.setSplitVars(&ontology.Splits);
 		kb.finishLoading();
 	}
 }; // TOntologyLoader
