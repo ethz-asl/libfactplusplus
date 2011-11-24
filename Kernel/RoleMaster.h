@@ -116,6 +116,7 @@ public:		// interface
 		, emptyRole(BotRoleName == "" ? "emptyRole" : BotRoleName)
 		, universalRole(TopRoleName == "" ? "universalRole" : TopRoleName)
 		, roleNS()
+		, pTax(NULL)
 		, DataRoles(dataRoles)
 		, useUndefinedNames(true)
 	{
@@ -137,9 +138,6 @@ public:		// interface
 		universalRole.setDataRole(dataRoles);
 		universalRole.setBPDomain(bpTOP);
 		universalRole.setTop();
-
-		// create roles taxonomy
-		pTax = new Taxonomy ( &universalRole, &emptyRole );
 	}
 		/// d'tor (delete taxonomy)
 	~RoleMaster ( void ) { delete pTax; }

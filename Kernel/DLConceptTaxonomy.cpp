@@ -344,6 +344,9 @@ void TBox :: createTaxonomy ( bool needIndividual )
 
 	// here we sure that ontology is consistent
 	// FIXME!! distinguish later between the 1st run and the following runs
+	if ( pTax == NULL )	// 1st run
+		pTax = new DLConceptTaxonomy ( pTop, pBottom, *this );
+
 	DLHeap.setSubOrder();	// init priorities in order to do subsumption tests
 	pTax->setBottomUp(GCIs);
 	needConcept |= needIndividual;	// together with concepts

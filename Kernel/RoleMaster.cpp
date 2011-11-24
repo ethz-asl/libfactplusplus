@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2010 by Dmitry Tsarkov
+Copyright (C) 2003-2011 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -105,6 +105,9 @@ void RoleMaster :: initAncDesc ( void )
 			(*p)->addParent(&universalRole);
 
 	// stage 2: perform classification
+
+	// create roles taxonomy
+	pTax = new Taxonomy ( &universalRole, &emptyRole );
 	pTax->setCompletelyDefined(true);
 
 	for ( p = p_begin; p != p_end; ++p )

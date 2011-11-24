@@ -37,6 +37,7 @@ TBox :: TBox ( const ifOptionSet* Options, const std::string& TopORoleName, cons
 	, stdReasoner(NULL)
 	, nomReasoner(NULL)
 	, pMonitor(NULL)
+	, pTax(NULL)
 	, pOptions (Options)
 	, Status(kbLoading)
 	, curFeature(NULL)
@@ -63,7 +64,6 @@ TBox :: TBox ( const ifOptionSet* Options, const std::string& TopORoleName, cons
 {
 	readConfig ( Options );
 	initTopBottom ();
-	pTax = new DLConceptTaxonomy ( pTop, pBottom, *this );
 
 	setForbidUndefinedNames(false);
 }
