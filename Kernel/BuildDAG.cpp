@@ -230,9 +230,10 @@ BipolarPointer TBox :: tree2dag ( const DLTree* t )
 
 /// fills AND-like vertex V with an AND-like expression T; process result
 BipolarPointer
-TBox :: and2dag ( DLVertex* v, const DLTree* t )
+TBox :: and2dag ( const DLTree* t )
 {
 	BipolarPointer ret = bpBOTTOM;
+	DLVertex* v = new DLVertex(dtAnd);
 
 	if ( fillANDVertex ( v, t ) )	// clash found
 		delete v;

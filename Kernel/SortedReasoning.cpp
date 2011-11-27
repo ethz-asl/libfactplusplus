@@ -75,7 +75,6 @@ void DLDag :: mergeSorts ( DLVertex& v )
 		v.merge(const_cast<TRole*>(v.getRole())->getRangeLabel());
 		break;
 	case dtAnd:
-	case dtCollection:
 	case dtSplitConcept:
 		for ( DLVertex::const_iterator q = v.begin(), q_end = v.end(); q < q_end; ++q )
 			merge ( v.getSort(), *q );

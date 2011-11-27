@@ -613,7 +613,6 @@ void TBox :: PrintDagEntry ( std::ostream& o, BipolarPointer p ) const
 		o << " (" << v.getTagName() << ' ' << v.getRole()->getName() << ")";
 		return;
 
-	case dtCollection:
 	case dtAnd:
 	case dtSplitConcept:
 		o << " (" << v.getTagName();

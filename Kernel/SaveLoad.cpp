@@ -712,7 +712,6 @@ DLVertex :: Save ( ostream& o ) const
 		break;
 
 	case dtAnd:
-	case dtCollection:
 		saveUInt(o,Child.size());
 		for ( const_iterator p = begin(); p != end(); ++p )
 			saveSInt(o,*p);
@@ -763,7 +762,6 @@ DLVertex :: Load ( istream& i )
 		break;
 
 	case dtAnd:
-	case dtCollection:
 	{
 		unsigned int size = loadUInt(i);
 		for ( unsigned int j = 0; j < size; ++j )

@@ -56,7 +56,6 @@ enum DagTag {
 	// operations
 	dtTop,
 	dtAnd,
-	dtCollection,
 	dtForall,
 	dtLE,
 	dtIrr,		// \neg\exists R.Self
@@ -472,7 +471,6 @@ DLVertex :: omitStat ( bool pos ) const
 		return true;
 	case dtPConcept:
 	case dtPSingleton:
-	case dtCollection:
 	case dtProj:
 		return !pos;
 	default:

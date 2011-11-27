@@ -148,7 +148,6 @@ const char* DLVertex :: getTagName ( void ) const
 	case dtDataValue: return "data-value";
 	case dtDataExpr: return "data-expr";
 	case dtAnd:		return "and";
-	case dtCollection:return "collection";
 	case dtForall:	return "all";
 	case dtLE:		return "at-most";
 	case dtIrr:		return "irreflexive";
@@ -173,7 +172,6 @@ DLVertex :: Print ( std::ostream& o ) const
 	switch ( Type() )
 	{
 	case dtAnd:		// nothing to do (except for printing operands)
-	case dtCollection:
 	case dtSplitConcept:
 		break;
 

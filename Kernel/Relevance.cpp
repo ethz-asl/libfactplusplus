@@ -67,7 +67,6 @@ void TBox :: setRelevant ( BipolarPointer p )
 		break;
 
 	case dtAnd:
-	case dtCollection:
 	case dtSplitConcept:
 		for ( DLVertex::const_iterator q = v.begin(); q != v.end(); ++q )
 			setRelevant(*q);

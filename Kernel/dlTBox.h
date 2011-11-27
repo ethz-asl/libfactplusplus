@@ -458,10 +458,8 @@ protected:	// methods
 			throw EFPPNonSimpleRole(R->getName());
 		return inverse ( DLHeap.add ( new DLVertex ( dtIrr, R ) ) );
 	}
-		/// fills AND-like vertex V with an AND-like expression T; process result
-	BipolarPointer and2dag ( DLVertex* v, const DLTree* t );
-		/// process AND-like expression T
-	BipolarPointer and2dag ( const DLTree* t ) { return and2dag ( new DLVertex(dtAnd), t ); }
+		/// create node for AND expression T
+	BipolarPointer and2dag ( const DLTree* t );
 		/// add elements of T to and-like vertex V; @return true if clash occures
 	bool fillANDVertex ( DLVertex* v, const DLTree* t );
 		/// create forall node for data role

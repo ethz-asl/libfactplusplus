@@ -36,7 +36,6 @@ TDag2Interface :: buildCExpr ( const DLVertex& v )
 	case dtNSingleton:
 		return Manager->OneOf(Manager->Individual(v.getConcept()->getName()));
 	case dtAnd:
-	case dtCollection:
 	{
 		Manager->newArgList();
 		for ( DLVertex::const_iterator p = v.begin(), p_end = v.end(); p != p_end; ++p )
@@ -78,7 +77,6 @@ TDag2Interface :: buildDExpr ( const DLVertex& v )
 	case dtDataExpr:	// TODO: no data stuff yet
 		return Manager->DataTop();
 	case dtAnd:
-	case dtCollection:
 	{
 		Manager->newArgList();
 		for ( DLVertex::const_iterator p = v.begin(), p_end = v.end(); p != p_end; ++p )

@@ -138,10 +138,6 @@ DLDag :: computeVertexStat ( BipolarPointer p )
 	// ensure that the statistic is gather for all sub-concepts of the expression
 	switch ( v.Type() )
 	{
-	case dtCollection:	// if pos then behaves like and
-		if ( !pos )		// ~Coll -- nothing to do
-			break;
-		// fallthrough
 	case dtAnd:	// check all the conjuncts
 	case dtSplitConcept:
 		for ( DLVertex::const_iterator q = v.begin(), q_end = v.end(); q < q_end; ++q )

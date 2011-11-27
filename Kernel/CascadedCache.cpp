@@ -78,7 +78,6 @@ DlSatTester :: prepareCascadedCache ( BipolarPointer p )
 		break;
 
 	case dtAnd:
-	case dtCollection:
 	{
 		for ( DLVertex::const_iterator q = v.begin(), q_end = v.end(); q < q_end; ++q )
 			prepareCascadedCache(createBiPointer(*q,pos));
