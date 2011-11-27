@@ -18,9 +18,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "tDag2Interface.h"
 
-/// @return argument type with a given expression
-#define retype(type, arg) dynamic_cast<const type*>(arg)
-
 /// build concept expression by a vertex V
 const TDLConceptExpression*
 TDag2Interface :: buildCExpr ( const DLVertex& v )

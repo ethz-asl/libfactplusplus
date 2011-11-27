@@ -31,29 +31,24 @@ protected:	// members
 	const DLDag& Dag;
 		/// expression manager
 	TExpressionManager* Manager;
-		/// vector of cached expressions
-	std::vector<const TDLExpression*> Trans;
+		/// vector of cached concept expressions
+	std::vector<const TDLConceptExpression*> TransC;
+		/// vector of cached data expressions
+	std::vector<const TDLDataExpression*> TransD;
 
 protected:	// methods
 		/// build concept expression by a vertex V
 	const TDLConceptExpression* buildCExpr ( const DLVertex& v );
 		/// build data expression by a vertex V
 	const TDLDataExpression* buildDExpr ( const DLVertex& v );
-		/// build expression by a vertex V given the DATA flag
-	const TDLExpression* buildExpr ( const DLVertex& v, bool data )
-	{
-		if ( data )
-			return buildDExpr(v);
-		else
-			return buildCExpr(v);
-	}
 
 public:		// interface
 		/// init c'tor
 	TDag2Interface ( const DLDag& dag, TExpressionManager* manager )
 		: Dag(dag)
 		, Manager(manager)
-		, Trans(dag.size(),NULL)
+		, TransC(dag.size(),NULL)
+		, TransD(dag.size(),NULL)
 		{}
 		/// empty d'tor: every newly created thing will be destroyed by manager
 	~TDag2Interface ( void ) {}
@@ -61,31 +56,35 @@ public:		// interface
 		/// make sure that size of expression cache is the same as the size of a DAG
 	void ensureDagSize ( void )
 	{
-		size_t ds = Dag.size(), ts = Trans.size();
+		size_t ds = Dag.size(), ts = TransC.size();
 		if ( likely(ds == ts) )
 			return;
-		Trans.resize(ds);
-		if ( ds > ts )
-			while ( ts != ds )
-				Trans[ts++] = NULL;
+		TransC.resize(ds);
+		TransD.resize(ds);
+		if ( unlikely(ds>ts) )
+			for ( ; ts != ds; ++ts )
+			{
+				TransC[ts] = NULL;
+				TransD[ts] = NULL;
+			}
 	}
 		/// get concept expression corresponding index of vertex
 	const TDLConceptExpression* getCExpr ( BipolarPointer p )
 	{
 		if ( isNegative(p) )
 			return Manager->Not(getCExpr(inverse(p)));
-		if ( Trans[p] == NULL )
-			Trans[p] = buildCExpr(Dag[p]);
-		return dynamic_cast<const TDLConceptExpression*>(Trans[p]);
+		if ( TransC[p] == NULL )
+			TransC[p] = buildCExpr(Dag[p]);
+		return TransC[p];
 	}
 		/// get data expression corresponding index of vertex
 	const TDLDataExpression* getDExpr ( BipolarPointer p )
 	{
 		if ( isNegative(p) )
 			return Manager->DataNot(getDExpr(inverse(p)));
-		if ( Trans[p] == NULL )
-			Trans[p] = buildDExpr(Dag[p]);
-		return dynamic_cast<const TDLDataExpression*>(Trans[p]);
+		if ( TransD[p] == NULL )
+			TransD[p] = buildDExpr(Dag[p]);
+		return TransD[p];
 	}
 		/// get expression corresponding index of vertex given the DATA flag
 	const TDLExpression* getExpr ( BipolarPointer p, bool data )
