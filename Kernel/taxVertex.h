@@ -59,6 +59,8 @@ protected:	// members
 	unsigned int common;
 		/// satisfiability value of a valued vertex
 	bool checkValue;
+		/// flag to check whether the vertex is in use
+	bool inUse;
 
 private:	// no copy
 		/// no copy c'tor
@@ -71,6 +73,11 @@ protected:	// methods
 	TaxonomyLink& neigh ( bool upDirection ) { return Links[!upDirection]; }
 		/// indirect RO access to Links
 	const TaxonomyLink& neigh ( bool upDirection ) const { return Links[!upDirection]; }
+
+		/// print entry name and its synonyms (if any)
+	void printSynonyms ( std::ostream& o ) const;
+		/// print neighbours of a vertex in given direction
+	void printNeighbours ( std::ostream& o, bool upDirection ) const;
 
 public:		// flags interface
 
@@ -128,11 +135,13 @@ public:
 		/// empty c'tor
 	TaxonomyVertex ( void )
 		: sample(NULL)
+		, inUse(true)
 	{
 		initFlags();
 	}
 		/// init c'tor; use it only for Top/Bot initialisations
 	TaxonomyVertex ( const ClassifiableEntry* p )
+		: inUse(true)
 	{
 		setSample(p);
 		initFlags();
@@ -193,10 +202,15 @@ public:
 		/// merge NODE which is independent to THIS
 	void mergeIndepNode ( TaxonomyVertex* node, const std::set<TaxonomyVertex*>& excludes, const ClassifiableEntry* curEntry );
 
-		/// print entry name and its synonyms (if any)
-	void printSynonyms ( std::ostream& o ) const;
-		/// print neighbours of a vertex in given direction
-	void printNeighbours ( std::ostream& o, bool upDirection ) const;
+	// usage methods
+
+		/// @return true iff the node is in use
+	bool isInUse ( void ) const { return inUse; }
+		/// set the inUse value of the node
+	void setInUse ( bool value ) { inUse = value; }
+
+	// output methods
+
 		/// print taxonomy vertex in format <equals parents children>
 	void print ( std::ostream& o ) const
 	{

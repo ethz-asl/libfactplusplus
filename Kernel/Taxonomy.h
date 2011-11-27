@@ -98,7 +98,7 @@ public:		// typedefs
 	typedef SetOfVertex::const_iterator const_iterator;
 
 protected:	// members
-		/// array of taxonomy verteces
+		/// array of taxonomy vertices
 	SetOfVertex Graph;
 		/// aux array to keep synonyms found during TS classification
 	std::vector<ClassifiableEntry*> Syns;
@@ -112,7 +112,7 @@ protected:	// members
 		/// pointer to currently classified entry
 	const ClassifiableEntry* curEntry;
 
-		/// number of tested entryes
+		/// number of tested entries
 	unsigned int nEntries;
 		/// number of completely-defined entries
 	unsigned long nCDEntries;
@@ -176,11 +176,11 @@ protected:	// methods
 	}
 		/// check if it is possible to skip TD phase
 	virtual bool needTopDown ( void ) const { return false; }
-		/// explicitely run TD phase
+		/// explicitly run TD phase
 	virtual void runTopDown ( void ) {}
 		/// check if it is possible to skip BU phase
 	virtual bool needBottomUp ( void ) const { return false; }
-		/// explicitely run BU phase
+		/// explicitly run BU phase
 	virtual void runBottomUp ( void ) {}
 
 		/// actions that to be done BEFORE entry will be classified
@@ -348,7 +348,7 @@ public:		// interface
 	}
 		/// clear the CHECKED label from all the taxonomy vertex
 	void clearCheckedLabel ( void ) { checkLabel.newLabel(); }
- 		/// clear all labels from Taxonomy verteces
+ 		/// clear all labels from Taxonomy vertices
 	void clearLabels ( void ) { checkLabel.newLabel(); valueLabel.newLabel(); }
 
 	// flags interface
@@ -360,7 +360,7 @@ public:		// interface
 	{	// create links from leaf concepts to bottom
 		const bool upDirection = false;
 		for ( iterator p = itop(), p_end = end(); p < p_end; ++p )
-			if ( (*p)->noNeighbours(upDirection) )
+			if ( likely((*p)->isInUse()) && (*p)->noNeighbours(upDirection) )
 			{
 				(*p)->addNeighbour ( upDirection, getBottomVertex() );
 				getBottomVertex()->addNeighbour ( !upDirection, *p );

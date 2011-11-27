@@ -48,7 +48,8 @@ void Taxonomy :: print ( std::ostream& o ) const
 
 	getTopVertex()->print(o);
 	for ( TVSet::const_iterator p = sorted.begin(), p_end = sorted.end(); p != p_end; ++p )
-		(*p)->print(o);
+		if ( likely((*p)->isInUse()) )
+			(*p)->print(o);
 	getBottomVertex()->print(o);
 }
 
