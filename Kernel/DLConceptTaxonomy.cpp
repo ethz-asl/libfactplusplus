@@ -301,26 +301,18 @@ void
 DLConceptTaxonomy :: mergeSplitVars ( TSplitVar* split )
 {
 	setCurrentEntry(split->C);
-	std::set<TaxonomyVertex*> excludes;
-	excludes.insert(getTopVertex());
+	typedef std::set<TaxonomyVertex*> TVSet1;
+
+	TVSet1 splitVertices;
 	TaxonomyVertex* v = split->C->getTaxVertex();
 	if ( v != NULL )	// there is C-node in the taxonomy
-		excludes.insert(v);
+		splitVertices.insert(v);
 	TSplitVar::iterator q = split->begin(), q_end = split->end();
 	for ( ; q != q_end; ++q )
-		excludes.insert(q->C->getTaxVertex());
+		splitVertices.insert(q->C->getTaxVertex());
 
-	if ( v != NULL )	// there is C-node in the taxonomy
-	{
-		Current->mergeIndepNode(v,excludes,curEntry);
-		removeNode(v);
-	}
-	for ( q = split->begin(); q != q_end; ++q )
-	{
-		v = q->C->getTaxVertex();
-		Current->mergeIndepNode(v,excludes,curEntry);
-		removeNode(v);
-	}
+	for ( TVSet1::iterator p = splitVertices.begin(), p_end = splitVertices.end(); p != p_end; ++p )
+		mergeVertex ( *p, splitVertices );
 	checkExtraParents();
 	v = Current;
 	insertCurrent(NULL);
