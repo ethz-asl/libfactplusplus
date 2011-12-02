@@ -205,22 +205,15 @@ protected:	// methods
 	virtual void runBottomUp ( void )
 	{
 		if ( propagateUp() )	// Common is set up here
-			goto finish;
+			return;
 		if ( isEqualToTop() )	// nothing to do
-			goto finish;
-		if ( !willInsertIntoTaxonomy )
-		{	// after classification -- bottom set up already
+			return;
+		if ( !willInsertIntoTaxonomy )	// after classification -- bottom set up already
 			searchBaader ( /*upDirection=*/true, getBottomVertex() );
-			goto finish;
-		}
-
-		// during classification -- have to find leaf nodes
-		for ( TaxonomyLink::iterator p = Common.begin(), p_end = Common.end(); p < p_end; ++p )
-			if ( (*p)->noNeighbours(/*upDirection=*/false) )
-				searchBaader ( /*upDirection=*/true, *p );
-
-	finish:
-		clearCommon();
+		else	// during classification -- have to find leaf nodes
+			for ( TaxonomyLink::iterator p = Common.begin(), p_end = Common.end(); p < p_end; ++p )
+				if ( (*p)->noNeighbours(/*upDirection=*/false) )
+					searchBaader ( /*upDirection=*/true, *p );
 	}
 
 		/// actions that to be done BEFORE entry will be classified

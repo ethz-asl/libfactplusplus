@@ -188,6 +188,7 @@ bool DLConceptTaxonomy :: propagateUp ( void )
 
 	TaxonomyLink aux;	// aux set for the verteces in ...
 	nCommon = 1;	// number of common parents
+	clearCommon();
 
 	// define possible successors of the node
 	propagateOneCommon(*p);
