@@ -63,7 +63,17 @@ import uk.ac.manchester.cs.factplusplus.NodePointer;
 
 /**wrapper class for the new interface in the OWL API; it decouples the rest of the reasoner from relying on an OWL API > 3.2.4*/
 public class OWLKnowledgeExplorationReasonerWrapper implements
-		OWLKnowledgeExplorerReasoner<Object> {
+		OWLKnowledgeExplorerReasoner {
+	private class RootNodeImpl implements RootNode{
+		private final NodePointer pointer;
+		public RootNodeImpl(NodePointer p) {
+		this.pointer=p;
+		}
+		public <T> T getNode() {
+
+			return (T)pointer;
+		}
+	}
 	private final FaCTPlusPlusReasoner r;
 
 	public OWLKnowledgeExplorationReasonerWrapper(FaCTPlusPlusReasoner r) {
@@ -339,36 +349,41 @@ public class OWLKnowledgeExplorationReasonerWrapper implements
 		return this.r.getDifferentIndividuals(ind);
 	}
 
-	public Object getRoot(OWLClassExpression expression) {
-		return this.r.getRoot(expression);
+	public RootNode getRoot(OWLClassExpression expression) {
+		return new RootNodeImpl( this.r.getRoot(expression));
 	}
 
 	public Node<? extends OWLObjectPropertyExpression> getObjectNeighbours(
-			Object object, boolean deterministicOnly) {
-		return this.r.getObjectNeighbours((NodePointer)object, deterministicOnly);
+			RootNode object, boolean deterministicOnly) {
+		return this.r.getObjectNeighbours((NodePointer)object.getNode(), deterministicOnly);
 	}
 
-	public Node<OWLDataProperty> getDataNeighbours(Object object, boolean deterministicOnly) {
-		return this.r.getDataNeighbours((NodePointer)object, deterministicOnly);
+	public Node<OWLDataProperty> getDataNeighbours(RootNode object, boolean deterministicOnly) {
+		return this.r.getDataNeighbours((NodePointer)object.getNode(), deterministicOnly);
 	}
 
-	public Collection<Object> getObjectNeighbours(Object object, OWLObjectProperty property) {
-		Collection<Object> toReturn=new ArrayList<Object>();
-		toReturn.addAll(this.r.getObjectNeighbours((NodePointer)object, property));
+	public Collection<RootNode> getObjectNeighbours(RootNode object, OWLObjectProperty property) {
+		Collection<RootNode> toReturn=new ArrayList<RootNode>();
+		for(NodePointer p:this.r.getObjectNeighbours((NodePointer)object.getNode(), property)) {
+			toReturn.add(new RootNodeImpl(p));
+		}
+
 		return toReturn;
 	}
 
-	public Collection<Object> getDataNeighbours(Object object, OWLDataProperty property) {
-		Collection<Object> toReturn=new ArrayList<Object>();
-		toReturn.addAll(this.r.getDataNeighbours((NodePointer)object, property));
+	public Collection<RootNode> getDataNeighbours(RootNode object, OWLDataProperty property) {
+		Collection<RootNode> toReturn=new ArrayList<RootNode>();
+		for(NodePointer p:this.r.getDataNeighbours((NodePointer)object.getNode(), property)) {
+			toReturn.add(new RootNodeImpl(p));
+		}
 		return toReturn;
 	}
 
-	public Node<? extends OWLClassExpression> getObjectLabel(Object object, boolean deterministicOnly) {
-		return this.r.getObjectLabel((NodePointer)object, deterministicOnly);
+	public Node<? extends OWLClassExpression> getObjectLabel(RootNode object, boolean deterministicOnly) {
+		return this.r.getObjectLabel((NodePointer)object.getNode(), deterministicOnly);
 	}
 
-	public Node<? extends OWLDataRange> getDataLabel(Object object, boolean deterministicOnly) {
-		return this.r.getDataLabel((NodePointer)object, deterministicOnly);
+	public Node<? extends OWLDataRange> getDataLabel(RootNode object, boolean deterministicOnly) {
+		return this.r.getDataLabel((NodePointer)object.getNode(), deterministicOnly);
 	}
 }
