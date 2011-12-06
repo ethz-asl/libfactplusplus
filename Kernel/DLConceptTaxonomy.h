@@ -228,11 +228,14 @@ protected:	// methods
 
 		/// merge vars came from a given SPLIT together
 	void mergeSplitVars ( TSplitVar* split );
-		/// merge a single vertex V to a node represented by Current
-	void mergeVertex ( TaxonomyVertex* v, const std::set<TaxonomyVertex*>& excludes )
+		/// merge a single vertex V to a node represented by CUR
+	void mergeVertex ( TaxonomyVertex* cur, TaxonomyVertex* v, const std::set<TaxonomyVertex*>& excludes )
 	{
-		Current->mergeIndepNode ( v, excludes, curEntry );
-		removeNode(v);
+		if ( likely ( cur != v ) )
+		{
+			cur->mergeIndepNode ( v, excludes, curEntry );
+			removeNode(v);
+		}
 	}
 		/// after merging, check whether there are extra neighbours that should be taken into account
 	void checkExtraParents ( void );

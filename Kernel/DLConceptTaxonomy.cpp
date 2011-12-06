@@ -301,23 +301,37 @@ DLConceptTaxonomy :: checkExtraParents ( void )
 void
 DLConceptTaxonomy :: mergeSplitVars ( TSplitVar* split )
 {
-	setCurrentEntry(split->C);
 	typedef std::set<TaxonomyVertex*> TVSet1;
 
 	TVSet1 splitVertices;
 	TaxonomyVertex* v = split->C->getTaxVertex();
+	bool cIn = ( v != NULL );
 	if ( v != NULL )	// there is C-node in the taxonomy
 		splitVertices.insert(v);
 	TSplitVar::iterator q = split->begin(), q_end = split->end();
 	for ( ; q != q_end; ++q )
 		splitVertices.insert(q->C->getTaxVertex());
+	// set V to be a node-to-add
+	// FIXME!! check later the case whether both TOP and BOT are there
+	if ( splitVertices.count(getBottomVertex()) > 0 )
+		v = getBottomVertex();
+	else if ( splitVertices.count(getTopVertex()) > 0 )
+		v = getTopVertex();
+	else
+	{
+		setCurrentEntry(split->C);
+		v = Current;
+	}
 
+	if ( v != Current && !cIn )
+		v->addSynonym(split->C);
 	for ( TVSet1::iterator p = splitVertices.begin(), p_end = splitVertices.end(); p != p_end; ++p )
-		mergeVertex ( *p, splitVertices );
-	checkExtraParents();
-	v = Current;
-	insertCurrent(NULL);
-//	v->print(std::cout);
+		mergeVertex ( v, *p, splitVertices );
+	if ( v == Current )
+	{
+		checkExtraParents();
+		insertCurrent(NULL);
+	}
 }
 
 /********************************************************\

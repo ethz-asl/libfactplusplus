@@ -197,17 +197,7 @@ protected:	// methods
 		/// insert current node into taxonomy wrt flag willIIT; SYN is synonym (if any)
 	void insertCurrent ( TaxonomyVertex* syn );
 		/// remove node from the taxonomy; assume no references to the node
-	void removeNode ( TaxonomyVertex* node )
-	{
-		for ( iterator p = begin(), p_end = end(); p != p_end; ++p )
-			if ( (*p) == node )
-			{
-				*p = Graph.back();
-				Graph.pop_back();
-				delete node;
-				return;
-			}
-	}
+	void removeNode ( TaxonomyVertex* node ) { node->setInUse(false); }
 		/// @return true if V is a direct parent of current wrt labels
 	bool isDirectParent ( TaxonomyVertex* v ) const;
 
