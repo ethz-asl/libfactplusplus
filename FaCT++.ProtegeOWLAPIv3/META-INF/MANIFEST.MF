@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Factplusplus Plug-in
 Bundle-SymbolicName: uk.ac.manchester.cs.owl.factplusplus;singleton:=true
-Bundle-Version: 1.5.2
+Bundle-Version: 1.5.3
 Bundle-Vendor: University of Manchester
 Bundle-Description: A Protege OWL wrapper for FaCT++
 Update-Url: http://factplusplus.googlecode.com/svn/trunk/update.properties.p4.1

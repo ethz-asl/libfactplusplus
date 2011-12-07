@@ -56,7 +56,7 @@ import uk.ac.manchester.cs.factplusplus.*;
 public class FaCTPlusPlusReasoner implements OWLReasoner,
 		OWLOntologyChangeListener {
 	public static final String REASONER_NAME = "FaCT++";
-	public static final Version VERSION = new Version(1, 5, 2, 0);
+	public static final Version VERSION = new Version(1, 5, 3, 0);
 	protected final AtomicBoolean interrupted = new AtomicBoolean(false);
 	private final FaCTPlusPlus kernel = new FaCTPlusPlus();
 	private volatile AxiomTranslator axiomTranslator = new AxiomTranslator();
