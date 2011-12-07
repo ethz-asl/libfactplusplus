@@ -200,6 +200,8 @@ protected:	// methods
 	void removeNode ( TaxonomyVertex* node ) { node->setInUse(false); }
 		/// @return true if V is a direct parent of current wrt labels
 	bool isDirectParent ( TaxonomyVertex* v ) const;
+		/// @return true if taxonomy works in a query mode (no need to insert query vertex)
+	bool queryMode ( void ) const { return !willInsertIntoTaxonomy; }
 
 	//-----------------------------------------------------------------
 	//--	DFS-based classification

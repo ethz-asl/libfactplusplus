@@ -208,7 +208,7 @@ protected:	// methods
 			return;
 		if ( isEqualToTop() )	// nothing to do
 			return;
-		if ( !willInsertIntoTaxonomy )	// after classification -- bottom set up already
+		if ( queryMode() )	// after classification -- bottom set up already
 			searchBaader ( /*upDirection=*/true, getBottomVertex() );
 		else	// during classification -- have to find leaf nodes
 			for ( TaxonomyLink::iterator p = Common.begin(), p_end = Common.end(); p < p_end; ++p )

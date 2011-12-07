@@ -60,7 +60,14 @@ void Taxonomy :: print ( std::ostream& o ) const
 void
 Taxonomy :: insertCurrent ( TaxonomyVertex* syn )
 {
-	if ( willInsertIntoTaxonomy )
+	if ( queryMode() )	// check if node is synonym of existing one and copy EXISTING info to Current
+	{
+		if ( syn != NULL )	// set synonym to the tax-entry for the checked one
+			syn->setHostVertex(curEntry);
+		else	// mark a current one to be a tax-entry
+			Current->setSample(curEntry);
+	}
+	else	// insert node into taxonomy
 	{
 		// check if current concept is synonym to someone
 		if ( syn != NULL )
@@ -77,13 +84,6 @@ Taxonomy :: insertCurrent ( TaxonomyVertex* syn )
 			// we used the Current so need to create a new one
 			Current = new TaxonomyVertex();
 		}
-	}
-	else	// check if node is synonym of existing one and copy EXISTING info to Current
-	{
-		if ( syn != NULL )	// set synonym to the tax-entry for the checked one
-			syn->setHostVertex(curEntry);
-		else	// mark a current one to be a tax-entry
-			Current->setSample(curEntry);
 	}
 }
 
