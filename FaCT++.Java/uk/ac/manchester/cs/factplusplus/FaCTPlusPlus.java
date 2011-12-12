@@ -1,14 +1,6 @@
 package uk.ac.manchester.cs.factplusplus;
 
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.concurrent.atomic.AtomicBoolean;
-
-import org.semanticweb.owlapi.model.OWLClassExpression;
-import org.semanticweb.owlapi.model.OWLDataProperty;
-import org.semanticweb.owlapi.model.OWLDataRange;
-import org.semanticweb.owlapi.model.OWLObjectProperty;
-import org.semanticweb.owlapi.reasoner.NodeSet;
 
 /**
  * Author: Matthew Horridge<br>
@@ -597,5 +589,11 @@ public class FaCTPlusPlus {
 	public native ClassPointer[] getObjectLabel(NodePointer object, boolean deterministicOnly);
 
 	public native DataTypePointer[] getDataLabel(NodePointer object, boolean deterministicOnly);
+
+	public native int getAtomicDecompositionSize( int moduleType);
+
+	public native AxiomPointer[] getAtomAxioms(int index);
+
+	public native int[] getAtomDependents(int index);
 
 }
