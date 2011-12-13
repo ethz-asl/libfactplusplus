@@ -31,6 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "tExpressionTranslator.h"
 #include "tOntology.h"
 #include "tDag2Interface.h"
+#include "AtomicDecomposer.h"
 
 class ReasoningKernel
 {
@@ -137,6 +138,8 @@ protected:	// members
 	std::vector<TDLAxiom*> TraceVec;
 		/// dag-2-interface translator used in knowledge exploration
 	TDag2Interface* D2I;
+		/// atomic decomposer
+	AtomicDecomposer AD;
 
 	// Top/Bottom role names: if set, they will appear in all hierarchy-related output
 
@@ -1190,6 +1193,17 @@ public:
 	void getNeighbours ( const TCGNode* node, TRoleExpr* role, TCGNodeVec& Result );
 		/// put into RESULT all the expressions from the NODE label; if ONLYDET is true, return only deterministic elements
 	void getLabel ( const TCGNode* node, TCGItemVec& Result, bool onlyDet );
+
+	//----------------------------------------------------------------------------------
+	// atomic decomposition queries
+	//----------------------------------------------------------------------------------
+
+		/// create new atomic decomposition of the loaded ontology using TYPE. @return size of the AD
+	unsigned int getAtomicDecompositionSize ( ModuleType type ) { return AD.getAOS ( &Ontology, type )->size(); }
+		/// get a set of axioms that corresponds to the atom with the id INDEX
+	const AxiomSet& getAtomAxioms ( unsigned int index ) const { return (*AD.getAOS())[index]->getAtomAxioms(); }
+		/// get a set of atoms on which atom with index INDEX depends
+	const TOntologyAtom::AtomSet& getAtomDependents ( unsigned int index ) const { return (*AD.getAOS())[index]->getDepAtoms(); }
 }; // ReasoningKernel
 
 #endif

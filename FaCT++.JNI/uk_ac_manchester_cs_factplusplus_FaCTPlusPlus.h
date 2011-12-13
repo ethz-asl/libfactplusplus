@@ -1256,6 +1256,30 @@ JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlu
 JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_getDataLabel
   (JNIEnv *, jobject, jobject, jboolean);
 
+/*
+ * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
+ * Method:    getAtomicDecompositionSize
+ * Signature: (I)I
+ */
+JNIEXPORT jint JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_getAtomicDecompositionSize
+  (JNIEnv *, jobject, jint);
+
+/*
+ * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
+ * Method:    getAtomAxioms
+ * Signature: (I)[Luk/ac/manchester/cs/factplusplus/AxiomPointer;
+ */
+JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_getAtomAxioms
+  (JNIEnv *, jobject, jint);
+
+/*
+ * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
+ * Method:    getAtomDependents
+ * Signature: (I)[I
+ */
+JNIEXPORT jintArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_getAtomDependents
+  (JNIEnv *, jobject, jint);
+
 #ifdef __cplusplus
 }
 #endif

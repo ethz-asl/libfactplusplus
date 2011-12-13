@@ -2324,6 +2324,53 @@ JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlu
 	return buildArray ( env, Vec, DataTypeExpressionPointer );
 }
 
+/*
+ * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
+ * Method:    getAtomicDecompositionSize
+ * Signature: (I)I
+ */
+JNIEXPORT jint JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_getAtomicDecompositionSize
+  (JNIEnv * env, jobject obj, jint moduleType)
+{
+	TRACE_JNI("getAtomicDecompositionSize");
+	return getK(env,obj)->getAtomicDecompositionSize ( moduleType == 0 ? M_BOT : moduleType == 1 ? M_TOP : M_STAR );
+}
+
+/*
+ * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
+ * Method:    getAtomAxioms
+ * Signature: (I)[Luk/ac/manchester/cs/factplusplus/AxiomPointer;
+ */
+JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_getAtomAxioms
+  (JNIEnv * env, jobject obj, jint index)
+{
+	TRACE_JNI("getAtomAxioms");
+	AxiomSet aSet = getK(env,obj)->getAtomAxioms(index);
+	std::vector<TDLAxiom*> Vec ( aSet.begin(), aSet.end() );
+	return buildArray ( env, Vec, AxiomPointer );
+}
+
+/*
+ * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
+ * Method:    getAtomDependents
+ * Signature: (I)[I
+ */
+JNIEXPORT jintArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_getAtomDependents
+  (JNIEnv * env, jobject obj, jint index)
+{
+	TRACE_JNI("getAtomDependents");
+	const TOntologyAtom::AtomSet aSet = getK(env,obj)->getAtomDependents(index);
+	size_t sz = aSet.size();
+	jint* buf = new jint[sz];
+	TOntologyAtom::AtomSet::const_iterator p = aSet.begin();
+	for ( size_t i = 0; i < sz; ++i, ++p )
+		buf[i] = (*p)->getLabel();
+	jintArray ret = env->NewIntArray(sz);
+	env->SetIntArrayRegion ( ret, 0, sz, buf );
+	delete [] buf;
+	return ret;
+}
+
 #ifdef __cplusplus
 }
 #endif

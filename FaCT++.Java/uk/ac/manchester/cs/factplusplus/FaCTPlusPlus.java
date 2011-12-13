@@ -590,7 +590,8 @@ public class FaCTPlusPlus {
 
 	public native DataTypePointer[] getDataLabel(NodePointer object, boolean deterministicOnly);
 
-	public native int getAtomicDecompositionSize( int moduleType);
+	/** atomic decomposition interface */
+	public native int getAtomicDecompositionSize(int moduleType);
 
 	public native AxiomPointer[] getAtomAxioms(int index);
 
