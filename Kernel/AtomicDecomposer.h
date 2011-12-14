@@ -173,6 +173,13 @@ protected:	// members
 	TModularizer Modularizer;
 
 protected:	// methods
+		/// initialize signature index (for the improved modularization algorithm)
+	void initSigIndex ( TOntology* O )
+	{
+		SigIndex* SI = new SigIndex();
+		SI->processRange ( O->begin(), O->end() );
+		Modularizer.setSigIndex(SI);
+	}
 		/// build a module for given signature SIG and module type TYPE; use part [BEGIN,END) for the module search
 	TOntologyAtom* buildModule ( const TSignature& sig, ModuleType type, iterator begin, iterator end, TOntologyAtom* parent );
 		/// create atom for given axiom AX and module type TYPE; use part [BEGIN,END) for the module search

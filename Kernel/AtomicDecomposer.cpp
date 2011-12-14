@@ -50,19 +50,19 @@ AtomicDecomposer :: getAOS ( TOntology* O, ModuleType type )
 	DeclRemover DR(O);
 
 	// prepare SigIndex for the optimized modularization
-	SigIndex* SI = new SigIndex();
-	SI->processRange ( O->begin(), O->end() );
-	Modularizer.setSigIndex(SI);
+	initSigIndex(O);
 
 	// build the "bottom" atom for an empty signature
 	TOntologyAtom* BottomAtom = buildModule ( TSignature(), type, O->begin(), O->end(), NULL );
 	if ( BottomAtom )
 		for ( AxiomSet::iterator q = BottomAtom->getModule().begin(), q_end = BottomAtom->getModule().end(); q != q_end; ++q )
 			BottomAtom->addAxiom(*q);
-	// create an atom for all the axioms in the ontology
+
+	// create atoms for all the axioms in the ontology
 	for ( iterator p = O->begin(), p_end = O->end(); p != p_end; ++p )
 		if ( (*p)->isUsed() && (*p)->getAtom() == NULL )
 			createAtom ( *p, type, O->begin(), O->end(), NULL );
+
 	if ( LLM.isWritable(llAlways) )
 		LL << "\nThere were " << Modularizer.getNNonLocal() << " non-local axioms out of " << Modularizer.getNChecks() << " totally checked\n";
 
