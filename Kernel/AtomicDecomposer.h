@@ -28,9 +28,17 @@ typedef SigIndex::AxiomSet AxiomSet;
 /// representation of the ontology atom
 class TOntologyAtom
 {
+protected:	// internal types
+		/// type to compare 2 atoms
+	struct AtomLess
+	{
+		bool operator()(const TOntologyAtom* a1, const TOntologyAtom* a2) const
+			{ return a1->getId() < a2->getId(); }
+	};
+
 public:		// typedefs
 		/// set of atoms
-	typedef std::set<TOntologyAtom*> AtomSet;
+	typedef std::set<TOntologyAtom*, AtomLess> AtomSet;
 
 protected:	// members
 		/// set of axioms in the atom
@@ -39,12 +47,12 @@ protected:	// members
 	AxiomSet ModuleAxioms;
 		/// set of atoms current one depends on
 	AtomSet DepAtoms;
-		/// label (int right now)
-	size_t Label;
+		/// unique atom's identifier
+	size_t Id;
 
 public:		// interface
 		/// empty c'tor
-	TOntologyAtom ( void ) : Label(0) {}
+	TOntologyAtom ( void ) : Id(0) {}
 		/// d'tor
 	~TOntologyAtom ( void ) {}
 
@@ -74,8 +82,10 @@ public:		// interface
 		/// get atoms a given one depends on
 	const AtomSet& getDepAtoms ( void ) const { return DepAtoms; }
 
-    size_t getLabel() const { return Label; }
-    void setLabel ( size_t label ) { Label = label; }
+		/// get the value of the id
+    size_t getId() const { return Id; }
+    	/// set the value of the id to ID
+    void setId ( size_t id ) { Id = id; }
 }; // TOntologyAtom
 
 /// atomical ontology structure
@@ -101,7 +111,7 @@ public:		// interface
 	TOntologyAtom* newAtom ( void )
 	{
 		TOntologyAtom* ret = new TOntologyAtom();
-		ret->setLabel(Atoms.size());
+		ret->setId(Atoms.size());
 		Atoms.push_back(ret);
 		return ret;
 	}
