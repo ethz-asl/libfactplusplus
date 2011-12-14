@@ -66,6 +66,9 @@ AtomicDecomposer :: getAOS ( TOntology* O, ModuleType type )
 	if ( LLM.isWritable(llAlways) )
 		LL << "\nThere were " << Modularizer.getNNonLocal() << " non-local axioms out of " << Modularizer.getNChecks() << " totally checked\n";
 
+	// reduce graph
+	AOS->reduceGraph();
+
 	return AOS;
 }
 
