@@ -2024,4 +2024,26 @@ public class FaCTPlusPlusReasoner implements OWLReasoner,
 	public Node<? extends OWLDataRange> getDataLabel(NodePointer object, boolean deterministicOnly) {
 		return dataRangeTranslator.getNodeFromPointers(kernel.getDataLabel(object, deterministicOnly));
 	}
+
+	public int getAtomicDecompositionSize( int i) {
+		return kernel.getAtomicDecompositionSize(i);
+	}
+
+	public Set<OWLAxiom> getAtomAxioms(int index) {
+		AxiomPointer[] axioms=kernel.getAtomAxioms(index);
+		Set<OWLAxiom> toReturn=new HashSet<OWLAxiom>();
+		for(AxiomPointer p:axioms) {
+			final OWLAxiom owlAxiom = ptr2AxiomMap.get(p);
+			if(owlAxiom !=null) {
+			toReturn.add(owlAxiom);
+			}
+		}
+		return toReturn;
+	}
+
+	public int[] getAtomDependents(int index) {
+		return kernel.getAtomDependents(index);
+	}
+
+
 }
