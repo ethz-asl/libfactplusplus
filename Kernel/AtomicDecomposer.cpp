@@ -45,15 +45,10 @@ AtomicDecomposer :: getAOS ( TOntology* O, ModuleType type )
 	// prepare a new AO structure
 	delete AOS;
 	AOS = new AOStructure();
+
 	// we don't need declarations here
-	Declarations.clear();
-	iterator p = O->begin(), p_end = O->end();
-	for ( ; p != p_end; ++p )
-		if ( likely((*p)->isUsed()) && dynamic_cast<TDLAxiomDeclaration*>(*p) != NULL )
-		{
-			(*p)->setUsed(false);
-			Declarations.push_back(*p);
-		}
+	DeclRemover DR(O);
+
 	// prepare SigIndex for the optimized modularization
 	SigIndex* SI = new SigIndex();
 	SI->processRange ( O->begin(), O->end() );
@@ -65,14 +60,11 @@ AtomicDecomposer :: getAOS ( TOntology* O, ModuleType type )
 		for ( AxiomSet::iterator q = BottomAtom->getModule().begin(), q_end = BottomAtom->getModule().end(); q != q_end; ++q )
 			BottomAtom->addAxiom(*q);
 	// create an atom for all the axioms in the ontology
-	for ( p = O->begin(); p != p_end; ++p )
+	for ( iterator p = O->begin(), p_end = O->end(); p != p_end; ++p )
 		if ( (*p)->isUsed() && (*p)->getAtom() == NULL )
 			createAtom ( *p, type, O->begin(), O->end(), NULL );
 	if ( LLM.isWritable(llAlways) )
 		LL << "\nThere were " << Modularizer.getNNonLocal() << " non-local axioms out of " << Modularizer.getNChecks() << " totally checked\n";
-	// return declaration back to the ontology
-	for ( p = Declarations.begin(), p_end = Declarations.end(); p != p_end; ++p )
-		(*p)->setUsed(true);
 
 	return AOS;
 }

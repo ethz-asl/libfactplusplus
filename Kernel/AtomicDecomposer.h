@@ -131,6 +131,39 @@ public:		// interface
 /// atomical decomposer of the ontology
 class AtomicDecomposer
 {
+protected:	// types
+		/// remove all declarations from the ontology for the lifetime of the object
+	class DeclRemover
+	{
+	protected:	// types
+			/// axiom array
+		typedef TOntology::TAxiomArray TAxiomArray;
+			/// iterator over the axiom array
+		typedef TAxiomArray::iterator iterator;
+
+	protected:	// members
+			/// set of declaration axioms to remember
+		TAxiomArray Declarations;
+
+	public:		// interface
+			/// c'tor: mark all used declarations as unused
+		DeclRemover ( TOntology* O )
+		{
+			for ( iterator p = O->begin(), p_end = O->end(); p != p_end; ++p )
+				if ( likely((*p)->isUsed()) && dynamic_cast<TDLAxiomDeclaration*>(*p) != NULL )
+				{
+					(*p)->setUsed(false);
+					Declarations.push_back(*p);
+				}
+		}
+			/// d'tor: mark all removed declarations as used
+		~DeclRemover ( void )
+		{
+			for ( iterator p = Declarations.begin(), p_end = Declarations.end(); p != p_end; ++p )
+				(*p)->setUsed(true);
+		}
+	}; // DeclRemover
+
 protected:	// members
 		/// atomic structure to build
 	AOStructure* AOS;
@@ -138,8 +171,6 @@ protected:	// members
 	typedef TOntology::iterator iterator;
 		/// modularizer to build modules
 	TModularizer Modularizer;
-		/// set of declaration axioms (not used in AD)
-	TOntology::TAxiomArray Declarations;
 
 protected:	// methods
 		/// build a module for given signature SIG and module type TYPE; use part [BEGIN,END) for the module search
