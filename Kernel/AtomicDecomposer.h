@@ -25,7 +25,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 typedef SigIndex::AxiomSet AxiomSet;
 
-/// represeination of the ontology atom
+/// representation of the ontology atom
 class TOntologyAtom
 {
 public:		// typedefs
@@ -118,7 +118,7 @@ public:		// interface
 	size_t size ( void ) const { return Atoms.size(); }
 }; // AOStructure
 
-/// atomical structure of the ontology
+/// atomical decomposer of the ontology
 class AtomicDecomposer
 {
 protected:	// members

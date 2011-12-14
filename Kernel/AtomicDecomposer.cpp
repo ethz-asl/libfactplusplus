@@ -17,7 +17,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "AtomicDecomposer.h"
-#include <iostream>
+#include "logging.h"
 
 /// build a module for given axiom AX and module type TYPE; use part [BEGIN,END) for the module search
 TOntologyAtom*
@@ -68,7 +68,8 @@ AtomicDecomposer :: getAOS ( TOntology* O, ModuleType type )
 	for ( p = O->begin(); p != p_end; ++p )
 		if ( (*p)->isUsed() && (*p)->getAtom() == NULL )
 			createAtom ( *p, type, O->begin(), O->end(), NULL );
-	std::cout << "There were " << Modularizer.getNNonLocal() << " non-local axioms out of " << Modularizer.getNChecks() << " totally checked\n";
+	if ( LLM.isWritable(llAlways) )
+		LL << "\nThere were " << Modularizer.getNNonLocal() << " non-local axioms out of " << Modularizer.getNChecks() << " totally checked\n";
 	// return declaration back to the ontology
 	for ( p = Declarations.begin(), p_end = Declarations.end(); p != p_end; ++p )
 		(*p)->setUsed(true);
