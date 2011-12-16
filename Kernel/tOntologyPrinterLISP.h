@@ -53,7 +53,7 @@ public:		// visitor interface
 		bool rname = dynamic_cast<const TDLObjectRoleName*>(decl) != NULL;
 		bool dname = dynamic_cast<const TDLDataRoleName*>(decl) != NULL;
 
-		// do not print TOP/BOT
+		// do not print TOP/BOT/datatypes
 		if ( !cname && !iname && !rname && !dname )
 			return;
 

@@ -973,9 +973,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tel
 JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellDatatypeDeclaration
   (JNIEnv * env, jobject obj ATTR_UNUSED, jobject arg ATTR_UNUSED)
 {
-	TRACE_JNI("tellDatatypeDeclaration");
-	Throw ( env, "FaCT++ Kernel: unsupported operation 'tellDatatypeDeclaration'" );
-	return NULL;
+	PROCESS_QUERY ( getK(env,obj)->declare(getDataTypeExpr(env,arg)), "tellDatatypeDeclaration" );
 }
 
 /*
@@ -2364,7 +2362,7 @@ JNIEXPORT jintArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_g
 	jint* buf = new jint[sz];
 	TOntologyAtom::AtomSet::const_iterator p = aSet.begin();
 	for ( size_t i = 0; i < sz; ++i, ++p )
-		buf[i] = (*p)->getLabel();
+		buf[i] = (*p)->getId();
 	jintArray ret = env->NewIntArray(sz);
 	env->SetIntArrayRegion ( ret, 0, sz, buf );
 	delete [] buf;
