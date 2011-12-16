@@ -172,45 +172,18 @@ public:		// interface
 class AtomicDecomposer
 {
 protected:	// types
-		/// remove all declarations from the ontology for the lifetime of the object
-	class DeclRemover
-	{
-	protected:	// types
-			/// axiom array
-		typedef TOntology::TAxiomArray TAxiomArray;
-			/// iterator over the axiom array
-		typedef TAxiomArray::iterator iterator;
-
-	protected:	// members
-			/// set of declaration axioms to remember
-		TAxiomArray Declarations;
-
-	public:		// interface
-			/// c'tor: mark all used declarations as unused
-		DeclRemover ( TOntology* O )
-		{
-			for ( iterator p = O->begin(), p_end = O->end(); p != p_end; ++p )
-				if ( likely((*p)->isUsed()) && dynamic_cast<TDLAxiomDeclaration*>(*p) != NULL )
-				{
-					(*p)->setUsed(false);
-					Declarations.push_back(*p);
-				}
-		}
-			/// d'tor: mark all removed declarations as used
-		~DeclRemover ( void )
-		{
-			for ( iterator p = Declarations.begin(), p_end = Declarations.end(); p != p_end; ++p )
-				(*p)->setUsed(true);
-		}
-	}; // DeclRemover
+		/// axiom array
+	typedef TOntology::TAxiomArray TAxiomArray;
+		/// iterator over the axiom array
+	typedef TAxiomArray::iterator iterator;
 
 protected:	// members
 		/// atomic structure to build
 	AOStructure* AOS;
-		/// typedef for the iterator
-	typedef TOntology::iterator iterator;
 		/// modularizer to build modules
 	TModularizer Modularizer;
+		/// tautologies of the ontology
+	TAxiomArray Tautologies;
 
 protected:	// methods
 		/// initialize signature index (for the improved modularization algorithm)
@@ -219,6 +192,14 @@ protected:	// methods
 		SigIndex* SI = new SigIndex();
 		SI->processRange ( O->begin(), O->end() );
 		Modularizer.setSigIndex(SI);
+	}
+		/// remove tautologies (axioms that are always local) from the ontology temporarily
+	void removeTautologies ( TOntology* O, ModuleType type );
+		/// restore all tautologies back
+	void restoreTautologies ( void )
+	{
+		for ( iterator p = Tautologies.begin(), p_end = Tautologies.end(); p != p_end; ++p )
+			(*p)->setUsed(true);
 	}
 		/// build a module for given signature SIG and module type TYPE; use part [BEGIN,END) for the module search
 	TOntologyAtom* buildModule ( const TSignature& sig, ModuleType type, iterator begin, iterator end, TOntologyAtom* parent );

@@ -19,6 +19,29 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "AtomicDecomposer.h"
 #include "logging.h"
 
+/// remove tautologies (axioms that are always local) from the ontology temporarily
+void
+AtomicDecomposer :: removeTautologies ( TOntology* O, ModuleType type )
+{
+	// we might use it for another decomposition
+	Tautologies.clear();
+	// build signature of the ontology
+	TSignature sig;
+	iterator p = O->begin(), p_end = O->end();
+	for ( ; p != p_end; ++p )
+		if ( likely((*p)->isUsed()) )
+			sig.add(*(*p)->getSignature());
+	// build module of a given type
+	Modularizer.extract ( *O, sig, type );
+	// save all tautologies
+	for ( p = O->begin(); p != p_end; ++p )
+		if ( likely((*p)->isUsed()) && unlikely(!(*p)->isInModule()) )
+		{
+			Tautologies.push_back(*p);
+			(*p)->setUsed(false);
+		}
+}
+
 /// build a module for given axiom AX and module type TYPE; use part [BEGIN,END) for the module search
 TOntologyAtom*
 AtomicDecomposer :: buildModule ( const TSignature& sig, ModuleType type, iterator begin, iterator end, TOntologyAtom* parent )
@@ -46,8 +69,8 @@ AtomicDecomposer :: getAOS ( TOntology* O, ModuleType type )
 	delete AOS;
 	AOS = new AOStructure();
 
-	// we don't need declarations here
-	DeclRemover DR(O);
+	// we don't need tautologies here
+	removeTautologies(O,type);
 
 	// prepare SigIndex for the optimized modularization
 	initSigIndex(O);
@@ -62,6 +85,9 @@ AtomicDecomposer :: getAOS ( TOntology* O, ModuleType type )
 	for ( iterator p = O->begin(), p_end = O->end(); p != p_end; ++p )
 		if ( (*p)->isUsed() && (*p)->getAtom() == NULL )
 			createAtom ( *p, type, O->begin(), O->end(), NULL );
+
+	// restore tautologies in the ontology
+	restoreTautologies();
 
 	if ( LLM.isWritable(llAlways) )
 		LL << "\nThere were " << Modularizer.getNNonLocal() << " non-local axioms out of " << Modularizer.getNChecks() << " totally checked\n";
