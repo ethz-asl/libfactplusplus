@@ -19,7 +19,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Reasoner.h"
 #include "logging.h"
 #include "eFPPTimeout.h"
-#include "Modularity.h"
 
 // comment the line out for printing tree info before save and after restoring
 //#define __DEBUG_SAVE_RESTORE
@@ -37,7 +36,7 @@ DlSatTester :: DlSatTester ( TBox& tbox )
 	, CGraph(1,this)
 	, TODO(tBox.PriorityMatrix)
 	, DTReasoner(tbox.DLHeap)
-	// It's unsafe to have a cache that touchs a nominal in a node; set flagNominals to prevent it
+	// It's unsafe to have a cache that touches a nominal in a node; set flagNominals to prevent it
 	, newNodeCache ( true, tBox.nC, tBox.nR )
 	, newNodeEdges ( false, tBox.nC, tBox.nR )
 	, GCIs(tbox.GCIs)
@@ -56,7 +55,7 @@ DlSatTester :: DlSatTester ( TBox& tbox )
 	// init blocking statistics
 	clearBlockingStat();
 
-	resetSessionFlags ();
+	resetSessionFlags();
 }
 
 /// prerpare Nominal Reasoner to a new job
@@ -642,7 +641,7 @@ void DlSatTester :: restore ( unsigned int newTryLevel )
 	fpp_assert ( !Stack.empty () );
 	fpp_assert ( newTryLevel > 0 );
 
-	// skip all intermediate restorings
+	// skip all intermediate restores
 	setCurLevel(newTryLevel);
 
 	// update split level
