@@ -61,9 +61,11 @@ protected:	// methods
 		{
 			for ( TSignature::iterator p = axiomSig.begin(), p_end = axiomSig.end(); p != p_end; ++p )
 				if ( !sig.contains(*p) )	// new one
+				{
 					WorkQueue.push(*p);
+					sig.add(*p);
+				}
 		}
-		sig.add(axiomSig);
 	}
 		/// add an axiom to a module
 	void addAxiomToModule ( TDLAxiom* axiom )
