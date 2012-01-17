@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2011 by Dmitry Tsarkov
+Copyright (C) 2011-2012 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -54,18 +54,17 @@ protected:	// members
 
 protected:	// methods
 		/// update SIG wrt the axiom signature
-	void addAxiomSig ( TDLAxiom* axiom )
+	void addAxiomSig ( const TSignature& axiomSig )
 	{
-		const TSignature& axiomSig = *axiom->getSignature();
-		if ( sigIndex )
-		{
+		if ( sigIndex == NULL )
+			sig.add(axiomSig);
+		else
 			for ( TSignature::iterator p = axiomSig.begin(), p_end = axiomSig.end(); p != p_end; ++p )
 				if ( !sig.contains(*p) )	// new one
 				{
 					WorkQueue.push(*p);
 					sig.add(*p);
 				}
-		}
 	}
 		/// add an axiom to a module
 	void addAxiomToModule ( TDLAxiom* axiom )
@@ -73,7 +72,7 @@ protected:	// methods
 		axiom->setInModule(true);
 		Module.push_back(axiom);
 		// update the signature
-		addAxiomSig(axiom);
+		addAxiomSig(*axiom->getSignature());
 	}
 		/// @return true iff an AXiom is non-local
 	bool isNonLocal ( const TDLAxiom* ax )
