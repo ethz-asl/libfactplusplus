@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2011 by Dmitry Tsarkov
+Copyright (C) 2003-2012 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -268,6 +268,15 @@ protected:	// methods
 		return I->getRelatedCache(R);
 	}
 
+		/// get role expression based on the R
+	TDLRoleExpression* Role ( const TRole* R )
+	{
+		if ( unlikely(R->isDataRole()) )
+			return getExpressionManager()->DataRole(R->getName());
+		else
+			return getExpressionManager()->ObjectRole(R->getName());
+	}
+
 	//-----------------------------------------------------------------------------
 	//--		internal reasoning methods
 	//-----------------------------------------------------------------------------
@@ -468,6 +477,13 @@ protected:	// methods
 	void LoadOptions ( std::istream& i );
 		/// load the status of the KB and the appropriate part of KB
 	void LoadKB ( std::istream& i );
+
+	//----------------------------------------------------------------------------------
+	// knowledge exploration queries
+	//----------------------------------------------------------------------------------
+
+		/// add the role R and all its supers to a set RESULT
+	void addRoleWithSupers ( const TRole* R, TCGRoleSet& Result );
 
 public:	// general staff
 		/// default c'tor

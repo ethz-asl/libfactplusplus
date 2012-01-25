@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2011 by Dmitry Tsarkov
+Copyright (C) 2003-2012 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -534,6 +534,15 @@ ReasoningKernel :: isRelated ( const TIndividualExpr* I, const TORoleExpr* R, co
 // knowledge exploration queries
 //----------------------------------------------------------------------------------
 
+/// add the role R and all its supers to a set RESULT
+void
+ReasoningKernel :: addRoleWithSupers ( const TRole* R, TCGRoleSet& Result )
+{
+	Result.insert(Role(R));
+	for ( TRole::const_iterator p = R->begin_anc(), p_end = R->end_anc(); p != p_end; ++p )
+		Result.insert(Role(*p));
+}
+
 /// build the set of data neighbours of a NODE, put the set into the RESULT variable
 void
 ReasoningKernel :: getDataRoles ( const TCGNode* node, TCGRoleSet& Result, bool onlyDet )
@@ -541,8 +550,7 @@ ReasoningKernel :: getDataRoles ( const TCGNode* node, TCGRoleSet& Result, bool 
 	Result.clear();
 	for ( DlCompletionTree::const_edge_iterator p = node->begin(), p_end = node->end(); p != p_end; ++p )
 		if ( likely(!(*p)->isIBlocked()) && (*p)->getArcEnd()->isDataNode() && (!onlyDet || (*p)->getDep().empty()) )
-			// FIXME!! add also all supers
-			Result.insert(getExpressionManager()->DataRole((*p)->getRole()->getName()));
+			addRoleWithSupers ( (*p)->getRole(), Result );
 }
 /// build the set of object neighbours of a NODE; incoming edges are counted iff NEEDINCOMING is true
 void
@@ -551,7 +559,7 @@ ReasoningKernel :: getObjectRoles ( const TCGNode* node, TCGRoleSet& Result, boo
 	Result.clear();
 	for ( DlCompletionTree::const_edge_iterator p = node->begin(), p_end = node->end(); p != p_end; ++p )
 		if ( likely(!(*p)->isIBlocked()) && !(*p)->getArcEnd()->isDataNode() && (!onlyDet || (*p)->getDep().empty()) && (needIncoming || (*p)->isSuccEdge() ) )
-			Result.insert(getExpressionManager()->ObjectRole((*p)->getRole()->getName()));
+			addRoleWithSupers ( (*p)->getRole(), Result );
 }
 /// build the set of neighbours of a NODE via role ROLE; put the resulting list into RESULT
 void
