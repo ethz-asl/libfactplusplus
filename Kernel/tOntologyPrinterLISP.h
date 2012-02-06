@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2009-2011 by Dmitry Tsarkov
+Copyright (C) 2009-2012 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -37,8 +37,6 @@ protected:	// methods
 		for ( ; beg < end; ++beg )
 			(*beg)->accept(LEP);
 	}
-		/// helper to print name (w/o one-of) of the individual
-	void pn ( const DLTree* p ) { o << ' ' << p->Element().getName(); }
 		/// helper to print a string
 	TLISPOntologyPrinter& operator << ( const char* str ) { o << str; return *this; }
 		/// helper to print an expression
