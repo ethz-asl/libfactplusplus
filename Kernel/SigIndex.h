@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2011 by Dmitry Tsarkov
+Copyright (C) 2011-2012 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -44,6 +44,10 @@ protected:	// members
 	AxiomSet NonLocal[2];
 		/// empty signature to test the non-locality
 	TSignature emptySig;
+		/// number of registered axioms
+	unsigned int nRegistered;
+		/// number of registered axioms
+	unsigned int nUnregistered;
 
 protected:	// members
 		/// add axiom AX to the non-local set with top-locality value TOP
@@ -56,7 +60,7 @@ protected:	// members
 
 public:		// interface
 		/// empty c'tor
-	SigIndex ( void ) : Checker(&emptySig) {}
+	SigIndex ( void ) : Checker(&emptySig), nRegistered(0), nUnregistered(0) {}
 		/// empty d'tor
 	~SigIndex ( void ) {}
 
@@ -70,6 +74,7 @@ public:		// interface
 		// check whether the axiom is non-local
 		checkNonLocal ( ax, /*top=*/false );
 		checkNonLocal ( ax, /*top=*/true );
+		++nRegistered;
 	}
 		/// unregister an axiom AX
 	void unregisterAx ( TDLAxiom* ax )
@@ -79,6 +84,7 @@ public:		// interface
 		// remove from the non-locality
 		NonLocal[false].erase(ax);
 		NonLocal[true].erase(ax);
+		++nUnregistered;
 	}
 		/// process an axiom wrt its Used status
 	void processAx ( TDLAxiom* ax )
@@ -102,6 +108,13 @@ public:		// interface
 	const AxiomSet& getAxioms ( const TNamedEntity* entity ) { return Base[entity]; }
 		/// get the non-local axioms with top-locality value TOP
 	const AxiomSet& getNonLocal ( bool top ) const { return NonLocal[!top]; }
+
+	// access to statistics
+
+		/// get number of ever processed axioms
+	unsigned int nProcessedAx ( void ) const { return nRegistered; }
+		/// get number of currently registered axioms
+	unsigned int nRegisteredAx ( void ) const { return nRegistered - nUnregistered; }
 }; // SigIndex
 
 #endif
