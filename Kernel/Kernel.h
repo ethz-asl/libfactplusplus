@@ -586,6 +586,10 @@ public:	// general staff
 
 		/// get access to an expression manager
 	TExpressionManager* getExpressionManager ( void ) { return Ontology.getExpressionManager(); }
+		/// get RW access to the ontology
+	TOntology& getOntology ( void ) { return Ontology; }
+		/// get RO access to the ontology
+	const TOntology& getOntology ( void ) const { return Ontology; }
 
 public:
 	//******************************************
