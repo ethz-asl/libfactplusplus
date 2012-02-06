@@ -160,7 +160,12 @@ public:		// interface
 	~TModularizer ( void ) {}
 
 		/// set sig index to a given value
-	void setSigIndex ( SigIndex* p ) { sigIndex = p; }
+	void setSigIndex ( SigIndex* p )
+	{
+		sigIndex = p;
+		nChecks += 2*p->nProcessedAx();
+		nNonLocal += p->getNonLocal(false).size() + p->getNonLocal(true).size();
+	}
 		/// extract module wrt SIGNATURE and TYPE from the set of axioms [BEGIN,END)
 	void extract ( iterator begin, iterator end, const TSignature& signature, ModuleType type )
 	{
