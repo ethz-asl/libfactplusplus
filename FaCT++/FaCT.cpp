@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2011 by Dmitry Tsarkov
+Copyright (C) 2003-2012 by Dmitry Tsarkov
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -63,9 +63,8 @@ void fillSatSubQuery ( void )
 }
 
 ReasoningKernel::TConceptExpr*
-getNextName ( TsScanner& sc, ReasoningKernel& Kernel )
+getNextName ( TsScanner& sc, TExpressionManager* pEM )
 {
-	TExpressionManager* pEM = Kernel.getExpressionManager();
 	for (;;)
 	{
 		if ( sc.GetLex() == LEXEOF )
@@ -127,7 +126,7 @@ void testSat ( const std::string& names, ReasoningKernel& Kernel )
 	TsScanner sc(&s);
 	ReasoningKernel::TConceptExpr* sat;
 
-	while ( (sat = getNextName(sc,Kernel)) != NULL )
+	while ( (sat = getNextName(sc,Kernel.getExpressionManager())) != NULL )
 	{
 		bool result = false;
 		if ( dynamic_cast<const TDLConceptTop*>(sat) != NULL )
@@ -147,11 +146,12 @@ void testSub ( const std::string& names1, const std::string& names2, ReasoningKe
 	std::stringstream s1(names1), s2(names2);
 	TsScanner sc1(&s1), sc2(&s2);
 	ReasoningKernel::TConceptExpr *sub, *sup;
+	TExpressionManager* pEM = Kernel.getExpressionManager();
 
-	while ( (sub = getNextName(sc1,Kernel)) != NULL )
+	while ( (sub = getNextName(sc1,pEM)) != NULL )
 	{
 		sc2.ReSet();
-		while ( (sup = getNextName(sc2,Kernel)) != NULL )
+		while ( (sup = getNextName(sc2,pEM)) != NULL )
 		{
 			bool result = false;
 			TryReasoning ( result = Kernel.isSubsumedBy ( sub, sup ) );
@@ -174,6 +174,7 @@ int main ( int argc, char *argv[] )
 	// define [more-or-less] global Kernel
 	ReasoningKernel Kernel;
 	Kernel.setTopBottomRoleNames ( "*UROLE*", "*EROLE*", "*UDROLE*", "*EDROLE*" );
+	Kernel.setUseUndefinedNames(false);
 
 	// parse options
 	if ( argc > 3 || argc < 2 )
@@ -241,12 +242,15 @@ int main ( int argc, char *argv[] )
 	wTimer.Start ();
 	TBoxParser.Parse ();
 	wTimer.Stop ();
-	std::cerr << " done";
+	std::cerr << " done in " << wTimer << " seconds";
 
 	Out << "loading time " << wTimer << " seconds\n";
 
 	TsProcTimer pt;
 	pt.Start();
+
+	// parsing query targets
+	fillSatSubQuery();
 
 	TryReasoning(Kernel.preprocessKB());
 
@@ -255,9 +259,6 @@ int main ( int argc, char *argv[] )
 		std::cerr << "WARNING: KB is inconsistent. Query is NOT processed\n";
 	else	// perform reasoning
 	{
-		// parsing query targets
-		fillSatSubQuery();
-
 		if ( Query[0].empty() )
 		{
 			if ( Query[1].empty() )
