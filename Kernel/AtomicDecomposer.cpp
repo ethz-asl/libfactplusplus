@@ -18,6 +18,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "AtomicDecomposer.h"
 #include "logging.h"
+#include "ProgressIndicatorInterface.h"
 
 /// remove tautologies (axioms that are always local) from the ontology temporarily
 void
@@ -25,6 +26,7 @@ AtomicDecomposer :: removeTautologies ( TOntology* O, ModuleType type )
 {
 	// we might use it for another decomposition
 	Tautologies.clear();
+	unsigned long nAx = 0;
 	for ( iterator p = O->begin(), p_end = O->end(); p != p_end; ++p )
 		if ( likely((*p)->isUsed()) )
 		{
@@ -35,7 +37,11 @@ AtomicDecomposer :: removeTautologies ( TOntology* O, ModuleType type )
 				Tautologies.push_back(*p);
 				(*p)->setUsed(false);
 			}
+			else
+				++nAx;
 		}
+	if ( PI )
+		PI->setLimit(nAx);
 }
 
 /// build a module for given axiom AX and module type TYPE; use part [BEGIN,END) for the module search
@@ -45,9 +51,12 @@ AtomicDecomposer :: buildModule ( const TSignature& sig, ModuleType type, iterat
 	// build a module for a given signature
 	std::set<TDLAxiom*> Module;
 	Modularizer.extract ( begin, end, sig, type, Module );
-	// if module is empty (e.g., empty bottom atom) -- do nothing
+	// if module is empty (empty bottom atom) -- do nothing
 	if ( Module.empty() )
 		return NULL;
+	// here the module is created; report it
+	if ( PI )
+		PI->incIndicator();
 	// check if the module corresponds to a PARENT one
 	if ( parent && Module == parent->getModule() )	// same module means same atom
 		return parent;
@@ -103,9 +112,8 @@ AtomicDecomposer :: createAtom ( TDLAxiom* ax, ModuleType type, iterator begin, 
 		return const_cast<TOntologyAtom*>(ax->getAtom());
 	// build an atom: use a module to find atomic dependencies
 	TOntologyAtom* atom = buildModule( *ax->getSignature(), type, begin, end, parent );
-	// empty modules means nothing to do
-	if ( atom == NULL )
-		return NULL;
+	// no empty modules should be here
+	fpp_assert ( atom != NULL );
 	// register axiom as a part of an atom
 	atom->addAxiom(ax);
 	// if atom is the same as parent -- nothing more to do

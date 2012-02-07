@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2011 by Dmitry Tsarkov
+Copyright (C) 2011-2012 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -24,6 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Modularity.h"
 
 typedef SigIndex::AxiomSet AxiomSet;
+class ProgressIndicatorInterface;
 
 /// atomical ontology structure
 class AOStructure
@@ -88,6 +89,8 @@ protected:	// members
 	TModularizer Modularizer;
 		/// tautologies of the ontology
 	TAxiomArray Tautologies;
+		/// progress indicator
+	ProgressIndicatorInterface* PI;
 
 protected:	// methods
 		/// initialize signature index (for the improved modularization algorithm)
@@ -112,7 +115,7 @@ protected:	// methods
 
 public:		// interface
 		/// init c'tor
-	AtomicDecomposer ( void ) : AOS(NULL) {}
+	AtomicDecomposer ( void ) : AOS(NULL), PI(NULL) {}
 		/// d'tor
 	~AtomicDecomposer ( void ) { delete AOS; }
 
@@ -120,6 +123,9 @@ public:		// interface
 	AOStructure* getAOS ( TOntology* O, ModuleType type );
 		/// get already created atomic structure
 	const AOStructure* getAOS ( void ) const { return AOS; }
+
+		/// set progress indicator to be PI
+	void setProgressIndicator ( ProgressIndicatorInterface* pi ) { PI = pi; }
 }; // AtomicDecomposer
 
 #endif
