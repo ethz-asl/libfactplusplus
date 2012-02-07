@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2011 by Dmitry Tsarkov
+Copyright (C) 2011-2012 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -25,20 +25,16 @@ AtomicDecomposer :: removeTautologies ( TOntology* O, ModuleType type )
 {
 	// we might use it for another decomposition
 	Tautologies.clear();
-	// build signature of the ontology
-	TSignature sig;
-	iterator p = O->begin(), p_end = O->end();
-	for ( ; p != p_end; ++p )
+	for ( iterator p = O->begin(), p_end = O->end(); p != p_end; ++p )
 		if ( likely((*p)->isUsed()) )
-			sig.add(*(*p)->getSignature());
-	// build module of a given type
-	Modularizer.extract ( *O, sig, type );
-	// save all tautologies
-	for ( p = O->begin(); p != p_end; ++p )
-		if ( likely((*p)->isUsed()) && unlikely(!(*p)->isInModule()) )
 		{
-			Tautologies.push_back(*p);
-			(*p)->setUsed(false);
+			// check whether an axiom is local wrt its own signature
+			Modularizer.extract ( p, p+1, *(*p)->getSignature(), type );
+			if ( unlikely(!(*p)->isInModule()) )
+			{
+				Tautologies.push_back(*p);
+				(*p)->setUsed(false);
+			}
 		}
 }
 
@@ -49,7 +45,7 @@ AtomicDecomposer :: buildModule ( const TSignature& sig, ModuleType type, iterat
 	// build a module for a given signature
 	std::set<TDLAxiom*> Module;
 	Modularizer.extract ( begin, end, sig, type, Module );
-	// if module is empty -- do nothing
+	// if module is empty (e.g., empty bottom atom) -- do nothing
 	if ( Module.empty() )
 		return NULL;
 	// check if the module corresponds to a PARENT one
