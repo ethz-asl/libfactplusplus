@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2011 by Dmitry Tsarkov
+Copyright (C) 2011-2012 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -113,7 +113,7 @@ public:		// interface
 		/// init c'tor
 	TELFConcept ( const TDLConceptExpression* origin ) : Origin(origin) {}
 		/// empty d'tor
-	~TELFConcept ( void ) {}
+	virtual ~TELFConcept ( void ) {}
 
 		/// check whether concept C is contained in supers
 	bool hasSuper ( TELFConcept* C ) const { return Supers.count(C) > 0; }
@@ -154,7 +154,7 @@ public:		// interface
 		/// init c'tor
 	TELFRole ( const TDLObjectRoleExpression* origin ) : Origin(origin) {}
 		/// empty d'tor
-	~TELFRole ( void ) {}
+	virtual ~TELFRole ( void ) {}
 
 		/// get the (possibly empty) set of predecessors of given D
 	CSet& getPredSet ( const TELFConcept* D ) { return PredMap[D]; }
@@ -367,7 +367,7 @@ public:		// interface
 		/// init c'tor: remember D
 	CSubRule ( ELFReasoner& ER, TELFConcept* D ) : TELFRule(ER), Sup(D) {}
 		/// empty d'tor
-	~CSubRule ( void ) {}
+	virtual ~CSubRule ( void ) {}
 		/// apply a method with a given S(C)
 	virtual void apply ( TELFConcept* addedC )
 	{
@@ -393,7 +393,7 @@ public:		// interface
 		/// init c'tor: remember D
 	CAndSubRule ( ELFReasoner& ER, TELFConcept* C, TELFConcept* D ) : TELFRule(ER), Conj(C), Sup(D) {}
 		/// empty d'tor
-	~CAndSubRule ( void ) {}
+	virtual ~CAndSubRule ( void ) {}
 		/// apply a method with a given S(C)
 	virtual void apply ( TELFConcept* C )
 	{
@@ -419,7 +419,7 @@ public:		// interface
 		/// init c'tor: remember D
 	RAddRule ( ELFReasoner& ER, TELFRole* r, TELFConcept* C ) : TELFRule(ER), R(r), Filler(C) {}
 		/// empty d'tor
-	~RAddRule ( void ) {}
+	virtual ~RAddRule ( void ) {}
 		/// apply a method with a given source S(C)
 	virtual void apply ( TELFConcept* Source )
 	{
@@ -445,7 +445,7 @@ public:		// interface
 		/// init c'tor: remember E
 	CAddFillerRule ( ELFReasoner& ER, TELFRole* r, TELFConcept* C ) : TELFRule(ER), R(r), Sup(C) {}
 		/// empty d'tor
-	~CAddFillerRule ( void ) {}
+	virtual ~CAddFillerRule ( void ) {}
 		/// apply a method with a given source S(C)
 	virtual void apply ( TELFConcept* Source )
 	{
@@ -470,7 +470,7 @@ public:		// interface
 		/// init c'tor: remember D
 	CExistSubRule ( ELFReasoner& ER, TELFConcept* filler, TELFConcept* sup ) : TELFRule(ER), Filler(filler), Sup(sup) {}
 		/// empty d'tor
-	~CExistSubRule ( void ) {}
+	virtual ~CExistSubRule ( void ) {}
 		/// apply a method with an added pair (C,D)
 	virtual void apply ( TELFConcept* addedC, TELFConcept* addedD )
 	{
@@ -495,7 +495,7 @@ public:		// interface
 		/// init c'tor: remember E
 	RBotRule ( ELFReasoner& ER, TELFConcept* bot ) : TELFRule(ER), CBot(bot) {}
 		/// empty d'tor
-	~RBotRule ( void ) {}
+	virtual ~RBotRule ( void ) {}
 		/// apply a method with a given new pair (C,D)
 	virtual void apply ( TELFConcept* addedC, TELFConcept* addedD )
 	{
@@ -521,7 +521,7 @@ public:		// interface
 		/// init c'tor: remember S
 	RSubRule ( ELFReasoner& ER, TELFRole* s ) : TELFRule(ER), S(s) {}
 		/// empty d'tor
-	~RSubRule ( void ) {}
+	virtual ~RSubRule ( void ) {}
 		/// apply a method with a given pair (C,D)
 	virtual void apply ( TELFConcept* addedC, TELFConcept* addedD )
 	{
@@ -548,7 +548,7 @@ public:		// interface
 		/// init c'tor: remember S and T
 	RChainLRule ( ELFReasoner& ER, TELFRole* s, TELFRole* t ) : TELFRule(ER), S(s), T(t) {}
 		/// empty d'tor
-	~RChainLRule ( void ) {}
+	virtual ~RChainLRule ( void ) {}
 		/// apply a method with a given pair (C,D)
 	virtual void apply ( TELFConcept* addedC, TELFConcept* addedD )
 	{
@@ -576,7 +576,7 @@ public:		// interface
 		/// init c'tor: remember R and T
 	RChainRRule ( ELFReasoner& ER, TELFRole* r, TELFRole* t ) : TELFRule(ER), R(r), T(t) {}
 		/// empty d'tor
-	~RChainRRule ( void ) {}
+	virtual ~RChainRRule ( void ) {}
 		/// apply a method with a given pair (C,D)
 	virtual void apply ( TELFConcept* addedC, TELFConcept* addedD )
 	{

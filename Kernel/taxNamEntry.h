@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2010 by Dmitry Tsarkov
+Copyright (C) 2003-2012 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -141,13 +141,6 @@ public:		// interface
 		copy.swap(toldSubsumers);
 		addParents ( copy.begin(), copy.end() );
 	}
-
-	// save/load interface; don't save anything, all will be restores from Taxonomy
-
-		/// save entry
-	virtual void Save ( std::ostream& o ) const { TNamedEntry::Save(o); }
-		/// load entry
-	virtual void Load ( std::istream& i ) { TNamedEntry::Load(i); }
 }; // ClassifiableEntry
 
 /// general RW resolving synonym operator
