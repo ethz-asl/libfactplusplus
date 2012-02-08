@@ -103,9 +103,9 @@ protected:	// methods
         } while ( sigSize != sig.size() );
 	}
 		/// add all the non-local axioms from given axiom-set AxSet
-	void addNonLocal ( const SigIndex::AxiomSet& AxSet, bool noCheck )
+	void addNonLocal ( const SigIndex::AxiomCollection& AxSet, bool noCheck )
 	{
-		for ( SigIndex::iterator q = AxSet.begin(), q_end = AxSet.end(); q != q_end; ++q )
+		for ( SigIndex::const_iterator q = AxSet.begin(), q_end = AxSet.end(); q != q_end; ++q )
 			if ( !(*q)->isInModule() && (*q)->isInSS() )	// in the given range but not in module yet
 				addNonLocal ( *q, noCheck );
 	}

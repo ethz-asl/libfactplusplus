@@ -27,13 +27,15 @@ class SigIndex
 {
 public:		// types
 		/// set of axiom
-	typedef std::set<TDLAxiom*> AxiomSet;
-		/// iterator over set of axioms
-	typedef AxiomSet::iterator iterator;
+	typedef std::set<TDLAxiom*> AxiomCollection;
+		/// RW iterator over set of axioms
+	typedef AxiomCollection::iterator iterator;
+		/// RO iterator over set of axioms
+	typedef AxiomCollection::const_iterator const_iterator;
 
 protected:	// types
 		/// map between entities and axioms that contains them in their signature
-	typedef std::map<const TNamedEntity*, AxiomSet> EntityAxiomMap;
+	typedef std::map<const TNamedEntity*, AxiomCollection> EntityAxiomMap;
 
 protected:	// members
 		/// map itself
@@ -41,7 +43,7 @@ protected:	// members
 		/// locality checker
 	SyntacticLocalityChecker Checker;
 		/// sets of axioms non-local wrt the empty signature
-	AxiomSet NonLocal[2];
+	AxiomCollection NonLocal[2];
 		/// empty signature to test the non-locality
 	TSignature emptySig;
 		/// number of registered axioms
@@ -50,10 +52,10 @@ protected:	// members
 	unsigned int nUnregistered;
 
 protected:	// methods
-		/// add an axiom AX to an axiom set SET
-	void add ( AxiomSet& set, TDLAxiom* ax ) { set.insert(ax); }
-		/// remove an axiom AX from an axiom set SET
-	void remove ( AxiomSet& set, TDLAxiom* ax ) { set.erase(ax); }
+		/// add an axiom AX to an axiom set AXIOMS
+	void add ( AxiomCollection& axioms, TDLAxiom* ax ) { axioms.insert(ax); }
+		/// remove an axiom AX from an axiom set AXIOMS
+	void remove ( AxiomCollection& axioms, TDLAxiom* ax ) { axioms.erase(ax); }
 		/// add axiom AX to the non-local set with top-locality value TOP
 	void checkNonLocal ( TDLAxiom* ax, bool top )
 	{
@@ -109,9 +111,9 @@ public:		// interface
 	// get the set by the index
 
 		/// given an entity, return a set of all axioms that tontain this entity in a signature
-	const AxiomSet& getAxioms ( const TNamedEntity* entity ) { return Base[entity]; }
+	const AxiomCollection& getAxioms ( const TNamedEntity* entity ) { return Base[entity]; }
 		/// get the non-local axioms with top-locality value TOP
-	const AxiomSet& getNonLocal ( bool top ) const { return NonLocal[!top]; }
+	const AxiomCollection& getNonLocal ( bool top ) const { return NonLocal[!top]; }
 
 	// access to statistics
 
