@@ -27,8 +27,11 @@ Bundle-NativeCode: lib/native/64bit/FaCTPlusPlusJNI.dll;
  osname=Windows2003 ;
  osname=Windows2008 ;
  osname=Windows 7 ;
+ osname=Windows7 ;
+ osname=Win7 ;
  processor=x86_64 ;
- processor = amd64 ,
+ processor=AMD64 ;
+ processor=amd64 ,
  lib/native/32bit/FaCTPlusPlusJNI.dll;
  osname=Windows95 ;
  osname=Windows 95 ;
@@ -50,8 +53,10 @@ Bundle-NativeCode: lib/native/64bit/FaCTPlusPlusJNI.dll;
  osname=Windows2003 ;
  osname=Windows2008 ;
  osname=Windows 7 ;
- processor = i386 ;
- processor = x86 ,
+ osname=Windows7 ;
+ osname=Win7 ;
+ processor=i386 ;
+ processor=x86 ,
  lib/native/64bit/libFaCTPlusPlusJNI.so;
  osname=Linux ;
  processor=x86_64 ;
