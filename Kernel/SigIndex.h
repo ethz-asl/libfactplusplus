@@ -27,7 +27,7 @@ class SigIndex
 {
 public:		// types
 		/// set of axiom
-	typedef std::set<TDLAxiom*> AxiomCollection;
+	typedef std::vector<TDLAxiom*> AxiomCollection;
 		/// RW iterator over set of axioms
 	typedef AxiomCollection::iterator iterator;
 		/// RO iterator over set of axioms
@@ -53,9 +53,18 @@ protected:	// members
 
 protected:	// methods
 		/// add an axiom AX to an axiom set AXIOMS
-	void add ( AxiomCollection& axioms, TDLAxiom* ax ) { axioms.insert(ax); }
+	void add ( AxiomCollection& axioms, TDLAxiom* ax ) { axioms.push_back(ax); }
 		/// remove an axiom AX from an axiom set AXIOMS
-	void remove ( AxiomCollection& axioms, TDLAxiom* ax ) { axioms.erase(ax); }
+	void remove ( AxiomCollection& axioms, TDLAxiom* ax )
+	{
+		for ( iterator p = axioms.begin(), p_end = axioms.end(); p != p_end; ++p )
+			if ( *p == ax )
+			{
+				*p = axioms.back();
+				axioms.pop_back();
+				break;
+			}
+	}
 		/// add axiom AX to the non-local set with top-locality value TOP
 	void checkNonLocal ( TDLAxiom* ax, bool top )
 	{
