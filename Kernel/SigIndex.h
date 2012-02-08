@@ -49,13 +49,17 @@ protected:	// members
 		/// number of registered axioms
 	unsigned int nUnregistered;
 
-protected:	// members
+protected:	// methods
+		/// add an axiom AX to an axiom set SET
+	void add ( AxiomSet& set, TDLAxiom* ax ) { set.insert(ax); }
+		/// remove an axiom AX from an axiom set SET
+	void remove ( AxiomSet& set, TDLAxiom* ax ) { set.erase(ax); }
 		/// add axiom AX to the non-local set with top-locality value TOP
 	void checkNonLocal ( TDLAxiom* ax, bool top )
 	{
 		emptySig.setLocality(top);
 		if ( !Checker.local(ax) )
-			NonLocal[!top].insert(ax);
+			add ( NonLocal[!top], ax );
 	}
 
 public:		// interface
@@ -70,7 +74,7 @@ public:		// interface
 	void registerAx ( TDLAxiom* ax )
 	{
 		for ( TSignature::iterator p = ax->getSignature()->begin(), p_end = ax->getSignature()->end(); p != p_end; ++p )
-			Base[*p].insert(ax);
+			add ( Base[*p], ax );
 		// check whether the axiom is non-local
 		checkNonLocal ( ax, /*top=*/false );
 		checkNonLocal ( ax, /*top=*/true );
@@ -80,10 +84,10 @@ public:		// interface
 	void unregisterAx ( TDLAxiom* ax )
 	{
 		for ( TSignature::iterator p = ax->getSignature()->begin(), p_end = ax->getSignature()->end(); p != p_end; ++p )
-			Base[*p].erase(ax);
+			remove ( Base[*p], ax );
 		// remove from the non-locality
-		NonLocal[false].erase(ax);
-		NonLocal[true].erase(ax);
+		remove ( NonLocal[false], ax );
+		remove ( NonLocal[true], ax );
 		++nUnregistered;
 	}
 		/// process an axiom wrt its Used status
