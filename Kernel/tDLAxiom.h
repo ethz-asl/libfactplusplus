@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2008-2011 by Dmitry Tsarkov
+Copyright (C) 2008-2012 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -232,6 +232,11 @@ public:		// interface
 		/// accept method for the visitor pattern
 	virtual void accept ( DLAxiomVisitor& visitor ) const = 0;
 }; // TDLAxiom
+
+//------------------------------------------------------------------
+///	globally visible axiom vector
+//------------------------------------------------------------------
+typedef std::vector<TDLAxiom*> AxiomVec;
 
 //------------------------------------------------------------------
 ///	general declaration axiom
