@@ -1221,7 +1221,7 @@ public:
 		/// create new atomic decomposition of the loaded ontology using TYPE. @return size of the AD
 	unsigned int getAtomicDecompositionSize ( ModuleType type ) { return AD.getAOS ( &Ontology, type )->size(); }
 		/// get a set of axioms that corresponds to the atom with the id INDEX
-	const AxiomSet& getAtomAxioms ( unsigned int index ) const { return (*AD.getAOS())[index]->getAtomAxioms(); }
+	const TOntologyAtom::AxiomSet& getAtomAxioms ( unsigned int index ) const { return (*AD.getAOS())[index]->getAtomAxioms(); }
 		/// get a set of atoms on which atom with index INDEX depends
 	const TOntologyAtom::AtomSet& getAtomDependents ( unsigned int index ) const { return (*AD.getAOS())[index]->getDepAtoms(); }
 }; // ReasoningKernel

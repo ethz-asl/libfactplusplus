@@ -205,8 +205,10 @@ public:		// interface
 		/// extract module wrt SIGNATURE and TYPE from O; @return result in the Set
 	void extract ( TOntology& O, const TSignature& signature, ModuleType type, std::set<TDLAxiom*>& Set )
 		{ extract ( O.begin(), O.end(), signature, type, Set ); }
-		/// get access to a signature
 
+		/// get the last computed module
+	const AxiomVec& getModule ( void ) const { return Module; }
+		/// get access to a signature
 	const TSignature& getSignature ( void ) const { return sig; }
 		/// get number of checks made
 	unsigned long long getNChecks ( void ) const { return nChecks; }
