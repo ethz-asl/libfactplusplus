@@ -66,6 +66,34 @@ AtomicDecomposer :: buildModule ( const TSignature& sig, ModuleType type, iterat
 	return atom;
 }
 
+/// create atom for given axiom AX and module type TYPE; use part [BEGIN,END) for the module search
+TOntologyAtom*
+AtomicDecomposer :: createAtom ( TDLAxiom* ax, ModuleType type, iterator begin, iterator end, TOntologyAtom* parent )
+{
+	// check whether axiom already has an atom
+	if ( ax->getAtom() != NULL )
+		return const_cast<TOntologyAtom*>(ax->getAtom());
+	// build an atom: use a module to find atomic dependencies
+	TOntologyAtom* atom = buildModule( *ax->getSignature(), type, begin, end, parent );
+	// no empty modules should be here
+	fpp_assert ( atom != NULL );
+	// register axiom as a part of an atom
+	atom->addAxiom(ax);
+	// if atom is the same as parent -- nothing more to do
+	if ( atom == parent )
+		return parent;
+	// not the same as parent: for all atom's axioms check their atoms and make ATOM depend on them
+	typedef std::vector<TDLAxiom*> AxVec;
+	// create a new module base
+	AxVec Module ( atom->getModule().begin(), atom->getModule().end() );
+	begin = Module.begin();
+	end = Module.end();
+	for ( iterator q = begin; q != end; ++q )
+		if ( likely ( *q != ax ) )
+			atom->addDepAtom ( createAtom ( *q, type, begin, end, atom ) );
+	return atom;
+}
+
 /// get the atomic structure for given module type TYPE
 AOStructure*
 AtomicDecomposer :: getAOS ( TOntology* O, ModuleType type )
@@ -101,32 +129,4 @@ AtomicDecomposer :: getAOS ( TOntology* O, ModuleType type )
 	AOS->reduceGraph();
 
 	return AOS;
-}
-
-/// create atom for given axiom AX and module type TYPE; use part [BEGIN,END) for the module search
-TOntologyAtom*
-AtomicDecomposer :: createAtom ( TDLAxiom* ax, ModuleType type, iterator begin, iterator end, TOntologyAtom* parent )
-{
-	// check whether axiom already has an atom
-	if ( ax->getAtom() != NULL )
-		return const_cast<TOntologyAtom*>(ax->getAtom());
-	// build an atom: use a module to find atomic dependencies
-	TOntologyAtom* atom = buildModule( *ax->getSignature(), type, begin, end, parent );
-	// no empty modules should be here
-	fpp_assert ( atom != NULL );
-	// register axiom as a part of an atom
-	atom->addAxiom(ax);
-	// if atom is the same as parent -- nothing more to do
-	if ( atom == parent )
-		return parent;
-	// not the same as parent: for all atom's axioms check their atoms and make ATOM depend on them
-	typedef std::vector<TDLAxiom*> AxVec;
-	// create a new module base
-	AxVec Module ( atom->getModule().begin(), atom->getModule().end() );
-	begin = Module.begin();
-	end = Module.end();
-	for ( iterator q = begin; q != end; ++q )
-		if ( likely ( *q != ax ) )
-			atom->addDepAtom ( createAtom ( *q, type, begin, end, atom ) );
-	return atom;
 }
