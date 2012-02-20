@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2011 by Dmitry Tsarkov
+Copyright (C) 2003-2012 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -207,6 +207,10 @@ public:		// interface
 
 	// access to roles
 
+		/// @return pointer to a TOP role
+	TRole* getTopRole ( void ) { return &universalRole; }
+		/// @return pointer to a BOTTOM role
+	TRole* getBotRole ( void ) { return &emptyRole; }
 		/// RW pointer to the first user-defined role
 	iterator begin ( void ) { return Roles.begin()+firstRoleIndex(); }
 		/// RW pointer after the last user-defined role

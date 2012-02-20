@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2010-2011 by Dmitry Tsarkov
+Copyright (C) 2010-2012 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -30,18 +30,13 @@ protected:	// members
 	DLTree* tree;
 		/// TBox to get access to the named entities
 	TBox& KB;
+		/// signature of non-trivial entities; used in semantic locality checkers only
+	TSignature* sig;
 
 #define THROW_UNSUPPORTED(name) \
 	throw EFaCTPlusPlus("Unsupported expression '" name "' in transformation")
 
-public:		// interface
-		/// empty c'tor
-	TExpressionTranslator ( TBox& kb ) : tree(NULL), KB(kb) {}
-		/// empty d'tor
-	virtual ~TExpressionTranslator ( void ) { deleteTree(tree); }
-
-		/// get (single) access to the tree
-	operator DLTree* ( void ) { DLTree* ret = tree; tree = NULL; return ret; }
+protected:	// methods
 		/// create DLTree of given TAG and named ENTRY; set the entry's ENTITY if necessary
 	void setEntry ( Token tag, TNamedEntry* entry, const TNamedEntity* entity )
 	{
@@ -49,12 +44,31 @@ public:		// interface
 			entry->setEntity(entity);
 		tree = new DLTree(TLexeme(tag,entry));
 	}
+		/// @return true iff ENTRY is not in signature
+	bool nc ( const TNamedEntity* entity ) const { return unlikely(sig != NULL) && !sig->contains(entity); }
+
+public:		// interface
+		/// empty c'tor
+	TExpressionTranslator ( TBox& kb ) : tree(NULL), KB(kb), sig(NULL) {}
+		/// empty d'tor
+	virtual ~TExpressionTranslator ( void ) { deleteTree(tree); }
+
+		/// get (single) access to the tree
+	operator DLTree* ( void ) { DLTree* ret = tree; tree = NULL; return ret; }
+		/// set internal signature to a given signature S
+	void setSignature ( TSignature* s ) { sig = s; }
 
 public:		// visitor interface
 	// concept expressions
 	virtual void visit ( const TDLConceptTop& expr ATTR_UNUSED ) { tree = createTop(); }
 	virtual void visit ( const TDLConceptBottom& expr ATTR_UNUSED ) { tree = createBottom(); }
-	virtual void visit ( const TDLConceptName& expr ) { setEntry ( CNAME, KB.getConcept(expr.getName()), &expr ); }
+	virtual void visit ( const TDLConceptName& expr )
+	{
+		if ( nc(&expr) )
+			tree = sig->topCLocal() ? createTop() : createBottom();
+		else
+			setEntry ( CNAME, KB.getConcept(expr.getName()), &expr );
+	}
 	virtual void visit ( const TDLConceptNot& expr ) { expr.getC()->accept(*this); tree = createSNFNot(*this); }
 	virtual void visit ( const TDLConceptAnd& expr )
 	{
@@ -195,7 +209,16 @@ public:		// visitor interface
 	// object role expressions
 	virtual void visit ( const TDLObjectRoleTop& expr ATTR_UNUSED ) { THROW_UNSUPPORTED("top object role"); }
 	virtual void visit ( const TDLObjectRoleBottom& expr ATTR_UNUSED ) { THROW_UNSUPPORTED("bottom object role"); }
-	virtual void visit ( const TDLObjectRoleName& expr ) { setEntry ( RNAME, KB.getORM()->ensureRoleName(expr.getName()), &expr ); }
+	virtual void visit ( const TDLObjectRoleName& expr )
+	{
+		RoleMaster* RM = KB.getORM();
+		TNamedEntry* role;
+		if ( nc(&expr) )
+			role = sig->topRLocal() ? RM->getTopRole() : RM->getBotRole();
+		else
+			role = RM->ensureRoleName(expr.getName());
+		setEntry ( RNAME, role, &expr );
+	}
 	virtual void visit ( const TDLObjectRoleInverse& expr ) { expr.getOR()->accept(*this); tree = createInverse(*this); }
 	virtual void visit ( const TDLObjectRoleChain& expr )
 	{
@@ -234,7 +257,16 @@ public:		// visitor interface
 	// data role expressions
 	virtual void visit ( const TDLDataRoleTop& expr ATTR_UNUSED ) { THROW_UNSUPPORTED("top data role");  }
 	virtual void visit ( const TDLDataRoleBottom& expr ATTR_UNUSED ) { THROW_UNSUPPORTED("bottom data role"); }
-	virtual void visit ( const TDLDataRoleName& expr ){ setEntry ( DNAME, KB.getDRM()->ensureRoleName(expr.getName()), &expr ); }
+	virtual void visit ( const TDLDataRoleName& expr )
+	{
+		RoleMaster* RM = KB.getDRM();
+		TNamedEntry* role;
+		if ( nc(&expr) )
+			role = sig->topRLocal() ? RM->getTopRole() : RM->getBotRole();
+		else
+			role = RM->ensureRoleName(expr.getName());
+		setEntry ( DNAME, role, &expr );
+	}
 
 	// data expressions
 	virtual void visit ( const TDLDataTop& expr ATTR_UNUSED ) { tree = createTop(); }
