@@ -57,8 +57,8 @@ AtomicDecomposer :: buildModule ( const TSignature& sig, ModuleType type, iterat
 	// here the module is created; report it
 	if ( PI )
 		PI->incIndicator();
-	// check if the module corresponds to a PARENT one
-	if ( parent && Module == parent->getModule() )	// same module means same atom
+	// check if the module corresponds to a PARENT one; modules are the same iff their sizes are the same
+	if ( parent && Modularizer.getModule().size() == parent->getModule().size() )	// same module means same atom
 		return parent;
 	// create new atom with that module
 	TOntologyAtom* atom = AOS->newAtom();

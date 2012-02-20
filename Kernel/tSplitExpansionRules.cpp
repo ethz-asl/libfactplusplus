@@ -119,7 +119,6 @@ TSplitRules :: BuildAllSeedSigs ( const SigVec& Allowed, const TSignature& Start
 //	std::cout << "\nBuilding seed signatures:";
 	// create a set of allowed entities for the next round
 	SigVec RecAllowed, Keepers;
-	std::set<TDLAxiom*> outModule;
 	TModularizer mod;
 	SigVec::const_iterator p, p_end;
 	for ( p = Allowed.begin(), p_end = Allowed.end(); p != p_end; ++p )
@@ -127,8 +126,8 @@ TSplitRules :: BuildAllSeedSigs ( const SigVec& Allowed, const TSignature& Start
 		{
 			sig.remove(*p);
 //			std::cout << "\nTrying " << (*p)->getName() << ": ";
-			mod.extract ( Module.begin(), Module.end(), sig, M_STAR, outModule );
-			if ( outModule.size() == Module.size() )
+			mod.extract ( Module.begin(), Module.end(), sig, M_STAR );
+			if ( mod.getModule().size() == Module.size() )
 			{	// possible to remove one
 //				std::cout << "remove";
 				RecAllowed.push_back(*p);
@@ -150,8 +149,8 @@ TSplitRules :: BuildAllSeedSigs ( const SigVec& Allowed, const TSignature& Start
 	{
 		for ( p = RecAllowed.begin(), p_end = RecAllowed.end(); p != p_end; ++p )
 			sig.remove(*p);
-		mod.extract ( Module.begin(), Module.end(), sig, M_STAR, outModule );
-		if ( outModule.size() == Module.size() )
+		mod.extract ( Module.begin(), Module.end(), sig, M_STAR );
+		if ( mod.getModule().size() == Module.size() )
 		{
 			Out.insert(sig);
 			return;
