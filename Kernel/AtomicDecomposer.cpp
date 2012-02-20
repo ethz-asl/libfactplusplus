@@ -83,9 +83,7 @@ AtomicDecomposer :: createAtom ( TDLAxiom* ax, ModuleType type, iterator begin, 
 	if ( atom == parent )
 		return parent;
 	// not the same as parent: for all atom's axioms check their atoms and make ATOM depend on them
-	typedef std::vector<TDLAxiom*> AxVec;
-	// create a new module base
-	AxVec Module ( atom->getModule().begin(), atom->getModule().end() );
+	AxiomVec Module ( atom->getModule().begin(), atom->getModule().end() );
 	begin = Module.begin();
 	end = Module.end();
 	for ( iterator q = begin; q != end; ++q )

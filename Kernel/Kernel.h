@@ -135,7 +135,7 @@ protected:	// members
 		/// expression translator to work with queries
 	TExpressionTranslator* pET;
 		/// trace vector for the last operation (set from the TBox trace-sets)
-	std::vector<TDLAxiom*> TraceVec;
+	AxiomVec TraceVec;
 		/// dag-2-interface translator used in knowledge exploration
 	TDag2Interface* D2I;
 		/// atomic decomposer
@@ -565,7 +565,7 @@ public:	// general staff
 		/// tells reasoner that the next reasoning operation shall gather the trace
 	void needTracing ( void ) { NeedTracing = true; }
 		/// @return the trace-set of the last reasoning operation
-	const std::vector<TDLAxiom*>& getTrace ( void )
+	const AxiomVec& getTrace ( void )
 	{
 		TraceVec.clear();
 		return TraceVec;

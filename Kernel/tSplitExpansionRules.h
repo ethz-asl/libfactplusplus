@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2011 by Dmitry Tsarkov
+Copyright (C) 2011-2012 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -144,9 +144,9 @@ protected:	// methods
 		/// init split as a set-of-sets
 	void initSplit ( TSplitVar* split );
 		/// prepare start signature
-	void prepareStartSig ( const std::vector<TDLAxiom*>& Module, TSignature& FinalSig, SigVec& Allowed ) const;
+	void prepareStartSig ( const AxiomVec& Module, TSignature& FinalSig, SigVec& Allowed ) const;
 		/// build all the seed signatures
-	void BuildAllSeedSigs ( const SigVec& Allowed, const TSignature& sig, std::vector<TDLAxiom*>& Module, std::set<TSignature>& Out ) const;
+	void BuildAllSeedSigs ( const SigVec& Allowed, const TSignature& sig, AxiomVec& Module, std::set<TSignature>& Out ) const;
 		/// calculate single entity based on a named entry ENTRY and possible signature
 	const TNamedEntity* getSingleEntity ( const TNamedEntry* entry ) const
 	{

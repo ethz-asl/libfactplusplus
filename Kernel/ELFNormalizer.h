@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2011 by Dmitry Tsarkov
+Copyright (C) 2011-2012 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -29,7 +29,7 @@ protected:
 	TExpressionManager* pEM;
 	TLISPOntologyPrinter LP;
 		/// set of new/procesed axioms
-	std::vector<TDLAxiom*> Axioms;
+	AxiomVec Axioms;
 		/// index of a freah variable
 	unsigned int index;
 		/// true iff the axiom was changed after visiting
@@ -290,7 +290,7 @@ public:		// visitor interface
 				std::cerr << "\nprocessing axiom " << i << " out of " << Axioms.size();
 			v(Axioms[i]);
 		}
-		for ( std::vector<TDLAxiom*>::iterator p = Axioms.begin(), p_end = Axioms.end(); p != p_end; ++p )
+		for ( AxiomVec::iterator p = Axioms.begin(), p_end = Axioms.end(); p != p_end; ++p )
 			if ( (*p)->isUsed() )
 				ontology.add(*p);
 			else

@@ -77,10 +77,8 @@ public:		// interface
 class AtomicDecomposer
 {
 protected:	// types
-		/// axiom array
-	typedef TOntology::TAxiomArray TAxiomArray;
-		/// iterator over the axiom array
-	typedef TAxiomArray::iterator iterator;
+		/// RW iterator over axiom vector
+	typedef AxiomVec::iterator iterator;
 
 protected:	// members
 		/// atomic structure to build
@@ -88,7 +86,7 @@ protected:	// members
 		/// modularizer to build modules
 	TModularizer Modularizer;
 		/// tautologies of the ontology
-	TAxiomArray Tautologies;
+	AxiomVec Tautologies;
 		/// progress indicator
 	ProgressIndicatorInterface* PI;
 

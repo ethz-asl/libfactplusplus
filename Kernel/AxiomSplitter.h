@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2011 by Dmitry Tsarkov
+Copyright (C) 2011-2012 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -35,9 +35,8 @@ protected:	// types
 		/// keep the single rename: named concept C in an axiom (C=D or C[=D) into a new name C' and new axiom C'=D or C'[=D
 	struct TRecord
 	{
-		typedef std::vector<TDLAxiom*> AxVec;
 		const TDLConceptName* oldName, *newName;
-		AxVec oldAxioms;
+		AxiomVec oldAxioms;
 		TDLAxiom* newAxiom;
 		TSignature newAxSig;
 		std::set<TDLAxiom*> Module;	// module for a new axiom
@@ -84,7 +83,7 @@ protected:	// methods
 		/// register a record in the ontology
 	void registerRec ( TRecord* rec )
 	{
-		for ( TRecord::AxVec::iterator p = rec->oldAxioms.begin(), p_end = rec->oldAxioms.end(); p != p_end; ++p )
+		for ( AxiomVec::iterator p = rec->oldAxioms.begin(), p_end = rec->oldAxioms.end(); p != p_end; ++p )
 		{
 			O->retract(*p);
 			sigIndex.unregisterAx(*p);
@@ -95,7 +94,7 @@ protected:	// methods
 		/// unregister a record
 	void unregisterRec ( TRecord* rec )
 	{
-		for ( TRecord::AxVec::iterator p = rec->oldAxioms.begin(), p_end = rec->oldAxioms.end(); p != p_end; ++p )
+		for ( AxiomVec::iterator p = rec->oldAxioms.begin(), p_end = rec->oldAxioms.end(); p != p_end; ++p )
 		{
 			(*p)->setUsed(true);
 			sigIndex.registerAx(*p);

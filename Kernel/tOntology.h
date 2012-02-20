@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2008-2011 by Dmitry Tsarkov
+Copyright (C) 2008-2012 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -28,14 +28,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 class TOntology
 {
 public:		// types
-		/// base type for the set of axioms
-	typedef std::vector<TDLAxiom*> TAxiomArray;
-		/// RW iterator ovet base type
-	typedef TAxiomArray::iterator iterator;
+		/// RW iterator over the base type
+	typedef AxiomVec::iterator iterator;
 
 protected:	// members
 		/// all the axioms
-	TAxiomArray Axioms;
+	AxiomVec Axioms;
 		/// expression manager that builds all the expressions for the axioms
 	TExpressionManager EManager;
 		/// id to be given to the next axiom
@@ -96,7 +94,12 @@ public:		// interface
 		/// get access to an expression manager
 	TExpressionManager* getExpressionManager ( void ) { return &EManager; }
 
-	// iterators
+	// access to axioms
+
+		/// get RW access to all axioms in the ontology
+	AxiomVec& getAxioms ( void ) { return Axioms; }
+		/// get RO access to all axioms in the ontology
+	const AxiomVec& getAxioms ( void ) const { return Axioms; }
 
 		/// RW begin() for the whole ontology
 	iterator begin ( void ) { return Axioms.begin(); }

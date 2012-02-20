@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2011 by Dmitry Tsarkov
+Copyright (C) 2011-2012 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -67,7 +67,7 @@ TSplitRules :: initSplit ( TSplitVar* split )
 			// prepare vector of available entities
 			SigVec Allowed;
 //			std::cout << "\n\n\nMaking split for module with " << p->name->getName();
-			std::vector<TDLAxiom*> Module ( p->Module.begin(), p->Module.end() );
+			AxiomVec Module ( p->Module.begin(), p->Module.end() );
 			// prepare signature for the process
 			TSignature sig = p->sig;
 			prepareStartSig ( Module, sig, Allowed );
@@ -80,10 +80,10 @@ TSplitRules :: initSplit ( TSplitVar* split )
 }
 
 void
-TSplitRules :: prepareStartSig ( const std::vector<TDLAxiom*>& Module, TSignature& sig, SigVec& Allowed ) const
+TSplitRules :: prepareStartSig ( const AxiomVec& Module, TSignature& sig, SigVec& Allowed ) const
 {
 	// remove all defined concepts from signature
-	for ( std::vector<TDLAxiom*>::const_iterator p = Module.begin(), p_end = Module.end(); p != p_end; ++p )
+	for ( AxiomVec::const_iterator p = Module.begin(), p_end = Module.end(); p != p_end; ++p )
 	{
 		const TDLAxiomEquivalentConcepts* ax = dynamic_cast<const TDLAxiomEquivalentConcepts*>(*p);
 		if ( ax != NULL )	// we don't need class names here
@@ -112,7 +112,7 @@ TSplitRules :: prepareStartSig ( const std::vector<TDLAxiom*>& Module, TSignatur
 
 /// build all the seed signatures
 void
-TSplitRules :: BuildAllSeedSigs ( const SigVec& Allowed, const TSignature& StartSig, std::vector<TDLAxiom*>& Module, std::set<TSignature>& Out ) const
+TSplitRules :: BuildAllSeedSigs ( const SigVec& Allowed, const TSignature& StartSig, AxiomVec& Module, std::set<TSignature>& Out ) const
 {
 	// copy the signature
 	TSignature sig = StartSig;

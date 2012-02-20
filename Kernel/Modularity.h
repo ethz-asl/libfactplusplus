@@ -31,10 +31,8 @@ enum ModuleType { M_TOP, M_BOT, M_STAR };
 class TModularizer
 {
 protected:	// types
-		/// copy axiom array definition from an ontology
-	typedef TOntology::TAxiomArray TAxiomArray;
-		/// iterator over axiom array
-	typedef TAxiomArray::iterator iterator;
+		/// RW iterator over axiom vector
+	typedef TOntology::iterator iterator;
 
 protected:	// members
 		/// shared signature signature
@@ -42,7 +40,7 @@ protected:	// members
 		/// internal syntactic locality checker
 	SyntacticLocalityChecker Checker;
 		/// module as a list of axioms
-	std::vector<TDLAxiom*> Module;
+	AxiomVec Module;
 		/// pointer to a sig index; if not NULL then use optimized algo
 	SigIndex* sigIndex;
 		/// queue of unprocessed entities
@@ -180,7 +178,7 @@ public:		// interface
 
 		// here there is a star: do the cycle until stabilization
 		size_t size;
-		std::vector<TDLAxiom*> oldModule;
+		AxiomVec oldModule;
 		do
 		{
 			size = Module.size();
