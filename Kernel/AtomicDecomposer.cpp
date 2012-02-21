@@ -58,7 +58,7 @@ AtomicDecomposer :: buildModule ( const TSignature& sig, ModuleType type, iterat
 	if ( PI )
 		PI->incIndicator();
 	// check if the module corresponds to a PARENT one; modules are the same iff their sizes are the same
-	if ( parent && Modularizer.getModule().size() == parent->getModule().size() )	// same module means same atom
+	if ( parent && Module.size() == parent->getModule().size() )	// same module means same atom
 		return parent;
 	// create new atom with that module
 	TOntologyAtom* atom = AOS->newAtom();
@@ -109,7 +109,7 @@ AtomicDecomposer :: getAOS ( TOntology* O, ModuleType type )
 	// build the "bottom" atom for an empty signature
 	TOntologyAtom* BottomAtom = buildModule ( TSignature(), type, O->begin(), O->end(), NULL );
 	if ( BottomAtom )
-		for ( AxiomSet::iterator q = BottomAtom->getModule().begin(), q_end = BottomAtom->getModule().end(); q != q_end; ++q )
+		for ( TOntologyAtom::AxiomSet::const_iterator q = BottomAtom->getModule().begin(), q_end = BottomAtom->getModule().end(); q != q_end; ++q )
 			BottomAtom->addAxiom(*q);
 
 	// create atoms for all the axioms in the ontology

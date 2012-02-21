@@ -23,7 +23,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "tSignature.h"
 #include "Modularity.h"
 
-typedef std::set<TDLAxiom*> AxiomSet;
 class ProgressIndicatorInterface;
 
 /// atomical ontology structure
