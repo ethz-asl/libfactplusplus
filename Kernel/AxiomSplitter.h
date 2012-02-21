@@ -106,8 +106,10 @@ protected:	// methods
 	void buildSig ( TRecord* rec )
 	{
 		sig = *rec->newAxiom->getSignature();
-		mod.extract ( *O, sig, M_STAR, rec->Module );	// build a module/signature for the axiom
+		mod.extract ( *O, sig, M_STAR );	// build a module/signature for the axiom
 		rec->newAxSig = mod.getSignature();	// FIXME!! check that SIG wouldn't change after some axiom retractions
+		rec->Module.clear();
+		rec->Module.insert ( mod.getModule().begin(), mod.getModule().end() );
 #if FPP_DEBUG_SPLIT_MODULES >= 3
 		std::cout << "\nModule for " << rec->oldName->getName() << ":\n";
 		for ( std::set<TDLAxiom*>::const_iterator z = rec->Module.begin(), z_end = rec->Module.end(); z != z_end; ++z )
