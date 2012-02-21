@@ -20,6 +20,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "logging.h"
 #include "ProgressIndicatorInterface.h"
 
+//#define RKG_DEBUG_AD
+
 /// remove tautologies (axioms that are always local) from the ontology temporarily
 void
 AtomicDecomposer :: removeTautologies ( TOntology* O, ModuleType type )
@@ -49,8 +51,8 @@ TOntologyAtom*
 AtomicDecomposer :: buildModule ( const TSignature& sig, ModuleType type, iterator begin, iterator end, TOntologyAtom* parent )
 {
 	// build a module for a given signature
-	std::set<TDLAxiom*> Module;
-	Modularizer.extract ( begin, end, sig, type, Module );
+	Modularizer.extract ( begin, end, sig, type );
+	const AxiomVec& Module = Modularizer.getModule();
 	// if module is empty (empty bottom atom) -- do nothing
 	if ( Module.empty() )
 		return NULL;
@@ -86,7 +88,14 @@ AtomicDecomposer :: createAtom ( TDLAxiom* ax, ModuleType type, iterator begin, 
 	AxiomVec Module ( atom->getModule().begin(), atom->getModule().end() );
 	begin = Module.begin();
 	end = Module.end();
+#ifdef RKG_DEBUG_AD
+	// do cycle via set to keep the order
+	typedef std::set<TDLAxiom*> AxSet;
+	const AxSet M ( begin, end );
+	for ( AxSet::iterator q = M.begin(); q != M.end(); ++q )
+#else
 	for ( iterator q = begin; q != end; ++q )
+#endif
 		if ( likely ( *q != ax ) )
 			atom->addDepAtom ( createAtom ( *q, type, begin, end, atom ) );
 	return atom;

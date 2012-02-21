@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2011 by Dmitry Tsarkov
+Copyright (C) 2011-2012 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -35,7 +35,7 @@ protected:	// internal types
 
 public:		// typedefs
 		/// set of axioms
-	typedef std::set<TDLAxiom*> AxiomSet;
+	typedef AxiomVec AxiomSet;
 		/// set of atoms
 	typedef std::set<TOntologyAtom*, AtomLess> AtomSet;
 
@@ -88,7 +88,7 @@ public:		// interface
 		/// add axiom AX to an atom
 	void addAxiom ( TDLAxiom* ax )
 	{
-		AtomAxioms.insert(ax);
+		AtomAxioms.push_back(ax);
 		ax->setAtom(this);
 	}
 		/// add atom to the dependency set
