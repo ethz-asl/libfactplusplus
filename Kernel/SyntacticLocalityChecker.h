@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2011 by Dmitry Tsarkov
+Copyright (C) 2011-2012 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -72,7 +72,7 @@ protected:	// methods
 
 public:		// interface
 		/// init c'tor
-	BotEquivalenceEvaluator ( const TSignature* s ) : SigAccessor(s) {}
+	BotEquivalenceEvaluator ( const TSignature* s ) : SigAccessor(s), isBotEq(false) {}
 		/// empty d'tor
 	virtual ~BotEquivalenceEvaluator ( void ) {}
 
@@ -160,6 +160,20 @@ public:		// visitor interface
 				return;
 		isBotEq = false;
 	}
+		// equivalent to R(x,y) and C(x), so copy behaviour from ER.X
+	virtual void visit ( const TDLObjectRoleProjectionFrom& expr )
+	{
+		isBotEq = isBotEquivalent(expr.getC());
+		if ( !topRLocal() )
+			isBotEq |= isBotEquivalent(expr.getOR());
+	}
+		// equivalent to R(x,y) and C(y), so copy behaviour from ER.X
+	virtual void visit ( const TDLObjectRoleProjectionInto& expr )
+	{
+		isBotEq = isBotEquivalent(expr.getC());
+		if ( !topRLocal() )
+			isBotEq |= isBotEquivalent(expr.getOR());
+	}
 
 	// data role expressions
 	virtual void visit ( const TDLDataRoleTop& expr ATTR_UNUSED ) { isBotEq = false; }
@@ -186,7 +200,7 @@ protected:	// methods
 
 public:		// interface
 		/// init c'tor
-	TopEquivalenceEvaluator ( const TSignature* s ) : SigAccessor(s) {}
+	TopEquivalenceEvaluator ( const TSignature* s ) : SigAccessor(s), isTopEq(false) {}
 		/// empty d'tor
 	virtual ~TopEquivalenceEvaluator ( void ) {}
 
@@ -265,6 +279,12 @@ public:		// visitor interface
 				return;
 		isTopEq = true;
 	}
+		// equivalent to R(x,y) and C(x), so copy behaviour from ER.X
+	virtual void visit ( const TDLObjectRoleProjectionFrom& expr )
+		{ isTopEq = topRLocal() && isTopEquivalent(expr.getOR()) && isTopEquivalent(expr.getC()); }
+		// equivalent to R(x,y) and C(y), so copy behaviour from ER.X
+	virtual void visit ( const TDLObjectRoleProjectionInto& expr )
+		{ isTopEq = topRLocal() && isTopEquivalent(expr.getOR()) && isTopEquivalent(expr.getC()); }
 
 	// data role expressions
 	virtual void visit ( const TDLDataRoleTop& expr ATTR_UNUSED ) { isTopEq = true; }
