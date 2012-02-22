@@ -75,10 +75,6 @@ public:		// interface
 /// atomical decomposer of the ontology
 class AtomicDecomposer
 {
-protected:	// types
-		/// RW iterator over axiom vector
-	typedef AxiomVec::iterator iterator;
-
 protected:	// members
 		/// atomic structure to build
 	AOStructure* AOS;
@@ -88,6 +84,8 @@ protected:	// members
 	AxiomVec Tautologies;
 		/// progress indicator
 	ProgressIndicatorInterface* PI;
+		/// fake atom that represents the whole ontology
+	TOntologyAtom* rootAtom;
 
 protected:	// methods
 		/// initialize signature index (for the improved modularization algorithm)
@@ -102,17 +100,17 @@ protected:	// methods
 		/// restore all tautologies back
 	void restoreTautologies ( void )
 	{
-		for ( iterator p = Tautologies.begin(), p_end = Tautologies.end(); p != p_end; ++p )
+		for ( AxiomVec::iterator p = Tautologies.begin(), p_end = Tautologies.end(); p != p_end; ++p )
 			(*p)->setUsed(true);
 	}
-		/// build a module for given signature SIG and module type TYPE; use part [BEGIN,END) for the module search
-	TOntologyAtom* buildModule ( const TSignature& sig, ModuleType type, iterator begin, iterator end, TOntologyAtom* parent );
-		/// create atom for given axiom AX and module type TYPE; use part [BEGIN,END) for the module search
-	TOntologyAtom* createAtom ( TDLAxiom* ax, ModuleType type, iterator begin, iterator end, TOntologyAtom* parent );
+		/// build a module for given signature SIG and module type TYPE; use parent atom's module as a base for the module search
+	TOntologyAtom* buildModule ( const TSignature& sig, ModuleType type, TOntologyAtom* parent );
+		/// create atom for given axiom AX and module type TYPE; use parent atom's module as a base for the module search
+	TOntologyAtom* createAtom ( TDLAxiom* ax, ModuleType type, TOntologyAtom* parent );
 
 public:		// interface
 		/// init c'tor
-	AtomicDecomposer ( void ) : AOS(NULL), PI(NULL) {}
+	AtomicDecomposer ( void ) : AOS(NULL), PI(NULL), rootAtom(NULL) {}
 		/// d'tor
 	~AtomicDecomposer ( void ) { delete AOS; }
 

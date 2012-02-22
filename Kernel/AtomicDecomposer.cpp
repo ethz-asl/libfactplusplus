@@ -20,7 +20,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "logging.h"
 #include "ProgressIndicatorInterface.h"
 
-//#define RKG_DEBUG_AD
+#define RKG_DEBUG_AD
 
 /// remove tautologies (axioms that are always local) from the ontology temporarily
 void
@@ -29,7 +29,7 @@ AtomicDecomposer :: removeTautologies ( TOntology* O, ModuleType type )
 	// we might use it for another decomposition
 	Tautologies.clear();
 	unsigned long nAx = 0;
-	for ( iterator p = O->begin(), p_end = O->end(); p != p_end; ++p )
+	for ( TOntology::iterator p = O->begin(), p_end = O->end(); p != p_end; ++p )
 		if ( likely((*p)->isUsed()) )
 		{
 			// check whether an axiom is local wrt its own signature
@@ -46,11 +46,12 @@ AtomicDecomposer :: removeTautologies ( TOntology* O, ModuleType type )
 		PI->setLimit(nAx);
 }
 
-/// build a module for given axiom AX and module type TYPE; use part [BEGIN,END) for the module search
+/// build a module for given axiom AX and module type TYPE; use parent atom's module as a base for the module search
 TOntologyAtom*
-AtomicDecomposer :: buildModule ( const TSignature& sig, ModuleType type, iterator begin, iterator end, TOntologyAtom* parent )
+AtomicDecomposer :: buildModule ( const TSignature& sig, ModuleType type, TOntologyAtom* parent )
 {
 	// build a module for a given signature
+	TOntologyAtom::AxiomSet::const_iterator begin = parent->getModule().begin(), end = parent->getModule().end();
 	Modularizer.extract ( begin, end, sig, type );
 	const AxiomVec& Module = Modularizer.getModule();
 	// if module is empty (empty bottom atom) -- do nothing
@@ -60,7 +61,7 @@ AtomicDecomposer :: buildModule ( const TSignature& sig, ModuleType type, iterat
 	if ( PI )
 		PI->incIndicator();
 	// check if the module corresponds to a PARENT one; modules are the same iff their sizes are the same
-	if ( parent && Module.size() == parent->getModule().size() )	// same module means same atom
+	if ( parent != rootAtom && Module.size() == parent->getModule().size() )	// same module means same atom
 		return parent;
 	// create new atom with that module
 	TOntologyAtom* atom = AOS->newAtom();
@@ -68,15 +69,15 @@ AtomicDecomposer :: buildModule ( const TSignature& sig, ModuleType type, iterat
 	return atom;
 }
 
-/// create atom for given axiom AX and module type TYPE; use part [BEGIN,END) for the module search
+/// create atom for given axiom AX and module type TYPE; use parent atom's module as a base for the module search
 TOntologyAtom*
-AtomicDecomposer :: createAtom ( TDLAxiom* ax, ModuleType type, iterator begin, iterator end, TOntologyAtom* parent )
+AtomicDecomposer :: createAtom ( TDLAxiom* ax, ModuleType type, TOntologyAtom* parent )
 {
 	// check whether axiom already has an atom
 	if ( ax->getAtom() != NULL )
 		return const_cast<TOntologyAtom*>(ax->getAtom());
 	// build an atom: use a module to find atomic dependencies
-	TOntologyAtom* atom = buildModule( *ax->getSignature(), type, begin, end, parent );
+	TOntologyAtom* atom = buildModule( *ax->getSignature(), type, parent );
 	// no empty modules should be here
 	fpp_assert ( atom != NULL );
 	// register axiom as a part of an atom
@@ -85,19 +86,16 @@ AtomicDecomposer :: createAtom ( TDLAxiom* ax, ModuleType type, iterator begin, 
 	if ( atom == parent )
 		return parent;
 	// not the same as parent: for all atom's axioms check their atoms and make ATOM depend on them
-	AxiomVec Module ( atom->getModule().begin(), atom->getModule().end() );
-	begin = Module.begin();
-	end = Module.end();
 #ifdef RKG_DEBUG_AD
 	// do cycle via set to keep the order
 	typedef std::set<TDLAxiom*> AxSet;
-	const AxSet M ( begin, end );
+	const AxSet M ( atom->getModule().begin(), atom->getModule().end() );
 	for ( AxSet::iterator q = M.begin(); q != M.end(); ++q )
 #else
-	for ( iterator q = begin; q != end; ++q )
+	for ( TOntologyAtom::AxiomSet::const_iterator q = atom->getModule().begin(), q_end = atom->getModule().end(); q != q_end; ++q )
 #endif
 		if ( likely ( *q != ax ) )
-			atom->addDepAtom ( createAtom ( *q, type, begin, end, atom ) );
+			atom->addDepAtom ( createAtom ( *q, type, atom ) );
 	return atom;
 }
 
@@ -115,22 +113,29 @@ AtomicDecomposer :: getAOS ( TOntology* O, ModuleType type )
 	// prepare SigIndex for the optimized modularization
 	initSigIndex(O);
 
+	// init the root atom
+	rootAtom = new TOntologyAtom();
+	rootAtom -> setModule ( TOntologyAtom::AxiomSet ( O->begin(), O->end() ) );
+
 	// build the "bottom" atom for an empty signature
-	TOntologyAtom* BottomAtom = buildModule ( TSignature(), type, O->begin(), O->end(), NULL );
+	TOntologyAtom* BottomAtom = buildModule ( TSignature(), type, rootAtom );
 	if ( BottomAtom )
 		for ( TOntologyAtom::AxiomSet::const_iterator q = BottomAtom->getModule().begin(), q_end = BottomAtom->getModule().end(); q != q_end; ++q )
 			BottomAtom->addAxiom(*q);
 
 	// create atoms for all the axioms in the ontology
-	for ( iterator p = O->begin(), p_end = O->end(); p != p_end; ++p )
+	for ( TOntology::iterator p = O->begin(), p_end = O->end(); p != p_end; ++p )
 		if ( (*p)->isUsed() && (*p)->getAtom() == NULL )
-			createAtom ( *p, type, O->begin(), O->end(), NULL );
+			createAtom ( *p, type, rootAtom );
 
 	// restore tautologies in the ontology
 	restoreTautologies();
 
 	if ( LLM.isWritable(llAlways) )
 		LL << "\nThere were " << Modularizer.getNNonLocal() << " non-local axioms out of " << Modularizer.getNChecks() << " totally checked\n";
+
+	// clear the root atom
+	delete rootAtom;
 
 	// reduce graph
 	AOS->reduceGraph();
