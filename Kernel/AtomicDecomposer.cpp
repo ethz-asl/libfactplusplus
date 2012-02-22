@@ -20,11 +20,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "logging.h"
 #include "ProgressIndicatorInterface.h"
 
-#define RKG_DEBUG_AD
+//#define RKG_DEBUG_AD
 
 /// remove tautologies (axioms that are always local) from the ontology temporarily
 void
-AtomicDecomposer :: removeTautologies ( TOntology* O, ModuleType type )
+AtomicDecomposer :: removeTautologies ( TOntology* O )
 {
 	// we might use it for another decomposition
 	Tautologies.clear();
@@ -46,13 +46,12 @@ AtomicDecomposer :: removeTautologies ( TOntology* O, ModuleType type )
 		PI->setLimit(nAx);
 }
 
-/// build a module for given axiom AX and module type TYPE; use parent atom's module as a base for the module search
+/// build a module for given axiom AX; use parent atom's module as a base for the module search
 TOntologyAtom*
-AtomicDecomposer :: buildModule ( const TSignature& sig, ModuleType type, TOntologyAtom* parent )
+AtomicDecomposer :: buildModule ( const TSignature& sig, TOntologyAtom* parent )
 {
 	// build a module for a given signature
-	TOntologyAtom::AxiomSet::const_iterator begin = parent->getModule().begin(), end = parent->getModule().end();
-	Modularizer.extract ( begin, end, sig, type );
+	Modularizer.extract ( parent->getModule().begin(), parent->getModule().end(), sig, type );
 	const AxiomVec& Module = Modularizer.getModule();
 	// if module is empty (empty bottom atom) -- do nothing
 	if ( Module.empty() )
@@ -69,15 +68,15 @@ AtomicDecomposer :: buildModule ( const TSignature& sig, ModuleType type, TOntol
 	return atom;
 }
 
-/// create atom for given axiom AX and module type TYPE; use parent atom's module as a base for the module search
+/// create atom for given axiom AX; use parent atom's module as a base for the module search
 TOntologyAtom*
-AtomicDecomposer :: createAtom ( TDLAxiom* ax, ModuleType type, TOntologyAtom* parent )
+AtomicDecomposer :: createAtom ( TDLAxiom* ax, TOntologyAtom* parent )
 {
 	// check whether axiom already has an atom
 	if ( ax->getAtom() != NULL )
 		return const_cast<TOntologyAtom*>(ax->getAtom());
 	// build an atom: use a module to find atomic dependencies
-	TOntologyAtom* atom = buildModule( *ax->getSignature(), type, parent );
+	TOntologyAtom* atom = buildModule( *ax->getSignature(), parent );
 	// no empty modules should be here
 	fpp_assert ( atom != NULL );
 	// register axiom as a part of an atom
@@ -95,20 +94,23 @@ AtomicDecomposer :: createAtom ( TDLAxiom* ax, ModuleType type, TOntologyAtom* p
 	for ( TOntologyAtom::AxiomSet::const_iterator q = atom->getModule().begin(), q_end = atom->getModule().end(); q != q_end; ++q )
 #endif
 		if ( likely ( *q != ax ) )
-			atom->addDepAtom ( createAtom ( *q, type, atom ) );
+			atom->addDepAtom ( createAtom ( *q, atom ) );
 	return atom;
 }
 
-/// get the atomic structure for given module type TYPE
+/// get the atomic structure for given module type T
 AOStructure*
-AtomicDecomposer :: getAOS ( TOntology* O, ModuleType type )
+AtomicDecomposer :: getAOS ( TOntology* O, ModuleType t )
 {
+	// remember the type of the module
+	type = t;
+
 	// prepare a new AO structure
 	delete AOS;
 	AOS = new AOStructure();
 
 	// we don't need tautologies here
-	removeTautologies(O,type);
+	removeTautologies(O);
 
 	// prepare SigIndex for the optimized modularization
 	initSigIndex(O);
@@ -118,7 +120,7 @@ AtomicDecomposer :: getAOS ( TOntology* O, ModuleType type )
 	rootAtom -> setModule ( TOntologyAtom::AxiomSet ( O->begin(), O->end() ) );
 
 	// build the "bottom" atom for an empty signature
-	TOntologyAtom* BottomAtom = buildModule ( TSignature(), type, rootAtom );
+	TOntologyAtom* BottomAtom = buildModule ( TSignature(), rootAtom );
 	if ( BottomAtom )
 		for ( TOntologyAtom::AxiomSet::const_iterator q = BottomAtom->getModule().begin(), q_end = BottomAtom->getModule().end(); q != q_end; ++q )
 			BottomAtom->addAxiom(*q);
@@ -126,7 +128,7 @@ AtomicDecomposer :: getAOS ( TOntology* O, ModuleType type )
 	// create atoms for all the axioms in the ontology
 	for ( TOntology::iterator p = O->begin(), p_end = O->end(); p != p_end; ++p )
 		if ( (*p)->isUsed() && (*p)->getAtom() == NULL )
-			createAtom ( *p, type, rootAtom );
+			createAtom ( *p, rootAtom );
 
 	// restore tautologies in the ontology
 	restoreTautologies();

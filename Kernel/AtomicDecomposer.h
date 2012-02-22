@@ -86,6 +86,8 @@ protected:	// members
 	ProgressIndicatorInterface* PI;
 		/// fake atom that represents the whole ontology
 	TOntologyAtom* rootAtom;
+		/// module type for current AOS creation
+	ModuleType type;
 
 protected:	// methods
 		/// initialize signature index (for the improved modularization algorithm)
@@ -96,17 +98,17 @@ protected:	// methods
 		Modularizer.setSigIndex(SI);
 	}
 		/// remove tautologies (axioms that are always local) from the ontology temporarily
-	void removeTautologies ( TOntology* O, ModuleType type );
+	void removeTautologies ( TOntology* O );
 		/// restore all tautologies back
 	void restoreTautologies ( void )
 	{
 		for ( AxiomVec::iterator p = Tautologies.begin(), p_end = Tautologies.end(); p != p_end; ++p )
 			(*p)->setUsed(true);
 	}
-		/// build a module for given signature SIG and module type TYPE; use parent atom's module as a base for the module search
-	TOntologyAtom* buildModule ( const TSignature& sig, ModuleType type, TOntologyAtom* parent );
-		/// create atom for given axiom AX and module type TYPE; use parent atom's module as a base for the module search
-	TOntologyAtom* createAtom ( TDLAxiom* ax, ModuleType type, TOntologyAtom* parent );
+		/// build a module for given signature SIG; use parent atom's module as a base for the module search
+	TOntologyAtom* buildModule ( const TSignature& sig, TOntologyAtom* parent );
+		/// create atom for given axiom AX; use parent atom's module as a base for the module search
+	TOntologyAtom* createAtom ( TDLAxiom* ax, TOntologyAtom* parent );
 
 public:		// interface
 		/// init c'tor
