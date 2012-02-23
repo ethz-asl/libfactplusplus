@@ -20,6 +20,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #define AXIOMSPLITTER_H
 
 #include "Modularity.h"
+#include "SyntacticLocalityChecker.h"
+
 #include <sstream>
 
 // possible values:
@@ -66,7 +68,7 @@ protected:	// members
 	std::map<const TDLConceptName*, std::set<TDLAxiomConceptInclusion*> > ImplNames;
 	TLISPOntologyPrinter pr;
 	int newNameId;
-	TModularizer mod;
+	TModularizer<SyntacticLocalityChecker> mod;
 	TSignature sig;	// seed signature
 	std::set<TSplitVar*> RejSplits;
 	TOntology* O;

@@ -22,6 +22,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "tOntologyAtom.h"
 #include "tSignature.h"
 #include "Modularity.h"
+#include "SyntacticLocalityChecker.h"
 
 class ProgressIndicatorInterface;
 
@@ -79,7 +80,7 @@ protected:	// members
 		/// atomic structure to build
 	AOStructure* AOS;
 		/// modularizer to build modules
-	TModularizer Modularizer;
+	TModularizer<SyntacticLocalityChecker> Modularizer;
 		/// tautologies of the ontology
 	AxiomVec Tautologies;
 		/// progress indicator

@@ -119,7 +119,7 @@ TSplitRules :: BuildAllSeedSigs ( const SigVec& Allowed, const TSignature& Start
 //	std::cout << "\nBuilding seed signatures:";
 	// create a set of allowed entities for the next round
 	SigVec RecAllowed, Keepers;
-	TModularizer mod;
+	TModularizer<SyntacticLocalityChecker> mod;
 	SigVec::const_iterator p, p_end;
 	for ( p = Allowed.begin(), p_end = Allowed.end(); p != p_end; ++p )
 		if ( likely(sig.contains(*p)))

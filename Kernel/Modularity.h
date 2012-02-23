@@ -22,12 +22,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <queue>
 
 #include "tOntology.h"
-#include "SyntacticLocalityChecker.h"
 #include "SigIndex.h"
 
 enum ModuleType { M_TOP, M_BOT, M_STAR };
 
 /// class to create modules of an ontology wrt module type
+template<class LocalityChecker>
 class TModularizer
 {
 protected:	// types
@@ -38,7 +38,7 @@ protected:	// members
 		/// shared signature signature
 	TSignature sig;
 		/// internal syntactic locality checker
-	SyntacticLocalityChecker Checker;
+	LocalityChecker Checker;
 		/// module as a list of axioms
 	AxiomVec Module;
 		/// pointer to a sig index; if not NULL then use optimized algo
