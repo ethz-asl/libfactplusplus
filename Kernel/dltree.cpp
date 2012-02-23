@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2011 by Dmitry Tsarkov
+Copyright (C) 2003-2012 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -129,6 +129,47 @@ DLTree* createSNFReducedAnd ( DLTree* C, DLTree* D )
 		return createSNFAnd ( C, D );
 }
 
+// Semantic Locality checking support. DO NOT used in usual reasoning
+
+/// @return true iff a data range DR is semantically equivalent to TOP. FIXME!! good approximation for now
+static bool
+isSemanticallyDataTop ( DLTree* dr ) { return dr->Element().getToken() == TOP; }
+
+/// @return true iff a data range DR is semantically equivalent to BOTTOM. FIXME!! good approximation for now
+static bool
+isSemanticallyDataBottom ( DLTree* dr ) { return dr->Element().getToken() == BOTTOM; }
+
+/// @return true iff the cardinality of a given data range DR is greater than N. FIXME!! good approximation for now
+static bool
+isDataRangeBigEnough ( DLTree* dr ATTR_UNUSED, unsigned int n ATTR_UNUSED ) { return true; }
+
+/// simplify universal restriction with top data role
+static DLTree*
+simplifyDataTopForall ( DLTree* dr )
+{
+	TreeDeleter td(dr);
+	// if the filler (dr) is TOP (syntactically or semantically), then the forall is top
+	if ( isSemanticallyDataTop(dr) )
+		return createTop();
+	// in any other case the attempt to restrict the data domain will fail
+	return createBottom();
+}
+
+/// simplify minimal cardinality restriction with top data role
+static DLTree*
+simplifyDataTopLE ( unsigned int n, DLTree* dr )
+{
+	TreeDeleter td(dr);
+	// if the filler (dr) is BOTTOM (syntactically or semantically), then the LE is top
+	if ( isSemanticallyDataBottom(dr) )
+		return createTop();
+	// if the size of a filler is smaller than the cardinality, then it's always possible to make a restriction
+	if ( !isDataRangeBigEnough ( dr, n ) )
+		return createTop();
+	// in any other case the attempt to restrict the data domain will fail
+	return createBottom();
+}
+
 	/// create universal restriction of given formulas (\AR.C)
 DLTree* createSNFForall ( DLTree* R, DLTree* C )
 {
@@ -137,14 +178,19 @@ DLTree* createSNFForall ( DLTree* R, DLTree* C )
 		deleteTree(R);
 		return C;
 	}
-	if ( resolveRole(R)->isBottom() )
+	if ( unlikely(resolveRole(R)->isBottom()) )
 	{	// \A Bot.C = T
 		deleteTree(R);
 		deleteTree(C);
 		return createTop();
 	}
-	else	// no simplification possible
-		return new DLTree ( TLexeme(FORALL), R, C );
+	if ( unlikely(resolveRole(R)->isTop()) && resolveRole(R)->isDataRole() )
+	{
+		deleteTree(R);
+		return simplifyDataTopForall(C);
+	}
+	// no simplification possible
+	return new DLTree ( TLexeme(FORALL), R, C );
 }
 	/// create at-most (LE) restriction of given formulas (<= n R.C)
 DLTree* createSNFLE ( unsigned int n, DLTree* R, DLTree* C )
@@ -157,11 +203,16 @@ DLTree* createSNFLE ( unsigned int n, DLTree* R, DLTree* C )
 	}
 	if ( n == 0 )	// <= 0 R.C -> \AR.\not C
 		return createSNFForall ( R, createSNFNot(C) );
-	if ( resolveRole(R)->isBottom() )
+	if ( unlikely(resolveRole(R)->isBottom()) )
 	{	// <=n Bot.C = T
 		deleteTree(R);
 		deleteTree(C);
 		return createTop();
+	}
+	if ( unlikely(resolveRole(R)->isTop()) && resolveRole(R)->isDataRole() )
+	{
+		deleteTree(R);
+		return simplifyDataTopLE ( n, C );
 	}
 	return new DLTree ( TLexeme ( LE, n ), R, C );
 }
