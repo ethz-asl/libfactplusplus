@@ -31,7 +31,7 @@ protected:	// members
 		/// TBox to get access to the named entities
 	TBox& KB;
 		/// signature of non-trivial entities; used in semantic locality checkers only
-	TSignature* sig;
+	const TSignature* sig;
 
 #define THROW_UNSUPPORTED(name) \
 	throw EFaCTPlusPlus("Unsupported expression '" name "' in transformation")
@@ -56,7 +56,7 @@ public:		// interface
 		/// get (single) access to the tree
 	operator DLTree* ( void ) { DLTree* ret = tree; tree = NULL; return ret; }
 		/// set internal signature to a given signature S
-	void setSignature ( TSignature* s ) { sig = s; }
+	void setSignature ( const TSignature* s ) { sig = s; }
 
 public:		// visitor interface
 	// concept expressions

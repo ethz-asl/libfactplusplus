@@ -443,8 +443,6 @@ protected:	// methods
 		try { return resolveRole(TreeDeleter(e(r))); }
 		catch(...) { throw EFaCTPlusPlus(reason); }
 	}
-		/// set the signature of the expression translator
-	void setSignature ( TSignature* sig ) { if ( pET != NULL ) pET->setSignature(sig); }
 
 		/// get taxonomy of the property wrt it's name
 	Taxonomy* getTaxonomy ( TRole* R )
@@ -559,6 +557,8 @@ public:	// general staff
 	}
 		/// choose whether axiom splitting should be used
 	void setAxiomSplitting ( bool value ) { useAxiomSplitting = value; }
+		/// set the signature of the expression translator
+	void setSignature ( const TSignature* sig ) { if ( pET != NULL ) pET->setSignature(sig); }
 
 	//----------------------------------------------
 	//-- Tracing support
