@@ -42,6 +42,7 @@ ReasoningKernel :: ReasoningKernel ( void )
 	: pTBox (NULL)
 	, pET(NULL)
 	, D2I(NULL)
+	, AD(NULL)
 	, pMonitor(NULL)
 	, OpTimeout(0)
 	, verboseOutput(false)
@@ -63,8 +64,6 @@ ReasoningKernel :: ReasoningKernel ( void )
 	// init option set (fill with options):
 	if ( initOptions () )
 		throw EFaCTPlusPlus("FaCT++ kernel: Cannot init options");
-	// init AD field
-	AD = new AtomicDecomposer();
 }
 
 /// d'tor
@@ -589,6 +588,9 @@ ReasoningKernel :: getLabel ( const TCGNode* node, TCGItemVec& Result, bool only
 unsigned int
 ReasoningKernel :: getAtomicDecompositionSize ( ModuleType type )
 {
+	// init AD field
+	if ( AD == NULL )
+		AD = new AtomicDecomposer();
 	return AD->getAOS ( &Ontology, type )->size();
 }
 	/// get a set of axioms that corresponds to the atom with the id INDEX
