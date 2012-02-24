@@ -22,6 +22,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <vector>
 #include <iostream>
 
+#include "globaldef.h"
 #include "fpp_assert.h"
 #include "tLexeme.h"
 #include "tsttree.h"
@@ -88,8 +89,11 @@ inline bool isRName ( const DLTree* t )
 	// check if DL tree is a concept-like name
 inline bool isCN ( const DLTree* t ) { return isConst(t) || isName(t); }
 
-	/// check whether T is U-Role
-inline bool isUniversalRole ( const DLTree* t ) { return isRName(t) && t->Element().getNE()->isTop(); }
+	/// check whether T is a bottom (empty) role
+inline bool isBotRole ( const DLTree* t ) { return likely(isRName(t)) && unlikely(t->Element().getNE()->isBottom()); }
+	/// check whether T is a top (universal) role
+inline bool isTopRole ( const DLTree* t ) { return likely(isRName(t)) && unlikely(t->Element().getNE()->isTop()); }
+
 	/// check whether T is an expression in the form (atmost 1 RNAME)
 inline bool isFunctionalExpr ( const DLTree* t, const TNamedEntry* R )
 {

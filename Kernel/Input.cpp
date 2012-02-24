@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2010 by Dmitry Tsarkov
+Copyright (C) 2003-2012 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -343,7 +343,7 @@ void TBox :: processDisjointR ( ea_iterator beg, ea_iterator end )
 
 	// check that all id's are correct role names
 	for ( p = beg; p < end; ++p )
-		if ( isUniversalRole(*p) )
+		if ( isTopRole(*p) )
 			throw EFaCTPlusPlus("Universal role in the disjoint roles axiom");
 
 	RoleMaster* RM = getRM(resolveRole(*beg));

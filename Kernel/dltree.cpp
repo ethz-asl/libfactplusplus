@@ -42,6 +42,8 @@ DLTree* createInverse ( DLTree* R )
 		return p;
 	}
 	case RNAME:	// object role name
+		if ( unlikely(isTopRole(R)) || unlikely(isBotRole(R)) )
+			return R;	// top/bottom roles are inverses of themselves
 		return new DLTree ( TLexeme(INV), R );
 	default:	// no other elements can have inverses
 		fpp_unreachable();
