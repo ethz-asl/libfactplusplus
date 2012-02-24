@@ -246,6 +246,12 @@ int main ( int argc, char *argv[] )
 
 	Out << "loading time " << wTimer << " seconds\n";
 
+	if ( Kernel.getOptions()->getBool("checkAD") )	// check atomic decomposition and exit
+	{
+		Kernel.getAtomicDecompositionSize(M_BOT);
+		return 0;
+	}
+
 	TsProcTimer pt;
 	pt.Start();
 

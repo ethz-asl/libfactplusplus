@@ -799,6 +799,17 @@ bool ReasoningKernel :: initOptions ( void )
 		) )
 		return true;
 
+	// options for testing
+
+	// register "checkAD" option
+	if ( KernelOptions.RegisterOption (
+		"checkAD",
+		"Option 'checkAD' forces FaCT++ to create the AD and exit instead of performing classification",
+		ifOption::iotBool,
+		"false"
+		) )
+		return true;
+
 	// all was registered OK
 	return false;
 }
