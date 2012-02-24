@@ -218,9 +218,9 @@ protected:	// methods
 		return *pET;
 	}
 		/// get fresh filled depending of a type of R
-	DLTree* getFreshFiller ( const DLTree* R )
+	DLTree* getFreshFiller ( const TRole* R )
 	{
-		if ( resolveRole(R)->isDataRole() )
+		if ( R->isDataRole() )
 			return getTBox()->getDataTypeCenter().getFreshDataType();
 		else
 			return getTBox()->getFreshConcept();
@@ -305,18 +305,18 @@ protected:	// methods
 	// helper methods to query properties of roles
 
 		/// @return true if R is functional wrt ontology
-	bool checkFunctionality ( DLTree* R )
+	bool checkFunctionality ( TRole* R )
 	{
 		// R is transitive iff \ER.C and \ER.\not C is unsatisfiable
-		DLTree* tmp = createSNFExists ( clone(R), createSNFNot(getFreshFiller(R)) );
-		tmp = createSNFAnd ( tmp, createSNFExists ( R, getFreshFiller(R) ) );
+		DLTree* tmp = createSNFExists ( createRole(R), createSNFNot(getFreshFiller(R)) );
+		tmp = createSNFAnd ( tmp, createSNFExists ( createRole(R), getFreshFiller(R) ) );
 		return !checkSatTree(tmp);
 	}
 		/// @return true if R is functional; set the value for R if necessary
 	bool getFunctionality ( TRole* R )
 	{
 		if ( !R->isFunctionalityKnown() )	// calculate functionality
-			R->setFunctional(checkFunctionality(createRole(R)));
+			R->setFunctional(checkFunctionality(R));
 		return R->isFunctional();
 	}
 		/// @return true if R is transitive wrt ontology
@@ -345,13 +345,13 @@ protected:	// methods
 		return !checkSatTree(tmp);
 	}
 		/// @return true if R [= S wrt ontology
-	bool checkRoleSubsumption ( DLTree* R, DLTree* S )
+	bool checkRoleSubsumption ( TRole* R, TRole* S )
 	{
-		if ( resolveRole(R)->isDataRole() != resolveRole(S)->isDataRole() )
+		if ( unlikely ( R->isDataRole() != S->isDataRole() ) )
 			return false;
 		// R [= S iff \ER.C and \AS.(not C) is unsatisfiable
-		DLTree* tmp = createSNFForall ( S, createSNFNot(getFreshFiller(S)) );
-		tmp = createSNFAnd ( createSNFExists ( R, getFreshFiller(R) ), tmp );
+		DLTree* tmp = createSNFForall ( createRole(S), createSNFNot(getFreshFiller(S)) );
+		tmp = createSNFAnd ( createSNFExists ( createRole(R), getFreshFiller(R) ), tmp );
 		return !checkSatTree(tmp);
 	}
 		/// @return true iff the chain contained in the arg-list is a sub-property of R
@@ -788,45 +788,48 @@ public:
 	bool isFunctional ( const TORoleExpr* R )
 	{
 		preprocessKB();	// ensure KB is ready to answer the query
-		if ( getExpressionManager()->isUniversalRole(R) )
+		TRole* r = getRole ( R, "Role expression expected in isFunctional()" );
+		if ( unlikely(r->isTop()) )
 			return false;	// universal role is not functional
-		if ( getExpressionManager()->isEmptyRole(R) )
+		if ( unlikely(r->isBottom()) )
 			return true;	// empty role is functional
 
-		return getFunctionality ( getRole ( R, "Role expression expected in isFunctional()" ) );
+		return getFunctionality(r);
 	}
 		/// @return true iff data role is functional
 	bool isFunctional ( const TDRoleExpr* R )
 	{
 		preprocessKB();	// ensure KB is ready to answer the query
-		if ( getExpressionManager()->isUniversalRole(R) )
+		TRole* r = getRole ( R, "Role expression expected in isFunctional()" );
+		if ( unlikely(r->isTop()) )
 			return false;	// universal role is not functional
-		if ( getExpressionManager()->isEmptyRole(R) )
+		if ( unlikely(r->isBottom()) )
 			return true;	// empty role is functional
 
-		return getFunctionality ( getRole ( R, "Role expression expected in isFunctional()" ) );
+		return getFunctionality(r);
 	}
 		/// @return true iff role is inverse-functional
 	bool isInverseFunctional ( const TORoleExpr* R )
 	{
 		preprocessKB();	// ensure KB is ready to answer the query
-		if ( getExpressionManager()->isUniversalRole(R) )
+		TRole* r = getRole ( R, "Role expression expected in isInverseFunctional()" )->inverse();
+		if ( unlikely(r->isTop()) )
 			return false;	// universal role is not functional
-		if ( getExpressionManager()->isEmptyRole(R) )
+		if ( unlikely(r->isBottom()) )
 			return true;	// empty role is functional
 
-		return getFunctionality ( getRole ( R, "Role expression expected in isInverseFunctional()" )->inverse() );
+		return getFunctionality(r);
 	}
 		/// @return true iff role is transitive
 	bool isTransitive ( const TORoleExpr* R )
 	{
 		preprocessKB();	// ensure KB is ready to answer the query
-		if ( getExpressionManager()->isUniversalRole(R) )
+		TRole* r = getRole ( R, "Role expression expected in isTransitive()" );
+		if ( unlikely(r->isTop()) )
 			return true;	// universal role is transitive
-		if ( getExpressionManager()->isEmptyRole(R) )
+		if ( unlikely(r->isBottom()) )
 			return true;	// empty role is transitive
 
-		TRole* r = getRole ( R, "Role expression expected in isTransitive()" );
 		if ( !r->isTransitivityKnown() )	// calculate transitivity
 			r->setTransitive(checkTransitivity(e(R)));
 		return r->isTransitive();
@@ -835,12 +838,12 @@ public:
 	bool isSymmetric ( const TORoleExpr* R )
 	{
 		preprocessKB();	// ensure KB is ready to answer the query
-		if ( getExpressionManager()->isUniversalRole(R) )
+		TRole* r = getRole ( R, "Role expression expected in isSymmetric()" );
+		if ( unlikely(r->isTop()) )
 			return true;	// universal role is symmetric
-		if ( getExpressionManager()->isEmptyRole(R) )
+		if ( unlikely(r->isBottom()) )
 			return true;	// empty role is symmetric
 
-		TRole* r = getRole ( R, "Role expression expected in isSymmetric()" );
 		if ( !r->isSymmetryKnown() )	// calculate symmetry
 			r->setSymmetric(checkSymmetry(e(R)));
 		return r->isSymmetric();
@@ -849,12 +852,12 @@ public:
 	bool isAsymmetric ( const TORoleExpr* R )
 	{
 		preprocessKB();	// ensure KB is ready to answer the query
-		if ( getExpressionManager()->isUniversalRole(R) )
+		TRole* r = getRole ( R, "Role expression expected in isAsymmetric()" );
+		if ( unlikely(r->isTop()) )
 			return false;	// universal role is not asymmetric
-		if ( getExpressionManager()->isEmptyRole(R) )
+		if ( unlikely(r->isBottom()) )
 			return true;	// empty role is asymmetric
 
-		TRole* r = getRole ( R, "Role expression expected in isAsymmetric()" );
 		if ( !r->isAsymmetryKnown() )	// calculate asymmetry
 			r->setAsymmetric(getTBox()->isDisjointRoles(r,r->inverse()));
 		return r->isAsymmetric();
@@ -863,12 +866,12 @@ public:
 	bool isReflexive ( const TORoleExpr* R )
 	{
 		preprocessKB();	// ensure KB is ready to answer the query
-		if ( getExpressionManager()->isUniversalRole(R) )
+		TRole* r = getRole ( R, "Role expression expected in isReflexive()" );
+		if ( unlikely(r->isTop()) )
 			return true;	// universal role is reflexive
-		if ( getExpressionManager()->isEmptyRole(R) )
+		if ( unlikely(r->isBottom()) )
 			return false;	// empty role is not reflexive
 
-		TRole* r = getRole ( R, "Role expression expected in isReflexive()" );
 		if ( !r->isReflexivityKnown() )	// calculate reflexivity
 			r->setReflexive(checkReflexivity(e(R)));
 		return r->isReflexive();
@@ -877,12 +880,12 @@ public:
 	bool isIrreflexive ( const TORoleExpr* R )
 	{
 		preprocessKB();	// ensure KB is ready to answer the query
-		if ( getExpressionManager()->isUniversalRole(R) )
+		TRole* r = getRole ( R, "Role expression expected in isIrreflexive()" );
+		if ( unlikely(r->isTop()) )
 			return false;	// universal role is not irreflexive
-		if ( getExpressionManager()->isEmptyRole(R) )
+		if ( unlikely(r->isBottom()) )
 			return true;	// empty role is irreflexive
 
-		TRole* r = getRole ( R, "Role expression expected in isIrreflexive()" );
 		if ( !r->isIrreflexivityKnown() )	// calculate irreflexivity
 			r->setIrreflexive(getTBox()->isIrreflexive(r));
 		return r->isIrreflexive();
@@ -891,61 +894,61 @@ public:
 	bool isSubRoles ( const TORoleExpr* R, const TORoleExpr* S )
 	{
 		preprocessKB();	// ensure KB is ready to answer the query
-		if ( getExpressionManager()->isEmptyRole(R) || getExpressionManager()->isUniversalRole(S) )
+		TRole* r = getRole ( R, "Role expression expected in isSubRoles()" );
+		TRole* s = getRole ( S, "Role expression expected in isSubRoles()" );
+		if ( unlikely(r->isBottom()) || unlikely(s->isTop()) )
 			return true;	// \bot [= X [= \top
-		if ( getExpressionManager()->isUniversalRole(R) && getExpressionManager()->isEmptyRole(S) )
+		if ( unlikely(r->isTop()) && unlikely(s->isBottom()) )
 			return false;	// as \top [= \bot leads to inconsistent ontology
 
 		// told case first
-		if ( *getRole ( R, "Role expression expected in isSubRoles()" ) <=
-			 *getRole ( S, "Role expression expected in isSubRoles()" ) )
+		if ( *r <= *s )
 			return true;
 		// check the general case
 		// FIXME!! cache it later
-		DLTree* r = e(R), *s = e(S);
 		return checkRoleSubsumption ( r, s );
 	}
 		/// @return true if R is a sub-role of S
 	bool isSubRoles ( const TDRoleExpr* R, const TDRoleExpr* S )
 	{
 		preprocessKB();	// ensure KB is ready to answer the query
-		if ( getExpressionManager()->isEmptyRole(R) || getExpressionManager()->isUniversalRole(S) )
+		TRole* r = getRole ( R, "Role expression expected in isSubRoles()" );
+		TRole* s = getRole ( S, "Role expression expected in isSubRoles()" );
+		if ( unlikely(r->isBottom()) || unlikely(s->isTop()) )
 			return true;	// \bot [= X [= \top
-		if ( getExpressionManager()->isUniversalRole(R) && getExpressionManager()->isEmptyRole(S) )
+		if ( unlikely(r->isTop()) && unlikely(s->isBottom()) )
 			return false;	// as \top [= \bot leads to inconsistent ontology
 
 		// told case first
-		if ( *getRole ( R, "Role expression expected in isSubRoles()" ) <=
-			 *getRole ( S, "Role expression expected in isSubRoles()" ) )
+		if ( *r <= *s )
 			return true;
 		// check the general case
 		// FIXME!! cache it later
-		DLTree* r = e(R), *s = e(S);
 		return checkRoleSubsumption ( r, s );
 	}
 		/// @return true iff two roles are disjoint
 	bool isDisjointRoles ( const TORoleExpr* R, const TORoleExpr* S )
 	{
 		preprocessKB();	// ensure KB is ready to answer the query
-		if ( getExpressionManager()->isUniversalRole(R) || getExpressionManager()->isUniversalRole(S) )
+		TRole* r = getRole ( R, "Role expression expected in isDisjointRoles()" );
+		TRole* s = getRole ( S, "Role expression expected in isDisjointRoles()" );
+		if ( unlikely(r->isTop()) || unlikely(s->isTop()) )
 			return false;	// universal role is not disjoint with anything
-		if ( getExpressionManager()->isEmptyRole(R) || getExpressionManager()->isEmptyRole(S) )
+		if ( unlikely(r->isBottom()) || unlikely(s->isBottom()) )
 			return true;	// empty role is disjoint with everything
-		return getTBox()->isDisjointRoles (
-			getRole ( R, "Role expression expected in isDisjointRoles()" ),
-			getRole ( S, "Role expression expected in isDisjointRoles()" ) );
+		return getTBox()->isDisjointRoles ( r, s );
 	}
 		/// @return true iff two roles are disjoint
 	bool isDisjointRoles ( const TDRoleExpr* R, const TDRoleExpr* S )
 	{
 		preprocessKB();	// ensure KB is ready to answer the query
-		if ( getExpressionManager()->isUniversalRole(R) || getExpressionManager()->isUniversalRole(S) )
+		TRole* r = getRole ( R, "Role expression expected in isDisjointRoles()" );
+		TRole* s = getRole ( S, "Role expression expected in isDisjointRoles()" );
+		if ( unlikely(r->isTop()) || unlikely(s->isTop()) )
 			return false;	// universal role is not disjoint with anything
-		if ( getExpressionManager()->isEmptyRole(R) || getExpressionManager()->isEmptyRole(S) )
+		if ( unlikely(r->isBottom()) || unlikely(s->isBottom()) )
 			return true;	// empty role is disjoint with everything
-		return getTBox()->isDisjointRoles (
-			getRole ( R, "Role expression expected in isDisjointRoles()" ),
-			getRole ( S, "Role expression expected in isDisjointRoles()" ) );
+		return getTBox()->isDisjointRoles ( r, s );
 	}
 		/// @return true iff all the roles in a arg-list are pairwise disjoint
 	bool isDisjointRoles ( void );
@@ -953,11 +956,12 @@ public:
 	bool isSubChain ( const TORoleExpr* R )
 	{
 		preprocessKB();	// ensure KB is ready to answer the query
-		if ( getExpressionManager()->isUniversalRole(R) )
+		TRole* r = getRole ( R, "Role expression expected in isSubChain()" );
+		if ( unlikely(r->isTop()) )
 			return true;	// universal role is a super of any chain
-		if ( getExpressionManager()->isEmptyRole(R) )	// FIXME!! true in case empty role is in chain
+		if ( unlikely(r->isBottom()) )	// FIXME!! true in case empty role is in chain
 			return false;	// empty role is not a super of any chain
-		return checkSubChain ( getRole ( R, "Role expression expected in isSubChain()" ) );
+		return checkSubChain(r);
 	}
 
 	// single satisfiability
