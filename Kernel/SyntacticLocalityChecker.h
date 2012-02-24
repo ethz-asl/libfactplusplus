@@ -339,14 +339,14 @@ public:		// interface
 		axiom->accept(*this);
 		return isLocal;
 	}
+		/// fake method to match the semantic checker's interface
+	void setOntologySig ( const TSignature& s ATTR_UNUSED ) {}
 		/// load ontology to a given KB
 	virtual void visitOntology ( TOntology& ontology )
 	{
 		for ( TOntology::iterator p = ontology.begin(), p_end = ontology.end(); p < p_end; ++p )
 			if ( (*p)->isUsed() )
-			{
 				(*p)->accept(*this);
-			}
 	}
 
 public:		// visitor interface
