@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2011 by Dmitry Tsarkov
+Copyright (C) 2003-2012 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -258,7 +258,7 @@ bool DlSatTester :: commonTacticBodySingleton ( const DLVertex& cur )
 bool DlSatTester :: commonTacticBodyAnd ( const DLVertex& cur )
 {
 #ifdef ENABLE_CHECKING
-	fpp_assert ( isPositive(curConcept.bp()) && ( cur.Type() == dtAnd || cur.Type() == dtCollection ) );	// safety check
+	fpp_assert ( isPositive(curConcept.bp()) && ( cur.Type() == dtAnd ) );	// safety check
 #endif
 
 	incStat(nAndCalls);
