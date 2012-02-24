@@ -42,7 +42,7 @@ protected:	// methods
 	{
 		if ( unlikely ( entry->getEntity() == NULL ) )
 			entry->setEntity(entity);
-		tree = new DLTree(TLexeme(tag,entry));
+		tree = createEntry(tag,entry);
 	}
 		/// @return true iff ENTRY is not in signature
 	bool nc ( const TNamedEntity* entity ) const { return unlikely(sig != NULL) && !sig->contains(entity); }

@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2011 by Dmitry Tsarkov
+Copyright (C) 2003-2012 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -85,7 +85,7 @@ protected:	// methods
 	// DLTree wrapping interface
 
 		/// get DLTree by a given TDE
-	static DLTree* wrap ( const TDataEntry* t ) { return new DLTree(TLexeme(DATAEXPR,const_cast<TDataEntry*>(t))); }
+	static DLTree* wrap ( const TDataEntry* t ) { return createEntry ( DATAEXPR, const_cast<TDataEntry*>(t) ); }
 		/// get TDE by a given DLTree
 	static TDataEntry* unwrap ( const DLTree* t ) { return static_cast<TDataEntry*>(t->Element().getNE()); }
 

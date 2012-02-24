@@ -316,7 +316,7 @@ protected:	// methods
 	bool getFunctionality ( TRole* R )
 	{
 		if ( !R->isFunctionalityKnown() )	// calculate functionality
-			R->setFunctional ( checkFunctionality ( new DLTree ( TLexeme ( R->isDataRole() ? DNAME : RNAME, R ) ) ) );
+			R->setFunctional(checkFunctionality(createRole(R)));
 		return R->isFunctional();
 	}
 		/// @return true if R is transitive wrt ontology
@@ -370,7 +370,7 @@ protected:	// methods
 				throw EFaCTPlusPlus("Role expression expected in the role chain construct");
 			tmp = createSNFExists ( e(Ri), tmp );
 		}
-		tmp = createSNFAnd ( tmp, createSNFForall ( new DLTree(TLexeme(RNAME,R)), getTBox()->getFreshConcept() ) );
+		tmp = createSNFAnd ( tmp, createSNFForall ( createEntry(RNAME,R), getTBox()->getFreshConcept() ) );
 		return !checkSatTree(tmp);
 	}
 

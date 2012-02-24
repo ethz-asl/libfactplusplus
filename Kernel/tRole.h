@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2011 by Dmitry Tsarkov
+Copyright (C) 2003-2012 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -379,7 +379,7 @@ public:		// interface
 		if ( !hasSpecialDomain() || getTRange() == NULL )
 			pSpecialDomain = createTop();
 		else
-			pSpecialDomain = createSNFForall ( new DLTree ( TLexeme ( RNAME, this ) ), clone(getTRange()) );
+			pSpecialDomain = createSNFForall ( createRole(this), clone(getTRange()) );
 	}
 		/// set the special domain value
 	void setSpecialDomain ( BipolarPointer bp ) { bpSpecialDomain = bp; }

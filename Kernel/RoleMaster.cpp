@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2011 by Dmitry Tsarkov
+Copyright (C) 2003-2012 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -26,7 +26,7 @@ DLTree* inverseComposition ( const DLTree* tree )
 							inverseComposition(tree->Right()),
 							inverseComposition(tree->Left()) );
 	else
-		return new DLTree ( TLexeme ( RNAME, resolveRole(tree)->inverse() ) );
+		return createEntry ( RNAME, resolveRole(tree)->inverse() );
 }
 
 void RoleMaster :: addRoleParent ( DLTree* tree, TRole* parent )
@@ -50,8 +50,8 @@ void RoleMaster :: addRoleParent ( DLTree* tree, TRole* parent )
 		if ( R->isDataRole() )
 			throw EFaCTPlusPlus("Projection into not implemented for the data role");
 		DLTree* C = clone(tree->Right());
-		DLTree* InvP = new DLTree ( TLexeme ( RNAME, parent->inverse() ) );
-		DLTree* InvR = new DLTree ( TLexeme ( RNAME, R->inverse() ) );
+		DLTree* InvP = createEntry ( RNAME, parent->inverse() );
+		DLTree* InvR = createEntry ( RNAME, R->inverse() );
 		// C = PROJINTO(PARENT-,C)
 		C = new DLTree ( TLexeme(PROJINTO), InvP, C );
 		// C = PROJFROM(R-,PROJINTO(PARENT-,C))
@@ -65,7 +65,7 @@ void RoleMaster :: addRoleParent ( DLTree* tree, TRole* parent )
 		// added to the domain of R
 		TRole* R = resolveRole(tree->Left());
 		DLTree* C = clone(tree->Right());
-		DLTree* P = new DLTree ( TLexeme ( RNAME, parent ) );
+		DLTree* P = createEntry ( RNAME, parent );
 		// C = PROJINTO(PARENT,C)
 		C = new DLTree ( TLexeme(PROJINTO), P, C );
 		// C = PROJFROM(R,PROJINTO(PARENT,C))
