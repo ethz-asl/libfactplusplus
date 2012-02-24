@@ -30,6 +30,9 @@ Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #include "cpm.h"
 #include "tOntologyPrinterLISP.h"	// AD prints
 
+#include "ELFNormalizer.h"
+#include "ELFReasoner.h"
+
 TsProcTimer totalTimer, wTimer;
 Configuration Config;
 ReasoningKernel Kernel;
@@ -316,6 +319,27 @@ int main ( int argc, char *argv[] )
 			for ( unsigned int i = 0; i < nAtoms; ++i )
 				printADAtom(i);
 		}
+		return 0;
+	}
+
+	if ( Kernel.getOptions()->getBool("useELReasoner") )	// run ELF reasoner and exit
+	{
+		ELFAxiomChecker ac;
+		TOntology& Ontology = Kernel.getOntology();
+		ac.visitOntology(Ontology);
+		if ( ac )
+		{
+			std::cerr << "Normalizing EL ontology... ";
+			ELFNormalizer normalizer(Kernel.getExpressionManager());
+			normalizer.visitOntology(Ontology);
+			std::cerr << "done\nLoading EL ontology... ";
+			ELFReasoner reasoner(Ontology);
+			std::cerr << "done\nClassifying EL ontology... ";
+			reasoner.classify();
+			std::cerr << "done\n";
+		}
+		else
+			std::cerr << "Not an EL ontology. Nothing to do\n";
 		return 0;
 	}
 

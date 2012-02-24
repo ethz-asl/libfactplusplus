@@ -185,8 +185,6 @@ protected:	// members
 	bool NeedTracing;
 		/// whether axiom splitting should be used
 	bool useAxiomSplitting;
-		/// whether EL polynomial reasoner should be used
-	bool useELReasoner;
 
 private:	// no copy
 		/// no copy c'tor

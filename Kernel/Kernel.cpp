@@ -21,8 +21,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "tOntologyLoader.h"
 #include "tOntologyPrinterLISP.h"
 #include "AxiomSplitter.h"
-#include "ELFNormalizer.h"
-#include "ELFReasoner.h"
 #include "AtomicDecomposer.h"
 
 const char* ReasoningKernel :: Version = "1.5.3";
@@ -51,7 +49,6 @@ ReasoningKernel :: ReasoningKernel ( void )
 	, cachedQuery(NULL)
 	, cachedQueryTree(NULL)
 	, useAxiomSplitting(false)
-	, useELReasoner(false)
 {
 	// Intro
 	if ( KernelFirstRun )
@@ -103,24 +100,6 @@ ReasoningKernel :: forceReload ( void )
 	// Protege (as the only user of non-trivial monitors with reload) does not accept multiple usage of a monitor
 	// so switch it off after the 1st usage
 	pMonitor = NULL;
-
-	if ( useELReasoner )
-	{
-		ELFAxiomChecker ac;
-		ac.visitOntology(Ontology);
-		if ( ac )
-		{
-			std::cerr << "Normalizing EL ontology... ";
-			ELFNormalizer normalizer (getExpressionManager());
-			normalizer.visitOntology(Ontology);
-			std::cerr << "done\nLoading EL ontology... ";
-			ELFReasoner reasoner (Ontology);
-			std::cerr << "done\nClassifying EL ontology... ";
-			reasoner.classify();
-			std::cerr << "done\n";
-			exit(0);
-		}
-	}
 
 	// split ontological axioms
 	if ( useAxiomSplitting )
@@ -806,10 +785,19 @@ bool ReasoningKernel :: initOptions ( void )
 
 	// options for testing
 
-	// register "checkAD" option
+	// register "checkAD" option (24/02/2012)
 	if ( KernelOptions.RegisterOption (
 		"checkAD",
 		"Option 'checkAD' forces FaCT++ to create the AD and exit instead of performing classification",
+		ifOption::iotBool,
+		"false"
+		) )
+		return true;
+
+	// register "useELReasoner" option (24/02/2012)
+	if ( KernelOptions.RegisterOption (
+		"useELReasoner",
+		"Option 'useELReasoner' forces FaCT++ to use the EL reasoner and exit instead of performing classification",
 		ifOption::iotBool,
 		"false"
 		) )
