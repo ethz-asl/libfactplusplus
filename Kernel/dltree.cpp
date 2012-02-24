@@ -23,6 +23,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "tDataEntry.h"
 #include "tRole.h"
 
+	/// create entry for the role R
+DLTree*
+createRole ( TRole* R )
+{
+	return createEntry ( R->isDataRole() ? DNAME : RNAME, R );
+}
 	/// create inverse of role R
 DLTree* createInverse ( DLTree* R )
 {

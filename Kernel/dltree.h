@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2011 by Dmitry Tsarkov
+Copyright (C) 2003-2012 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -27,8 +27,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "tsttree.h"
 
 typedef TsTTree <TLexeme> DLTree;
+class TRole;
 
-	// checking if the tree is in Symplified Normal Form
+	// checking if the tree is in Simplified Normal Form
 extern bool isSNF ( const DLTree* t );
 
 	// checks if two trees are the same (syntactically)
@@ -134,6 +135,11 @@ inline DLTree* createTop ( void ) { return new DLTree(TLexeme(TOP)); }
 	/// create BOTTOM element
 inline DLTree* createBottom ( void ) { return new DLTree(TLexeme(BOTTOM)); }
 
+	/// create a tree with tag TAG and an entry ENTRY
+inline DLTree* createEntry ( Token tag, TNamedEntry* entry ) { return new DLTree ( TLexeme ( tag, entry ) ); }
+
+	/// create entry for the role R
+extern DLTree* createRole ( TRole* R );
 	/// create inverse of role R
 extern DLTree* createInverse ( DLTree* R );
 
