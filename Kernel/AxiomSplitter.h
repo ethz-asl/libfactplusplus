@@ -31,6 +31,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 //  3: print modules
 #define FPP_DEBUG_SPLIT_MODULES 1
 
+#if FPP_DEBUG_SPLIT_MODULES > 0
+#	include "procTimer.h"
+#endif
+
 class TAxiomSplitter
 {
 protected:	// types

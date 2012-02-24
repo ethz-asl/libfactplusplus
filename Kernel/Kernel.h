@@ -23,15 +23,16 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "fpp_assert.h"
 #include "eFPPInconsistentKB.h"
-#include "tNAryQueue.h"
 #include "dlTBox.h"
-#include "ReasonerNom.h"
 #include "ifOptions.h"
 #include "DLConceptTaxonomy.h"	// for getRelatives()
 #include "tExpressionTranslator.h"
 #include "tOntology.h"
 #include "tDag2Interface.h"
-#include "AtomicDecomposer.h"
+#include "tOntologyAtom.h"	// types for AD
+#include "Modularity.h"		// ModuleType
+
+class AtomicDecomposer;
 
 class ReasoningKernel
 {
@@ -139,7 +140,7 @@ protected:	// members
 		/// dag-2-interface translator used in knowledge exploration
 	TDag2Interface* D2I;
 		/// atomic decomposer
-	AtomicDecomposer AD;
+	AtomicDecomposer* AD;
 
 	// Top/Bottom role names: if set, they will appear in all hierarchy-related output
 
@@ -489,11 +490,7 @@ public:	// general staff
 		/// default c'tor
 	ReasoningKernel ( void );
 		/// d'tor
-	~ReasoningKernel ( void )
-	{
-		clearTBox();
-		delete pMonitor;
-	}
+	~ReasoningKernel ( void );
 
 	ifOptionSet* getOptions ( void ) { return &KernelOptions; }
 	const ifOptionSet* getOptions ( void ) const { return &KernelOptions; }
@@ -1221,11 +1218,11 @@ public:
 	//----------------------------------------------------------------------------------
 
 		/// create new atomic decomposition of the loaded ontology using TYPE. @return size of the AD
-	unsigned int getAtomicDecompositionSize ( ModuleType type ) { return AD.getAOS ( &Ontology, type )->size(); }
+	unsigned int getAtomicDecompositionSize ( ModuleType type );
 		/// get a set of axioms that corresponds to the atom with the id INDEX
-	const TOntologyAtom::AxiomSet& getAtomAxioms ( unsigned int index ) const { return (*AD.getAOS())[index]->getAtomAxioms(); }
+	const TOntologyAtom::AxiomSet& getAtomAxioms ( unsigned int index ) const;
 		/// get a set of atoms on which atom with index INDEX depends
-	const TOntologyAtom::AtomSet& getAtomDependents ( unsigned int index ) const { return (*AD.getAOS())[index]->getDepAtoms(); }
+	const TOntologyAtom::AtomSet& getAtomDependents ( unsigned int index ) const;
 }; // ReasoningKernel
 
 #endif

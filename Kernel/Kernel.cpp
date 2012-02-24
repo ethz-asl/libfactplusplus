@@ -17,11 +17,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "Kernel.h"
+#include "dlCompletionTree.h"
 #include "tOntologyLoader.h"
 #include "tOntologyPrinterLISP.h"
 #include "AxiomSplitter.h"
 #include "ELFNormalizer.h"
 #include "ELFReasoner.h"
+#include "AtomicDecomposer.h"
 
 const char* ReasoningKernel :: Version = "1.5.3";
 const char* ReasoningKernel :: SupportedDL = "SROIQ(D)";
@@ -64,6 +66,16 @@ ReasoningKernel :: ReasoningKernel ( void )
 	// init option set (fill with options):
 	if ( initOptions () )
 		throw EFaCTPlusPlus("FaCT++ kernel: Cannot init options");
+	// init AD field
+	AD = new AtomicDecomposer();
+}
+
+/// d'tor
+ReasoningKernel :: ~ReasoningKernel ( void )
+{
+	clearTBox();
+	delete pMonitor;
+	delete AD;
 }
 
 bool
@@ -589,6 +601,29 @@ ReasoningKernel :: getLabel ( const TCGNode* node, TCGItemVec& Result, bool only
 	for ( p = node->beginl_cc(), p_end = node->endl_cc(); p != p_end; ++p )
 		if ( !onlyDet || p->getDep().empty() )
 			Result.push_back(D2I->getExpr(p->bp(),data));
+}
+
+//----------------------------------------------------------------------------------
+// atomic decomposition queries
+//----------------------------------------------------------------------------------
+
+	/// create new atomic decomposition of the loaded ontology using TYPE. @return size of the AD
+unsigned int
+ReasoningKernel :: getAtomicDecompositionSize ( ModuleType type )
+{
+	return AD->getAOS ( &Ontology, type )->size();
+}
+	/// get a set of axioms that corresponds to the atom with the id INDEX
+const TOntologyAtom::AxiomSet&
+ReasoningKernel :: getAtomAxioms ( unsigned int index ) const
+{
+	return (*AD->getAOS())[index]->getAtomAxioms();
+}
+	/// get a set of atoms on which atom with index INDEX depends
+const TOntologyAtom::AtomSet&
+ReasoningKernel :: getAtomDependents ( unsigned int index ) const
+{
+	return (*AD->getAOS())[index]->getDepAtoms();
 }
 
 //******************************************
