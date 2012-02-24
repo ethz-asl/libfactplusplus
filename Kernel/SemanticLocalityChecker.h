@@ -37,7 +37,17 @@ protected:	// members
 
 public:		// interface
 		/// init c'tor
-	SemanticLocalityChecker ( const TSignature* s ) : sig(s), isLocal(true) {}
+	SemanticLocalityChecker ( const TSignature* s ) : sig(s), isLocal(true)
+	{
+		pEM = Kernel.getExpressionManager();
+		// for tests we will need TB names to be from the OWL 2 namespace
+		pEM->setTopBottomRoles(
+			"http://www.w3.org/2002/07/owl#topObjectProperty",
+			"http://www.w3.org/2002/07/owl#bottomObjectProperty",
+			"http://www.w3.org/2002/07/owl#topDataProperty",
+			"http://www.w3.org/2002/07/owl#bottomDataProperty");
+		Kernel.setSignature(sig);
+	}
 		/// empty d'tor
 	virtual ~SemanticLocalityChecker ( void ) {}
 
@@ -53,19 +63,11 @@ public:		// interface
 	void setOntologySig ( const TSignature& s )
 	{
 		Kernel.clearKB();
-		// for tests we will need TB names to be from the OWL 2 namespace
-		Kernel.getExpressionManager()->setTopBottomRoles(
-				"http://www.w3.org/2002/07/owl#topObjectProperty",
-				"http://www.w3.org/2002/07/owl#bottomObjectProperty",
-				"http://www.w3.org/2002/07/owl#topDataProperty",
-				"http://www.w3.org/2002/07/owl#bottomDataProperty");
 		// register all the objects in the ontology signature
 		for ( TSignature::iterator p = s.begin(), p_end = s.end(); p != p_end; ++p )
 			Kernel.declare(dynamic_cast<const TDLExpression*>(*p));
 		// prepare the reasoner to check tautologies
 		Kernel.realiseKB();
-		Kernel.setSignature(sig);
-		pEM = Kernel.getExpressionManager();
 	}
 		/// load ontology to a given KB
 	virtual void visitOntology ( TOntology& ontology )
