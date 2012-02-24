@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2005-2011 by Dmitry Tsarkov
+Copyright (C) 2005-2012 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -124,7 +124,7 @@ protected:	// methods
 			return reportClash ( localDep, "C-IT" );
 		if ( !i.update ( localMin, localExcl, localValue, localDep ) )
 			Constraints.push_back(i);
-		if ( !hasPType() || !i.checkMinMaxClash(accDep) )
+		else if ( !hasPType() || !i.checkMinMaxClash(accDep) )
 			Constraints.push_back(i);
 		return false;
 	}
