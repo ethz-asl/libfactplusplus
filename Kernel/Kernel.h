@@ -1221,6 +1221,8 @@ public:
 	unsigned int getAtomicDecompositionSize ( ModuleType type );
 		/// get a set of axioms that corresponds to the atom with the id INDEX
 	const TOntologyAtom::AxiomSet& getAtomAxioms ( unsigned int index ) const;
+		/// get a set of axioms that corresponds to the module of the atom with the id INDEX
+	const TOntologyAtom::AxiomSet& getAtomModule ( unsigned int index ) const;
 		/// get a set of atoms on which atom with index INDEX depends
 	const TOntologyAtom::AtomSet& getAtomDependents ( unsigned int index ) const;
 }; // ReasoningKernel

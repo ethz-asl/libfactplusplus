@@ -123,7 +123,6 @@ ReasoningKernel :: forceReload ( void )
 	}
 
 	// split ontological axioms
-
 	if ( useAxiomSplitting )
 	{
 		TAxiomSplitter AxiomSplitter(&Ontology);
@@ -618,6 +617,12 @@ const TOntologyAtom::AxiomSet&
 ReasoningKernel :: getAtomAxioms ( unsigned int index ) const
 {
 	return (*AD->getAOS())[index]->getAtomAxioms();
+}
+	/// get a set of axioms that corresponds to the module of the atom with the id INDEX
+const TOntologyAtom::AxiomSet&
+ReasoningKernel :: getAtomModule ( unsigned int index ) const
+{
+	return (*AD->getAOS())[index]->getModule();
 }
 	/// get a set of atoms on which atom with index INDEX depends
 const TOntologyAtom::AtomSet&

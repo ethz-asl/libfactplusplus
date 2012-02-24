@@ -28,9 +28,11 @@ Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 
 #include "Kernel.h"
 #include "cpm.h"
+#include "tOntologyPrinterLISP.h"	// AD prints
 
 TsProcTimer totalTimer, wTimer;
 Configuration Config;
+ReasoningKernel Kernel;
 
 inline void Usage ( void )
 {
@@ -48,6 +50,60 @@ inline void OutTime ( std::ostream& o )
 {
 	o << "Working time = " << totalTimer  << " seconds\n";
 }
+
+//----------------------------------------------------------------------------------
+// atomic decomposition support
+//----------------------------------------------------------------------------------
+
+// print axioms of an atom
+static void
+printAtomAxioms ( const TOntologyAtom::AxiomSet& Axioms )
+{
+	static TLISPOntologyPrinter LP(LL);
+	// do cycle via set to keep the order
+	typedef std::set<TDLAxiom*> AxSet;
+	const AxSet M ( Axioms.begin(), Axioms.end() );
+	for ( AxSet::const_iterator p = M.begin(); p != M.end(); ++p )
+		(*p)->accept(LP);
+}
+
+/// print dependencies of an atom
+static void
+printAtomDeps ( const TOntologyAtom::AtomSet& Dep )
+{
+	if ( unlikely(Dep.empty()) )
+		LL << "Ground";
+	else
+		LL << "Depends on:";
+	for ( TOntologyAtom::AtomSet::const_iterator q = Dep.begin(), q_end = Dep.end(); q != q_end; ++q )
+		LL << " " << (*q)->getId();
+	LL << "\n";
+}
+
+/// print the atom with an index INDEX of the AD
+static void
+printADAtom ( unsigned int index )
+{
+	const TOntologyAtom::AxiomSet& Axioms = Kernel.getAtomAxioms(index);
+	const TOntologyAtom::AtomSet& Dep = Kernel.getAtomDependents(index);
+	LL << "Atom " << index << " (size " << Axioms.size() << ", module size " << Kernel.getAtomModule(index).size() << "):\n";
+	printAtomAxioms(Axioms);
+	printAtomDeps(Dep);
+}
+
+/// @return all the axioms in the AD
+static size_t
+sizeAD ( unsigned int n )
+{
+	size_t ret = 0;
+	for ( unsigned int i = 0; i < n; ++i )
+		ret += Kernel.getAtomAxioms(i).size();
+	return ret;
+}
+
+//----------------------------------------------------------------------------------
+// SAT/SUB queries
+//----------------------------------------------------------------------------------
 
 std::string Query[2];
 
@@ -171,8 +227,6 @@ int main ( int argc, char *argv[] )
 
 	totalTimer. Start ();
 
-	// define [more-or-less] global Kernel
-	ReasoningKernel Kernel;
 	Kernel.setTopBottomRoleNames ( "*UROLE*", "*EROLE*", "*UDROLE*", "*EDROLE*" );
 	Kernel.setUseUndefinedNames(false);
 
@@ -248,7 +302,20 @@ int main ( int argc, char *argv[] )
 
 	if ( Kernel.getOptions()->getBool("checkAD") )	// check atomic decomposition and exit
 	{
-		Kernel.getAtomicDecompositionSize(M_BOT);
+		// do the atomic decomposition
+		TsProcTimer timer;
+		timer.Start();
+//		AD->setProgressIndicator(new CPPI());
+		unsigned int nAtoms = Kernel.getAtomicDecompositionSize(M_BOT);
+		timer.Stop();
+		if ( LLM.isWritable(llAlways) )
+		{
+			LL << "Atomic structure built in " << timer << " seconds\n";
+			size_t sz = sizeAD(nAtoms);
+			LL << "Atomic structure (" << sz << " axioms in " << nAtoms << " atoms; " << Kernel.getOntology().size()-sz << " tautologies):\n";
+			for ( unsigned int i = 0; i < nAtoms; ++i )
+				printADAtom(i);
+		}
 		return 0;
 	}
 
