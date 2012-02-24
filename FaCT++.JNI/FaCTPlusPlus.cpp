@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2006-2011 by Dmitry Tsarkov
+Copyright (C) 2006-2012 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -2343,9 +2343,7 @@ JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlu
   (JNIEnv * env, jobject obj, jint index)
 {
 	TRACE_JNI("getAtomAxioms");
-	AxiomSet aSet = getK(env,obj)->getAtomAxioms(index);
-	std::vector<TDLAxiom*> Vec ( aSet.begin(), aSet.end() );
-	return buildArray ( env, Vec, AxiomPointer );
+	return buildArray ( env, getK(env,obj)->getAtomAxioms(index), AxiomPointer );
 }
 
 /*
