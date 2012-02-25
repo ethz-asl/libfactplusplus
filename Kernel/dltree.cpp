@@ -186,13 +186,13 @@ DLTree* createSNFForall ( DLTree* R, DLTree* C )
 		deleteTree(R);
 		return C;
 	}
-	if ( unlikely(resolveRole(R)->isBottom()) )
+	if ( unlikely(isBotRole(R)) )
 	{	// \A Bot.C = T
 		deleteTree(R);
 		deleteTree(C);
 		return createTop();
 	}
-	if ( unlikely(resolveRole(R)->isTop()) && resolveRole(R)->isDataRole() )
+	if ( unlikely(isTopRole(R)) && resolveRole(R)->isDataRole() )
 	{
 		deleteTree(R);
 		return simplifyDataTopForall(C);
@@ -211,13 +211,13 @@ DLTree* createSNFLE ( unsigned int n, DLTree* R, DLTree* C )
 	}
 	if ( n == 0 )	// <= 0 R.C -> \AR.\not C
 		return createSNFForall ( R, createSNFNot(C) );
-	if ( unlikely(resolveRole(R)->isBottom()) )
+	if ( unlikely(isBotRole(R)) )
 	{	// <=n Bot.C = T
 		deleteTree(R);
 		deleteTree(C);
 		return createTop();
 	}
-	if ( unlikely(resolveRole(R)->isTop()) && resolveRole(R)->isDataRole() )
+	if ( unlikely(isTopRole(R)) && resolveRole(R)->isDataRole() )
 	{
 		deleteTree(R);
 		return simplifyDataTopLE ( n, C );

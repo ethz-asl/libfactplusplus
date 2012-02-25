@@ -109,8 +109,7 @@ public:		// visitor interface
 	virtual void visit ( const TDLConceptObjectSelf& expr )
 	{
 		expr.getOR()->accept(*this);
-		DLTree* R = *this;
-		tree = R->Element().getNE()->isBottom() ? createBottom() : new DLTree ( TLexeme(SELF), R );
+		tree = createSNFSelf(*this);
 	}
 	virtual void visit ( const TDLConceptObjectValue& expr )
 	{

@@ -165,6 +165,15 @@ inline DLTree* createSNFExists ( DLTree* R, DLTree* C )
 {	// \ER.C -> \not\AR.\not C
 	return createSNFNot ( createSNFForall ( R, createSNFNot(C) ) );
 }
+	/// create SELF restriction for role R
+inline DLTree* createSNFSelf ( DLTree* R )
+{
+	if ( unlikely(isBotRole(R)) )
+		return createBottom();	// loop on bottom role is always unsat
+	if ( unlikely(isTopRole(R)) )
+		return createTop();	// top role is reflexive
+	return new DLTree ( TLexeme(SELF), R );
+}
 
 	/// create at-least (GE) restriction of given formulas (>= n R.C)
 extern DLTree* createSNFGE ( unsigned int n, DLTree* R, DLTree* C );
