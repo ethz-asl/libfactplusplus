@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2010 by Dmitry Tsarkov
+Copyright (C) 2003-2012 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -41,7 +41,7 @@ public:		// methods
 		/// copy c'tor
 	ConceptWDep ( const ConceptWDep& c ) : Concept(c.Concept), depSet(c.depSet) {}
 		/// copy c'tor with additional dep-set
-	ConceptWDep ( const ConceptWDep& c, const DepSet& dep ) : Concept(c.Concept), depSet(c.depSet+dep) {}
+	ConceptWDep ( const ConceptWDep& c, const DepSet& dep ) : Concept(c.Concept), depSet(c.depSet) { depSet.add(dep); }
 
 	// comparison
 
