@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2011 by Dmitry Tsarkov
+Copyright (C) 2003-2012 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -121,13 +121,5 @@ public:		// interface
 		/// write gathered features
 	void writeState ( void ) const;
 }; // LogicFeatures
-
-inline LogicFeatures
-operator + ( const LogicFeatures& f1, const LogicFeatures& f2 )
-{
-	LogicFeatures f(f1);
-	f |= f2;
-	return f;
-}
 
 #endif
