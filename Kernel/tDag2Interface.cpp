@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2011 by Dmitry Tsarkov
+Copyright (C) 2011-2012 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -28,10 +28,10 @@ TDag2Interface :: buildCExpr ( const DLVertex& v )
 		return Manager->Top();
 	case dtNConcept:
 	case dtPConcept:
-		return Manager->Concept(v.getConcept()->getName());
+		return CName(v.getConcept());
 	case dtPSingleton:
 	case dtNSingleton:
-		return Manager->OneOf(Manager->Individual(v.getConcept()->getName()));
+		return Manager->OneOf(IName(v.getConcept()));
 	case dtAnd:
 	{
 		Manager->newArgList();
@@ -41,16 +41,16 @@ TDag2Interface :: buildCExpr ( const DLVertex& v )
 	}
 	case dtForall:
 		if ( v.getRole()->isDataRole() )
-			return Manager->Forall ( Manager->DataRole(v.getRole()->getName()), getDExpr(v.getC()) );
+			return Manager->Forall ( DRName(v.getRole()), getDExpr(v.getC()) );
 		else
-			return Manager->Forall ( Manager->ObjectRole(v.getRole()->getName()), getCExpr(v.getC()) );
+			return Manager->Forall ( ORName(v.getRole()), getCExpr(v.getC()) );
 	case dtLE:
 		if ( v.getRole()->isDataRole() )
-			return Manager->MaxCardinality ( v.getNumberLE(), Manager->DataRole(v.getRole()->getName()), getDExpr(v.getC()) );
+			return Manager->MaxCardinality ( v.getNumberLE(), DRName(v.getRole()), getDExpr(v.getC()) );
 		else
-			return Manager->MaxCardinality ( v.getNumberLE(), Manager->ObjectRole(v.getRole()->getName()), getCExpr(v.getC()) );
+			return Manager->MaxCardinality ( v.getNumberLE(), ORName(v.getRole()), getCExpr(v.getC()) );
 	case dtIrr:
-		return Manager->Not(Manager->SelfReference(Manager->ObjectRole(v.getRole()->getName())));
+		return Manager->Not(Manager->SelfReference(ORName(v.getRole())));
 	case dtProj:
 	case dtNN:
 	case dtChoose:

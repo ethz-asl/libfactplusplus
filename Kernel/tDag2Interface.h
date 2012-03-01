@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2011 by Dmitry Tsarkov
+Copyright (C) 2011-2012 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -41,6 +41,14 @@ protected:	// methods
 	const TDLConceptExpression* buildCExpr ( const DLVertex& v );
 		/// build data expression by a vertex V
 	const TDLDataExpression* buildDExpr ( const DLVertex& v );
+		/// create concept name by named entry
+	static const TDLConceptName* CName ( const TNamedEntry* p ) { return dynamic_cast<const TDLConceptName*>(p->getEntity()); }
+		/// create individual name by named entry
+	static const TDLIndividualName* IName ( const TNamedEntry* p ) { return dynamic_cast<const TDLIndividualName*>(p->getEntity()); }
+		/// create object role name by named entry
+	static const TDLObjectRoleName* ORName ( const TNamedEntry* p ) { return dynamic_cast<const TDLObjectRoleName*>(p->getEntity()); }
+		/// create data role name by named entry
+	static const TDLDataRoleName* DRName ( const TNamedEntry* p ) { return dynamic_cast<const TDLDataRoleName*>(p->getEntity()); }
 
 public:		// interface
 		/// init c'tor
