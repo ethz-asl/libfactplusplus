@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2010-2011 by Dmitry Tsarkov
+Copyright (C) 2010-2012 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -1513,7 +1513,7 @@ public:		// interface
 		/// empty c'tor
 	TDLDataType ( const TDLDataTypeExpression* type ) : Values(new DVCreator(type)) {}
 		/// empty d'tor
-	~TDLDataType ( void ) {}
+	virtual ~TDLDataType ( void ) {}
 
 		/// get new data value of the given type
 	const TDLDataValue* getValue ( const std::string& name ) { return Values.insert(name); }
@@ -1534,6 +1534,5 @@ public:		// interface
 		/// accept method for the visitor pattern
 	void accept ( DLExpressionVisitor& visitor ) const { visitor.visit(*this); }
 }; // TDLDataTypeName
-
 
 #endif
