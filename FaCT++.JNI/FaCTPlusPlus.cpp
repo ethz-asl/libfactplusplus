@@ -2229,6 +2229,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_bui
   (JNIEnv * env, jobject obj, jobject arg)
 {
 	TRACE_JNI("buildCompletionTree");
+	TRACE_ARG(env,obj,arg);
 	return Node ( env, getK(env,obj)->buildCompletionTree(getROConceptExpr(env,arg)) );
 }
 
@@ -2241,6 +2242,7 @@ JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlu
   (JNIEnv * env, jobject obj, jobject arg, jboolean flag)
 {
 	TRACE_JNI("getObjectNeighbours");
+	TRACE_ARG(env,obj,arg);
 	ReasoningKernel::TCGRoleSet Set;
 	getK(env,obj)->getObjectRoles ( getRONode(env,arg), Set, /*onlyDet=*/flag, /*needIncoming=*/false );
 	std::vector<TORoleExpr*> ret;
@@ -2258,6 +2260,7 @@ JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlu
   (JNIEnv * env, jobject obj, jobject arg, jboolean flag)
 {
 	TRACE_JNI("getDataNeighbours");
+	TRACE_ARG(env,obj,arg);
 	ReasoningKernel::TCGRoleSet Set;
 	getK(env,obj)->getDataRoles ( getRONode(env,arg), Set, /*onlyDet=*/flag );
 	std::vector<TDRoleExpr*> ret;
@@ -2275,6 +2278,8 @@ JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlu
   (JNIEnv * env, jobject obj, jobject arg1, jobject arg2 )
 {
 	TRACE_JNI("getObjectNeighbours");
+	TRACE_ARG(env,obj,arg1);
+	TRACE_ARG(env,obj,arg2);
 	ReasoningKernel::TCGNodeVec Vec;
 	getK(env,obj)->getNeighbours ( getRONode(env,arg1), getROORoleExpr(env,arg2), Vec );
 	return buildArray ( env, Vec, NodePointer );
@@ -2289,6 +2294,8 @@ JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlu
   (JNIEnv * env, jobject obj, jobject arg1, jobject arg2 )
 {
 	TRACE_JNI("getDataNeighbours");
+	TRACE_ARG(env,obj,arg1);
+	TRACE_ARG(env,obj,arg2);
 	ReasoningKernel::TCGNodeVec Vec;
 	getK(env,obj)->getNeighbours ( getRONode(env,arg1), getRODRoleExpr(env,arg2), Vec );
 	return buildArray ( env, Vec, NodePointer );
@@ -2303,6 +2310,7 @@ JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlu
   (JNIEnv * env, jobject obj, jobject arg, jboolean flag)
 {
 	TRACE_JNI("getObjectLabel");
+	TRACE_ARG(env,obj,arg);
 	ReasoningKernel::TCGItemVec Vec;
 	getK(env,obj)->getLabel ( getRONode(env,arg), Vec, /*onlyDet=*/flag );
 	return buildArray ( env, Vec, ClassPointer );
@@ -2317,6 +2325,7 @@ JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlu
   (JNIEnv * env, jobject obj, jobject arg, jboolean flag)
 {
 	TRACE_JNI("getDataLabel");
+	TRACE_ARG(env,obj,arg);
 	ReasoningKernel::TCGItemVec Vec;
 	getK(env,obj)->getLabel ( getRONode(env,arg), Vec, /*onlyDet=*/flag );
 	return buildArray ( env, Vec, DataTypeExpressionPointer );
