@@ -17,7 +17,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "Kernel.h"
-#include "dlCompletionTree.h"
 #include "tOntologyLoader.h"
 #include "tOntologyPrinterLISP.h"
 #include "AxiomSplitter.h"
@@ -41,7 +40,7 @@ static bool KernelFirstRun = true;
 ReasoningKernel :: ReasoningKernel ( void )
 	: pTBox (NULL)
 	, pET(NULL)
-	, D2I(NULL)
+	, KE(NULL)
 	, AD(NULL)
 	, pMonitor(NULL)
 	, OpTimeout(0)
@@ -71,6 +70,7 @@ ReasoningKernel :: ~ReasoningKernel ( void )
 {
 	clearTBox();
 	delete pMonitor;
+	delete KE;
 	delete AD;
 }
 
@@ -517,67 +517,6 @@ ReasoningKernel :: isRelated ( const TIndividualExpr* I, const TORoleExpr* R, co
 			return true;
 
 	return false;
-}
-
-//----------------------------------------------------------------------------------
-// knowledge exploration queries
-//----------------------------------------------------------------------------------
-
-/// add the role R and all its supers to a set RESULT
-void
-ReasoningKernel :: addRoleWithSupers ( const TRole* R, TCGRoleSet& Result )
-{
-	Result.insert(Role(R));
-	for ( TRole::const_iterator p = R->begin_anc(), p_end = R->end_anc(); p != p_end; ++p )
-		Result.insert(Role(*p));
-}
-
-/// build the set of data neighbours of a NODE, put the set into the RESULT variable
-void
-ReasoningKernel :: getDataRoles ( const TCGNode* node, TCGRoleSet& Result, bool onlyDet )
-{
-	Result.clear();
-	for ( DlCompletionTree::const_edge_iterator p = node->begin(), p_end = node->end(); p != p_end; ++p )
-		if ( likely(!(*p)->isIBlocked()) && (*p)->getArcEnd()->isDataNode() && (!onlyDet || (*p)->getDep().empty()) )
-			addRoleWithSupers ( (*p)->getRole(), Result );
-}
-/// build the set of object neighbours of a NODE; incoming edges are counted iff NEEDINCOMING is true
-void
-ReasoningKernel :: getObjectRoles ( const TCGNode* node, TCGRoleSet& Result, bool onlyDet, bool needIncoming )
-{
-	Result.clear();
-	for ( DlCompletionTree::const_edge_iterator p = node->begin(), p_end = node->end(); p != p_end; ++p )
-		if ( likely(!(*p)->isIBlocked()) && !(*p)->getArcEnd()->isDataNode() && (!onlyDet || (*p)->getDep().empty()) && (needIncoming || (*p)->isSuccEdge() ) )
-			addRoleWithSupers ( (*p)->getRole(), Result );
-}
-/// build the set of neighbours of a NODE via role ROLE; put the resulting list into RESULT
-void
-ReasoningKernel :: getNeighbours ( const TCGNode* node, TRoleExpr* role, TCGNodeVec& Result )
-{
-	Result.clear();
-	TRole* R = getRole ( role, "Role expression expected in getNeighbours() method" );
-	for ( DlCompletionTree::const_edge_iterator p = node->begin(), p_end = node->end(); p != p_end; ++p )
-		if ( likely(!(*p)->isIBlocked()) && (*p)->isNeighbour(R) )
-			Result.push_back((*p)->getArcEnd());
-}
-/// put into RESULT all the data expressions from the NODE label
-void
-ReasoningKernel :: getLabel ( const TCGNode* node, TCGItemVec& Result, bool onlyDet )
-{
-	// prepare D2I translator
-	if ( unlikely(D2I == NULL) )
-		D2I = new TDag2Interface ( getTBox()->getDag(), getExpressionManager() );
-	else
-		D2I->ensureDagSize();
-	DlCompletionTree::const_label_iterator p, p_end;
-	bool data = node->isDataNode();
-	Result.clear();
-	for ( p = node->beginl_sc(), p_end = node->endl_sc(); p != p_end; ++p )
-		if ( !onlyDet || p->getDep().empty() )
-			Result.push_back(D2I->getExpr(p->bp(),data));
-	for ( p = node->beginl_cc(), p_end = node->endl_cc(); p != p_end; ++p )
-		if ( !onlyDet || p->getDep().empty() )
-			Result.push_back(D2I->getExpr(p->bp(),data));
 }
 
 //----------------------------------------------------------------------------------

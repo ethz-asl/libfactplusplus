@@ -52,5 +52,6 @@ SOURCES = \
           tSplitExpansionRules.cpp\
           tDLAxiom.cpp\
           AtomicDecomposer.cpp\
+          KnowledgeExplorer.cpp\
 
 include ../Makefile.include

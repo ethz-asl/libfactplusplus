@@ -28,7 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "DLConceptTaxonomy.h"	// for getRelatives()
 #include "tExpressionTranslator.h"
 #include "tOntology.h"
-#include "tDag2Interface.h"
+#include "KnowledgeExplorer.h"
 #include "tOntologyAtom.h"	// types for AD
 #include "Modularity.h"		// ModuleType
 
@@ -92,13 +92,13 @@ public:	// types interface
 	// types for knowledge exploration
 
 		/// type for the node in the completion graph
-	typedef const DlCompletionTree TCGNode;
+	typedef KnowledgeExplorer::TCGNode TCGNode;
 		/// type for the node vector
-	typedef std::vector<TCGNode*> TCGNodeVec;
+	typedef KnowledgeExplorer::TCGNodeVec TCGNodeVec;
 		/// type for a set of role expressions (used in KE to return stuff)
-	typedef std::set<TRoleExpr*> TCGRoleSet;
+	typedef KnowledgeExplorer::TCGRoleSet TCGRoleSet;
 		/// type for a vector of data/concept expressions (used in KE to return stuff)
-	typedef std::vector<TExpr*> TCGItemVec;
+	typedef KnowledgeExplorer::TCGItemVec TCGItemVec;
 
 private:
 		/// options for the kernel and all related substructures
@@ -137,8 +137,8 @@ protected:	// members
 	TExpressionTranslator* pET;
 		/// trace vector for the last operation (set from the TBox trace-sets)
 	AxiomVec TraceVec;
-		/// dag-2-interface translator used in knowledge exploration
-	TDag2Interface* D2I;
+		/// knowledge exploration support
+	KnowledgeExplorer* KE;
 		/// atomic decomposer
 	AtomicDecomposer* AD;
 
@@ -393,8 +393,8 @@ protected:	// methods
 		pTBox = NULL;
 		delete pET;
 		pET = NULL;
-		delete D2I;
-		D2I = NULL;
+		delete KE;
+		KE = NULL;
 	}
 
 		/// get RW access to Object RoleMaster from TBox
@@ -1204,16 +1204,20 @@ public:
 	{
 		preprocessKB();
 		setUpCache ( C, csSat );
-		return getTBox()->buildCompletionTree(cachedConcept);
+		const TCGNode* ret = getTBox()->buildCompletionTree(cachedConcept);
+		if ( KE == NULL )	// init KB after the sat test to reduce the number of DAG adjustments
+			KE = new KnowledgeExplorer ( getTBox(), getExpressionManager() );
+		return ret;
 	}
 		/// build the set of data neighbours of a NODE, put the set of data roles into the RESULT variable
-	void getDataRoles ( const TCGNode* node, TCGRoleSet& Result, bool onlyDet );
+	void getDataRoles ( const TCGNode* node, TCGRoleSet& Result, bool onlyDet ) { Result = KE->getDataRoles ( node, onlyDet ); }
 		/// build the set of object neighbours of a NODE, put the set of object roles and inverses into the RESULT variable
-	void getObjectRoles ( const TCGNode* node, TCGRoleSet& Result, bool onlyDet, bool needIncoming );
+	void getObjectRoles ( const TCGNode* node, TCGRoleSet& Result, bool onlyDet, bool needIncoming ) { Result = KE->getObjectRoles ( node, onlyDet, needIncoming ); }
 		/// build the set of neighbours of a NODE via role ROLE; put the resulting list into RESULT
-	void getNeighbours ( const TCGNode* node, TRoleExpr* role, TCGNodeVec& Result );
+	void getNeighbours ( const TCGNode* node, TRoleExpr* role, TCGNodeVec& Result )
+		{ Result = KE->getNeighbours ( node, getRole ( role, "Role expression expected in getNeighbours() method" ) ); }
 		/// put into RESULT all the expressions from the NODE label; if ONLYDET is true, return only deterministic elements
-	void getLabel ( const TCGNode* node, TCGItemVec& Result, bool onlyDet );
+	void getLabel ( const TCGNode* node, TCGItemVec& Result, bool onlyDet ) { Result = KE->getLabel ( node, onlyDet ); }
 
 	//----------------------------------------------------------------------------------
 	// atomic decomposition queries
