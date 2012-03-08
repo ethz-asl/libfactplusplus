@@ -127,14 +127,16 @@ protected:	// types
 protected:	// typedefs
 		/// RW concept iterator
 	typedef ConceptCollection::iterator c_iterator;
-		/// RO concept iterator
-	typedef ConceptCollection::const_iterator c_const_iterator;
 		/// RW individual iterator
 	typedef IndividualCollection::iterator i_iterator;
-		/// RO individual iterator
-	typedef IndividualCollection::const_iterator i_const_iterator;
 		/// RO ExpressionArray iterator
 	typedef ExpressionArray::const_iterator ea_iterator;
+
+public:		// interface
+		/// RO concept iterator
+	typedef ConceptCollection::const_iterator c_const_iterator;
+		/// RO individual iterator
+	typedef IndividualCollection::const_iterator i_const_iterator;
 
 protected:	// members
 		/// relevance label (to determine logical features)
@@ -325,19 +327,11 @@ protected:	// methods
 	c_iterator c_begin ( void ) { return Concepts.begin(); }
 		/// RW end() for concepts
 	c_iterator c_end ( void ) { return Concepts.end(); }
-		/// RO begin() for concepts
-	c_const_iterator c_begin ( void ) const { return Concepts.begin(); }
-		/// RO end() for concepts
-	c_const_iterator c_end ( void ) const { return Concepts.end(); }
 
 		/// RW begin() for individuals
 	i_iterator i_begin ( void ) { return Individuals.begin(); }
 		/// RW end() for individuals
 	i_iterator i_end ( void ) { return Individuals.end(); }
-		/// RO begin() for individuals
-	i_const_iterator i_begin ( void ) const { return Individuals.begin(); }
-		/// RO end() for individuals
-	i_const_iterator i_end ( void ) const { return Individuals.end(); }
 
 //-----------------------------------------------------------------------------
 //--		internal ensure*-like interface
@@ -1117,6 +1111,20 @@ public:
 	TIndividual* getBlockingInd ( TConcept* C ) const { return SameI.find(C)->second.first; }
 		/// @return true iff an individual blocks C deterministically
 	bool isBlockingDet ( TConcept* C ) const { return SameI.find(C)->second.second; }
+
+//-----------------------------------------------------------------------------
+//--		public iterators
+//-----------------------------------------------------------------------------
+
+		/// RO begin() for concepts
+	c_const_iterator c_begin ( void ) const { return Concepts.begin(); }
+		/// RO end() for concepts
+	c_const_iterator c_end ( void ) const { return Concepts.end(); }
+
+		/// RO begin() for individuals
+	i_const_iterator i_begin ( void ) const { return Individuals.begin(); }
+		/// RO end() for individuals
+	i_const_iterator i_end ( void ) const { return Individuals.end(); }
 
 //-----------------------------------------------------------------------------
 //--		public reasoning interface
