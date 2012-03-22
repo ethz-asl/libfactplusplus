@@ -73,6 +73,23 @@ public class OWLKnowledgeExplorationReasonerWrapper implements
 
 			return (T)pointer;
 		}
+		@Override
+		public int hashCode() {
+
+			return pointer.hashCode();
+		}
+		@Override
+		public boolean equals(Object arg0) {
+			if(arg0==null) {
+				return false;
+			}if(this==arg0) {
+				return true;
+			}
+			if(arg0 instanceof RootNode) {
+				return this.pointer.equals(((RootNode) arg0).getNode());
+			}
+			return false;
+		}
 	}
 	private final FaCTPlusPlusReasoner r;
 

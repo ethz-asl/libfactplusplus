@@ -122,7 +122,7 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_initKe
 
 #ifdef _USE_LOGGING
 	// initialize LeveLogger
-//	LLM.initLogger ( 20, "reasoning.log" );
+	//LLM.initLogger ( 20, "reasoning.log" );
 #endif
 }
 
@@ -1582,30 +1582,30 @@ JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlu
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
  * Method:    askObjectPropertyDomain
- * Signature: (Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;)[[Luk/ac/manchester/cs/factplusplus/ClassPointer;
+ * Signature: (Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;Z)[[Luk/ac/manchester/cs/factplusplus/ClassPointer;
  */
 JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_askObjectPropertyDomain
-  (JNIEnv * env, jobject obj, jobject arg)
+  (JNIEnv * env, jobject obj, jobject arg, jboolean direct)
 {
 	TRACE_JNI("askObjectPropertyDomain");
 	TRACE_ARG(env,obj,arg);
 	JTaxonomyActor<ClassPolicy> actor(env,obj);
-	PROCESS_ASK_QUERY ( getK(env,obj)->getORoleDomain ( getROORoleExpr(env,arg), true, actor ),"askObjectPropertyDomain");
+	PROCESS_ASK_QUERY ( getK(env,obj)->getORoleDomain ( getROORoleExpr(env,arg), direct, actor ),"askObjectPropertyDomain");
 	return actor.getElements();
 }
 
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
  * Method:    askObjectPropertyRange
- * Signature: (Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;)[[Luk/ac/manchester/cs/factplusplus/ClassPointer;
+ * Signature: (Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;Z)[[Luk/ac/manchester/cs/factplusplus/ClassPointer;
  */
 JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_askObjectPropertyRange
-  (JNIEnv * env, jobject obj, jobject arg)
+  (JNIEnv * env, jobject obj, jobject arg, jboolean direct)
 {
 	TRACE_JNI("askObjectPropertyRange");
 	TRACE_ARG(env,obj,arg);
 	JTaxonomyActor<ClassPolicy> actor(env,obj);
-	PROCESS_ASK_QUERY ( getK(env,obj)->getRoleRange ( getROORoleExpr(env,arg), true, actor ),"askObjectPropertyRange");
+	PROCESS_ASK_QUERY ( getK(env,obj)->getRoleRange ( getROORoleExpr(env,arg), direct, actor ),"askObjectPropertyRange");
 	return actor.getElements();
 }
 
@@ -1824,15 +1824,15 @@ JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlu
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
  * Method:    askDataPropertyDomain
- * Signature: (Luk/ac/manchester/cs/factplusplus/DataPropertyPointer;)[[Luk/ac/manchester/cs/factplusplus/ClassPointer;
+ * Signature: (Luk/ac/manchester/cs/factplusplus/DataPropertyPointer;Z)[[Luk/ac/manchester/cs/factplusplus/ClassPointer;
  */
 JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_askDataPropertyDomain
-  (JNIEnv * env, jobject obj, jobject arg)
+  (JNIEnv * env, jobject obj, jobject arg, jboolean direct)
 {
 	TRACE_JNI("askDataPropertyDomain");
 	TRACE_ARG(env,obj,arg);
 	JTaxonomyActor<ClassPolicy> actor(env,obj);
-	PROCESS_ASK_QUERY ( getK(env,obj)->getDRoleDomain ( getRODRoleExpr(env,arg), true, actor ),"askDataPropertyDomain");
+	PROCESS_ASK_QUERY ( getK(env,obj)->getDRoleDomain ( getRODRoleExpr(env,arg), direct, actor ),"askDataPropertyDomain");
 	return actor.getElements();
 }
 

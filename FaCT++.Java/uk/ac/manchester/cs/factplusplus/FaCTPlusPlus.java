@@ -444,9 +444,9 @@ public class FaCTPlusPlus {
 
     public native ObjectPropertyPointer [] askEquivalentObjectProperties(ObjectPropertyPointer r) throws FaCTPlusPlusException;
 
-    public native ClassPointer [][] askObjectPropertyDomain(ObjectPropertyPointer r) throws FaCTPlusPlusException;
+    public native ClassPointer [][] askObjectPropertyDomain(ObjectPropertyPointer r, boolean direct) throws FaCTPlusPlusException;
 
-    public native ClassPointer [][] askObjectPropertyRange(ObjectPropertyPointer r) throws FaCTPlusPlusException;
+    public native ClassPointer [][] askObjectPropertyRange(ObjectPropertyPointer r, boolean direct) throws FaCTPlusPlusException;
 
     public native boolean isObjectPropertyFunctional(ObjectPropertyPointer r) throws FaCTPlusPlusException;
 
@@ -482,7 +482,7 @@ public class FaCTPlusPlus {
 
     public native DataPropertyPointer [] askEquivalentDataProperties(DataPropertyPointer r) throws FaCTPlusPlusException;
 
-    public native ClassPointer [][] askDataPropertyDomain(DataPropertyPointer r) throws FaCTPlusPlusException;
+    public native ClassPointer [][] askDataPropertyDomain(DataPropertyPointer r, boolean direct) throws FaCTPlusPlusException;
 
     public native boolean isDataPropertyFunctional(DataPropertyPointer r) throws FaCTPlusPlusException;
 

@@ -568,25 +568,8 @@ public class FaCTPlusPlusReasoner implements OWLReasoner,
 			throws InconsistentOntologyException, ReasonerInterruptedException,
 			TimeOutException {
 		checkConsistency();
-		if (pe.equals(getOWLDataFactory().getOWLTopObjectProperty())) {
-			Node<OWLClass> node = classExpressionTranslator
-					.getNodeFromPointers(kernel
-							.askEquivalentClasses(toClassPointer(getOWLDataFactory()
-									.getOWLThing())));
-			return new OWLClassNodeSet(node);
-		}
-		if (pe.equals(getOWLDataFactory().getOWLBottomObjectProperty())) {
-			Node<OWLClass> node = classExpressionTranslator
-					.getNodeFromPointers(kernel
-							.askEquivalentClasses(toClassPointer(getOWLDataFactory()
-									.getOWLNothing())));
-			return new OWLClassNodeSet(node);
-		}
-		ClassPointer subClass = toClassPointer(getOWLDataFactory()
-				.getOWLObjectSomeValuesFrom(pe,
-						getOWLDataFactory().getOWLThing()));
 		return classExpressionTranslator.getNodeSetFromPointers(kernel
-				.askSuperClasses(subClass, direct));
+				.askObjectPropertyDomain(objectPropertyTranslator.createPointerForEntity(pe), direct ));
 	}
 
 	public NodeSet<OWLClass> getObjectPropertyRanges(
@@ -594,24 +577,8 @@ public class FaCTPlusPlusReasoner implements OWLReasoner,
 			throws InconsistentOntologyException, ReasonerInterruptedException,
 			TimeOutException {
 		checkConsistency();
-		if (pe.equals(getOWLDataFactory().getOWLTopObjectProperty())) {
-			Node<OWLClass> node = classExpressionTranslator
-					.getNodeFromPointers(kernel
-							.askEquivalentClasses(toClassPointer(getOWLDataFactory()
-									.getOWLThing())));
-			return new OWLClassNodeSet(node);
-		}
-		if (pe.equals(getOWLDataFactory().getOWLBottomObjectProperty())) {
-			Node<OWLClass> node = classExpressionTranslator
-					.getNodeFromPointers(kernel
-							.askEquivalentClasses(toClassPointer(getOWLDataFactory()
-									.getOWLNothing())));
-			return new OWLClassNodeSet(node);
-		}
-		return getSuperClasses(
-				getOWLDataFactory().getOWLObjectSomeValuesFrom(
-						pe.getInverseProperty(),
-						getOWLDataFactory().getOWLThing()), direct);
+		return classExpressionTranslator.getNodeSetFromPointers(
+				kernel.askObjectPropertyRange(objectPropertyTranslator.getPointerFromEntity(pe), direct));
 	}
 
 	// data properties
@@ -664,23 +631,8 @@ public class FaCTPlusPlusReasoner implements OWLReasoner,
 			boolean direct) throws InconsistentOntologyException,
 			ReasonerInterruptedException, TimeOutException {
 		checkConsistency();
-		if (pe.equals(getOWLDataFactory().getOWLTopDataProperty())) {
-			Node<OWLClass> node = classExpressionTranslator
-					.getNodeFromPointers(kernel
-							.askEquivalentClasses(toClassPointer(getOWLDataFactory()
-									.getOWLThing())));
-			return new OWLClassNodeSet(node);
-		}
-		if (pe.equals(getOWLDataFactory().getOWLBottomDataProperty())) {
-			Node<OWLClass> node = classExpressionTranslator
-					.getNodeFromPointers(kernel
-							.askEquivalentClasses(toClassPointer(getOWLDataFactory()
-									.getOWLNothing())));
-			return new OWLClassNodeSet(node);
-		}
-		return getSuperClasses(
-				getOWLDataFactory().getOWLDataSomeValuesFrom(pe,
-						getOWLDataFactory().getTopDatatype()), direct);
+		return classExpressionTranslator.getNodeSetFromPointers(kernel
+				.askDataPropertyDomain(dataPropertyTranslator.createPointerForEntity(pe), direct ));
 	}
 
 	// individuals
@@ -794,9 +746,6 @@ public class FaCTPlusPlusReasoner implements OWLReasoner,
 				final E entityFromPointer = getEntityFromPointer(pointer);
 				if(entityFromPointer != null) {
 					node.add(entityFromPointer);
-				} else {
-					System.out
-							.println("FaCTPlusPlusReasoner.OWLEntityTranslator.getNodeFromPointers() WARNING: entity not in the map or unnamed expression: "+pointer);
 				}
 			}
 			return node;
