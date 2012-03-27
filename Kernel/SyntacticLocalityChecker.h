@@ -483,8 +483,8 @@ public:		// visitor interface
 
 		isLocal = true;
 	}
-	virtual void visit ( const TDLAxiomSameIndividuals& axiom ATTR_UNUSED ) { isLocal = true; }
-	virtual void visit ( const TDLAxiomDifferentIndividuals& axiom ATTR_UNUSED ) { isLocal = true; }
+	virtual void visit ( const TDLAxiomSameIndividuals& axiom ATTR_UNUSED ) { isLocal = false; }
+	virtual void visit ( const TDLAxiomDifferentIndividuals& axiom ATTR_UNUSED ) { isLocal = false; }
 		/// there is no such axiom in OWL API, but I hope nobody would use Fairness here
 	virtual void visit ( const TDLAxiomFairnessConstraint& axiom ATTR_UNUSED ) { isLocal = true; }
 
@@ -517,9 +517,9 @@ public:		// visitor interface
 	}
 	virtual void visit ( const TDLAxiomRoleTransitive& axiom ) { isLocal = isREquivalent(axiom.getRole()); }
 	virtual void visit ( const TDLAxiomRoleReflexive& axiom ) { isLocal = isREquivalent(axiom.getRole()); }
-	virtual void visit ( const TDLAxiomRoleIrreflexive& axiom ATTR_UNUSED ) { isLocal = !topRLocal(); }
+	virtual void visit ( const TDLAxiomRoleIrreflexive& axiom ) { isLocal = !topRLocal() && isBotEquivalent(axiom.getRole()); }
 	virtual void visit ( const TDLAxiomRoleSymmetric& axiom ) { isLocal = isREquivalent(axiom.getRole()); }
-	virtual void visit ( const TDLAxiomRoleAsymmetric& axiom ATTR_UNUSED ) { isLocal = !topRLocal(); }
+	virtual void visit ( const TDLAxiomRoleAsymmetric& axiom ) { isLocal = !topRLocal() && isBotEquivalent(axiom.getRole()); }
 	virtual void visit ( const TDLAxiomORoleFunctional& axiom ) { isLocal = !topRLocal() && isBotEquivalent(axiom.getRole()); }
 	virtual void visit ( const TDLAxiomDRoleFunctional& axiom ) { isLocal = !topRLocal() && isBotEquivalent(axiom.getRole()); }
 	virtual void visit ( const TDLAxiomRoleInverseFunctional& axiom ) { isLocal = !topRLocal() && isBotEquivalent(axiom.getRole()); }
