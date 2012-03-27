@@ -154,8 +154,8 @@ public:		// interface
 		, nChecks(0)
 		, nNonLocal(0)
 		{}
-		// empty d'tor
-	~TModularizer ( void ) {}
+		// d'tor
+	~TModularizer ( void ) { delete sigIndex; }
 
 		/// set sig index to a given value
 	void setSigIndex ( SigIndex* p )

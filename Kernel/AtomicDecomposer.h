@@ -51,7 +51,11 @@ public:		// interface
 		/// empty c'tor
 	AOStructure ( void ) {}
 		/// d'tor: delete all atoms
-	~AOStructure ( void ) {}
+	~AOStructure ( void )
+	{
+		for ( iterator p = Atoms.begin(), p_end = Atoms.end(); p != p_end; ++p )
+			delete *p;
+	}
 
 		/// create a new atom and get a pointer to it
 	TOntologyAtom* newAtom ( void )
@@ -129,7 +133,7 @@ public:		// interface
 		/// init c'tor
 	AtomicDecomposer ( void ) : AOS(NULL), PI(NULL), rootAtom(NULL) {}
 		/// d'tor
-	~AtomicDecomposer ( void ) { delete AOS; }
+	~AtomicDecomposer ( void );
 
 		/// get the atomic structure for given module type TYPE
 	AOStructure* getAOS ( TOntology* O, ModuleType type );

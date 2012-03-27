@@ -101,7 +101,7 @@ public:		// visitor interface
 		isLocal = true;
 	}
 		/// FIXME!! fornow
-	virtual void visit ( const TDLAxiomDisjointUnion& axiom )
+	virtual void visit ( const TDLAxiomDisjointUnion& axiom ATTR_UNUSED )
 	{
 		isLocal = true;
 	}

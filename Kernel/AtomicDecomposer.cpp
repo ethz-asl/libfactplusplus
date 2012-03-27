@@ -22,6 +22,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 //#define RKG_DEBUG_AD
 
+/// d'tor
+AtomicDecomposer :: ~AtomicDecomposer ( void )
+{
+	delete AOS;
+	delete PI;
+}
+
 /// remove tautologies (axioms that are always local) from the ontology temporarily
 void
 AtomicDecomposer :: removeTautologies ( TOntology* O )

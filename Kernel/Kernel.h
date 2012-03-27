@@ -433,7 +433,7 @@ protected:	// methods
 		/// get individual by the TIndividualExpr
 	TIndividual* getIndividual ( const TIndividualExpr* i, const char* reason )
 	{
-		try { return static_cast<TIndividual*>(getTBox()->getCI(e(i))); }
+		try { return static_cast<TIndividual*>(getTBox()->getCI(TreeDeleter(e(i)))); }
 		catch(...) { throw EFaCTPlusPlus(reason); }
 	}
 		/// get role by the TRoleExpr
