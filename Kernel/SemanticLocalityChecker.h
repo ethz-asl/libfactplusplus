@@ -46,7 +46,6 @@ public:		// interface
 			"http://www.w3.org/2002/07/owl#bottomObjectProperty",
 			"http://www.w3.org/2002/07/owl#topDataProperty",
 			"http://www.w3.org/2002/07/owl#bottomDataProperty");
-		Kernel.setSignature(sig);
 	}
 		/// empty d'tor
 	virtual ~SemanticLocalityChecker ( void ) {}
@@ -68,6 +67,8 @@ public:		// interface
 			Kernel.declare(dynamic_cast<const TDLExpression*>(*p));
 		// prepare the reasoner to check tautologies
 		Kernel.realiseKB();
+		// after TBox appears there, set signature to translate
+		Kernel.setSignature(sig);
 	}
 		/// load ontology to a given KB
 	virtual void visitOntology ( TOntology& ontology )
@@ -193,10 +194,14 @@ public:		// visitor interface
 	virtual void visit ( const TDLAxiomConceptInclusion& axiom ) { isLocal = Kernel.isSubsumedBy ( axiom.getSubC(), axiom.getSupC() ); }
 		// for top locality, this might be local
 	virtual void visit ( const TDLAxiomInstanceOf& axiom ) { isLocal = Kernel.isInstance ( axiom.getIndividual(), axiom.getC() ); }
-	virtual void visit ( const TDLAxiomRelatedTo& axiom ) { isLocal = Kernel.relatedTo ( axiom.getIndividual(), axiom.getRelation(), axiom.getRelatedIndividual() ); }
-	virtual void visit ( const TDLAxiomRelatedToNot& axiom ) { isLocal = Kernel.relatedToNot ( axiom.getIndividual(), axiom.getRelation(), axiom.getRelatedIndividual() ); }
-	virtual void visit ( const TDLAxiomValueOf& axiom ) { isLocal = Kernel.valueOf ( axiom.getIndividual(), axiom.getAttribute(), axiom.getValue() ); }
-	virtual void visit ( const TDLAxiomValueOfNot& axiom ) { isLocal = Kernel.valueOfNot ( axiom.getIndividual(), axiom.getAttribute(), axiom.getValue() ); }
+		// R(i,j) holds if {i} [= \ER.{j}
+	virtual void visit ( const TDLAxiomRelatedTo& axiom ) { isLocal = Kernel.isSubsumedBy ( pEM->OneOf(axiom.getIndividual()), pEM->Value ( axiom.getRelation(), axiom.getRelatedIndividual() ) ); }
+		///!R(i,j) holds if {i} [= \AR.!{j}=!\ER.{j}
+	virtual void visit ( const TDLAxiomRelatedToNot& axiom ) { isLocal = Kernel.isSubsumedBy ( pEM->OneOf(axiom.getIndividual()), pEM->Not ( pEM->Value ( axiom.getRelation(), axiom.getRelatedIndividual() ) ) ); }
+		// R(i,v) holds if {i} [= \ER.{v}
+	virtual void visit ( const TDLAxiomValueOf& axiom ) { isLocal = Kernel.isSubsumedBy ( pEM->OneOf(axiom.getIndividual()), pEM->Value ( axiom.getAttribute(), axiom.getValue() ) ); }
+		// !R(i,v) holds if {i} [= !\ER.{v}
+	virtual void visit ( const TDLAxiomValueOfNot& axiom ) { isLocal = Kernel.isSubsumedBy ( pEM->OneOf(axiom.getIndividual()), pEM->Not ( pEM->Value ( axiom.getAttribute(), axiom.getValue() ) ) ); }
 }; // SemanticLocalityChecker
 
 #endif
