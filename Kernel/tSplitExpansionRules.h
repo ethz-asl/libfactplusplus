@@ -95,17 +95,17 @@ protected:	// types
 			/// check whether signatures of a rule are related to current signature in such a way that allows rule to fire
 		bool canFire ( const SigSet& CurrentSig ) const { return containsIn ( eqSig, CurrentSig ) && intersectsWith ( impSig, CurrentSig ); }
 			/// calculates dep-set for a rule that can fire, write it to DEP.
-		void fireDep ( const SigSet& CurrentSig, const SigDeps& SigDep, DepSet& dep ) const
+		void fireDep ( const SigSet& CurrentSig, SigDeps& SigDep, DepSet& dep ) const
 		{
 			SigSet::const_iterator p, p_end;
 			// eqSig is contained in current, so need all
 			for ( p = eqSig.begin(), p_end = eqSig.end(); p != p_end; ++p )
-				dep += SigDep.at(*p);
+				dep += SigDep[*p];
 			// impSig has partial intersect with current; 1st common entity is fine
 			for ( p = impSig.begin(), p_end = impSig.end(); p != p_end; ++p )
 				if ( CurrentSig.count(*p) != 0 )
 				{
-					dep += SigDep.at(*p);
+					dep += SigDep[*p];
 					return;
 				}
 		}
