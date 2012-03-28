@@ -44,14 +44,17 @@ public:		// interface
 	bool topRLocal ( void ) const { return sig->topRLocal(); }
 		/// @return true iff SIGnature does NOT contain given expression
 	bool nc ( const TNamedEntity* expr ) const { return !sig->contains(expr); }
-
-		/// @return true iff EXPR is a top datatype
-	static bool isTopDT ( const TDLExpression* expr ) { return dynamic_cast<const TDLDataTop*>(expr) != NULL; }
-		/// @return true iff EXPR is a top datatype or a built-in datatype; FIXME for now -- just top
-	static bool isTopOrBuiltInDT ( const TDLExpression* expr ) { return isTopDT(expr); }
-		/// @return true iff EXPR is a top datatype or an infinite built-in datatype; FIXME for now -- just top
-	static bool isTopOrBuiltInInfDT ( const TDLExpression* expr ) { return isTopDT(expr); }
 }; // SigAccessor
+
+	/// @return true iff EXPR is a top datatype
+inline bool
+isTopDataType ( const TDLExpression* expr ) { return dynamic_cast<const TDLDataTop*>(expr) != NULL; }
+	/// @return true iff EXPR is a top datatype or a built-in datatype; FIXME for now -- just top
+inline bool
+isTopOrBuiltInDataType ( const TDLExpression* expr ) { return isTopDataType(expr); }
+	/// @return true iff EXPR is a top datatype or an infinite built-in datatype; FIXME for now -- just top
+inline bool
+isTopOrBuiltInInfDataType ( const TDLExpression* expr ) { return isTopDataType(expr); }
 
 /// check whether class expressions are equivalent to bottom wrt given locality class
 class BotEquivalenceEvaluator: protected SigAccessor, public DLExpressionVisitorEmpty
@@ -131,20 +134,22 @@ public:		// visitor interface
 	}
 	virtual void visit ( const TDLConceptDataValue& expr ) { isBotEq = !topRLocal() && isBotEquivalent(expr.getDR()); }
 	virtual void visit ( const TDLConceptDataExists& expr ) { isBotEq = !topRLocal() && isBotEquivalent(expr.getDR()); }
-	virtual void visit ( const TDLConceptDataForall& expr ) { isBotEq = topRLocal() && isTopEquivalent(expr.getDR()) && !isTopDT(expr.getExpr()); }
+	virtual void visit ( const TDLConceptDataForall& expr ) { isBotEq = topRLocal() && isTopEquivalent(expr.getDR()) && !isTopDataType(expr.getExpr()); }
 	virtual void visit ( const TDLConceptDataMinCardinality& expr )
 		{ isBotEq = !topRLocal() && (expr.getNumber() > 0) && isBotEquivalent(expr.getDR()); }
 	virtual void visit ( const TDLConceptDataMaxCardinality& expr )
 	{
 		isBotEq = topRLocal() && isTopEquivalent(expr.getDR()) &&
-			( expr.getNumber() <= 1 ? isTopOrBuiltInDT(expr.getExpr()) : isTopOrBuiltInInfDT(expr.getExpr()) );
+			( expr.getNumber() <= 1
+				? isTopOrBuiltInDataType(expr.getExpr())
+				: isTopOrBuiltInInfDataType(expr.getExpr()) );
 	}
 	virtual void visit ( const TDLConceptDataExactCardinality& expr )
 	{
 		isBotEq = isREquivalent(expr.getDR()) && ( topRLocal()
 			? ( expr.getNumber() == 0
-				? isTopOrBuiltInDT(expr.getExpr())
-				: isTopOrBuiltInInfDT(expr.getExpr()) )
+				? isTopOrBuiltInDataType(expr.getExpr())
+				: isTopOrBuiltInInfDataType(expr.getExpr()) )
 			: expr.getNumber() > 0 );
 	}
 
@@ -254,13 +259,16 @@ public:		// visitor interface
 			( isBotEquivalent(expr.getC()) || (!topRLocal() && isBotEquivalent(expr.getOR())) );
 	}
 	virtual void visit ( const TDLConceptDataValue& expr ) { isTopEq = topRLocal() && isTopEquivalent(expr.getDR()); }
-	virtual void visit ( const TDLConceptDataExists& expr ) { isTopEq = topRLocal() && isTopEquivalent(expr.getDR()) && isTopOrBuiltInDT(expr.getExpr()); }
-	virtual void visit ( const TDLConceptDataForall& expr ) { isTopEq = isTopDT(expr.getExpr()) || (!topRLocal() && isBotEquivalent(expr.getDR())); }
+	virtual void visit ( const TDLConceptDataExists& expr ) { isTopEq = topRLocal() && isTopEquivalent(expr.getDR()) && isTopOrBuiltInDataType(expr.getExpr()); }
+	virtual void visit ( const TDLConceptDataForall& expr ) { isTopEq = isTopDataType(expr.getExpr()) || (!topRLocal() && isBotEquivalent(expr.getDR())); }
 	virtual void visit ( const TDLConceptDataMinCardinality& expr )
 	{
 		isTopEq = expr.getNumber() == 0;
 		if ( topRLocal() )
-			isTopEq |= isTopEquivalent(expr.getDR()) && ( expr.getNumber() == 1 ? isTopOrBuiltInDT(expr.getExpr()) : isTopOrBuiltInInfDT(expr.getExpr()) );
+			isTopEq |= isTopEquivalent(expr.getDR()) &&
+				( expr.getNumber() == 1
+					? isTopOrBuiltInDataType(expr.getExpr())
+					: isTopOrBuiltInInfDataType(expr.getExpr()) );
 	}
 	virtual void visit ( const TDLConceptDataMaxCardinality& expr )
 		{ isTopEq = !topRLocal() && isBotEquivalent(expr.getDR()); }
@@ -511,7 +519,7 @@ public:		// visitor interface
 	}
 	virtual void visit ( const TDLAxiomDRoleRange& axiom )
 	{
-		isLocal = isTopDT(axiom.getRange());
+		isLocal = isTopDataType(axiom.getRange());
 		if ( !topRLocal() )
 			isLocal |= isBotEquivalent(axiom.getRole());
 	}
