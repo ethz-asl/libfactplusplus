@@ -19,32 +19,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef SYNLOCCHECKER_H
 #define SYNLOCCHECKER_H
 
-#include "tSignature.h"
+#include "LocalityChecker.h"
 
 // forward declarations
 class BotEquivalenceEvaluator;
 class TopEquivalenceEvaluator;
-
-/// helper class to set signature and locality class
-class SigAccessor
-{
-protected:	// members
-		/// signature of a module
-	const TSignature* sig;
-
-public:		// interface
-		/// init c'tor
-	SigAccessor ( const TSignature* s ) : sig(s) {}
-		/// empty d'tor
-	virtual ~SigAccessor ( void ) {}
-
-		/// @return true iff concepts are treated as TOPs
-	bool topCLocal ( void ) const { return sig->topCLocal(); }
-		/// @return true iff roles are treated as TOPs
-	bool topRLocal ( void ) const { return sig->topRLocal(); }
-		/// @return true iff SIGnature does NOT contain given expression
-	bool nc ( const TNamedEntity* expr ) const { return !sig->contains(expr); }
-}; // SigAccessor
 
 	/// @return true iff EXPR is a top datatype
 inline bool
@@ -308,15 +287,13 @@ BotEquivalenceEvaluator :: isTopEquivalent ( const TDLExpression& expr )
 
 
 /// syntactic locality checker for DL axioms
-class SyntacticLocalityChecker: protected SigAccessor, public DLAxiomVisitor
+class SyntacticLocalityChecker: public LocalityChecker
 {
 protected:	// members
 		/// top evaluator
 	TopEquivalenceEvaluator TopEval;
 		/// bottom evaluator
 	BotEquivalenceEvaluator BotEval;
-		/// remember the axiom locality value here
-	bool isLocal;
 
 protected:	// methods
 		/// @return true iff EXPR is top equivalent
@@ -329,7 +306,7 @@ protected:	// methods
 public:		// interface
 		/// init c'tor
 	SyntacticLocalityChecker ( const TSignature* s )
-		: SigAccessor(s)
+		: LocalityChecker(s)
 		, TopEval(s)
 		, BotEval(s)
 	{
@@ -338,24 +315,6 @@ public:		// interface
 	}
 		/// empty d'tor
 	virtual ~SyntacticLocalityChecker ( void ) {}
-
-	// set fields
-
-		/// @return true iff an AXIOM is local wrt defined policy
-	bool local ( const TDLAxiom* axiom )
-	{
-		axiom->accept(*this);
-		return isLocal;
-	}
-		/// fake method to match the semantic checker's interface
-	void setOntologySig ( const TSignature& s ATTR_UNUSED ) {}
-		/// load ontology to a given KB
-	virtual void visitOntology ( TOntology& ontology )
-	{
-		for ( TOntology::iterator p = ontology.begin(), p_end = ontology.end(); p < p_end; ++p )
-			if ( (*p)->isUsed() )
-				(*p)->accept(*this);
-	}
 
 public:		// visitor interface
 	virtual void visit ( const TDLAxiomDeclaration& axiom ATTR_UNUSED ) { isLocal = true; }

@@ -19,25 +19,21 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef SEMLOCCHECKER_H
 #define SEMLOCCHECKER_H
 
-#include "tSignature.h"
+#include "LocalityChecker.h"
 #include "Kernel.h"
 
 /// semantic locality checker for DL axioms
-class SemanticLocalityChecker: public DLAxiomVisitor
+class SemanticLocalityChecker: public LocalityChecker
 {
 protected:	// members
 		/// Reasoner to detect the tautology
 	ReasoningKernel Kernel;
 		/// Expression manager of a kernel
 	TExpressionManager* pEM;
-		/// signature to keep
-	const TSignature* sig;
-		/// remember the axiom locality value here
-	bool isLocal;
 
 public:		// interface
 		/// init c'tor
-	SemanticLocalityChecker ( const TSignature* s ) : sig(s), isLocal(true)
+	SemanticLocalityChecker ( const TSignature* sig ) : LocalityChecker(sig)
 	{
 		pEM = Kernel.getExpressionManager();
 		// for tests we will need TB names to be from the OWL 2 namespace
@@ -50,16 +46,8 @@ public:		// interface
 		/// empty d'tor
 	virtual ~SemanticLocalityChecker ( void ) {}
 
-	// set fields
-
-		/// @return true iff an AXIOM is local wrt defined policy
-	bool local ( const TDLAxiom* axiom )
-	{
-		axiom->accept(*this);
-		return isLocal;
-	}
 		/// init kernel with the ontology signature
-	void setOntologySig ( const TSignature& s )
+	virtual void setOntologySig ( const TSignature& s )
 	{
 		Kernel.clearKB();
 		// register all the objects in the ontology signature
@@ -68,14 +56,7 @@ public:		// interface
 		// prepare the reasoner to check tautologies
 		Kernel.realiseKB();
 		// after TBox appears there, set signature to translate
-		Kernel.setSignature(sig);
-	}
-		/// load ontology to a given KB
-	virtual void visitOntology ( TOntology& ontology )
-	{
-		for ( TOntology::iterator p = ontology.begin(), p_end = ontology.end(); p < p_end; ++p )
-			if ( likely((*p)->isUsed()) )
-				(*p)->accept(*this);
+		Kernel.setSignature(getSignature());
 	}
 
 public:		// visitor interface
