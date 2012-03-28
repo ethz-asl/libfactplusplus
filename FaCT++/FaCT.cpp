@@ -278,9 +278,10 @@ int main ( int argc, char *argv[] )
 		error ( "Cannot open output file" );
 
 #ifdef _USE_LOGGING
-	// initialize LeveLogger
-	if ( LLM.initLogger(Config) )
-		error ( "LeveLogger: couldn't open logging file" );
+	// initialize LeveLogger only if not AD
+	if ( !Kernel.getOptions()->getBool("checkAD") )
+		if ( LLM.initLogger(Config) )
+			error ( "LeveLogger: couldn't open logging file" );
 #endif
 
 	// init timeout option
@@ -312,14 +313,11 @@ int main ( int argc, char *argv[] )
 //		AD->setProgressIndicator(new CPPI());
 		unsigned int nAtoms = Kernel.getAtomicDecompositionSize(M_BOT);
 		timer.Stop();
-		if ( LLM.isWritable(llAlways) )
-		{
-			LL << "Atomic structure built in " << timer << " seconds\n";
-			size_t sz = sizeAD(nAtoms);
-			LL << "Atomic structure (" << sz << " axioms in " << nAtoms << " atoms; " << Kernel.getOntology().size()-sz << " tautologies):\n";
-			for ( unsigned int i = 0; i < nAtoms; ++i )
-				printADAtom(i);
-		}
+		Out << "Atomic structure built in " << timer << " seconds\n";
+		size_t sz = sizeAD(nAtoms);
+		Out << "Atomic structure (" << sz << " axioms in " << nAtoms << " atoms; " << Kernel.getOntology().size()-sz << " tautologies):\n";
+		for ( unsigned int i = 0; i < nAtoms; ++i )
+			printADAtom(i);
 		return 0;
 	}
 
