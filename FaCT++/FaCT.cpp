@@ -36,6 +36,7 @@ Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 TsProcTimer totalTimer, wTimer;
 Configuration Config;
 ReasoningKernel Kernel;
+std::ofstream Out;
 
 inline void Usage ( void )
 {
@@ -62,7 +63,7 @@ inline void OutTime ( std::ostream& o )
 static void
 printAtomAxioms ( const TOntologyAtom::AxiomSet& Axioms )
 {
-	static TLISPOntologyPrinter LP(LL);
+	static TLISPOntologyPrinter LP(Out);
 	// do cycle via set to keep the order
 	typedef std::set<TDLAxiom*> AxSet;
 	const AxSet M ( Axioms.begin(), Axioms.end() );
@@ -75,12 +76,12 @@ static void
 printAtomDeps ( const TOntologyAtom::AtomSet& Dep )
 {
 	if ( unlikely(Dep.empty()) )
-		LL << "Ground";
+		Out << "Ground";
 	else
-		LL << "Depends on:";
+		Out << "Depends on:";
 	for ( TOntologyAtom::AtomSet::const_iterator q = Dep.begin(), q_end = Dep.end(); q != q_end; ++q )
-		LL << " " << (*q)->getId();
-	LL << "\n";
+		Out << " " << (*q)->getId();
+	Out << "\n";
 }
 
 /// print the atom with an index INDEX of the AD
@@ -89,7 +90,7 @@ printADAtom ( unsigned int index )
 {
 	const TOntologyAtom::AxiomSet& Axioms = Kernel.getAtomAxioms(index);
 	const TOntologyAtom::AtomSet& Dep = Kernel.getAtomDependents(index);
-	LL << "Atom " << index << " (size " << Axioms.size() << ", module size " << Kernel.getAtomModule(index).size() << "):\n";
+	Out << "Atom " << index << " (size " << Axioms.size() << ", module size " << Kernel.getAtomModule(index).size() << "):\n";
 	printAtomAxioms(Axioms);
 	printAtomDeps(Dep);
 }
@@ -271,7 +272,7 @@ int main ( int argc, char *argv[] )
 		error ( "Cannot open input TBox file" );
 
 	// output file...
-	std::ofstream Out ( argc == 3 ? argv [2] : "dl.res" );
+	Out.open ( argc == 3 ? argv [2] : "dl.res" );
 
 	if ( Out.fail () )
 		error ( "Cannot open output file" );
