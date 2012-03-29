@@ -246,6 +246,7 @@ public:		// interface
 //	helper classes
 //------------------------------------------------------------------
 
+class TNamedEntry;
 
 //------------------------------------------------------------------
 ///	named entity
@@ -255,10 +256,12 @@ class TNamedEntity
 protected:	// members
 		/// name of the entity
 	std::string Name;
+		/// translated version of it
+	TNamedEntry* entry;
 
 public:		// interface
 		/// c'tor: initialise name
-	TNamedEntity ( const std::string& name ) : Name(name) {}
+	TNamedEntity ( const std::string& name ) : Name(name), entry(NULL) {}
 		/// empty d'tor
 	virtual ~TNamedEntity ( void ) {}
 
@@ -266,6 +269,11 @@ public:		// interface
 	const char* getName ( void ) const { return Name.c_str(); }
 		/// get access to the element itself
 	const TNamedEntity* getEntity ( void ) const { return this; }
+
+		/// set entry
+	void setEntry ( TNamedEntry* e ) { entry = e; }
+		/// get entry
+	TNamedEntry* getEntry ( void ) const { return entry; }
 }; // TNamedEntity
 
 //------------------------------------------------------------------

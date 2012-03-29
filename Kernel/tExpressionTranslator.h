@@ -38,11 +38,11 @@ protected:	// members
 
 protected:	// methods
 		/// create DLTree of given TAG and named ENTRY; set the entry's ENTITY if necessary
-	void setEntry ( Token tag, TNamedEntry* entry, const TNamedEntity* entity )
+	TNamedEntry* matchEntry ( TNamedEntry* entry, const TNamedEntity* entity )
 	{
 		if ( unlikely ( entry->getEntity() == NULL ) )
 			entry->setEntity(entity);
-		tree = createEntry(tag,entry);
+		return entry;
 	}
 		/// @return true iff ENTRY is not in signature
 	bool nc ( const TNamedEntity* entity ) const { return unlikely(sig != NULL) && !sig->contains(entity); }
@@ -67,7 +67,12 @@ public:		// visitor interface
 		if ( nc(&expr) )
 			tree = sig->topCLocal() ? createTop() : createBottom();
 		else
-			setEntry ( CNAME, KB.getConcept(expr.getName()), &expr );
+		{
+			TNamedEntry* entry = expr.getEntry();
+			if ( entry == NULL )
+				entry = matchEntry ( KB.getConcept(expr.getName()), &expr );
+			tree = createEntry(CNAME,entry);
+		}
 	}
 	virtual void visit ( const TDLConceptNot& expr ) { expr.getC()->accept(*this); tree = createSNFNot(*this); }
 	virtual void visit ( const TDLConceptAnd& expr )
@@ -203,7 +208,13 @@ public:		// visitor interface
 	}
 
 	// individual expressions
-	virtual void visit ( const TDLIndividualName& expr ) { setEntry ( INAME, KB.getIndividual(expr.getName()), &expr ); }
+	virtual void visit ( const TDLIndividualName& expr )
+	{
+		TNamedEntry* entry = expr.getEntry();
+		if ( entry == NULL )
+			entry = matchEntry ( KB.getIndividual(expr.getName()), &expr );
+		tree = createEntry(INAME,entry);
+	}
 
 	// object role expressions
 	virtual void visit ( const TDLObjectRoleTop& expr ATTR_UNUSED ) { THROW_UNSUPPORTED("top object role"); }
@@ -215,8 +226,12 @@ public:		// visitor interface
 		if ( nc(&expr) )
 			role = sig->topRLocal() ? RM->getTopRole() : RM->getBotRole();
 		else
-			role = RM->ensureRoleName(expr.getName());
-		setEntry ( RNAME, role, &expr );
+		{
+			role = expr.getEntry();
+			if ( role == NULL )
+				role = matchEntry ( RM->ensureRoleName(expr.getName()), &expr );
+		}
+		tree = createEntry(RNAME,role);
 	}
 	virtual void visit ( const TDLObjectRoleInverse& expr ) { expr.getOR()->accept(*this); tree = createInverse(*this); }
 	virtual void visit ( const TDLObjectRoleChain& expr )
@@ -263,8 +278,12 @@ public:		// visitor interface
 		if ( nc(&expr) )
 			role = sig->topRLocal() ? RM->getTopRole() : RM->getBotRole();
 		else
-			role = RM->ensureRoleName(expr.getName());
-		setEntry ( DNAME, role, &expr );
+		{
+			role = expr.getEntry();
+			if ( role == NULL )
+				role = matchEntry ( RM->ensureRoleName(expr.getName()), &expr );
+		}
+		tree = createEntry(DNAME,role);
 	}
 
 	// data expressions
