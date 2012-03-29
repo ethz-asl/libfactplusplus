@@ -40,8 +40,8 @@ protected:	// methods
 		/// create DLTree of given TAG and named ENTRY; set the entry's ENTITY if necessary
 	TNamedEntry* matchEntry ( TNamedEntry* entry, const TNamedEntity* entity )
 	{
-		if ( unlikely ( entry->getEntity() == NULL ) )
-			entry->setEntity(entity);
+		entry->setEntity(entity);
+		const_cast<TNamedEntity*>(entity)->setEntry(entry);
 		return entry;
 	}
 		/// @return true iff ENTRY is not in signature
