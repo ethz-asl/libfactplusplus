@@ -404,6 +404,7 @@ void TBox :: createTaxonomy ( bool needIndividual )
 	{
 		pMonitor->setFinished();
 		setProgressMonitor(NULL);	// no need of PM after classification done
+		pTax->setProgressIndicator(NULL);
 	}
 	pTax->finalise();
 

@@ -492,11 +492,9 @@ TBox :: classifyQueryConcept ( void )
 	// prepare told subsumers for classification; as it is non-primitive, it is not CD
 	pQuery->initToldSubsumers();
 
-	fpp_assert ( pTax != NULL );
-
 	// setup taxonomy behaviour flags
-	pTax->setCompletelyDefined ( false );	// non-primitive concept
-	pTax->setProgressIndicator(NULL);		// switch off the progress monitor
+	fpp_assert ( pTax != NULL );
+	pTax->setCompletelyDefined(false);	// non-primitive concept
 
 	// classify the concept
 	pTax->classifyEntry(pQuery);
