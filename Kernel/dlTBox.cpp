@@ -86,10 +86,7 @@ TBox :: ~TBox ( void )
 	delete pTop;
 	delete pBottom;
 	delete pTemp;
-
-	// delete the appropriate tax-vertex;
-	if ( pQuery != NULL )
-		clearQueryConcept();
+	delete pQuery;
 
 	// remove aux structures
 	delete stdReasoner;
@@ -155,11 +152,17 @@ void TBox :: initTopBottom ( void )
 	p->classTag = cttTrueCompletelyDefined;
 	pTop = p;
 
+	// "fresh" concept
 	p = new TConcept (" ");
 	p->setId(-1);
 	p->tsDepth=1;
 	p->classTag = cttTrueCompletelyDefined;
 	pTemp = p;
+
+	// query concept
+	p = new TConcept("FaCT++.default");
+	p->setSystem();
+	pQuery = p;
 }
 
 void TBox :: prepareReasoning ( void )
@@ -451,23 +454,13 @@ void TBox :: readConfig ( const ifOptionSet* Options )
 TConcept*
 TBox :: createQueryConcept ( const DLTree* desc )
 {
-	static const char* const defConceptName = "FaCT++.default";
-
 	fpp_assert ( desc != NULL );
 
 	// make sure that an old query is gone
 	clearQueryConcept();
-	// we have to add this concept in any cases. So change undefined names mode
-	bool old = setForbidUndefinedNames(false);
-	pQuery = getConcept(defConceptName);
-	setForbidUndefinedNames(old);
-
-//	std::cerr << "Create new temp concept with description =" << desc << "\n";
-	fpp_assert ( pQuery != NULL );
-
 	// create description
+//	std::cerr << "Create new temp concept with description =" << desc << "\n";
 	deleteTree ( makeNonPrimitive ( pQuery, clone(desc) ) );
-	pQuery->setSystem();
 	pQuery->setIndex(nC-1);
 
 	return pQuery;

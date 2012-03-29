@@ -342,12 +342,8 @@ void TBox :: createTaxonomy ( bool needIndividual )
 {
 	bool needConcept = !needIndividual;
 
-	// if there were SAT queries before -- the query concept is in there. Delete it
-	if ( unlikely(pQuery != NULL) )
-	{
-		clearQueryConcept();
-		pQuery = NULL;
-	}
+	// if there were SAT queries before -- the query (or other) concepts are there. Delete it
+	clearQueryConcept();
 
 	// here we sure that ontology is consistent
 	// FIXME!! distinguish later between the 1st run and the following runs

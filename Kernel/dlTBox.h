@@ -1159,7 +1159,7 @@ public:
 		/// classify query concept
 	void classifyQueryConcept ( void );
 		/// delete all query-related stuff
-	void clearQueryConcept ( void ) { DLHeap.removeQuery(Concepts); }
+	void clearQueryConcept ( void ) { DLHeap.removeQuery(); }
 
 //-----------------------------------------------------------------------------
 //--		public reasoning interface

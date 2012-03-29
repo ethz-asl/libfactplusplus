@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2011 by Dmitry Tsarkov
+Copyright (C) 2003-2012 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -43,7 +43,7 @@ DLDag :: ~DLDag ( void )
 }
 
 void
-DLDag :: removeQuery ( TNECollection<TConcept>& Concepts )
+DLDag :: removeQuery ( void )
 {
 	for ( size_t i = size()-1; i >= finalDagSize; --i )
 	{
@@ -54,8 +54,7 @@ DLDag :: removeQuery ( TNECollection<TConcept>& Concepts )
 			static_cast<TDataEntry*>(v->getConcept())->setBP(bpINVALID);
 			break;
 		case dtConcept:
-			if ( Concepts.Remove(dynamic_cast<TConcept*>(v->getConcept())) )
-				fpp_unreachable();	// can't remove non-last concept
+			static_cast<TConcept*>(v->getConcept())->pName = bpINVALID;
 			break;
 		default:
 			break;
