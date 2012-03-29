@@ -187,7 +187,7 @@ protected:	// members
 		/// concept representing temporary one that can not be used anywhere in the ontology
 	TConcept* pTemp;
 		/// temporary concept that represents query
-	TConcept* defConcept;
+	TConcept* pQuery;
 
 		/// all named concepts
 	ConceptCollection Concepts;

@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2011 by Dmitry Tsarkov
+Copyright (C) 2003-2012 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -343,10 +343,10 @@ void TBox :: createTaxonomy ( bool needIndividual )
 	bool needConcept = !needIndividual;
 
 	// if there were SAT queries before -- the query concept is in there. Delete it
-	if ( unlikely(defConcept != NULL) )
+	if ( unlikely(pQuery != NULL) )
 	{
 		clearQueryConcept();
-		defConcept = NULL;
+		pQuery = NULL;
 	}
 
 	// here we sure that ontology is consistent

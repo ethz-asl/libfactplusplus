@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2011 by Dmitry Tsarkov
+Copyright (C) 2003-2012 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -41,7 +41,7 @@ TBox :: TBox ( const ifOptionSet* Options, const std::string& TopORoleName, cons
 	, pOptions (Options)
 	, Status(kbLoading)
 	, curFeature(NULL)
-	, defConcept (NULL)
+	, pQuery(NULL)
 	, Concepts("concept")
 	, Individuals("individual")
 	, ORM ( /*data=*/false, TopORoleName, BotORoleName )
@@ -88,7 +88,7 @@ TBox :: ~TBox ( void )
 	delete pTemp;
 
 	// delete the appropriate tax-vertex;
-	if ( defConcept != NULL )
+	if ( pQuery != NULL )
 		clearQueryConcept();
 
 	// remove aux structures
@@ -455,20 +455,22 @@ TBox :: createQueryConcept ( const DLTree* desc )
 
 	fpp_assert ( desc != NULL );
 
+	// make sure that an old query is gone
+	clearQueryConcept();
 	// we have to add this concept in any cases. So change undefined names mode
 	bool old = setForbidUndefinedNames(false);
-	defConcept = getConcept(defConceptName);
+	pQuery = getConcept(defConceptName);
 	setForbidUndefinedNames(old);
 
 //	std::cerr << "Create new temp concept with description =" << desc << "\n";
-	fpp_assert ( defConcept != NULL );
+	fpp_assert ( pQuery != NULL );
 
 	// create description
-	deleteTree ( makeNonPrimitive ( defConcept, clone(desc) ) );
-	defConcept->setSystem();
-	defConcept->setIndex(nC-1);
+	deleteTree ( makeNonPrimitive ( pQuery, clone(desc) ) );
+	pQuery->setSystem();
+	pQuery->setIndex(nC-1);
 
-	return defConcept;
+	return pQuery;
 }
 
 /// preprocess query concept: put description into DAG
@@ -495,7 +497,7 @@ void
 TBox :: classifyQueryConcept ( void )
 {
 	// prepare told subsumers for classification; as it is non-primitive, it is not CD
-	defConcept->initToldSubsumers();
+	pQuery->initToldSubsumers();
 
 	fpp_assert ( pTax != NULL );
 
@@ -504,7 +506,7 @@ TBox :: classifyQueryConcept ( void )
 	pTax->setProgressIndicator(NULL);		// switch off the progress monitor
 
 	// classify the concept
-	pTax->classifyEntry (defConcept);
+	pTax->classifyEntry(pQuery);
 }
 
 /// knowledge exploration: build a model and return a link to the root
