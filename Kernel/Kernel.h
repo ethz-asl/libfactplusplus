@@ -100,6 +100,10 @@ public:	// types interface
 		/// type for a vector of data/concept expressions (used in KE to return stuff)
 	typedef KnowledgeExplorer::TCGItemVec TCGItemVec;
 
+protected:	// types
+		/// arguments for property chain querying and friends
+	typedef const std::vector<const TDLExpression*> TExprVec;
+
 private:
 		/// options for the kernel and all related substructures
 	ifOptionSet KernelOptions;
@@ -355,12 +359,8 @@ protected:	// methods
 		return !checkSatTree(tmp);
 	}
 		/// @return true iff the chain contained in the arg-list is a sub-property of R
-	bool checkSubChain ( TRole* R )
+	bool checkSubChain ( const TExprVec& Chain, TRole* R )
 	{
-		// retrieve a role chain
-		typedef const std::vector<const TDLExpression*> TExprVec;
-		TExprVec Chain = getExpressionManager()->getArgList();
-
 		// R1 o ... o Rn [= R iff \ER1.\ER2....\ERn.(notC) and AR.C is unsatisfiable
 		DLTree* tmp = createSNFNot(getTBox()->getFreshConcept());
 		for ( TExprVec::const_reverse_iterator p = Chain.rbegin(), p_end = Chain.rend(); p != p_end; ++p )
@@ -959,9 +959,18 @@ public:
 		TRole* r = getRole ( R, "Role expression expected in isSubChain()" );
 		if ( unlikely(r->isTop()) )
 			return true;	// universal role is a super of any chain
-		if ( unlikely(r->isBottom()) )	// FIXME!! true in case empty role is in chain
+		TExprVec Chain = getExpressionManager()->getArgList();
+		if ( unlikely(r->isBottom()) )
+		{
+			for ( TExprVec::const_iterator p = Chain.begin(), p_end = Chain.end(); p != p_end; ++p )
+			{
+				TRole* S = getRole ( dynamic_cast<TORoleExpr*>(*p), "Role expression expected in chain of isSubChain()" );
+				if ( S->isBottom() )	// bottom in a chain makes it super of any role
+					return true;
+			}
 			return false;	// empty role is not a super of any chain
-		return checkSubChain(r);
+		}
+		return checkSubChain ( Chain, r );
 	}
 
 	// single satisfiability
