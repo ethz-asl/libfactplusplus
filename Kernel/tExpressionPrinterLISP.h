@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2010-2011 by Dmitry Tsarkov
+Copyright (C) 2010-2012 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -57,9 +57,6 @@ protected:	// methods
 			return p->second.c_str();
 		return owlName;
 	}
-
-#define THROW_UNSUPPORTED(name) \
-	throw EFaCTPlusPlus("Unsupported expression '" name "' in LISP printer")
 
 public:		// interface
 		/// init c'tor
@@ -120,8 +117,8 @@ public:		// visitor interface
 	virtual void visit ( const TDLIndividualName& expr ) { o << " " << expr.getName(); }
 
 	// object role expressions
-	virtual void visit ( const TDLObjectRoleTop& expr ATTR_UNUSED ) { THROW_UNSUPPORTED("top object role"); }
-	virtual void visit ( const TDLObjectRoleBottom& expr ATTR_UNUSED ) { THROW_UNSUPPORTED("bottom object role"); }
+	virtual void visit ( const TDLObjectRoleTop& expr ATTR_UNUSED ) { o << " *UROLE*"; }
+	virtual void visit ( const TDLObjectRoleBottom& expr ATTR_UNUSED ) { o << " *EROLE*"; }
 	virtual void visit ( const TDLObjectRoleName& expr ) { o << " " << expr.getName(); }
 	virtual void visit ( const TDLObjectRoleInverse& expr ) { BR b(o,"inv"); expr.getOR()->accept(*this); }
 	virtual void visit ( const TDLObjectRoleChain& expr ) { BR b(o,"compose"); printArray(expr); }
@@ -131,8 +128,8 @@ public:		// visitor interface
 		{ BR b(o,"project_into"); expr.getOR()->accept(*this); expr.getC()->accept(*this); }
 
 	// data role expressions
-	virtual void visit ( const TDLDataRoleTop& expr ATTR_UNUSED ) { THROW_UNSUPPORTED("top data role");  }
-	virtual void visit ( const TDLDataRoleBottom& expr ATTR_UNUSED ) { THROW_UNSUPPORTED("bottom data role"); }
+	virtual void visit ( const TDLDataRoleTop& expr ATTR_UNUSED ) { o << " *UDROLE*";  }
+	virtual void visit ( const TDLDataRoleBottom& expr ATTR_UNUSED ) { o << " *EDROLE*"; }
 	virtual void visit ( const TDLDataRoleName& expr ) { o << " " << expr.getName(); }
 
 	// data expressions
@@ -153,8 +150,6 @@ public:		// visitor interface
 	virtual void visit ( const TDLFacetMinExclusive& expr ) { BR b(o,"gt"); expr.getExpr()->accept(*this); }
 	virtual void visit ( const TDLFacetMaxInclusive& expr ) { BR b(o,"le"); expr.getExpr()->accept(*this); }
 	virtual void visit ( const TDLFacetMaxExclusive& expr ) { BR b(o,"lt"); expr.getExpr()->accept(*this); }
-
-#undef THROW_UNSUPPORTED
 }; // TLISPExpressionPrinter
 
 #endif
