@@ -255,7 +255,7 @@ DLConceptTaxonomy :: classifySynonym ( void )
 
  			if ( tBox.isBlockingDet(curI) )
 			{	// deterministic merge => curI = syn
-				insertCurrent(syn->getTaxVertex());
+ 				addCurrentToSynonym(syn->getTaxVertex());
 				return true;
 			}
 			else	// non-det merge: check whether it is the same
@@ -264,7 +264,7 @@ DLConceptTaxonomy :: classifySynonym ( void )
 					LL << "\nTAX: trying '" << curI->getName() << "' = '" << syn->getName() << "'... ";
 				if ( testSubTBox ( curI, syn ) )	// they are actually the same
 				{
-					insertCurrent(syn->getTaxVertex());
+					addCurrentToSynonym(syn->getTaxVertex());
 					return true;
 				}
 			}
@@ -330,7 +330,7 @@ DLConceptTaxonomy :: mergeSplitVars ( TSplitVar* split )
 	if ( v == Current )
 	{
 		checkExtraParents();
-		insertCurrent(NULL);
+		insertCurrentNode();
 	}
 }
 

@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2011 by Dmitry Tsarkov
+Copyright (C) 2003-2012 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -56,34 +56,30 @@ void Taxonomy :: print ( std::ostream& o ) const
 //---------------------------------------------------
 // classification part
 //---------------------------------------------------
+void
+Taxonomy :: addCurrentToSynonym ( TaxonomyVertex* syn )
+{
+	if ( queryMode() )	// no need to insert; just mark SYN as a host to curEntry
+		syn->setHostVertex(curEntry);
+	else
+	{
+		syn->addSynonym(curEntry);
+
+		if ( LLM.isWritable(llTaxInsert) )
+			LL << "\nTAX:set " << curEntry->getName() << " equal " << syn->getPrimer()->getName();
+	}
+}
 
 void
-Taxonomy :: insertCurrent ( TaxonomyVertex* syn )
+Taxonomy :: insertCurrentNode ( void )
 {
-	if ( queryMode() )	// check if node is synonym of existing one and copy EXISTING info to Current
+	Current->setSample(curEntry);	// put curEntry as a representative of Current
+	if ( !queryMode() )	// insert node into taxonomy
 	{
-		if ( syn != NULL )	// set synonym to the tax-entry for the checked one
-			syn->setHostVertex(curEntry);
-		else	// mark a current one to be a tax-entry
-			Current->setSample(curEntry);
-	}
-	else	// insert node into taxonomy
-	{
-		// check if current concept is synonym to someone
-		if ( syn != NULL )
-		{
-			syn->addSynonym(curEntry);
-
-			if ( LLM.isWritable(llTaxInsert) )
-				LL << "\nTAX:set " << curEntry->getName() << " equal " << syn->getPrimer()->getName();
-		}
-		else	// just incorporate it as a special entry and save into Graph
-		{
-			Current->incorporate(curEntry);
-			Graph.push_back(Current);
-			// we used the Current so need to create a new one
-			Current = new TaxonomyVertex();
-		}
+		Current->incorporate();
+		Graph.push_back(Current);
+		// we used the Current so need to create a new one
+		Current = new TaxonomyVertex();
 	}
 }
 
@@ -106,7 +102,11 @@ Taxonomy :: performClassification ( void )
 	generalTwoPhaseClassification();
 
 	// create new vertex
-	insertCurrent(Current->isSynonymNode());
+	TaxonomyVertex* syn = Current->getSynonymNode();
+	if ( syn )
+		addCurrentToSynonym(syn);
+	else
+		insertCurrentNode();
 
 	// clear all labels
 	clearLabels();
@@ -150,7 +150,7 @@ bool Taxonomy :: classifySynonym ( void )
 
 	// update synonym vertex:
 	fpp_assert ( syn->getTaxVertex() != NULL );
-	insertCurrent(syn->getTaxVertex());
+	addCurrentToSynonym(syn->getTaxVertex());
 
 	return true;
 }

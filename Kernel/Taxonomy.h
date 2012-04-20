@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2011 by Dmitry Tsarkov
+Copyright (C) 2003-2012 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -194,8 +194,10 @@ protected:	// methods
 	void performClassification ( void );
 		/// fills parents and children of Current using tunable general approach
 	void generalTwoPhaseClassification ( void );
-		/// insert current node into taxonomy wrt flag willIIT; SYN is synonym (if any)
-	void insertCurrent ( TaxonomyVertex* syn );
+		/// add current entry to a synonym SYN
+	void addCurrentToSynonym ( TaxonomyVertex* syn );
+		/// insert current node to a taxonomy (if not in query more)
+	void insertCurrentNode ( void );
 		/// remove node from the taxonomy; assume no references to the node
 	void removeNode ( TaxonomyVertex* node ) { node->setInUse(false); }
 		/// @return true if V is a direct parent of current wrt labels

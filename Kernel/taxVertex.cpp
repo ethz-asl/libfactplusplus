@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2011 by Dmitry Tsarkov
+Copyright (C) 2003-2012 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -39,11 +39,8 @@ bool TaxonomyVertex :: removeLink ( bool upDirection, TaxonomyVertex* p )
 	return false;
 }
 
-void TaxonomyVertex :: incorporate ( const ClassifiableEntry* entry )
+void TaxonomyVertex :: incorporate ( void )
 {
-	// setup sample
-	setSample(entry);
-
 	// setup links
 	iterator u, u_end = end(/*upDirection=*/true), d, d_end = end(/*upDirection=*/false);
 

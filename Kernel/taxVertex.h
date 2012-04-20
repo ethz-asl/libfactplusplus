@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2011 by Dmitry Tsarkov
+Copyright (C) 2003-2012 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -182,9 +182,9 @@ public:
 	/** Adds vertex to existing graph. For every Up, Down such that (Up->Down)
 		creates couple of links (Up->this), (this->Down). Don't work with synonyms!!!
 	*/
-	void incorporate ( const ClassifiableEntry* entry );
+	void incorporate ( void );
 		/// @return v if node represents a synonym (v=Up[i]==Down[j]); @return NULL otherwise
-	TaxonomyVertex* isSynonymNode ( void )
+	TaxonomyVertex* getSynonymNode ( void )
 	{
 		// try to find Vertex such that Vertex\in Up and Vertex\in Down
 		for ( iterator q = begin(true), q_end = end(true); q < q_end; ++q )
