@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2011 by Dmitry Tsarkov
+Copyright (C) 2003-2012 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -94,9 +94,9 @@ class DLVertexCache
 {
 protected:	// members
 		/// cache for the positive entry
-	const modelCacheInterface* pCache;
+	modelCacheInterface* pCache;
 		/// cache for the negative entry
-	const modelCacheInterface* nCache;
+	modelCacheInterface* nCache;
 
 public:		// interface
 		/// empty c'tor
@@ -109,7 +109,7 @@ public:		// interface
 		/// return cache wrt positive flag
 	const modelCacheInterface* getCache ( bool pos ) const { return pos ? pCache : nCache; }
 		/// set cache wrt positive flag; note that cache is set up only once
-	void setCache ( bool pos, const modelCacheInterface* p )
+	void setCache ( bool pos, modelCacheInterface* p )
 	{
 		if ( pos )
 			pCache = p;

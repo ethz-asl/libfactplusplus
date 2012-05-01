@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2011 by Dmitry Tsarkov
+Copyright (C) 2003-2012 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -484,9 +484,9 @@ protected:	// methods
 		/// build cache suitable for classification
 	void prepareCascadedCache ( BipolarPointer p );
 		/// create cache for given DAG node bu building model; @return cache
-	const modelCacheInterface* buildCache ( BipolarPointer p );
+	modelCacheInterface* buildCache ( BipolarPointer p );
 		/// return cache of given completion tree (implementation)
-	const modelCacheInterface* createModelCache ( const DlCompletionTree* p ) const
+	modelCacheInterface* createModelCache ( const DlCompletionTree* p ) const
 		{ return new modelCacheIan ( DLHeap, p, encounterNominal, tBox.nC, tBox.nR ); }
 
 		/// check whether given NODE can be cached
@@ -949,7 +949,7 @@ public:
 		/// build cache entry for given DAG node, using cascaded schema; @return cache
 	const modelCacheInterface* createCache ( BipolarPointer p );
 		/// create model cache for the just-classified entry
-	const modelCacheInterface* buildCacheByCGraph ( bool sat ) const
+	modelCacheInterface* buildCacheByCGraph ( bool sat ) const
 	{
 		if ( sat )	// here we need actual (not a p-blocked) root of the tree
 			return createModelCache(getRootNode());

@@ -295,8 +295,7 @@ TBox :: isSatisfiable ( const TConcept* pConcept )
 	prepareFeatures ( pConcept, NULL );
 	bool result = getReasoner()->runSat ( pConcept->resolveId(), bpTOP );
 	// save cache
-	cache = getReasoner()->buildCacheByCGraph(result);
-	DLHeap.setCache ( pConcept->pName, cache );
+	DLHeap.setCache ( pConcept->pName, getReasoner()->buildCacheByCGraph(result) );
 	clearFeatures();
 
 	CHECK_LL_RETURN_VALUE(llSatResult,result);

@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2011 by Dmitry Tsarkov
+Copyright (C) 2003-2012 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -42,9 +42,8 @@ DlSatTester :: createCache ( BipolarPointer p )
 		return cache;
 
 	// need to build cache
-	cache = buildCache(p);
-	DLHeap.setCache ( p, cache );
-	return cache;
+	DLHeap.setCache ( p, buildCache(p) );
+	return DLHeap.getCache(p);
 }
 
 void
@@ -143,7 +142,7 @@ DlSatTester :: prepareCascadedCache ( BipolarPointer p )
 }
 
 /// build cache for given DAG node using SAT tests; @return cache
-const modelCacheInterface*
+modelCacheInterface*
 DlSatTester :: buildCache ( BipolarPointer p )
 {
 	if ( LLM.isWritable(llDagSat) )
