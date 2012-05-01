@@ -117,13 +117,7 @@ AtomicDecomposer :: getAOS ( TOntology* O, ModuleType t )
 	AOS = new AOStructure();
 
 	// init semantic locality checker
-	TOntology::iterator p, p_end = O->end();
-#ifdef RKG_USE_SEMANTIC_LOCALITY_CHECKER
-	TSignature OSig;
-	for ( p = O->begin(); p != p_end; ++p )
-		OSig.add(*(*p)->getSignature());
-	Modularizer.setOntologySig(OSig);
-#endif
+	Modularizer.preprocessOntology(O->getAxioms());
 
 	// we don't need tautologies here
 	removeTautologies(O);
@@ -142,7 +136,7 @@ AtomicDecomposer :: getAOS ( TOntology* O, ModuleType t )
 			BottomAtom->addAxiom(*q);
 
 	// create atoms for all the axioms in the ontology
-	for ( p = O->begin(); p != p_end; ++p )
+	for ( TOntology::iterator p = O->begin(), p_end = O->end(); p != p_end; ++p )
 		if ( (*p)->isUsed() && (*p)->getAtom() == NULL )
 			createAtom ( *p, rootAtom );
 

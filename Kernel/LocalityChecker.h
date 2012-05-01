@@ -72,7 +72,7 @@ public:		// interface
 		return isLocal;
 	}
 		/// fake method to match the semantic checker's interface
-	virtual void setOntologySig ( const TSignature& s ATTR_UNUSED ) {}
+	virtual void preprocessOntology ( const AxiomVec& s ATTR_UNUSED ) {}
 		/// checking locality of the whole ontology (not very useful, but is required by the interface)
 	virtual void visitOntology ( TOntology& ontology )
 	{

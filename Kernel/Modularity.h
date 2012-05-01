@@ -164,8 +164,8 @@ public:		// interface
 		nChecks += 2*p->nProcessedAx();
 		nNonLocal += p->getNonLocal(false).size() + p->getNonLocal(true).size();
 	}
-		/// set ontology signature to the checker if necessary
-	void setOntologySig ( const TSignature& Sig ) { Checker.setOntologySig(Sig); }
+		/// allow the checker to preprocess an ontology if necessary
+	void preprocessOntology ( const AxiomVec& vec ) { Checker.preprocessOntology(vec); }
 		/// extract module wrt SIGNATURE and TYPE from the set of axioms [BEGIN,END)
 	void extract ( const_iterator begin, const_iterator end, const TSignature& signature, ModuleType type )
 	{

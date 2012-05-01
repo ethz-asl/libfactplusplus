@@ -30,6 +30,32 @@ protected:	// members
 	ReasoningKernel Kernel;
 		/// Expression manager of a kernel
 	TExpressionManager* pEM;
+		/// map between axioms and concept expressions
+	std::map<const TDLAxiom*, const TDLConceptExpression*> ExprMap;
+
+protected:	// methods
+		/// @return expression necessary to build query for a given type of an axiom; @return NULL if none necessary
+	const TDLConceptExpression* getExpr ( const TDLAxiom* axiom )
+	{
+		if ( const TDLAxiomRelatedTo* art = dynamic_cast<const TDLAxiomRelatedTo*>(axiom) )
+			return pEM->Value ( art->getRelation(), art->getRelatedIndividual() );
+		if ( const TDLAxiomValueOf* avo = dynamic_cast<const TDLAxiomValueOf*>(axiom) )
+			return pEM->Value ( avo->getAttribute(), avo->getValue() );
+		if ( const TDLAxiomORoleDomain* ord = dynamic_cast<const TDLAxiomORoleDomain*>(axiom) )
+			return pEM->Exists ( ord->getRole(), pEM->Top() );
+		if ( const TDLAxiomORoleRange* orr = dynamic_cast<const TDLAxiomORoleRange*>(axiom) )
+			return pEM->Exists ( orr->getRole(), pEM->Not(orr->getRange()) );
+		if ( const TDLAxiomDRoleDomain* drd = dynamic_cast<const TDLAxiomDRoleDomain*>(axiom) )
+			return pEM->Exists ( drd->getRole(), pEM->DataTop() );
+		if ( const TDLAxiomDRoleRange* drr = dynamic_cast<const TDLAxiomDRoleRange*>(axiom) )
+			return pEM->Exists ( drr->getRole(), pEM->DataNot(drr->getRange()) );
+		if ( const TDLAxiomRelatedToNot* rtn = dynamic_cast<const TDLAxiomRelatedToNot*>(axiom) )
+			return pEM->Not ( pEM->Value ( rtn->getRelation(), rtn->getRelatedIndividual() ) );
+		if ( const TDLAxiomValueOfNot* von = dynamic_cast<const TDLAxiomValueOfNot*>(axiom) )
+			return pEM->Not ( pEM->Value ( von->getAttribute(), von->getValue() ) );
+		// everything else doesn't require expression to be build
+		return NULL;
+	}
 
 public:		// interface
 		/// init c'tor
@@ -46,9 +72,17 @@ public:		// interface
 		/// empty d'tor
 	virtual ~SemanticLocalityChecker ( void ) {}
 
-		/// init kernel with the ontology signature
-	virtual void setOntologySig ( const TSignature& s )
+		/// init kernel with the ontology signature and init expression map
+	virtual void preprocessOntology ( const AxiomVec& Axioms )
 	{
+		TSignature s;
+		ExprMap.clear();
+		for ( AxiomVec::const_iterator q = Axioms.begin(), q_end = Axioms.end(); q != q_end; ++q )
+		{
+			ExprMap[*q] = getExpr(*q);
+			s.add(*(*q)->getSignature());
+		}
+
 		Kernel.clearKB();
 		// register all the objects in the ontology signature
 		for ( TSignature::iterator p = s.begin(), p_end = s.end(); p != p_end; ++p )
@@ -158,11 +192,11 @@ public:		// visitor interface
 	}
 	virtual void visit ( const TDLAxiomDRoleSubsumption& axiom ) { isLocal = Kernel.isSubRoles ( axiom.getSubRole(), axiom.getRole() ); }
 		// Domain(R) = C is tautology iff ER.Top [= C
-	virtual void visit ( const TDLAxiomORoleDomain& axiom ) { isLocal = Kernel.isSubsumedBy ( pEM->Exists ( axiom.getRole(), pEM->Top() ), axiom.getDomain() ); }
-	virtual void visit ( const TDLAxiomDRoleDomain& axiom ) { isLocal = Kernel.isSubsumedBy ( pEM->Exists ( axiom.getRole(), pEM->DataTop() ), axiom.getDomain() ); }
+	virtual void visit ( const TDLAxiomORoleDomain& axiom ) { isLocal = Kernel.isSubsumedBy ( ExprMap[&axiom], axiom.getDomain() ); }
+	virtual void visit ( const TDLAxiomDRoleDomain& axiom ) { isLocal = Kernel.isSubsumedBy ( ExprMap[&axiom], axiom.getDomain() ); }
 		// Range(R) = C is tautology iff ER.~C is unsatisfiable
-	virtual void visit ( const TDLAxiomORoleRange& axiom ) { isLocal = !Kernel.isSatisfiable ( pEM->Exists ( axiom.getRole(), pEM->Not(axiom.getRange()) ) ); }
-	virtual void visit ( const TDLAxiomDRoleRange& axiom ) { isLocal = !Kernel.isSatisfiable ( pEM->Exists ( axiom.getRole(), pEM->DataNot(axiom.getRange()) ) ); }
+	virtual void visit ( const TDLAxiomORoleRange& axiom ) { isLocal = !Kernel.isSatisfiable(ExprMap[&axiom]); }
+	virtual void visit ( const TDLAxiomDRoleRange& axiom ) { isLocal = !Kernel.isSatisfiable(ExprMap[&axiom]); }
 	virtual void visit ( const TDLAxiomRoleTransitive& axiom ) { isLocal = Kernel.isTransitive(axiom.getRole()); }
 	virtual void visit ( const TDLAxiomRoleReflexive& axiom ) { isLocal = Kernel.isReflexive(axiom.getRole()); }
 	virtual void visit ( const TDLAxiomRoleIrreflexive& axiom ) { isLocal = Kernel.isIrreflexive(axiom.getRole()); }
@@ -176,13 +210,13 @@ public:		// visitor interface
 		// for top locality, this might be local
 	virtual void visit ( const TDLAxiomInstanceOf& axiom ) { isLocal = Kernel.isInstance ( axiom.getIndividual(), axiom.getC() ); }
 		// R(i,j) holds if {i} [= \ER.{j}
-	virtual void visit ( const TDLAxiomRelatedTo& axiom ) { isLocal = Kernel.isSubsumedBy ( pEM->OneOf(axiom.getIndividual()), pEM->Value ( axiom.getRelation(), axiom.getRelatedIndividual() ) ); }
+	virtual void visit ( const TDLAxiomRelatedTo& axiom ) { isLocal = Kernel.isSubsumedBy ( pEM->OneOf(axiom.getIndividual()), ExprMap[&axiom] ); }
 		///!R(i,j) holds if {i} [= \AR.!{j}=!\ER.{j}
-	virtual void visit ( const TDLAxiomRelatedToNot& axiom ) { isLocal = Kernel.isSubsumedBy ( pEM->OneOf(axiom.getIndividual()), pEM->Not ( pEM->Value ( axiom.getRelation(), axiom.getRelatedIndividual() ) ) ); }
+	virtual void visit ( const TDLAxiomRelatedToNot& axiom ) { isLocal = Kernel.isSubsumedBy ( pEM->OneOf(axiom.getIndividual()), ExprMap[&axiom] ); }
 		// R(i,v) holds if {i} [= \ER.{v}
-	virtual void visit ( const TDLAxiomValueOf& axiom ) { isLocal = Kernel.isSubsumedBy ( pEM->OneOf(axiom.getIndividual()), pEM->Value ( axiom.getAttribute(), axiom.getValue() ) ); }
+	virtual void visit ( const TDLAxiomValueOf& axiom ) { isLocal = Kernel.isSubsumedBy ( pEM->OneOf(axiom.getIndividual()), ExprMap[&axiom] ); }
 		// !R(i,v) holds if {i} [= !\ER.{v}
-	virtual void visit ( const TDLAxiomValueOfNot& axiom ) { isLocal = Kernel.isSubsumedBy ( pEM->OneOf(axiom.getIndividual()), pEM->Not ( pEM->Value ( axiom.getAttribute(), axiom.getValue() ) ) ); }
+	virtual void visit ( const TDLAxiomValueOfNot& axiom ) { isLocal = Kernel.isSubsumedBy ( pEM->OneOf(axiom.getIndividual()), ExprMap[&axiom] ); }
 }; // SemanticLocalityChecker
 
 #endif
