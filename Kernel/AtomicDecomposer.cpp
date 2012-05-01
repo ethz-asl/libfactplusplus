@@ -40,7 +40,7 @@ AtomicDecomposer :: removeTautologies ( TOntology* O )
 		if ( likely((*p)->isUsed()) )
 		{
 			// check whether an axiom is local wrt its own signature
-			Modularizer.extract ( p, p+1, *(*p)->getSignature(), type );
+			Modularizer.extract ( p, p+1, (*p)->getSignature(), type );
 			if ( unlikely(!(*p)->isInModule()) )
 			{
 				Tautologies.push_back(*p);
@@ -83,7 +83,7 @@ AtomicDecomposer :: createAtom ( TDLAxiom* ax, TOntologyAtom* parent )
 	if ( ax->getAtom() != NULL )
 		return const_cast<TOntologyAtom*>(ax->getAtom());
 	// build an atom: use a module to find atomic dependencies
-	TOntologyAtom* atom = buildModule( *ax->getSignature(), parent );
+	TOntologyAtom* atom = buildModule( ax->getSignature(), parent );
 	// no empty modules should be here
 	fpp_assert ( atom != NULL );
 	// register axiom as a part of an atom

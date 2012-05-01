@@ -213,11 +213,11 @@ public:		// interface
 
 	// signature access
 
-	TSignature* getSignature ( void )
+	const TSignature& getSignature ( void )
 	{
 		if ( sig == NULL )	// 1st access: build it
 			buildSignature();
-		return sig;
+		return *sig;
 	}
 
 	// ontological atomic structure management

@@ -111,7 +111,7 @@ protected:	// methods
 		/// create a signature of a module corresponding to a new axiom in record
 	void buildSig ( TRecord* rec )
 	{
-		sig = *rec->newAxiom->getSignature();
+		sig = rec->newAxiom->getSignature();
 		mod.extract ( *O, sig, M_STAR );	// build a module/signature for the axiom
 		rec->newAxSig = mod.getSignature();	// FIXME!! check that SIG wouldn't change after some axiom retractions
 		rec->Module.clear();

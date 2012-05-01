@@ -80,7 +80,7 @@ public:		// interface
 		for ( AxiomVec::const_iterator q = Axioms.begin(), q_end = Axioms.end(); q != q_end; ++q )
 		{
 			ExprMap[*q] = getExpr(*q);
-			s.add(*(*q)->getSignature());
+			s.add((*q)->getSignature());
 		}
 
 		Kernel.clearKB();

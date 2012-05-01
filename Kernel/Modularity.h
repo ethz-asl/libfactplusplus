@@ -70,7 +70,7 @@ protected:	// methods
 		axiom->setInModule(true);
 		Module.push_back(axiom);
 		// update the signature
-		addAxiomSig(*axiom->getSignature());
+		addAxiomSig(axiom->getSignature());
 	}
 		/// @return true iff an AXiom is non-local
 	bool isNonLocal ( const TDLAxiom* ax )

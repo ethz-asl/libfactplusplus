@@ -84,7 +84,7 @@ public:		// interface
 		/// register an axiom
 	void registerAx ( TDLAxiom* ax )
 	{
-		for ( TSignature::iterator p = ax->getSignature()->begin(), p_end = ax->getSignature()->end(); p != p_end; ++p )
+		for ( TSignature::iterator p = ax->getSignature().begin(), p_end = ax->getSignature().end(); p != p_end; ++p )
 			add ( Base[*p], ax );
 		// check whether the axiom is non-local
 		checkNonLocal ( ax, /*top=*/false );
@@ -94,7 +94,7 @@ public:		// interface
 		/// unregister an axiom AX
 	void unregisterAx ( TDLAxiom* ax )
 	{
-		for ( TSignature::iterator p = ax->getSignature()->begin(), p_end = ax->getSignature()->end(); p != p_end; ++p )
+		for ( TSignature::iterator p = ax->getSignature().begin(), p_end = ax->getSignature().end(); p != p_end; ++p )
 			remove ( Base[*p], ax );
 		// remove from the non-locality
 		remove ( NonLocal[false], ax );
