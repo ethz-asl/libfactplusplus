@@ -994,8 +994,8 @@ public:
 		preprocessKB();
 		if ( isNameOrConst(D) && likely(isNameOrConst(C)) )
 			return checkSub ( getTBox()->getCI(TreeDeleter(e(C))), getTBox()->getCI(TreeDeleter(e(D))) );
-
-		return !checkSat ( getExpressionManager()->And ( C, getExpressionManager()->Not(D) ) );
+	    DLTree *nD = createSNFNot(e(D));
+	    return !checkSatTree ( createSNFAnd (e(C), nD) );
 	}
 		/// @return true iff C is disjoint with D; that is, (C and D) is unsatisfiable
 	bool isDisjoint ( const TConceptExpr* C, const TConceptExpr* D ) { return !isSatisfiable(getExpressionManager()->And(C,D)); }
