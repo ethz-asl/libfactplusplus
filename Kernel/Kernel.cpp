@@ -337,6 +337,9 @@ ReasoningKernel :: checkSub ( TConcept* C, TConcept* D )
 			// C [= D iff D = \top, or ~D = \bottom
 			return !checkSatTree(createSNFNot(getTBox()->getTree(C)));
 	// here C and D are known (not fresh)
+	// check the obvious ones
+	if ( unlikely(D->isTop()) || unlikely(C->isBottom()) )
+		return true;
 	if ( getStatus() < kbClassified )	// unclassified => do via SAT test
 		return getTBox()->isSubHolds ( C, D );
 	// classified => do the taxonomy traversal
