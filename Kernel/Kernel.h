@@ -287,6 +287,10 @@ protected:	// methods
 		/// @return true iff C is satisfiable
 	bool checkSatTree ( DLTree* C )
 	{
+		if ( unlikely(C->Element().getToken() == TOP) )
+			return true;
+		if ( unlikely(C->Element().getToken() == BOTTOM) )
+			return false;
 		setUpCache ( C, csSat );
 		return getTBox()->isSatisfiable(cachedConcept);
 	}
