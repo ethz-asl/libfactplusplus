@@ -210,13 +210,13 @@ public:		// visitor interface
 		// for top locality, this might be local
 	virtual void visit ( const TDLAxiomInstanceOf& axiom ) { isLocal = Kernel.isInstance ( axiom.getIndividual(), axiom.getC() ); }
 		// R(i,j) holds if {i} [= \ER.{j}
-	virtual void visit ( const TDLAxiomRelatedTo& axiom ) { isLocal = Kernel.isSubsumedBy ( pEM->OneOf(axiom.getIndividual()), ExprMap[&axiom] ); }
+	virtual void visit ( const TDLAxiomRelatedTo& axiom ) { isLocal = Kernel.isInstance ( axiom.getIndividual(), ExprMap[&axiom] ); }
 		///!R(i,j) holds if {i} [= \AR.!{j}=!\ER.{j}
-	virtual void visit ( const TDLAxiomRelatedToNot& axiom ) { isLocal = Kernel.isSubsumedBy ( pEM->OneOf(axiom.getIndividual()), ExprMap[&axiom] ); }
+	virtual void visit ( const TDLAxiomRelatedToNot& axiom ) { isLocal = Kernel.isInstance ( axiom.getIndividual(), ExprMap[&axiom] ); }
 		// R(i,v) holds if {i} [= \ER.{v}
-	virtual void visit ( const TDLAxiomValueOf& axiom ) { isLocal = Kernel.isSubsumedBy ( pEM->OneOf(axiom.getIndividual()), ExprMap[&axiom] ); }
+	virtual void visit ( const TDLAxiomValueOf& axiom ) { isLocal = Kernel.isInstance ( axiom.getIndividual(), ExprMap[&axiom] ); }
 		// !R(i,v) holds if {i} [= !\ER.{v}
-	virtual void visit ( const TDLAxiomValueOfNot& axiom ) { isLocal = Kernel.isSubsumedBy ( pEM->OneOf(axiom.getIndividual()), ExprMap[&axiom] ); }
+	virtual void visit ( const TDLAxiomValueOfNot& axiom ) { isLocal = Kernel.isInstance ( axiom.getIndividual(), ExprMap[&axiom] ); }
 }; // SemanticLocalityChecker
 
 #endif
