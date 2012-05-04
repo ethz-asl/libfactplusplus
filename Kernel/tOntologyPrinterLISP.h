@@ -20,6 +20,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #define TONTOLOGYPRINTERLISP_H
 
 #include "tExpressionPrinterLISP.h"
+#include "tDLAxiom.h"
+#include "tOntology.h"
 
 class TLISPOntologyPrinter: public DLAxiomVisitor
 {
