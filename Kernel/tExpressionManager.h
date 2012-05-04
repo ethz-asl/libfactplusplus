@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2010-2011 by Dmitry Tsarkov
+Copyright (C) 2010-2012 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -24,18 +24,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "tNAryQueue.h"
 #include "tDataTypeManager.h"
 #include "tHeadTailCache.h"
-
-inline TDLDataTypeName* getBasicDataType ( TDLDataTypeExpression* type )
-{
-	TDLDataTypeName* ret = dynamic_cast<TDLDataTypeName*>(type);
-	if ( ret == NULL )
-	{
-		TDLDataTypeRestriction* hostType = dynamic_cast<TDLDataTypeRestriction*>(type);
-		fpp_assert ( hostType != NULL );
-		ret = const_cast<TDLDataTypeName*>(hostType->getExpr());
-	}
-	return ret;
-}
 
 /// manager to work with all DL expressions in the kernel
 class TExpressionManager

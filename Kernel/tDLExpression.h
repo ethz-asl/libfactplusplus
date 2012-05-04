@@ -1543,4 +1543,18 @@ public:		// interface
 	void accept ( DLExpressionVisitor& visitor ) const { visitor.visit(*this); }
 }; // TDLDataTypeName
 
+/// @return named data type that is the most basic datatype underlying TYPE
+inline TDLDataTypeName*
+getBasicDataType ( TDLDataTypeExpression* type )
+{
+	TDLDataTypeName* ret = dynamic_cast<TDLDataTypeName*>(type);
+	if ( ret == NULL )
+	{
+		TDLDataTypeRestriction* hostType = dynamic_cast<TDLDataTypeRestriction*>(type);
+		fpp_assert ( hostType != NULL );
+		ret = const_cast<TDLDataTypeName*>(hostType->getExpr());
+	}
+	return ret;
+}
+
 #endif
