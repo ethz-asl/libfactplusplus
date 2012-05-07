@@ -997,6 +997,10 @@ applyLE:	// skip init, because here we are after restoring
 		// fast check for from->end() and to->end() are in \neq
 		if ( CGraph.nonMergable ( from->getArcEnd(), to->getArcEnd(), dep ) )
 		{
+			// need this for merging two nominal nodes
+			dep.add(from->getDep());
+			dep.add(to->getDep());
+			// add dep-set from labels
 			if ( C == bpTOP )	// dep-set is known now
 				setClashSet(dep);
 			else	// QCR: update dep-set wrt C
