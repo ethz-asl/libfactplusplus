@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2011 by Dmitry Tsarkov
+Copyright (C) 2003-2012 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -687,7 +687,11 @@ void DlSatTester :: logStartEntry ( void ) const
 	LL << "," << curConcept << "){";
 	if ( isNegative (curConcept.bp()) )
 		LL << "~";
-	LL << DLHeap[curConcept].getTagName() << "}:";
+	const DLVertex& v = DLHeap[curConcept];
+	LL << v.getTagName();
+	if ( const TNamedEntry* entry = v.getConcept() )
+		LL << "(" << entry->getName() << ")";
+	LL << "}:";
 }
 
 void DlSatTester :: logFinishEntry ( bool res ) const
