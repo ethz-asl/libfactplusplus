@@ -10,6 +10,7 @@ USE_IL = ../Kernel
 SOURCES = \
           scanner.cpp\
           parser.cpp\
+          AD.cpp\
           FaCT.cpp
 
 include ../Makefile.include
