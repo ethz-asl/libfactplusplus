@@ -62,7 +62,7 @@ public:		// interface
 		, Index(0)
 		{}
 		/// D'tor
-	~ClassifiableEntry ( void ) {}
+	virtual ~ClassifiableEntry ( void ) {}
 
 	// taxonomy entry access
 

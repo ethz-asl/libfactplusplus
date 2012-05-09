@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2011 by Dmitry Tsarkov
+Copyright (C) 2003-2012 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -167,7 +167,7 @@ void TBox :: addConceptToHeap ( TConcept* pConcept )
 	// update concept's entry
 	pConcept->pBody = desc;
 	ver->setChild(desc);
-	if ( !pConcept->isSynonym() )
+	if ( !pConcept->isSynonym() && pConcept->index() == 0 )
 		setConceptIndex(pConcept);
 }
 
