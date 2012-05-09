@@ -288,9 +288,15 @@ protected:	// methods
 	bool checkSatTree ( DLTree* C )
 	{
 		if ( unlikely(C->Element().getToken() == TOP) )
+		{
+			deleteTree(C);
 			return true;
+		}
 		if ( unlikely(C->Element().getToken() == BOTTOM) )
+		{
+			deleteTree(C);
 			return false;
+		}
 		setUpCache ( C, csSat );
 		return getTBox()->isSatisfiable(cachedConcept);
 	}
