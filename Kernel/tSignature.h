@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2011 by Dmitry Tsarkov
+Copyright (C) 2011-2012 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -35,18 +35,22 @@ public:		// types
 protected:	// members
 		/// set to keep all the elements in signature
 	BaseType Set;
-		/// true if TOP-locality; false if BOTTOM-locality
-	bool topLocality;
+		/// true if concept TOP-locality; false if concept BOTTOM-locality
+	bool topCLocality;
+		/// true if role TOP-locality; false if role BOTTOM-locality
+	bool topRLocality;
 
 public:		// interface
 		/// empty c'tor
-	TSignature ( void ) {}
+	TSignature ( void ) : topCLocality(false), topRLocality(false) {}
 		/// copy c'tor
-	TSignature ( const TSignature& copy ) : Set(copy.Set) {}
+	TSignature ( const TSignature& copy ) : Set(copy.Set), topCLocality(copy.topCLocality), topRLocality(copy.topRLocality) {}
 		/// assignment
 	TSignature& operator= ( const TSignature& copy )
 	{
 		Set = copy.Set;
+		topCLocality = copy.topCLocality;
+		topRLocality = copy.topRLocality;
 		return *this;
 	}
 		/// empty d'tor
@@ -63,7 +67,9 @@ public:		// interface
 		/// remove given element from a signature
 	void remove ( const TNamedEntity* p ) { Set.erase(p); }
 		/// set new locality polarity
-	void setLocality ( bool top ) { topLocality = top; }
+	void setLocality ( bool topC, bool topR ) { topCLocality = topC; topRLocality = topR; }
+		/// set new locality polarity
+	void setLocality ( bool top ) { setLocality ( top, top ); }
 
 	// comparison
 
@@ -98,9 +104,13 @@ public:		// interface
 	iterator end ( void ) const { return Set.end(); }
 
 		/// @return true iff concepts are treated as TOPs
-	bool topCLocal ( void ) const { return topLocality; }
+	bool topCLocal ( void ) const { return topCLocality; }
+		/// @return true iff concepts are treated as BOTTOMs
+	bool botCLocal ( void ) const { return !topCLocality; }
 		/// @return true iff roles are treated as TOPs
-	bool topRLocal ( void ) const { return topLocality; }
+	bool topRLocal ( void ) const { return topRLocality; }
+		/// @return true iff roles are treated as BOTTOMs
+	bool botRLocal ( void ) const { return !topRLocality; }
 }; // TSignature
 
 inline std::vector<const TNamedEntity*>
