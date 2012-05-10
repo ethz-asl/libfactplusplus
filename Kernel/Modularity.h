@@ -24,7 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "tOntology.h"
 #include "SigIndex.h"
 
-enum ModuleType { M_TOP, M_BOT, M_STAR };
+#include "ModuleType.h"
 
 /// class to create modules of an ontology wrt module type
 template<class LocalityChecker>

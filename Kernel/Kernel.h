@@ -30,7 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "tOntology.h"
 #include "KnowledgeExplorer.h"
 #include "tOntologyAtom.h"	// types for AD
-#include "Modularity.h"		// ModuleType
+#include "ModuleType.h"
 
 class AtomicDecomposer;
 
@@ -1004,8 +1004,8 @@ public:
 		preprocessKB();
 		if ( isNameOrConst(D) && likely(isNameOrConst(C)) )
 			return checkSub ( getTBox()->getCI(TreeDeleter(e(C))), getTBox()->getCI(TreeDeleter(e(D))) );
-	    DLTree *nD = createSNFNot(e(D));
-	    return !checkSatTree ( createSNFAnd (e(C), nD) );
+		DLTree* nD = createSNFNot(e(D));
+		return !checkSatTree ( createSNFAnd (e(C), nD) );
 	}
 		/// @return true iff C is disjoint with D; that is, (C and D) is unsatisfiable
 	bool isDisjoint ( const TConceptExpr* C, const TConceptExpr* D ) { return !isSatisfiable(getExpressionManager()->And(C,D)); }
