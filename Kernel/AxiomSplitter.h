@@ -72,7 +72,7 @@ protected:	// members
 	std::map<const TDLConceptName*, std::set<TDLAxiomConceptInclusion*> > ImplNames;
 	TLISPOntologyPrinter pr;
 	int newNameId;
-	TModularizer<SyntacticLocalityChecker> mod;
+	TModularizer mod;
 	TSignature sig;	// seed signature
 	std::set<TSplitVar*> RejSplits;
 	TOntology* O;
@@ -328,7 +328,7 @@ protected:	// methods
 
 public:		// interaface
 		/// init c'tor
-	TAxiomSplitter ( TOntology* o ) : pr(std::cout), newNameId(0), O(o)
+	TAxiomSplitter ( TOntology* o ) : pr(std::cout), newNameId(0), mod(/*useSem=*/false), O(o)
 	{
 		sigIndex.processRange ( o->begin(), o->end() );
 		mod.setSigIndex(&sigIndex);

@@ -38,7 +38,7 @@ ReasoningKernel Kernel;
 std::ofstream Out;
 
 // defined in AD.cpp
-void CreateAD ( TOntology* O );
+void CreateAD ( TOntology* O, bool useSem );
 
 // local methods
 inline void Usage ( void )
@@ -258,9 +258,13 @@ int main ( int argc, char *argv[] )
 
 	Out << "loading time " << wTimer << " seconds\n";
 
+	bool useSem = false;
+	if ( argc > 1 && argv[1][0] == 'n' )
+		useSem = true;
+
 	if ( Kernel.getOptions()->getBool("checkAD") )	// check atomic decomposition and exit
 	{
-		CreateAD(&Kernel.getOntology());
+		CreateAD(&Kernel.getOntology(), useSem);
 		return 0;
 	}
 

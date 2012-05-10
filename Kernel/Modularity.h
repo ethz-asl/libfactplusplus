@@ -23,11 +23,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "tOntology.h"
 #include "SigIndex.h"
+// locality checking
+#include "SemanticLocalityChecker.h"
+#include "SyntacticLocalityChecker.h"
 
 #include "ModuleType.h"
 
 /// class to create modules of an ontology wrt module type
-template<class LocalityChecker>
 class TModularizer
 {
 protected:	// types
@@ -38,7 +40,7 @@ protected:	// members
 		/// shared signature signature
 	TSignature sig;
 		/// internal syntactic locality checker
-	LocalityChecker Checker;
+	LocalityChecker* Checker;
 		/// module as a list of axioms
 	AxiomVec Module;
 		/// pointer to a sig index; if not NULL then use optimized algo
@@ -76,7 +78,7 @@ protected:	// methods
 	bool isNonLocal ( const TDLAxiom* ax )
 	{
 		++nChecks;
-		if ( Checker.local(ax) )
+		if ( Checker->local(ax) )
 			return false;
 		++nNonLocal;
 		return true;
@@ -148,14 +150,18 @@ protected:	// methods
 
 public:		// interface
 		/// init c'tor
-	TModularizer ( void )
-		: Checker(&sig)
-		, sigIndex(NULL)
+	TModularizer ( bool useSem )
+		: sigIndex(NULL)
 		, nChecks(0)
 		, nNonLocal(0)
-		{}
+	{
+		if ( useSem )
+			Checker = new SemanticLocalityChecker(&sig);
+		else
+			Checker = new SyntacticLocalityChecker(&sig);
+	}
 		// d'tor
-	~TModularizer ( void ) { delete sigIndex; }
+	~TModularizer ( void ) { delete sigIndex; delete Checker; }
 
 		/// set sig index to a given value
 	void setSigIndex ( SigIndex* p )
@@ -165,7 +171,7 @@ public:		// interface
 		nNonLocal += p->getNonLocal(false).size() + p->getNonLocal(true).size();
 	}
 		/// allow the checker to preprocess an ontology if necessary
-	void preprocessOntology ( const AxiomVec& vec ) { Checker.preprocessOntology(vec); }
+	void preprocessOntology ( const AxiomVec& vec ) { Checker->preprocessOntology(vec); }
 		/// extract module wrt SIGNATURE and TYPE from the set of axioms [BEGIN,END)
 	void extract ( const_iterator begin, const_iterator end, const TSignature& signature, ModuleType type )
 	{

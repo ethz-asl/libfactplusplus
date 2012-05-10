@@ -23,15 +23,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "tSignature.h"
 #include "Modularity.h"
 
-// un-comment the following line to use semantic rather than syntactic locality checker
-//#define RKG_USE_SEMANTIC_LOCALITY_CHECKER
-
-#ifdef RKG_USE_SEMANTIC_LOCALITY_CHECKER
-#	include "SemanticLocalityChecker.h"
-#else
-#	include "SyntacticLocalityChecker.h"
-#endif
-
 class ProgressIndicatorInterface;
 
 /// atomical ontology structure
@@ -92,13 +83,7 @@ protected:	// members
 		/// atomic structure to build
 	AOStructure* AOS;
 		/// modularizer to build modules
-	TModularizer<
-#ifdef RKG_USE_SEMANTIC_LOCALITY_CHECKER
-		SemanticLocalityChecker
-#else
-		SyntacticLocalityChecker
-#endif
-	> Modularizer;
+	TModularizer Modularizer;
 		/// tautologies of the ontology
 	AxiomVec Tautologies;
 		/// progress indicator
@@ -131,7 +116,7 @@ protected:	// methods
 
 public:		// interface
 		/// init c'tor
-	AtomicDecomposer ( void ) : AOS(NULL), PI(NULL), rootAtom(NULL) {}
+	AtomicDecomposer ( bool useSem ) : AOS(NULL), Modularizer(useSem), PI(NULL), rootAtom(NULL) {}
 		/// d'tor
 	~AtomicDecomposer ( void );
 
