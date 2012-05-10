@@ -198,8 +198,8 @@ public:		// interface
 	 		extractModule ( oldModule.begin(), oldModule.end() );
 		} while ( size != Module.size() );
 	}
-		/// extract module wrt SIGNATURE and TYPE from the axiom vector VEC; @return result in the Set
-	void extract ( const AxiomVec& Vec, const TSignature& signature, ModuleType type, std::set<TDLAxiom*>& Set )
+		/// extract module wrt SIGNATURE and TYPE from the axiom vector VEC
+	void extract ( const AxiomVec& Vec, const TSignature& signature, ModuleType type )
 		{ extract ( Vec.begin(), Vec.end(), signature, type ); }
 		/// extract module wrt SIGNATURE and TYPE from O
 	void extract ( TOntology& O, const TSignature& signature, ModuleType type )
