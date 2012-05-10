@@ -189,6 +189,8 @@ protected:	// members
 	bool NeedTracing;
 		/// whether axiom splitting should be used
 	bool useAxiomSplitting;
+		/// ignore cache for the TExpr* (useful for semantic AD)
+	bool ignoreExprCache;
 
 private:	// no copy
 		/// no copy c'tor
@@ -241,7 +243,7 @@ protected:	// methods
 		/// set query cache value to QUERY
 	void setQueryCache ( DLTree* query ) { clearQueryCache(); cachedQueryTree = query; }
 		/// check whether query cache is the same as QUERY
-	bool checkQueryCache ( TConceptExpr* query ) const { return cachedQuery == query; }
+	bool checkQueryCache ( TConceptExpr* query ) const { return ignoreExprCache ? false : cachedQuery == query; }
 		/// check whether query cache is the same as QUERY
 	bool checkQueryCache ( DLTree* query ) const { return equalTrees ( cachedQueryTree, query ); }
 		/// classify query; cache is ready at the point. NAMED means whether concept is just a name
@@ -562,6 +564,8 @@ public:	// general staff
 	}
 		/// choose whether axiom splitting should be used
 	void setAxiomSplitting ( bool value ) { useAxiomSplitting = value; }
+		/// choose whether TExpr cache should be ignored
+	void setIgnoreExprCache ( bool value ) { ignoreExprCache = value; }
 		/// set the signature of the expression translator
 	void setSignature ( const TSignature* sig ) { if ( pET != NULL ) pET->setSignature(sig); }
 

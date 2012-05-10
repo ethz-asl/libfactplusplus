@@ -49,6 +49,7 @@ ReasoningKernel :: ReasoningKernel ( void )
 	, cachedQuery(NULL)
 	, cachedQueryTree(NULL)
 	, useAxiomSplitting(false)
+	, ignoreExprCache(false)
 {
 	// Intro
 	if ( KernelFirstRun )

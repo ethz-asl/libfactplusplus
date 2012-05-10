@@ -91,6 +91,8 @@ public:		// interface
 		Kernel.realiseKB();
 		// after TBox appears there, set signature to translate
 		Kernel.setSignature(getSignature());
+		// disallow usage of the expression cache as same expressions will lead to different translations
+		Kernel.setIgnoreExprCache(true);
 	}
 
 public:		// visitor interface
