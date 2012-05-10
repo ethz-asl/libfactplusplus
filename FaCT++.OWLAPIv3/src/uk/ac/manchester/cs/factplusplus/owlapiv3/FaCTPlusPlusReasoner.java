@@ -5,17 +5,13 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import javax.xml.datatype.DatatypeConfigurationException;
-import javax.xml.datatype.DatatypeConstants;
-import javax.xml.datatype.DatatypeFactory;
-import javax.xml.datatype.XMLGregorianCalendar;
+import javax.xml.datatype.*;
 
 import org.semanticweb.owlapi.model.*;
 import org.semanticweb.owlapi.reasoner.*;
 import org.semanticweb.owlapi.reasoner.impl.*;
 import org.semanticweb.owlapi.util.Version;
-import org.semanticweb.owlapi.vocab.OWL2Datatype;
-import org.semanticweb.owlapi.vocab.OWLFacet;
+import org.semanticweb.owlapi.vocab.*;
 
 import uk.ac.manchester.cs.factplusplus.*;
 
@@ -46,15 +42,14 @@ import uk.ac.manchester.cs.factplusplus.*;
  * The University of Manchester<br>
  * Information Management Group<br>
  * Date: 29-Dec-2009
- *
+ * 
  * Synchronization policy: all methods for OWLReasoner are synchronized, except
  * the methods which do not touch the kernel or only affect threadsafe data
  * structures. inner private classes are not synchronized since methods from
  * those classes cannot be invoked from outsize synchronized methods.
- *
+ * 
  */
-public class FaCTPlusPlusReasoner implements OWLReasoner,
-		OWLOntologyChangeListener {
+public class FaCTPlusPlusReasoner implements OWLReasoner, OWLOntologyChangeListener {
 	public static final String REASONER_NAME = "FaCT++";
 	public static final Version VERSION = new Version(1, 5, 3, 0);
 	protected final AtomicBoolean interrupted = new AtomicBoolean(false);
@@ -68,23 +63,20 @@ public class FaCTPlusPlusReasoner implements OWLReasoner,
 	private volatile EntailmentChecker entailmentChecker;
 	private final Map<OWLAxiom, AxiomPointer> axiom2PtrMap = new HashMap<OWLAxiom, AxiomPointer>();
 	private final Map<AxiomPointer, OWLAxiom> ptr2AxiomMap = new HashMap<AxiomPointer, OWLAxiom>();
-	private static final Set<InferenceType> SupportedInferenceTypes = new HashSet<InferenceType>(
-			Arrays.asList(InferenceType.CLASS_ASSERTIONS,
-					InferenceType.CLASS_HIERARCHY,
-					InferenceType.DATA_PROPERTY_HIERARCHY,
-					InferenceType.OBJECT_PROPERTY_HIERARCHY,
-					InferenceType.SAME_INDIVIDUAL));
+	private static final Set<InferenceType> SupportedInferenceTypes = new HashSet<InferenceType>(Arrays.asList(
+			InferenceType.CLASS_ASSERTIONS, InferenceType.CLASS_HIERARCHY, InferenceType.DATA_PROPERTY_HIERARCHY,
+			InferenceType.OBJECT_PROPERTY_HIERARCHY, InferenceType.SAME_INDIVIDUAL));
 	private final OWLOntologyManager manager;
 	private final OWLOntology rootOntology;
 	private final BufferingMode bufferingMode;
 	private final List<OWLOntologyChange> rawChanges = new ArrayList<OWLOntologyChange>();
-	//private final ReentrantReadWriteLock rawChangesLock = new ReentrantReadWriteLock();
+	// private final ReentrantReadWriteLock rawChangesLock = new
+	// ReentrantReadWriteLock();
 	private final List<OWLAxiom> reasonerAxioms = new ArrayList<OWLAxiom>();
 	private final long timeOut;
 	private final OWLReasonerConfiguration configuration;
 
-	public void ontologiesChanged(List<? extends OWLOntologyChange> changes)
-			throws OWLException {
+	public void ontologiesChanged(List<? extends OWLOntologyChange> changes) throws OWLException {
 		handleRawOntologyChanges(changes);
 	}
 
@@ -109,17 +101,16 @@ public class FaCTPlusPlusReasoner implements OWLReasoner,
 	 * then the changes will be stored in a buffer. If the reasoner is a
 	 * non-buffering reasoner then the changes will be automatically flushed
 	 * through to the change filter and passed on to the reasoner.
-	 *
+	 * 
 	 * @param changes
 	 *            The list of raw changes.
 	 */
 	private final boolean log = false;
 
-	private synchronized void handleRawOntologyChanges(
-			List<? extends OWLOntologyChange> changes) {
+	private synchronized void handleRawOntologyChanges(List<? extends OWLOntologyChange> changes) {
 		if (log) {
-			System.out.println(Thread.currentThread().getName()
-					+ " OWLReasonerBase.handleRawOntologyChanges() " + changes);
+			System.out.println(Thread.currentThread().getName() + " OWLReasonerBase.handleRawOntologyChanges() "
+					+ changes);
 		}
 		rawChanges.addAll(changes);
 		// We auto-flush the changes if the reasoner is non-buffering
@@ -177,7 +168,7 @@ public class FaCTPlusPlusReasoner implements OWLReasoner,
 	 * removed from the list of pending changes. Note that even if the list of
 	 * pending changes is non-empty then there may be no changes for the
 	 * reasoner to deal with.
-	 *
+	 * 
 	 * @param added
 	 *            The logical axioms that have been added to the imports closure
 	 *            of the reasoner root ontology
@@ -185,8 +176,7 @@ public class FaCTPlusPlusReasoner implements OWLReasoner,
 	 *            The logical axioms that have been removed from the imports
 	 *            closure of the reasoner root ontology
 	 */
-	private synchronized void computeDiff(Set<OWLAxiom> added,
-			Set<OWLAxiom> removed) {
+	private synchronized void computeDiff(Set<OWLAxiom> added, Set<OWLAxiom> removed) {
 		for (OWLOntology ont : rootOntology.getImportsClosure()) {
 			for (OWLAxiom ax : ont.getLogicalAxioms()) {
 				if (!reasonerAxioms.contains(ax.getAxiomWithoutAnnotations())) {
@@ -208,7 +198,7 @@ public class FaCTPlusPlusReasoner implements OWLReasoner,
 
 	/**
 	 * Gets the axioms that should be currently being reasoned over.
-	 *
+	 * 
 	 * @return A collections of axioms (not containing duplicates) that the
 	 *         reasoner should be taking into consideration when reasoning. This
 	 *         set of axioms many not correspond to the current state of the
@@ -231,8 +221,8 @@ public class FaCTPlusPlusReasoner implements OWLReasoner,
 		return rootOntology.getOWLOntologyManager().getOWLDataFactory();
 	}
 
-	public FaCTPlusPlusReasoner(OWLOntology rootOntology,
-			OWLReasonerConfiguration configuration, BufferingMode bufferingMode) {
+	public FaCTPlusPlusReasoner(OWLOntology rootOntology, OWLReasonerConfiguration configuration,
+			BufferingMode bufferingMode) {
 		this.rootOntology = rootOntology;
 		this.bufferingMode = bufferingMode;
 		this.configuration = configuration;
@@ -253,10 +243,8 @@ public class FaCTPlusPlusReasoner implements OWLReasoner,
 		dataPropertyTranslator = new DataPropertyTranslator();
 		individualTranslator = new IndividualTranslator();
 		entailmentChecker = new EntailmentChecker();
-		kernel.setTopBottomPropertyNames(
-				"http://www.w3.org/2002/07/owl#topObjectProperty",
-				"http://www.w3.org/2002/07/owl#bottomObjectProperty",
-				"http://www.w3.org/2002/07/owl#topDataProperty",
+		kernel.setTopBottomPropertyNames("http://www.w3.org/2002/07/owl#topObjectProperty",
+				"http://www.w3.org/2002/07/owl#bottomObjectProperty", "http://www.w3.org/2002/07/owl#topDataProperty",
 				"http://www.w3.org/2002/07/owl#bottomDataProperty");
 		kernel.setProgressMonitor(new ProgressMonitorAdapter(configuration.getProgressMonitor(), interrupted));
 		long millis = configuration.getTimeOut();
@@ -267,11 +255,11 @@ public class FaCTPlusPlusReasoner implements OWLReasoner,
 		loadReasonerAxioms();
 	}
 
-	///////////////////////////////////////////////////////////////////////////
+	// /////////////////////////////////////////////////////////////////////////
 	//
-	//  load/retract axioms
+	// load/retract axioms
 	//
-	///////////////////////////////////////////////////////////////////////////
+	// /////////////////////////////////////////////////////////////////////////
 	private void loadAxiom(OWLAxiom axiom) {
 		if (axiom2PtrMap.containsKey(axiom)) {
 			return;
@@ -296,14 +284,13 @@ public class FaCTPlusPlusReasoner implements OWLReasoner,
 	 * Asks the reasoner implementation to handle axiom additions and removals
 	 * from the imports closure of the root ontology. The changes will not
 	 * include annotation axiom additions and removals.
-	 *
+	 * 
 	 * @param addAxioms
 	 *            The axioms to be added to the reasoner.
 	 * @param removeAxioms
 	 *            The axioms to be removed from the reasoner
 	 */
-	protected void handleChanges(Set<OWLAxiom> addAxioms,
-			Set<OWLAxiom> removeAxioms) {
+	protected void handleChanges(Set<OWLAxiom> addAxioms, Set<OWLAxiom> removeAxioms) {
 		kernel.startChanges();
 		for (OWLAxiom ax_a : addAxioms)
 			loadAxiom(ax_a);
@@ -313,8 +300,7 @@ public class FaCTPlusPlusReasoner implements OWLReasoner,
 	}
 
 	private void loadReasonerAxioms() {
-		getReasonerConfiguration().getProgressMonitor().reasonerTaskStarted(
-				ReasonerProgressMonitor.LOADING);
+		getReasonerConfiguration().getProgressMonitor().reasonerTaskStarted(ReasonerProgressMonitor.LOADING);
 		getReasonerConfiguration().getProgressMonitor().reasonerTaskBusy();
 		kernel.clearKernel();
 		axiomTranslator = new AxiomTranslator();
@@ -331,18 +317,18 @@ public class FaCTPlusPlusReasoner implements OWLReasoner,
 		getReasonerConfiguration().getProgressMonitor().reasonerTaskStopped();
 	}
 
-	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	//////
-	//////
-	//////  Implementation of reasoner interfaces
-	//////
-	//////
-	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// ////
+	// ////
+	// //// Implementation of reasoner interfaces
+	// ////
+	// ////
+	// /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	public String getReasonerName() {
 		return REASONER_NAME;
 	}
@@ -356,9 +342,8 @@ public class FaCTPlusPlusReasoner implements OWLReasoner,
 	}
 
 	// precompute inferences
-	public synchronized void precomputeInferences(InferenceType... inferenceTypes)
-			throws ReasonerInterruptedException, TimeOutException,
-			InconsistentOntologyException {
+	public synchronized void precomputeInferences(InferenceType... inferenceTypes) throws ReasonerInterruptedException,
+			TimeOutException, InconsistentOntologyException {
 		for (InferenceType it : inferenceTypes)
 			if (SupportedInferenceTypes.contains(it)) {
 				kernel.realise();
@@ -378,8 +363,7 @@ public class FaCTPlusPlusReasoner implements OWLReasoner,
 	}
 
 	// consistency
-	public synchronized boolean isConsistent()
-			throws ReasonerInterruptedException, TimeOutException {
+	public synchronized boolean isConsistent() throws ReasonerInterruptedException, TimeOutException {
 		return kernel.isKBConsistent();
 	}
 
@@ -392,30 +376,26 @@ public class FaCTPlusPlusReasoner implements OWLReasoner,
 		}
 	}
 
-	public synchronized boolean isSatisfiable(OWLClassExpression classExpression)
-			throws ReasonerInterruptedException, TimeOutException,
-			ClassExpressionNotInProfileException, FreshEntitiesException,
+	public synchronized boolean isSatisfiable(OWLClassExpression classExpression) throws ReasonerInterruptedException,
+			TimeOutException, ClassExpressionNotInProfileException, FreshEntitiesException,
 			InconsistentOntologyException {
 		checkConsistency();
 		return kernel.isClassSatisfiable(toClassPointer(classExpression));
 	}
 
-	public Node<OWLClass> getUnsatisfiableClasses()
-			throws ReasonerInterruptedException, TimeOutException,
+	public Node<OWLClass> getUnsatisfiableClasses() throws ReasonerInterruptedException, TimeOutException,
 			InconsistentOntologyException {
 		return getBottomClassNode();
 	}
 
 	// entailments
-	public synchronized boolean isEntailed(OWLAxiom axiom)
-			throws ReasonerInterruptedException,
-			UnsupportedEntailmentTypeException, TimeOutException,
-			AxiomNotInProfileException, FreshEntitiesException,
+	public synchronized boolean isEntailed(OWLAxiom axiom) throws ReasonerInterruptedException,
+			UnsupportedEntailmentTypeException, TimeOutException, AxiomNotInProfileException, FreshEntitiesException,
 			InconsistentOntologyException {
 		checkConsistency();
-		//		if(rootOntology.containsAxiom(axiom, true)) {
-		//			return true;
-		//		}
+		// if(rootOntology.containsAxiom(axiom, true)) {
+		// return true;
+		// }
 		Boolean entailed = axiom.accept(entailmentChecker);
 		if (entailed == null) {
 			throw new UnsupportedEntailmentTypeException(axiom);
@@ -423,10 +403,8 @@ public class FaCTPlusPlusReasoner implements OWLReasoner,
 		return entailed;
 	}
 
-	public synchronized boolean isEntailed(Set<? extends OWLAxiom> axioms)
-			throws ReasonerInterruptedException,
-			UnsupportedEntailmentTypeException, TimeOutException,
-			AxiomNotInProfileException, FreshEntitiesException,
+	public synchronized boolean isEntailed(Set<? extends OWLAxiom> axioms) throws ReasonerInterruptedException,
+			UnsupportedEntailmentTypeException, TimeOutException, AxiomNotInProfileException, FreshEntitiesException,
 			InconsistentOntologyException {
 		for (OWLAxiom ax : axioms) {
 			if (!isEntailed(ax)) {
@@ -437,7 +415,7 @@ public class FaCTPlusPlusReasoner implements OWLReasoner,
 	}
 
 	public boolean isEntailmentCheckingSupported(AxiomType<?> axiomType) {
-		if(axiomType.equals(AxiomType.SWRL_RULE)) {
+		if (axiomType.equals(AxiomType.SWRL_RULE)) {
 			return false;
 		}
 		// FIXME!! check later
@@ -446,8 +424,9 @@ public class FaCTPlusPlusReasoner implements OWLReasoner,
 
 	// tracing
 	/*
-	 * Return tracing set (set of axioms that were participate in achieving result) for a given entailment.
-	 * Return empty set if the axiom is not entailed.
+	 * Return tracing set (set of axioms that were participate in achieving
+	 * result) for a given entailment. Return empty set if the axiom is not
+	 * entailed.
 	 */
 	public Set<OWLAxiom> getTrace(OWLAxiom axiom) {
 		kernel.needTracing();
@@ -468,84 +447,65 @@ public class FaCTPlusPlusReasoner implements OWLReasoner,
 		return getEquivalentClasses(getOWLDataFactory().getOWLNothing());
 	}
 
-	public synchronized NodeSet<OWLClass> getSubClasses(OWLClassExpression ce,
-			boolean direct) throws ReasonerInterruptedException,
-			TimeOutException, FreshEntitiesException,
+	public synchronized NodeSet<OWLClass> getSubClasses(OWLClassExpression ce, boolean direct)
+			throws ReasonerInterruptedException, TimeOutException, FreshEntitiesException,
 			InconsistentOntologyException {
 		checkConsistency();
-		return classExpressionTranslator.getNodeSetFromPointers(kernel
-				.askSubClasses(toClassPointer(ce), direct));
+		return classExpressionTranslator.getNodeSetFromPointers(kernel.askSubClasses(toClassPointer(ce), direct));
 	}
 
-	public synchronized NodeSet<OWLClass> getSuperClasses(
-			OWLClassExpression ce, boolean direct)
-			throws InconsistentOntologyException,
-			ClassExpressionNotInProfileException, ReasonerInterruptedException,
+	public synchronized NodeSet<OWLClass> getSuperClasses(OWLClassExpression ce, boolean direct)
+			throws InconsistentOntologyException, ClassExpressionNotInProfileException, ReasonerInterruptedException,
 			TimeOutException {
 		checkConsistency();
-		return classExpressionTranslator.getNodeSetFromPointers(kernel
-				.askSuperClasses(toClassPointer(ce), direct));
+		return classExpressionTranslator.getNodeSetFromPointers(kernel.askSuperClasses(toClassPointer(ce), direct));
 	}
 
-	public synchronized Node<OWLClass> getEquivalentClasses(
-			OWLClassExpression ce) throws InconsistentOntologyException,
-			ClassExpressionNotInProfileException, ReasonerInterruptedException,
+	public synchronized Node<OWLClass> getEquivalentClasses(OWLClassExpression ce)
+			throws InconsistentOntologyException, ClassExpressionNotInProfileException, ReasonerInterruptedException,
 			TimeOutException {
 		checkConsistency();
-		ClassPointer[] pointers = kernel
-				.askEquivalentClasses(toClassPointer(ce));
+		ClassPointer[] pointers = kernel.askEquivalentClasses(toClassPointer(ce));
 		return classExpressionTranslator.getNodeFromPointers(pointers);
 	}
 
-	public synchronized NodeSet<OWLClass> getDisjointClasses(
-			OWLClassExpression ce) {
+	public synchronized NodeSet<OWLClass> getDisjointClasses(OWLClassExpression ce) {
 		checkConsistency();
-		return classExpressionTranslator.getNodeSetFromPointers(kernel
-				.askDisjointClasses(toClassPointer(ce)));
+		return classExpressionTranslator.getNodeSetFromPointers(kernel.askDisjointClasses(toClassPointer(ce)));
 	}
 
 	// object properties
 	public Node<OWLObjectPropertyExpression> getTopObjectPropertyNode() {
-		return getEquivalentObjectProperties(getOWLDataFactory()
-				.getOWLTopObjectProperty());
+		return getEquivalentObjectProperties(getOWLDataFactory().getOWLTopObjectProperty());
 	}
 
 	public Node<OWLObjectPropertyExpression> getBottomObjectPropertyNode() {
-		return getEquivalentObjectProperties(getOWLDataFactory()
-				.getOWLBottomObjectProperty());
+		return getEquivalentObjectProperties(getOWLDataFactory().getOWLBottomObjectProperty());
 	}
 
-	public synchronized NodeSet<OWLObjectPropertyExpression> getSubObjectProperties(
-			OWLObjectPropertyExpression pe, boolean direct)
-			throws InconsistentOntologyException, ReasonerInterruptedException,
-			TimeOutException {
+	public synchronized NodeSet<OWLObjectPropertyExpression> getSubObjectProperties(OWLObjectPropertyExpression pe,
+			boolean direct) throws InconsistentOntologyException, ReasonerInterruptedException, TimeOutException {
 		checkConsistency();
-		return objectPropertyTranslator.getNodeSetFromPointers(kernel
-				.askSubObjectProperties(toObjectPropertyPointer(pe), direct));
+		return objectPropertyTranslator.getNodeSetFromPointers(kernel.askSubObjectProperties(
+				toObjectPropertyPointer(pe), direct));
 	}
 
-	public synchronized NodeSet<OWLObjectPropertyExpression> getSuperObjectProperties(
-			OWLObjectPropertyExpression pe, boolean direct)
-			throws InconsistentOntologyException, ReasonerInterruptedException,
-			TimeOutException {
+	public synchronized NodeSet<OWLObjectPropertyExpression> getSuperObjectProperties(OWLObjectPropertyExpression pe,
+			boolean direct) throws InconsistentOntologyException, ReasonerInterruptedException, TimeOutException {
 		checkConsistency();
-		return objectPropertyTranslator.getNodeSetFromPointers(kernel
-				.askSuperObjectProperties(toObjectPropertyPointer(pe), direct));
+		return objectPropertyTranslator.getNodeSetFromPointers(kernel.askSuperObjectProperties(
+				toObjectPropertyPointer(pe), direct));
 	}
 
-	public synchronized Node<OWLObjectPropertyExpression> getEquivalentObjectProperties(
-			OWLObjectPropertyExpression pe)
-			throws InconsistentOntologyException, ReasonerInterruptedException,
-			TimeOutException {
+	public synchronized Node<OWLObjectPropertyExpression> getEquivalentObjectProperties(OWLObjectPropertyExpression pe)
+			throws InconsistentOntologyException, ReasonerInterruptedException, TimeOutException {
 		checkConsistency();
 		return objectPropertyTranslator.getNodeFromPointers(kernel
 				.askEquivalentObjectProperties(toObjectPropertyPointer(pe)));
 	}
 
-	public synchronized NodeSet<OWLObjectPropertyExpression> getDisjointObjectProperties(
-			OWLObjectPropertyExpression pe)
-			throws InconsistentOntologyException, ReasonerInterruptedException,
-			TimeOutException {
+	public synchronized NodeSet<OWLObjectPropertyExpression> getDisjointObjectProperties(OWLObjectPropertyExpression pe)
+			throws InconsistentOntologyException, ReasonerInterruptedException, TimeOutException {
 		checkConsistency();
 		// TODO: incomplete
 		OWLObjectPropertyNodeSet toReturn = new OWLObjectPropertyNodeSet();
@@ -553,149 +513,122 @@ public class FaCTPlusPlusReasoner implements OWLReasoner,
 		return toReturn;
 	}
 
-	public synchronized Node<OWLObjectPropertyExpression> getInverseObjectProperties(
-			OWLObjectPropertyExpression pe)
-			throws InconsistentOntologyException, ReasonerInterruptedException,
-			TimeOutException {
+	public synchronized Node<OWLObjectPropertyExpression> getInverseObjectProperties(OWLObjectPropertyExpression pe)
+			throws InconsistentOntologyException, ReasonerInterruptedException, TimeOutException {
 		checkConsistency();
 		return objectPropertyTranslator.getNodeFromPointers(kernel
-				.askEquivalentObjectProperties(toObjectPropertyPointer(pe
-						.getInverseProperty())));
+				.askEquivalentObjectProperties(toObjectPropertyPointer(pe.getInverseProperty())));
 	}
 
-	public synchronized NodeSet<OWLClass> getObjectPropertyDomains(
-			OWLObjectPropertyExpression pe, boolean direct)
-			throws InconsistentOntologyException, ReasonerInterruptedException,
-			TimeOutException {
+	public synchronized NodeSet<OWLClass> getObjectPropertyDomains(OWLObjectPropertyExpression pe, boolean direct)
+			throws InconsistentOntologyException, ReasonerInterruptedException, TimeOutException {
 		checkConsistency();
-		return classExpressionTranslator.getNodeSetFromPointers(kernel
-				.askObjectPropertyDomain(objectPropertyTranslator.createPointerForEntity(pe), direct ));
+		return classExpressionTranslator.getNodeSetFromPointers(kernel.askObjectPropertyDomain(
+				objectPropertyTranslator.createPointerForEntity(pe), direct));
 	}
 
-	public NodeSet<OWLClass> getObjectPropertyRanges(
-			OWLObjectPropertyExpression pe, boolean direct)
-			throws InconsistentOntologyException, ReasonerInterruptedException,
-			TimeOutException {
+	public NodeSet<OWLClass> getObjectPropertyRanges(OWLObjectPropertyExpression pe, boolean direct)
+			throws InconsistentOntologyException, ReasonerInterruptedException, TimeOutException {
 		checkConsistency();
-		return classExpressionTranslator.getNodeSetFromPointers(
-				kernel.askObjectPropertyRange(objectPropertyTranslator.getPointerFromEntity(pe), direct));
+		return classExpressionTranslator.getNodeSetFromPointers(kernel.askObjectPropertyRange(
+				objectPropertyTranslator.getPointerFromEntity(pe), direct));
 	}
 
 	// data properties
 	public Node<OWLDataProperty> getTopDataPropertyNode() {
-		OWLDataPropertyNode toReturn=new OWLDataPropertyNode();
+		OWLDataPropertyNode toReturn = new OWLDataPropertyNode();
 		toReturn.add(getOWLDataFactory().getOWLTopDataProperty());
 		return toReturn;
 	}
 
 	public Node<OWLDataProperty> getBottomDataPropertyNode() {
-		return getEquivalentDataProperties(getOWLDataFactory()
-				.getOWLBottomDataProperty());
+		return getEquivalentDataProperties(getOWLDataFactory().getOWLBottomDataProperty());
 	}
 
-	public synchronized NodeSet<OWLDataProperty> getSubDataProperties(
-			OWLDataProperty pe, boolean direct)
-			throws InconsistentOntologyException, ReasonerInterruptedException,
-			TimeOutException {
+	public synchronized NodeSet<OWLDataProperty> getSubDataProperties(OWLDataProperty pe, boolean direct)
+			throws InconsistentOntologyException, ReasonerInterruptedException, TimeOutException {
 		checkConsistency();
-		return dataPropertyTranslator.getNodeSetFromPointers(kernel
-				.askSubDataProperties(toDataPropertyPointer(pe), direct));
+		return dataPropertyTranslator.getNodeSetFromPointers(kernel.askSubDataProperties(toDataPropertyPointer(pe),
+				direct));
 	}
 
-	public synchronized NodeSet<OWLDataProperty> getSuperDataProperties(
-			OWLDataProperty pe, boolean direct)
-			throws InconsistentOntologyException, ReasonerInterruptedException,
-			TimeOutException {
+	public synchronized NodeSet<OWLDataProperty> getSuperDataProperties(OWLDataProperty pe, boolean direct)
+			throws InconsistentOntologyException, ReasonerInterruptedException, TimeOutException {
 		checkConsistency();
-		return dataPropertyTranslator.getNodeSetFromPointers(kernel
-				.askSuperDataProperties(toDataPropertyPointer(pe), direct));
+		return dataPropertyTranslator.getNodeSetFromPointers(kernel.askSuperDataProperties(toDataPropertyPointer(pe),
+				direct));
 	}
 
-	public synchronized Node<OWLDataProperty> getEquivalentDataProperties(
-			OWLDataProperty pe) throws InconsistentOntologyException,
-			ReasonerInterruptedException, TimeOutException {
+	public synchronized Node<OWLDataProperty> getEquivalentDataProperties(OWLDataProperty pe)
+			throws InconsistentOntologyException, ReasonerInterruptedException, TimeOutException {
 		checkConsistency();
-		return dataPropertyTranslator.getNodeFromPointers(kernel
-				.askEquivalentDataProperties(toDataPropertyPointer(pe)));
+		return dataPropertyTranslator
+				.getNodeFromPointers(kernel.askEquivalentDataProperties(toDataPropertyPointer(pe)));
 	}
 
-	public synchronized NodeSet<OWLDataProperty> getDisjointDataProperties(
-			OWLDataPropertyExpression pe) throws InconsistentOntologyException,
-			ReasonerInterruptedException, TimeOutException {
+	public synchronized NodeSet<OWLDataProperty> getDisjointDataProperties(OWLDataPropertyExpression pe)
+			throws InconsistentOntologyException, ReasonerInterruptedException, TimeOutException {
 		checkConsistency();
 		// TODO:
 		return new OWLDataPropertyNodeSet();
 	}
 
-	public NodeSet<OWLClass> getDataPropertyDomains(OWLDataProperty pe,
-			boolean direct) throws InconsistentOntologyException,
-			ReasonerInterruptedException, TimeOutException {
+	public NodeSet<OWLClass> getDataPropertyDomains(OWLDataProperty pe, boolean direct)
+			throws InconsistentOntologyException, ReasonerInterruptedException, TimeOutException {
 		checkConsistency();
-		return classExpressionTranslator.getNodeSetFromPointers(kernel
-				.askDataPropertyDomain(dataPropertyTranslator.createPointerForEntity(pe), direct ));
+		return classExpressionTranslator.getNodeSetFromPointers(kernel.askDataPropertyDomain(
+				dataPropertyTranslator.createPointerForEntity(pe), direct));
 	}
 
 	// individuals
-	public synchronized NodeSet<OWLClass> getTypes(OWLNamedIndividual ind,
-			boolean direct) throws InconsistentOntologyException,
-			ReasonerInterruptedException, TimeOutException {
+	public synchronized NodeSet<OWLClass> getTypes(OWLNamedIndividual ind, boolean direct)
+			throws InconsistentOntologyException, ReasonerInterruptedException, TimeOutException {
 		checkConsistency();
-		return classExpressionTranslator.getNodeSetFromPointers(kernel
-				.askIndividualTypes(toIndividualPointer(ind), direct));
+		return classExpressionTranslator.getNodeSetFromPointers(kernel.askIndividualTypes(toIndividualPointer(ind),
+				direct));
 	}
 
-	public synchronized NodeSet<OWLNamedIndividual> getInstances(
-			OWLClassExpression ce, boolean direct)
-			throws InconsistentOntologyException,
-			ClassExpressionNotInProfileException, ReasonerInterruptedException,
+	public synchronized NodeSet<OWLNamedIndividual> getInstances(OWLClassExpression ce, boolean direct)
+			throws InconsistentOntologyException, ClassExpressionNotInProfileException, ReasonerInterruptedException,
 			TimeOutException {
 		checkConsistency();
-		return translateIndividualPointersToNodeSet(kernel.askInstances(
-				toClassPointer(ce), direct));
+		return translateIndividualPointersToNodeSet(kernel.askInstances(toClassPointer(ce), direct));
 	}
 
-	public synchronized NodeSet<OWLNamedIndividual> getObjectPropertyValues(
-			OWLNamedIndividual ind, OWLObjectPropertyExpression pe)
-			throws InconsistentOntologyException, ReasonerInterruptedException,
+	public synchronized NodeSet<OWLNamedIndividual> getObjectPropertyValues(OWLNamedIndividual ind,
+			OWLObjectPropertyExpression pe) throws InconsistentOntologyException, ReasonerInterruptedException,
 			TimeOutException {
 		checkConsistency();
-		return translateIndividualPointersToNodeSet(kernel
-				.askRelatedIndividuals(toIndividualPointer(ind),
-						toObjectPropertyPointer(pe)));
+		return translateIndividualPointersToNodeSet(kernel.askRelatedIndividuals(toIndividualPointer(ind),
+				toObjectPropertyPointer(pe)));
 	}
 
-	public synchronized Set<OWLLiteral> getDataPropertyValues(
-			OWLNamedIndividual ind, OWLDataProperty pe)
-			throws InconsistentOntologyException, ReasonerInterruptedException,
-			TimeOutException {
+	public synchronized Set<OWLLiteral> getDataPropertyValues(OWLNamedIndividual ind, OWLDataProperty pe)
+			throws InconsistentOntologyException, ReasonerInterruptedException, TimeOutException {
 		// TODO:
 		checkConsistency();
 		return Collections.emptySet();
 	}
 
-	public synchronized Node<OWLNamedIndividual> getSameIndividuals(
-			OWLNamedIndividual ind) throws InconsistentOntologyException,
-			ReasonerInterruptedException, TimeOutException {
+	public synchronized Node<OWLNamedIndividual> getSameIndividuals(OWLNamedIndividual ind)
+			throws InconsistentOntologyException, ReasonerInterruptedException, TimeOutException {
 		checkConsistency();
-		return individualTranslator.getNodeFromPointers(kernel
-				.askSameAs(toIndividualPointer(ind)));
+		return individualTranslator.getNodeFromPointers(kernel.askSameAs(toIndividualPointer(ind)));
 	}
 
-	public NodeSet<OWLNamedIndividual> getDifferentIndividuals(
-			OWLNamedIndividual ind) throws InconsistentOntologyException,
-			ReasonerInterruptedException, TimeOutException {
-		OWLClassExpression ce = getOWLDataFactory().getOWLObjectOneOf(ind)
-				.getObjectComplementOf();
+	public NodeSet<OWLNamedIndividual> getDifferentIndividuals(OWLNamedIndividual ind)
+			throws InconsistentOntologyException, ReasonerInterruptedException, TimeOutException {
+		OWLClassExpression ce = getOWLDataFactory().getOWLObjectOneOf(ind).getObjectComplementOf();
 		return getInstances(ce, false);
 	}
 
-	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	////
-	////   Translation to FaCT++ structures and back
-	////
-	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// //
+	// // Translation to FaCT++ structures and back
+	// //
+	// ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	private abstract class OWLEntityTranslator<E extends OWLObject, P extends Pointer> {
 		private final Map<E, P> entity2PointerMap = new ConcurrentHashMap<E, P>();
 		protected final Map<P, E> pointer2EntityMap = new ConcurrentHashMap<P, E>();
@@ -744,7 +677,7 @@ public class FaCTPlusPlusReasoner implements OWLReasoner,
 			DefaultNode<E> node = createDefaultNode();
 			for (P pointer : pointers) {
 				final E entityFromPointer = getEntityFromPointer(pointer);
-				if(entityFromPointer != null) {
+				if (entityFromPointer != null) {
 					node.add(entityFromPointer);
 				}
 			}
@@ -778,43 +711,34 @@ public class FaCTPlusPlusReasoner implements OWLReasoner,
 		return classExpression.accept(classExpressionTranslator);
 	}
 
-	protected DataTypeExpressionPointer toDataTypeExpressionPointer(
-			OWLDataRange dataRange) {
+	protected DataTypeExpressionPointer toDataTypeExpressionPointer(OWLDataRange dataRange) {
 		return dataRange.accept(dataRangeTranslator);
 	}
 
-	protected ObjectPropertyPointer toObjectPropertyPointer(
-			OWLObjectPropertyExpression propertyExpression) {
+	protected ObjectPropertyPointer toObjectPropertyPointer(OWLObjectPropertyExpression propertyExpression) {
 		OWLObjectPropertyExpression simp = propertyExpression.getSimplified();
 		if (simp.isAnonymous()) {
 			OWLObjectInverseOf inv = (OWLObjectInverseOf) simp;
-			return kernel.getInverseProperty(objectPropertyTranslator
-					.getPointerFromEntity(inv.getInverse()
-							.asOWLObjectProperty()));
+			return kernel.getInverseProperty(objectPropertyTranslator.getPointerFromEntity(inv.getInverse()
+					.asOWLObjectProperty()));
 		} else {
-			return objectPropertyTranslator.getPointerFromEntity(simp
-					.asOWLObjectProperty());
+			return objectPropertyTranslator.getPointerFromEntity(simp.asOWLObjectProperty());
 		}
 	}
 
-	protected DataPropertyPointer toDataPropertyPointer(
-			OWLDataPropertyExpression propertyExpression) {
-		return dataPropertyTranslator.getPointerFromEntity(propertyExpression
-				.asOWLDataProperty());
+	protected DataPropertyPointer toDataPropertyPointer(OWLDataPropertyExpression propertyExpression) {
+		return dataPropertyTranslator.getPointerFromEntity(propertyExpression.asOWLDataProperty());
 	}
 
-	protected synchronized IndividualPointer toIndividualPointer(
-			OWLIndividual individual) {
+	protected synchronized IndividualPointer toIndividualPointer(OWLIndividual individual) {
 		if (!individual.isAnonymous()) {
-			return individualTranslator.getPointerFromEntity(individual
-					.asOWLNamedIndividual());
+			return individualTranslator.getPointerFromEntity(individual.asOWLNamedIndividual());
 		} else {
 			return kernel.getIndividual(individual.toStringID());
 		}
 	}
 
-	protected synchronized DataTypePointer toDataTypePointer(
-			OWLDatatype datatype) {
+	protected synchronized DataTypePointer toDataTypePointer(OWLDatatype datatype) {
 		if (datatype == null) {
 			throw new IllegalArgumentException("datatype cannot be null");
 		}
@@ -835,50 +759,44 @@ public class FaCTPlusPlusReasoner implements OWLReasoner,
 		return name;
 	}
 
-	protected synchronized DataValuePointer toDataValuePointer(
-			OWLLiteral literal) {
+	protected synchronized DataValuePointer toDataValuePointer(OWLLiteral literal) {
 		String value = literal.getLiteral();
 		if (literal.isRDFPlainLiteral()) {
 			value = value + "@" + literal.getLang();
 		}
-		if (literal.getDatatype().isBuiltIn() &&
-				literal.getDatatype().getBuiltInDatatype() == OWL2Datatype.XSD_DATE_TIME) {
-			return kernel.getDataValue(convertToLongDateTime(value),
-					toDataTypePointer(literal.getDatatype()));
+		if (literal.getDatatype().isBuiltIn()
+				&& literal.getDatatype().getBuiltInDatatype() == OWL2Datatype.XSD_DATE_TIME) {
+			return kernel.getDataValue(convertToLongDateTime(value), toDataTypePointer(literal.getDatatype()));
 		}
-		return kernel.getDataValue(value,
-				toDataTypePointer(literal.getDatatype()));
+		return kernel.getDataValue(value, toDataTypePointer(literal.getDatatype()));
 	}
 
 	private static final String convertToLongDateTime(String input) {
 		XMLGregorianCalendar calendar;
 		try {
-			calendar = DatatypeFactory.newInstance().newXMLGregorianCalendar(
-					input);
+			calendar = DatatypeFactory.newInstance().newXMLGregorianCalendar(input);
 			if (calendar.getTimezone() == DatatypeConstants.FIELD_UNDEFINED) {
 				// set it to 0 (UTC) in this case; not perfect but avoids
-				// indeterminate situations where two datetime literals cannot be compared
+				// indeterminate situations where two datetime literals cannot
+				// be compared
 				calendar.setTimezone(0);
 			}
 			long l = calendar.toGregorianCalendar().getTimeInMillis();
-			System.out
-					.println("FaCTPlusPlusReasoner.convertToLongDateTime()\n"+input+"\n"+Long.toString(l));
+			System.out.println("FaCTPlusPlusReasoner.convertToLongDateTime()\n" + input + "\n" + Long.toString(l));
 			return Long.toString(l);
 		} catch (DatatypeConfigurationException e) {
-			throw new OWLRuntimeException(
-					"Error: the datatype support in the Java VM is broken! Cannot parse: "
-							+ input, e);
+			throw new OWLRuntimeException("Error: the datatype support in the Java VM is broken! Cannot parse: "
+					+ input, e);
 		}
 	}
 
-	private NodeSet<OWLNamedIndividual> translateIndividualPointersToNodeSet(
-			IndividualPointer[] pointers) {
+	private NodeSet<OWLNamedIndividual> translateIndividualPointersToNodeSet(IndividualPointer[] pointers) {
 		OWLNamedIndividualNodeSet ns = new OWLNamedIndividualNodeSet();
 		for (IndividualPointer pointer : pointers) {
 			if (pointer != null) {
-				OWLNamedIndividual ind = individualTranslator
-						.getEntityFromPointer(pointer);
-				// XXX skipping anonymous individuals - counterintuitive but that's the specs for you
+				OWLNamedIndividual ind = individualTranslator.getEntityFromPointer(pointer);
+				// XXX skipping anonymous individuals - counterintuitive but
+				// that's the specs for you
 				if (ind != null) {
 					ns.addEntity(ind);
 				}
@@ -896,8 +814,7 @@ public class FaCTPlusPlusReasoner implements OWLReasoner,
 		kernel.closeArgList();
 	}
 
-	private class ClassExpressionTranslator extends
-			OWLEntityTranslator<OWLClass, ClassPointer> implements
+	private class ClassExpressionTranslator extends OWLEntityTranslator<OWLClass, ClassPointer> implements
 			OWLClassExpressionVisitorEx<ClassPointer> {
 		public ClassExpressionTranslator() {
 		}
@@ -946,8 +863,7 @@ public class FaCTPlusPlusReasoner implements OWLReasoner,
 			return kernel.getConceptAnd();
 		}
 
-		private void translateClassExpressionSet(
-				Set<OWLClassExpression> classExpressions) {
+		private void translateClassExpressionSet(Set<OWLClassExpression> classExpressions) {
 			kernel.initArgList();
 			for (OWLClassExpression ce : classExpressions) {
 				ClassPointer cp = ce.accept(this);
@@ -966,37 +882,31 @@ public class FaCTPlusPlusReasoner implements OWLReasoner,
 		}
 
 		public ClassPointer visit(OWLObjectSomeValuesFrom desc) {
-			return kernel.getObjectSome(toObjectPropertyPointer(desc
-					.getProperty()), desc.getFiller().accept(this));
+			return kernel.getObjectSome(toObjectPropertyPointer(desc.getProperty()), desc.getFiller().accept(this));
 		}
 
 		public ClassPointer visit(OWLObjectAllValuesFrom desc) {
-			return kernel.getObjectAll(toObjectPropertyPointer(desc
-					.getProperty()), desc.getFiller().accept(this));
+			return kernel.getObjectAll(toObjectPropertyPointer(desc.getProperty()), desc.getFiller().accept(this));
 		}
 
 		public ClassPointer visit(OWLObjectHasValue desc) {
-			return kernel.getObjectValue(
-					toObjectPropertyPointer(desc.getProperty()),
+			return kernel.getObjectValue(toObjectPropertyPointer(desc.getProperty()),
 					toIndividualPointer(desc.getValue()));
 		}
 
 		public ClassPointer visit(OWLObjectMinCardinality desc) {
-			return kernel.getObjectAtLeast(desc.getCardinality(),
-					toObjectPropertyPointer(desc.getProperty()), desc
-							.getFiller().accept(this));
+			return kernel.getObjectAtLeast(desc.getCardinality(), toObjectPropertyPointer(desc.getProperty()), desc
+					.getFiller().accept(this));
 		}
 
 		public ClassPointer visit(OWLObjectExactCardinality desc) {
-			return kernel.getObjectExact(desc.getCardinality(),
-					toObjectPropertyPointer(desc.getProperty()), desc
-							.getFiller().accept(this));
+			return kernel.getObjectExact(desc.getCardinality(), toObjectPropertyPointer(desc.getProperty()), desc
+					.getFiller().accept(this));
 		}
 
 		public ClassPointer visit(OWLObjectMaxCardinality desc) {
-			return kernel.getObjectAtMost(desc.getCardinality(),
-					toObjectPropertyPointer(desc.getProperty()), desc
-							.getFiller().accept(this));
+			return kernel.getObjectAtMost(desc.getCardinality(), toObjectPropertyPointer(desc.getProperty()), desc
+					.getFiller().accept(this));
 		}
 
 		public ClassPointer visit(OWLObjectHasSelf desc) {
@@ -1009,8 +919,7 @@ public class FaCTPlusPlusReasoner implements OWLReasoner,
 		}
 
 		public ClassPointer visit(OWLDataSomeValuesFrom desc) {
-			return kernel.getDataSome(
-					toDataPropertyPointer(desc.getProperty()),
+			return kernel.getDataSome(toDataPropertyPointer(desc.getProperty()),
 					toDataTypeExpressionPointer(desc.getFiller()));
 		}
 
@@ -1020,32 +929,26 @@ public class FaCTPlusPlusReasoner implements OWLReasoner,
 		}
 
 		public ClassPointer visit(OWLDataHasValue desc) {
-			return kernel.getDataValue(
-					toDataPropertyPointer(desc.getProperty()),
-					toDataValuePointer(desc.getValue()));
+			return kernel.getDataValue(toDataPropertyPointer(desc.getProperty()), toDataValuePointer(desc.getValue()));
 		}
 
 		public ClassPointer visit(OWLDataMinCardinality desc) {
-			return kernel.getDataAtLeast(desc.getCardinality(),
-					toDataPropertyPointer(desc.getProperty()),
+			return kernel.getDataAtLeast(desc.getCardinality(), toDataPropertyPointer(desc.getProperty()),
 					toDataTypeExpressionPointer(desc.getFiller()));
 		}
 
 		public ClassPointer visit(OWLDataExactCardinality desc) {
-			return kernel.getDataExact(desc.getCardinality(),
-					toDataPropertyPointer(desc.getProperty()),
+			return kernel.getDataExact(desc.getCardinality(), toDataPropertyPointer(desc.getProperty()),
 					toDataTypeExpressionPointer(desc.getFiller()));
 		}
 
 		public ClassPointer visit(OWLDataMaxCardinality desc) {
-			return kernel.getDataAtMost(desc.getCardinality(),
-					toDataPropertyPointer(desc.getProperty()),
+			return kernel.getDataAtMost(desc.getCardinality(), toDataPropertyPointer(desc.getProperty()),
 					toDataTypeExpressionPointer(desc.getFiller()));
 		}
 	}
 
-	private class DataRangeTranslator extends
-			OWLEntityTranslator<OWLDatatype, DataTypePointer> implements
+	private class DataRangeTranslator extends OWLEntityTranslator<OWLDatatype, DataTypePointer> implements
 			OWLDataRangeVisitorEx<DataTypeExpressionPointer> {
 		public DataRangeTranslator() {
 		}
@@ -1125,19 +1028,15 @@ public class FaCTPlusPlusReasoner implements OWLReasoner,
 		public DataTypeExpressionPointer visit(OWLDatatypeRestriction node) {
 			DataTypeExpressionPointer dte = node.getDatatype().accept(this);
 			for (OWLFacetRestriction restriction : node.getFacetRestrictions()) {
-				DataValuePointer dv = toDataValuePointer(restriction
-						.getFacetValue());
+				DataValuePointer dv = toDataValuePointer(restriction.getFacetValue());
 				DataTypeFacet facet;
 				if (restriction.getFacet().equals(OWLFacet.MIN_INCLUSIVE)) {
 					facet = kernel.getMinInclusiveFacet(dv);
-				} else if (restriction.getFacet()
-						.equals(OWLFacet.MAX_INCLUSIVE)) {
+				} else if (restriction.getFacet().equals(OWLFacet.MAX_INCLUSIVE)) {
 					facet = kernel.getMaxInclusiveFacet(dv);
-				} else if (restriction.getFacet()
-						.equals(OWLFacet.MIN_EXCLUSIVE)) {
+				} else if (restriction.getFacet().equals(OWLFacet.MIN_EXCLUSIVE)) {
 					facet = kernel.getMinExclusiveFacet(dv);
-				} else if (restriction.getFacet()
-						.equals(OWLFacet.MAX_EXCLUSIVE)) {
+				} else if (restriction.getFacet().equals(OWLFacet.MAX_EXCLUSIVE)) {
 					facet = kernel.getMaxExclusiveFacet(dv);
 				} else if (restriction.getFacet().equals(OWLFacet.LENGTH)) {
 					facet = kernel.getLength(dv);
@@ -1145,16 +1044,14 @@ public class FaCTPlusPlusReasoner implements OWLReasoner,
 					facet = kernel.getMinLength(dv);
 				} else if (restriction.getFacet().equals(OWLFacet.MAX_LENGTH)) {
 					facet = kernel.getMaxLength(dv);
-				} else if (restriction.getFacet().equals(
-						OWLFacet.FRACTION_DIGITS)) {
+				} else if (restriction.getFacet().equals(OWLFacet.FRACTION_DIGITS)) {
 					facet = kernel.getFractionDigitsFacet(dv);
 				} else if (restriction.getFacet().equals(OWLFacet.PATTERN)) {
 					facet = kernel.getPattern(dv);
 				} else if (restriction.getFacet().equals(OWLFacet.TOTAL_DIGITS)) {
 					facet = kernel.getTotalDigitsFacet(dv);
 				} else {
-					throw new OWLRuntimeException("Unsupported facet: "
-							+ restriction.getFacet());
+					throw new OWLRuntimeException("Unsupported facet: " + restriction.getFacet());
 				}
 				dte = kernel.getRestrictedDataType(dte, facet);
 			}
@@ -1162,8 +1059,7 @@ public class FaCTPlusPlusReasoner implements OWLReasoner,
 		}
 	}
 
-	private class IndividualTranslator extends
-			OWLEntityTranslator<OWLNamedIndividual, IndividualPointer> {
+	private class IndividualTranslator extends OWLEntityTranslator<OWLNamedIndividual, IndividualPointer> {
 		public IndividualTranslator() {
 		}
 
@@ -1178,8 +1074,7 @@ public class FaCTPlusPlusReasoner implements OWLReasoner,
 		}
 
 		@Override
-		protected IndividualPointer createPointerForEntity(
-				OWLNamedIndividual entity) {
+		protected IndividualPointer createPointerForEntity(OWLNamedIndividual entity) {
 			return kernel.getIndividual(entity.toStringID());
 		}
 
@@ -1204,8 +1099,7 @@ public class FaCTPlusPlusReasoner implements OWLReasoner,
 		}
 	}
 
-	private class ObjectPropertyTranslator
-			extends
+	private class ObjectPropertyTranslator extends
 			OWLEntityTranslator<OWLObjectPropertyExpression, ObjectPropertyPointer> {
 		public ObjectPropertyTranslator() {
 		}
@@ -1222,8 +1116,7 @@ public class FaCTPlusPlusReasoner implements OWLReasoner,
 
 		// TODO: add implementation of registerNewEntity
 		@Override
-		protected ObjectPropertyPointer registerNewEntity(
-				OWLObjectPropertyExpression entity) {
+		protected ObjectPropertyPointer registerNewEntity(OWLObjectPropertyExpression entity) {
 			ObjectPropertyPointer pointer = createPointerForEntity(entity);
 			fillEntityPointerMaps(entity, pointer);
 			entity = entity.getInverseProperty().getSimplified();
@@ -1232,11 +1125,9 @@ public class FaCTPlusPlusReasoner implements OWLReasoner,
 		}
 
 		@Override
-		protected ObjectPropertyPointer createPointerForEntity(
-				OWLObjectPropertyExpression entity) {
+		protected ObjectPropertyPointer createPointerForEntity(OWLObjectPropertyExpression entity) {
 			// FIXME!! think later!!
-			ObjectPropertyPointer p = kernel.getObjectProperty(entity
-					.getNamedProperty().toStringID());
+			ObjectPropertyPointer p = kernel.getObjectProperty(entity.getNamedProperty().toStringID());
 			if (entity.isAnonymous()) // inverse!
 				p = kernel.getInverseProperty(p);
 			return p;
@@ -1263,8 +1154,7 @@ public class FaCTPlusPlusReasoner implements OWLReasoner,
 		}
 	}
 
-	private class DataPropertyTranslator extends
-			OWLEntityTranslator<OWLDataProperty, DataPropertyPointer> {
+	private class DataPropertyTranslator extends OWLEntityTranslator<OWLDataProperty, DataPropertyPointer> {
 		public DataPropertyTranslator() {
 		}
 
@@ -1279,8 +1169,7 @@ public class FaCTPlusPlusReasoner implements OWLReasoner,
 		}
 
 		@Override
-		protected DataPropertyPointer createPointerForEntity(
-				OWLDataProperty entity) {
+		protected DataPropertyPointer createPointerForEntity(OWLDataProperty entity) {
 			return kernel.getDataProperty(entity.toStringID());
 		}
 
@@ -1306,30 +1195,25 @@ public class FaCTPlusPlusReasoner implements OWLReasoner,
 	}
 
 	private class AxiomTranslator implements OWLAxiomVisitorEx<AxiomPointer> {
-		private final class DeclarationVisitorEx implements
-				OWLEntityVisitorEx<AxiomPointer> {
+		private final class DeclarationVisitorEx implements OWLEntityVisitorEx<AxiomPointer> {
 			public AxiomPointer visit(OWLClass cls) {
 				return kernel.tellClassDeclaration(toClassPointer(cls));
 			}
 
 			public AxiomPointer visit(OWLObjectProperty property) {
-				return kernel
-						.tellObjectPropertyDeclaration(toObjectPropertyPointer(property));
+				return kernel.tellObjectPropertyDeclaration(toObjectPropertyPointer(property));
 			}
 
 			public AxiomPointer visit(OWLDataProperty property) {
-				return kernel
-						.tellDataPropertyDeclaration(toDataPropertyPointer(property));
+				return kernel.tellDataPropertyDeclaration(toDataPropertyPointer(property));
 			}
 
 			public AxiomPointer visit(OWLNamedIndividual individual) {
-				return kernel
-						.tellIndividualDeclaration(toIndividualPointer(individual));
+				return kernel.tellIndividualDeclaration(toIndividualPointer(individual));
 			}
 
 			public AxiomPointer visit(OWLDatatype datatype) {
-				return kernel
-						.tellDatatypeDeclaration(toDataTypePointer(datatype));
+				return kernel.tellDatatypeDeclaration(toDataTypePointer(datatype));
 			}
 
 			public AxiomPointer visit(OWLAnnotationProperty property) {
@@ -1344,27 +1228,20 @@ public class FaCTPlusPlusReasoner implements OWLReasoner,
 		}
 
 		public AxiomPointer visit(OWLSubClassOfAxiom axiom) {
-			return kernel.tellSubClassOf(toClassPointer(axiom.getSubClass()),
-					toClassPointer(axiom.getSuperClass()));
+			return kernel.tellSubClassOf(toClassPointer(axiom.getSubClass()), toClassPointer(axiom.getSuperClass()));
 		}
 
 		public AxiomPointer visit(OWLNegativeObjectPropertyAssertionAxiom axiom) {
-			return kernel.tellNotRelatedIndividuals(
-					toIndividualPointer(axiom.getSubject()),
-					toObjectPropertyPointer(axiom.getProperty()),
-					toIndividualPointer(axiom.getObject()));
+			return kernel.tellNotRelatedIndividuals(toIndividualPointer(axiom.getSubject()),
+					toObjectPropertyPointer(axiom.getProperty()), toIndividualPointer(axiom.getObject()));
 		}
 
 		public AxiomPointer visit(OWLAsymmetricObjectPropertyAxiom axiom) {
-			return kernel
-					.tellAsymmetricObjectProperty(toObjectPropertyPointer(axiom
-							.getProperty()));
+			return kernel.tellAsymmetricObjectProperty(toObjectPropertyPointer(axiom.getProperty()));
 		}
 
 		public AxiomPointer visit(OWLReflexiveObjectPropertyAxiom axiom) {
-			return kernel
-					.tellReflexiveObjectProperty(toObjectPropertyPointer(axiom
-							.getProperty()));
+			return kernel.tellReflexiveObjectProperty(toObjectPropertyPointer(axiom.getProperty()));
 		}
 
 		public AxiomPointer visit(OWLDisjointClassesAxiom axiom) {
@@ -1372,8 +1249,7 @@ public class FaCTPlusPlusReasoner implements OWLReasoner,
 			return kernel.tellDisjointClasses();
 		}
 
-		private void translateClassExpressionSet(
-				Collection<OWLClassExpression> classExpressions) {
+		private void translateClassExpressionSet(Collection<OWLClassExpression> classExpressions) {
 			kernel.initArgList();
 			for (OWLClassExpression ce : classExpressions) {
 				ClassPointer cp = toClassPointer(ce);
@@ -1383,14 +1259,12 @@ public class FaCTPlusPlusReasoner implements OWLReasoner,
 		}
 
 		public AxiomPointer visit(OWLDataPropertyDomainAxiom axiom) {
-			return kernel.tellDataPropertyDomain(
-					toDataPropertyPointer(axiom.getProperty()),
+			return kernel.tellDataPropertyDomain(toDataPropertyPointer(axiom.getProperty()),
 					toClassPointer(axiom.getDomain()));
 		}
 
 		public AxiomPointer visit(OWLObjectPropertyDomainAxiom axiom) {
-			return kernel.tellObjectPropertyDomain(
-					toObjectPropertyPointer(axiom.getProperty()),
+			return kernel.tellObjectPropertyDomain(toObjectPropertyPointer(axiom.getProperty()),
 					toClassPointer(axiom.getDomain()));
 		}
 
@@ -1399,8 +1273,7 @@ public class FaCTPlusPlusReasoner implements OWLReasoner,
 			return kernel.tellEquivalentObjectProperties();
 		}
 
-		private void translateObjectPropertySet(
-				Collection<OWLObjectPropertyExpression> properties) {
+		private void translateObjectPropertySet(Collection<OWLObjectPropertyExpression> properties) {
 			kernel.initArgList();
 			for (OWLObjectPropertyExpression property : properties) {
 				ObjectPropertyPointer opp = toObjectPropertyPointer(property);
@@ -1410,10 +1283,8 @@ public class FaCTPlusPlusReasoner implements OWLReasoner,
 		}
 
 		public AxiomPointer visit(OWLNegativeDataPropertyAssertionAxiom axiom) {
-			return kernel.tellNotRelatedIndividualValue(
-					toIndividualPointer(axiom.getSubject()),
-					toDataPropertyPointer(axiom.getProperty()),
-					toDataValuePointer(axiom.getObject()));
+			return kernel.tellNotRelatedIndividualValue(toIndividualPointer(axiom.getSubject()),
+					toDataPropertyPointer(axiom.getProperty()), toDataValuePointer(axiom.getObject()));
 		}
 
 		public AxiomPointer visit(OWLDifferentIndividualsAxiom axiom) {
@@ -1426,8 +1297,7 @@ public class FaCTPlusPlusReasoner implements OWLReasoner,
 			return kernel.tellDisjointDataProperties();
 		}
 
-		private void translateDataPropertySet(
-				Set<OWLDataPropertyExpression> properties) {
+		private void translateDataPropertySet(Set<OWLDataPropertyExpression> properties) {
 			kernel.initArgList();
 			for (OWLDataPropertyExpression property : properties) {
 				DataPropertyPointer dpp = toDataPropertyPointer(property);
@@ -1442,34 +1312,27 @@ public class FaCTPlusPlusReasoner implements OWLReasoner,
 		}
 
 		public AxiomPointer visit(OWLObjectPropertyRangeAxiom axiom) {
-			return kernel.tellObjectPropertyRange(
-					toObjectPropertyPointer(axiom.getProperty()),
+			return kernel.tellObjectPropertyRange(toObjectPropertyPointer(axiom.getProperty()),
 					toClassPointer(axiom.getRange()));
 		}
 
 		public AxiomPointer visit(OWLObjectPropertyAssertionAxiom axiom) {
-			return kernel.tellRelatedIndividuals(
-					toIndividualPointer(axiom.getSubject()),
-					toObjectPropertyPointer(axiom.getProperty()),
-					toIndividualPointer(axiom.getObject()));
+			return kernel.tellRelatedIndividuals(toIndividualPointer(axiom.getSubject()),
+					toObjectPropertyPointer(axiom.getProperty()), toIndividualPointer(axiom.getObject()));
 		}
 
 		public AxiomPointer visit(OWLFunctionalObjectPropertyAxiom axiom) {
-			return kernel
-					.tellFunctionalObjectProperty(toObjectPropertyPointer(axiom
-							.getProperty()));
+			return kernel.tellFunctionalObjectProperty(toObjectPropertyPointer(axiom.getProperty()));
 		}
 
 		public AxiomPointer visit(OWLSubObjectPropertyOfAxiom axiom) {
-			return kernel.tellSubObjectProperties(
-					toObjectPropertyPointer(axiom.getSubProperty()),
+			return kernel.tellSubObjectProperties(toObjectPropertyPointer(axiom.getSubProperty()),
 					toObjectPropertyPointer(axiom.getSuperProperty()));
 		}
 
 		public AxiomPointer visit(OWLDisjointUnionAxiom axiom) {
 			translateClassExpressionSet(axiom.getClassExpressions());
-			return kernel
-					.tellDisjointUnion(toClassPointer(axiom.getOWLClass()));
+			return kernel.tellDisjointUnion(toClassPointer(axiom.getOWLClass()));
 		}
 
 		public AxiomPointer visit(OWLDeclarationAxiom axiom) {
@@ -1483,21 +1346,16 @@ public class FaCTPlusPlusReasoner implements OWLReasoner,
 		}
 
 		public AxiomPointer visit(OWLSymmetricObjectPropertyAxiom axiom) {
-			return kernel
-					.tellSymmetricObjectProperty(toObjectPropertyPointer(axiom
-							.getProperty()));
+			return kernel.tellSymmetricObjectProperty(toObjectPropertyPointer(axiom.getProperty()));
 		}
 
 		public AxiomPointer visit(OWLDataPropertyRangeAxiom axiom) {
-			return kernel.tellDataPropertyRange(
-					toDataPropertyPointer(axiom.getProperty()),
+			return kernel.tellDataPropertyRange(toDataPropertyPointer(axiom.getProperty()),
 					toDataTypeExpressionPointer(axiom.getRange()));
 		}
 
 		public AxiomPointer visit(OWLFunctionalDataPropertyAxiom axiom) {
-			return kernel
-					.tellFunctionalDataProperty(toDataPropertyPointer(axiom
-							.getProperty()));
+			return kernel.tellFunctionalDataProperty(toDataPropertyPointer(axiom.getProperty()));
 		}
 
 		public AxiomPointer visit(OWLEquivalentDataPropertiesAxiom axiom) {
@@ -1506,8 +1364,7 @@ public class FaCTPlusPlusReasoner implements OWLReasoner,
 		}
 
 		public AxiomPointer visit(OWLClassAssertionAxiom axiom) {
-			return kernel.tellIndividualType(
-					toIndividualPointer(axiom.getIndividual()),
+			return kernel.tellIndividualType(toIndividualPointer(axiom.getIndividual()),
 					toClassPointer(axiom.getClassExpression()));
 		}
 
@@ -1517,34 +1374,25 @@ public class FaCTPlusPlusReasoner implements OWLReasoner,
 		}
 
 		public AxiomPointer visit(OWLDataPropertyAssertionAxiom axiom) {
-			return kernel.tellRelatedIndividualValue(
-					toIndividualPointer(axiom.getSubject()),
-					toDataPropertyPointer(axiom.getProperty()),
-					toDataValuePointer(axiom.getObject()));
+			return kernel.tellRelatedIndividualValue(toIndividualPointer(axiom.getSubject()),
+					toDataPropertyPointer(axiom.getProperty()), toDataValuePointer(axiom.getObject()));
 		}
 
 		public AxiomPointer visit(OWLTransitiveObjectPropertyAxiom axiom) {
-			return kernel
-					.tellTransitiveObjectProperty(toObjectPropertyPointer(axiom
-							.getProperty()));
+			return kernel.tellTransitiveObjectProperty(toObjectPropertyPointer(axiom.getProperty()));
 		}
 
 		public AxiomPointer visit(OWLIrreflexiveObjectPropertyAxiom axiom) {
-			return kernel
-					.tellIrreflexiveObjectProperty(toObjectPropertyPointer(axiom
-							.getProperty()));
+			return kernel.tellIrreflexiveObjectProperty(toObjectPropertyPointer(axiom.getProperty()));
 		}
 
 		public AxiomPointer visit(OWLSubDataPropertyOfAxiom axiom) {
-			return kernel.tellSubDataProperties(
-					toDataPropertyPointer(axiom.getSubProperty()),
+			return kernel.tellSubDataProperties(toDataPropertyPointer(axiom.getSubProperty()),
 					toDataPropertyPointer(axiom.getSuperProperty()));
 		}
 
 		public AxiomPointer visit(OWLInverseFunctionalObjectPropertyAxiom axiom) {
-			return kernel
-					.tellInverseFunctionalObjectProperty(toObjectPropertyPointer(axiom
-							.getProperty()));
+			return kernel.tellInverseFunctionalObjectProperty(toObjectPropertyPointer(axiom.getProperty()));
 		}
 
 		public AxiomPointer visit(OWLSameIndividualAxiom axiom) {
@@ -1554,27 +1402,22 @@ public class FaCTPlusPlusReasoner implements OWLReasoner,
 
 		public AxiomPointer visit(OWLSubPropertyChainOfAxiom axiom) {
 			translateObjectPropertySet(axiom.getPropertyChain());
-			return kernel.tellSubObjectProperties(
-					kernel.getPropertyComposition(),
+			return kernel.tellSubObjectProperties(kernel.getPropertyComposition(),
 					toObjectPropertyPointer(axiom.getSuperProperty()));
 		}
 
 		public AxiomPointer visit(OWLInverseObjectPropertiesAxiom axiom) {
-			return kernel.tellInverseProperties(
-					toObjectPropertyPointer(axiom.getFirstProperty()),
+			return kernel.tellInverseProperties(toObjectPropertyPointer(axiom.getFirstProperty()),
 					toObjectPropertyPointer(axiom.getSecondProperty()));
 		}
 
 		public AxiomPointer visit(OWLHasKeyAxiom axiom) {
 			translateObjectPropertySet(axiom.getObjectPropertyExpressions());
-			ObjectPropertyPointer objectPropertyPointer = kernel
-					.getObjectPropertyKey();
+			ObjectPropertyPointer objectPropertyPointer = kernel.getObjectPropertyKey();
 			translateDataPropertySet(axiom.getDataPropertyExpressions());
-			DataPropertyPointer dataPropertyPointer = kernel
-					.getDataPropertyKey();
-			return kernel.tellHasKey(
-					toClassPointer(axiom.getClassExpression()),
-					dataPropertyPointer, objectPropertyPointer);
+			DataPropertyPointer dataPropertyPointer = kernel.getDataPropertyKey();
+			return kernel.tellHasKey(toClassPointer(axiom.getClassExpression()), dataPropertyPointer,
+					objectPropertyPointer);
 		}
 
 		public AxiomPointer visit(OWLDatatypeDefinitionAxiom axiom) {
@@ -1615,9 +1458,7 @@ public class FaCTPlusPlusReasoner implements OWLReasoner,
 			if (axiom.getSubClass().equals(getOWLDataFactory().getOWLNothing())) {
 				return true;
 			}
-			return kernel.isClassSubsumedBy(
-					toClassPointer(axiom.getSubClass()),
-					toClassPointer(axiom.getSuperClass()));
+			return kernel.isClassSubsumedBy(toClassPointer(axiom.getSubClass()), toClassPointer(axiom.getSuperClass()));
 		}
 
 		public Boolean visit(OWLNegativeObjectPropertyAssertionAxiom axiom) {
@@ -1625,24 +1466,18 @@ public class FaCTPlusPlusReasoner implements OWLReasoner,
 		}
 
 		public Boolean visit(OWLAsymmetricObjectPropertyAxiom axiom) {
-			return kernel
-					.isObjectPropertyAsymmetric(toObjectPropertyPointer(axiom
-							.getProperty()));
+			return kernel.isObjectPropertyAsymmetric(toObjectPropertyPointer(axiom.getProperty()));
 		}
 
 		public Boolean visit(OWLReflexiveObjectPropertyAxiom axiom) {
-			return kernel
-					.isObjectPropertyReflexive(toObjectPropertyPointer(axiom
-							.getProperty()));
+			return kernel.isObjectPropertyReflexive(toObjectPropertyPointer(axiom.getProperty()));
 		}
 
 		public Boolean visit(OWLDisjointClassesAxiom axiom) {
-			Set<OWLClassExpression> classExpressions = axiom
-					.getClassExpressions();
+			Set<OWLClassExpression> classExpressions = axiom.getClassExpressions();
 			if (classExpressions.size() == 2) {
 				Iterator<OWLClassExpression> it = classExpressions.iterator();
-				return kernel.isClassDisjointWith(toClassPointer(it.next()),
-						toClassPointer(it.next()));
+				return kernel.isClassDisjointWith(toClassPointer(it.next()), toClassPointer(it.next()));
 			} else {
 				for (OWLAxiom ax : axiom.asOWLSubClassOfAxioms()) {
 					if (!ax.accept(this)) {
@@ -1711,24 +1546,20 @@ public class FaCTPlusPlusReasoner implements OWLReasoner,
 		}
 
 		public Boolean visit(OWLFunctionalObjectPropertyAxiom axiom) {
-			return kernel
-					.isObjectPropertyFunctional(toObjectPropertyPointer(axiom
-							.getProperty()));
+			return kernel.isObjectPropertyFunctional(toObjectPropertyPointer(axiom.getProperty()));
 		}
 
 		public Boolean visit(OWLSubObjectPropertyOfAxiom axiom) {
-			return kernel.isObjectSubPropertyOf(
-					toObjectPropertyPointer(axiom.getSubProperty()),
+			return kernel.isObjectSubPropertyOf(toObjectPropertyPointer(axiom.getSubProperty()),
 					toObjectPropertyPointer(axiom.getSuperProperty()));
 		}
 
 		public Boolean visit(OWLDisjointUnionAxiom axiom) {
-			return axiom.getOWLEquivalentClassesAxiom().accept(this)
-					&& axiom.getOWLDisjointClassesAxiom().accept(this);
+			return axiom.getOWLEquivalentClassesAxiom().accept(this) && axiom.getOWLDisjointClassesAxiom().accept(this);
 		}
 
 		public Boolean visit(OWLDeclarationAxiom axiom) {
-			//TODO uhm might be needed?
+			// TODO uhm might be needed?
 			return false;
 		}
 
@@ -1737,9 +1568,7 @@ public class FaCTPlusPlusReasoner implements OWLReasoner,
 		}
 
 		public Boolean visit(OWLSymmetricObjectPropertyAxiom axiom) {
-			return kernel
-					.isObjectPropertySymmetric(toObjectPropertyPointer(axiom
-							.getProperty()));
+			return kernel.isObjectPropertySymmetric(toObjectPropertyPointer(axiom.getProperty()));
 		}
 
 		public Boolean visit(OWLDataPropertyRangeAxiom axiom) {
@@ -1747,36 +1576,32 @@ public class FaCTPlusPlusReasoner implements OWLReasoner,
 		}
 
 		public Boolean visit(OWLFunctionalDataPropertyAxiom axiom) {
-			return kernel.isDataPropertyFunctional(toDataPropertyPointer(axiom
-					.getProperty()));
+			return kernel.isDataPropertyFunctional(toDataPropertyPointer(axiom.getProperty()));
 		}
 
 		public Boolean visit(OWLEquivalentDataPropertiesAxiom axiom) {
-			//TODO check
-			/*	this is not implemented in OWL API
-						for (OWLAxiom ax : axiom.asSubDataPropertyOfAxioms()) {
-			                if (!ax.accept(this)) {
-			                    return false;
-			                }
-			            }
-			            return true;
-			*/
+			// TODO check
+			// this is not implemented in OWL API
+			// for (OWLAxiom ax : axiom.asSubDataPropertyOfAxioms()) {
+			// if (!ax.accept(this)) {
+			// return false;
+			// }
+			// }
+			// return true;
+
 			return null;
 		}
 
 		public Boolean visit(OWLClassAssertionAxiom axiom) {
-			return kernel.isInstanceOf(
-					toIndividualPointer(axiom.getIndividual()),
+			return kernel.isInstanceOf(toIndividualPointer(axiom.getIndividual()),
 					toClassPointer(axiom.getClassExpression()));
 		}
 
 		public Boolean visit(OWLEquivalentClassesAxiom axiom) {
-			Set<OWLClassExpression> classExpressionSet = axiom
-					.getClassExpressions();
+			Set<OWLClassExpression> classExpressionSet = axiom.getClassExpressions();
 			if (classExpressionSet.size() == 2) {
 				Iterator<OWLClassExpression> it = classExpressionSet.iterator();
-				return kernel.isClassEquivalentTo(toClassPointer(it.next()),
-						toClassPointer(it.next()));
+				return kernel.isClassEquivalentTo(toClassPointer(it.next()), toClassPointer(it.next()));
 			} else {
 				for (OWLAxiom ax : axiom.asOWLSubClassOfAxioms()) {
 					if (!ax.accept(this)) {
@@ -1792,28 +1617,21 @@ public class FaCTPlusPlusReasoner implements OWLReasoner,
 		}
 
 		public Boolean visit(OWLTransitiveObjectPropertyAxiom axiom) {
-			return kernel
-					.isObjectPropertyTransitive(toObjectPropertyPointer(axiom
-							.getProperty()));
+			return kernel.isObjectPropertyTransitive(toObjectPropertyPointer(axiom.getProperty()));
 		}
 
 		public Boolean visit(OWLIrreflexiveObjectPropertyAxiom axiom) {
-			return kernel
-					.isObjectPropertyIrreflexive(toObjectPropertyPointer(axiom
-							.getProperty()));
+			return kernel.isObjectPropertyIrreflexive(toObjectPropertyPointer(axiom.getProperty()));
 		}
 
 		// TODO: this is incomplete
 		public Boolean visit(OWLSubDataPropertyOfAxiom axiom) {
-			return kernel.isDataSubPropertyOf(
-					toDataPropertyPointer(axiom.getSubProperty()),
+			return kernel.isDataSubPropertyOf(toDataPropertyPointer(axiom.getSubProperty()),
 					toDataPropertyPointer(axiom.getSuperProperty()));
 		}
 
 		public Boolean visit(OWLInverseFunctionalObjectPropertyAxiom axiom) {
-			return kernel
-					.isObjectPropertyInverseFunctional(toObjectPropertyPointer(axiom
-							.getProperty()));
+			return kernel.isObjectPropertyInverseFunctional(toObjectPropertyPointer(axiom.getProperty()));
 		}
 
 		public Boolean visit(OWLSameIndividualAxiom axiom) {
@@ -1821,8 +1639,7 @@ public class FaCTPlusPlusReasoner implements OWLReasoner,
 				Iterator<OWLIndividual> it = ax.getIndividuals().iterator();
 				OWLIndividual indA = it.next();
 				OWLIndividual indB = it.next();
-				if (!kernel.isSameAs(toIndividualPointer(indA),
-						toIndividualPointer(indB))) {
+				if (!kernel.isSameAs(toIndividualPointer(indA), toIndividualPointer(indB))) {
 					return false;
 				}
 			}
@@ -1835,8 +1652,7 @@ public class FaCTPlusPlusReasoner implements OWLReasoner,
 				kernel.addArg(toObjectPropertyPointer(p));
 			}
 			kernel.closeArgList();
-			return kernel.isSubPropertyChainOf(toObjectPropertyPointer(axiom
-					.getSuperProperty()));
+			return kernel.isSubPropertyChainOf(toObjectPropertyPointer(axiom.getSuperProperty()));
 		}
 
 		public Boolean visit(OWLInverseObjectPropertiesAxiom axiom) {
@@ -1906,8 +1722,7 @@ public class FaCTPlusPlusReasoner implements OWLReasoner,
 		public void setClassificationStarted(int classCount) {
 			count = 0;
 			total = classCount;
-			progressMonitor
-					.reasonerTaskStarted(ReasonerProgressMonitor.CLASSIFYING);
+			progressMonitor.reasonerTaskStarted(ReasonerProgressMonitor.CLASSIFYING);
 			progressMonitor.reasonerTaskProgressChanged(count, classCount);
 		}
 
@@ -1932,15 +1747,13 @@ public class FaCTPlusPlusReasoner implements OWLReasoner,
 		dumpSubClasses(getTopClassNode(), pw, 0, includeBottomNode);
 	}
 
-	private void dumpSubClasses(Node<OWLClass> node, PrintStream pw, int depth,
-			boolean includeBottomNode) {
+	private void dumpSubClasses(Node<OWLClass> node, PrintStream pw, int depth, boolean includeBottomNode) {
 		if (includeBottomNode || !node.isBottomNode()) {
 			for (int i = 0; i < depth; i++) {
 				pw.print("    ");
 			}
 			pw.println(node);
-			for (Node<OWLClass> sub : getSubClasses(
-					node.getRepresentativeElement(), true)) {
+			for (Node<OWLClass> sub : getSubClasses(node.getRepresentativeElement(), true)) {
 				dumpSubClasses(sub, pw, depth + 1, includeBottomNode);
 			}
 		}
@@ -1959,11 +1772,11 @@ public class FaCTPlusPlusReasoner implements OWLReasoner,
 	}
 
 	public Collection<NodePointer> getObjectNeighbours(NodePointer n, OWLObjectProperty property) {
-		return Arrays.asList( kernel.getObjectNeighbours(n, toObjectPropertyPointer(property)));
+		return Arrays.asList(kernel.getObjectNeighbours(n, toObjectPropertyPointer(property)));
 	}
 
 	public Collection<NodePointer> getDataNeighbours(NodePointer n, OWLDataProperty property) {
-		return Arrays.asList( kernel.getDataNeighbours(n, toDataPropertyPointer(property)));
+		return Arrays.asList(kernel.getDataNeighbours(n, toDataPropertyPointer(property)));
 	}
 
 	public Node<? extends OWLClassExpression> getObjectLabel(NodePointer object, boolean deterministicOnly) {
@@ -1974,17 +1787,21 @@ public class FaCTPlusPlusReasoner implements OWLReasoner,
 		return dataRangeTranslator.getNodeFromPointers(kernel.getDataLabel(object, deterministicOnly));
 	}
 
-	public int getAtomicDecompositionSize( int i) {
+	public int getAtomicDecompositionSize(int i) {
 		return kernel.getAtomicDecompositionSize(i);
 	}
 
 	public Set<OWLAxiom> getAtomAxioms(int index) {
-		AxiomPointer[] axioms=kernel.getAtomAxioms(index);
-		Set<OWLAxiom> toReturn=new HashSet<OWLAxiom>();
-		for(AxiomPointer p:axioms) {
+		AxiomPointer[] axioms = kernel.getAtomAxioms(index);
+		return axiomsToSet(axioms);
+	}
+
+	private Set<OWLAxiom> axiomsToSet(AxiomPointer[] axioms) {
+		Set<OWLAxiom> toReturn = new HashSet<OWLAxiom>();
+		for (AxiomPointer p : axioms) {
 			final OWLAxiom owlAxiom = ptr2AxiomMap.get(p);
-			if(owlAxiom !=null) {
-			toReturn.add(owlAxiom);
+			if (owlAxiom != null) {
+				toReturn.add(owlAxiom);
 			}
 		}
 		return toReturn;
@@ -1993,6 +1810,4 @@ public class FaCTPlusPlusReasoner implements OWLReasoner,
 	public int[] getAtomDependents(int index) {
 		return kernel.getAtomDependents(index);
 	}
-
-
 }
