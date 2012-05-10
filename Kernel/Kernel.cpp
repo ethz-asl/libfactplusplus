@@ -526,7 +526,7 @@ ReasoningKernel :: getAtomicDecompositionSize ( ModuleType type )
 {
 	// init AD field
 	if ( AD == NULL )
-		AD = new AtomicDecomposer();
+		AD = new AtomicDecomposer(/*useSem=*/false);
 	return AD->getAOS ( &Ontology, type )->size();
 }
 	/// get a set of axioms that corresponds to the atom with the id INDEX
