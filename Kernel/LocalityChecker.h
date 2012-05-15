@@ -80,6 +80,14 @@ public:		// interface
 			if ( likely((*p)->isUsed()) )
 				(*p)->accept(*this);
 	}
+		/// set a new value of a signature (without changing a locality parameters)
+	void setSignatureValue ( const TSignature& Sig )
+	{
+		TSignature* curSig = const_cast<TSignature*>(sig);
+//		bool topC = topCLocal(), topR = topRLocal();
+		*curSig = Sig;
+//		curSig->setLocality ( topC, topR );
+	}
 }; // LocalityChecker
 
 #endif

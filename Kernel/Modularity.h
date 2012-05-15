@@ -209,6 +209,8 @@ public:		// interface
 	const AxiomVec& getModule ( void ) const { return Module; }
 		/// get access to a signature
 	const TSignature& getSignature ( void ) const { return sig; }
+		/// get access to the Locality checker
+	LocalityChecker* getLocalityChecker ( void ) { return Checker; }
 		/// get number of checks made
 	unsigned long long getNChecks ( void ) const { return nChecks; }
 		/// get number of axioms that were local
