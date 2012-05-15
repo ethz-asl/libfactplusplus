@@ -483,7 +483,8 @@ public:		// visitor interface
 			isLocal |= isBotEquivalent(axiom.getRole());
 	}
 	virtual void visit ( const TDLAxiomRoleTransitive& axiom ) { isLocal = isREquivalent(axiom.getRole()); }
-	virtual void visit ( const TDLAxiomRoleReflexive& axiom ) { isLocal = isREquivalent(axiom.getRole()); }
+		/// as BotRole is irreflexive, the only local axiom is topEquivalent(R)
+	virtual void visit ( const TDLAxiomRoleReflexive& axiom ) { isLocal = isTopEquivalent(axiom.getRole()); }
 	virtual void visit ( const TDLAxiomRoleIrreflexive& axiom ) { isLocal = !topRLocal() && isBotEquivalent(axiom.getRole()); }
 	virtual void visit ( const TDLAxiomRoleSymmetric& axiom ) { isLocal = isREquivalent(axiom.getRole()); }
 	virtual void visit ( const TDLAxiomRoleAsymmetric& axiom ) { isLocal = !topRLocal() && isBotEquivalent(axiom.getRole()); }
