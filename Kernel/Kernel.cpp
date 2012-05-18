@@ -42,6 +42,8 @@ ReasoningKernel :: ReasoningKernel ( void )
 	, pET(NULL)
 	, KE(NULL)
 	, AD(NULL)
+	, ModSyn(NULL)
+	, ModSem(NULL)
 	, pMonitor(NULL)
 	, OpTimeout(0)
 	, verboseOutput(false)
@@ -72,8 +74,24 @@ ReasoningKernel :: ~ReasoningKernel ( void )
 	clearTBox();
 	delete cachedQueryTree;
 	delete pMonitor;
+}
+
+/// clear TBox and related structures; keep ontology in place
+void
+ReasoningKernel :: clearTBox ( void )
+{
+	delete pTBox;
+	pTBox = NULL;
+	delete pET;
+	pET = NULL;
 	delete KE;
+	KE = NULL;
 	delete AD;
+	AD = NULL;
+	delete ModSem;
+	ModSem = NULL;
+	delete ModSyn;
+	ModSyn = NULL;
 }
 
 bool
@@ -547,6 +565,73 @@ ReasoningKernel :: getAtomDependents ( unsigned int index ) const
 {
 	return (*AD->getAOS())[index]->getDepAtoms();
 }
+
+TModularizer*
+ReasoningKernel :: getModExtractor ( bool useSemantic )
+{
+	bool needInit = false;
+	// check whether we need init
+	if ( useSemantic && unlikely(ModSem == NULL) )
+	{
+		ModSem = new TModularizer(/*useSem=*/true);
+		needInit = true;
+	}
+	if ( !useSemantic && unlikely(ModSyn == NULL) )
+	{
+		ModSyn = new TModularizer(/*useSem=*/false);
+		needInit = true;
+	}
+
+	// init if necessary
+	TModularizer* Mod = useSemantic ? ModSem : ModSyn;
+	if ( unlikely(needInit) )
+	{
+		SigIndex* SI = new SigIndex();
+		SI->processRange ( getOntology().begin(), getOntology().end() );
+		Mod->setSigIndex(SI);
+		Mod->preprocessOntology(getOntology().getAxioms());
+	}
+	return Mod;
+}
+
+/// get a set of axioms that corresponds to the atom with the id INDEX
+const AxiomVec&
+ReasoningKernel :: getModule ( bool useSemantic )
+{
+	// init signature
+	TSignature Sig;
+	Sig.setLocality(false);
+	const std::vector<const TDLExpression*> signature = getExpressionManager()->getArgList();
+	for ( std::vector<const TDLExpression*>::const_iterator q = signature.begin(), q_end = signature.end(); q != q_end; ++q )
+		if ( const TNamedEntity* entity = dynamic_cast<const TNamedEntity*>(*q) )
+			Sig.add(entity);
+	TModularizer* Mod = getModExtractor(useSemantic);
+	Mod->extract ( getOntology(), Sig, M_BOT );
+	return Mod->getModule();
+}
+
+/// get a set of axioms that corresponds to the atom with the id INDEX
+const AxiomVec&
+ReasoningKernel :: getNonLocal ( bool useSemantic )
+{
+	// init signature
+	TSignature Sig;
+	Sig.setLocality(false);
+	const std::vector<const TDLExpression*> signature = getExpressionManager()->getArgList();
+	for ( std::vector<const TDLExpression*>::const_iterator q = signature.begin(), q_end = signature.end(); q != q_end; ++q )
+		if ( const TNamedEntity* entity = dynamic_cast<const TNamedEntity*>(*q) )
+			Sig.add(entity);
+
+	// do check
+	LocalityChecker* LC = getModExtractor(useSemantic)->getLocalityChecker();
+	LC->setSignatureValue(Sig);
+	Result.clear();
+	for ( TOntology::iterator p = getOntology().begin(), p_end = getOntology().end(); p != p_end; ++p )
+		if ( !LC->local(*p) )
+			Result.push_back(*p);
+	return Result;
+}
+
 
 //******************************************
 //* Initialization

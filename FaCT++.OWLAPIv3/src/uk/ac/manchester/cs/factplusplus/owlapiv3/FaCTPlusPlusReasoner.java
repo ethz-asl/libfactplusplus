@@ -1810,4 +1810,49 @@ public class FaCTPlusPlusReasoner implements OWLReasoner, OWLOntologyChangeListe
 	public int[] getAtomDependents(int index) {
 		return kernel.getAtomDependents(index);
 	}
+
+	private final class EntityVisitorEx implements OWLEntityVisitorEx<Pointer> {
+		public Pointer visit(OWLClass cls) {
+			return toClassPointer(cls);
+		}
+
+		public Pointer visit(OWLObjectProperty property) {
+			return toObjectPropertyPointer(property);
+		}
+
+		public Pointer visit(OWLDataProperty property) {
+			return toDataPropertyPointer(property);
+		}
+
+		public Pointer visit(OWLNamedIndividual individual) {
+			return toIndividualPointer(individual);
+		}
+
+		public Pointer visit(OWLDatatype datatype) {
+			return null;
+		}
+
+		public Pointer visit(OWLAnnotationProperty property) {
+			return null;
+		}
+	}
+
+	final EntityVisitorEx entityTranslator = new EntityVisitorEx();
+
+	public Set<OWLAxiom> getModule(Set<OWLEntity> signature, boolean useSemantic) {
+		kernel.initArgList();
+		for (OWLEntity entity : signature)
+			kernel.addArg(entity.accept(entityTranslator));
+		AxiomPointer[] axioms = kernel.getModule(useSemantic);
+		return axiomsToSet(axioms);
+	}
+
+	public Set<OWLAxiom> getNonLocal(Set<OWLEntity> signature, boolean useSemantic) {
+		kernel.initArgList();
+		for (OWLEntity entity : signature)
+			kernel.addArg(entity.accept(entityTranslator));
+		AxiomPointer[] axioms = kernel.getNonLocal(useSemantic);
+		return axiomsToSet(axioms);
+	}
+
 }

@@ -637,4 +637,12 @@ public class FaCTPlusPlus {
 
 	public native int[] getAtomDependents(int index);
 
+	// ------------------------------------------------------------------------
+	// Modularity interface
+	// ------------------------------------------------------------------------
+
+	public native AxiomPointer[] getModule(boolean useSemantic);
+
+	public native AxiomPointer[] getNonLocal(boolean useSemantic);
+
 }

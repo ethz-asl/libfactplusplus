@@ -32,6 +32,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "tOntologyAtom.h"	// types for AD
 #include "ModuleType.h"
 
+class TModularizer;
 class AtomicDecomposer;
 
 class ReasoningKernel
@@ -145,6 +146,12 @@ protected:	// members
 	KnowledgeExplorer* KE;
 		/// atomic decomposer
 	AtomicDecomposer* AD;
+		/// syntactic locality based module extractor
+	TModularizer* ModSyn;
+		/// semantic locality based module extractor
+	TModularizer* ModSem;
+		/// set to return by the locality checking procedure
+	AxiomVec Result;
 
 	// Top/Bottom role names: if set, they will appear in all hierarchy-related output
 
@@ -399,15 +406,7 @@ protected:	// methods
 		/// get RO access to TBox
 	const TBox* getTBox ( void ) const { checkTBox(); return pTBox; }
 		/// clear TBox and related structures; keep ontology in place
-	void clearTBox ( void )
-	{
-		delete pTBox;
-		pTBox = NULL;
-		delete pET;
-		pET = NULL;
-		delete KE;
-		KE = NULL;
-	}
+	void clearTBox ( void );
 
 		/// get RW access to Object RoleMaster from TBox
 	RoleMaster* getORM ( void ) { return getTBox()->getORM(); }
@@ -495,6 +494,8 @@ protected:	// methods
 
 		/// add the role R and all its supers to a set RESULT
 	void addRoleWithSupers ( const TRole* R, TCGRoleSet& Result );
+		/// check whether the modularizer need initialisation, init it and return a proper one
+	TModularizer* getModExtractor ( bool useSemantic );
 
 public:	// general staff
 		/// default c'tor
@@ -1254,6 +1255,16 @@ public:
 	const TOntologyAtom::AxiomSet& getAtomModule ( unsigned int index ) const;
 		/// get a set of atoms on which atom with index INDEX depends
 	const TOntologyAtom::AtomSet& getAtomDependents ( unsigned int index ) const;
+
+	//----------------------------------------------------------------------------------
+	// modularity queries
+	//----------------------------------------------------------------------------------
+
+		/// get a set of axioms that corresponds to the atom with the id INDEX
+	const AxiomVec& getModule ( bool useSemantic );
+		/// get a set of axioms that corresponds to the atom with the id INDEX
+	const AxiomVec& getNonLocal ( bool useSemantic );
+
 }; // ReasoningKernel
 
 #endif

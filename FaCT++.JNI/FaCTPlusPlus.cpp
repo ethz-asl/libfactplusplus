@@ -354,6 +354,8 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
 
 	if ( DTName == "http://www.w3.org/1999/02/22-rdf-syntax-ns#PlainLiteral" )
 		return DataType ( env, EM->getStrDataType() );
+	if ( DTName == "http://www.w3.org/1999/02/22-rdf-syntax-ns#XMLLiteral" )
+		return DataType ( env, EM->getStrDataType() );
 
 	if ( DTName == "http://www.w3.org/2001/XMLSchema#string" )
 		return DataType ( env, EM->getStrDataType() );
@@ -2374,6 +2376,30 @@ JNIEXPORT jintArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_g
 	env->SetIntArrayRegion ( ret, 0, sz, buf );
 	delete [] buf;
 	return ret;
+}
+
+/*
+ * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
+ * Method:    getModule
+ * Signature: (Z)[Luk/ac/manchester/cs/factplusplus/AxiomPointer;
+ */
+JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_getModule
+  (JNIEnv * env, jobject obj, jboolean useSemantic)
+{
+	TRACE_JNI("getModule");
+	return buildArray ( env, getK(env,obj)->getModule(useSemantic), AxiomPointer );
+}
+
+/*
+ * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
+ * Method:    getNonLocal
+ * Signature: (Z)[Luk/ac/manchester/cs/factplusplus/AxiomPointer;
+ */
+JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_getNonLocal
+(JNIEnv * env, jobject obj, jboolean useSemantic)
+{
+	TRACE_JNI("getNonLocal");
+	return buildArray ( env, getK(env,obj)->getNonLocal(useSemantic), AxiomPointer );
 }
 
 #ifdef __cplusplus
