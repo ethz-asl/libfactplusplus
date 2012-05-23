@@ -1138,30 +1138,6 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_setFre
 
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
- * Method:    initArgList
- * Signature: ()V
- */
-JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_initArgList
-  (JNIEnv *, jobject);
-
-/*
- * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
- * Method:    addArg
- * Signature: (Luk/ac/manchester/cs/factplusplus/Pointer;)V
- */
-JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_addArg
-  (JNIEnv *, jobject, jobject);
-
-/*
- * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
- * Method:    closeArgList
- * Signature: ()V
- */
-JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_closeArgList
-  (JNIEnv *, jobject);
-
-/*
- * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
  * Method:    setProgressMonitor
  * Signature: (Luk/ac/manchester/cs/factplusplus/FaCTPlusPlusProgressMonitor;)V
  */
@@ -1182,6 +1158,30 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_startC
  * Signature: ()V
  */
 JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_endChanges
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
+ * Method:    initArgList
+ * Signature: ()V
+ */
+JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_initArgList
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
+ * Method:    addArg
+ * Signature: (Luk/ac/manchester/cs/factplusplus/Pointer;)V
+ */
+JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_addArg
+  (JNIEnv *, jobject, jobject);
+
+/*
+ * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
+ * Method:    closeArgList
+ * Signature: ()V
+ */
+JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_closeArgList
   (JNIEnv *, jobject);
 
 /*
@@ -1259,10 +1259,10 @@ JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlu
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
  * Method:    getAtomicDecompositionSize
- * Signature: (I)I
+ * Signature: (ZI)I
  */
 JNIEXPORT jint JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_getAtomicDecompositionSize
-  (JNIEnv *, jobject, jint);
+  (JNIEnv *, jobject, jboolean, jint);
 
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
@@ -1283,18 +1283,18 @@ JNIEXPORT jintArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_g
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
  * Method:    getModule
- * Signature: (Z)[Luk/ac/manchester/cs/factplusplus/AxiomPointer;
+ * Signature: (ZI)[Luk/ac/manchester/cs/factplusplus/AxiomPointer;
  */
 JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_getModule
-  (JNIEnv *, jobject, jboolean);
+  (JNIEnv *, jobject, jboolean, jint);
 
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
  * Method:    getNonLocal
- * Signature: (Z)[Luk/ac/manchester/cs/factplusplus/AxiomPointer;
+ * Signature: (ZI)[Luk/ac/manchester/cs/factplusplus/AxiomPointer;
  */
 JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_getNonLocal
-  (JNIEnv *, jobject, jboolean);
+  (JNIEnv *, jobject, jboolean, jint);
 
 #ifdef __cplusplus
 }

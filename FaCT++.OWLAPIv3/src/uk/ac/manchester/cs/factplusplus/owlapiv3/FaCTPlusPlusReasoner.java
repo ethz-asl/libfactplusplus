@@ -1787,8 +1787,19 @@ public class FaCTPlusPlusReasoner implements OWLReasoner, OWLOntologyChangeListe
 		return dataRangeTranslator.getNodeFromPointers(kernel.getDataLabel(object, deterministicOnly));
 	}
 
-	public int getAtomicDecompositionSize(int i) {
-		return kernel.getAtomicDecompositionSize(i);
+	/**
+	 * Build an atomic decomposition using syntactic/semantic locality checking
+	 * 
+	 * @param useSemantic
+	 *            if true, use semantic locality checking; if false, use
+	 *            syntactic one
+	 * @param moduleType
+	 *            if 0, use \bot modules; if 1, use \top modules; if 2, use STAR
+	 *            modules
+	 * @return the size of the constructed atomic decomposition
+	 */
+	public int getAtomicDecompositionSize(boolean useSemantic, int moduleType) {
+		return kernel.getAtomicDecompositionSize(useSemantic, moduleType);
 	}
 
 	public Set<OWLAxiom> getAtomAxioms(int index) {
@@ -1839,20 +1850,29 @@ public class FaCTPlusPlusReasoner implements OWLReasoner, OWLOntologyChangeListe
 
 	final EntityVisitorEx entityTranslator = new EntityVisitorEx();
 
-	public Set<OWLAxiom> getModule(Set<OWLEntity> signature, boolean useSemantic) {
+	/**
+	 * 
+	 * @param signature
+	 *            if true, use semantic locality checking; if false, use
+	 *            syntactic one
+	 * @param moduleType
+	 *            if 0, use \bot modules; if 1, use \top modules; if 2, use STAR
+	 *            modules
+	 * @return
+	 */
+	public Set<OWLAxiom> getModule(Set<OWLEntity> signature, boolean useSemantic, int moduleType) {
 		kernel.initArgList();
 		for (OWLEntity entity : signature)
 			kernel.addArg(entity.accept(entityTranslator));
-		AxiomPointer[] axioms = kernel.getModule(useSemantic);
+		AxiomPointer[] axioms = kernel.getModule(useSemantic, moduleType);
 		return axiomsToSet(axioms);
 	}
 
-	public Set<OWLAxiom> getNonLocal(Set<OWLEntity> signature, boolean useSemantic) {
+	public Set<OWLAxiom> getNonLocal(Set<OWLEntity> signature, boolean useSemantic, int moduleType) {
 		kernel.initArgList();
 		for (OWLEntity entity : signature)
 			kernel.addArg(entity.accept(entityTranslator));
-		AxiomPointer[] axioms = kernel.getNonLocal(useSemantic);
+		AxiomPointer[] axioms = kernel.getNonLocal(useSemantic, moduleType);
 		return axiomsToSet(axioms);
 	}
-
 }

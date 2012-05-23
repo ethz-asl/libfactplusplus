@@ -54,6 +54,12 @@ extern "C" {
 #	define TRACE_ARG(env,obj,arg) (void)NULL
 #endif
 
+inline enum ModuleType
+moduleTypeByInt ( jint moduleType )
+{
+	return moduleType == 0 ? M_BOT : moduleType == 1 ? M_TOP : M_STAR;
+}
+
 //-------------------------------------------------------------
 // Different fields/method IDs and their setup
 //-------------------------------------------------------------
@@ -2336,13 +2342,13 @@ JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlu
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
  * Method:    getAtomicDecompositionSize
- * Signature: (I)I
+ * Signature: (ZI)I
  */
 JNIEXPORT jint JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_getAtomicDecompositionSize
-  (JNIEnv * env, jobject obj, jint moduleType)
+  (JNIEnv * env, jobject obj, jboolean useSemantic, jint moduleType)
 {
 	TRACE_JNI("getAtomicDecompositionSize");
-	return getK(env,obj)->getAtomicDecompositionSize ( moduleType == 0 ? M_BOT : moduleType == 1 ? M_TOP : M_STAR );
+	return getK(env,obj)->getAtomicDecompositionSize ( useSemantic, moduleTypeByInt(moduleType) );
 }
 
 /*
@@ -2381,25 +2387,25 @@ JNIEXPORT jintArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_g
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
  * Method:    getModule
- * Signature: (Z)[Luk/ac/manchester/cs/factplusplus/AxiomPointer;
+ * Signature: (ZI)[Luk/ac/manchester/cs/factplusplus/AxiomPointer;
  */
 JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_getModule
-  (JNIEnv * env, jobject obj, jboolean useSemantic)
+  (JNIEnv * env, jobject obj, jboolean useSemantic, jint moduleType)
 {
 	TRACE_JNI("getModule");
-	return buildArray ( env, getK(env,obj)->getModule(useSemantic), AxiomPointer );
+	return buildArray ( env, getK(env,obj)->getModule(useSemantic,moduleTypeByInt(moduleType)), AxiomPointer );
 }
 
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
  * Method:    getNonLocal
- * Signature: (Z)[Luk/ac/manchester/cs/factplusplus/AxiomPointer;
+ * Signature: (ZI)[Luk/ac/manchester/cs/factplusplus/AxiomPointer;
  */
 JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_getNonLocal
-(JNIEnv * env, jobject obj, jboolean useSemantic)
+  (JNIEnv * env, jobject obj, jboolean useSemantic, jint moduleType)
 {
 	TRACE_JNI("getNonLocal");
-	return buildArray ( env, getK(env,obj)->getNonLocal(useSemantic), AxiomPointer );
+	return buildArray ( env, getK(env,obj)->getNonLocal(useSemantic,moduleTypeByInt(moduleType)), AxiomPointer );
 }
 
 #ifdef __cplusplus

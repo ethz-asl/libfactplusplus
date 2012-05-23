@@ -540,12 +540,12 @@ ReasoningKernel :: isRelated ( const TIndividualExpr* I, const TORoleExpr* R, co
 
 	/// create new atomic decomposition of the loaded ontology using TYPE. @return size of the AD
 unsigned int
-ReasoningKernel :: getAtomicDecompositionSize ( ModuleType type )
+ReasoningKernel :: getAtomicDecompositionSize ( bool useSemantic, ModuleType moduleType )
 {
 	// init AD field
 	if ( AD == NULL )
-		AD = new AtomicDecomposer(/*useSem=*/false);
-	return AD->getAOS ( &Ontology, type )->size();
+		AD = new AtomicDecomposer(useSemantic);
+	return AD->getAOS ( &Ontology, moduleType )->size();
 }
 	/// get a set of axioms that corresponds to the atom with the id INDEX
 const TOntologyAtom::AxiomSet&
@@ -596,7 +596,7 @@ ReasoningKernel :: getModExtractor ( bool useSemantic )
 
 /// get a set of axioms that corresponds to the atom with the id INDEX
 const AxiomVec&
-ReasoningKernel :: getModule ( bool useSemantic )
+ReasoningKernel :: getModule ( bool useSemantic, ModuleType moduleType )
 {
 	// init signature
 	TSignature Sig;
@@ -606,17 +606,17 @@ ReasoningKernel :: getModule ( bool useSemantic )
 		if ( const TNamedEntity* entity = dynamic_cast<const TNamedEntity*>(*q) )
 			Sig.add(entity);
 	TModularizer* Mod = getModExtractor(useSemantic);
-	Mod->extract ( getOntology(), Sig, M_BOT );
+	Mod->extract ( getOntology(), Sig, moduleType );
 	return Mod->getModule();
 }
 
 /// get a set of axioms that corresponds to the atom with the id INDEX
 const AxiomVec&
-ReasoningKernel :: getNonLocal ( bool useSemantic )
+ReasoningKernel :: getNonLocal ( bool useSemantic, ModuleType moduleType )
 {
 	// init signature
 	TSignature Sig;
-	Sig.setLocality(false);
+	Sig.setLocality(moduleType == M_TOP);	// true for TOP, false for BOT/STAR
 	const std::vector<const TDLExpression*> signature = getExpressionManager()->getArgList();
 	for ( std::vector<const TDLExpression*>::const_iterator q = signature.begin(), q_end = signature.end(); q != q_end; ++q )
 		if ( const TNamedEntity* entity = dynamic_cast<const TNamedEntity*>(*q) )
