@@ -917,8 +917,11 @@ public:
 			return false;	// as \top [= \bot leads to inconsistent ontology
 
 		// told case first
-		if ( *r <= *s )
-			return true;
+		if ( likely(!r->isTop() && !s->isBottom()) )
+		{
+			if ( *r <= *s )
+				return true;
+		}
 		// check the general case
 		// FIXME!! cache it later
 		return checkRoleSubsumption ( r, s );
@@ -935,8 +938,11 @@ public:
 			return false;	// as \top [= \bot leads to inconsistent ontology
 
 		// told case first
-		if ( *r <= *s )
-			return true;
+		if ( likely(!r->isTop() && !s->isBottom()) )
+		{
+			if ( *r <= *s )
+				return true;
+		}
 		// check the general case
 		// FIXME!! cache it later
 		return checkRoleSubsumption ( r, s );
