@@ -28,12 +28,24 @@ class TopEquivalenceEvaluator;
 	/// @return true iff EXPR is a top datatype
 inline bool
 isTopDataType ( const TDLExpression* expr ) { return dynamic_cast<const TDLDataTop*>(expr) != NULL; }
-	/// @return true iff EXPR is a top datatype or a built-in datatype; FIXME for now -- just top
+	/// @return true iff EXPR is a top datatype or a built-in datatype;
 inline bool
-isTopOrBuiltInDataType ( const TDLExpression* expr ) { return isTopDataType(expr); }
-	/// @return true iff EXPR is a top datatype or an infinite built-in datatype; FIXME for now -- just top
+isTopOrBuiltInDataType ( const TDLExpression* expr )
+	{ return isTopDataType(expr) || dynamic_cast<const TDLDataTypeName*>(expr) != NULL; }
+	/// @return true iff EXPR is a top datatype or an infinite built-in datatype; FIXME add real/fraction later
 inline bool
-isTopOrBuiltInInfDataType ( const TDLExpression* expr ) { return isTopDataType(expr); }
+isTopOrBuiltInInfDataType ( const TDLExpression* expr )
+{
+	if ( isTopDataType(expr) )
+		return true;
+	if ( const TDLDataTypeName* namedDT = dynamic_cast<const TDLDataTypeName*>(expr) )
+	{
+		std::string name = namedDT->getName();
+		if ( name == TDataTypeManager::getStrTypeName() || name == TDataTypeManager::getTimeTypeName() )
+			return true;
+	}
+	return false;
+}
 
 /// check whether class expressions are equivalent to bottom wrt given locality class
 class BotEquivalenceEvaluator: protected SigAccessor, public DLExpressionVisitorEmpty
