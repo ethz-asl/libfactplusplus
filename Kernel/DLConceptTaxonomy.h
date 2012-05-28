@@ -67,7 +67,7 @@ protected:	// members
 		/// host tBox
 	TBox& tBox;
 		/// common descendants of all parents of currently classified concept
-	TaxonomyLink Common;
+	TaxVertexVec Common;
 		/// number of processed common parents
 	unsigned int nCommon;
 
@@ -211,7 +211,7 @@ protected:	// methods
 		if ( queryMode() )	// after classification -- bottom set up already
 			searchBaader ( /*upDirection=*/true, getBottomVertex() );
 		else	// during classification -- have to find leaf nodes
-			for ( TaxonomyLink::iterator p = Common.begin(), p_end = Common.end(); p < p_end; ++p )
+			for ( TaxVertexVec::iterator p = Common.begin(), p_end = Common.end(); p < p_end; ++p )
 				if ( (*p)->noNeighbours(/*upDirection=*/false) )
 					searchBaader ( /*upDirection=*/true, *p );
 	}

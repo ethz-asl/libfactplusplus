@@ -186,7 +186,7 @@ bool DLConceptTaxonomy :: propagateUp ( void )
 	TaxonomyVertex::iterator p = Current->begin(upDirection), p_end = Current->end(upDirection);
 	fpp_assert ( p != p_end );	// there is at least one parent (TOP)
 
-	TaxonomyLink aux;	// aux set for the verteces in ...
+	TaxVertexVec aux;	// aux set for the verteces in ...
 	nCommon = 1;	// number of common parents
 	clearCommon();
 
@@ -209,7 +209,7 @@ bool DLConceptTaxonomy :: propagateUp ( void )
 		clearCheckedLabel();
 
 		// clear all non-common nodes (visited on a previous run)
-		for ( TaxonomyLink::iterator q = aux.begin(), q_end = aux.end(); q < q_end; ++q )
+		for ( TaxVertexVec::iterator q = aux.begin(), q_end = aux.end(); q < q_end; ++q )
 			(*q)->correctCommon(nCommon);
 	}
 
@@ -219,7 +219,7 @@ bool DLConceptTaxonomy :: propagateUp ( void )
 void
 DLConceptTaxonomy :: clearCommon ( void )
 {
-	for ( TaxonomyLink::iterator p = Common.begin(), p_end = Common.end(); p < p_end; ++p )
+	for ( TaxVertexVec::iterator p = Common.begin(), p_end = Common.end(); p < p_end; ++p )
 		(*p)->clearCommon();
 	Common.clear();
 }

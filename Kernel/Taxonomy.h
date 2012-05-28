@@ -27,10 +27,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 class Taxonomy
 {
 protected:	// internal typedefs
-		/// type for a TaxLink from TaxVertex
-	typedef TaxonomyVertex::TaxonomyLink TaxonomyLink;
-		/// type for taxonomy internal representation
-	typedef TaxonomyLink SetOfVertex;
+		/// type for a vector of TaxVertex
+	typedef std::vector<TaxonomyVertex*> TaxVertexVec;
 		/// set of the subsumers
 	typedef ClassifiableEntry::linkSet SubsumerSet;
 		/// SS RW iterator
@@ -93,13 +91,13 @@ protected:	// internal typedefs
 
 public:		// typedefs
 		/// iterator on the set of vertex
-	typedef SetOfVertex::iterator iterator;
+	typedef TaxVertexVec::iterator iterator;
 		/// const_iterator on the set of vertex
-	typedef SetOfVertex::const_iterator const_iterator;
+	typedef TaxVertexVec::const_iterator const_iterator;
 
 protected:	// members
 		/// array of taxonomy vertices
-	SetOfVertex Graph;
+	TaxVertexVec Graph;
 		/// aux array to keep synonyms found during TS classification
 	std::vector<ClassifiableEntry*> Syns;
 
