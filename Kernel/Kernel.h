@@ -1169,7 +1169,7 @@ public:
 		// if not, just go 1 level down and apply the actor regardless of what's found
 		// FIXME!! check again after bucket-method will be implemented
 		for ( TaxonomyVertex::iterator p = cachedVertex->begin(/*upDirection=*/false),
-				p_end = cachedVertex->end(/*upDirection=*/false); p < p_end; ++p )
+				p_end = cachedVertex->end(/*upDirection=*/false); p != p_end; ++p )
 			actor.apply(**p);
 	}
 

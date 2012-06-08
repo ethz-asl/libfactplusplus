@@ -45,10 +45,10 @@ void TaxonomyVertex :: incorporate ( void )
 	iterator u, u_end = end(/*upDirection=*/true), d, d_end = end(/*upDirection=*/false);
 
 	// correct links on lower concepts...
-	for ( d = begin(/*upDirection=*/false); d < d_end; ++d )
+	for ( d = begin(/*upDirection=*/false); d != d_end; ++d )
 	{
 		// remove all down links
-		for ( u = begin(/*upDirection=*/true); u < u_end; ++u )
+		for ( u = begin(/*upDirection=*/true); u != u_end; ++u )
 			if ( (*d)->removeLink ( /*upDirection=*/true, *u ) )
 				(*u)->removeLink ( /*upDirection=*/false, *d );
 
@@ -57,7 +57,7 @@ void TaxonomyVertex :: incorporate ( void )
 	}
 
 	// add new link between v and current
-	for ( u = begin(/*upDirection=*/true); u < u_end; ++u )
+	for ( u = begin(/*upDirection=*/true); u != u_end; ++u )
 		(*u)->addNeighbour ( /*upDirection=*/false, this );
 
 	CHECK_LL_RETURN(llTaxInsert);
@@ -68,7 +68,7 @@ void TaxonomyVertex :: incorporate ( void )
 	if ( u != u_end )
 	{
 		LL << (*u)->getPrimer()->getName();
-		for ( ++u; u < u_end; ++u )
+		for ( ++u; u != u_end; ++u )
 			LL << "," << (*u)->getPrimer()->getName();
 	}
 	LL << "} and down = {";
@@ -77,7 +77,7 @@ void TaxonomyVertex :: incorporate ( void )
 	if ( d != d_end )
 	{
 		LL << (*d)->getPrimer()->getName();
-		for ( ++d; d < d_end; ++d )
+		for ( ++d; d != d_end; ++d )
 			LL << "," << (*d)->getPrimer()->getName();
 	}
 	LL << "}";

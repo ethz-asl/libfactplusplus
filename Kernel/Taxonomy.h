@@ -259,7 +259,7 @@ protected:	// methods
 			return;
 
 		// apply method to the proper neighbours with proper parameters
-		for ( iterator p = node->begin(upDirection), p_end = node->end(upDirection); p != p_end; ++p )
+		for ( TaxonomyVertex::iterator p = node->begin(upDirection), p_end = node->end(upDirection); p != p_end; ++p )
 			getRelativesInfoRec<onlyDirect, upDirection> ( *p, actor );
 	}
 
@@ -318,7 +318,7 @@ public:		// interface
 			if ( actor.apply(*node) && onlyDirect )
 				return;
 
-		for ( iterator p = node->begin(upDirection), p_end = node->end(upDirection); p != p_end; ++p )
+		for ( TaxonomyVertex::iterator p = node->begin(upDirection), p_end = node->end(upDirection); p != p_end; ++p )
 			getRelativesInfoRec<onlyDirect, upDirection> ( *p, actor );
 
 		clearCheckedLabel();
@@ -367,7 +367,7 @@ public:		// interface
 		for ( TaxonomyVertex::iterator
 				p = bot->begin(upDirection),
 				p_end = bot->end(upDirection);
-			  p < p_end; ++p )
+			  p != p_end; ++p )
 			(*p)->removeLink ( !upDirection, bot );
 		bot->clearLinks(upDirection);
 		willInsertIntoTaxonomy = true;	// it's possible again to add entries

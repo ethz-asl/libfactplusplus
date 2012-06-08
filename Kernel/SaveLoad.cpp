@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2008-2011 by Dmitry Tsarkov
+Copyright (C) 2008-2012 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -642,10 +642,10 @@ TaxonomyVertex :: SaveNeighbours ( ostream& o ) const
 {
 	const_iterator p, p_end;
 	saveUInt(o,neigh(true).size());
-	for ( p = begin(true), p_end = end(true); p < p_end; ++p )
+	for ( p = begin(true), p_end = end(true); p != p_end; ++p )
 		saveUInt(o,tvMap.getI(*p));
 	saveUInt(o,neigh(false).size());
-	for ( p = begin(false), p_end = end(false); p < p_end; ++p )
+	for ( p = begin(false), p_end = end(false); p != p_end; ++p )
 		saveUInt(o,tvMap.getI(*p));
 	o << "\n";
 }

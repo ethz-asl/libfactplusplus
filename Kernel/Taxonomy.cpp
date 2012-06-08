@@ -158,7 +158,7 @@ bool Taxonomy :: classifySynonym ( void )
 bool
 Taxonomy :: isDirectParent ( TaxonomyVertex* v ) const
 {
-	for ( TaxonomyVertex::const_iterator q = v->begin(/*upDirection=*/false), q_end = v->end(/*upDirection=*/false); q < q_end; ++q )
+	for ( TaxonomyVertex::const_iterator q = v->begin(/*upDirection=*/false), q_end = v->end(/*upDirection=*/false); q != q_end; ++q )
 		if ( (*q)->isValued(valueLabel) && (*q)->getValue() == true )
 		{
 #		ifdef WARN_EXTRA_SUBSUMPTION
@@ -230,7 +230,7 @@ Taxonomy :: propagateTrueUp ( TaxonomyVertex* node )
 	node->setValued ( true, valueLabel );
 
 	// ... and value all parents
-	for ( iterator p = node->begin(/*upDirection=*/true), p_end = node->end(/*upDirection=*/true); p < p_end; ++p )
+	for ( TaxonomyVertex::iterator p = node->begin(/*upDirection=*/true), p_end = node->end(/*upDirection=*/true); p != p_end; ++p )
 		propagateTrueUp(*p);
 }
 

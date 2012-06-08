@@ -187,8 +187,8 @@ public:
 	TaxonomyVertex* getSynonymNode ( void )
 	{
 		// try to find Vertex such that Vertex\in Up and Vertex\in Down
-		for ( iterator q = begin(true), q_end = end(true); q < q_end; ++q )
-			for ( iterator r = begin(false), r_end = end(false); r < r_end; ++r )
+		for ( iterator q = begin(true), q_end = end(true); q != q_end; ++q )
+			for ( iterator r = begin(false), r_end = end(false); r != r_end; ++r )
 				if ( *q == *r )	// found such vertex
 					return *q;
 		return NULL;

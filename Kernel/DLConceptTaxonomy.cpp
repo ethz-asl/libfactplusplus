@@ -119,7 +119,7 @@ void DLConceptTaxonomy :: searchBaader ( bool upDirection, TaxonomyVertex* cur )
 	bool noPosSucc = true;
 
 	// check if there are positive successors; use DFS on them.
-	for ( TaxonomyVertex::iterator p = cur->begin(upDirection), p_end = cur->end(upDirection); p < p_end; ++p )
+	for ( TaxonomyVertex::iterator p = cur->begin(upDirection), p_end = cur->end(upDirection); p != p_end; ++p )
 		if ( enhancedSubs ( upDirection, *p ) )
 		{
 			if ( !(*p)->isChecked(checkLabel) )
@@ -143,7 +143,7 @@ bool DLConceptTaxonomy :: enhancedSubs1 ( bool upDirection, TaxonomyVertex* cur 
 
 	// need to be valued -- check all parents
 	// propagate false
-	for ( TaxonomyVertex::iterator p = cur->begin(!upDirection), p_end = cur->end(!upDirection); p < p_end; ++p )
+	for ( TaxonomyVertex::iterator p = cur->begin(!upDirection), p_end = cur->end(!upDirection); p != p_end; ++p )
 		if ( !enhancedSubs ( upDirection, *p ) )
 			return false;
 
@@ -174,7 +174,7 @@ DLConceptTaxonomy :: propagateOneCommon ( TaxonomyVertex* node )
 		Common.push_back(node);
 
 	// mark all children
-	for ( iterator p = node->begin(/*upDirection=*/false), p_end = node->end(/*upDirection=*/false); p < p_end; ++p )
+	for ( TaxonomyVertex::iterator p = node->begin(/*upDirection=*/false), p_end = node->end(/*upDirection=*/false); p != p_end; ++p )
 		propagateOneCommon(*p);
 }
 
@@ -194,7 +194,7 @@ bool DLConceptTaxonomy :: propagateUp ( void )
 	propagateOneCommon(*p);
 	clearCheckedLabel();
 
-	for ( ++p; p < p_end; ++p )
+	for ( ++p; p != p_end; ++p )
 	{
 		if ( (*p)->noNeighbours(!upDirection) )
 			return true;
@@ -283,14 +283,16 @@ DLConceptTaxonomy :: checkExtraParents ( void )
 		propagateTrueUp(*p);
 	Current->clearLinks(/*upDirection=*/true);
 	runTopDown();
-	std::vector<TaxonomyVertex*> vec;
+	// save all indirect parents to remove them later (to avoid iterator invalidation)
+	TaxVertexVec vec;
 	for ( p = Current->begin(/*upDirection=*/true), p_end = Current->end(/*upDirection=*/true); p != p_end; ++p )
 		if ( !isDirectParent(*p) )
 			vec.push_back(*p);
-	for ( p = vec.begin(), p_end = vec.end(); p != p_end; ++p )
+	// now it is time to remove links
+	for ( TaxVertexVec::iterator q = vec.begin(), q_end = vec.end(); q != q_end; ++q )
 	{
-		(*p)->removeLink ( /*upDirection=*/false, Current );
-		Current->removeLink ( /*upDirection=*/true, *p );
+		(*q)->removeLink ( /*upDirection=*/false, Current );
+		Current->removeLink ( /*upDirection=*/true, *q );
 	}
 
 	clearLabels();
