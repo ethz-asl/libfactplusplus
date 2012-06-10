@@ -286,6 +286,8 @@ protected:	// methods
 	// saving/restoring
 	//----------------------------------------------
 
+		/// get current save-level
+	unsigned int getCurLevel ( void ) const { return curLevel; }
 		/// save current state to given SS
 	void save ( SaveState* nss ) const;
 		/// restore state from given SS; delete SS after
@@ -300,7 +302,7 @@ protected:	// methods
 	{
 #	if defined(RKG_CHECK_BACKJUMPING)
 		if ( LLM.isWritable(llSRInfo) )
-			LL << " " << action << "(" << id << "[" << Neighbour.size() << "]," << curLevel << ")";
+			LL << " " << action << "(" << id << "[" << Neighbour.size() << "]," << getCurLevel() << ")";
 #		undef RKG_CHECK_BACKJUMPING		// it is the only user
 #	endif
 	}
@@ -605,7 +607,7 @@ public:		// methods
 	//----------------------------------------------
 
 		/// check if node needs to be saved
-	bool needSave ( unsigned int newLevel ) const { return curLevel < newLevel; }
+	bool needSave ( unsigned int newLevel ) const { return getCurLevel() < newLevel; }
 		/// save node using internal stack
 	void save ( unsigned int level )
 	{
@@ -619,7 +621,7 @@ public:		// methods
 		restore (saves.pop());
 	}
 		/// check if node needs to be restored
-	bool needRestore ( unsigned int restLevel ) const { return curLevel > restLevel; }
+	bool needRestore ( unsigned int restLevel ) const { return getCurLevel() > restLevel; }
 		/// restore node to given level
 	void restore ( unsigned int level ) { restore(saves.pop(level)); }
 

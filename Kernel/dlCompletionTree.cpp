@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2009 by Dmitry Tsarkov
+Copyright (C) 2003-2012 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -171,14 +171,14 @@ void DlCompletionTree :: restore ( SaveState* nss )
 	curLevel = nss->curLevel;
 
 	// label restore
-	Label.restore ( nss->lab, curLevel );
+	Label.restore ( nss->lab, getCurLevel() );
 
 	// remove new neighbours
 #ifndef __DYNAMIC_NODE_RESTORE
 	Neighbour.resize(nss->nNeighbours);
 #else
 	for ( int j = Neighbour.size()-1; j >= 0; --j )
-		if ( Neighbour[j]->Node->creLevel <= curLevel )
+		if ( Neighbour[j]->Node->creLevel <= getCurLevel() )
 		{
 			Neighbour.resize(j+1);
 			break;
@@ -200,7 +200,7 @@ void DlCompletionTree :: PrintBody ( std::ostream& o ) const
 	o << id;
 	if ( isNominalNode() )
 		o << "o" << getNominalLevel();
-	o << '(' << curLevel << ')';
+	o << '(' << getCurLevel() << ')';
 
 	// data node?
 	if ( isDataNode() )
