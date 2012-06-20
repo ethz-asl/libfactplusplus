@@ -83,7 +83,7 @@ protected:	// members
 		/// atomic structure to build
 	AOStructure* AOS;
 		/// modularizer to build modules
-	TModularizer Modularizer;
+	TModularizer* pModularizer;
 		/// tautologies of the ontology
 	AxiomVec Tautologies;
 		/// progress indicator
@@ -99,7 +99,7 @@ protected:	// methods
 	{
 		SigIndex* SI = new SigIndex();
 		SI->processRange ( O->begin(), O->end() );
-		Modularizer.setSigIndex(SI);
+		pModularizer->setSigIndex(SI);
 	}
 		/// remove tautologies (axioms that are always local) from the ontology temporarily
 	void removeTautologies ( TOntology* O );
@@ -116,7 +116,12 @@ protected:	// methods
 
 public:		// interface
 		/// init c'tor
-	AtomicDecomposer ( bool useSem ) : AOS(NULL), Modularizer(useSem), PI(NULL), rootAtom(NULL) {}
+	AtomicDecomposer ( bool useSem ) : AOS(NULL), PI(NULL), rootAtom(NULL)
+	{
+		pModularizer = new TModularizer(useSem);
+	}
+		/// init c'tor; M would be deleted in d'tor
+	AtomicDecomposer ( TModularizer* m ) : AOS(NULL), pModularizer(m), PI(NULL), rootAtom(NULL) {}
 		/// d'tor
 	~AtomicDecomposer ( void );
 

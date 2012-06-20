@@ -26,6 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 AtomicDecomposer :: ~AtomicDecomposer ( void )
 {
 	delete AOS;
+	delete pModularizer;
 	delete PI;
 }
 
@@ -40,7 +41,7 @@ AtomicDecomposer :: removeTautologies ( TOntology* O )
 		if ( likely((*p)->isUsed()) )
 		{
 			// check whether an axiom is local wrt its own signature
-			Modularizer.extract ( p, p+1, (*p)->getSignature(), type );
+			pModularizer->extract ( p, p+1, (*p)->getSignature(), type );
 			if ( unlikely(!(*p)->isInModule()) )
 			{
 				Tautologies.push_back(*p);
@@ -58,8 +59,8 @@ TOntologyAtom*
 AtomicDecomposer :: buildModule ( const TSignature& sig, TOntologyAtom* parent )
 {
 	// build a module for a given signature
-	Modularizer.extract ( parent->getModule().begin(), parent->getModule().end(), sig, type );
-	const AxiomVec& Module = Modularizer.getModule();
+	pModularizer->extract ( parent->getModule().begin(), parent->getModule().end(), sig, type );
+	const AxiomVec& Module = pModularizer->getModule();
 	// if module is empty (empty bottom atom) -- do nothing
 	if ( Module.empty() )
 		return NULL;
@@ -117,7 +118,7 @@ AtomicDecomposer :: getAOS ( TOntology* O, ModuleType t )
 	AOS = new AOStructure();
 
 	// init semantic locality checker
-	Modularizer.preprocessOntology(O->getAxioms());
+	pModularizer->preprocessOntology(O->getAxioms());
 
 	// we don't need tautologies here
 	removeTautologies(O);
@@ -144,7 +145,7 @@ AtomicDecomposer :: getAOS ( TOntology* O, ModuleType t )
 	restoreTautologies();
 
 	if ( LLM.isWritable(llAlways) )
-		LL << "\nThere were " << Modularizer.getNNonLocal() << " non-local axioms out of " << Modularizer.getNChecks() << " totally checked\n";
+		LL << "\nThere were " << pModularizer->getNNonLocal() << " non-local axioms out of " << pModularizer->getNChecks() << " totally checked\n";
 
 	// clear the root atom
 	delete rootAtom;
