@@ -21,6 +21,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <queue>
 
+// uncomment the next line to use AD to speed up modularisation
+//#define RKG_USE_AD_IN_MODULE_EXTRACTION
+
 #include "tOntology.h"
 #include "SigIndex.h"
 // locality checking
@@ -28,6 +31,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "SyntacticLocalityChecker.h"
 
 #include "ModuleType.h"
+
+#ifdef RKG_USE_AD_IN_MODULE_EXTRACTION
+#	include "tOntologyAtom.h"
+#endif
 
 /// class to create modules of an ontology wrt module type
 class TModularizer
@@ -51,6 +58,8 @@ protected:	// members
 	unsigned long long nChecks;
 		/// number of non-local axioms
 	unsigned long long nNonLocal;
+		/// true if no atoms are processed ATM
+	bool noAtomsProcessing;
 
 protected:	// methods
 		/// update SIG wrt the axiom signature
@@ -80,13 +89,30 @@ protected:	// methods
 		++nNonLocal;
 		return true;
 	}
+
+		/// add an axiom if it is non-local (or in noCheck is true)
+	void addNonLocal ( TDLAxiom* ax, bool noCheck )
+	{
+		if ( unlikely(noCheck) || unlikely(isNonLocal(ax)) )
+		{
+			addAxiomToModule(ax);
+
+#		ifdef RKG_USE_AD_IN_MODULE_EXTRACTION
+			if ( noAtomsProcessing && ax->getAtom() != NULL )
+			{
+				noAtomsProcessing = false;
+				addNonLocal ( ax->getAtom()->getModule(), /*noCheck=*/true );
+				noAtomsProcessing = true;
+			}
+#		endif
+		}
+	}
 		/// add all the non-local axioms from given axiom-set AxSet
 	void addNonLocal ( const SigIndex::AxiomCollection& AxSet, bool noCheck )
 	{
 		for ( SigIndex::const_iterator q = AxSet.begin(), q_end = AxSet.end(); q != q_end; ++q )
-			if ( !(*q)->isInModule() && (*q)->isInSS() // in the given range but not in module yet
-				 && ( unlikely(noCheck) || unlikely(isNonLocal(*q)) ) )
-				addAxiomToModule(*q);
+			if ( !(*q)->isInModule() && (*q)->isInSS() ) // in the given range but not in module yet
+				addNonLocal ( *q, noCheck );
 	}
 		/// build a module traversing axioms by a signature
 	void extractModuleQueue ( void )
@@ -128,6 +154,7 @@ public:		// interface
 		: sigIndex()
 		, nChecks(0)
 		, nNonLocal(0)
+		, noAtomsProcessing(true)
 	{
 		if ( useSem )
 			Checker = new SemanticLocalityChecker(&sig);
