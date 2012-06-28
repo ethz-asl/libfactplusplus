@@ -80,18 +80,13 @@ protected:	// methods
 		++nNonLocal;
 		return true;
 	}
-		/// add an axiom if it is non-local (or in noCheck is true)
-	void addNonLocal ( TDLAxiom* ax, bool noCheck )
-	{
-		if ( unlikely(noCheck) || unlikely(isNonLocal(ax)) )
-			addAxiomToModule(ax);
-	}
 		/// add all the non-local axioms from given axiom-set AxSet
 	void addNonLocal ( const SigIndex::AxiomCollection& AxSet, bool noCheck )
 	{
 		for ( SigIndex::const_iterator q = AxSet.begin(), q_end = AxSet.end(); q != q_end; ++q )
-			if ( !(*q)->isInModule() && (*q)->isInSS() )	// in the given range but not in module yet
-				addNonLocal ( *q, noCheck );
+			if ( !(*q)->isInModule() && (*q)->isInSS() // in the given range but not in module yet
+				 && ( unlikely(noCheck) || unlikely(isNonLocal(*q)) ) )
+				addAxiomToModule(*q);
 	}
 		/// build a module traversing axioms by a signature
 	void extractModuleQueue ( void )
@@ -180,6 +175,20 @@ public:		// interface
 		/// extract module wrt SIGNATURE and TYPE from O
 	void extract ( TOntology& O, const TSignature& signature, ModuleType type )
 		{ extract ( O.begin(), O.end(), signature, type ); }
+		/// @return true iff the axiom AX is a tautology wrt given type
+	bool isTautology ( TDLAxiom* ax, ModuleType type )
+	{
+		bool topLocality = (type == M_TOP);
+		sig = ax->getSignature();
+		sig.setLocality(topLocality);
+		// axiom is a tautology if it is local wrt its own signature
+ 		bool toReturn = Checker->local(ax);
+ 		if ( likely ( type != M_STAR || !toReturn ) )
+ 			return toReturn;
+ 		// here it is STAR case and AX is local wrt BOT
+ 		sig.setLocality(!topLocality);
+ 		return Checker->local(ax);
+	}
 
 		/// get RW access to the sigIndex (mainly to (un-)register axioms on the fly)
 	SigIndex* getSigIndex ( void ) { return &sigIndex; }

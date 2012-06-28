@@ -40,9 +40,7 @@ AtomicDecomposer :: removeTautologies ( TOntology* O )
 	for ( TOntology::iterator p = O->begin(), p_end = O->end(); p != p_end; ++p )
 		if ( likely((*p)->isUsed()) )
 		{
-			// check whether an axiom is local wrt its own signature
-			pModularizer->extract ( p, p+1, (*p)->getSignature(), type );
-			if ( unlikely(!(*p)->isInModule()) )
+			if ( unlikely(pModularizer->isTautology(*p,type)) )
 			{
 				Tautologies.push_back(*p);
 				(*p)->setUsed(false);
