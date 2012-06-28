@@ -158,10 +158,6 @@ void DlCompletionTree :: save ( SaveState* nss ) const
 	logSRNode("SaveNode");
 }
 
-#ifdef RKG_USE_DYNAMIC_BACKJUMPING
-#	define __DYNAMIC_NODE_RESTORE
-#endif
-
 void DlCompletionTree :: restore ( SaveState* nss )
 {
 	if ( nss == NULL )
@@ -174,7 +170,7 @@ void DlCompletionTree :: restore ( SaveState* nss )
 	Label.restore ( nss->lab, getCurLevel() );
 
 	// remove new neighbours
-#ifndef __DYNAMIC_NODE_RESTORE
+#ifndef RKG_USE_DYNAMIC_BACKJUMPING
 	Neighbour.resize(nss->nNeighbours);
 #else
 	for ( int j = Neighbour.size()-1; j >= 0; --j )

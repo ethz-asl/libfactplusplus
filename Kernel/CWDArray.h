@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2009 by Dmitry Tsarkov
+Copyright (C) 2003-2012 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -16,8 +16,8 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef _CWDARRAY_H
-#define _CWDARRAY_H
+#ifndef CWDARRAY_H
+#define CWDARRAY_H
 
 #include <ostream>
 #include <algorithm>	// find
@@ -34,6 +34,7 @@ class TRestorer;
 class CWDArray
 {
 protected:	// internal typedefs
+		/// base type
 	typedef growingArray<ConceptWDep> ConceptSet;
 		/// RW iterator
 	typedef ConceptSet::iterator iterator;
@@ -47,7 +48,7 @@ public:		// type interface
 	{
 	public:
 			/// end pointer of the label
-		unsigned int ep;
+		size_t ep;
 
 	public:		// interface
 			/// empty c'tor

@@ -379,7 +379,7 @@ bool DlSatTester :: processOrEntry ( void )
 	// add new entry to current node; we know the result would be DONE
 	return
 #	ifdef RKG_USE_DYNAMIC_BACKJUMPING
-		addToDoEntry ( curNode, C, dep, reason );
+		addToDoEntry ( curNode, ConceptWDep(C,dep), reason );
 #	else
 		insertToDoEntry ( curNode, ConceptWDep(C,dep), DLHeap[C].Type(), reason );
 #	endif

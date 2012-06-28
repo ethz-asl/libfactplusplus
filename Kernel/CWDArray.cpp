@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2009 by Dmitry Tsarkov
+Copyright (C) 2003-2012 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -62,7 +62,7 @@ CWDArray :: updateDepSet ( BipolarPointer bp, const DepSet& dep )
 void
 CWDArray :: restore ( const SaveState& ss, unsigned int level ATTR_UNUSED )
 {
-#ifndef __DYNAMIC_NODE_RESTORE
+#ifndef RKG_USE_DYNAMIC_BACKJUMPING
 	Base.resize(ss.ep);
 #else
 	unsigned int j = ss.ep;
