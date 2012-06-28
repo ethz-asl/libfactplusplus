@@ -76,7 +76,6 @@ protected:	// members
 	TSignature sig;	// seed signature
 	std::set<TSplitVar*> RejSplits;
 	TOntology* O;
-	SigIndex sigIndex;
 
 protected:	// methods
 		/// rename old concept into a new one with a fresh name
@@ -86,27 +85,27 @@ protected:	// methods
 		s << oldName->getName() << "+" << ++newNameId;
 		return dynamic_cast<const TDLConceptName*>(O->getExpressionManager()->Concept(s.str()));
 	}
+		/// process (register/unregister) axioms in a record REC
+	void processRec ( TRecord* rec )
+	{
+		mod.getSigIndex()->processRange(rec->oldAxioms.begin(), rec->oldAxioms.end());
+		mod.getSigIndex()->processAx(rec->newAxiom);
+	}
 		/// register a record in the ontology
 	void registerRec ( TRecord* rec )
 	{
 		for ( AxiomVec::iterator p = rec->oldAxioms.begin(), p_end = rec->oldAxioms.end(); p != p_end; ++p )
-		{
 			O->retract(*p);
-			sigIndex.unregisterAx(*p);
-		}
 		O->add(rec->newAxiom);
-		sigIndex.registerAx(rec->newAxiom);
+		processRec(rec);
 	}
 		/// unregister a record
 	void unregisterRec ( TRecord* rec )
 	{
 		for ( AxiomVec::iterator p = rec->oldAxioms.begin(), p_end = rec->oldAxioms.end(); p != p_end; ++p )
-		{
 			(*p)->setUsed(true);
-			sigIndex.registerAx(*p);
-		}
 		rec->newAxiom->setUsed(false);
-		sigIndex.unregisterAx(rec->newAxiom);
+		processRec(rec);
 	}
 		/// create a signature of a module corresponding to a new axiom in record
 	void buildSig ( TRecord* rec )
@@ -330,8 +329,7 @@ public:		// interaface
 		/// init c'tor
 	TAxiomSplitter ( TOntology* o ) : pr(std::cout), newNameId(0), mod(/*useSem=*/false), O(o)
 	{
-		sigIndex.processRange ( o->begin(), o->end() );
-		mod.setSigIndex(&sigIndex);
+		mod.preprocessOntology(o->getAxioms());
 	}
 		/// main split method
 	void buildSplit ( void )

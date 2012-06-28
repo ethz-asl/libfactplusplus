@@ -585,12 +585,7 @@ ReasoningKernel :: getModExtractor ( bool useSemantic )
 	// init if necessary
 	TModularizer* Mod = useSemantic ? ModSem : ModSyn;
 	if ( unlikely(needInit) )
-	{
-		SigIndex* SI = new SigIndex();
-		SI->processRange ( getOntology().begin(), getOntology().end() );
-		Mod->setSigIndex(SI);
 		Mod->preprocessOntology(getOntology().getAxioms());
-	}
 	return Mod;
 }
 

@@ -44,7 +44,7 @@ protected:	// members
 		/// module as a list of axioms
 	AxiomVec Module;
 		/// pointer to a sig index; if not NULL then use optimized algo
-	SigIndex* sigIndex;
+	SigIndex sigIndex;
 		/// queue of unprocessed entities
 	std::queue<const TNamedEntity*> WorkQueue;
 		/// number of locality check calls
@@ -56,15 +56,12 @@ protected:	// methods
 		/// update SIG wrt the axiom signature
 	void addAxiomSig ( const TSignature& axiomSig )
 	{
-		if ( sigIndex == NULL )
-			sig.add(axiomSig);
-		else
-			for ( TSignature::iterator p = axiomSig.begin(), p_end = axiomSig.end(); p != p_end; ++p )
-				if ( !sig.contains(*p) )	// new one
-				{
-					WorkQueue.push(*p);
-					sig.add(*p);
-				}
+		for ( TSignature::iterator p = axiomSig.begin(), p_end = axiomSig.end(); p != p_end; ++p )
+			if ( !sig.contains(*p) )	// new one
+			{
+				WorkQueue.push(*p);
+				sig.add(*p);
+			}
 	}
 		/// add an axiom to a module
 	void addAxiomToModule ( TDLAxiom* axiom )
@@ -89,19 +86,6 @@ protected:	// methods
 		if ( unlikely(noCheck) || unlikely(isNonLocal(ax)) )
 			addAxiomToModule(ax);
 	}
-		/// mark the ontology O such that all the marked axioms creates the module wrt SIG
-	void extractModuleLoop ( const_iterator begin, const_iterator end )
-	{
-		size_t sigSize;
-		do
-		{
-			sigSize = sig.size();
-			for ( const_iterator p = begin; p != end; ++p )
-				if ( !(*p)->isInModule() && (*p)->isUsed() )
-					addNonLocal ( *p, /*noCheck=*/false );
-
-        } while ( sigSize != sig.size() );
-	}
 		/// add all the non-local axioms from given axiom-set AxSet
 	void addNonLocal ( const SigIndex::AxiomCollection& AxSet, bool noCheck )
 	{
@@ -116,14 +100,14 @@ protected:	// methods
 		for ( TSignature::iterator p = sig.begin(), p_end = sig.end(); p != p_end; ++p )
 			WorkQueue.push(*p);
 		// add all the axioms that are non-local wrt given value of a top-locality
-		addNonLocal ( sigIndex->getNonLocal(sig.topCLocal()), /*noCheck=*/true );
+		addNonLocal ( sigIndex.getNonLocal(sig.topCLocal()), /*noCheck=*/true );
 		// main cycle
 		while ( !WorkQueue.empty() )
 		{
 			const TNamedEntity* entity = WorkQueue.front();
 			WorkQueue.pop();
 			// for all the axioms that contains entity in their signature
-			addNonLocal ( sigIndex->getAxioms(entity), /*noCheck=*/false );
+			addNonLocal ( sigIndex.getAxioms(entity), /*noCheck=*/false );
 		}
 	}
 		/// extract module wrt presence of a sig index
@@ -135,23 +119,18 @@ protected:	// methods
 		const_iterator p;
 		for ( p = begin; p != end; ++p )
 			(*p)->setInModule(false);
-		if ( sigIndex != NULL )
-		{
-			for ( p = begin; p != end; ++p )
-				if ( (*p)->isUsed() )
-					(*p)->setInSS(true);
-			extractModuleQueue();
-			for ( p = begin; p != end; ++p )
-				(*p)->setInSS(false);
-		}
-		else
-			extractModuleLoop ( begin, end );
+		for ( p = begin; p != end; ++p )
+			if ( (*p)->isUsed() )
+				(*p)->setInSS(true);
+		extractModuleQueue();
+		for ( p = begin; p != end; ++p )
+			(*p)->setInSS(false);
 	}
 
 public:		// interface
 		/// init c'tor
 	TModularizer ( bool useSem )
-		: sigIndex(NULL)
+		: sigIndex()
 		, nChecks(0)
 		, nNonLocal(0)
 	{
@@ -161,17 +140,14 @@ public:		// interface
 			Checker = new SyntacticLocalityChecker(&sig);
 	}
 		// d'tor
-	~TModularizer ( void ) { delete sigIndex; delete Checker; }
+	~TModularizer ( void ) { delete Checker; }
 
-		/// set sig index to a given value
-	void setSigIndex ( SigIndex* p )
-	{
-		sigIndex = p;
-		nChecks += 2*p->nProcessedAx();
-		nNonLocal += p->getNonLocal(false).size() + p->getNonLocal(true).size();
-	}
 		/// allow the checker to preprocess an ontology if necessary
-	void preprocessOntology ( const AxiomVec& vec ) { Checker->preprocessOntology(vec); }
+	void preprocessOntology ( const AxiomVec& vec )
+	{
+		Checker->preprocessOntology(vec);
+		sigIndex.processRange ( vec.begin(), vec.end() );
+	}
 		/// extract module wrt SIGNATURE and TYPE from the set of axioms [BEGIN,END)
 	void extract ( const_iterator begin, const_iterator end, const TSignature& signature, ModuleType type )
 	{
@@ -204,6 +180,9 @@ public:		// interface
 		/// extract module wrt SIGNATURE and TYPE from O
 	void extract ( TOntology& O, const TSignature& signature, ModuleType type )
 		{ extract ( O.begin(), O.end(), signature, type ); }
+
+		/// get RW access to the sigIndex (mainly to (un-)register axioms on the fly)
+	SigIndex* getSigIndex ( void ) { return &sigIndex; }
 
 		/// get the last computed module
 	const AxiomVec& getModule ( void ) const { return Module; }

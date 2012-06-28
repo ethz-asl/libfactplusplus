@@ -123,9 +123,6 @@ AtomicDecomposer :: getAOS ( TOntology* O, ModuleType t )
 	// we don't need tautologies here
 	removeTautologies(O);
 
-	// prepare SigIndex for the optimized modularization
-	initSigIndex(O);
-
 	// init the root atom
 	rootAtom = new TOntologyAtom();
 	rootAtom -> setModule ( TOntologyAtom::AxiomSet ( O->begin(), O->end() ) );

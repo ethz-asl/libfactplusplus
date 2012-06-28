@@ -94,13 +94,6 @@ protected:	// members
 	ModuleType type;
 
 protected:	// methods
-		/// initialize signature index (for the improved modularization algorithm)
-	void initSigIndex ( TOntology* O )
-	{
-		SigIndex* SI = new SigIndex();
-		SI->processRange ( O->begin(), O->end() );
-		pModularizer->setSigIndex(SI);
-	}
 		/// remove tautologies (axioms that are always local) from the ontology temporarily
 	void removeTautologies ( TOntology* O );
 		/// restore all tautologies back
