@@ -21,7 +21,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "tDLAxiom.h"
 #include "tSignature.h"
-#include "SyntacticLocalityChecker.h"
+#include "LocalityChecker.h"
 
 class SigIndex
 {
@@ -41,7 +41,7 @@ protected:	// members
 		/// map itself
 	EntityAxiomMap Base;
 		/// locality checker
-	SyntacticLocalityChecker Checker;
+	LocalityChecker* Checker;
 		/// sets of axioms non-local wrt the empty signature
 	AxiomCollection NonLocal[2];
 		/// empty signature to test the non-locality
@@ -69,15 +69,10 @@ protected:	// methods
 	void checkNonLocal ( TDLAxiom* ax, bool top )
 	{
 		emptySig.setLocality(top);
-		if ( !Checker.local(ax) )
+		Checker->setSignatureValue(emptySig);
+		if ( !Checker->local(ax) )
 			add ( NonLocal[!top], ax );
 	}
-
-public:		// interface
-		/// empty c'tor
-	SigIndex ( void ) : Checker(&emptySig), nRegistered(0), nUnregistered(0) {}
-		/// empty d'tor
-	~SigIndex ( void ) {}
 
 	// work with axioms
 
@@ -101,6 +96,15 @@ public:		// interface
 		remove ( NonLocal[true], ax );
 		++nUnregistered;
 	}
+
+public:		// interface
+		/// empty c'tor
+	SigIndex ( LocalityChecker* checker ) : Checker(checker), nRegistered(0), nUnregistered(0) {}
+		/// empty d'tor
+	~SigIndex ( void ) {}
+
+	// work with axioms
+
 		/// process an axiom wrt its Used status
 	void processAx ( TDLAxiom* ax )
 	{

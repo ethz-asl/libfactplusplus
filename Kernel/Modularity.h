@@ -151,16 +151,12 @@ protected:	// methods
 public:		// interface
 		/// init c'tor
 	TModularizer ( bool useSem )
-		: sigIndex()
+		: Checker ( useSem ? (LocalityChecker*) new SemanticLocalityChecker(&sig) : (LocalityChecker*) new SyntacticLocalityChecker(&sig) )
+		, sigIndex(Checker)
 		, nChecks(0)
 		, nNonLocal(0)
 		, noAtomsProcessing(true)
-	{
-		if ( useSem )
-			Checker = new SemanticLocalityChecker(&sig);
-		else
-			Checker = new SyntacticLocalityChecker(&sig);
-	}
+		{}
 		// d'tor
 	~TModularizer ( void ) { delete Checker; }
 
