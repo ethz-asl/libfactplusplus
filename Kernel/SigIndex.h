@@ -26,16 +26,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 class SigIndex
 {
 public:		// types
-		/// set of axiom
-	typedef std::vector<TDLAxiom*> AxiomCollection;
 		/// RW iterator over set of axioms
-	typedef AxiomCollection::iterator iterator;
+	typedef AxiomVec::iterator iterator;
 		/// RO iterator over set of axioms
-	typedef AxiomCollection::const_iterator const_iterator;
+	typedef AxiomVec::const_iterator const_iterator;
 
 protected:	// types
 		/// map between entities and axioms that contains them in their signature
-	typedef std::map<const TNamedEntity*, AxiomCollection> EntityAxiomMap;
+	typedef std::map<const TNamedEntity*, AxiomVec> EntityAxiomMap;
 
 protected:	// members
 		/// map itself
@@ -43,7 +41,7 @@ protected:	// members
 		/// locality checker
 	LocalityChecker* Checker;
 		/// sets of axioms non-local wrt the empty signature
-	AxiomCollection NonLocal[2];
+	AxiomVec NonLocal[2];
 		/// empty signature to test the non-locality
 	TSignature emptySig;
 		/// number of registered axioms
@@ -53,9 +51,9 @@ protected:	// members
 
 protected:	// methods
 		/// add an axiom AX to an axiom set AXIOMS
-	void add ( AxiomCollection& axioms, TDLAxiom* ax ) { axioms.push_back(ax); }
+	void add ( AxiomVec& axioms, TDLAxiom* ax ) { axioms.push_back(ax); }
 		/// remove an axiom AX from an axiom set AXIOMS
-	void remove ( AxiomCollection& axioms, TDLAxiom* ax )
+	void remove ( AxiomVec& axioms, TDLAxiom* ax )
 	{
 		for ( iterator p = axioms.begin(), p_end = axioms.end(); p != p_end; ++p )
 			if ( *p == ax )
@@ -113,20 +111,26 @@ public:		// interface
 		else
 			unregisterAx(ax);
 	}
-		/// process the range [begin,end) of axioms
-	template<class Iterator>
-	void processRange ( Iterator begin, Iterator end )
+		/// preprocess given set of axioms
+	void preprocessOntology ( const AxiomVec& axioms )
 	{
-		while ( begin != end )
-			processAx(*begin++);
+		for ( const_iterator p = axioms.begin(), p_end = axioms.end(); p != p_end; ++p )
+			processAx(*p);
+	}
+		/// clear internal structures
+	void clear ( void )
+	{
+		Base.clear();
+		NonLocal[0].clear();
+		NonLocal[1].clear();
 	}
 
 	// get the set by the index
 
 		/// given an entity, return a set of all axioms that tontain this entity in a signature
-	const AxiomCollection& getAxioms ( const TNamedEntity* entity ) { return Base[entity]; }
+	const AxiomVec& getAxioms ( const TNamedEntity* entity ) { return Base[entity]; }
 		/// get the non-local axioms with top-locality value TOP
-	const AxiomCollection& getNonLocal ( bool top ) const { return NonLocal[!top]; }
+	const AxiomVec& getNonLocal ( bool top ) const { return NonLocal[!top]; }
 
 	// access to statistics
 

@@ -88,7 +88,7 @@ protected:	// methods
 		/// process (register/unregister) axioms in a record REC
 	void processRec ( TRecord* rec )
 	{
-		mod.getSigIndex()->processRange(rec->oldAxioms.begin(), rec->oldAxioms.end());
+		mod.getSigIndex()->preprocessOntology(rec->oldAxioms);
 		mod.getSigIndex()->processAx(rec->newAxiom);
 	}
 		/// register a record in the ontology

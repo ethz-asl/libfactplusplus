@@ -108,7 +108,7 @@ protected:	// methods
 		}
 	}
 		/// add all the non-local axioms from given axiom-set AxSet
-	void addNonLocal ( const SigIndex::AxiomCollection& AxSet, bool noCheck )
+	void addNonLocal ( const AxiomVec& AxSet, bool noCheck )
 	{
 		for ( SigIndex::const_iterator q = AxSet.begin(), q_end = AxSet.end(); q != q_end; ++q )
 			if ( !(*q)->isInModule() && (*q)->isInSS() ) // in the given range but not in module yet
@@ -164,7 +164,8 @@ public:		// interface
 	void preprocessOntology ( const AxiomVec& vec )
 	{
 		Checker->preprocessOntology(vec);
-		sigIndex.processRange ( vec.begin(), vec.end() );
+		sigIndex.clear();
+		sigIndex.preprocessOntology(vec);
 	}
 		/// extract module wrt SIGNATURE and TYPE from the set of axioms [BEGIN,END)
 	void extract ( const_iterator begin, const_iterator end, const TSignature& signature, ModuleType type )
