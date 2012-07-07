@@ -80,7 +80,8 @@ CreateAD ( TOntology* Ontology, bool useSem )
 	// do the atomic decomposition
 	TsProcTimer timer;
 	timer.Start();
-	AtomicDecomposer* AD = new AtomicDecomposer(useSem);
+	TModularizer mod(useSem);
+	AtomicDecomposer* AD = new AtomicDecomposer(&mod);
 	AD->setProgressIndicator(new CPPI());
 	AOStructure* AOS = AD->getAOS ( Ontology, M_BOT );
 	timer.Stop();

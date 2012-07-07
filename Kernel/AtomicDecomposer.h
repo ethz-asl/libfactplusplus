@@ -108,12 +108,7 @@ protected:	// methods
 	TOntologyAtom* createAtom ( TDLAxiom* ax, TOntologyAtom* parent );
 
 public:		// interface
-		/// init c'tor
-	AtomicDecomposer ( bool useSem ) : AOS(NULL), PI(NULL), rootAtom(NULL)
-	{
-		pModularizer = new TModularizer(useSem);
-	}
-		/// init c'tor; M would be deleted in d'tor
+		/// init c'tor; M would NOT be deleted in d'tor
 	AtomicDecomposer ( TModularizer* m ) : AOS(NULL), pModularizer(m), PI(NULL), rootAtom(NULL) {}
 		/// d'tor
 	~AtomicDecomposer ( void );

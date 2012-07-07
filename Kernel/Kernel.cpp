@@ -543,8 +543,10 @@ unsigned int
 ReasoningKernel :: getAtomicDecompositionSize ( bool useSemantic, ModuleType moduleType )
 {
 	// init AD field
-	if ( AD == NULL )
-		AD = new AtomicDecomposer(useSemantic);
+	if ( unlikely(AD != NULL) )
+		delete AD;
+
+	AD = new AtomicDecomposer(getModExtractor(useSemantic));
 	return AD->getAOS ( &Ontology, moduleType )->size();
 }
 	/// get a set of axioms that corresponds to the atom with the id INDEX
