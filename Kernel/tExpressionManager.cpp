@@ -18,7 +18,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "tExpressionManager.h"
 
-TExpressionManager::TExpressionManager ( void )
+TExpressionManager :: TExpressionManager ( void )
 	: CTop(new TDLConceptTop)
 	, CBottom(new TDLConceptBottom)
 	, DTop(new TDLDataTop)
@@ -31,7 +31,7 @@ TExpressionManager::TExpressionManager ( void )
 {
 }
 
-TExpressionManager::~TExpressionManager ( void )
+TExpressionManager :: ~TExpressionManager ( void )
 {
 	clear();
 	delete CTop;
@@ -45,7 +45,7 @@ TExpressionManager::~TExpressionManager ( void )
 }
 
 void
-TExpressionManager::clear ( void )
+TExpressionManager :: clear ( void )
 {
 	// clear all the names but the datatypes
 	NS_C.clear();
@@ -57,4 +57,15 @@ TExpressionManager::clear ( void )
 	for ( std::vector<TDLExpression*>::iterator p = RefRecorder.begin(), p_end = RefRecorder.end(); p < p_end; ++p )
 		delete *p;
 	RefRecorder.clear();
+}
+
+/// clear the TNamedEntry cache for all elements of all name-sets
+void
+TExpressionManager :: clearNameCache ( void )
+{
+	clearNameCache(NS_C);
+	clearNameCache(NS_I);
+	clearNameCache(NS_OR);
+	clearNameCache(NS_DR);
+	clearNameCache(NS_DT);
 }

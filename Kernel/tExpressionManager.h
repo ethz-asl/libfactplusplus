@@ -92,6 +92,13 @@ protected:	// methods
 		/// record the reference; @return the argument
 	template<class T>
 	T* record ( T* arg ) { RefRecorder.push_back(arg); return arg; }
+		/// clear the TNamedEntry cache for all elements of a name-set NS
+	template<class T>
+	void clearNameCache ( TNameSet<T>& ns )
+	{
+		for ( typename TNameSet<T>::iterator p = ns.begin(), p_end = ns.end(); p != p_end; ++p )
+			p->second->setEntry(NULL);
+	}
 
 public:		// interface
 		/// empty c'tor
@@ -101,6 +108,8 @@ public:		// interface
 
 		/// clear the ontology
 	void clear ( void );
+		/// clear the TNamedEntry cache for all elements of all name-sets
+	void clearNameCache ( void );
 
 	// top/bottom roles
 

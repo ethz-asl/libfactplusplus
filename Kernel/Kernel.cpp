@@ -92,6 +92,8 @@ ReasoningKernel :: clearTBox ( void )
 	ModSem = NULL;
 	delete ModSyn;
 	ModSyn = NULL;
+	// during preprocessing the TBox names were cached. clear that cache now.
+	getExpressionManager()->clearNameCache();
 }
 
 bool
