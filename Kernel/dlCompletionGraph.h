@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2005-2011 by Dmitry Tsarkov
+Copyright (C) 2005-2012 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -104,6 +104,8 @@ protected:	// members
 	unsigned int nNodeSaves;
 		/// number of node' saves
 	unsigned int nNodeRestores;
+		/// maximal size of the graph
+	unsigned int maxGraphSize;
 
 	// flags
 
@@ -273,6 +275,7 @@ public:		// interface
 		, endUsed(0)
 		, branchingLevel(InitBranchingLevelValue)
 		, IRLevel(initIRLevel)
+		, maxGraphSize(0)
 	{
 		initNodeArray ( NodeBase.begin(), NodeBase.end() );
 		clearStatistics();
@@ -389,6 +392,8 @@ public:		// interface
 	{
 		nNodeSaves = 0;
 		nNodeRestores = 0;
+		if ( maxGraphSize < endUsed )
+			maxGraphSize = endUsed;
 	}
 		/// mark all heap elements as unused
 	void clear ( void )
@@ -403,7 +408,7 @@ public:		// interface
 		initRoot();
 	}
 		/// get number of nodes in the CGraph
-	size_t maxSize ( void ) const { return NodeBase.size(); }
+	size_t maxSize ( void ) const { return maxGraphSize; }
 
 		/// save rarely appeared info if P is non-NULL
 	void saveRareCond ( TRestorer* p ) { if (p) RareStack.push(p); }
