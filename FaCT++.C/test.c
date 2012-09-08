@@ -22,13 +22,17 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 void print2Darray ( const char*** names )
 {
 	printf("[\n");
-	int n,m;
-	for ( const char** syns = names[n=0]; syns != NULL; syns=names[++n] )
+	int n=0;
+	const char** syns = names[0];
+	while ( syns != NULL )
 	{
 		printf("[");
-		for ( const char* name = syns[m=0]; name != NULL; name=syns[++m] )
+		int m = 0;
+		const char* name;
+		while ( (name = syns[m++]) != NULL )
 			printf("%s ", name);
 		printf("]\n");
+		syns=names[++n];
 	}
 	printf("]\n");
 }
@@ -59,14 +63,14 @@ int main ( void )
 
 	// create a concept actor and use it to get all superclasses of D
 	fact_actor* actor = fact_concept_actor_new();
-	fact_get_sup_concepts(k,c,false,&actor);
+	fact_get_sup_concepts(k,c,0,&actor);
 	print2Darray(fact_get_elements_2d(actor));
 	fact_actor_free(actor);
 
 	// get all the properties
 	fact_o_role_expression* o_top = fact_object_role_top(k);
 	actor = fact_o_role_actor_new();
-	fact_get_sub_roles(k,(fact_role_expression*)o_top,false,&actor);
+	fact_get_sub_roles(k,(fact_role_expression*)o_top,0,&actor);
 	print2Darray(fact_get_elements_2d(actor));
 	fact_actor_free(actor);
 

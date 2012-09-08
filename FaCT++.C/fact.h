@@ -69,12 +69,12 @@ ifOptionSet* getOptions (  );
 const ifOptionSet* getOptions (  );
  */
 
-bool fact_is_kb_preprocessed (fact_reasoning_kernel *);
-bool fact_is_kb_classified (fact_reasoning_kernel *);
-bool fact_is_kb_realised (fact_reasoning_kernel *);
+int fact_is_kb_preprocessed (fact_reasoning_kernel *);
+int fact_is_kb_classified (fact_reasoning_kernel *);
+int fact_is_kb_realised (fact_reasoning_kernel *);
 void fact_set_progress_monitor (fact_reasoning_kernel *, fact_progress_monitor *);
 
-void fact_set_verbose_output (fact_reasoning_kernel *, bool value);
+void fact_set_verbose_output (fact_reasoning_kernel *, int value);
 
 void fact_set_top_bottom_role_names (fact_reasoning_kernel *,
 		const char *top_b_role_name,
@@ -85,9 +85,9 @@ void fact_set_top_bottom_role_names (fact_reasoning_kernel *,
 void fact_set_operation_timeout (fact_reasoning_kernel *,
 		unsigned long timeout);
 
-bool fact_new_kb (fact_reasoning_kernel *);
-bool fact_release_kb (fact_reasoning_kernel *);
-bool fact_clear_kb (fact_reasoning_kernel *);
+int fact_new_kb (fact_reasoning_kernel *);
+int fact_release_kb (fact_reasoning_kernel *);
+int fact_clear_kb (fact_reasoning_kernel *);
 
 fact_axiom *fact_declare (fact_reasoning_kernel *, fact_expression *c);
 fact_axiom *fact_implies_concepts (fact_reasoning_kernel *,
@@ -168,46 +168,46 @@ fact_axiom *fact_set_fairness_constraint (fact_reasoning_kernel *);
 
 void fact_retract (fact_reasoning_kernel *, fact_axiom *axiom);
 
-bool fact_is_kb_consistent (fact_reasoning_kernel *);
+int fact_is_kb_consistent (fact_reasoning_kernel *);
 void fact_preprocess_kb (fact_reasoning_kernel *);
 void fact_classify_kb (fact_reasoning_kernel *);
 void fact_realise_kb (fact_reasoning_kernel *);
 
-bool fact_is_o_functional (fact_reasoning_kernel *, fact_o_role_expression *r);
-bool fact_is_d_functional (fact_reasoning_kernel *,
+int fact_is_o_functional (fact_reasoning_kernel *, fact_o_role_expression *r);
+int fact_is_d_functional (fact_reasoning_kernel *,
 		fact_d_role_expression *r);
-bool fact_is_inverse_functional (fact_reasoning_kernel *,
+int fact_is_inverse_functional (fact_reasoning_kernel *,
 		fact_o_role_expression *r);
-bool fact_is_transitive (fact_reasoning_kernel *, fact_o_role_expression *r);
-bool fact_is_symmetric (fact_reasoning_kernel *, fact_o_role_expression *r);
-bool fact_is_asymmetric (fact_reasoning_kernel *, fact_o_role_expression *r);
-bool fact_is_reflexive (fact_reasoning_kernel *, fact_o_role_expression *r);
-bool fact_is_irreflexive (fact_reasoning_kernel *, fact_o_role_expression *r);
-bool fact_is_sub_o_roles (fact_reasoning_kernel *, fact_o_role_expression *r,
+int fact_is_transitive (fact_reasoning_kernel *, fact_o_role_expression *r);
+int fact_is_symmetric (fact_reasoning_kernel *, fact_o_role_expression *r);
+int fact_is_asymmetric (fact_reasoning_kernel *, fact_o_role_expression *r);
+int fact_is_reflexive (fact_reasoning_kernel *, fact_o_role_expression *r);
+int fact_is_irreflexive (fact_reasoning_kernel *, fact_o_role_expression *r);
+int fact_is_sub_o_roles (fact_reasoning_kernel *, fact_o_role_expression *r,
 		fact_o_role_expression *s);
-bool fact_is_sub_d_roles (fact_reasoning_kernel *, fact_d_role_expression *r,
+int fact_is_sub_d_roles (fact_reasoning_kernel *, fact_d_role_expression *r,
 		fact_d_role_expression *s);
-bool fact_is_disjoint_o_roles (fact_reasoning_kernel *,
+int fact_is_disjoint_o_roles (fact_reasoning_kernel *,
 		fact_o_role_expression *r,
 		fact_o_role_expression *s);
-bool fact_is_disjoint_d_roles (fact_reasoning_kernel *,
+int fact_is_disjoint_d_roles (fact_reasoning_kernel *,
 		fact_d_role_expression *r,
 		fact_d_role_expression *s);
-bool fact_is_disjoint_roles (fact_reasoning_kernel *);
-bool fact_is_sub_chain (fact_reasoning_kernel *, fact_o_role_expression *r);
+int fact_is_disjoint_roles (fact_reasoning_kernel *);
+int fact_is_sub_chain (fact_reasoning_kernel *, fact_o_role_expression *r);
 
-bool fact_is_satisfiable (fact_reasoning_kernel *, fact_concept_expression *c);
-bool fact_is_subsumed_by (fact_reasoning_kernel *, fact_concept_expression *c,
+int fact_is_satisfiable (fact_reasoning_kernel *, fact_concept_expression *c);
+int fact_is_subsumed_by (fact_reasoning_kernel *, fact_concept_expression *c,
 		fact_concept_expression *d);
-bool fact_is_disjoint (fact_reasoning_kernel *, fact_concept_expression *c,
+int fact_is_disjoint (fact_reasoning_kernel *, fact_concept_expression *c,
 		fact_concept_expression *d);
-bool fact_is_equivalent (fact_reasoning_kernel *, fact_concept_expression *c,
+int fact_is_equivalent (fact_reasoning_kernel *, fact_concept_expression *c,
 		fact_concept_expression *d);
 
 void fact_get_sup_concepts (fact_reasoning_kernel *, fact_concept_expression *c,
-		bool direct, fact_actor **actor);
+		int direct, fact_actor **actor);
 void fact_get_sub_concepts (fact_reasoning_kernel *, fact_concept_expression *c,
-		bool direct, fact_actor **actor);
+		int direct, fact_actor **actor);
 void fact_get_equivalent_concepts (fact_reasoning_kernel *,
 		fact_concept_expression *c,
 		fact_actor **actor);
@@ -216,43 +216,43 @@ void fact_get_disjoint_concepts (fact_reasoning_kernel *,
 		fact_actor **actor);
 
 void fact_get_sup_roles (fact_reasoning_kernel *, fact_role_expression *r,
-		bool direct, fact_actor **actor);
+		int direct, fact_actor **actor);
 void fact_get_sub_roles (fact_reasoning_kernel *, fact_role_expression *r,
-		bool direct, fact_actor **actor);
+		int direct, fact_actor **actor);
 void fact_get_equivalent_roles (fact_reasoning_kernel *, fact_role_expression *r,
 		fact_actor **actor);
 void fact_get_o_role_domain (fact_reasoning_kernel *, fact_o_role_expression *r,
-		bool direct, fact_actor **actor);
+		int direct, fact_actor **actor);
 void fact_get_d_role_domain (fact_reasoning_kernel *, fact_d_role_expression *r,
-		bool direct, fact_actor **actor);
+		int direct, fact_actor **actor);
 void fact_get_role_range (fact_reasoning_kernel *, fact_o_role_expression *r,
-		bool direct, fact_actor **actor);
+		int direct, fact_actor **actor);
 void fact_get_direct_instances (fact_reasoning_kernel *,
 		fact_concept_expression *c, fact_actor **actor);
 void fact_get_instances (fact_reasoning_kernel *, fact_concept_expression *c,
 		fact_actor **actor);
 void fact_get_types (fact_reasoning_kernel *, fact_individual_expression *i,
-		bool direct, fact_actor **actor);
+		int direct, fact_actor **actor);
 void fact_get_same_as (fact_reasoning_kernel *,
 		fact_individual_expression *i, fact_actor **actor);
 
-bool fact_is_same_individuals (fact_reasoning_kernel *,
+int fact_is_same_individuals (fact_reasoning_kernel *,
 		fact_individual_expression *i,
 		fact_individual_expression *j);
-bool fact_is_instance (fact_reasoning_kernel *,
+int fact_is_instance (fact_reasoning_kernel *,
 		fact_individual_expression *i,
 		fact_concept_expression *c);
 /*
 void fact_get_related_roles (fact_reasoning_kernel *,
 			     fact_individual_expression *i,
-			     bool data, bool needI,
+			     int data, int needI,
 			     fact_names_vector **result);
 void fact_get_role_fillers (fact_reasoning_kernel *,
 			    fact_individual_expression *i,
 			    fact_o_role_expression *r,
 			    fact_individual_set **result);
  */
-bool fact_is_related (fact_reasoning_kernel *,
+int fact_is_related (fact_reasoning_kernel *,
 		 fact_individual_expression *i,
 		 fact_o_role_expression *r,
 		 fact_individual_expression *j);

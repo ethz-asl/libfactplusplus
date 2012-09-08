@@ -78,15 +78,15 @@ ifOptionSet* getOptions (  );
 const ifOptionSet* getOptions (  );
  */
 
-bool fact_is_kb_preprocessed (fact_reasoning_kernel *k)
+int fact_is_kb_preprocessed (fact_reasoning_kernel *k)
 {
 	return k->p->isKBPreprocessed();
 }
-bool fact_is_kb_classified (fact_reasoning_kernel *k)
+int fact_is_kb_classified (fact_reasoning_kernel *k)
 {
 	return k->p->isKBRealised();
 }
-bool fact_is_kb_realised (fact_reasoning_kernel *k)
+int fact_is_kb_realised (fact_reasoning_kernel *k)
 {
 	return k->p->isKBRealised();
 }
@@ -95,7 +95,7 @@ void fact_set_progress_monitor (fact_reasoning_kernel *k, fact_progress_monitor 
 	return k->p->setProgressMonitor(m->p);
 }
 
-void fact_set_verbose_output (fact_reasoning_kernel *k, bool value)
+void fact_set_verbose_output (fact_reasoning_kernel *k, int value)
 {
 	k->p->setVerboseOutput(value);
 }
@@ -115,15 +115,15 @@ void fact_set_operation_timeout (fact_reasoning_kernel *k,
 	k->p->setOperationTimeout(timeout);
 }
 
-bool fact_new_kb (fact_reasoning_kernel *k)
+int fact_new_kb (fact_reasoning_kernel *k)
 {
 	return k->p->newKB();
 }
-bool fact_release_kb (fact_reasoning_kernel *k)
+int fact_release_kb (fact_reasoning_kernel *k)
 {
 	return k->p->releaseKB();
 }
-bool fact_clear_kb (fact_reasoning_kernel *k)
+int fact_clear_kb (fact_reasoning_kernel *k)
 {
 	return k->p->clearKB();
 }
@@ -306,7 +306,7 @@ void fact_retract (fact_reasoning_kernel *k, fact_axiom *axiom)
 	k->p->retract(axiom->p);
 }
 
-bool fact_is_kb_consistent (fact_reasoning_kernel *k)
+int fact_is_kb_consistent (fact_reasoning_kernel *k)
 {
 	return k->p->isKBConsistent();
 }
@@ -323,98 +323,98 @@ void fact_realise_kb (fact_reasoning_kernel *k)
 	k->p->realiseKB();
 }
 
-bool fact_is_o_functional (fact_reasoning_kernel *k, fact_o_role_expression *r)
+int fact_is_o_functional (fact_reasoning_kernel *k, fact_o_role_expression *r)
 {
 	return k->p->isFunctional(r->p);
 }
-bool fact_is_d_functional (fact_reasoning_kernel *k,
+int fact_is_d_functional (fact_reasoning_kernel *k,
 		fact_d_role_expression *r)
 {
 	return k->p->isFunctional(r->p);
 }
-bool fact_is_inverse_functional (fact_reasoning_kernel *k,
+int fact_is_inverse_functional (fact_reasoning_kernel *k,
 		fact_o_role_expression *r)
 {
 	return k->p->isInverseFunctional(r->p);
 }
-bool fact_is_transitive (fact_reasoning_kernel *k, fact_o_role_expression *r)
+int fact_is_transitive (fact_reasoning_kernel *k, fact_o_role_expression *r)
 {
 	return k->p->isTransitive(r->p);
 }
-bool fact_is_symmetric (fact_reasoning_kernel *k, fact_o_role_expression *r)
+int fact_is_symmetric (fact_reasoning_kernel *k, fact_o_role_expression *r)
 {
 	return k->p->isSymmetric(r->p);
 }
-bool fact_is_asymmetric (fact_reasoning_kernel *k, fact_o_role_expression *r)
+int fact_is_asymmetric (fact_reasoning_kernel *k, fact_o_role_expression *r)
 {
 	return k->p->isAsymmetric(r->p);
 }
-bool fact_is_reflexive (fact_reasoning_kernel *k, fact_o_role_expression *r)
+int fact_is_reflexive (fact_reasoning_kernel *k, fact_o_role_expression *r)
 {
 	return k->p->isReflexive(r->p);
 }
-bool fact_is_irreflexive (fact_reasoning_kernel *k, fact_o_role_expression *r)
+int fact_is_irreflexive (fact_reasoning_kernel *k, fact_o_role_expression *r)
 {
 	return k->p->isIrreflexive(r->p);
 }
-bool fact_is_sub_o_roles (fact_reasoning_kernel *k, fact_o_role_expression *r,
+int fact_is_sub_o_roles (fact_reasoning_kernel *k, fact_o_role_expression *r,
 		fact_o_role_expression *s)
 {
 	return k->p->isSubRoles(r->p,s->p);
 }
-bool fact_is_sub_d_roles (fact_reasoning_kernel *k, fact_d_role_expression *r,
+int fact_is_sub_d_roles (fact_reasoning_kernel *k, fact_d_role_expression *r,
 		fact_d_role_expression *s)
 {
 	return k->p->isSubRoles(r->p,s->p);
 }
-bool fact_is_disjoint_o_roles (fact_reasoning_kernel *k,
+int fact_is_disjoint_o_roles (fact_reasoning_kernel *k,
 		fact_o_role_expression *r,
 		fact_o_role_expression *s)
 {
 	return k->p->isDisjointRoles(r->p,s->p);
 }
-bool fact_is_disjoint_d_roles (fact_reasoning_kernel *k,
+int fact_is_disjoint_d_roles (fact_reasoning_kernel *k,
 		fact_d_role_expression *r,
 		fact_d_role_expression *s)
 {
 	return k->p->isDisjointRoles(r->p,s->p);
 }
-bool fact_is_disjoint_roles (fact_reasoning_kernel *k)
+int fact_is_disjoint_roles (fact_reasoning_kernel *k)
 {
 	return k->p->isDisjointRoles();
 }
-bool fact_is_sub_chain (fact_reasoning_kernel *k, fact_o_role_expression *r)
+int fact_is_sub_chain (fact_reasoning_kernel *k, fact_o_role_expression *r)
 {
 	return k->p->isSubChain(r->p);
 }
 
-bool fact_is_satisfiable (fact_reasoning_kernel *k, fact_concept_expression *c)
+int fact_is_satisfiable (fact_reasoning_kernel *k, fact_concept_expression *c)
 {
 	return k->p->isSatisfiable(c->p);
 }
-bool fact_is_subsumed_by (fact_reasoning_kernel *k, fact_concept_expression *c,
+int fact_is_subsumed_by (fact_reasoning_kernel *k, fact_concept_expression *c,
 		fact_concept_expression *d)
 {
 	return k->p->isSubsumedBy(c->p,d->p);
 }
-bool fact_is_disjoint (fact_reasoning_kernel *k, fact_concept_expression *c,
+int fact_is_disjoint (fact_reasoning_kernel *k, fact_concept_expression *c,
 		fact_concept_expression *d)
 {
 	return k->p->isDisjoint(c->p,d->p);
 }
-bool fact_is_equivalent (fact_reasoning_kernel *k, fact_concept_expression *c,
+int fact_is_equivalent (fact_reasoning_kernel *k, fact_concept_expression *c,
 		fact_concept_expression *d)
 {
 	return k->p->isEquivalent(c->p,d->p);
 }
 
 void fact_get_sup_concepts (fact_reasoning_kernel *k, fact_concept_expression *c,
-		bool direct, fact_actor **actor)
+		int direct, fact_actor **actor)
 {
 	k->p->getSupConcepts(c->p,direct,*(*actor)->p);
 }
 void fact_get_sub_concepts (fact_reasoning_kernel *k, fact_concept_expression *c,
-		bool direct, fact_actor **actor)
+		int direct, fact_actor **actor)
 {
 	k->p->getSubConcepts(c->p,direct,*(*actor)->p);
 }
@@ -432,13 +432,13 @@ void fact_get_disjoint_concepts (fact_reasoning_kernel *k,
 }
 
 void fact_get_sup_roles (fact_reasoning_kernel *k, fact_role_expression *r,
-		bool direct,
+		int direct,
 		fact_actor **actor)
 {
 	k->p->getSupRoles(r->p,direct,*(*actor)->p);
 }
 void fact_get_sub_roles (fact_reasoning_kernel *k, fact_role_expression *r,
-		bool direct, fact_actor **actor)
+		int direct, fact_actor **actor)
 {
 	k->p->getSubRoles(r->p,direct,*(*actor)->p);
 }
@@ -448,17 +448,17 @@ void fact_get_equivalent_roles (fact_reasoning_kernel *k, fact_role_expression *
 	k->p->getEquivalentRoles(r->p,*(*actor)->p);
 }
 void fact_get_o_role_domain (fact_reasoning_kernel *k, fact_o_role_expression *r,
-		bool direct, fact_actor **actor)
+		int direct, fact_actor **actor)
 {
 	k->p->getORoleDomain(r->p,direct,*(*actor)->p);
 }
 void fact_get_d_role_domain (fact_reasoning_kernel *k, fact_d_role_expression *r,
-		bool direct, fact_actor **actor)
+		int direct, fact_actor **actor)
 {
 	k->p->getDRoleDomain(r->p,direct,*(*actor)->p);
 }
 void fact_get_role_range (fact_reasoning_kernel *k, fact_o_role_expression *r,
-		bool direct, fact_actor **actor)
+		int direct, fact_actor **actor)
 {
 	k->p->getRoleRange(r->p,direct,*(*actor)->p);
 }
@@ -473,7 +473,7 @@ void fact_get_instances (fact_reasoning_kernel *k, fact_concept_expression *c,
 	k->p->getInstances(c->p,*(*actor)->p);
 }
 void fact_get_types (fact_reasoning_kernel *k, fact_individual_expression *i,
-		bool direct, fact_actor **actor)
+		int direct, fact_actor **actor)
 {
 	k->p->getTypes(i->p,direct,*(*actor)->p);
 }
@@ -483,19 +483,19 @@ void fact_get_same_as (fact_reasoning_kernel *k,
 	k->p->getSameAs(i->p,*(*actor)->p);
 }
 
-bool fact_is_same_individuals (fact_reasoning_kernel *k,
+int fact_is_same_individuals (fact_reasoning_kernel *k,
 		fact_individual_expression *i,
 		fact_individual_expression *j)
 {
 	return k->p->isSameIndividuals(i->p,j->p);
 }
-bool fact_is_instance (fact_reasoning_kernel *k,
+int fact_is_instance (fact_reasoning_kernel *k,
 		fact_individual_expression *i,
 		fact_concept_expression *c)
 {
 	return k->p->isInstance(i->p,c->p);
 }
-bool fact_is_related (fact_reasoning_kernel *k,
+int fact_is_related (fact_reasoning_kernel *k,
 		fact_individual_expression *i,
 		fact_o_role_expression *r,
 		fact_individual_expression *j)
