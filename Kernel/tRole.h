@@ -163,7 +163,7 @@ protected:	// methods
 		/// complete role automaton; keep track of processed roles in RINPROCESS
 	void completeAutomaton ( TRoleSet& RInProcess );
 		/// replace RoR [= R with Trans(R), replace synonyms in RS
-	void preprocessComposition ( TRoleVec& RS ) throw(EFPPCycleInRIA);
+	void preprocessComposition ( TRoleVec& RS );
 		/// add transition to automaton with the role
 	void addTrivialTransition ( const TRole* r )
 		{ A.addTransitionSafe ( A.initial(), new RATransition ( A.final(), r ) ); }

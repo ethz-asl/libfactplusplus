@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2010 by Dmitry Tsarkov
+Copyright (C) 2003-2012 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -354,7 +354,7 @@ void TRole :: initDJMap ( void )
 // automaton-related implementation
 
 void
-TRole :: preprocessComposition ( TRoleVec& RS ) throw(EFPPCycleInRIA)
+TRole :: preprocessComposition ( TRoleVec& RS )
 {
 	bool same = false;
 	unsigned int last = RS.size()-1;
