@@ -29,7 +29,8 @@ DLTree* inverseComposition ( const DLTree* tree )
 		return createEntry ( RNAME, resolveRole(tree)->inverse() );
 }
 
-void RoleMaster :: addRoleParent ( DLTree* tree, TRole* parent )
+void
+RoleMaster :: addRoleParent ( DLTree* tree, TRole* parent ) const
 {
 	if ( !tree )	// nothing to do
 		return;
@@ -76,6 +77,29 @@ void RoleMaster :: addRoleParent ( DLTree* tree, TRole* parent )
 		addRoleParent ( resolveRole(tree), parent );
 	deleteTree(tree);
 }
+
+/// add parent for the input role
+void
+RoleMaster :: addRoleParent ( TRole* role, TRole* parent ) const
+{
+	if ( role->isDataRole() != parent->isDataRole() )
+		throw EFaCTPlusPlus("Mixed object and data roles in role subsumption axiom");
+
+	role->addParent(parent);
+	role->Inverse->addParent(parent->Inverse);
+}
+
+/// add synonym to existing role
+void
+RoleMaster :: addRoleSynonym ( TRole* role, TRole* syn ) const
+{
+	if ( role != syn )
+	{
+		addRoleParent ( role, syn );
+		addRoleParent ( syn, role );
+	}
+}
+
 
 void RoleMaster :: initAncDesc ( void )
 {
