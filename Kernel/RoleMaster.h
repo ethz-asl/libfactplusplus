@@ -106,6 +106,11 @@ protected:	// methods
 				 Roles[ind] == p );
 	}
 
+		/// add parent for the input role; both roles are not synonyms
+	void addRoleParentProper ( TRole* role, TRole* parent ) const;
+		/// add synonym to existing role; both roles are not synonyms
+	void addRoleSynonymProper ( TRole* role, TRole* syn ) const;
+
 		/// get number of roles
 	size_t size ( void ) const { return Roles.size()/2-1; }
 
@@ -167,12 +172,12 @@ public:		// interface
 		return p;
 	}
 
-		/// add parent for the input role
-	void addRoleParent ( TRole* role, TRole* parent ) const;
 		/// add parent for the input role or role composition; delete ROLE afterwards
 	void addRoleParent ( DLTree* role, TRole* parent ) const;
+		/// add parent for the input role
+	void addRoleParent ( TRole* role, TRole* parent ) const { addRoleParentProper ( resolveSynonym(role), resolveSynonym(parent) ); }
 		/// add synonym to existing role
-	void addRoleSynonym ( TRole* role, TRole* syn ) const;
+	void addRoleSynonym ( TRole* role, TRole* syn ) const { addRoleSynonymProper ( resolveSynonym(role), resolveSynonym(syn) ); }
 
 		/// register a pair of disjoint roles
 	void addDisjointRoles ( TRole* R, TRole* S )

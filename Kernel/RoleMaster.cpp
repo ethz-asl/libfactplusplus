@@ -80,8 +80,10 @@ RoleMaster :: addRoleParent ( DLTree* tree, TRole* parent ) const
 
 /// add parent for the input role
 void
-RoleMaster :: addRoleParent ( TRole* role, TRole* parent ) const
+RoleMaster :: addRoleParentProper ( TRole* role, TRole* parent ) const
 {
+	fpp_assert ( !role->isSynonym() && !parent->isSynonym() );
+
 	if ( role->isDataRole() != parent->isDataRole() )
 		throw EFaCTPlusPlus("Mixed object and data roles in role subsumption axiom");
 
@@ -91,9 +93,11 @@ RoleMaster :: addRoleParent ( TRole* role, TRole* parent ) const
 
 /// add synonym to existing role
 void
-RoleMaster :: addRoleSynonym ( TRole* role, TRole* syn ) const
+RoleMaster :: addRoleSynonymProper ( TRole* role, TRole* syn ) const
 {
-	if ( role != syn )
+	fpp_assert ( !role->isSynonym() && !syn->isSynonym() );
+
+	if ( role != syn )	// same role; nothing to do
 	{
 		addRoleParent ( role, syn );
 		addRoleParent ( syn, role );
