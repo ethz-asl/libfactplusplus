@@ -120,12 +120,7 @@ public:		// interface
 		/// get synonym of current entry
 	ClassifiableEntry* getSynonym ( void ) const { return pSynonym; }
 		/// make sure that synonym's representative is not a synonym itself
-	void canonicaliseSynonym ( void )
-	{
-		if ( isSynonym() )
-			while ( pSynonym->isSynonym() )
-				pSynonym = pSynonym->getSynonym();
-	}
+	void canonicaliseSynonym ( void );
 		/// add entry's synonym
 	void setSynonym ( ClassifiableEntry* syn )
 	{
@@ -158,6 +153,15 @@ resolveSynonym ( const T* p )
 {
 	return !p ? NULL : p->isSynonym() ? resolveSynonym(static_cast<const T*>(p->getSynonym())) : p;
 }
+
+/// make sure that synonym's representative is not a synonym itself
+inline void
+ClassifiableEntry :: canonicaliseSynonym ( void )
+{
+	fpp_assert(isSynonym());
+	pSynonym = resolveSynonym(pSynonym);
+}
+
 
 inline void
 ClassifiableEntry :: addParentIfNew ( ClassifiableEntry* parent )
