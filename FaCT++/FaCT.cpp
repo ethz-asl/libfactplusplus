@@ -119,9 +119,7 @@ const char* getConceptName ( ReasoningKernel::TConceptExpr* C )
 #define TryReasoning(action)			\
 	do {								\
 		try { action; }					\
-		catch ( const EFPPInconsistentKB& ) 	\
-		{ std::cerr << "\nWARNING: KB is inconsistent. "	\
-			<< "Query is NOT processed\n"; exit(0); }		\
+		catch ( const EFPPInconsistentKB& ) {} 	\
 		catch ( const EFPPCantRegName& crn )	\
 		{ std::cout << "Query name " << crn.getName()		\
 			<< " is undefined in TBox\n"; }					\
