@@ -17,6 +17,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "RoleMaster.h"
+#include "eFPPInconsistentKB.h"
 
 // inverse the role composition
 DLTree* inverseComposition ( const DLTree* tree )
@@ -84,26 +85,35 @@ RoleMaster :: addRoleParentProper ( TRole* role, TRole* parent ) const
 {
 	fpp_assert ( !role->isSynonym() && !parent->isSynonym() );
 
+	if ( role == parent )	// nothing to do
+		return;
+
 	if ( role->isDataRole() != parent->isDataRole() )
 		throw EFaCTPlusPlus("Mixed object and data roles in role subsumption axiom");
 
-	role->addParent(parent);
-	role->Inverse->addParent(parent->Inverse);
-}
+	// check the inconsistency case *UROLE* [= *EROLE*
+	if ( unlikely(role->isTop() && parent->isBottom()) )
+		throw EFPPInconsistentKB();
 
-/// add synonym to existing role
-void
-RoleMaster :: addRoleSynonymProper ( TRole* role, TRole* syn ) const
-{
-	fpp_assert ( !role->isSynonym() && !syn->isSynonym() );
-
-	if ( role != syn )	// same role; nothing to do
+	// *UROLE* [= R means R (and R-) are synonym of *UROLE*
+	if ( unlikely(role->isTop()) )
 	{
-		addRoleParent ( role, syn );
-		addRoleParent ( syn, role );
+		parent->setSynonym(role);
+		parent->inverse()->setSynonym(role);
+		return;
 	}
-}
 
+	// R [= *EROLE* means R (and R-) are synonyms of *EROLE*
+	if ( unlikely(parent->isBottom()) )
+	{
+		role->setSynonym(parent);
+		role->inverse()->setSynonym(parent);
+		return;
+	}
+
+	role->addParent(parent);
+	role->inverse()->addParent(parent->inverse());
+}
 
 void RoleMaster :: initAncDesc ( void )
 {
