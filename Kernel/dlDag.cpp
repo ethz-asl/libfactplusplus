@@ -54,7 +54,7 @@ DLDag :: removeQuery ( void )
 			static_cast<TDataEntry*>(v->getConcept())->setBP(bpINVALID);
 			break;
 		case dtConcept:
-			static_cast<TConcept*>(v->getConcept())->pName = bpINVALID;
+			static_cast<TConcept*>(v->getConcept())->clear();
 			break;
 		default:
 			break;
