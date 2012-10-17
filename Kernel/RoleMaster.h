@@ -178,11 +178,11 @@ public:		// interface
 	void addRoleSynonym ( TRole* role, TRole* syn ) const
 	{
 		// no synonyms
-		role = resolveSynonym(role);
-		syn = resolveSynonym(syn);
-
-		addRoleParentProper ( role, syn );
-		addRoleParentProper ( syn, role );
+//		role = resolveSynonym(role);
+//		syn = resolveSynonym(syn);
+		// FIXME!! 1st call can make one of them a synonym of a const
+		addRoleParentProper ( resolveSynonym(role), resolveSynonym(syn) );
+		addRoleParentProper ( resolveSynonym(syn), resolveSynonym(role) );
 	}
 
 		/// register a pair of disjoint roles
