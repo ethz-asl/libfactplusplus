@@ -70,30 +70,7 @@ private:	// methods
 
 protected:	// methods
 		/// register TRole and it's inverse in RoleBox
-	void registerRole ( TRole* r )
-	{
-		fpp_assert ( r != NULL && r->Inverse == NULL );	// sanity check
-		fpp_assert ( r->getId() == 0 );	// only call it for the new roles
-
-		if ( DataRoles )
-			r->setDataRole();
-
-		Roles.push_back (r);
-		r->setId (newRoleId);
-
-		// create new role which would be inverse of R
-		std::string iname ("-");
-		iname += r->getName();
-		TRole* ri = new TRole(iname);
-
-		// set up inverse
-		r->setInverse(ri);
-		ri->setInverse(r);
-
-		Roles.push_back (ri);
-		ri->setId (-newRoleId);
-		++newRoleId;
-	}
+	void registerRole ( TRole* r );
 		/// @return true if P is a role that is registered in the RM
 	bool isRegisteredRole ( const TNamedEntry* p ) const
 	{
@@ -114,60 +91,12 @@ protected:	// methods
 
 public:		// interface
 		/// the only c'tor
-	RoleMaster ( bool dataRoles, const std::string& TopRoleName, const std::string& BotRoleName )
-		: newRoleId(1)
-		, emptyRole(BotRoleName == "" ? "emptyRole" : BotRoleName)
-		, universalRole(TopRoleName == "" ? "universalRole" : TopRoleName)
-		, roleNS()
-		, pTax(NULL)
-		, DataRoles(dataRoles)
-		, useUndefinedNames(true)
-	{
-		// no zero-named roles allowed
-		Roles.push_back(NULL);
-		Roles.push_back(NULL);
-		// setup empty role
-		emptyRole.setId(0);
-		emptyRole.setInverse(&emptyRole);
-		emptyRole.setDataRole(dataRoles);
-		emptyRole.setBPDomain(bpBOTTOM);
-		emptyRole.setBottom();
-		// setup universal role
-		universalRole.setId(0);
-		universalRole.setInverse(&universalRole);
-		universalRole.setDataRole(dataRoles);
-		universalRole.setBPDomain(bpTOP);
-		universalRole.setTop();
-		// FIXME!! now it is not transitive => simple
-		const_cast<RoleAutomaton&>(universalRole.getAutomaton()).setCompleted();
-	}
+	RoleMaster ( bool dataRoles, const std::string& TopRoleName, const std::string& BotRoleName );
 		/// d'tor (delete taxonomy)
 	~RoleMaster ( void ) { delete pTax; }
 
 		/// create role entry with given name
-	TNamedEntry* ensureRoleName ( const std::string& name ) throw(EFPPCantRegName)
-	{
-		// check for the Top/Bottom names
-		if ( name == emptyRole.getName() )
-			return &emptyRole;
-		if ( name == universalRole.getName() )
-			return &universalRole;
-
-		// new name from NS
-		TRole* p = roleNS.insert(name);
-		// check what happens
-		if ( p == NULL )			// role registration attempt failed
-			throw EFPPCantRegName ( name, DataRoles ? "data role" : "role" );
-
-		if ( isRegisteredRole(p) )	// registered role
-			return p;
-		if ( p->getId() != 0 ||		// not registered but has non-null ID
-			 !useUndefinedNames )	// new names are disallowed
-			throw EFPPCantRegName ( name, DataRoles ? "data role" : "role" );
-
-		registerRole(p);
-		return p;
-	}
+	TNamedEntry* ensureRoleName ( const std::string& name );
 
 		/// add parent for the input role or role composition; delete ROLE afterwards
 	void addRoleParent ( DLTree* role, TRole* parent ) const;
