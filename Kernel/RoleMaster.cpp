@@ -242,6 +242,9 @@ void RoleMaster :: initAncDesc ( void )
 		if ( !(*p)->isSynonym() )
 			(*p)->completeAutomaton(nRoles);
 
+	// now all usual roles has their own automata, set up Bottom's automata
+	emptyRole.completeAutomaton(nRoles);
+
 	// prepare taxonomy to the real usage
 	pTax->finalise();
 

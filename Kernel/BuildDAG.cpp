@@ -62,6 +62,11 @@ void TBox :: buildDAG ( void )
 			if ( !(*p)->isSynonym() && (*p)->hasSpecialDomain() )
 				GCI = createSNFAnd ( GCI, clone((*p)->getTSpecialDomain()) );
 
+	// take chains that lead to Bot role into account
+	if ( !ORM.getBotRole()->isSimple() )
+		GCI = createSNFAnd ( GCI,
+				new DLTree ( TLexeme(FORALL), createRole(ORM.getBotRole()), createBottom() ) );
+
 	T_G = tree2dag(GCI);
 	deleteTree(GCI);
 
