@@ -168,12 +168,7 @@ protected:	// methods
 		/// add automaton of a sub-role to a given one
 	void addSubRoleAutomaton ( const TRole* R )
 	{
-		if ( this == R )
-			return;
-
-		if ( R->isSimple() )
-			A.addSimpleRA(R->getAutomaton());
-		else
+		if ( this != R )	// non-trivial addition
 			A.addRA(R->getAutomaton());
 	}
 		/// get an automaton by a (possibly synonymical) role

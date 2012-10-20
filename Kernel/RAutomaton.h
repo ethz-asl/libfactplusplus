@@ -328,20 +328,7 @@ public:		// interface
 		/// check whether automaton is completed
 	bool isCompleted ( void ) const { return Complete; }
 
-	// add single RA
-
-		/// add RA from simple subrole to given one
-	void addSimpleRA ( const RoleAutomaton& RA )
-	{
-		bool ok = Base[initial()].addToExisting(*RA[initial()].begin());
-		fpp_assert(ok);
-	}
-		/// add RA from a subrole to given one
-	void addRA ( const RoleAutomaton& RA )
-	{
-		initChain(initial());
-		addToChain ( RA, /*oSafe=*/false, final() );
-	}
+	// get some stats
 
 		/// return number of distinct states
 	unsigned int size ( void ) const { return Base.size(); }
@@ -350,6 +337,23 @@ public:		// interface
 	{
 		fpp_assert(isCompleted());
 		return size() == 2 && ISafe && OSafe;
+	}
+
+	// add single RA
+
+		/// add RA from a subrole to given one
+	void addRA ( const RoleAutomaton& RA )
+	{
+		if ( RA.isSimple() )
+		{
+			bool ok = Base[initial()].addToExisting(*RA[initial()].begin());
+			fpp_assert(ok);
+		}
+		else
+		{
+			initChain(initial());
+			addToChain ( RA, /*oSafe=*/false, final() );
+		}
 	}
 
 		/// print an automaton
