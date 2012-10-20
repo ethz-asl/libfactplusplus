@@ -345,6 +345,12 @@ public:		// interface
 
 		/// return number of distinct states
 	unsigned int size ( void ) const { return Base.size(); }
+		/// @return true iff the automaton is simple
+	bool isSimple ( void ) const
+	{
+		fpp_assert(isCompleted());
+		return size() == 2 && ISafe && OSafe;
+	}
 
 		/// print an automaton
 	void Print ( std::ostream& o ) const

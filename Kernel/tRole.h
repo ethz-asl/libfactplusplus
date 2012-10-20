@@ -146,8 +146,6 @@ protected:	// members
 protected:	// methods
 	// support for Anc/Desc filling and such
 
-		/// check if role or any of its sub-roles is transitive (ie non-simple)
-	void initSimple ( void );
 		/// check if the role is REALLY topmost-functional (internal-use only)
 	bool isRealTopFunc ( void ) const;
 		/// set up TopFunc member properly (internal-use only)
@@ -235,10 +233,13 @@ public:		// interface
 
 	// different flags
 
-		/// register a Simple flag (not simple if role or any of its sub-roles is transitive)
-	FPP_ADD_FLAG(Simple,0x10);
 		/// distinguish data- and non-data role
-	FPP_ADD_FLAG(DataRole,0x20);
+	FPP_ADD_FLAG(DataRole,0x10);
+
+	// simple
+
+		// @return true iff the role is simple
+	bool isSimple ( void ) const { return A.isSimple(); }
 
 	// functionality
 

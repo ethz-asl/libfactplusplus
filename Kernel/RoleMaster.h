@@ -132,15 +132,14 @@ public:		// interface
 		emptyRole.setDataRole(dataRoles);
 		emptyRole.setBPDomain(bpBOTTOM);
 		emptyRole.setBottom();
-		// OWL 2 says Bottom role is non-simple, but this is unnecessary
-		// and leads to inconsistent results wrt presence of an axiom Bot [= R
-		emptyRole.setSimple();
 		// setup universal role
 		universalRole.setId(0);
 		universalRole.setInverse(&universalRole);
 		universalRole.setDataRole(dataRoles);
 		universalRole.setBPDomain(bpTOP);
 		universalRole.setTop();
+		// FIXME!! now it is not transitive => simple
+		const_cast<RoleAutomaton&>(universalRole.getAutomaton()).setCompleted();
 	}
 		/// d'tor (delete taxonomy)
 	~RoleMaster ( void ) { delete pTax; }

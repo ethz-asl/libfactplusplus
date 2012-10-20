@@ -248,8 +248,6 @@ void TRole :: initADbyTaxonomy ( Taxonomy* pTax, unsigned int nRoles )
 	AddRoleActor desc(Descendant);
 	pTax->getRelativesInfo</*needCurrent=*/false, /*onlyDirect=*/false, /*upDirection=*/false> ( getTaxVertex(), desc );
 
-	// determine Simple attribute
-	initSimple();
 	// resize maps for fast access
 	DJRoles.resize(nRoles);
 	AncMap.resize(nRoles);
@@ -264,26 +262,6 @@ void TRole :: postProcess ( void )
 	// init DJ roles map
 	if ( isDisjoint() )
 		initDJMap();
-}
-
-// simplicity checking (necessary for A+ rule)
-// valid only after initAncDesc call
-void TRole :: initSimple ( void )
-{
-	fpp_assert ( !isSynonym() );
-
-	setSimple(false);
-
-	// try to ensure that role is non-simple
-	if ( isTransitive() || !subCompositions.empty() )
-		return;
-
-	for ( const_iterator p = begin_desc(); p != end_desc(); ++p )
-		if ( (*p)->isTransitive() || !(*p)->subCompositions.empty() )
-			return;
-
-	// role is simple -- set it
-	setSimple(true);
 }
 
 /// check if the role is topmost-functional (internal-use only)
