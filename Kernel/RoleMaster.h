@@ -159,6 +159,7 @@ public:		// interface
 		if ( size() == 0 )
 			return;
 		o << type << " Roles (" << size() << "):\n";
+		emptyRole.Print(o);
 		for ( const_iterator p = begin(); p != end(); ++p )
 			(*p)->Print(o);
 	}
