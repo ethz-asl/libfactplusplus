@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2006-2010 by Dmitry Tsarkov
+Copyright (C) 2006-2012 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -320,6 +320,13 @@ public:		// interface
 	bool isISafe ( void ) const { return ISafe; }
 		/// get the o-safe value
 	bool isOSafe ( void ) const { return OSafe; }
+
+	// automaton completeness
+
+		/// mark an automaton as completed
+	void setCompleted ( void ) { Complete = true; }
+		/// check whether automaton is completed
+	bool isCompleted ( void ) const { return Complete; }
 
 	// add single RA
 

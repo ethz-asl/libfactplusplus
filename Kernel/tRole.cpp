@@ -398,7 +398,7 @@ TRole :: preprocessComposition ( TRoleVec& RS )
 void TRole :: completeAutomaton ( TRoleSet& RInProcess )
 {
 	// check whether RA is already complete
-	if ( isFinished() )
+	if ( A.isCompleted() )
 		return;
 
 	// if we found a cycle...
@@ -421,7 +421,7 @@ void TRole :: completeAutomaton ( TRoleSet& RInProcess )
 		A.addTransitionSafe ( A.final(), new RATransition(A.initial()) );
 
 	// here automaton is complete
-	setFinished(true);
+	A.setCompleted();
 
 	for ( ClassifiableEntry::iterator p = told_begin(), p_end = told_end(); p != p_end; ++p )
 	{

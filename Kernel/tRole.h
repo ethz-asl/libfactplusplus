@@ -239,8 +239,6 @@ public:		// interface
 	FPP_ADD_FLAG(Simple,0x10);
 		/// distinguish data- and non-data role
 	FPP_ADD_FLAG(DataRole,0x20);
-		/// flag for recursive walks (used in Automaton creation)
-	FPP_ADD_FLAG(Finished,0x40);
 
 	// functionality
 
