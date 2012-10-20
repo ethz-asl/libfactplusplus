@@ -383,12 +383,19 @@ protected:	// methods
 		// R1 o ... o Rn [= R iff \ER1.\ER2....\ERn.(notC) and AR.C is unsatisfiable
 		DLTree* tmp = createSNFNot(getTBox()->getFreshConcept());
 		for ( TExprVec::const_reverse_iterator p = Chain.rbegin(), p_end = Chain.rend(); p != p_end; ++p )
-		{
-			TORoleExpr* Ri = dynamic_cast<TORoleExpr*>(*p);
-			if ( Ri == NULL )
+			if ( TORoleExpr* Ri = dynamic_cast<TORoleExpr*>(*p) )
+			{
+				TRole* S = getRole ( Ri, "Role expression expected in chain of isSubChain()" );
+				if ( unlikely(S->isBottom()) )	// bottom in a chain makes it super of any role
+				{
+					deleteTree(tmp);
+					return true;
+				}
+				tmp = createSNFExists ( createRole(S), tmp );
+			}
+			else
 				throw EFaCTPlusPlus("Role expression expected in the role chain construct");
-			tmp = createSNFExists ( e(Ri), tmp );
-		}
+
 		tmp = createSNFAnd ( tmp, createSNFForall ( createEntry(RNAME,R), getTBox()->getFreshConcept() ) );
 		return !checkSatTree(tmp);
 	}
@@ -980,18 +987,7 @@ public:
 		TRole* r = getRole ( R, "Role expression expected in isSubChain()" );
 		if ( unlikely(r->isTop()) )
 			return true;	// universal role is a super of any chain
-		TExprVec Chain = getExpressionManager()->getArgList();
-		if ( unlikely(r->isBottom()) )
-		{
-			for ( TExprVec::const_iterator p = Chain.begin(), p_end = Chain.end(); p != p_end; ++p )
-			{
-				TRole* S = getRole ( dynamic_cast<TORoleExpr*>(*p), "Role expression expected in chain of isSubChain()" );
-				if ( S->isBottom() )	// bottom in a chain makes it super of any role
-					return true;
-			}
-			return false;	// empty role is not a super of any chain
-		}
-		return checkSubChain ( Chain, r );
+		return checkSubChain ( getExpressionManager()->getArgList(), r );
 	}
 
 	// single satisfiability
