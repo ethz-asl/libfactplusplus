@@ -474,7 +474,7 @@ public:		// interface
 		A.setup ( nRoles, isDataRole() );
 	}
 		/// check whether role description is consistent
-	void consistent ( void ) throw(EFPPNonSimpleRole)
+	void consistent ( void ) const
 	{
 		if ( isSimple() )		// all simple roles are consistent
 			return;

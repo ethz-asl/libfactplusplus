@@ -121,7 +121,7 @@ public:		// interface
 	DLTree* getFreshDataType ( void ) { return wrap((*(begin()+5))->getType()); }
 
 		/// return registered data value by given NAME of a Type, given by SAMPLE
-	DLTree* getDataValue ( const std::string& name, const DLTree* sample ) const throw(EFPPCantRegName)
+	DLTree* getDataValue ( const std::string& name, const DLTree* sample ) const
 	{
 		TDataType* type = isConst(sample) ?
 			getStringDataType() :	// data top

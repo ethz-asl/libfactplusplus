@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2005-2011 by Dmitry Tsarkov
+Copyright (C) 2005-2012 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -88,7 +88,7 @@ public:		// interface
 		/// check if entry with a NAME is registered in given collection
 	bool isRegistered ( const std::string& name ) const { return NameSet.get(name) != NULL; }
 		/// get entry by NAME from the collection; register it if necessary
-	T* get ( const std::string& name ) throw(EFPPCantRegName)
+	T* get ( const std::string& name )
 	{
 		T* p = NameSet.get(name);
 
