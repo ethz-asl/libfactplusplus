@@ -928,32 +928,32 @@ bool DlSatTester :: commonTacticBodyLE ( const DLVertex& cur )	// for <=nR.C con
 	incStat(nLeCalls);
 	BipolarPointer C = cur.getC();
 	const TRole* R = cur.getRole();
-
-	BCLE* bcLE = NULL;
+	bool needInit = true;
 
 	if ( !isFirstBranchCall() )
 	{
 		if ( dynamic_cast<BCNN*>(bContext) != NULL )
 			return commonTacticBodyNN(cur);	// after application <=-rule would be checked again
 		if ( dynamic_cast<BCLE*>(bContext) != NULL )
-			goto applyLE;	// clash in LE-rule: skip all the rest
-
-		// the only possible case is choose-rule; in this case just continue
-		fpp_assert ( dynamic_cast<BCChoose*>(bContext) != NULL );
+			needInit = false;	// clash in LE-rule: skip the initial checks
+		else	// the only possible case is choose-rule; in this case just continue
+			fpp_assert ( dynamic_cast<BCChoose*>(bContext) != NULL );
 	}
+	else	// if we are here that it IS first LE call
+		if ( isQuickClashLE(cur) )
+			return true;
 
-	// check if we have Qualified NR
-	if ( C != bpTOP )
-		switchResult ( commonTacticBodyChoose ( R, C ) );
+	// initial phase: choose-rule, NN-rule
+	if ( needInit )
+	{
+		// check if we have Qualified NR
+		if ( C != bpTOP )
+			switchResult ( commonTacticBodyChoose ( R, C ) );
 
-	// check whether we need to apply NN rule first
-	if ( isNNApplicable ( R, C, /*stopper=*/curConcept.bp()+cur.getNumberLE() ) )
-		return commonTacticBodyNN(cur);	// after application <=-rule would be checked again
-
-	// if we are here that it IS first LE call
-
-	if ( isQuickClashLE(cur) )
-		return true;
+		// check whether we need to apply NN rule first
+		if ( isNNApplicable ( R, C, /*stopper=*/curConcept.bp()+cur.getNumberLE() ) )
+			return commonTacticBodyNN(cur);	// after application <=-rule would be checked again
+	}
 
 	// we need to repeat merge until there will be necessary amount of edges
 	while (1)
@@ -962,9 +962,7 @@ bool DlSatTester :: commonTacticBodyLE ( const DLVertex& cur )	// for <=nR.C con
 			if ( initLEProcessing(cur) )
 				return false;
 
-applyLE:	// skip init, because here we are after restoring
-
-		bcLE = static_cast<BCLE*>(bContext);
+		BCLE* bcLE = static_cast<BCLE*>(bContext);
 
 		if ( bcLE->noMoreLEOptions() )
 		{	// set global clashset to cumulative one from previous branch failures
@@ -973,16 +971,18 @@ applyLE:	// skip init, because here we are after restoring
 		}
 
 		// get from- and to-arcs using corresponding indexes in Edges
-		DlCompletionTreeArc* from = bcLE->getFrom();
-		DlCompletionTreeArc* to = bcLE->getTo();
+		DlCompletionTreeArc* fromArc = bcLE->getFrom();
+		DlCompletionTreeArc* toArc = bcLE->getTo();
+		DlCompletionTree* from = fromArc->getArcEnd();
+		DlCompletionTree* to = toArc->getArcEnd();
 
 		DepSet dep;	// empty dep-set
-		// fast check for from->end() and to->end() are in \neq
-		if ( CGraph.nonMergable ( from->getArcEnd(), to->getArcEnd(), dep ) )
+		// fast check for FROM =/= TO
+		if ( CGraph.nonMergable ( from, to, dep ) )
 		{
 			// need this for merging two nominal nodes
-			dep.add(from->getDep());
-			dep.add(to->getDep());
+			dep.add(fromArc->getDep());
+			dep.add(toArc->getDep());
 			// add dep-set from labels
 			if ( C == bpTOP )	// dep-set is known now
 				setClashSet(dep);
@@ -993,27 +993,28 @@ applyLE:	// skip init, because here we are after restoring
 				bool test;
 
 				// here dep contains the clash-set
-				test = findConceptClash ( from->getArcEnd()->label().getLabel(tag), C, dep );
+				test = findConceptClash ( from->label().getLabel(tag), C, dep );
 				fpp_assert(test);
 				dep += getClashSet();	// save new dep-set
 
-				test = findConceptClash ( to->getArcEnd()->label().getLabel(tag), C, dep );
+				test = findConceptClash ( to->label().getLabel(tag), C, dep );
 				fpp_assert(test);
 				// both clash-sets are now in common clash-set
 			}
 
 			updateBranchDep();
 			bContext->nextOption();
-			goto applyLE;
+			fpp_assert(!isFirstBranchCall());
+			continue;
 		}
 
 		save();
 
 		// add depset from current level and FROM arc and to current dep.set
 		DepSet curDep(getCurDepSet());
-		curDep.add(from->getDep());
+		curDep.add(fromArc->getDep());
 
-		switchResult ( Merge ( from->getArcEnd(), to->getArcEnd(), curDep ) );
+		switchResult ( Merge ( from, to, curDep ) );
 		// it might be the case (see bIssue28) that after the merge there is an R-neigbour
 		// that have neither C or ~C in its label (it was far in the nominal cloud)
 		if ( C != bpTOP )
