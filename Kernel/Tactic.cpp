@@ -1279,18 +1279,47 @@ DlSatTester :: findNeighbours ( const TRole* Role, BipolarPointer C, DepSet& Dep
 	std::sort ( EdgesToMerge.begin(), EdgesToMerge.end(), EdgeCompare() );
 }
 
+/*
+void
+DlSatTester :: findCLabelledNodes ( BipolarPointer C, DepSet& Dep )
+{
+	EdgesToMerge.clear();
+	DagTag tag = DLHeap[C].Type();
+
+	unsigned int n = 0;
+	DlCompletionTree* node = NULL;
+	while ( (node = CGraph.getNode(n++)) != NULL )
+		if ( !node->isDataNode() && findChooseRuleConcept ( node->label().getLabel(tag), C, Dep ) )
+			EdgesToMerge.push_back(node);
+
+	// sort EdgesToMerge: From named nominals to generated nominals to blockable nodes
+	std::sort ( EdgesToMerge.begin(), EdgesToMerge.end(), EdgeCompare() );
+}
+*/
+
 //-------------------------------------------------------------------------------
 //	Choose-rule processing
 //-------------------------------------------------------------------------------
 
 bool DlSatTester :: commonTacticBodyChoose ( const TRole* R, BipolarPointer C )
 {
-	DlCompletionTree::edge_iterator p;
-
 	// apply choose-rule for every R-neighbour
 	for ( DlCompletionTree::const_edge_iterator p = curNode->begin(), p_end = curNode->end(); p < p_end; ++p )
 		if ( (*p)->isNeighbour(R) )
 			switchResult ( applyChooseRule ( (*p)->getArcEnd(), C ) );
+
+	return false;
+}
+
+/// apply choose-rule for all vertices (necessary for Top role in QCR)
+bool
+DlSatTester :: applyChooseRuleGlobally ( BipolarPointer C )
+{
+	unsigned int n = 0;
+	DlCompletionTree* node = NULL;
+	while ( (node = CGraph.getNode(n++)) != NULL )
+		if ( !node->isDataNode() )
+			switchResult ( applyChooseRule ( node, C ) );
 
 	return false;
 }
