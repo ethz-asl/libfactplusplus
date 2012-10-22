@@ -710,6 +710,8 @@ protected:	// methods
 				return true;
 		return false;
 	}
+		/// init the LE processing (fill in the EdgesToMerge); @return true if the CR is satisfied
+	bool initLEProcessing ( const DLVertex& cur );
 
 		/// aux method that fills the dep-set for either C or ~C found in the label; @return whether C was found
 	bool findChooseRuleConcept ( const CWDArray& label, BipolarPointer C, DepSet& Dep )

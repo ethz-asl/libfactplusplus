@@ -955,36 +955,19 @@ bool DlSatTester :: commonTacticBodyLE ( const DLVertex& cur )	// for <=nR.C con
 	if ( isQuickClashLE(cur) )
 		return true;
 
-	// we need to repeate merge until there will be necessary amount of edges
+	// we need to repeat merge until there will be necessary amount of edges
 	while (1)
 	{
 		if ( isFirstBranchCall() )
-		{
-			DepSet dep;
-			// check the amount of neighbours we have
-			findNeighbours ( R, C, dep );
-
-			// if the number of R-neighbours satisfies condition -- nothing to do
-			if ( EdgesToMerge.size() <= cur.getNumberLE() )
+			if ( initLEProcessing(cur) )
 				return false;
-
-			// init context
-			createBCLE();
-			bContext->branchDep += dep;
-
-			// setup BCLE
-			bcLE = static_cast<BCLE*>(bContext);
-
-			bcLE->EdgesToMerge.swap(EdgesToMerge);
-			bcLE->resetMCI();
-		}
 
 applyLE:	// skip init, because here we are after restoring
 
 		bcLE = static_cast<BCLE*>(bContext);
 
 		if ( bcLE->noMoreLEOptions() )
-		{	// set global clashset to cummulative one from previous branch failures
+		{	// set global clashset to cumulative one from previous branch failures
 			useBranchDep();
 			return true;
 		}
@@ -1037,6 +1020,30 @@ applyLE:	// skip init, because here we are after restoring
 			switchResult ( commonTacticBodyChoose ( R, C ) );
 	}
 }
+
+bool
+DlSatTester :: initLEProcessing ( const DLVertex& cur )
+{
+	DepSet dep;
+	// check the amount of neighbours we have
+	findNeighbours ( cur.getRole(), cur.getC(), dep );
+
+	// if the number of R-neighbours satisfies condition -- nothing to do
+	if ( EdgesToMerge.size() <= cur.getNumberLE() )
+		return true;
+
+	// init context
+	createBCLE();
+	bContext->branchDep += dep;
+
+	// setup BCLE
+	BCLE* bcLE = static_cast<BCLE*>(bContext);
+
+	bcLE->EdgesToMerge.swap(EdgesToMerge);
+	bcLE->resetMCI();
+	return false;
+}
+
 
 bool DlSatTester :: commonTacticBodyGE ( const DLVertex& cur )	// for >=nR.C concepts
 {
