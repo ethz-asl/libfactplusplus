@@ -143,6 +143,8 @@ protected:	// classes
 		DeletelessAllocator<BCNN> PoolNN;
 			/// pool for LE contexts
 		DeletelessAllocator<BCLE<DlCompletionTreeArc> > PoolLE;
+			/// pool for Top-LE contexts
+		DeletelessAllocator<BCLE<DlCompletionTree> > PoolTopLE;
 			/// pool for Choose contexts
 		DeletelessAllocator<BCChoose> PoolCh;
 			/// single entry for the barrier (good for nominal reasoner)
@@ -180,6 +182,8 @@ protected:	// classes
 		BranchingContext* pushNN ( void ) { return push(PoolNN.get()); }
 			/// get BC for LE-rule
 		BranchingContext* pushLE ( void ) { return push(PoolLE.get()); }
+			/// get BC for TopLE-rule
+		BranchingContext* pushTopLE ( void ) { return push(PoolTopLE.get()); }
 			/// get BC for Choose-rule
 		BranchingContext* pushCh ( void ) { return push(PoolCh.get()); }
 			/// get BC for the barrier
@@ -191,6 +195,7 @@ protected:	// classes
 			PoolOr.clear();
 			PoolNN.clear();
 			PoolLE.clear();
+			PoolTopLE.clear();
 			PoolCh.clear();
 		}
 			/// clear the stack and pools
@@ -317,6 +322,8 @@ protected:	// members
 	BCOr::OrIndex OrConceptsToTest;
 		/// temporary array used in <= operations
 	EdgeVector EdgesToMerge;
+		/// nodes to merge in the TopRole-LE rules
+	std::vector<DlCompletionTree*> NodesToMerge;
 		/// contains clash set if clash is encountered in a node label
 	DepSet clashSet;
 
@@ -670,6 +677,8 @@ protected:	// methods
 	void createBCNN ( void ) { bContext = Stack.pushNN(); initBC(); }
 		/// create BC for LE-rule
 	void createBCLE ( void ) { bContext = Stack.pushLE(); initBC(); }
+		/// create BC for LE-rule
+	void createBCTopLE ( void ) { bContext = Stack.pushTopLE(); initBC(); }
 		/// create BC for Choose-rule
 	void createBCCh ( void ) { bContext = Stack.pushCh(); initBC(); }
 		/// create BC for the barrier

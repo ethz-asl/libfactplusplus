@@ -136,7 +136,7 @@ public:		// members
 		/// index of a merge candidate
 	unsigned int fromIndex;
 		/// vector of edges to be merged
-	EdgeVector EdgesToMerge;
+	EdgeVector ItemsToMerge;
 
 public:		// interface
 		/// empty c'tor
@@ -150,7 +150,7 @@ public:		// interface
 		fromIndex = 0;
 	}
 		/// correct fromIndex after changing
-	void resetMCI ( void ) { fromIndex = EdgesToMerge.size()-1; }
+	void resetMCI ( void ) { fromIndex = ItemsToMerge.size()-1; }
 		/// give the next branching alternative
 	virtual void nextOption ( void )
 	{
@@ -165,9 +165,9 @@ public:		// interface
 	// access to the fields
 
 		/// get FROM pointer to merge
-	T* getFrom ( void ) const { return EdgesToMerge[fromIndex]; }
+	T* getFrom ( void ) const { return ItemsToMerge[fromIndex]; }
 		/// get FROM pointer to merge
-	T* getTo ( void ) const { return EdgesToMerge[toIndex]; }
+	T* getTo ( void ) const { return ItemsToMerge[toIndex]; }
 		/// check if the LE has no option to process
 	bool noMoreLEOptions ( void ) const { return fromIndex <= toIndex; }
 }; // BCLE

@@ -1049,7 +1049,7 @@ DlSatTester :: initLEProcessing ( const DLVertex& cur )
 	// setup BCLE
 	BCLE<DlCompletionTreeArc>* bcLE = static_cast<BCLE<DlCompletionTreeArc>*>(bContext);
 
-	bcLE->EdgesToMerge.swap(EdgesToMerge);
+	bcLE->ItemsToMerge.swap(EdgesToMerge);
 	bcLE->resetMCI();
 	return false;
 }
