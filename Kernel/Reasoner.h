@@ -142,7 +142,7 @@ protected:	// classes
 			/// pool for NN contexts
 		DeletelessAllocator<BCNN> PoolNN;
 			/// pool for LE contexts
-		DeletelessAllocator<BCLE> PoolLE;
+		DeletelessAllocator<BCLE<DlCompletionTreeArc> > PoolLE;
 			/// pool for Choose contexts
 		DeletelessAllocator<BCChoose> PoolCh;
 			/// single entry for the barrier (good for nominal reasoner)

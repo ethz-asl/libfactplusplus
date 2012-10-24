@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2011 by Dmitry Tsarkov
+Copyright (C) 2003-2012 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -48,7 +48,7 @@ public:		// interface
 		/// empty d'tor
 	virtual ~BranchingContext ( void ) {}
 
-		/// init indeces (if necessary)
+		/// init indices (if necessary)
 	virtual void init ( void ) {}
 		/// give the next branching alternative
 	virtual void nextOption ( void ) {}
@@ -64,9 +64,9 @@ public:		// types
 	typedef OrIndex::const_iterator or_iterator;
 
 public:		// members
-		/// current branching index; used in several branching rules
+		/// current branching index
 	unsigned int branchIndex;
-		/// useful disjuncts (ready to add) in case of OR
+		/// relevant disjuncts (ready to add)
 	OrIndex applicableOrEntries;
 
 public:		// interface
@@ -74,7 +74,7 @@ public:		// interface
 	BCOr ( void ) : BranchingContext() {}
 		/// empty d'tor
 	virtual ~BCOr ( void ) {}
-		/// init tag and indeces
+		/// init branch index
 	virtual void init ( void ) { branchIndex = 0; }
 		/// give the next branching alternative
 	virtual void nextOption ( void ) { ++branchIndex; }
@@ -103,39 +103,38 @@ public:		// interface
 class BCNN: public BranchingContext
 {
 public:		// members
-		/// current branching index; used in several branching rules
-	unsigned int branchIndex;
-		/// index of a merge-candidate (in LE concept)
-	unsigned int mergeCandIndex;
+		/// the value of M used in the NN rule
+	unsigned int value;
 
 public:		// interface
 		/// empty c'tor
 	BCNN ( void ) : BranchingContext() {}
 		/// empty d'tor
 	virtual ~BCNN ( void ) {}
-		/// init tag and indeces
-	virtual void init ( void ) { branchIndex = 1; }
+		/// init value
+	virtual void init ( void ) { value = 1; }
 		/// give the next branching alternative
-	virtual void nextOption ( void ) { ++branchIndex; }
+	virtual void nextOption ( void ) { ++value; }
 
 	// access to the fields
 
 		/// check if the NN has no option to process
-	bool noMoreNNOptions ( unsigned int n ) const { return branchIndex > n; }
+	bool noMoreNNOptions ( unsigned int n ) const { return value > n; }
 }; // BCNN
 
 	/// branching context for the LE operations
+template<class T>
 class BCLE: public BranchingContext
 {
 public:		// types
 		/// vector of edges
-	typedef std::vector<DlCompletionTreeArc*> EdgeVector;
+	typedef std::vector<T*> EdgeVector;
 
 public:		// members
-		/// current branching index; used in several branching rules
-	unsigned int branchIndex;
-		/// index of a merge-candidate (in LE concept)
-	unsigned int mergeCandIndex;
+		/// index of a edge into which the merge is performing
+	unsigned int toIndex;
+		/// index of a merge candidate
+	unsigned int fromIndex;
 		/// vector of edges to be merged
 	EdgeVector EdgesToMerge;
 
@@ -144,21 +143,21 @@ public:		// interface
 	BCLE ( void ) : BranchingContext() {}
 		/// empty d'tor
 	virtual ~BCLE ( void ) {}
-		/// init tag and indeces
+		/// init indices
 	virtual void init ( void )
 	{
-		branchIndex = 0;
-		mergeCandIndex = 0;
+		toIndex = 0;
+		fromIndex = 0;
 	}
-		/// correct mergeCandIndex after changing
-	void resetMCI ( void ) { mergeCandIndex = EdgesToMerge.size()-1; }
+		/// correct fromIndex after changing
+	void resetMCI ( void ) { fromIndex = EdgesToMerge.size()-1; }
 		/// give the next branching alternative
 	virtual void nextOption ( void )
 	{
-		--mergeCandIndex;	// get new merge candidate
-		if ( mergeCandIndex == branchIndex )	// nothing more can be mergeable to BI node
+		--fromIndex;	// get new merge candidate
+		if ( fromIndex == toIndex )	// nothing more can be mergeable to BI node
 		{
-			++branchIndex;	// change the candidate to merge to
+			++toIndex;	// change the candidate to merge to
 			resetMCI();
 		}
 	}
@@ -166,11 +165,11 @@ public:		// interface
 	// access to the fields
 
 		/// get FROM pointer to merge
-	DlCompletionTreeArc* getFrom ( void ) const { return EdgesToMerge[mergeCandIndex]; }
+	T* getFrom ( void ) const { return EdgesToMerge[fromIndex]; }
 		/// get FROM pointer to merge
-	DlCompletionTreeArc* getTo ( void ) const { return EdgesToMerge[branchIndex]; }
+	T* getTo ( void ) const { return EdgesToMerge[toIndex]; }
 		/// check if the LE has no option to process
-	bool noMoreLEOptions ( void ) const { return mergeCandIndex <= branchIndex; }
+	bool noMoreLEOptions ( void ) const { return fromIndex <= toIndex; }
 }; // BCLE
 
 	/// branching context for the barrier

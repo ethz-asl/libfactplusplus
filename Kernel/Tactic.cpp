@@ -943,7 +943,7 @@ bool DlSatTester :: commonTacticBodyLE ( const DLVertex& cur )	// for <=nR.C con
 	{
 		if ( dynamic_cast<BCNN*>(bContext) != NULL )
 			return commonTacticBodyNN(cur);	// after application <=-rule would be checked again
-		if ( dynamic_cast<BCLE*>(bContext) != NULL )
+		if ( dynamic_cast<BCLE<DlCompletionTreeArc>*>(bContext) != NULL )
 			needInit = false;	// clash in LE-rule: skip the initial checks
 		else	// the only possible case is choose-rule; in this case just continue
 			fpp_assert ( dynamic_cast<BCChoose*>(bContext) != NULL );
@@ -971,7 +971,7 @@ bool DlSatTester :: commonTacticBodyLE ( const DLVertex& cur )	// for <=nR.C con
 			if ( initLEProcessing(cur) )
 				return false;
 
-		BCLE* bcLE = static_cast<BCLE*>(bContext);
+		BCLE<DlCompletionTreeArc>* bcLE = static_cast<BCLE<DlCompletionTreeArc>*>(bContext);
 
 		if ( bcLE->noMoreLEOptions() )
 		{	// set global clashset to cumulative one from previous branch failures
@@ -1047,7 +1047,7 @@ DlSatTester :: initLEProcessing ( const DLVertex& cur )
 	bContext->branchDep += dep;
 
 	// setup BCLE
-	BCLE* bcLE = static_cast<BCLE*>(bContext);
+	BCLE<DlCompletionTreeArc>* bcLE = static_cast<BCLE<DlCompletionTreeArc>*>(bContext);
 
 	bcLE->EdgesToMerge.swap(EdgesToMerge);
 	bcLE->resetMCI();
@@ -1135,7 +1135,7 @@ DlSatTester :: processTopRoleLE ( const DLVertex& cur )	// for <=nR.C concepts
 
 	if ( !isFirstBranchCall() )
 	{
-		if ( dynamic_cast<BCLE*>(bContext) != NULL )
+		if ( dynamic_cast<BCLE<DlCompletionTreeArc>*>(bContext) != NULL )
 			needInit = false;	// clash in LE-rule: skip the initial checks
 		else	// the only possible case is choose-rule; in this case just continue
 			fpp_assert ( dynamic_cast<BCChoose*>(bContext) != NULL );
@@ -1159,7 +1159,7 @@ DlSatTester :: processTopRoleLE ( const DLVertex& cur )	// for <=nR.C concepts
 			if ( initLEProcessing(cur) )
 				return false;
 
-		BCLE* bcLE = static_cast<BCLE*>(bContext);
+		BCLE<DlCompletionTreeArc>* bcLE = static_cast<BCLE<DlCompletionTreeArc>*>(bContext);
 
 		if ( bcLE->noMoreLEOptions() )
 		{	// set global clashset to cumulative one from previous branch failures
@@ -1212,7 +1212,7 @@ DlSatTester :: processTopRoleLE ( const DLVertex& cur )	// for <=nR.C concepts
 		curDep.add(fromArc->getDep());
 
 		switchResult ( Merge ( from, to, curDep ) );
-		// it might be the case (see bIssue28) that after the merge there is an R-neigbour
+		// it might be the case (see bIssue28) that after the merge there is an R-neighbour
 		// that have neither C or ~C in its label (it was far in the nominal cloud)
 		if ( C != bpTOP )
 			switchResult ( commonTacticBodyChoose ( R, C ) );
@@ -1547,7 +1547,7 @@ bool DlSatTester :: commonTacticBodyNN ( const DLVertex& cur )	// NN-rule
 	}
 
 	// take next NN number; save it as SAVE() will reset it to 0
-	unsigned int NN = bcNN->branchIndex;
+	unsigned int NN = bcNN->value;
 
 	// prepare to addition to the label
 	save();
