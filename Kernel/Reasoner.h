@@ -573,6 +573,13 @@ protected:	// methods
 		/// expansion rule for split
 	bool commonTacticBodySplit ( const DLVertex& cur );
 
+		/// expansion rule for the functional restriction with top role
+	bool processTopRoleFunc ( const DLVertex& cur );
+		/// expansion rule for the at-most restriction with top role
+	bool processTopRoleLE ( const DLVertex& cur );
+		/// expansion rule for the at-least restriction with top role
+	bool processTopRoleGE ( const DLVertex& cur );
+
 	// support for inapplicable tactics
 
 		/// @return true iff current node is i-blocked (ie, no expansion necessary)
