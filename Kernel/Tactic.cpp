@@ -213,10 +213,8 @@ bool
 DlSatTester :: addSessionGCI ( BipolarPointer C, const DepSet& dep )
 {
 	SessionGCIs.push_back(C);
-	unsigned int n = 0;
-	DlCompletionTree* node = NULL;
-	while ( (node = CGraph.getNode(n++)) != NULL )
-		if ( !node->isDataNode() && addToDoEntry ( node, C, dep, "sg" ) )
+	for ( DlCompletionGraph::iterator p = CGraph.begin(), p_end = CGraph.end(); p != p_end; ++p )
+		if ( isNodeGloballyUsed(*p) && addToDoEntry ( *p, C, dep, "sg" ) )
 			return true;
 	return false;
 }
@@ -656,14 +654,11 @@ DlSatTester :: commonTacticBodySomeUniv ( const DLVertex& cur )
 
 	BipolarPointer C = inverse(cur.getC());
 	// check whether C is already in CGraph
-	unsigned int i = 0;;
-	DlCompletionTree* node;
-	while ( (node = CGraph.getNode(i++)) != NULL )
-		if ( node->label().contains(C) )
+	for ( DlCompletionGraph::iterator p = CGraph.begin(), p_end = CGraph.end(); p != p_end; ++p )
+		if ( isObjectNodeUnblocked(*p) && (*p)->label().contains(C) )
 			return false;
-	// make new node labelled with C
-	node = CGraph.getNewNode();
-	return initNewNode ( node, curConcept.getDep(), C );
+	// make new node labeled with C
+	return initNewNode ( CGraph.getNewNode(), curConcept.getDep(), C );
 }
 
 //-------------------------------------------------------------------------------
@@ -1488,11 +1483,9 @@ bool DlSatTester :: commonTacticBodyChoose ( const TRole* R, BipolarPointer C )
 bool
 DlSatTester :: applyChooseRuleGlobally ( BipolarPointer C )
 {
-	unsigned int n = 0;
-	DlCompletionTree* node = NULL;
-	while ( (node = CGraph.getNode(n++)) != NULL )
-		if ( !node->isDataNode() && !node->isBlocked() )
-			switchResult ( applyChooseRule ( node, C ) );
+	for ( DlCompletionGraph::iterator p = CGraph.begin(), p_end = CGraph.end(); p != p_end; ++p )
+		if ( isObjectNodeUnblocked(*p) )	// FIXME!! think about d-blocked nodes
+			switchResult ( applyChooseRule ( *p, C ) );
 
 	return false;
 }

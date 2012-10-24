@@ -39,6 +39,8 @@ class DlCompletionGraph
 protected:	// typedefs
 		/// type of the heap
 	typedef std::vector<DlCompletionTree*> nodeBaseType;
+
+public:		// typedefs
 		/// heap's RW iterator
 	typedef nodeBaseType::iterator iterator;
 		/// heap's RO iterator
@@ -156,15 +158,6 @@ protected:	// methods
 
 		/// invalidate EDGE, save restoring info
 	void invalidateEdge ( DlCompletionTreeArc* edge ) { saveRareCond(edge->save()); }
-
-		/// begin (RO) of USED nodes
-	const_iterator begin ( void ) const { return NodeBase.begin(); }
-		/// end (RO) of USED nodes
-	const_iterator end ( void ) const { return NodeBase.begin()+endUsed; }
-		/// begin (RW) of USED nodes
-	iterator begin ( void ) { return NodeBase.begin(); }
-		/// end (RW) of USED nodes
-	iterator end ( void ) { return NodeBase.begin()+endUsed; }
 
 	//----------------------------------------------
 	// inequality relation methods
@@ -336,6 +329,15 @@ public:		// interface
 		ret->init(branchingLevel);
 		return ret;
 	}
+
+		/// begin (RO) of USED nodes
+	const_iterator begin ( void ) const { return NodeBase.begin(); }
+		/// end (RO) of USED nodes
+	const_iterator end ( void ) const { return NodeBase.begin()+endUsed; }
+		/// begin (RW) of USED nodes
+	iterator begin ( void ) { return NodeBase.begin(); }
+		/// end (RW) of USED nodes
+	iterator end ( void ) { return NodeBase.begin()+endUsed; }
 
 	// blocking
 

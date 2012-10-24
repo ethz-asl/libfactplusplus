@@ -374,6 +374,15 @@ protected:	// methods
 	bool insertToDoEntry ( DlCompletionTree* node, const ConceptWDep& C, DagTag tag, const char* reason );
 		/// if something was added to cached node N, un- or re-cache it; @return result of re-cache
 	bool correctCachedEntry ( DlCompletionTree* n );
+
+	// CGraph-wide rules support
+
+		/// @return true if node is valid for the reasoning
+	bool isNodeGloballyUsed ( const DlCompletionTree* node ) const
+		{ return ! ( node->isDataNode() || node->isIBlocked() || node->isPBlocked() ); }
+		/// @return true if node is valid for the reasoning
+	bool isObjectNodeUnblocked ( const DlCompletionTree* node ) const
+		{ return isNodeGloballyUsed(node) && !node->isDBlocked(); }
 		/// add C to a set of session GCIs; init all nodes with (C,dep)
 	bool addSessionGCI ( BipolarPointer C, const DepSet& dep );
 
@@ -402,11 +411,9 @@ protected:	// methods
 		/// update session signature for all non-data nodes
 	void updateSessionSignature ( void )
 	{
-		unsigned int n = 0;
-		DlCompletionTree* node = NULL;
-		while ( (node = CGraph.getNode(n++)) != NULL )
-			if ( !node->isDataNode() )
-				updateSignatureByNode(node);
+		for ( DlCompletionGraph::iterator p = CGraph.begin(), p_end = CGraph.end(); p != p_end; ++p )
+			if ( isObjectNodeUnblocked(*p) )
+				updateSignatureByNode(*p);
 	}
 
 		/// put TODO entry for either BP or inverse(BP) in NODE's label
@@ -424,11 +431,9 @@ protected:	// methods
 		/// re-do every BP or inverse(BP) in labels of CGraph
 	void updateName ( BipolarPointer bp )
 	{
-		unsigned int n = 0;
-		DlCompletionTree* node = NULL;
-		while ( (node = CGraph.getNode(n++)) != NULL )
-			if ( !node->isDataNode() )
-				updateName ( node, bp );
+		for ( DlCompletionGraph::iterator p = CGraph.begin(), p_end = CGraph.end(); p != p_end; ++p )
+			if ( isNodeGloballyUsed(*p) )
+				updateName ( *p, bp );
 	}
 
 	// label access interface
