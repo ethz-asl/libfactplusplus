@@ -193,19 +193,37 @@ public:		// visitor interface
 	{
 		ensureNames(axiom.getRole());
 		ensureNames(axiom.getDomain());
-		getRole ( axiom.getRole(), "Role expression expected in Object Role Domain axiom" )->setDomain(e(axiom.getDomain()));
+		TRole* R = getRole ( axiom.getRole(), "Role expression expected in Object Role Domain axiom" );
+		DLTree* C = e(axiom.getDomain());
+
+		if ( unlikely(R->isTop()) )	// add GCI
+			kb.addSubsumeAxiom ( createTop(), C );
+		else if ( likely(!R->isBottom()) )	// nothing to do for bottom
+			R->setDomain(C);
 	}
 	virtual void visit ( const TDLAxiomDRoleDomain& axiom )
 	{
 		ensureNames(axiom.getRole());
 		ensureNames(axiom.getDomain());
-		getRole ( axiom.getRole(), "Role expression expected in Data Role Domain axiom" )->setDomain(e(axiom.getDomain()));
+		TRole* R = getRole ( axiom.getRole(), "Role expression expected in Data Role Domain axiom" );
+		DLTree* C = e(axiom.getDomain());
+
+		if ( unlikely(R->isTop()) )	// add GCI
+			kb.addSubsumeAxiom ( createTop(), C );
+		else if ( likely(!R->isBottom()) )	// nothing to do for bottom
+			R->setDomain(C);
 	}
 	virtual void visit ( const TDLAxiomORoleRange& axiom )
 	{
 		ensureNames(axiom.getRole());
 		ensureNames(axiom.getRange());
-		getRole ( axiom.getRole(), "Role expression expected in Object Role Range axiom" )->setRange(e(axiom.getRange()));
+		TRole* R = getRole ( axiom.getRole(), "Role expression expected in Object Role Range axiom" );
+		DLTree* C = e(axiom.getRange());
+
+		if ( unlikely(R->isTop()) )	// add GCI
+			kb.addSubsumeAxiom ( createTop(), C );
+		else if ( likely(!R->isBottom()) )	// nothing to do for bottom
+			R->setRange(C);
 	}
 	virtual void visit ( const TDLAxiomDRoleRange& axiom )
 	{
