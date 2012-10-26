@@ -217,6 +217,9 @@ void RoleMaster :: initAncDesc ( void )
 		if ( !(*p)->isSynonym() )
 			(*p)->removeSynonymsFromParents();
 
+	// here TOP-role has no children yet, so it's safe to complete the automaton
+	universalRole.completeAutomaton(nRoles);
+
 	// make all roles w/o told subsumers have Role TOP instead
 	for ( p = p_begin; p < p_end; ++p )
 		if ( !(*p)->isSynonym() && !(*p)->hasToldSubsumers() )

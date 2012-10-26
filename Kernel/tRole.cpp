@@ -345,8 +345,6 @@ TRole :: preprocessComposition ( TRoleVec& RS )
 	{
 		TRole* R = resolveSynonym(*p);
 
-		if ( R->isTop() )	// universal role in composition
-			throw EFaCTPlusPlus("Universal role can not be used in role composition chain");
 		if ( R->isBottom() )	// empty role in composition -- nothing to do
 		{
 			RS.clear();

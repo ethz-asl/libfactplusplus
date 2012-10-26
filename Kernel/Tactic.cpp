@@ -405,6 +405,12 @@ bool DlSatTester :: commonTacticBodyAllComplex ( const DLVertex& cur )
 				switchResult ( addToDoEntry ( curNode, C+(*q)->final(), dep, "e" ) );
 		}
 
+	// apply all top-role transitions
+	if ( unlikely(RST.hasTopTransition()) )
+		for ( q = RST.begin(); q != end; ++q )
+			if ( (*q)->isTop() )
+				switchResult ( addSessionGCI ( C+(*q)->final(), dep ) );
+
 	// apply final-state rule
 	if ( state == 1 )
 		switchResult ( addToDoEntry ( curNode, cur.getC(), dep ) );

@@ -99,6 +99,8 @@ public:		// interface
 	}
 		/// check whether transition is empty
 	bool empty ( void ) const { return label.empty(); }
+		/// check whether transition is TopRole one
+	bool isTop ( void ) const;
 		/// print the transition starting from FROM
 	void Print ( std::ostream& o, RAState from ) const;
 }; // RATransition
@@ -125,6 +127,8 @@ protected:	// members
 	RAState from;
 		/// check whether there is an empty transition going from this state
 	bool EmptyTransition;
+		/// true iff there is a top transition going from this state
+	bool TopTransition;
 		/// flag whether the role is data or not (valid only for simple automata)
 	bool DataRole;
 
@@ -136,9 +140,11 @@ protected:	// methods
 
 public:		// interface
 		/// empty c'tor
-	RAStateTransitions ( void ) : EmptyTransition(false) {}
+	RAStateTransitions ( void ) : EmptyTransition(false), TopTransition(false) {}
 		/// copy c'tor
-	RAStateTransitions ( const RAStateTransitions& trans ) : EmptyTransition(trans.EmptyTransition)
+	RAStateTransitions ( const RAStateTransitions& trans )
+		: EmptyTransition(trans.EmptyTransition)
+		, TopTransition(trans.TopTransition)
 	{
 		for ( const_iterator p = trans.begin(), p_end = trans.end(); p != p_end; ++p )
 			Base.push_back(new RATransition(**p));
@@ -149,6 +155,7 @@ public:		// interface
 		for ( const_iterator p = trans.begin(), p_end = trans.end(); p != p_end; ++p )
 			Base.push_back(new RATransition(**p));
 		EmptyTransition = trans.EmptyTransition;
+		TopTransition = trans.TopTransition;
 		return *this;
 	}
 		/// d'tor: delete all transitions
@@ -167,6 +174,8 @@ public:		// interface
 		Base.push_back(trans);
 		if ( trans->empty() )
 			EmptyTransition = true;
+		if ( trans->isTop() )
+			TopTransition = true;
 	}
 		/// add information from TRANS to existing transition between the same states. @return false if no such transition found
 	bool addToExisting ( const RATransition* trans );
@@ -175,6 +184,8 @@ public:		// interface
 	bool empty ( void ) const { return Base.empty(); }
 		/// @return true iff there is an empty transition from the state
 	bool hasEmptyTransition ( void ) const { return EmptyTransition; }
+		/// @return true iff there is a top-role transition from the state
+	bool hasTopTransition ( void ) const { return TopTransition; }
 
 	// RO access
 
