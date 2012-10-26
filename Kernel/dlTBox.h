@@ -1101,6 +1101,14 @@ public:
 		else
 			return KBFeatures.hasSingletons();
 	}
+		/// check if the relevant part of KB contains top role
+	bool testHasTopRole ( void ) const
+	{
+		if ( curFeature != NULL )
+			return curFeature->hasTopRole();
+		else
+			return KBFeatures.hasTopRole();
+	}
 		/// check if Sorted Reasoning is applicable
 	bool canUseSortedReasoning ( void ) const
 		{ return useSortedReasoning && !GCIs.isGCI() && !GCIs.isReflexive(); }

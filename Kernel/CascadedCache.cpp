@@ -35,7 +35,8 @@ DlSatTester :: createCache ( BipolarPointer p )
 #ifdef TMP_CACHE_DEBUG
 	std::cerr << "\nCCache for " << p << ":";
 #endif
-	prepareCascadedCache(p);
+	if ( !unlikely(tBox.testHasTopRole()) )
+		prepareCascadedCache(p);
 
 	// it may be a cycle and the cache for p is already calculated
 	if ( (cache = DLHeap.getCache(p)) != NULL )
