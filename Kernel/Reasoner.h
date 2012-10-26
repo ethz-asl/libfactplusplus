@@ -123,6 +123,8 @@ protected:	// type definition
 	typedef ToDoList ToDoTableType;
 		/// vector of edges
 	typedef std::vector<DlCompletionTreeArc*> EdgeVector;
+		/// vector of nodes
+	typedef std::vector<DlCompletionTree*> NodeVector;
 		/// RO label iterator
 	typedef DlCompletionTree::const_label_iterator const_label_iterator;
 		/// set to keep BPs (during cascaded cache creation)
@@ -323,7 +325,7 @@ protected:	// members
 		/// temporary array used in <= operations
 	EdgeVector EdgesToMerge;
 		/// nodes to merge in the TopRole-LE rules
-	std::vector<DlCompletionTree*> NodesToMerge;
+	NodeVector NodesToMerge;
 		/// contains clash set if clash is encountered in a node label
 	DepSet clashSet;
 
@@ -733,6 +735,8 @@ protected:	// methods
 	}
 		/// init the LE processing (fill in the EdgesToMerge); @return true if the CR is satisfied
 	bool initLEProcessing ( const DLVertex& cur );
+		/// init the LE processing for the TopRole (fill in the NodesToMerge); @return true if the CR is satisfied
+	bool initTopLEProcessing ( const DLVertex& cur );
 
 		/// aux method that fills the dep-set for either C or ~C found in the label; @return whether C was found
 	bool findChooseRuleConcept ( const CWDArray& label, BipolarPointer C, DepSet& Dep )

@@ -904,13 +904,13 @@ bool DlSatTester :: commonTacticBodyFunc ( const DLVertex& cur )	// for <=1 R co
 		return false;
 
 	// merge all nodes to the first (the least wrt nominal hierarchy) found node
-	EdgeVector::iterator q = EdgesToMerge.begin();
+	EdgeVector::iterator q = EdgesToMerge.begin(), q_end = EdgesToMerge.end();
 	DlCompletionTree* sample = (*q)->getArcEnd();
 	DepSet depF (curConcept.getDep());	// dep-set for merging
 	depF.add((*q)->getDep());
 
 	// merge all elements to sample (sample wouldn't be merge)
-	for ( ++q; q != EdgesToMerge.end(); ++q )
+	while ( ++q != q_end )
 		// during merge EdgesToMerge may became purged (see Nasty4) => check this
 		if ( !(*q)->getArcEnd()->isPBlocked() )
 			switchResult ( Merge ( (*q)->getArcEnd(), sample, depF+(*q)->getDep() ) );
@@ -1085,34 +1085,29 @@ DlSatTester :: processTopRoleFunc ( const DLVertex& cur )	// for <=1 R concepts
 	fpp_assert ( isPositive(curConcept.bp()) && isFunctionalVertex(cur) );
 #endif
 
-	const TRole* R = cur.getRole();
-
 	incStat(nFuncCalls);
 
 	if ( isQuickClashLE(cur) )
 		return true;
 
-	// FIXME!! for now
-
 	// locate all R-neighbours of curNode
 	DepSet dummy;	// not used
-	findNeighbours ( R, bpTOP, dummy );
+	findCLabelledNodes ( bpTOP, dummy );
 
 	// check if we have nodes to merge
-	if ( EdgesToMerge.size() < 2 )
+	if ( NodesToMerge.size() < 2 )
 		return false;
 
 	// merge all nodes to the first (the least wrt nominal hierarchy) found node
-	EdgeVector::iterator q = EdgesToMerge.begin();
-	DlCompletionTree* sample = (*q)->getArcEnd();
-	DepSet depF (curConcept.getDep());	// dep-set for merging
-	depF.add((*q)->getDep());
+	NodeVector::iterator q = NodesToMerge.begin(), q_end = NodesToMerge.end();
+	DlCompletionTree* sample = *q;
+	DepSet dep (curConcept.getDep());	// dep-set for merging
 
 	// merge all elements to sample (sample wouldn't be merge)
-	for ( ++q; q != EdgesToMerge.end(); ++q )
+	while ( ++q != q_end )
 		// during merge EdgesToMerge may became purged (see Nasty4) => check this
-		if ( !(*q)->getArcEnd()->isPBlocked() )
-			switchResult ( Merge ( (*q)->getArcEnd(), sample, depF+(*q)->getDep() ) );
+		if ( !(*q)->isPBlocked() )
+			switchResult ( Merge ( *q, sample, dep ) );
 
 	return false;
 }
@@ -1124,13 +1119,12 @@ DlSatTester :: processTopRoleLE ( const DLVertex& cur )	// for <=nR.C concepts
 	fpp_assert ( isPositive(curConcept.bp()) && ( cur.Type() == dtLE ) );
 #endif
 
-	const TRole* R = cur.getRole();
 	BipolarPointer C = cur.getC();
 	bool needInit = true;
 
 	if ( !isFirstBranchCall() )
 	{
-		if ( dynamic_cast<BCLE<DlCompletionTreeArc>*>(bContext) != NULL )
+		if ( dynamic_cast<BCLE<DlCompletionTree>*>(bContext) != NULL )
 			needInit = false;	// clash in LE-rule: skip the initial checks
 		else	// the only possible case is choose-rule; in this case just continue
 			fpp_assert ( dynamic_cast<BCChoose*>(bContext) != NULL );
@@ -1144,17 +1138,17 @@ DlSatTester :: processTopRoleLE ( const DLVertex& cur )	// for <=nR.C concepts
 	{
 		// check if we have Qualified NR
 		if ( C != bpTOP )
-			switchResult ( commonTacticBodyChoose ( R, C ) );
+			switchResult ( applyChooseRuleGlobally(C) );
 	}
 
 	// we need to repeat merge until there will be necessary amount of edges
 	while (1)
 	{
 		if ( isFirstBranchCall() )
-			if ( initLEProcessing(cur) )
+			if ( initTopLEProcessing(cur) )
 				return false;
 
-		BCLE<DlCompletionTreeArc>* bcLE = static_cast<BCLE<DlCompletionTreeArc>*>(bContext);
+		BCLE<DlCompletionTree>* bcLE = static_cast<BCLE<DlCompletionTree>*>(bContext);
 
 		if ( bcLE->noMoreLEOptions() )
 		{	// set global clashset to cumulative one from previous branch failures
@@ -1163,18 +1157,13 @@ DlSatTester :: processTopRoleLE ( const DLVertex& cur )	// for <=nR.C concepts
 		}
 
 		// get from- and to-arcs using corresponding indexes in Edges
-		DlCompletionTreeArc* fromArc = bcLE->getFrom();
-		DlCompletionTreeArc* toArc = bcLE->getTo();
-		DlCompletionTree* from = fromArc->getArcEnd();
-		DlCompletionTree* to = toArc->getArcEnd();
+		DlCompletionTree* from = bcLE->getFrom();
+		DlCompletionTree* to = bcLE->getTo();
 
 		DepSet dep;	// empty dep-set
 		// fast check for FROM =/= TO
 		if ( CGraph.nonMergable ( from, to, dep ) )
 		{
-			// need this for merging two nominal nodes
-			dep.add(fromArc->getDep());
-			dep.add(toArc->getDep());
 			// add dep-set from labels
 			if ( C == bpTOP )	// dep-set is known now
 				setClashSet(dep);
@@ -1204,13 +1193,8 @@ DlSatTester :: processTopRoleLE ( const DLVertex& cur )	// for <=nR.C concepts
 
 		// add depset from current level and FROM arc and to current dep.set
 		DepSet curDep(getCurDepSet());
-		curDep.add(fromArc->getDep());
 
 		switchResult ( Merge ( from, to, curDep ) );
-		// it might be the case (see bIssue28) that after the merge there is an R-neighbour
-		// that have neither C or ~C in its label (it was far in the nominal cloud)
-		if ( C != bpTOP )
-			switchResult ( commonTacticBodyChoose ( R, C ) );
 	}
 }
 
@@ -1231,6 +1215,30 @@ DlSatTester :: processTopRoleGE ( const DLVertex& cur )	// for >=nR.C concepts
 	// FIXME!! for now
 	return createDifferentNeighbours ( cur.getRole(), cur.getC(), curConcept.getDep(), cur.getNumberGE(), BlockableLevel );
 }
+
+bool
+DlSatTester :: initTopLEProcessing ( const DLVertex& cur )
+{
+	DepSet dep;
+	// check the amount of neighbours we have
+	findCLabelledNodes ( cur.getC(), dep );
+
+	// if the number of R-neighbours satisfies condition -- nothing to do
+	if ( NodesToMerge.size() <= cur.getNumberLE() )
+		return true;
+
+	// init context
+	createBCTopLE();
+	bContext->branchDep += dep;
+
+	// setup BCLE
+	BCLE<DlCompletionTree>* bcLE = static_cast<BCLE<DlCompletionTree>*>(bContext);
+
+	bcLE->ItemsToMerge.swap(NodesToMerge);
+	bcLE->resetMCI();
+	return false;
+}
+
 
 //-------------------------------------------------------------------------------
 //	Support for Func/LE/GE processing
@@ -1447,23 +1455,27 @@ DlSatTester :: findNeighbours ( const TRole* Role, BipolarPointer C, DepSet& Dep
 	std::sort ( EdgesToMerge.begin(), EdgesToMerge.end(), EdgeCompare() );
 }
 
-/*
+class NodeCompare
+{
+public:
+	bool operator() ( DlCompletionTree* p, DlCompletionTree* q ) const { return *p < *q; }
+};
+
 void
 DlSatTester :: findCLabelledNodes ( BipolarPointer C, DepSet& Dep )
 {
-	EdgesToMerge.clear();
+	NodesToMerge.clear();
 	DagTag tag = DLHeap[C].Type();
 
-	unsigned int n = 0;
-	DlCompletionTree* node = NULL;
-	while ( (node = CGraph.getNode(n++)) != NULL )
-		if ( !node->isDataNode() && findChooseRuleConcept ( node->label().getLabel(tag), C, Dep ) )
-			EdgesToMerge.push_back(node);
+	// FIXME!! do we need this for d-blocked nodes?
+	for ( DlCompletionGraph::iterator p = CGraph.begin(), p_end = CGraph.end(); p != p_end; ++p )
+		if ( isNodeGloballyUsed(*p) && findChooseRuleConcept ( (*p)->label().getLabel(tag), C, Dep ) )
+			NodesToMerge.push_back(*p);
 
 	// sort EdgesToMerge: From named nominals to generated nominals to blockable nodes
-	std::sort ( EdgesToMerge.begin(), EdgesToMerge.end(), EdgeCompare() );
+	std::sort ( NodesToMerge.begin(), NodesToMerge.end(), NodeCompare() );
 }
-*/
+
 
 //-------------------------------------------------------------------------------
 //	Choose-rule processing
