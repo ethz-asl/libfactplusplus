@@ -22,11 +22,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "AxiomSplitter.h"
 #include "AtomicDecomposer.h"
 
-const char* ReasoningKernel :: Version = "1.6.0";
+const char* ReasoningKernel :: Version = "1.6.1";
 const char* ReasoningKernel :: SupportedDL = "SROIQ(D)";
 const char* ReasoningKernel :: Copyright =
 	"Copyright (C) Dmitry Tsarkov, 2002-2012";
-const char* ReasoningKernel :: ReleaseDate = "9 July 2012";
+const char* ReasoningKernel :: ReleaseDate = "26 October 2012";
 
 // print the FaCT++ information only once
 static bool KernelFirstRun = true;
