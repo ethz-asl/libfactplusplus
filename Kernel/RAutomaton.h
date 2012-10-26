@@ -355,6 +355,7 @@ public:		// interface
 		/// add RA from a subrole to given one
 	void addRA ( const RoleAutomaton& RA )
 	{
+		fpp_assert(!isCompleted());
 		if ( RA.isSimple() )
 		{
 			bool ok = Base[initial()].addToExisting(*RA[initial()].begin());

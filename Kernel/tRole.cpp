@@ -405,6 +405,8 @@ void TRole :: completeAutomaton ( TRoleSet& RInProcess )
 	for ( ClassifiableEntry::iterator p = told_begin(), p_end = told_end(); p != p_end; ++p )
 	{
 		TRole* R = static_cast<TRole*>(resolveSynonym(*p));
+		if ( R->isTop() )	// do not propagate anything to a top-role
+			continue;
 		R->addSubRoleAutomaton(this);
 		if ( hasSpecialDomain() )
 			R->SpecialDomain = true;

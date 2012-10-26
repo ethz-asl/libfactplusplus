@@ -137,6 +137,7 @@ RoleAutomaton :: initMap ( unsigned int RASize, RAState fRA )
 bool
 RoleAutomaton :: addToChain ( const RoleAutomaton& RA, bool oSafe, RAState fRA )
 {
+	fpp_assert(!isCompleted());
 	bool needFinalTrans = ( fRA < size() && !RA.isOSafe() );
 	// we can skip transition if chaining automata are i- and o-safe
 	if ( !oSafe && !RA.isISafe() )
