@@ -777,9 +777,13 @@ public:
 		/// return consistency status of KB
 	bool isKBConsistent ( void )
 	{
-		if ( getStatus() <= kbLoading )
-			processKB(kbCChecked);
-		return getTBox()->isConsistent();
+		try {
+			if ( getStatus() <= kbLoading )
+				processKB(kbCChecked);
+			return getTBox()->isConsistent();
+		}
+		catch ( const EFPPInconsistentKB& )
+			{ return false; }
 	}
 		/// ensure that KB is preprocessed/consistence checked
 	void preprocessKB ( void )
