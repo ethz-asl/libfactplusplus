@@ -16,6 +16,8 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
+#include <iomanip>
+
 #include "Reasoner.h"
 #include "logging.h"
 #include "eFPPTimeout.h"
@@ -495,7 +497,7 @@ DlSatTester :: performAfterReasoning ( void )
 	if ( LLM.isWritable(llGTA) )
 	{
 		logIndentation();
-		LL << "[*ub:";
+		LL << "ub:";
 	}
 	CGraph.retestCGBlockedStatus();
 	if ( LLM.isWritable(llGTA) )
@@ -509,7 +511,7 @@ DlSatTester :: performAfterReasoning ( void )
 		if ( LLM.isWritable(llGTA) )
 		{
 			logIndentation();
-			LL << "[*split:";
+			LL << "split:";
 		}
 		bool clash = checkSplitRules();
 		if ( LLM.isWritable(llGTA) )
@@ -674,15 +676,13 @@ void DlSatTester :: restore ( unsigned int newTryLevel )
 void DlSatTester :: logIndentation ( void ) const
 {
 	CHECK_LL_RETURN(llGTA);	// useless but safe
-	LL << "\n";
-	for ( register unsigned int i = getCurLevel(); --i; )
-		LL << " ";
+	LL << "\n" << std::setw(getCurLevel()) << "[";
 }
 void DlSatTester :: logStartEntry ( void ) const
 {
 	CHECK_LL_RETURN(llGTA);	// useless but safe
 	logIndentation();
-	LL << "[*(";
+	LL << "(";
 	curNode->logNode ();
 	LL << "," << curConcept << "){";
 	if ( isNegative (curConcept.bp()) )
