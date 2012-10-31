@@ -402,6 +402,7 @@ void TRole :: completeAutomaton ( TRoleSet& RInProcess )
 	// here automaton is complete
 	A.setCompleted();
 
+	if ( likely(!isBottom()) )	// FIXME!! for now; need better Top/Bot synonyms processing
 	for ( ClassifiableEntry::iterator p = told_begin(), p_end = told_end(); p != p_end; ++p )
 	{
 		TRole* R = static_cast<TRole*>(resolveSynonym(*p));
