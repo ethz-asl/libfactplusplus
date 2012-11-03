@@ -40,7 +40,7 @@ protected:	// methods
 			(*beg)->accept(LEP);
 	}
 		/// helper to print a string
-	TLISPOntologyPrinter& operator << ( const char* str ) { o << str; return *this; }
+	TLISPOntologyPrinter& operator << ( const char* str ) { o << str; o.flush(); return *this; }
 		/// helper to print an expression
 	TLISPOntologyPrinter& operator << ( const TDLExpression* expr ) { expr->accept(LEP); return *this; }
 
