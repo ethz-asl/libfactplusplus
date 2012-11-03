@@ -241,7 +241,7 @@ public:		// visitor interface
 	virtual void visit ( const TDLConceptObjectForall& expr )
 		{ isTopEq = isTopEquivalent(expr.getC()) || (!topRLocal() && isBotEquivalent(expr.getOR())); }
 	virtual void visit ( const TDLConceptObjectMinCardinality& expr )
-		{ isTopEq = expr.getNumber() == 0 || (topRLocal() && isTopEquivalent(expr.getOR()) && isTopEquivalent(expr.getC())); }
+		{ isTopEq = expr.getNumber() == 0 || (topRLocal() && expr.getNumber() == 1 && isTopEquivalent(expr.getOR()) && isTopEquivalent(expr.getC())); }
 	virtual void visit ( const TDLConceptObjectMaxCardinality& expr )
 		{ isTopEq = isBotEquivalent(expr.getC()) || (!topRLocal() && isBotEquivalent(expr.getOR())); }
 	virtual void visit ( const TDLConceptObjectExactCardinality& expr )
