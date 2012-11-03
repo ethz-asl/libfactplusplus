@@ -383,32 +383,41 @@ ReasoningKernel :: isDisjointRoles ( void )
 	TExprVec Disj = getExpressionManager()->getArgList();
 	TRoleVec Roles;
 	Roles.reserve(Disj.size());
+	unsigned int nTopRoles = 0;
 
 	for ( TExprVec::const_iterator p = Disj.begin(), p_end = Disj.end(); p != p_end; ++p )
 	{
-		TORoleExpr* ORole = dynamic_cast<TORoleExpr*>(*p);
-		if ( ORole != NULL )
+		if ( TORoleExpr* ORole = dynamic_cast<TORoleExpr*>(*p) )
 		{
-			if ( getExpressionManager()->isUniversalRole(ORole) )
-				return false;	// universal role is not disjoint with anything
-			if ( getExpressionManager()->isEmptyRole(ORole) )
+			TRole* R = getRole ( ORole, "Role expression expected in isDisjointRoles()" );
+			if ( R->isBottom() )
 				continue;		// empty role is disjoint with everything
-
-			Roles.push_back ( getRole ( ORole, "Role expression expected in isDisjointRoles()" ) );
+			if ( R->isTop() )
+				++nTopRoles;	// count universal roles
+			else
+				Roles.push_back(R);
+		}
+		else if ( TDRoleExpr* DRole = dynamic_cast<TDRoleExpr*>(*p) )
+		{
+			TRole* R = getRole ( DRole, "Role expression expected in isDisjointRoles()" );
+			if ( R->isBottom() )
+				continue;		// empty role is disjoint with everything
+			if ( R->isTop() )
+				++nTopRoles;	// count universal roles
+			else
+				Roles.push_back(R);
 		}
 		else
-		{
-			TDRoleExpr* DRole = dynamic_cast<TDRoleExpr*>(*p);
-			if ( DRole == NULL )
-				throw EFaCTPlusPlus("Role expression expected in isDisjointRoles()");
+			throw EFaCTPlusPlus ( "Role expression expected in isDisjointRoles()" );
+	}
 
-			if ( getExpressionManager()->isUniversalRole(DRole) )
-				return false;	// universal role is not disjoint with anything
-			if ( getExpressionManager()->isEmptyRole(DRole) )
-				continue;		// empty role is disjoint with everything
-
-			Roles.push_back ( getRole ( DRole, "Role expression expected in isDisjointRoles()" ) );
-		}
+	// deal with top-roles
+	if ( nTopRoles > 0 )
+	{
+		if ( nTopRoles > 1 || !Roles.empty() )
+			return false;	// universal role is not disjoint with anything but the bottom role
+		else
+			return true;
 	}
 
 	// test pair-wise disjointness
