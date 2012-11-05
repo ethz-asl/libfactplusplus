@@ -29,6 +29,26 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 class TExpressionManager
 {
 protected:	// types
+		/// cache for the one-of expressions
+	class TOneOfCache: public THeadTailCache<TDLConceptExpression, const TDLIndividualExpression>
+	{
+	protected:	// members
+			/// host expression manager
+		TExpressionManager* pManager;
+
+	protected:	// methods
+			/// the way to create an object by a given tail
+		virtual TDLConceptExpression* build ( const TDLIndividualExpression* tail );
+
+	public:		// interface
+			/// empty c'tor
+		TOneOfCache ( TExpressionManager* p ) : THeadTailCache<TDLConceptExpression, const TDLIndividualExpression>(), pManager(p) {}
+			/// empty d'tor
+		virtual ~TOneOfCache ( void ) {}
+
+			/// clear the cache
+		void clear ( void ) { Map.clear(); }
+	}; // TOneOfCache
 		/// Cache for the inverse roles
 	class TInverseRoleCache : public THeadTailCache<TDLObjectRoleExpression, const TDLObjectRoleExpression>
 	{
@@ -87,6 +107,8 @@ protected:	// members
 
 		/// cache for the role inverses
 	TInverseRoleCache InverseRoleCache;
+		/// cache for the one-of singletons
+	TOneOfCache OneOfCache;
 
 protected:	// methods
 		/// record the reference; @return the argument
@@ -177,9 +199,15 @@ public:		// interface
 	TDLConceptExpression* Or ( const TDLConceptExpression* C, const TDLConceptExpression* D )
 		{ newArgList(); addArg(C); addArg(D); return Or(); }
 		/// get an n-ary one-of expression; take the arguments from the last argument list
-	TDLConceptExpression* OneOf ( void ) { return record(new TDLConceptOneOf(getArgList())); }
+	TDLConceptExpression* OneOf ( void )
+	{
+		const std::vector<const TDLExpression*>& v = getArgList();
+		if ( v.size() == 1 )
+			return OneOfCache.get(static_cast<const TDLIndividualExpression*>(v.front()));
+		return record(new TDLConceptOneOf(v));
+	}
 		/// @return concept {I} for the individual I
-	TDLConceptExpression* OneOf ( const TDLIndividualExpression* I ) { newArgList(); addArg(I); return OneOf(); }
+	TDLConceptExpression* OneOf ( const TDLIndividualExpression* I ) { return OneOfCache.get(I); }
 
 		/// get self-reference restriction of an object role R
 	TDLConceptExpression* SelfReference ( const TDLObjectRoleExpression* R ) { return record(new TDLConceptObjectSelf(R)); }
@@ -317,5 +345,14 @@ TExpressionManager::TInverseRoleCache::build ( const TDLObjectRoleExpression* ta
 {
 	return pManager->record(new TDLObjectRoleInverse(tail));
 }
+
+inline TDLConceptExpression*
+TExpressionManager::TOneOfCache::build ( const TDLIndividualExpression* tail )
+{
+	pManager->newArgList();
+	pManager->addArg(tail);
+	return pManager->record(new TDLConceptOneOf(pManager->getArgList()));
+}
+
 
 #endif
