@@ -562,6 +562,16 @@ public:		// interface
 		/// empty d'tor
 	virtual ~TDLConceptAnd ( void ) {}
 
+		/// comparison for AND
+	bool operator == ( const TDLConceptAnd& expr ) const
+	{
+		if ( size() != expr.size() )
+			return false;
+		for ( iterator p = begin(), q = expr.begin(), p_end = end(); p != p_end; ++p, ++q )
+			if ( *p != *q )
+				return false;
+		return true;
+	}
 		/// accept method for the visitor pattern
 	void accept ( DLExpressionVisitor& visitor ) const { visitor.visit(*this); }
 }; // TDLConceptAnd
