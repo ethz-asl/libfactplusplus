@@ -367,6 +367,8 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
 		return DataType ( env, EM->getStrDataType() );
 	if ( DTName == "http://www.w3.org/2001/XMLSchema#anyURI" )
 		return DataType ( env, EM->getStrDataType() );
+	if ( DTName == "http://www.w3.org/2001/XMLSchema#ID" )
+		return DataType ( env, EM->getStrDataType() );
 
 	if ( DTName == "http://www.w3.org/2001/XMLSchema#integer" )
 		return DataType ( env, EM->getIntDataType() );
