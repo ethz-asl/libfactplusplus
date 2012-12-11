@@ -61,23 +61,21 @@ protected:	// methods
 	bool isTopEquivalent ( const TDLExpression& expr );
 		/// convinience helper
 	bool isTopEquivalent ( const TDLExpression* expr ) { return isTopEquivalent(*expr); }
-		/// @return true iff role expression in equivalent to const wrt locality
-	bool isREquivalent ( const TDLExpression* expr ) { return topRLocal() ? isTopEquivalent(expr) : isBotEquivalent(*expr); }
 
 	// object role QCRs
 
 		/// @return true iff (<= n R.C) is topEq
 	bool isMinBotEquivalent ( unsigned int n, const TDLObjectRoleExpression* R, const TDLConceptExpression* C )
-		{ return n > 0 && (isBotEquivalent(R) || isBotEquivalent(C)); }
+		{ return (n > 0) && (isBotEquivalent(R) || isBotEquivalent(C)); }
 		/// @return true iff (>= n R.C) is topEq
 	bool isMaxBotEquivalent ( unsigned int n, const TDLObjectRoleExpression* R, const TDLConceptExpression* C )
-		{ return topRLocal() && (n > 0) && isTopEquivalent(R) && isTopEquivalent(C); }
+		{ return (n > 0) && isTopEquivalent(R) && isTopEquivalent(C); }
 
 	// data role QCRs
 
 		/// @return true iff (<= n R.D) is topEq
 	bool isMinBotEquivalent ( unsigned int n, const TDLDataRoleExpression* R, const TDLDataExpression* D ATTR_UNUSED )
-		{ return !topRLocal() && (n > 0) && isBotEquivalent(R); }
+		{ return (n > 0) && isBotEquivalent(R); }
 		/// @return true iff (>= n R.D) is topEq
 	bool isMaxBotEquivalent ( unsigned int n, const TDLDataRoleExpression* R, const TDLDataExpression* D )
 	{
@@ -125,16 +123,12 @@ public:		// visitor interface
 		isBotEq = true;
 	}
 	virtual void visit ( const TDLConceptOneOf& expr ) { isBotEq = expr.empty(); }
-	virtual void visit ( const TDLConceptObjectSelf& expr ) { isBotEq = !topRLocal() && isBotEquivalent(expr.getOR()); }
-	virtual void visit ( const TDLConceptObjectValue& expr ) { isBotEq = !topRLocal() && isBotEquivalent(expr.getOR()); }
+	virtual void visit ( const TDLConceptObjectSelf& expr ) { isBotEq = isBotEquivalent(expr.getOR()); }
+	virtual void visit ( const TDLConceptObjectValue& expr ) { isBotEq = isBotEquivalent(expr.getOR()); }
 	virtual void visit ( const TDLConceptObjectExists& expr )
-	{
-		isBotEq = isBotEquivalent(expr.getC());
-		if ( !topRLocal() )
-			isBotEq |= isBotEquivalent(expr.getOR());
-	}
+		{ isBotEq = isBotEquivalent(expr.getC()) || isBotEquivalent(expr.getOR()); }
 	virtual void visit ( const TDLConceptObjectForall& expr )
-		{ isBotEq = topRLocal() && isTopEquivalent(expr.getOR()) && isBotEquivalent(expr.getC()); }
+		{ isBotEq = isTopEquivalent(expr.getOR()) && isBotEquivalent(expr.getC()); }
 	virtual void visit ( const TDLConceptObjectMinCardinality& expr )
 		{ isBotEq = isMinBotEquivalent ( expr.getNumber(), expr.getOR(), expr.getC() ); }
 	virtual void visit ( const TDLConceptObjectMaxCardinality& expr )
@@ -146,14 +140,13 @@ public:		// visitor interface
 		const TDLConceptExpression* C = expr.getC();
 		isBotEq = isMinBotEquivalent ( n, R, C ) && isMaxBotEquivalent ( n, R, C );
 	}
-	virtual void visit ( const TDLConceptDataValue& expr ) { isBotEq = !topRLocal() && isBotEquivalent(expr.getDR()); }
-	virtual void visit ( const TDLConceptDataExists& expr ) { isBotEq = !topRLocal() && isBotEquivalent(expr.getDR()); }
-	virtual void visit ( const TDLConceptDataForall& expr ) { isBotEq = topRLocal() && isTopEquivalent(expr.getDR()) && !isTopDataType(expr.getExpr()); }
+	virtual void visit ( const TDLConceptDataValue& expr ) { isBotEq = isBotEquivalent(expr.getDR()); }
+	virtual void visit ( const TDLConceptDataExists& expr ) { isBotEq = isBotEquivalent(expr.getDR()); }
+	virtual void visit ( const TDLConceptDataForall& expr ) { isBotEq = isTopEquivalent(expr.getDR()) && !isTopDataType(expr.getExpr()); }
 	virtual void visit ( const TDLConceptDataMinCardinality& expr )
 		{ isBotEq = isMinBotEquivalent ( expr.getNumber(), expr.getDR(), expr.getExpr() ); }
 	virtual void visit ( const TDLConceptDataMaxCardinality& expr )
 		{ isBotEq = isMaxBotEquivalent ( expr.getNumber(), expr.getDR(), expr.getExpr() ); }
-
 	virtual void visit ( const TDLConceptDataExactCardinality& expr )
 	{
 		unsigned int n = expr.getNumber();
@@ -176,18 +169,10 @@ public:		// visitor interface
 	}
 		// equivalent to R(x,y) and C(x), so copy behaviour from ER.X
 	virtual void visit ( const TDLObjectRoleProjectionFrom& expr )
-	{
-		isBotEq = isBotEquivalent(expr.getC());
-		if ( !topRLocal() )
-			isBotEq |= isBotEquivalent(expr.getOR());
-	}
+		{ isBotEq = isBotEquivalent(expr.getC()) || isBotEquivalent(expr.getOR()); }
 		// equivalent to R(x,y) and C(y), so copy behaviour from ER.X
 	virtual void visit ( const TDLObjectRoleProjectionInto& expr )
-	{
-		isBotEq = isBotEquivalent(expr.getC());
-		if ( !topRLocal() )
-			isBotEq |= isBotEquivalent(expr.getOR());
-	}
+		{ isBotEq = isBotEquivalent(expr.getC()) || isBotEquivalent(expr.getOR()); }
 
 	// data role expressions
 	virtual void visit ( const TDLDataRoleTop& expr ATTR_UNUSED ) { isBotEq = false; }
@@ -209,8 +194,6 @@ protected:	// methods
 	bool isBotEquivalent ( const TDLExpression& expr ) { return BotEval->isBotEquivalent(expr); }
 		/// convinience helper
 	bool isBotEquivalent ( const TDLExpression* expr ) { return isBotEquivalent(*expr); }
-		/// @return true iff role expression in equivalent to const wrt locality
-	bool isREquivalent ( const TDLExpression* expr ) { return topRLocal() ? isTopEquivalent(*expr) : isBotEquivalent(*expr); }
 
 	// object role QCRs
 
@@ -278,12 +261,12 @@ public:		// visitor interface
 		isTopEq = false;
 	}
 	virtual void visit ( const TDLConceptOneOf& expr ATTR_UNUSED ) { isTopEq = false; }
-	virtual void visit ( const TDLConceptObjectSelf& expr ) { isTopEq = topRLocal() && isTopEquivalent(expr.getOR()); }
-	virtual void visit ( const TDLConceptObjectValue& expr ) { isTopEq = topRLocal() && isTopEquivalent(expr.getOR()); }
+	virtual void visit ( const TDLConceptObjectSelf& expr ) { isTopEq = isTopEquivalent(expr.getOR()); }
+	virtual void visit ( const TDLConceptObjectValue& expr ) { isTopEq = isTopEquivalent(expr.getOR()); }
 	virtual void visit ( const TDLConceptObjectExists& expr )
-		{ isTopEq = topRLocal() && isTopEquivalent(expr.getOR()) && isTopEquivalent(expr.getC()); }
+		{ isTopEq = isTopEquivalent(expr.getOR()) && isTopEquivalent(expr.getC()); }
 	virtual void visit ( const TDLConceptObjectForall& expr )
-		{ isTopEq = isTopEquivalent(expr.getC()) || (!topRLocal() && isBotEquivalent(expr.getOR())); }
+		{ isTopEq = isTopEquivalent(expr.getC()) || isBotEquivalent(expr.getOR()); }
 	virtual void visit ( const TDLConceptObjectMinCardinality& expr )
 		{ isTopEq = isMinTopEquivalent ( expr.getNumber(), expr.getOR(), expr.getC() ); }
 	virtual void visit ( const TDLConceptObjectMaxCardinality& expr )
@@ -295,9 +278,9 @@ public:		// visitor interface
 		const TDLConceptExpression* C = expr.getC();
 		isTopEq = isMinTopEquivalent ( n, R, C ) && isMaxTopEquivalent ( n, R, C );
 	}
-	virtual void visit ( const TDLConceptDataValue& expr ) { isTopEq = topRLocal() && isTopEquivalent(expr.getDR()); }
-	virtual void visit ( const TDLConceptDataExists& expr ) { isTopEq = topRLocal() && isTopEquivalent(expr.getDR()) && isTopOrBuiltInDataType(expr.getExpr()); }
-	virtual void visit ( const TDLConceptDataForall& expr ) { isTopEq = isTopDataType(expr.getExpr()) || (!topRLocal() && isBotEquivalent(expr.getDR())); }
+	virtual void visit ( const TDLConceptDataValue& expr ) { isTopEq = isTopEquivalent(expr.getDR()); }
+	virtual void visit ( const TDLConceptDataExists& expr ) { isTopEq = isTopEquivalent(expr.getDR()) && isTopOrBuiltInDataType(expr.getExpr()); }
+	virtual void visit ( const TDLConceptDataForall& expr ) { isTopEq = isTopDataType(expr.getExpr()) || isBotEquivalent(expr.getDR()); }
 	virtual void visit ( const TDLConceptDataMinCardinality& expr )
 		{ isTopEq = isMinTopEquivalent ( expr.getNumber(), expr.getDR(), expr.getExpr() ); }
 	virtual void visit ( const TDLConceptDataMaxCardinality& expr )
@@ -324,10 +307,10 @@ public:		// visitor interface
 	}
 		// equivalent to R(x,y) and C(x), so copy behaviour from ER.X
 	virtual void visit ( const TDLObjectRoleProjectionFrom& expr )
-		{ isTopEq = topRLocal() && isTopEquivalent(expr.getOR()) && isTopEquivalent(expr.getC()); }
+		{ isTopEq = isTopEquivalent(expr.getOR()) && isTopEquivalent(expr.getC()); }
 		// equivalent to R(x,y) and C(y), so copy behaviour from ER.X
 	virtual void visit ( const TDLObjectRoleProjectionInto& expr )
-		{ isTopEq = topRLocal() && isTopEquivalent(expr.getOR()) && isTopEquivalent(expr.getC()); }
+		{ isTopEq = isTopEquivalent(expr.getOR()) && isTopEquivalent(expr.getC()); }
 
 	// data role expressions
 	virtual void visit ( const TDLDataRoleTop& expr ATTR_UNUSED ) { isTopEq = true; }
@@ -512,48 +495,32 @@ public:		// visitor interface
 	virtual void visit ( const TDLAxiomFairnessConstraint& axiom ATTR_UNUSED ) { isLocal = true; }
 
 	virtual void visit ( const TDLAxiomRoleInverse& axiom ) { isLocal = isREquivalent(axiom.getRole()) && isREquivalent(axiom.getInvRole()); }
-	virtual void visit ( const TDLAxiomORoleSubsumption& axiom ) { isLocal = isREquivalent(topRLocal() ? axiom.getRole() : axiom.getSubRole()); }
-	virtual void visit ( const TDLAxiomDRoleSubsumption& axiom ) { isLocal = isREquivalent(topRLocal() ? axiom.getRole() : axiom.getSubRole()); }
+	virtual void visit ( const TDLAxiomORoleSubsumption& axiom ) { isLocal = isTopEquivalent(axiom.getRole()) || isBotEquivalent(axiom.getSubRole()); }
+	virtual void visit ( const TDLAxiomDRoleSubsumption& axiom ) { isLocal = isTopEquivalent(axiom.getRole()) || isBotEquivalent(axiom.getSubRole()); }
 	virtual void visit ( const TDLAxiomORoleDomain& axiom )
-	{
-		isLocal = isTopEquivalent(axiom.getDomain());
-		if ( !topRLocal() )
-			isLocal |= isBotEquivalent(axiom.getRole());
-	}
+		{ isLocal = isTopEquivalent(axiom.getDomain()) || isBotEquivalent(axiom.getRole()); }
 	virtual void visit ( const TDLAxiomDRoleDomain& axiom )
-	{
-		isLocal = isTopEquivalent(axiom.getDomain());
-		if ( !topRLocal() )
-			isLocal |= isBotEquivalent(axiom.getRole());
-	}
+		{ isLocal = isTopEquivalent(axiom.getDomain()) || isBotEquivalent(axiom.getRole()); }
 	virtual void visit ( const TDLAxiomORoleRange& axiom )
-	{
-		isLocal = isTopEquivalent(axiom.getRange());
-		if ( !topRLocal() )
-			isLocal |= isBotEquivalent(axiom.getRole());
-	}
+		{ isLocal = isTopEquivalent(axiom.getRange()) || isBotEquivalent(axiom.getRole()); }
 	virtual void visit ( const TDLAxiomDRoleRange& axiom )
-	{
-		isLocal = isTopDataType(axiom.getRange());
-		if ( !topRLocal() )
-			isLocal |= isBotEquivalent(axiom.getRole());
-	}
+		{ isLocal = isTopDataType(axiom.getRange()) || isBotEquivalent(axiom.getRole()); }
 	virtual void visit ( const TDLAxiomRoleTransitive& axiom ) { isLocal = isREquivalent(axiom.getRole()); }
 		/// as BotRole is irreflexive, the only local axiom is topEquivalent(R)
 	virtual void visit ( const TDLAxiomRoleReflexive& axiom ) { isLocal = isTopEquivalent(axiom.getRole()); }
-	virtual void visit ( const TDLAxiomRoleIrreflexive& axiom ) { isLocal = !topRLocal() && isBotEquivalent(axiom.getRole()); }
+	virtual void visit ( const TDLAxiomRoleIrreflexive& axiom ) { isLocal = isBotEquivalent(axiom.getRole()); }
 	virtual void visit ( const TDLAxiomRoleSymmetric& axiom ) { isLocal = isREquivalent(axiom.getRole()); }
-	virtual void visit ( const TDLAxiomRoleAsymmetric& axiom ) { isLocal = !topRLocal() && isBotEquivalent(axiom.getRole()); }
-	virtual void visit ( const TDLAxiomORoleFunctional& axiom ) { isLocal = !topRLocal() && isBotEquivalent(axiom.getRole()); }
-	virtual void visit ( const TDLAxiomDRoleFunctional& axiom ) { isLocal = !topRLocal() && isBotEquivalent(axiom.getRole()); }
-	virtual void visit ( const TDLAxiomRoleInverseFunctional& axiom ) { isLocal = !topRLocal() && isBotEquivalent(axiom.getRole()); }
+	virtual void visit ( const TDLAxiomRoleAsymmetric& axiom ) { isLocal = isBotEquivalent(axiom.getRole()); }
+	virtual void visit ( const TDLAxiomORoleFunctional& axiom ) { isLocal = isBotEquivalent(axiom.getRole()); }
+	virtual void visit ( const TDLAxiomDRoleFunctional& axiom ) { isLocal = isBotEquivalent(axiom.getRole()); }
+	virtual void visit ( const TDLAxiomRoleInverseFunctional& axiom ) { isLocal = isBotEquivalent(axiom.getRole()); }
 
 	virtual void visit ( const TDLAxiomConceptInclusion& axiom ) { isLocal = isBotEquivalent(axiom.getSubC()) || isTopEquivalent(axiom.getSupC()); }
 	virtual void visit ( const TDLAxiomInstanceOf& axiom ) { isLocal = isTopEquivalent(axiom.getC()); }
-	virtual void visit ( const TDLAxiomRelatedTo& axiom ) { isLocal = topRLocal() && isTopEquivalent(axiom.getRelation()); }
-	virtual void visit ( const TDLAxiomRelatedToNot& axiom ) { isLocal = !topRLocal() && isBotEquivalent(axiom.getRelation()); }
-	virtual void visit ( const TDLAxiomValueOf& axiom ) { isLocal = topRLocal() && isTopEquivalent(axiom.getAttribute()); }
-	virtual void visit ( const TDLAxiomValueOfNot& axiom ) { isLocal = !topRLocal() && isBotEquivalent(axiom.getAttribute()); }
+	virtual void visit ( const TDLAxiomRelatedTo& axiom ) { isLocal = isTopEquivalent(axiom.getRelation()); }
+	virtual void visit ( const TDLAxiomRelatedToNot& axiom ) { isLocal = isBotEquivalent(axiom.getRelation()); }
+	virtual void visit ( const TDLAxiomValueOf& axiom ) { isLocal = isTopEquivalent(axiom.getAttribute()); }
+	virtual void visit ( const TDLAxiomValueOfNot& axiom ) { isLocal = isBotEquivalent(axiom.getAttribute()); }
 }; // SyntacticLocalityChecker
 
 #endif
