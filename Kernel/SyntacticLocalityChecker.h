@@ -126,7 +126,7 @@ public:		// visitor interface
 	virtual void visit ( const TDLConceptObjectSelf& expr ) { isBotEq = isBotEquivalent(expr.getOR()); }
 	virtual void visit ( const TDLConceptObjectValue& expr ) { isBotEq = isBotEquivalent(expr.getOR()); }
 	virtual void visit ( const TDLConceptObjectExists& expr )
-		{ isBotEq = isBotEquivalent(expr.getC()) || isBotEquivalent(expr.getOR()); }
+		{ isBotEq = isMinBotEquivalent ( 1, expr.getOR(), expr.getC() ); }
 	virtual void visit ( const TDLConceptObjectForall& expr )
 		{ isBotEq = isTopEquivalent(expr.getOR()) && isBotEquivalent(expr.getC()); }
 	virtual void visit ( const TDLConceptObjectMinCardinality& expr )
@@ -140,9 +140,12 @@ public:		// visitor interface
 		const TDLConceptExpression* C = expr.getC();
 		isBotEq = isMinBotEquivalent ( n, R, C ) || isMaxBotEquivalent ( n, R, C );
 	}
-	virtual void visit ( const TDLConceptDataValue& expr ) { isBotEq = isBotEquivalent(expr.getDR()); }
-	virtual void visit ( const TDLConceptDataExists& expr ) { isBotEq = isBotEquivalent(expr.getDR()); }
-	virtual void visit ( const TDLConceptDataForall& expr ) { isBotEq = isTopEquivalent(expr.getDR()) && !isTopEquivalent(expr.getExpr()); }
+	virtual void visit ( const TDLConceptDataValue& expr )
+		{ isBotEq = isMinBotEquivalent ( 1, expr.getDR(), expr.getExpr() ); }
+	virtual void visit ( const TDLConceptDataExists& expr )
+		{ isBotEq = isMinBotEquivalent ( 1, expr.getDR(), expr.getExpr() ); }
+	virtual void visit ( const TDLConceptDataForall& expr )
+		{ isBotEq = isTopEquivalent(expr.getDR()) && !isTopEquivalent(expr.getExpr()); }
 	virtual void visit ( const TDLConceptDataMinCardinality& expr )
 		{ isBotEq = isMinBotEquivalent ( expr.getNumber(), expr.getDR(), expr.getExpr() ); }
 	virtual void visit ( const TDLConceptDataMaxCardinality& expr )
@@ -170,10 +173,10 @@ public:		// visitor interface
 	}
 		// equivalent to R(x,y) and C(x), so copy behaviour from ER.X
 	virtual void visit ( const TDLObjectRoleProjectionFrom& expr )
-		{ isBotEq = isBotEquivalent(expr.getC()) || isBotEquivalent(expr.getOR()); }
+		{ isBotEq = isMinBotEquivalent ( 1, expr.getOR(), expr.getC() ); }
 		// equivalent to R(x,y) and C(y), so copy behaviour from ER.X
 	virtual void visit ( const TDLObjectRoleProjectionInto& expr )
-		{ isBotEq = isBotEquivalent(expr.getC()) || isBotEquivalent(expr.getOR()); }
+		{ isBotEq = isMinBotEquivalent ( 1, expr.getOR(), expr.getC() ); }
 
 	// data role expressions
 	virtual void visit ( const TDLDataRoleTop& expr ATTR_UNUSED ) { isBotEq = false; }
@@ -283,7 +286,7 @@ public:		// visitor interface
 	virtual void visit ( const TDLConceptObjectSelf& expr ) { isTopEq = isTopEquivalent(expr.getOR()); }
 	virtual void visit ( const TDLConceptObjectValue& expr ) { isTopEq = isTopEquivalent(expr.getOR()); }
 	virtual void visit ( const TDLConceptObjectExists& expr )
-		{ isTopEq = isTopEquivalent(expr.getOR()) && isTopEquivalent(expr.getC()); }
+		{ isTopEq = isMinTopEquivalent ( 1, expr.getOR(), expr.getC() ); }
 	virtual void visit ( const TDLConceptObjectForall& expr )
 		{ isTopEq = isTopEquivalent(expr.getC()) || isBotEquivalent(expr.getOR()); }
 	virtual void visit ( const TDLConceptObjectMinCardinality& expr )
@@ -297,8 +300,10 @@ public:		// visitor interface
 		const TDLConceptExpression* C = expr.getC();
 		isTopEq = isMinTopEquivalent ( n, R, C ) && isMaxTopEquivalent ( n, R, C );
 	}
-	virtual void visit ( const TDLConceptDataValue& expr ) { isTopEq = isTopEquivalent(expr.getDR()); }
-	virtual void visit ( const TDLConceptDataExists& expr ) { isTopEq = isTopEquivalent(expr.getDR()) && isTopOrBuiltInDataType(expr.getExpr()); }
+	virtual void visit ( const TDLConceptDataValue& expr )
+		{ isTopEq = isMinTopEquivalent ( 1, expr.getDR(), expr.getExpr() ); }
+	virtual void visit ( const TDLConceptDataExists& expr )
+		{ isTopEq = isMinTopEquivalent ( 1, expr.getDR(), expr.getExpr() ); }
 	virtual void visit ( const TDLConceptDataForall& expr ) { isTopEq = isTopEquivalent(expr.getExpr()) || isBotEquivalent(expr.getDR()); }
 	virtual void visit ( const TDLConceptDataMinCardinality& expr )
 		{ isTopEq = isMinTopEquivalent ( expr.getNumber(), expr.getDR(), expr.getExpr() ); }
@@ -327,10 +332,10 @@ public:		// visitor interface
 	}
 		// equivalent to R(x,y) and C(x), so copy behaviour from ER.X
 	virtual void visit ( const TDLObjectRoleProjectionFrom& expr )
-		{ isTopEq = isTopEquivalent(expr.getOR()) && isTopEquivalent(expr.getC()); }
+		{ isTopEq = isMinTopEquivalent ( 1, expr.getOR(), expr.getC() ); }
 		// equivalent to R(x,y) and C(y), so copy behaviour from ER.X
 	virtual void visit ( const TDLObjectRoleProjectionInto& expr )
-		{ isTopEq = isTopEquivalent(expr.getOR()) && isTopEquivalent(expr.getC()); }
+		{ isTopEq = isMinTopEquivalent ( 1, expr.getOR(), expr.getC() ); }
 
 	// data role expressions
 	virtual void visit ( const TDLDataRoleTop& expr ATTR_UNUSED ) { isTopEq = true; }
