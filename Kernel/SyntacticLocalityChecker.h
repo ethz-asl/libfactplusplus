@@ -64,23 +64,23 @@ protected:	// methods
 
 	// object role QCRs
 
-		/// @return true iff (<= n R.C) is topEq
+		/// @return true iff (>= n R.C) is botEq
 	bool isMinBotEquivalent ( unsigned int n, const TDLObjectRoleExpression* R, const TDLConceptExpression* C )
 		{ return (n > 0) && (isBotEquivalent(R) || isBotEquivalent(C)); }
-		/// @return true iff (>= n R.C) is topEq
+		/// @return true iff (<= n R.C) is botEq
 	bool isMaxBotEquivalent ( unsigned int n, const TDLObjectRoleExpression* R, const TDLConceptExpression* C )
 		{ return (n > 0) && isTopEquivalent(R) && isTopEquivalent(C); }
 
 	// data role QCRs
 
-		/// @return true iff (<= n R.D) is topEq
+		/// @return true iff (>= n R.D) is botEq
 	bool isMinBotEquivalent ( unsigned int n, const TDLDataRoleExpression* R, const TDLDataExpression* D ATTR_UNUSED )
 		{ return (n > 0) && isBotEquivalent(R); }
-		/// @return true iff (>= n R.D) is topEq
+		/// @return true iff (<= n R.D) is botEq
 	bool isMaxBotEquivalent ( unsigned int n, const TDLDataRoleExpression* R, const TDLDataExpression* D )
 	{
-		return topRLocal() && isTopEquivalent(R) &&
-			( (n <= 1)	? isTopOrBuiltInDataType(D) : isTopOrBuiltInInfDataType(D) );
+		return isTopEquivalent(R) &&
+			( (n <= 1) ? isTopOrBuiltInDataType(D) : isTopOrBuiltInInfDataType(D) );
 	}
 
 public:		// interface
@@ -138,7 +138,7 @@ public:		// visitor interface
 		unsigned int n = expr.getNumber();
 		const TDLObjectRoleExpression* R = expr.getOR();
 		const TDLConceptExpression* C = expr.getC();
-		isBotEq = isMinBotEquivalent ( n, R, C ) && isMaxBotEquivalent ( n, R, C );
+		isBotEq = isMinBotEquivalent ( n, R, C ) || isMaxBotEquivalent ( n, R, C );
 	}
 	virtual void visit ( const TDLConceptDataValue& expr ) { isBotEq = isBotEquivalent(expr.getDR()); }
 	virtual void visit ( const TDLConceptDataExists& expr ) { isBotEq = isBotEquivalent(expr.getDR()); }
@@ -162,6 +162,7 @@ public:		// visitor interface
 	virtual void visit ( const TDLObjectRoleInverse& expr ) { isBotEq = isBotEquivalent(expr.getOR()); }
 	virtual void visit ( const TDLObjectRoleChain& expr )
 	{
+		isBotEq = true;
 		for ( TDLObjectRoleChain::iterator p = expr.begin(), p_end = expr.end(); p != p_end; ++p )
 			if ( isBotEquivalent(*p) )	// isBotEq is true here
 				return;
@@ -197,27 +198,22 @@ protected:	// methods
 
 	// object role QCRs
 
-		/// @return true iff (<= n R.C) is topEq
-	bool isMinTopEquivalent ( unsigned int n, const TDLObjectRoleExpression* R, const TDLConceptExpression* C )
-		{ return n == 0 || (n == 1 && topRLocal() && isTopEquivalent(R) && isTopEquivalent(C)); }
 		/// @return true iff (>= n R.C) is topEq
+	bool isMinTopEquivalent ( unsigned int n, const TDLObjectRoleExpression* R, const TDLConceptExpression* C )
+		{ return n == 0 || ( (n == 1) && isTopEquivalent(R) && isTopEquivalent(C) ); }
+		/// @return true iff (<= n R.C) is topEq
 	bool isMaxTopEquivalent ( unsigned int n ATTR_UNUSED, const TDLObjectRoleExpression* R, const TDLConceptExpression* C )
-		{ return isBotEquivalent(C) || (!topRLocal() && isBotEquivalent(R)); }
+		{ return isBotEquivalent(C) || isBotEquivalent(R); }
 
 	// data role QCRs
 
-		/// @return true iff (<= n R.D) is topEq
+		/// @return true iff (>= n R.D) is topEq
 	bool isMinTopEquivalent ( unsigned int n, const TDLDataRoleExpression* R, const TDLDataExpression* D )
 	{
-		bool ret = (n == 0);
-		if ( topRLocal() )
-			ret |= isTopEquivalent(R) &&
-				( n == 1
-					? isTopOrBuiltInDataType(D)
-					: isTopOrBuiltInInfDataType(D) );
-		return ret;
+		return (n == 0) || ( isTopEquivalent(R) &&
+				(n == 1) ? isTopOrBuiltInDataType(D) : isTopOrBuiltInInfDataType(D) );
 	}
-		/// @return true iff (>= n R.D) is topEq
+		/// @return true iff (<= n R.D) is topEq
 	bool isMaxTopEquivalent ( unsigned int n ATTR_UNUSED, const TDLDataRoleExpression* R, const TDLDataExpression* D ATTR_UNUSED )
 		{ return isBotEquivalent(R); }
 
@@ -300,6 +296,7 @@ public:		// visitor interface
 	virtual void visit ( const TDLObjectRoleInverse& expr ) { isTopEq = isTopEquivalent(expr.getOR()); }
 	virtual void visit ( const TDLObjectRoleChain& expr )
 	{
+		isTopEq = false;
 		for ( TDLObjectRoleChain::iterator p = expr.begin(), p_end = expr.end(); p != p_end; ++p )
 			if ( !isTopEquivalent(*p) )	// isTopEq is false here
 				return;
