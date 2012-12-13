@@ -74,8 +74,8 @@ protected:	// methods
 	// data role QCRs
 
 		/// @return true iff (>= n R.D) is botEq
-	bool isMinBotEquivalent ( unsigned int n, const TDLDataRoleExpression* R, const TDLDataExpression* D ATTR_UNUSED )
-		{ return (n > 0) && isBotEquivalent(R); }
+	bool isMinBotEquivalent ( unsigned int n, const TDLDataRoleExpression* R, const TDLDataExpression* D )
+		{ return (n > 0) && (isBotEquivalent(R) || isBotEquivalent(D)); }
 		/// @return true iff (<= n R.D) is botEq
 	bool isMaxBotEquivalent ( unsigned int n, const TDLDataRoleExpression* R, const TDLDataExpression* D )
 	{
@@ -117,7 +117,7 @@ public:		// visitor interface
 	}
 	virtual void visit ( const TDLConceptOr& expr )
 	{
-		for ( TDLConceptAnd::iterator p = expr.begin(), p_end = expr.end(); p != p_end; ++p )
+		for ( TDLConceptOr::iterator p = expr.begin(), p_end = expr.end(); p != p_end; ++p )
 			if ( !isBotEquivalent(*p) )	// here isBotEq is false, so just return
 				return;
 		isBotEq = true;
@@ -142,7 +142,7 @@ public:		// visitor interface
 	}
 	virtual void visit ( const TDLConceptDataValue& expr ) { isBotEq = isBotEquivalent(expr.getDR()); }
 	virtual void visit ( const TDLConceptDataExists& expr ) { isBotEq = isBotEquivalent(expr.getDR()); }
-	virtual void visit ( const TDLConceptDataForall& expr ) { isBotEq = isTopEquivalent(expr.getDR()) && !isTopDataType(expr.getExpr()); }
+	virtual void visit ( const TDLConceptDataForall& expr ) { isBotEq = isTopEquivalent(expr.getDR()) && !isTopEquivalent(expr.getExpr()); }
 	virtual void visit ( const TDLConceptDataMinCardinality& expr )
 		{ isBotEq = isMinBotEquivalent ( expr.getNumber(), expr.getDR(), expr.getExpr() ); }
 	virtual void visit ( const TDLConceptDataMaxCardinality& expr )
@@ -179,6 +179,29 @@ public:		// visitor interface
 	virtual void visit ( const TDLDataRoleTop& expr ATTR_UNUSED ) { isBotEq = false; }
 	virtual void visit ( const TDLDataRoleBottom& expr ATTR_UNUSED ) { isBotEq = true; }
 	virtual void visit ( const TDLDataRoleName& expr ) { isBotEq = !topRLocal() && nc(expr.getEntity()); }
+
+	// data expressions
+	virtual void visit ( const TDLDataTop& expr ATTR_UNUSED ) { isBotEq = false; }
+	virtual void visit ( const TDLDataBottom& expr ATTR_UNUSED ) { isBotEq = true; }
+	virtual void visit ( const TDLDataTypeName& expr ATTR_UNUSED ) { isBotEq = false; }
+	virtual void visit ( const TDLDataTypeRestriction& expr ATTR_UNUSED ) { isBotEq = false; }
+	virtual void visit ( const TDLDataValue& expr ATTR_UNUSED ) { isBotEq = false; }
+	virtual void visit ( const TDLDataNot& expr ) { isBotEq = isTopEquivalent(expr.getExpr()); }
+	virtual void visit ( const TDLDataAnd& expr )
+	{
+		for ( TDLDataAnd::iterator p = expr.begin(), p_end = expr.end(); p != p_end; ++p )
+			if ( isBotEquivalent(*p) )	// here isBotEq is true, so just return
+				return;
+		isBotEq = false;
+	}
+	virtual void visit ( const TDLDataOr& expr )
+	{
+		for ( TDLDataOr::iterator p = expr.begin(), p_end = expr.end(); p != p_end; ++p )
+			if ( !isBotEquivalent(*p) )	// here isBotEq is false, so just return
+				return;
+		isBotEq = true;
+	}
+	virtual void visit ( const TDLDataOneOf& expr ) { isBotEq = expr.empty(); }
 }; // BotEquivalenceEvaluator
 
 /// check whether class expressions are equivalent to top wrt given locality class
@@ -203,7 +226,7 @@ protected:	// methods
 		{ return n == 0 || ( (n == 1) && isTopEquivalent(R) && isTopEquivalent(C) ); }
 		/// @return true iff (<= n R.C) is topEq
 	bool isMaxTopEquivalent ( unsigned int n ATTR_UNUSED, const TDLObjectRoleExpression* R, const TDLConceptExpression* C )
-		{ return isBotEquivalent(C) || isBotEquivalent(R); }
+		{ return isBotEquivalent(R) || isBotEquivalent(C); }
 
 	// data role QCRs
 
@@ -214,8 +237,8 @@ protected:	// methods
 				(n == 1) ? isTopOrBuiltInDataType(D) : isTopOrBuiltInInfDataType(D) );
 	}
 		/// @return true iff (<= n R.D) is topEq
-	bool isMaxTopEquivalent ( unsigned int n ATTR_UNUSED, const TDLDataRoleExpression* R, const TDLDataExpression* D ATTR_UNUSED )
-		{ return isBotEquivalent(R); }
+	bool isMaxTopEquivalent ( unsigned int n ATTR_UNUSED, const TDLDataRoleExpression* R, const TDLDataExpression* D )
+		{ return isBotEquivalent(R) || isBotEquivalent(D); }
 
 public:		// interface
 		/// init c'tor
@@ -276,7 +299,7 @@ public:		// visitor interface
 	}
 	virtual void visit ( const TDLConceptDataValue& expr ) { isTopEq = isTopEquivalent(expr.getDR()); }
 	virtual void visit ( const TDLConceptDataExists& expr ) { isTopEq = isTopEquivalent(expr.getDR()) && isTopOrBuiltInDataType(expr.getExpr()); }
-	virtual void visit ( const TDLConceptDataForall& expr ) { isTopEq = isTopDataType(expr.getExpr()) || isBotEquivalent(expr.getDR()); }
+	virtual void visit ( const TDLConceptDataForall& expr ) { isTopEq = isTopEquivalent(expr.getExpr()) || isBotEquivalent(expr.getDR()); }
 	virtual void visit ( const TDLConceptDataMinCardinality& expr )
 		{ isTopEq = isMinTopEquivalent ( expr.getNumber(), expr.getDR(), expr.getExpr() ); }
 	virtual void visit ( const TDLConceptDataMaxCardinality& expr )
@@ -313,6 +336,29 @@ public:		// visitor interface
 	virtual void visit ( const TDLDataRoleTop& expr ATTR_UNUSED ) { isTopEq = true; }
 	virtual void visit ( const TDLDataRoleBottom& expr ATTR_UNUSED ) { isTopEq = false; }
 	virtual void visit ( const TDLDataRoleName& expr ) { isTopEq = topRLocal() && nc(expr.getEntity()); }
+
+	// data expressions
+	virtual void visit ( const TDLDataTop& expr ATTR_UNUSED ) { isTopEq = true; }
+	virtual void visit ( const TDLDataBottom& expr ATTR_UNUSED ) { isTopEq = false; }
+	virtual void visit ( const TDLDataTypeName& expr ATTR_UNUSED ) { isTopEq = false; }
+	virtual void visit ( const TDLDataTypeRestriction& expr ATTR_UNUSED ) { isTopEq = false; }
+	virtual void visit ( const TDLDataValue& expr ATTR_UNUSED ) { isTopEq = false; }
+	virtual void visit ( const TDLDataNot& expr ) { isTopEq = isBotEquivalent(expr.getExpr()); }
+	virtual void visit ( const TDLDataAnd& expr )
+	{
+		for ( TDLDataAnd::iterator p = expr.begin(), p_end = expr.end(); p != p_end; ++p )
+			if ( !isTopEquivalent(*p) )	// here isTopEq is false, so just return
+				return;
+		isTopEq = true;
+	}
+	virtual void visit ( const TDLDataOr& expr )
+	{
+		for ( TDLDataOr::iterator p = expr.begin(), p_end = expr.end(); p != p_end; ++p )
+			if ( isTopEquivalent(*p) )	// here isTopEq is true, so just return
+				return;
+		isTopEq = false;
+	}
+	virtual void visit ( const TDLDataOneOf& expr ATTR_UNUSED ) { isTopEq = false; }
 }; // TopEquivalenceEvaluator
 
 inline bool
@@ -501,7 +547,7 @@ public:		// visitor interface
 	virtual void visit ( const TDLAxiomORoleRange& axiom )
 		{ isLocal = isTopEquivalent(axiom.getRange()) || isBotEquivalent(axiom.getRole()); }
 	virtual void visit ( const TDLAxiomDRoleRange& axiom )
-		{ isLocal = isTopDataType(axiom.getRange()) || isBotEquivalent(axiom.getRole()); }
+		{ isLocal = isTopEquivalent(axiom.getRange()) || isBotEquivalent(axiom.getRole()); }
 	virtual void visit ( const TDLAxiomRoleTransitive& axiom ) { isLocal = isREquivalent(axiom.getRole()); }
 		/// as BotRole is irreflexive, the only local axiom is topEquivalent(R)
 	virtual void visit ( const TDLAxiomRoleReflexive& axiom ) { isLocal = isTopEquivalent(axiom.getRole()); }
