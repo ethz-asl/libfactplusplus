@@ -144,6 +144,17 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_delete
 	delete getK(env,obj);
 	// set to NULL
 	env->SetLongField ( obj, KernelFID, 0 );
+	// release classes
+	ClassPointer.fini(env);
+	IndividualPointer.fini(env);
+	ObjectPropertyPointer.fini(env);
+	DataPropertyPointer.fini(env);
+	DataTypePointer.fini(env);
+	DataTypeExpressionPointer.fini(env);
+	DataValuePointer.fini(env);
+	DataTypeFacet.fini(env);
+	NodePointer.fini(env);
+	AxiomPointer.fini(env);
 }
 
 /*

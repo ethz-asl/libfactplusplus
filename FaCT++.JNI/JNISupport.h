@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2006-2011 by Dmitry Tsarkov
+Copyright (C) 2006-2012 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -190,9 +190,9 @@ class TClassFieldMethodIDs
 {
 public:		// members
 		/// class name
-	const char* ClassName;
+	jclass ClassID;
 		/// array class type
-	const char* ArrayClassName;
+	jclass ArrayClassID;
 		/// c'tor type
 	jmethodID CtorID;
 		/// 'node' field
@@ -202,14 +202,21 @@ public:		// interface
 		/// init values by class name
 	void init ( JNIEnv* env, const char* arrayClassName )
 	{
-		ArrayClassName = arrayClassName;
-		ClassName = ArrayClassName+1;
-		jclass ClassID = env->FindClass(ClassName);
-		if ( ClassID == 0 )
+		jclass id = env->FindClass(arrayClassName+1);
+		if ( id == 0 )
 		{
 			Throw ( env, "Can't get class for Pointer" );
 			return;
 		}
+		ClassID = reinterpret_cast<jclass>(env->NewGlobalRef(id));
+
+		id = env->FindClass(arrayClassName);
+		if ( id == 0 )
+		{
+			Throw ( env, "Can't get class for [Pointer" );
+			return;
+		}
+		ArrayClassID = reinterpret_cast<jclass>(env->NewGlobalRef(id));
 
 		CtorID = env->GetMethodID ( ClassID, "<init>", "()V" );
 		if ( CtorID == 0 )
@@ -224,6 +231,11 @@ public:		// interface
 			Throw ( env, "Can't get 'node' field" );
 			return;
 		}
+	}
+	void fini ( JNIEnv* env )
+	{
+		env->DeleteGlobalRef(ClassID);
+		env->DeleteGlobalRef(ArrayClassID);
 	}
 }; // TClassFieldMethodIDs
 
@@ -362,15 +374,8 @@ jobject retObject ( JNIEnv * env, const void* t, const TClassFieldMethodIDs& ID 
 		return (jobject)0;
 	}
 
-	jclass ClassID = env->FindClass(ID.ClassName);
-	if ( ClassID == 0 )
-	{
-		Throw ( env, "Can't get class for Pointer" );
-		return 0;
-	}
-
 	// create an object to return
-	jobject obj = env->NewObject ( ClassID, ID.CtorID );
+	jobject obj = env->NewObject ( ID.ClassID, ID.CtorID );
 
 	if ( obj == 0 )
 		Throw ( env, "Can't create Pointer object" );
@@ -450,8 +455,7 @@ jobject Axiom ( JNIEnv * env, TDLAxiom* t )
 template<class T>
 jobjectArray buildArray ( JNIEnv* env, const std::vector<T*>& vec, const TClassFieldMethodIDs& ID )
 {
-	jclass ClassID = env->FindClass(ID.ClassName);
-	jobjectArray ret = env->NewObjectArray ( vec.size(), ClassID, NULL );
+	jobjectArray ret = env->NewObjectArray ( vec.size(), ID.ClassID, NULL );
 	for ( unsigned int i = 0; i < vec.size(); ++i )
 		env->SetObjectArrayElement ( ret, i, retObject ( env, vec[i], ID ) );
 	return ret;
