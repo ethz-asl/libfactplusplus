@@ -25,23 +25,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 class BotEquivalenceEvaluator;
 class TopEquivalenceEvaluator;
 
-	/// @return true iff EXPR is a built-in datatype;
-inline bool
-isBuiltInDataType ( const TDLExpression* expr )
-	{ return dynamic_cast<const TDLDataTypeName*>(expr) != NULL; }
-	/// @return true iff EXPR is an infinite built-in datatype; FIXME add real/fraction later
-inline bool
-isBuiltInInfDataType ( const TDLExpression* expr )
-{
-	if ( const TDLDataTypeName* namedDT = dynamic_cast<const TDLDataTypeName*>(expr) )
-	{
-		std::string name = namedDT->getName();
-		if ( name == TDataTypeManager::getStrTypeName() || name == TDataTypeManager::getTimeTypeName() )
-			return true;
-	}
-	return false;
-}
-
 /// check whether class expressions are equivalent to bottom wrt given locality class
 class BotEquivalenceEvaluator: protected SigAccessor, public DLExpressionVisitorEmpty
 {
@@ -54,44 +37,49 @@ protected:	// members
 protected:	// methods
 		/// check whether the expression is top-equivalent
 	bool isTopEquivalent ( const TDLExpression& expr );
-		/// convinience helper
+		/// convenience helper
 	bool isTopEquivalent ( const TDLExpression* expr ) { return isTopEquivalent(*expr); }
 
-	// non-empty C/D
+	// non-empty Concept/Data expression
 
 		/// @return true iff C^I is non-empty
-	bool isBotDistinct ( const TDLConceptExpression* C )
-		{ return isTopEquivalent(C); }
-		/// @return true iff D^I is non-empty
-	bool isBotDistinct ( const TDLDataExpression* D )
-		{ return isTopEquivalent(D) || isBuiltInDataType(D); }
+	bool isBotDistinct ( const TDLExpression* C )
+	{
+		// TOP is non-empty
+		if ( isTopEquivalent(C) )
+			return true;
+		// built-in DT are non-empty
+		if ( dynamic_cast<const TDLDataTypeName*>(C) )
+			return true;
+		// FIXME!! that's it for now
+		return false;
+	}
 
-	// cardinality of an interpretation
+	// cardinality of a concept/data expression interpretation
 
 		/// @return true if #C^I > n
-	bool isCardLargerThan ( const TDLConceptExpression* C, unsigned int n )
-		{ return (n == 0) ? isBotDistinct(C) : false; }
-		/// @return true if #D^I > n
-	bool isCardLargerThan ( const TDLDataExpression* D, unsigned int n )
-		{ return (n == 0) ? isBotDistinct(D) : isBuiltInInfDataType(D); }
+	bool isCardLargerThan ( const TDLExpression* C, unsigned int n )
+	{
+		if ( n == 0 )	// non-empty is enough
+			return isBotDistinct(C);
+		if ( const TDLDataTypeName* namedDT = dynamic_cast<const TDLDataTypeName*>(C) )
+		{	// string/time are infinite DT
+			std::string name = namedDT->getName();
+			if ( name == TDataTypeManager::getStrTypeName() || name == TDataTypeManager::getTimeTypeName() )
+				return true;
+		}
+		// FIXME!! try to be more precise
+		return false;
+	}
 
-	// object role QCRs
+	// QCRs
 
 		/// @return true iff (>= n R.C) is botEq
-	bool isMinBotEquivalent ( unsigned int n, const TDLObjectRoleExpression* R, const TDLConceptExpression* C )
+	bool isMinBotEquivalent ( unsigned int n, const TDLRoleExpression* R, const TDLExpression* C )
 		{ return (n > 0) && (isBotEquivalent(R) || isBotEquivalent(C)); }
 		/// @return true iff (<= n R.C) is botEq
-	bool isMaxBotEquivalent ( unsigned int n, const TDLObjectRoleExpression* R, const TDLConceptExpression* C )
+	bool isMaxBotEquivalent ( unsigned int n, const TDLRoleExpression* R, const TDLExpression* C )
 		{ return isTopEquivalent(R) && isCardLargerThan ( C, n ); }
-
-	// data role QCRs
-
-		/// @return true iff (>= n R.D) is botEq
-	bool isMinBotEquivalent ( unsigned int n, const TDLDataRoleExpression* R, const TDLDataExpression* D )
-		{ return (n > 0) && (isBotEquivalent(R) || isBotEquivalent(D)); }
-		/// @return true iff (<= n R.D) is botEq
-	bool isMaxBotEquivalent ( unsigned int n, const TDLDataRoleExpression* R, const TDLDataExpression* D )
-		{ return isTopEquivalent(R) && isCardLargerThan ( D, n ); }
 
 public:		// interface
 		/// init c'tor
@@ -229,44 +217,49 @@ protected:	// members
 protected:	// methods
 		/// check whether the expression is top-equivalent
 	bool isBotEquivalent ( const TDLExpression& expr ) { return BotEval->isBotEquivalent(expr); }
-		/// convinience helper
+		/// convenience helper
 	bool isBotEquivalent ( const TDLExpression* expr ) { return isBotEquivalent(*expr); }
 
-	// non-empty C/D
+	// non-empty Concept/Data expression
 
 		/// @return true iff C^I is non-empty
-	bool isBotDistinct ( const TDLConceptExpression* C )
-		{ return isTopEquivalent(C); }
-		/// @return true iff D^I is non-empty
-	bool isBotDistinct ( const TDLDataExpression* D )
-		{ return isTopEquivalent(D) || isBuiltInDataType(D); }
+	bool isBotDistinct ( const TDLExpression* C )
+	{
+		// TOP is non-empty
+		if ( isTopEquivalent(C) )
+			return true;
+		// built-in DT are non-empty
+		if ( dynamic_cast<const TDLDataTypeName*>(C) )
+			return true;
+		// FIXME!! that's it for now
+		return false;
+	}
 
-	// cardinality of an interpretation
+	// cardinality of a concept/data expression interpretation
 
 		/// @return true if #C^I > n
-	bool isCardLargerThan ( const TDLConceptExpression* C, unsigned int n )
-		{ return (n == 0) ? isBotDistinct(C) : false; }
-		/// @return true if #D^I > n
-	bool isCardLargerThan ( const TDLDataExpression* D, unsigned int n )
-		{ return (n == 0) ? isBotDistinct(D) : isBuiltInInfDataType(D); }
+	bool isCardLargerThan ( const TDLExpression* C, unsigned int n )
+	{
+		if ( n == 0 )	// non-empty is enough
+			return isBotDistinct(C);
+		if ( const TDLDataTypeName* namedDT = dynamic_cast<const TDLDataTypeName*>(C) )
+		{	// string/time are infinite DT
+			std::string name = namedDT->getName();
+			if ( name == TDataTypeManager::getStrTypeName() || name == TDataTypeManager::getTimeTypeName() )
+				return true;
+		}
+		// FIXME!! try to be more precise
+		return false;
+	}
 
-	// object role QCRs
+	// QCRs
 
 		/// @return true iff (>= n R.C) is topEq
-	bool isMinTopEquivalent ( unsigned int n, const TDLObjectRoleExpression* R, const TDLConceptExpression* C )
+	bool isMinTopEquivalent ( unsigned int n, const TDLRoleExpression* R, const TDLExpression* C )
 		{ return (n == 0) || ( isTopEquivalent(R) && isCardLargerThan ( C, n-1 ) ); }
 		/// @return true iff (<= n R.C) is topEq
-	bool isMaxTopEquivalent ( unsigned int n ATTR_UNUSED, const TDLObjectRoleExpression* R, const TDLConceptExpression* C )
+	bool isMaxTopEquivalent ( unsigned int n ATTR_UNUSED, const TDLRoleExpression* R, const TDLExpression* C )
 		{ return isBotEquivalent(R) || isBotEquivalent(C); }
-
-	// data role QCRs
-
-		/// @return true iff (>= n R.D) is topEq
-	bool isMinTopEquivalent ( unsigned int n, const TDLDataRoleExpression* R, const TDLDataExpression* D )
-		{ return (n == 0) || ( isTopEquivalent(R) && isCardLargerThan ( D, n-1 ) ); }
-		/// @return true iff (<= n R.D) is topEq
-	bool isMaxTopEquivalent ( unsigned int n ATTR_UNUSED, const TDLDataRoleExpression* R, const TDLDataExpression* D )
-		{ return isBotEquivalent(R) || isBotEquivalent(D); }
 
 public:		// interface
 		/// init c'tor
