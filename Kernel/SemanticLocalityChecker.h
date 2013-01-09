@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2011-2012 by Dmitry Tsarkov
+Copyright (C) 2011-2013 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -96,7 +96,7 @@ public:		// interface
 	}
 
 public:		// visitor interface
-	virtual void visit ( const TDLAxiomDeclaration& axiom ATTR_UNUSED ) { isLocal = true; }
+	virtual void visit ( const TDLAxiomDeclaration& ) { isLocal = true; }
 
 	virtual void visit ( const TDLAxiomEquivalentConcepts& axiom )
 	{
@@ -117,9 +117,21 @@ public:		// visitor interface
 					return;
 		isLocal = true;
 	}
-		/// FIXME!! fornow
-	virtual void visit ( const TDLAxiomDisjointUnion& axiom ATTR_UNUSED )
+	virtual void visit ( const TDLAxiomDisjointUnion& axiom )
 	{
+		isLocal = false;
+		// check A = (or C1... Cn)
+		TDLAxiomDisjointUnion::iterator p, q, p_end = axiom.end();
+		pEM->newArgList();
+		for ( p = axiom.begin(); p != p_end; ++p )
+			pEM->addArg(*p);
+		if ( !Kernel.isEquivalent ( axiom.getC(), pEM->Or() ) )
+			return;
+		// check disjoint(C1... Cn)
+		for ( p = axiom.begin(); p != p_end; ++p )
+			for ( q = p+1; q != p_end; ++q )
+				if ( !Kernel.isDisjoint ( *p, *q ) )
+					return;
 		isLocal = true;
 	}
 	virtual void visit ( const TDLAxiomEquivalentORoles& axiom )
@@ -158,11 +170,11 @@ public:		// visitor interface
 		isLocal = Kernel.isDisjointRoles();
 	}
 		// never local
-	virtual void visit ( const TDLAxiomSameIndividuals& axiom ATTR_UNUSED ) { isLocal = false; }
+	virtual void visit ( const TDLAxiomSameIndividuals& ) { isLocal = false; }
 		// never local
-	virtual void visit ( const TDLAxiomDifferentIndividuals& axiom ATTR_UNUSED ) { isLocal = false; }
+	virtual void visit ( const TDLAxiomDifferentIndividuals& ) { isLocal = false; }
 		/// there is no such axiom in OWL API, but I hope nobody would use Fairness here
-	virtual void visit ( const TDLAxiomFairnessConstraint& axiom ATTR_UNUSED ) { isLocal = true; }
+	virtual void visit ( const TDLAxiomFairnessConstraint& ) { isLocal = true; }
 
 		// R = inverse(S) is tautology iff R [= S- and S [= R-
 	virtual void visit ( const TDLAxiomRoleInverse& axiom )
@@ -173,24 +185,18 @@ public:		// visitor interface
 	virtual void visit ( const TDLAxiomORoleSubsumption& axiom )
 	{
 		// check whether the LHS is a role chain
-		const TDLObjectRoleChain* Chain = dynamic_cast<const TDLObjectRoleChain*>(axiom.getSubRole());
-		if ( Chain != NULL )
+		if ( const TDLObjectRoleChain* Chain = dynamic_cast<const TDLObjectRoleChain*>(axiom.getSubRole()) )
 		{
 			pEM->newArgList();
 			for ( TDLObjectRoleChain::iterator p = Chain->begin(), p_end = Chain->end(); p != p_end; ++p )
 				pEM->addArg(*p);
 			isLocal = Kernel.isSubChain(axiom.getRole());
-			return;
 		}
-		// check whether the LHS is a plain rle or inverse
-		const TDLObjectRoleExpression* Sub = dynamic_cast<const TDLObjectRoleExpression*>(axiom.getSubRole());
-		if ( Sub != NULL )
-		{
+		// check whether the LHS is a plain role or inverse
+		else if ( const TDLObjectRoleExpression* Sub = dynamic_cast<const TDLObjectRoleExpression*>(axiom.getSubRole()) )
 			isLocal = Kernel.isSubRoles ( Sub, axiom.getRole() );
-			return;
-		}
-		// here we have a projection expression. FIXME!! for now
-		isLocal = true;
+		else	// here we have a projection expression. FIXME!! for now
+			isLocal = true;
 	}
 	virtual void visit ( const TDLAxiomDRoleSubsumption& axiom ) { isLocal = Kernel.isSubRoles ( axiom.getSubRole(), axiom.getRole() ); }
 		// Domain(R) = C is tautology iff ER.Top [= C
