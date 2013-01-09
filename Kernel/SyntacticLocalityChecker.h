@@ -102,8 +102,8 @@ public:		// interface
 
 public:		// visitor interface
 	// concept expressions
-	virtual void visit ( const TDLConceptTop& expr ATTR_UNUSED ) { isBotEq = false; }
-	virtual void visit ( const TDLConceptBottom& expr ATTR_UNUSED ) { isBotEq = true; }
+	virtual void visit ( const TDLConceptTop& ) { isBotEq = false; }
+	virtual void visit ( const TDLConceptBottom& ) { isBotEq = true; }
 	virtual void visit ( const TDLConceptName& expr ) { isBotEq = !topCLocal() && nc(expr.getEntity()); }
 	virtual void visit ( const TDLConceptNot& expr ) { isBotEq = isTopEquivalent(expr.getC()); }
 	virtual void visit ( const TDLConceptAnd& expr )
@@ -157,8 +157,8 @@ public:		// visitor interface
 	}
 
 	// object role expressions
-	virtual void visit ( const TDLObjectRoleTop& expr ATTR_UNUSED ) { isBotEq = false; }
-	virtual void visit ( const TDLObjectRoleBottom& expr ATTR_UNUSED ) { isBotEq = true; }
+	virtual void visit ( const TDLObjectRoleTop& ) { isBotEq = false; }
+	virtual void visit ( const TDLObjectRoleBottom& ) { isBotEq = true; }
 	virtual void visit ( const TDLObjectRoleName& expr ) { isBotEq = !topRLocal() && nc(expr.getEntity()); }
 	virtual void visit ( const TDLObjectRoleInverse& expr ) { isBotEq = isBotEquivalent(expr.getOR()); }
 	virtual void visit ( const TDLObjectRoleChain& expr )
@@ -177,16 +177,16 @@ public:		// visitor interface
 		{ isBotEq = isMinBotEquivalent ( 1, expr.getOR(), expr.getC() ); }
 
 	// data role expressions
-	virtual void visit ( const TDLDataRoleTop& expr ATTR_UNUSED ) { isBotEq = false; }
-	virtual void visit ( const TDLDataRoleBottom& expr ATTR_UNUSED ) { isBotEq = true; }
+	virtual void visit ( const TDLDataRoleTop& ) { isBotEq = false; }
+	virtual void visit ( const TDLDataRoleBottom& ) { isBotEq = true; }
 	virtual void visit ( const TDLDataRoleName& expr ) { isBotEq = !topRLocal() && nc(expr.getEntity()); }
 
 	// data expressions
-	virtual void visit ( const TDLDataTop& expr ATTR_UNUSED ) { isBotEq = false; }
-	virtual void visit ( const TDLDataBottom& expr ATTR_UNUSED ) { isBotEq = true; }
-	virtual void visit ( const TDLDataTypeName& expr ATTR_UNUSED ) { isBotEq = false; }
-	virtual void visit ( const TDLDataTypeRestriction& expr ATTR_UNUSED ) { isBotEq = false; }
-	virtual void visit ( const TDLDataValue& expr ATTR_UNUSED ) { isBotEq = false; }
+	virtual void visit ( const TDLDataTop& ) { isBotEq = false; }
+	virtual void visit ( const TDLDataBottom& ) { isBotEq = true; }
+	virtual void visit ( const TDLDataTypeName& ) { isBotEq = false; }
+	virtual void visit ( const TDLDataTypeRestriction& ) { isBotEq = false; }
+	virtual void visit ( const TDLDataValue& ) { isBotEq = false; }
 	virtual void visit ( const TDLDataNot& expr ) { isBotEq = isTopEquivalent(expr.getExpr()); }
 	virtual void visit ( const TDLDataAnd& expr )
 	{
@@ -284,8 +284,8 @@ public:		// interface
 
 public:		// visitor interface
 	// concept expressions
-	virtual void visit ( const TDLConceptTop& expr ATTR_UNUSED ) { isTopEq = true; }
-	virtual void visit ( const TDLConceptBottom& expr ATTR_UNUSED ) { isTopEq = false; }
+	virtual void visit ( const TDLConceptTop& ) { isTopEq = true; }
+	virtual void visit ( const TDLConceptBottom& ) { isTopEq = false; }
 	virtual void visit ( const TDLConceptName& expr ) { isTopEq = topCLocal() && nc(expr.getEntity()); }
 	virtual void visit ( const TDLConceptNot& expr ) { isTopEq = isBotEquivalent(expr.getC()); }
 	virtual void visit ( const TDLConceptAnd& expr )
@@ -302,7 +302,7 @@ public:		// visitor interface
 				return;
 		isTopEq = false;
 	}
-	virtual void visit ( const TDLConceptOneOf& expr ATTR_UNUSED ) { isTopEq = false; }
+	virtual void visit ( const TDLConceptOneOf& ) { isTopEq = false; }
 	virtual void visit ( const TDLConceptObjectSelf& expr ) { isTopEq = isTopEquivalent(expr.getOR()); }
 	virtual void visit ( const TDLConceptObjectValue& expr ) { isTopEq = isTopEquivalent(expr.getOR()); }
 	virtual void visit ( const TDLConceptObjectExists& expr )
@@ -338,8 +338,8 @@ public:		// visitor interface
 	}
 
 	// object role expressions
-	virtual void visit ( const TDLObjectRoleTop& expr ATTR_UNUSED ) { isTopEq = true; }
-	virtual void visit ( const TDLObjectRoleBottom& expr ATTR_UNUSED ) { isTopEq = false; }
+	virtual void visit ( const TDLObjectRoleTop& ) { isTopEq = true; }
+	virtual void visit ( const TDLObjectRoleBottom& ) { isTopEq = false; }
 	virtual void visit ( const TDLObjectRoleName& expr ) { isTopEq = topRLocal() && nc(expr.getEntity()); }
 	virtual void visit ( const TDLObjectRoleInverse& expr ) { isTopEq = isTopEquivalent(expr.getOR()); }
 	virtual void visit ( const TDLObjectRoleChain& expr )
@@ -358,16 +358,16 @@ public:		// visitor interface
 		{ isTopEq = isMinTopEquivalent ( 1, expr.getOR(), expr.getC() ); }
 
 	// data role expressions
-	virtual void visit ( const TDLDataRoleTop& expr ATTR_UNUSED ) { isTopEq = true; }
-	virtual void visit ( const TDLDataRoleBottom& expr ATTR_UNUSED ) { isTopEq = false; }
+	virtual void visit ( const TDLDataRoleTop& ) { isTopEq = true; }
+	virtual void visit ( const TDLDataRoleBottom& ) { isTopEq = false; }
 	virtual void visit ( const TDLDataRoleName& expr ) { isTopEq = topRLocal() && nc(expr.getEntity()); }
 
 	// data expressions
-	virtual void visit ( const TDLDataTop& expr ATTR_UNUSED ) { isTopEq = true; }
-	virtual void visit ( const TDLDataBottom& expr ATTR_UNUSED ) { isTopEq = false; }
-	virtual void visit ( const TDLDataTypeName& expr ATTR_UNUSED ) { isTopEq = false; }
-	virtual void visit ( const TDLDataTypeRestriction& expr ATTR_UNUSED ) { isTopEq = false; }
-	virtual void visit ( const TDLDataValue& expr ATTR_UNUSED ) { isTopEq = false; }
+	virtual void visit ( const TDLDataTop& ) { isTopEq = true; }
+	virtual void visit ( const TDLDataBottom& ) { isTopEq = false; }
+	virtual void visit ( const TDLDataTypeName& ) { isTopEq = false; }
+	virtual void visit ( const TDLDataTypeRestriction& ) { isTopEq = false; }
+	virtual void visit ( const TDLDataValue& ) { isTopEq = false; }
 	virtual void visit ( const TDLDataNot& expr ) { isTopEq = isBotEquivalent(expr.getExpr()); }
 	virtual void visit ( const TDLDataAnd& expr )
 	{
@@ -383,7 +383,7 @@ public:		// visitor interface
 				return;
 		isTopEq = false;
 	}
-	virtual void visit ( const TDLDataOneOf& expr ATTR_UNUSED ) { isTopEq = false; }
+	virtual void visit ( const TDLDataOneOf& ) { isTopEq = false; }
 }; // TopEquivalenceEvaluator
 
 inline bool
@@ -424,7 +424,7 @@ public:		// interface
 	virtual ~SyntacticLocalityChecker ( void ) {}
 
 public:		// visitor interface
-	virtual void visit ( const TDLAxiomDeclaration& axiom ATTR_UNUSED ) { isLocal = true; }
+	virtual void visit ( const TDLAxiomDeclaration& ) { isLocal = true; }
 
 	virtual void visit ( const TDLAxiomEquivalentConcepts& axiom )
 	{
@@ -557,10 +557,10 @@ public:		// visitor interface
 
 		isLocal = true;
 	}
-	virtual void visit ( const TDLAxiomSameIndividuals& axiom ATTR_UNUSED ) { isLocal = false; }
-	virtual void visit ( const TDLAxiomDifferentIndividuals& axiom ATTR_UNUSED ) { isLocal = false; }
+	virtual void visit ( const TDLAxiomSameIndividuals& ) { isLocal = false; }
+	virtual void visit ( const TDLAxiomDifferentIndividuals& ) { isLocal = false; }
 		/// there is no such axiom in OWL API, but I hope nobody would use Fairness here
-	virtual void visit ( const TDLAxiomFairnessConstraint& axiom ATTR_UNUSED ) { isLocal = true; }
+	virtual void visit ( const TDLAxiomFairnessConstraint& ) { isLocal = true; }
 
 	virtual void visit ( const TDLAxiomRoleInverse& axiom ) { isLocal = isREquivalent(axiom.getRole()) && isREquivalent(axiom.getInvRole()); }
 	virtual void visit ( const TDLAxiomORoleSubsumption& axiom ) { isLocal = isTopEquivalent(axiom.getRole()) || isBotEquivalent(axiom.getSubRole()); }
