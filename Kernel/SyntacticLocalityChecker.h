@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2011-2012 by Dmitry Tsarkov
+Copyright (C) 2011-2013 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -139,7 +139,7 @@ public:		// visitor interface
 		isBotEq = isMinBotEquivalent ( n, R, C ) || isMaxBotEquivalent ( n, R, C );
 	}
 	virtual void visit ( const TDLConceptDataValue& expr )
-		{ isBotEq = isMinBotEquivalent ( 1, expr.getDR(), expr.getExpr() ); }
+		{ isBotEq = isBotEquivalent(expr.getDR()); }
 	virtual void visit ( const TDLConceptDataExists& expr )
 		{ isBotEq = isMinBotEquivalent ( 1, expr.getDR(), expr.getExpr() ); }
 	virtual void visit ( const TDLConceptDataForall& expr )
@@ -242,6 +242,8 @@ protected:	// methods
 	{
 		if ( n == 0 )	// non-empty is enough
 			return isBotDistinct(C);
+		if ( dynamic_cast<const TDLDataExpression*>(C) && isTopEquivalent(C) )
+			return true;
 		if ( const TDLDataTypeName* namedDT = dynamic_cast<const TDLDataTypeName*>(C) )
 		{	// string/time are infinite DT
 			std::string name = namedDT->getName();
