@@ -475,7 +475,7 @@ public:		// visitor interface
 	virtual void visit ( const TDLAxiomDisjointUnion& axiom )
 	{
 		// DisjointUnion(A, C1,..., Cn) is local if
-		//    (1) A and at least n-1 of Ci are bot-equivalent,
+		//    (1) A and all of Ci are bot-equivalent,
 		// or (2) A and one Ci are top-equivalent and the remaining Cj are bot-equivalent
 		isLocal = false;
 		bool lhsIsTopEq;
@@ -486,15 +486,19 @@ public:		// visitor interface
 		else
 			return;				// neither (1) nor (2)
 
-		bool nonBotEqDesc = false;
+		bool topEqDesc = false;
 		for ( TDLAxiomDisjointUnion::iterator p = axiom.begin(), p_end = axiom.end(); p != p_end; ++p )
 			if ( !isBotEquivalent(*p) )
 			{
-				if ( nonBotEqDesc )
-					return;	// 2nd non-bot found => non-local
-				if ( lhsIsTopEq && !isTopEquivalent(*p) )
-					return;	// (2) fails due to Ci is not top-equivalent
-				nonBotEqDesc = true;
+				if ( lhsIsTopEq && isTopEquivalent(*p) )
+				{
+					if ( topEqDesc )
+						return;	// 2nd top in there -- violate (2) -- non-local
+					else
+						topEqDesc = true;
+				}
+				else	// either (1) or fail to have a top-eq for (2)
+					return;
 			}
 
 		isLocal = true;
