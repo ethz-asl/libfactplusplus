@@ -321,7 +321,7 @@ public:		// visitor interface
 		isTopEq = isMinTopEquivalent ( n, R, C ) && isMaxTopEquivalent ( n, R, C );
 	}
 	virtual void visit ( const TDLConceptDataValue& expr )
-		{ isTopEq = isMinTopEquivalent ( 1, expr.getDR(), expr.getExpr() ); }
+		{ isTopEq = isTopEquivalent(expr.getDR()); }
 	virtual void visit ( const TDLConceptDataExists& expr )
 		{ isTopEq = isMinTopEquivalent ( 1, expr.getDR(), expr.getExpr() ); }
 	virtual void visit ( const TDLConceptDataForall& expr ) { isTopEq = isTopEquivalent(expr.getExpr()) || isBotEquivalent(expr.getDR()); }
