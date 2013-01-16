@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2012 by Dmitry Tsarkov
+Copyright (C) 2003-2013 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -31,12 +31,10 @@ bool TaxonomyVertex :: removeLink ( bool upDirection, TaxonomyVertex* p )
 		if ( *q == p )	// if given neighbour found...
 		{
 			*q = neigh(upDirection).back();
-			removeLastLink(upDirection);	// remove last entry (by resizing)
+			neigh(upDirection).pop_back();	// remove last entry (by resizing)
 			return true;		// there is at most one link for each node
 		}
-
-	// no such verteces
-	return false;
+	return false;	// no such link
 }
 
 void TaxonomyVertex :: incorporate ( void )
@@ -53,7 +51,7 @@ void TaxonomyVertex :: incorporate ( void )
 				(*u)->removeLink ( /*upDirection=*/false, *d );
 
 		// add new link between v and current
-		(*d)->addNeighbour (/*upDirection=*/true,this);
+		(*d)->addNeighbour (/*upDirection=*/true, this);
 	}
 
 	// add new link between v and current
@@ -113,7 +111,7 @@ void TaxonomyVertex :: printSynonyms ( std::ostream& o ) const
 {
 	fpp_assert ( sample != NULL );
 
-	if ( synonyms.empty() )
+	if ( likely(synonyms.empty()) )
 		o << '"' << getPrimer()->getName() << '"';
 	else
 	{
@@ -131,7 +129,7 @@ void TaxonomyVertex :: printNeighbours ( std::ostream& o, bool upDirection ) con
 
 	TVSet sorted ( begin(upDirection), end(upDirection) );
 	for ( TVSet::const_iterator p = sorted.begin(), p_end = sorted.end(); p != p_end; ++p )
-		o << ' ' << '"' << (*p)->getPrimer()->getName() << '"';
+		o << " \"" << (*p)->getPrimer()->getName() << '"';
 
 	o << "}";
 }

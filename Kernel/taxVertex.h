@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2012 by Dmitry Tsarkov
+Copyright (C) 2003-2013 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -29,19 +29,25 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 class TaxonomyVertex
 {
-public:		// typedefs
-	// typedefs for vertex structure
-	typedef std::vector <TaxonomyVertex*> TaxonomyLink;
-	typedef std::vector <const ClassifiableEntry*> EqualNames;
+protected:	// typedefs
+		/// vertex vector for links to parents and children
+	typedef std::vector<TaxonomyVertex*> TaxVertexLink;
+		/// vector of entries for synonyms
+	typedef std::vector<const ClassifiableEntry*> EqualNames;
 
+public:		// typedefs
 	// accessors type
-	typedef TaxonomyLink::iterator iterator;
-	typedef TaxonomyLink::const_iterator const_iterator;
+
+		/// RW iterator for the neighbours
+	typedef TaxVertexLink::iterator iterator;
+		/// RO iterator for the neighbours
+	typedef TaxVertexLink::const_iterator const_iterator;
+		/// RO iterator for the synonyms
 	typedef EqualNames::const_iterator syn_iterator;
 
 private:	// members
 		/// immediate parents and children
-	TaxonomyLink Links[2];
+	TaxVertexLink Links[2];
 
 protected:	// members
 		/// entry corresponding to current tax vertex
@@ -70,9 +76,9 @@ private:	// no copy
 
 protected:	// methods
 		/// indirect RW access to Links
-	TaxonomyLink& neigh ( bool upDirection ) { return Links[!upDirection]; }
+	TaxVertexLink& neigh ( bool upDirection ) { return Links[!upDirection]; }
 		/// indirect RO access to Links
-	const TaxonomyLink& neigh ( bool upDirection ) const { return Links[!upDirection]; }
+	const TaxVertexLink& neigh ( bool upDirection ) const { return Links[!upDirection]; }
 
 		/// print entry name and its synonyms (if any)
 	void printSynonyms ( std::ostream& o ) const;
@@ -122,13 +128,13 @@ public:		// flags interface
 	syn_iterator end_syn ( void ) const { return synonyms.end(); }
 
 		/// mark vertex as the one corresponding to a given ENTRY
-	void setHostVertex ( const ClassifiableEntry* entry ) { const_cast<ClassifiableEntry*>(entry)->setTaxVertex(this); }
+	void setVertexAsHost ( const ClassifiableEntry* entry ) { const_cast<ClassifiableEntry*>(entry)->setTaxVertex(this); }
 		/// set sample to ENTRY
 	void setSample ( const ClassifiableEntry* entry, bool linkBack = true )
 	{
 		sample = entry;
 		if ( likely(linkBack) )
-			setHostVertex(entry);
+			setVertexAsHost(entry);
 	}
 
 public:
@@ -153,7 +159,7 @@ public:
 	void addSynonym ( const ClassifiableEntry* p )
 	{
 		synonyms.push_back(p);
-		setHostVertex(p);
+		setVertexAsHost(p);
 	}
 		/// clears the vertex
 	void clear ( void )
@@ -193,10 +199,8 @@ public:
 					return *q;
 		return NULL;
 	}
-		/// Remove link P from neighbours (given by flag). @return true if such link was removed
+		/// Remove link to P from neighbours (given by flag). @return true if such link was removed
 	bool removeLink ( bool upDirection, TaxonomyVertex* p );
-		/// remove latest link (usually to the BOTTOM node)
-	void removeLastLink ( bool upDirection ) { neigh(upDirection).resize(neigh(upDirection).size()-1); }
 		/// clear all links in a given direction
 	void clearLinks ( bool upDirection ) { neigh(upDirection).clear(); }
 		/// merge NODE which is independent to THIS
