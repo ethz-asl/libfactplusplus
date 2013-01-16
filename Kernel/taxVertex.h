@@ -68,12 +68,6 @@ protected:	// members
 		/// flag to check whether the vertex is in use
 	bool inUse;
 
-private:	// no copy
-		/// no copy c'tor
-	TaxonomyVertex ( const TaxonomyVertex& );
-		/// no assignment
-	TaxonomyVertex& operator = ( const TaxonomyVertex& );
-
 protected:	// methods
 		/// indirect RW access to Links
 	TaxVertexLink& neigh ( bool upDirection ) { return Links[!upDirection]; }
@@ -152,6 +146,34 @@ public:
 		setSample(p);
 		initFlags();
 	}
+		/// copy c'tor
+	TaxonomyVertex ( const TaxonomyVertex& v )
+		: sample(v.sample)
+		, synonyms(v.synonyms)
+		, theChecked(v.theChecked)
+		, theValued(v.theValued)
+		, common(v.common)
+		, checkValue(v.checkValue)
+		, inUse(v.inUse)
+	{
+		Links[0] = v.Links[0];
+		Links[1] = v.Links[1];
+	}
+		/// assignment operator
+	TaxonomyVertex& operator = ( const TaxonomyVertex& v )
+	{
+		Links[0] = v.Links[0];
+		Links[1] = v.Links[1];
+		sample = v.sample;
+		synonyms = v.synonyms;
+		theChecked = v.theChecked;
+		theValued = v.theValued;
+		common = v.common;
+		checkValue = v.checkValue;
+		inUse = v.inUse;
+		return *this;
+	}
+
 		/// empty d'tor
 	~TaxonomyVertex ( void ) {}
 
