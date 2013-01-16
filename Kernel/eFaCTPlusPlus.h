@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2007-2008 by Dmitry Tsarkov
+Copyright (C) 2007-2013 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -16,8 +16,8 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef _EFACTPLUSPLUS_H
-#define _EFACTPLUSPLUS_H
+#ifndef EFACTPLUSPLUS_H
+#define EFACTPLUSPLUS_H
 
 #include <exception>
 
@@ -30,12 +30,12 @@ protected:
 
 public:
 		/// empty c'tor
-	EFaCTPlusPlus ( void ) throw()
+	EFaCTPlusPlus ( void )
 		: exception()
 		, reason("FaCT++.Kernel: General exception")
 		{}
 		/// init c'tor
-	EFaCTPlusPlus ( const char* str ) throw()
+	EFaCTPlusPlus ( const char* str )
 		: exception()
 		, reason(str)
 		{}

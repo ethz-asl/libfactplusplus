@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2009 by Dmitry Tsarkov
+Copyright (C) 2009-2013 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -24,7 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 class EFPPTimeout: public EFaCTPlusPlus
 {
 public:		// interface
-	EFPPTimeout ( void ) throw() : EFaCTPlusPlus("FaCT++ Kernel: operation timeout") {}
+	EFPPTimeout ( void ) : EFaCTPlusPlus("FaCT++ Kernel: operation timeout") {}
 }; // EFPPTimeout
 
 #endif

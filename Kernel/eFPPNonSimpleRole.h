@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2007 by Dmitry Tsarkov
+Copyright (C) 2007-2013 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -16,15 +16,15 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef _EFPPNONSIMPLEROLE_H
-#define _EFPPNONSIMPLEROLE_H
+#ifndef EFPPNONSIMPLEROLE_H
+#define EFPPNONSIMPLEROLE_H
 
 #include "eFaCTPlusPlus.h"
 
 /// exception thrown in case non-simple role used where only simple role can be used
 class EFPPNonSimpleRole: public EFaCTPlusPlus
 {
-public:		// members
+private:	// members
 		/// saved name of the role
 	const std::string roleName;
 		/// error string
@@ -32,19 +32,18 @@ public:		// members
 
 public:		// interface
 		/// c'tor: create an output string
-	EFPPNonSimpleRole ( const std::string& name ) throw()
+	EFPPNonSimpleRole ( const std::string& name )
 		: EFaCTPlusPlus()
 		, roleName(name)
 	{
 		str = "Non-simple role '";
 		str += name;
 		str += "' is used as a simple one";
+		reason = str.c_str();
 	}
 		/// empty d'tor
 	virtual ~EFPPNonSimpleRole ( void ) throw() {}
 
-		/// reason
-	virtual const char* what ( void ) const throw() { return str.c_str(); }
 		/// access to the role
 	const char* getRoleName ( void ) const { return roleName.c_str(); }
 }; // EFPPNonSimpleRole

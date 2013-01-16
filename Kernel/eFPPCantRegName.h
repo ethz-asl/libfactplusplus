@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2006-2010 by Dmitry Tsarkov
+Copyright (C) 2006-2013 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -26,7 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 /// exception thrown in case name can't be registered
 class EFPPCantRegName: public EFaCTPlusPlus
 {
-public:		// members
+private:	// members
 		/// error string
 	std::string str;
 		/// name string
@@ -34,7 +34,7 @@ public:		// members
 
 public:		// interface
 		/// c'tor: create an output string
-	EFPPCantRegName ( const std::string& name, const std::string& type ) throw()
+	EFPPCantRegName ( const std::string& name, const std::string& type )
 		: EFaCTPlusPlus()
 		, Name(name)
 	{

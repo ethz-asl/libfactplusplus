@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2006-2008 by Dmitry Tsarkov
+Copyright (C) 2006-2013 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -16,30 +16,30 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef _EFPPSAVELOAD_H
-#define _EFPPSAVELOAD_H
+#ifndef EFPPSAVELOAD_H
+#define EFPPSAVELOAD_H
 
 #include <string>
 
 #include "eFaCTPlusPlus.h"
 
-/// exception thrown in case name can't be registered
+/// exception thrown for the save/load operations
 class EFPPSaveLoad: public EFaCTPlusPlus
 {
-public:		// members
+private:	// members
 		/// error string
 	std::string str;
 
 public:		// interface
 		/// c'tor with a given "what" string
-	EFPPSaveLoad ( const std::string& why ) throw()
+	EFPPSaveLoad ( const std::string& why )
 		: EFaCTPlusPlus()
 		, str(why)
 	{
 		reason = str.c_str();
 	}
 		/// c'tor "Char not found"
-	explicit EFPPSaveLoad ( const char c ) throw()
+	explicit EFPPSaveLoad ( const char c )
 		: EFaCTPlusPlus()
 	{
 		str = "Expected character '";
@@ -48,7 +48,7 @@ public:		// interface
 		reason = str.c_str();
 	}
 		/// c'tor: create an output string for the bad filename
-	EFPPSaveLoad ( const std::string& filename, bool save ) throw()
+	EFPPSaveLoad ( const std::string& filename, bool save )
 		: EFaCTPlusPlus()
 	{
 		const char* action = save ? "save" : "load";
