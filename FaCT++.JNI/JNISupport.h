@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2006-2012 by Dmitry Tsarkov
+Copyright (C) 2006-2013 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -20,19 +20,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #define JNISUPPORT_H
 
 #include <jni.h>
-
-//-------------------------------------------------------------
-// class names for different Java classes corresponding to FaCT++ structures
-//-------------------------------------------------------------
-
-inline const char* cnClassPointer ( void ) { return "Luk/ac/manchester/cs/factplusplus/ClassPointer;"; }
-inline const char* cnIndividualPointer ( void ) { return "Luk/ac/manchester/cs/factplusplus/IndividualPointer;"; }
-inline const char* cnObjectPropertyPointer ( void ) { return "Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;"; }
-inline const char* cnDataPropertyPointer ( void ) { return "Luk/ac/manchester/cs/factplusplus/DataPropertyPointer;"; }
-inline const char* cnDataTypePointer ( void ) { return "Luk/ac/manchester/cs/factplusplus/DataTypePointer;"; }
-inline const char* cnDataTypeExpressionPointer ( void ) { return "Luk/ac/manchester/cs/factplusplus/DataTypeExpressionPointer;"; }
-inline const char* cnDataValuePointer ( void ) { return "Luk/ac/manchester/cs/factplusplus/DataValuePointer;"; }
-
 
 //-------------------------------------------------------------
 // Expression typedefs
