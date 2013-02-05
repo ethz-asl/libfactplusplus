@@ -175,6 +175,10 @@ TExpressionManager* getEM ( JNIEnv * env, jobject obj ) { return getK(env,obj)->
 /// keep class, Node field and c'tor of an interface class
 class TClassFieldMethodIDs
 {
+protected:	// members
+		/// full qualifier for the array
+	const char* ArrayClassName;
+
 public:		// members
 		/// class name
 	jclass ClassID;
@@ -186,10 +190,18 @@ public:		// members
 	jfieldID NodeFID;
 
 public:		// interface
+		/// c'tor: init class name
+	TClassFieldMethodIDs ( const char* arrayClassName )
+		: ArrayClassName(arrayClassName)
+		, ClassID(0)
+		, ArrayClassID(0)
+		, CtorID(0)
+		, NodeFID(0)
+		{}
 		/// init values by class name
-	void init ( JNIEnv* env, const char* arrayClassName )
+	void init ( JNIEnv* env )
 	{
-		jclass id = env->FindClass(arrayClassName+1);
+		jclass id = env->FindClass(ArrayClassName+1);
 		if ( id == 0 )
 		{
 			Throw ( env, "Can't get class for Pointer" );
@@ -197,7 +209,7 @@ public:		// interface
 		}
 		ClassID = reinterpret_cast<jclass>(env->NewGlobalRef(id));
 
-		id = env->FindClass(arrayClassName);
+		id = env->FindClass(ArrayClassName);
 		if ( id == 0 )
 		{
 			Throw ( env, "Can't get class for [Pointer" );

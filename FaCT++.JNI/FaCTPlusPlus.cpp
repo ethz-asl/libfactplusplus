@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2006-2012 by Dmitry Tsarkov
+Copyright (C) 2006-2013 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -69,16 +69,16 @@ jfieldID KernelFID;
 
 /// IDs for different Java interface classes
 TClassFieldMethodIDs
-	ClassPointer,
-	IndividualPointer,
-	ObjectPropertyPointer,
-	DataPropertyPointer,
-	DataTypePointer,
-	DataTypeExpressionPointer,
-	DataValuePointer,
-	DataTypeFacet,
-	NodePointer,
-	AxiomPointer;
+	ClassPointer("[Luk/ac/manchester/cs/factplusplus/ClassPointer;"),
+	IndividualPointer("[Luk/ac/manchester/cs/factplusplus/IndividualPointer;"),
+	ObjectPropertyPointer("[Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;"),
+	DataPropertyPointer("[Luk/ac/manchester/cs/factplusplus/DataPropertyPointer;"),
+	DataTypePointer("[Luk/ac/manchester/cs/factplusplus/DataTypePointer;"),
+	DataTypeExpressionPointer("[Luk/ac/manchester/cs/factplusplus/DataTypeExpressionPointer;"),
+	DataValuePointer("[Luk/ac/manchester/cs/factplusplus/DataValuePointer;"),
+	DataTypeFacet("[Luk/ac/manchester/cs/factplusplus/DataTypeFacet;"),
+	NodePointer("[Luk/ac/manchester/cs/factplusplus/NodePointer;"),
+	AxiomPointer("[Luk/ac/manchester/cs/factplusplus/AxiomPointer;");
 
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
@@ -97,16 +97,16 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_initMe
 	}
 
 	// init IDs for different classes
-	ClassPointer.init(env,"[Luk/ac/manchester/cs/factplusplus/ClassPointer;");
-	IndividualPointer.init(env,"[Luk/ac/manchester/cs/factplusplus/IndividualPointer;");
-	ObjectPropertyPointer.init(env,"[Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;");
-	DataPropertyPointer.init(env,"[Luk/ac/manchester/cs/factplusplus/DataPropertyPointer;");
-	DataTypePointer.init(env,"[Luk/ac/manchester/cs/factplusplus/DataTypePointer;");
-	DataTypeExpressionPointer.init(env,"[Luk/ac/manchester/cs/factplusplus/DataTypeExpressionPointer;");
-	DataValuePointer.init(env,"[Luk/ac/manchester/cs/factplusplus/DataValuePointer;");
-	DataTypeFacet.init(env,"[Luk/ac/manchester/cs/factplusplus/DataTypeFacet;");
-	NodePointer.init(env,"[Luk/ac/manchester/cs/factplusplus/NodePointer;");
-	AxiomPointer.init(env,"[Luk/ac/manchester/cs/factplusplus/AxiomPointer;");
+	ClassPointer.init(env);
+	IndividualPointer.init(env);
+	ObjectPropertyPointer.init(env);
+	DataPropertyPointer.init(env);
+	DataTypePointer.init(env);
+	DataTypeExpressionPointer.init(env);
+	DataValuePointer.init(env);
+	DataTypeFacet.init(env);
+	NodePointer.init(env);
+	AxiomPointer.init(env);
 }
 
 //-------------------------------------------------------------
