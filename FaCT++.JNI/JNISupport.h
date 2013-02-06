@@ -21,6 +21,26 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <jni.h>
 
+// switch tracing on
+//#define JNI_TRACING
+
+#ifdef ENABLE_CHECKING
+#	define JNI_TRACING
+#endif
+
+#ifdef JNI_TRACING
+#	define TRACE_JNI(func) std::cerr << "JNI Kernel " << getK(env,obj) << " Call " << func << "\n"
+#	define TRACE_ARG(env,obj,arg) do {	\
+		std::cerr << " arg ";			\
+		TExpr* expr=getROExpr(env,arg);	\
+		const TNamedEntity* ne = dynamic_cast<const TNamedEntity*>(expr); \
+		if ( ne != NULL ) std::cerr << ne->getName();	\
+		std::cerr << "\n"; } while(0)
+#else
+#	define TRACE_JNI(func) (void)NULL
+#	define TRACE_ARG(env,obj,arg) (void)NULL
+#endif
+
 //-------------------------------------------------------------
 // Expression typedefs
 //-------------------------------------------------------------
@@ -158,129 +178,11 @@ ReasoningKernel* getK ( JNIEnv * env, jobject obj )
 	jlong id = env->GetLongField ( obj, KernelFID );
 
 	// this is a pointer -- should not be NULL
-	if ( id == 0 )
+	if ( unlikely(id == 0) )
 		Throw ( env, "Uninitialized FaCT++ kernel found" );
 
 	return (ReasoningKernel*)id;
 }
-
-/// get the expression manager corresponding local kernel
-inline
-TExpressionManager* getEM ( JNIEnv * env, jobject obj ) { return getK(env,obj)->getExpressionManager(); }
-
-//------------------------------------------------------
-// Keeps class names and field IDs for different Java classes in FaCT++ interface
-//------------------------------------------------------
-
-/// keep class, Node field and c'tor of an interface class
-class TClassFieldMethodIDs
-{
-protected:	// members
-		/// full qualifier for the array
-	const char* ArrayClassName;
-
-public:		// members
-		/// class name
-	jclass ClassID;
-		/// array class type
-	jclass ArrayClassID;
-		/// c'tor type
-	jmethodID CtorID;
-		/// 'node' field
-	jfieldID NodeFID;
-
-public:		// interface
-		/// c'tor: init class name
-	TClassFieldMethodIDs ( const char* arrayClassName )
-		: ArrayClassName(arrayClassName)
-		, ClassID(0)
-		, ArrayClassID(0)
-		, CtorID(0)
-		, NodeFID(0)
-		{}
-		/// init values by class name
-	void init ( JNIEnv* env )
-	{
-		jclass id = env->FindClass(ArrayClassName+1);
-		if ( id == 0 )
-		{
-			Throw ( env, "Can't get class for Pointer" );
-			return;
-		}
-		ClassID = reinterpret_cast<jclass>(env->NewGlobalRef(id));
-
-		id = env->FindClass(ArrayClassName);
-		if ( id == 0 )
-		{
-			Throw ( env, "Can't get class for [Pointer" );
-			return;
-		}
-		ArrayClassID = reinterpret_cast<jclass>(env->NewGlobalRef(id));
-
-		CtorID = env->GetMethodID ( ClassID, "<init>", "()V" );
-		if ( CtorID == 0 )
-		{
-			Throw ( env, "Can't get c'tor for Pointer" );
-			return;
-		}
-
-		NodeFID = env->GetFieldID ( ClassID, "node", "J" );
-		if ( NodeFID == 0 )
-		{
-			Throw ( env, "Can't get 'node' field" );
-			return;
-		}
-	}
-	void fini ( JNIEnv* env )
-	{
-		env->DeleteGlobalRef(ClassID);
-		env->DeleteGlobalRef(ArrayClassID);
-	}
-}; // TClassFieldMethodIDs
-
-/// IDs for different Java interface classes
-extern
-#ifdef __cplusplus
-		"C"
-#endif
-TClassFieldMethodIDs
-	ClassPointer,
-	IndividualPointer,
-	ObjectPropertyPointer,
-	DataPropertyPointer,
-	DataTypePointer,
-	DataTypeExpressionPointer,
-	DataValuePointer,
-	DataTypeFacet,
-	NodePointer,
-	AxiomPointer;
-
-// get trees for the names in the unified way
-
-/// get tree for the class name by the EM and the name
-inline
-TConceptExpr* getCName ( TExpressionManager* EM, const std::string& name ) { return EM->Concept(name); }
-/// get tree for the class name by the env:obj and the name
-inline
-TConceptExpr* getCName ( JNIEnv * env, jobject obj, const std::string& name ) { return getCName ( getEM(env,obj), name ); }
-/// get tree for the individual name by the EM and the name
-inline
-TIndividualExpr* getIName ( TExpressionManager* EM, const std::string& name ) { return EM->Individual(name); }
-/// get tree for the individual name by the env:obj and the name
-inline
-TIndividualExpr* getIName ( JNIEnv * env, jobject obj, const std::string& name ) { return getIName ( getEM(env,obj), name ); }
-/// get tree for the object property name by the EM and the name
-inline
-TORoleExpr* getOName ( TExpressionManager* EM, const std::string& name ) { return EM->ObjectRole(name); }
-/// get tree for the object property name by the env:obj and the name
-inline
-TORoleExpr* getOName ( JNIEnv * env, jobject obj, const std::string& name ) { return getOName ( getEM(env,obj), name ); }
-/// get tree for the data property name by the EM and the name
-inline
-TDRoleExpr* getDName ( TExpressionManager* EM, const std::string& name ) { return EM->DataRole(name); }
-/// get tree for the data property name by the env:obj and the name
-inline
-TDRoleExpr* getDName ( JNIEnv * env, jobject obj, const std::string& name ) { return getDName ( getEM(env,obj), name ); }
 
 // helper for getTree which extracts a JLONG from a given object
 inline
@@ -288,7 +190,7 @@ jlong getPointer ( JNIEnv * env, jobject obj )
 {
 	jclass classThis = env->GetObjectClass(obj);
 
-	if ( classThis == 0 )
+	if ( unlikely(classThis == 0) )
 	{
 		Throw ( env, "Can't get class of 'this'" );
 		return 0;
@@ -296,7 +198,7 @@ jlong getPointer ( JNIEnv * env, jobject obj )
 
 	jfieldID fid = env->GetFieldID ( classThis, "node", "J" );
 
-	if ( fid == 0 )
+	if ( unlikely(fid == 0) )
 	{
 		Throw ( env, "Can't get 'node' field" );
 		return 0;
@@ -362,102 +264,6 @@ inline
 TCGNode* getNode ( JNIEnv * env, jobject obj )
 {
 	return (TCGNode*)getPointer(env,obj);
-}
-
-inline
-jobject retObject ( JNIEnv * env, const void* t, const TClassFieldMethodIDs& ID )
-{
-	if ( t == NULL )
-	{
-		Throw ( env, "Incorrect operand by FaCT++ Kernel" );
-		return (jobject)0;
-	}
-
-	// create an object to return
-	jobject obj = env->NewObject ( ID.ClassID, ID.CtorID );
-
-	if ( obj == 0 )
-		Throw ( env, "Can't create Pointer object" );
-	else	// set the return value
-		env->SetLongField ( obj, ID.NodeFID, (jlong)t );
-
-	return obj;
-}
-
-inline
-jobject Class ( JNIEnv * env, TConceptExpr* t )
-{
-	return retObject ( env, t, ClassPointer );
-}
-
-inline
-jobject Individual ( JNIEnv * env, TIndividualExpr* t )
-{
-	return retObject ( env, t, IndividualPointer );
-}
-
-inline
-jobject ObjectProperty ( JNIEnv * env, TORoleExpr* t )
-{
-	return retObject ( env, t, ObjectPropertyPointer );
-}
-
-inline
-jobject ObjectComplex ( JNIEnv * env, TORoleComplexExpr* t )
-{
-	return retObject ( env, t, ObjectPropertyPointer );
-}
-
-inline
-jobject DataProperty ( JNIEnv * env, TDRoleExpr* t )
-{
-	return retObject ( env, t, DataPropertyPointer );
-}
-
-inline
-jobject DataType ( JNIEnv * env, TDataExpr* t )
-{
-	return retObject ( env, t, DataTypePointer );
-}
-
-inline
-jobject DataTypeExpression ( JNIEnv * env, TDataExpr* t )
-{
-	return retObject ( env, t, DataTypeExpressionPointer );
-}
-
-inline
-jobject DataValue ( JNIEnv * env, TDataValueExpr* t )
-{
-	return retObject ( env, t, DataValuePointer );
-}
-
-inline
-jobject Facet ( JNIEnv * env, TFacetExpr* t )
-{
-	return retObject ( env, t, DataTypeFacet );
-}
-
-inline
-jobject Node ( JNIEnv * env, TCGNode* t )
-{
-	return retObject ( env, t, NodePointer );
-}
-
-inline
-jobject Axiom ( JNIEnv * env, TDLAxiom* t )
-{
-	return retObject ( env, t, AxiomPointer );
-}
-
-/// create vector of Java objects of class CLASSNAME by given VEC
-template<class T>
-jobjectArray buildArray ( JNIEnv* env, const std::vector<T*>& vec, const TClassFieldMethodIDs& ID )
-{
-	jobjectArray ret = env->NewObjectArray ( vec.size(), ID.ClassID, NULL );
-	for ( unsigned int i = 0; i < vec.size(); ++i )
-		env->SetObjectArrayElement ( ret, i, retObject ( env, vec[i], ID ) );
-	return ret;
 }
 
 #endif

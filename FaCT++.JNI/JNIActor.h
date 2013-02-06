@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2006-2012 by Dmitry Tsarkov
+Copyright (C) 2006-2013 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -19,9 +19,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef JNIACTOR_H
 #define JNIACTOR_H
 
-#include <jni.h>
-#include "JNISupport.h"
-#include "Kernel.h"
+#include "tJNICache.h"
 
 /// class for acting with concept taxonomy
 template<class AccessPolicy>
@@ -35,9 +33,7 @@ protected:	// types
 
 protected:	// members
 		/// JNI environment
-	JNIEnv* env;
-		/// Kernel (need for names)
-	TExpressionManager* EM;
+	TJNICache* J;
 		/// 2D array to return
 	SetOfNodes acc;
 		/// 1D array to return
@@ -48,19 +44,19 @@ protected:	// members
 protected:	// methods
 		/// create vector of Java objects by given SynVector
 	jobjectArray getArray ( const SynVector& vec ) const
-		{ return buildArray ( env, vec, AccessPolicy::getIDs() ); }
+		{ return J->buildArray ( vec, AccessPolicy::getIDs(J) ); }
 		/// try current entry
 	void tryEntry ( const ClassifiableEntry* p )
 	{
 		if ( p->isSystem() )
 			return;
 		if ( AccessPolicy::applicable(p) )
-			syn.push_back(AccessPolicy::buildTree(EM,p));
+			syn.push_back(AccessPolicy::buildTree(J,p));
 	}
 
 public:		// interface
 		/// c'tor
-	JTaxonomyActor ( JNIEnv* e, jobject obj ) : env(e), EM(getEM(env,obj)) {}
+	JTaxonomyActor ( TJNICache* cache ) : J(cache) {}
 		/// d'tor
 	~JTaxonomyActor ( void ) {}
 
@@ -73,9 +69,9 @@ public:		// interface
 	{
 		if ( AccessPolicy::needPlain() )
 			return getArray(plain);
-		jobjectArray ret = env->NewObjectArray ( acc.size(), AccessPolicy::getIDs().ArrayClassID, NULL );
+		jobjectArray ret = J->env->NewObjectArray ( acc.size(), AccessPolicy::getIDs(J).ArrayClassID, NULL );
 		for ( unsigned int i = 0; i < acc.size(); ++i )
-			env->SetObjectArrayElement ( ret, i, getArray(acc[i]) );
+			J->env->SetObjectArrayElement ( ret, i, getArray(acc[i]) );
 		return ret;
 	}
 
@@ -108,22 +104,22 @@ public:		// interface
 class ClassPolicy
 {
 public:
-	static const TClassFieldMethodIDs& getIDs ( void ) { return ClassPointer; }
+	static const TClassFieldMethodIDs& getIDs ( const TJNICache* J ) { return J->ClassPointer; }
 	static bool applicable ( const ClassifiableEntry* p )
 		{ return !static_cast<const TConcept*>(p)->isSingleton(); }
 	static bool needPlain ( void ) { return false; }
-	static TExpr* buildTree ( TExpressionManager* EM, const ClassifiableEntry* p )
+	static TExpr* buildTree ( TJNICache* J, const ClassifiableEntry* p )
 	{
 		if ( p->getId() >= 0 )
-			return getCName ( EM, p->getName() );
+			return J->getCName(p->getName());
 
 		// top or bottom
 		std::string name(p->getName());
 
 		if ( name == std::string("TOP") )
-			return EM->Top();
+			return J->EM->Top();
 		else if ( name == std::string("BOTTOM") )
-			return EM->Bottom();
+			return J->EM->Bottom();
 		else	// error
 			return NULL;
 	}
@@ -134,26 +130,26 @@ template<bool plain>
 class IndividualPolicy
 {
 public:
-	static const TClassFieldMethodIDs& getIDs ( void ) { return IndividualPointer; }
+	static const TClassFieldMethodIDs& getIDs ( const TJNICache* J ) { return J->IndividualPointer; }
 	static bool applicable ( const ClassifiableEntry* p )
 		{ return static_cast<const TConcept*>(p)->isSingleton(); }
 	static bool needPlain ( void ) { return plain; }
-	static TExpr* buildTree ( TExpressionManager* EM, const ClassifiableEntry* p )
-		{ return getIName ( EM, p->getName() ); }
+	static TExpr* buildTree ( TJNICache* J, const ClassifiableEntry* p )
+		{ return J->getIName(p->getName()); }
 }; // IndividualPolicy
 
 /// policy for object properties
 class ObjectPropertyPolicy
 {
 public:
-	static const TClassFieldMethodIDs& getIDs ( void ) { return ObjectPropertyPointer; }
-	static bool applicable ( const ClassifiableEntry* p ATTR_UNUSED ) { return true; }
+	static const TClassFieldMethodIDs& getIDs ( const TJNICache* J ) { return J->ObjectPropertyPointer; }
+	static bool applicable ( const ClassifiableEntry* ) { return true; }
 	static bool needPlain ( void ) { return false; }
-	static TExpr* buildTree ( TExpressionManager* EM, const ClassifiableEntry* p )
+	static TExpr* buildTree ( TJNICache* J, const ClassifiableEntry* p )
 	{
 		return p->getId() >= 0 ?
-			getOName ( EM, p->getName() ) :
-			EM->Inverse(getOName(EM,static_cast<const TRole*>(p)->realInverse()->getName()));
+			J->getOName(p->getName()) :
+			J->EM->Inverse(J->getOName(static_cast<const TRole*>(p)->realInverse()->getName()));
 	}
 }; // ObjectPropertyPolicy
 
@@ -161,11 +157,11 @@ public:
 class DataPropertyPolicy
 {
 public:
-	static const TClassFieldMethodIDs& getIDs ( void ) { return DataPropertyPointer; }
+	static const TClassFieldMethodIDs& getIDs ( const TJNICache* J ) { return J->DataPropertyPointer; }
 	static bool applicable ( const ClassifiableEntry* p ) { return p->getId() > 0; }
 	static bool needPlain ( void ) { return false; }
-	static TExpr* buildTree ( TExpressionManager* EM, const ClassifiableEntry* p )
-		{ return getDName ( EM, p->getName() ); }
+	static TExpr* buildTree ( TJNICache* J, const ClassifiableEntry* p )
+		{ return J->getDName(p->getName()); }
 }; // DataPropertyPolicy
 
 #endif

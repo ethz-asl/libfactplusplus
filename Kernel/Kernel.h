@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2012 by Dmitry Tsarkov
+Copyright (C) 2003-2013 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -34,6 +34,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 class TModularizer;
 class AtomicDecomposer;
+class TJNICache;	// cached JNI information
 
 class ReasoningKernel
 {
@@ -152,6 +153,8 @@ protected:	// members
 	TModularizer* ModSem;
 		/// set to return by the locality checking procedure
 	AxiomVec Result;
+		/// JNI cache corresponding to a kernel. External, created and deleted outside
+	TJNICache* JNICache;
 
 	// Top/Bottom role names: if set, they will appear in all hierarchy-related output
 
@@ -609,6 +612,11 @@ public:	// general staff
 	TOntology& getOntology ( void ) { return Ontology; }
 		/// get RO access to the ontology
 	const TOntology& getOntology ( void ) const { return Ontology; }
+
+		/// set JNI cache
+	void setJNICache ( TJNICache* cache ) { JNICache = cache; }
+		/// get JNI cache
+	TJNICache* getJNICache ( void ) const { return JNICache; }
 
 public:
 	//******************************************

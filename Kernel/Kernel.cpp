@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2012 by Dmitry Tsarkov
+Copyright (C) 2003-2013 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -44,6 +44,7 @@ ReasoningKernel :: ReasoningKernel ( void )
 	, AD(NULL)
 	, ModSyn(NULL)
 	, ModSem(NULL)
+	, JNICache(NULL)
 	, pMonitor(NULL)
 	, OpTimeout(0)
 	, verboseOutput(false)
