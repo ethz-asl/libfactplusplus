@@ -10,6 +10,11 @@ INCLUDES = -I/Developer/SDKs/MacOSX10.6.sdk/System/Library/Frameworks/JavaVM.fra
 USE_IL = ../Kernel
 
 SOURCES = \
-	  FaCTPlusPlus.cpp
+	Axioms.cpp\
+	Expressions.cpp\
+	KnowledgeExploration.cpp\
+	Modularity.cpp\
+	Queries.cpp\
+	FaCTPlusPlus.cpp
 
 include ../Makefile.include
