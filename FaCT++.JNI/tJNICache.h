@@ -185,7 +185,7 @@ public:		// members
 		/// switch the env to a new one E
 	void reset ( JNIEnv* e )
 	{
-		fini();
+//		fini();
 		env = e;
 		init();
 	}
