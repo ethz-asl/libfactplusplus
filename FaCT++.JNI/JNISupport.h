@@ -29,7 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #endif
 
 #ifdef JNI_TRACING
-#	define TRACE_JNI(func) std::cerr << "JNI Kernel " << getK(env,obj) << " Call " << func << "\n"
+#	define TRACE_JNI(func) std::cerr << "JNI " << env << " Kernel " << getK(env,obj) << " Call " << func << "\n"
 #	define TRACE_ARG(env,obj,arg) do {	\
 		std::cerr << " arg ";			\
 		TExpr* expr=getROExpr(env,arg);	\

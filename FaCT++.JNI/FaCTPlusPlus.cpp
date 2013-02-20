@@ -167,7 +167,6 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_setPro
 JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_startChanges
   (JNIEnv *, jobject)
 {
-	TRACE_JNI("startChanges");
 }
 
 /*

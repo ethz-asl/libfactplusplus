@@ -329,7 +329,6 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
 JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_getLength
   (JNIEnv * env, jobject, jobject)
 {
-	TRACE_JNI("getLength");
 	Throw ( env, "FaCT++ Kernel: unsupported facet 'getLength'" );
 	return NULL;
 }
@@ -342,7 +341,6 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
 JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_getMinLength
   (JNIEnv * env, jobject, jobject)
 {
-	TRACE_JNI("getMinLength");
 	Throw ( env, "FaCT++ Kernel: unsupported facet 'getMinLength'" );
 	return NULL;
 }
@@ -355,7 +353,6 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
 JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_getMaxLength
   (JNIEnv * env, jobject, jobject)
 {
-	TRACE_JNI("getMaxLength");
 	Throw ( env, "FaCT++ Kernel: unsupported facet 'getMaxLength'" );
 	return NULL;
 }
@@ -368,7 +365,6 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
 JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_getPattern
   (JNIEnv * env, jobject, jobject)
 {
-	TRACE_JNI("getPattern");
 	Throw ( env, "FaCT++ Kernel: unsupported facet 'getPattern'" );
 	return NULL;
 }
@@ -433,7 +429,6 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
 JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_getTotalDigitsFacet
   (JNIEnv * env, jobject, jobject)
 {
-	TRACE_JNI("getTotalDigitsFacet");
 	Throw ( env, "FaCT++ Kernel: unsupported facet 'getTotalDigitsFacet'" );
 	return NULL;
 }
@@ -823,7 +818,6 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_addArg
 JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_closeArgList
   (JNIEnv *, jobject)
 {
-	TRACE_JNI("closeArgList");
 }
 
 #ifdef __cplusplus

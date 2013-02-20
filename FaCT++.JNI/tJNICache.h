@@ -182,6 +182,14 @@ public:		// members
 		/// d'tor: release all names
 	~TJNICache ( void ) { fini(); }
 
+		/// switch the env to a new one E
+	void reset ( JNIEnv* e )
+	{
+		fini();
+		env = e;
+		init();
+	}
+
 		/// object for class expression
 	jobject Class ( TConceptExpr* expr ) { return retObject ( expr, ClassPointer ); }
 		/// object for individual expression
@@ -223,7 +231,8 @@ inline
 TJNICache* getJ ( JNIEnv* env, jobject obj )
 {
 	TJNICache* J = getK(env,obj)->getJNICache();
-	fpp_assert ( J->env == env );
+	if ( unlikely(J->env != env) )
+		J->reset(env);
 	return J;
 }
 
