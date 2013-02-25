@@ -180,7 +180,7 @@ public:		// members
 		, AxiomPointer("[Luk/ac/manchester/cs/factplusplus/AxiomPointer;")
 		{ init(); }
 		/// d'tor: release all names
-	~TJNICache ( void ) { fini(); }
+	~TJNICache ( void ) { /*fini();*/ }
 
 		/// switch the env to a new one E
 	void reset ( JNIEnv* e )
