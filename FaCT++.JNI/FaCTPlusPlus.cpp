@@ -20,6 +20,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Kernel.h"
 #include "tJNICache.h"
 #include "JNIMonitor.h"
+#include "configure.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -53,6 +54,19 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_initMe
 // Kernel management (like newKB/curKB/releaseKB)
 //-------------------------------------------------------------
 
+/// try to load configuration from FILE; @return false if successful
+bool loadConfiguration ( ReasoningKernel* K, const char* file )
+{
+	Configuration Config;
+
+	if ( Config.Load(file) )
+		return true;
+	if ( K->getOptions()->initByConfigure ( Config, "Tuning" ) )
+		return true;
+	std::cerr << "Using options from file " << file << "\n";
+	return false;
+}
+
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
  * Method:    initKernel
@@ -64,6 +78,10 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_initKe
 	// create new kernel and save it in an FaCTPlusPlus object
 	ReasoningKernel* Kernel = new ReasoningKernel();
 	env->SetLongField ( obj, KernelFID, (jlong)Kernel );
+
+	// try to load configuration
+	if ( loadConfiguration ( Kernel, ".fpp-options" ) )
+		loadConfiguration ( Kernel, "fpp-options.txt" );
 
 	// setup JNI cache
 	TJNICache* J = new TJNICache(env);
