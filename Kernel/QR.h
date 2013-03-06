@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2011 by Dmitry Tsarkov
+Copyright (C) 2011-2013 by Dmitry Tsarkov
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -104,9 +104,9 @@ public:		// interface
 	// access
 
 		/// get fresh variable
-	const QRVariable* getNewVar ( void )
+	const QRVariable* getNewVar ( const std::string& name )
 	{
-		QRVariable* ret = new QRVariable();
+		QRVariable* ret = new QRVariable(name);
 		Base.push_back(ret);
 		return ret;
 	}
@@ -122,6 +122,9 @@ class QRAtom
 public:		// interface
 		/// empty d'tor
 	virtual ~QRAtom ( void ) {}
+
+		/// clone method
+	virtual QRAtom* clone ( void ) const = 0;
 }; // QRAtom
 
 /// concept atom: C(x)
@@ -136,6 +139,8 @@ protected:	// members
 public:		// interface
 		/// init c'tor
 	QRConceptAtom ( const TDLConceptExpression* C, const QRiObject* A ) : Concept(C), Arg(A) {}
+		/// copy c'tor
+	QRConceptAtom ( const QRConceptAtom& atom ) : QRAtom(), Concept(atom.Concept), Arg(atom.Arg) {}
 		/// empty d'tor
 	~QRConceptAtom ( void ) {}
 
@@ -145,6 +150,9 @@ public:		// interface
 	const TDLConceptExpression* getConcept ( void ) const { return Concept; }
 		/// get i-object
 	const QRiObject* getArg ( void ) const { return Arg; }
+
+		/// clone method
+	virtual QRAtom* clone ( void ) const { return new QRConceptAtom(*this); }
 }; // QRConceptAtom
 
 /// interface for general 2-arg atom
@@ -180,6 +188,9 @@ protected:	// members
 public:		// interface
 		/// init c'tor
 	QRRoleAtom ( const TDLObjectRoleExpression* R, const QRiObject* A1, const QRiObject* A2 ) : QR2ArgAtom ( A1, A2 ), Role(R) {}
+		/// copy c'tor
+	QRRoleAtom ( const QRRoleAtom& atom ) : QR2ArgAtom ( atom.getArg1(), atom.getArg2() ), Role(atom.Role) {}
+
 		/// empty d'tor
 	~QRRoleAtom ( void ) {}
 
@@ -187,6 +198,9 @@ public:		// interface
 
 		/// get role expression
 	const TDLObjectRoleExpression* getRole ( void ) const { return Role; }
+
+		/// clone method
+	virtual QRAtom* clone ( void ) const { return new QRRoleAtom(*this); }
 };
 
 /// equality atom x=y
@@ -213,8 +227,6 @@ public:		// interface
 class QRSetAtoms
 {
 private:	// prevent copy
-		/// no copy c'tor
-	QRSetAtoms ( const QRSetAtoms& );
 		/// no assignment
 	QRSetAtoms& operator= ( const QRSetAtoms& );
 
@@ -229,15 +241,28 @@ public:		// interface
 	typedef std::vector<QRAtom*>::const_iterator const_iterator;
 		/// empty c'tor
 	QRSetAtoms ( void ) {}
+		/// copy c'tor
+	QRSetAtoms ( const QRSetAtoms& Set )
+	{
+		for ( const_iterator p = Set.Base.begin(), p_end = Set.Base.end(); p != p_end; ++p )
+			Base.push_back((*p)->clone());
+	}
 		/// d'tor: delete all atoms
 	~QRSetAtoms ( void )
 	{
 		for ( iterator p = Base.begin(), p_end = Base.end(); p != p_end; ++p )
 			delete *p;
 	}
-
 		/// add atom to a set
 	void addAtom ( QRAtom* atom ) { Base.push_back(atom); }
+		/// replace an atom at a position P with NEWATOM; @return a replaced atom
+    QRAtom* replaceAtom ( const_iterator p, QRAtom* newAtom )
+    {
+    	iterator q = Base.begin()+(p-Base.begin());
+    	QRAtom* ret = *q;
+    	*q = newAtom;
+    	return ret;
+    }
 		/// RO iterator begin
 	const_iterator begin ( void ) const { return Base.begin(); }
 		/// RO iterator end
@@ -256,6 +281,8 @@ public:		// members
 public:		// interface
 		/// empty c'tor
 	QRQuery ( void ) {}
+		/// copy c'tor
+	QRQuery ( const QRQuery& query ) : Body(query.Body), FreeVars(query.FreeVars) {}
 		/// empty d'tor
 	~QRQuery ( void ) {}
 
@@ -265,6 +292,8 @@ public:		// interface
 	void addAtom ( QRAtom* atom ) { Body.addAtom(atom); }
 		/// mark a variable as a free one
 	void setVarFree ( const QRVariable* var ) { FreeVars.insert(var); }
+		/// @return true if VAR is a free var
+	bool isFreeVar ( const QRVariable* var ) const { return FreeVars.count(var) > 0; }
 }; // QRQuery
 
 /// rule in a general form body -> head
