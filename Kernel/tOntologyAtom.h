@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2011-2012 by Dmitry Tsarkov
+Copyright (C) 2011-2013 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -64,7 +64,7 @@ protected:	// methods
 		// first gather all dep atoms from all known dep atoms
 		for ( AtomSet::iterator p = DepAtoms.begin(), p_end = DepAtoms.end(); p != p_end; ++p )
 		{
-			AtomSet Dep = (*p)->getAllDepAtoms(checked);
+			const AtomSet& Dep = (*p)->getAllDepAtoms(checked);
 			AllDepAtoms.insert ( Dep.begin(), Dep.end() );
 		}
 		// now filter them out from known dep atoms
