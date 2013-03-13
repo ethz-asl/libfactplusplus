@@ -19,7 +19,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef SYNLOCCHECKER_H
 #define SYNLOCCHECKER_H
 
-#include "LocalityChecker.h"
+#include "GeneralSyntacticLocalityChecker.h"
 
 // forward declarations
 class BotEquivalenceEvaluator;
@@ -394,7 +394,7 @@ BotEquivalenceEvaluator :: isTopEquivalent ( const TDLExpression& expr )
 
 
 /// syntactic locality checker for DL axioms
-class SyntacticLocalityChecker: public LocalityChecker
+class SyntacticLocalityChecker: public GeneralSyntacticLocalityChecker
 {
 protected:	// members
 		/// top evaluator
@@ -404,16 +404,16 @@ protected:	// members
 
 protected:	// methods
 		/// @return true iff EXPR is top equivalent
-	bool isTopEquivalent ( const TDLExpression* expr ) { return TopEval.isTopEquivalent(*expr); }
+	virtual bool isTopEquivalent ( const TDLExpression* expr ) { return TopEval.isTopEquivalent(*expr); }
 		/// @return true iff EXPR is bottom equivalent
-	bool isBotEquivalent ( const TDLExpression* expr ) { return BotEval.isBotEquivalent(*expr); }
+	virtual bool isBotEquivalent ( const TDLExpression* expr ) { return BotEval.isBotEquivalent(*expr); }
 		/// @return true iff role expression in equivalent to const wrt locality
 	bool isREquivalent ( const TDLExpression* expr ) { return topRLocal() ? isTopEquivalent(expr) : isBotEquivalent(expr); }
 
 public:		// interface
 		/// init c'tor
 	SyntacticLocalityChecker ( const TSignature* s )
-		: LocalityChecker(s)
+		: GeneralSyntacticLocalityChecker(s)
 		, TopEval(s)
 		, BotEval(s)
 	{
@@ -422,179 +422,6 @@ public:		// interface
 	}
 		/// empty d'tor
 	virtual ~SyntacticLocalityChecker ( void ) {}
-
-public:		// visitor interface
-	virtual void visit ( const TDLAxiomDeclaration& ) { isLocal = true; }
-
-	virtual void visit ( const TDLAxiomEquivalentConcepts& axiom )
-	{
-		// 1 element => local
-		if ( axiom.size() == 1 )
-		{
-			isLocal = true;
-			return;
-		}
-
-		// axiom is local iff all the classes are either top- or bot-local
-		isLocal = false;
-		TDLAxiomEquivalentConcepts::iterator p = axiom.begin(), p_end = axiom.end();
-		if ( isBotEquivalent(*p) )
-		{
-			for ( ++p; p != p_end; ++p )
-				if ( !isBotEquivalent(*p) )
-					return;
-		}
-		else
-		{
-			if ( !isTopEquivalent(*p) )
-				return;
-			for ( ++p; p != p_end; ++p )
-				if ( !isTopEquivalent(*p) )
-					return;
-		}
-
-		isLocal = true;
-	}
-	virtual void visit ( const TDLAxiomDisjointConcepts& axiom )
-	{
-		// local iff at most 1 concept is not bot-equiv
-		bool hasNBE = false;
-		isLocal = true;
-		for ( TDLAxiomDisjointConcepts::iterator p = axiom.begin(), p_end = axiom.end(); p != p_end; ++p )
-			if ( !isBotEquivalent(*p) )
-			{
-				if ( hasNBE )
-				{
-					isLocal = false;
-					break;
-				}
-				else
-					hasNBE = true;
-			}
-	}
-	virtual void visit ( const TDLAxiomDisjointUnion& axiom )
-	{
-		// DisjointUnion(A, C1,..., Cn) is local if
-		//    (1) A and all of Ci are bot-equivalent,
-		// or (2) A and one Ci are top-equivalent and the remaining Cj are bot-equivalent
-		isLocal = false;
-		bool lhsIsTopEq;
-		if ( isTopEquivalent(axiom.getC()) )
-			lhsIsTopEq = true;	// need to check (2)
-		else if ( isBotEquivalent(axiom.getC()) )
-			lhsIsTopEq = false;	// need to check (1)
-		else
-			return;				// neither (1) nor (2)
-
-		bool topEqDesc = false;
-		for ( TDLAxiomDisjointUnion::iterator p = axiom.begin(), p_end = axiom.end(); p != p_end; ++p )
-			if ( !isBotEquivalent(*p) )
-			{
-				if ( lhsIsTopEq && isTopEquivalent(*p) )
-				{
-					if ( topEqDesc )
-						return;	// 2nd top in there -- violate (2) -- non-local
-					else
-						topEqDesc = true;
-				}
-				else	// either (1) or fail to have a top-eq for (2)
-					return;
-			}
-
-		isLocal = true;
-	}
-	virtual void visit ( const TDLAxiomEquivalentORoles& axiom )
-	{
-		isLocal = true;
-		if ( axiom.size() <= 1 )
-			return;
-		for ( TDLAxiomEquivalentORoles::iterator p = axiom.begin(), p_end = axiom.end(); p != p_end; ++p )
-			if ( !isREquivalent(*p) )
-			{
-				isLocal = false;
-				break;
-			}
-	}
-	virtual void visit ( const TDLAxiomEquivalentDRoles& axiom )
-	{
-		isLocal = true;
-		if ( axiom.size() <= 1 )
-			return;
-		for ( TDLAxiomEquivalentDRoles::iterator p = axiom.begin(), p_end = axiom.end(); p != p_end; ++p )
-			if ( !isREquivalent(*p) )
-			{
-				isLocal = false;
-				break;
-			}
-	}
-	virtual void visit ( const TDLAxiomDisjointORoles& axiom )
-	{
-		isLocal = false;
-		if ( topRLocal() )
-			return;
-
-		bool hasNBE = false;
-		for ( TDLAxiomDisjointORoles::iterator p = axiom.begin(), p_end = axiom.end(); p != p_end; ++p )
-			if ( !isREquivalent(*p) )
-			{
-				if ( hasNBE )
-					return;	// false here
-				else
-					hasNBE = true;
-			}
-
-		isLocal = true;
-	}
-	virtual void visit ( const TDLAxiomDisjointDRoles& axiom )
-	{
-		isLocal = false;
-		if ( topRLocal() )
-			return;
-
-		bool hasNBE = false;
-		for ( TDLAxiomDisjointDRoles::iterator p = axiom.begin(), p_end = axiom.end(); p != p_end; ++p )
-			if ( !isREquivalent(*p) )
-			{
-				if ( hasNBE )
-					return;	// false here
-				else
-					hasNBE = true;
-			}
-
-		isLocal = true;
-	}
-	virtual void visit ( const TDLAxiomSameIndividuals& ) { isLocal = false; }
-	virtual void visit ( const TDLAxiomDifferentIndividuals& ) { isLocal = false; }
-		/// there is no such axiom in OWL API, but I hope nobody would use Fairness here
-	virtual void visit ( const TDLAxiomFairnessConstraint& ) { isLocal = true; }
-
-	virtual void visit ( const TDLAxiomRoleInverse& axiom ) { isLocal = isREquivalent(axiom.getRole()) && isREquivalent(axiom.getInvRole()); }
-	virtual void visit ( const TDLAxiomORoleSubsumption& axiom ) { isLocal = isTopEquivalent(axiom.getRole()) || isBotEquivalent(axiom.getSubRole()); }
-	virtual void visit ( const TDLAxiomDRoleSubsumption& axiom ) { isLocal = isTopEquivalent(axiom.getRole()) || isBotEquivalent(axiom.getSubRole()); }
-	virtual void visit ( const TDLAxiomORoleDomain& axiom )
-		{ isLocal = isTopEquivalent(axiom.getDomain()) || isBotEquivalent(axiom.getRole()); }
-	virtual void visit ( const TDLAxiomDRoleDomain& axiom )
-		{ isLocal = isTopEquivalent(axiom.getDomain()) || isBotEquivalent(axiom.getRole()); }
-	virtual void visit ( const TDLAxiomORoleRange& axiom )
-		{ isLocal = isTopEquivalent(axiom.getRange()) || isBotEquivalent(axiom.getRole()); }
-	virtual void visit ( const TDLAxiomDRoleRange& axiom )
-		{ isLocal = isTopEquivalent(axiom.getRange()) || isBotEquivalent(axiom.getRole()); }
-	virtual void visit ( const TDLAxiomRoleTransitive& axiom ) { isLocal = isREquivalent(axiom.getRole()); }
-		/// as BotRole is irreflexive, the only local axiom is topEquivalent(R)
-	virtual void visit ( const TDLAxiomRoleReflexive& axiom ) { isLocal = isTopEquivalent(axiom.getRole()); }
-	virtual void visit ( const TDLAxiomRoleIrreflexive& axiom ) { isLocal = isBotEquivalent(axiom.getRole()); }
-	virtual void visit ( const TDLAxiomRoleSymmetric& axiom ) { isLocal = isREquivalent(axiom.getRole()); }
-	virtual void visit ( const TDLAxiomRoleAsymmetric& axiom ) { isLocal = isBotEquivalent(axiom.getRole()); }
-	virtual void visit ( const TDLAxiomORoleFunctional& axiom ) { isLocal = isBotEquivalent(axiom.getRole()); }
-	virtual void visit ( const TDLAxiomDRoleFunctional& axiom ) { isLocal = isBotEquivalent(axiom.getRole()); }
-	virtual void visit ( const TDLAxiomRoleInverseFunctional& axiom ) { isLocal = isBotEquivalent(axiom.getRole()); }
-
-	virtual void visit ( const TDLAxiomConceptInclusion& axiom ) { isLocal = isBotEquivalent(axiom.getSubC()) || isTopEquivalent(axiom.getSupC()); }
-	virtual void visit ( const TDLAxiomInstanceOf& axiom ) { isLocal = isTopEquivalent(axiom.getC()); }
-	virtual void visit ( const TDLAxiomRelatedTo& axiom ) { isLocal = isTopEquivalent(axiom.getRelation()); }
-	virtual void visit ( const TDLAxiomRelatedToNot& axiom ) { isLocal = isBotEquivalent(axiom.getRelation()); }
-	virtual void visit ( const TDLAxiomValueOf& axiom ) { isLocal = isTopEquivalent(axiom.getAttribute()); }
-	virtual void visit ( const TDLAxiomValueOfNot& axiom ) { isLocal = isBotEquivalent(axiom.getAttribute()); }
 }; // SyntacticLocalityChecker
 
 #endif
