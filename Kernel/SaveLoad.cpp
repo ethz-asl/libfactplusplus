@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2008-2012 by Dmitry Tsarkov
+Copyright (C) 2008-2013 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -304,6 +304,8 @@ TBox :: Save ( ostream& o ) const
 	neMap.clear();
 	neMap.add(pBottom);
 	neMap.add(pTop);
+	neMap.add(pTemp);
+	neMap.add(pQuery);
 	o << "\nC";
 	Concepts.Save(o);
 	o << "\nI";
@@ -330,6 +332,8 @@ TBox :: Load ( istream& i, KBStatus status )
 	neMap.clear();
 	neMap.add(pBottom);
 	neMap.add(pTop);
+	neMap.add(pTemp);
+	neMap.add(pQuery);
 	expectChar(i,'C');
 	Concepts.Load(i);
 	expectChar(i,'I');
