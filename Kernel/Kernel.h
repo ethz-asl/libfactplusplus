@@ -598,9 +598,9 @@ public:	// general staff
 	//----------------------------------------------
 
 		/// save internal state of the Kernel to a file NAME
-	void Save ( std::ostream& o ) const;
+	void Save ( std::ostream& o, const char* name = "<output>" ) const;
 		/// load internal state of the Kernel from a file NAME
-	void Load ( std::istream& i );
+	void Load ( std::istream& i, const char* name = "<input>");
 		/// save internal state of the Kernel to a file NAME
 	void Save ( const char* name ) const;
 		/// load internal state of the Kernel from a file NAME

@@ -193,9 +193,8 @@ PointerMap<TaxonomyVertex*> tvMap;
 #define CHECK_FILE_STATE() if ( !o.good() ) throw(EFPPSaveLoad(name,/*save=*/true))
 
 void
-ReasoningKernel :: Save ( const char* name ) const
+ReasoningKernel :: Save ( std::ostream& o, const char* name ) const
 {
-	std::ofstream o(name);
 	CHECK_FILE_STATE();
 	SaveHeader(o);
 	CHECK_FILE_STATE();
@@ -205,13 +204,19 @@ ReasoningKernel :: Save ( const char* name ) const
 	CHECK_FILE_STATE();
 }
 
+void
+ReasoningKernel :: Save ( const char* name ) const
+{
+	std::ofstream o(name);
+	Save(o);
+}
+
 #undef CHECK_FILE_STATE
 #define CHECK_FILE_STATE() if ( !i.good() ) throw(EFPPSaveLoad(name,/*save=*/false))
 
 void
-ReasoningKernel :: Load ( const char* name )
+ReasoningKernel :: Load ( std::istream& i, const char* name )
 {
-	std::ifstream i(name);
 	CHECK_FILE_STATE();
 	releaseKB();	// we'll start a new one if necessary
 	if ( LoadHeader(i) )
@@ -221,6 +226,13 @@ ReasoningKernel :: Load ( const char* name )
 	CHECK_FILE_STATE();
 	LoadKB(i);
 	CHECK_FILE_STATE();
+}
+
+void
+ReasoningKernel :: Load ( const char* name )
+{
+	std::ifstream i(name);
+	Load(i);
 }
 
 //-- save/load header (Kernel.h)
@@ -564,12 +576,14 @@ void
 TRole :: Save ( ostream& o ) const
 {
 	ClassifiableEntry::Save(o);
+	// FIXME!! think about automaton
 }
 
 void
 TRole :: Load ( istream& i )
 {
 	ClassifiableEntry::Load(i);
+	// FIXME!! think about automaton
 }
 
 //----------------------------------------------------------
