@@ -758,6 +758,9 @@ DLVertex :: Save ( ostream& o ) const
 		saveSInt(o,getC());
 		break;
 
+	case dtNN:	// nothing to do
+		break;
+
 	case dtDataType:
 	case dtDataValue:
 	case dtDataExpr:
@@ -808,6 +811,9 @@ DLVertex :: Load ( istream& i )
 	case dtNSingleton:
 		setConcept(neMap.getP(loadUInt(i)));
 		setChild(loadSInt(i));
+		break;
+
+	case dtNN:	// nothing to do
 		break;
 
 	case dtDataType:
