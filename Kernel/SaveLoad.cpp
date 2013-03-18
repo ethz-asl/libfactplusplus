@@ -308,6 +308,8 @@ ReasoningKernel :: LoadKB ( istream& i )
 {
 	KBStatus status = (KBStatus)loadUInt(i);
 	initCacheAndFlags();	// will be done
+	// no classification => no need to monitor
+	pMonitor = NULL;
 	if ( status == kbEmpty )
 		return;
 	newKB();
