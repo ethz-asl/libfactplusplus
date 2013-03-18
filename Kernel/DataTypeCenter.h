@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2012 by Dmitry Tsarkov
+Copyright (C) 2003-2013 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -108,17 +108,17 @@ public:		// interface
 	// DLTree interface
 
 		/// get NUMBER DT that can be used in TBox
-	DLTree* getNumberType ( void ) { return wrap(getNumberDataType()->getType()); }
+	DLTree* getNumberType ( void ) const { return wrap(getNumberDataType()->getType()); }
 		/// get STRING DT that can be used in TBox
-	DLTree* getStringType ( void ) { return wrap(getStringDataType()->getType()); }
+	DLTree* getStringType ( void ) const { return wrap(getStringDataType()->getType()); }
 		/// get REAL DT that can be used in TBox
-	DLTree* getRealType ( void ) { return wrap(getRealDataType()->getType()); }
+	DLTree* getRealType ( void ) const { return wrap(getRealDataType()->getType()); }
 		/// get BOOL DT that can be used in TBox
-	DLTree* getBoolType ( void ) { return wrap(getBoolDataType()->getType()); }
+	DLTree* getBoolType ( void ) const { return wrap(getBoolDataType()->getType()); }
 		/// get TIME DT that can be used in TBox
-	DLTree* getTimeType ( void ) { return wrap(getTimeDataType()->getType()); }
+	DLTree* getTimeType ( void ) const { return wrap(getTimeDataType()->getType()); }
 		/// get fresh DT that can be used in TBox
-	DLTree* getFreshDataType ( void ) { return wrap((*(begin()+5))->getType()); }
+	DLTree* getFreshDataType ( void ) const { return wrap((*(begin()+5))->getType()); }
 
 		/// return registered data value by given NAME of a Type, given by SAMPLE
 	DLTree* getDataValue ( const std::string& name, const DLTree* sample ) const
