@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2011 by Dmitry Tsarkov
+Copyright (C) 2003-2013 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -36,7 +36,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 void TBox :: Preprocess ( void )
 {
 	if ( verboseOutput )
-		std::cerr << "\nPreprocessing...";
+		std::cerr << "Preprocessing...";
 	TsProcTimer pt;
 	pt.Start();
 

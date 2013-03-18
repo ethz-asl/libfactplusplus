@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2012 by Dmitry Tsarkov
+Copyright (C) 2003-2013 by Dmitry Tsarkov
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -254,7 +254,7 @@ int main ( int argc, char *argv[] )
 	wTimer.Start ();
 	TBoxParser.Parse ();
 	wTimer.Stop ();
-	std::cerr << " done in " << wTimer << " seconds";
+	std::cerr << " done in " << wTimer << " seconds\n";
 
 	Out << "loading time " << wTimer << " seconds\n";
 
