@@ -24,6 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "eFPPSaveLoad.h"
 #include "Kernel.h"
+#include "ReasonerNom.h"	// for initReasoner()
 
 using namespace std;
 
@@ -181,7 +182,7 @@ public:		// interface
 }; // PointerMap
 
 // int -> named entry map for the current taxonomy
-PointerMap<ClassifiableEntry*> neMap;
+PointerMap<TNamedEntry*> neMap;
 // uint -> TaxonomyVertex map to update the taxonomy
 PointerMap<TaxonomyVertex*> tvMap;
 
@@ -195,6 +196,8 @@ PointerMap<TaxonomyVertex*> tvMap;
 void
 ReasoningKernel :: Save ( std::ostream& o, const char* name ) const
 {
+	TsProcTimer t;
+	t.Start();
 	CHECK_FILE_STATE();
 	SaveHeader(o);
 	CHECK_FILE_STATE();
@@ -202,6 +205,8 @@ ReasoningKernel :: Save ( std::ostream& o, const char* name ) const
 	CHECK_FILE_STATE();
 	SaveKB(o);
 	CHECK_FILE_STATE();
+	t.Stop();
+	std::cout << "Reasoner internal state saved in " << t << " sec\n";
 }
 
 void
@@ -217,6 +222,8 @@ ReasoningKernel :: Save ( const char* name ) const
 void
 ReasoningKernel :: Load ( std::istream& i, const char* name )
 {
+	TsProcTimer t;
+	t.Start();
 	CHECK_FILE_STATE();
 	releaseKB();	// we'll start a new one if necessary
 	if ( LoadHeader(i) )
@@ -226,6 +233,8 @@ ReasoningKernel :: Load ( std::istream& i, const char* name )
 	CHECK_FILE_STATE();
 	LoadKB(i);
 	CHECK_FILE_STATE();
+	t.Stop();
+	std::cout << "Reasoner internal state loaded in " << t << " sec\n";
 }
 
 void
@@ -318,6 +327,14 @@ TBox :: Save ( ostream& o ) const
 	neMap.add(pTop);
 	neMap.add(pTemp);
 	neMap.add(pQuery);
+	// datatypes
+//	TreeDeleter Bool(TreeDeleter(DTCenter.getBoolType()));
+	neMap.add(DTCenter.getStringType()->Element().getNE());
+	neMap.add(DTCenter.getNumberType()->Element().getNE());
+	neMap.add(DTCenter.getRealType()->Element().getNE());
+	neMap.add(DTCenter.getBoolType()->Element().getNE());
+	neMap.add(DTCenter.getTimeType()->Element().getNE());
+	neMap.add(DTCenter.getFreshDataType()->Element().getNE());
 	o << "\nC";
 	Concepts.Save(o);
 	o << "\nI";
@@ -339,13 +356,19 @@ void
 TBox :: Load ( istream& i, KBStatus status )
 {
 	Status = status;
-	string KB;
 	tvMap.clear();
 	neMap.clear();
 	neMap.add(pBottom);
 	neMap.add(pTop);
 	neMap.add(pTemp);
 	neMap.add(pQuery);
+	// datatypes
+	neMap.add(DTCenter.getStringType()->Element().getNE());
+	neMap.add(DTCenter.getNumberType()->Element().getNE());
+	neMap.add(DTCenter.getRealType()->Element().getNE());
+	neMap.add(DTCenter.getBoolType()->Element().getNE());
+	neMap.add(DTCenter.getTimeType()->Element().getNE());
+	neMap.add(DTCenter.getFreshDataType()->Element().getNE());
 	expectChar(i,'C');
 	Concepts.Load(i);
 	expectChar(i,'I');
@@ -358,8 +381,10 @@ TBox :: Load ( istream& i, KBStatus status )
 	DRM.Load(i);
 	expectChar(i,'D');
 	DLHeap.Load(i);
+	initReasoner();
 	if ( Status > kbCChecked )
 	{
+		pTax = new DLConceptTaxonomy ( pTop, pBottom, *this );
 		pTax->setBottomUp(GCIs);
 		expectChar(i,'C');
 		expectChar(i,'T');
@@ -564,6 +589,7 @@ RoleMaster :: Load ( istream& i )
 	// load the rest of the RM
 	expectChar(i,'R');
 	expectChar(i,'T');
+	pTax = new Taxonomy ( &universalRole, &emptyRole );
 	pTax->Load(i);
 	useUndefinedNames = false;	// no names
 }
@@ -620,7 +646,7 @@ Taxonomy :: Load ( istream& i )
 	// create all the verteces and load their labels
 	for ( unsigned int j = 0; j < size; ++j )
 	{
-		ClassifiableEntry* p = neMap.getP(loadUInt(i));
+		ClassifiableEntry* p = static_cast<ClassifiableEntry*>(neMap.getP(loadUInt(i)));
 		TaxonomyVertex* v = new TaxonomyVertex(p);
 		Graph.push_back(v);
 		v->LoadLabel(i);
@@ -652,7 +678,7 @@ TaxonomyVertex :: LoadLabel ( istream& i )
 	// note that sample is already loaded
 	unsigned int size = loadUInt(i);
 	for ( unsigned int j = 0; j < size; ++j )
-		addSynonym(neMap.getP(loadUInt(i)));
+		addSynonym(static_cast<ClassifiableEntry*>(neMap.getP(loadUInt(i))));
 }
 
 void
@@ -708,7 +734,7 @@ DLDag :: Load ( istream& i )
 	}
 
 	// only reasoning now -- no cache
-	useDLVCache = false;
+	setFinalSize();
 }
 
 //----------------------------------------------------------
@@ -762,7 +788,14 @@ DLVertex :: Save ( ostream& o ) const
 		break;
 
 	case dtDataType:
+		saveUInt(o,neMap.getI(Concept));
+		break;
+
 	case dtDataValue:
+		saveUInt(o,neMap.getI(Concept));
+		saveSInt(o,getC());
+		break;
+
 	case dtDataExpr:
 		break;	// FIXME!! for now
 	}
@@ -817,7 +850,14 @@ DLVertex :: Load ( istream& i )
 		break;
 
 	case dtDataType:
+		setConcept(neMap.getP(loadUInt(i)));
+		break;
+
 	case dtDataValue:
+		setConcept(neMap.getP(loadUInt(i)));
+		setChild(loadSInt(i));
+		break;
+
 	case dtDataExpr:
 		break;	// FIXME!! for now
 	}
