@@ -225,7 +225,7 @@ ReasoningKernel :: Load ( std::istream& i, const char* name )
 	TsProcTimer t;
 	t.Start();
 	CHECK_FILE_STATE();
-	releaseKB();	// we'll start a new one if necessary
+//	releaseKB();	// we'll start a new one if necessary
 	if ( LoadHeader(i) )
 		throw(EFPPSaveLoad(name,/*save=*/false));
 	CHECK_FILE_STATE();
@@ -307,12 +307,12 @@ void
 ReasoningKernel :: LoadKB ( istream& i )
 {
 	KBStatus status = (KBStatus)loadUInt(i);
-	initCacheAndFlags();	// will be done
+//	initCacheAndFlags();	// will be done
 	// no classification => no need to monitor
 	pMonitor = NULL;
 	if ( status == kbEmpty )
 		return;
-	newKB();
+//	newKB();
 	getTBox()->Load(i,status);
 }
 
@@ -331,22 +331,22 @@ TBox :: Save ( ostream& o ) const
 	neMap.add(pQuery);
 	// datatypes
 //	TreeDeleter Bool(TreeDeleter(DTCenter.getBoolType()));
-	neMap.add(DTCenter.getStringType()->Element().getNE());
-	neMap.add(DTCenter.getNumberType()->Element().getNE());
-	neMap.add(DTCenter.getRealType()->Element().getNE());
-	neMap.add(DTCenter.getBoolType()->Element().getNE());
-	neMap.add(DTCenter.getTimeType()->Element().getNE());
-	neMap.add(DTCenter.getFreshDataType()->Element().getNE());
+//	neMap.add(DTCenter.getStringType()->Element().getNE());
+//	neMap.add(DTCenter.getNumberType()->Element().getNE());
+//	neMap.add(DTCenter.getRealType()->Element().getNE());
+//	neMap.add(DTCenter.getBoolType()->Element().getNE());
+//	neMap.add(DTCenter.getTimeType()->Element().getNE());
+//	neMap.add(DTCenter.getFreshDataType()->Element().getNE());
 	o << "\nC";
 	Concepts.Save(o);
 	o << "\nI";
 	Individuals.Save(o);
-	o << "\nOR";
-	ORM.Save(o);
-	o << "\nDR";
-	DRM.Save(o);
-	o << "\nD";
-	DLHeap.Save(o);
+//	o << "\nOR";
+//	ORM.Save(o);
+//	o << "\nDR";
+//	DRM.Save(o);
+//	o << "\nD";
+//	DLHeap.Save(o);
 	if ( Status > kbCChecked )
 	{
 		o << "\nCT";
@@ -365,25 +365,25 @@ TBox :: Load ( istream& i, KBStatus status )
 	neMap.add(pTemp);
 	neMap.add(pQuery);
 	// datatypes
-	neMap.add(DTCenter.getStringType()->Element().getNE());
-	neMap.add(DTCenter.getNumberType()->Element().getNE());
-	neMap.add(DTCenter.getRealType()->Element().getNE());
-	neMap.add(DTCenter.getBoolType()->Element().getNE());
-	neMap.add(DTCenter.getTimeType()->Element().getNE());
-	neMap.add(DTCenter.getFreshDataType()->Element().getNE());
+//	neMap.add(DTCenter.getStringType()->Element().getNE());
+//	neMap.add(DTCenter.getNumberType()->Element().getNE());
+//	neMap.add(DTCenter.getRealType()->Element().getNE());
+//	neMap.add(DTCenter.getBoolType()->Element().getNE());
+//	neMap.add(DTCenter.getTimeType()->Element().getNE());
+//	neMap.add(DTCenter.getFreshDataType()->Element().getNE());
 	expectChar(i,'C');
 	Concepts.Load(i);
 	expectChar(i,'I');
 	Individuals.Load(i);
-	expectChar(i,'O');
-	expectChar(i,'R');
-	ORM.Load(i);
-	expectChar(i,'D');
-	expectChar(i,'R');
-	DRM.Load(i);
-	expectChar(i,'D');
-	DLHeap.Load(i);
-	initReasoner();
+//	expectChar(i,'O');
+//	expectChar(i,'R');
+//	ORM.Load(i);
+//	expectChar(i,'D');
+//	expectChar(i,'R');
+//	DRM.Load(i);
+//	expectChar(i,'D');
+//	DLHeap.Load(i);
+//	initReasoner();
 	if ( Status > kbCChecked )
 	{
 		pTax = new DLConceptTaxonomy ( pTop, pBottom, *this );
@@ -423,8 +423,8 @@ TNECollection<T> :: Save ( ostream& o ) const
 		o << (*p)->getName() << "\n";
 
 	// save the entries itself
-	for ( p = p_beg; p < p_end; ++p )
-		(*p)->Save(o);
+//	for ( p = p_beg; p < p_end; ++p )
+//		(*p)->Save(o);
 }
 /// Load all the objects into the collection
 template<class T>
@@ -432,7 +432,7 @@ void
 TNECollection<T> :: Load ( istream& i )
 {
 	// sanity check: Load shall be done for the empty collection and only once
-	fpp_assert ( size() == 0 );
+//	fpp_assert ( size() == 0 );
 
 	unsigned int collSize, maxLength;
 	collSize = loadUInt(i);
@@ -453,8 +453,8 @@ TNECollection<T> :: Load ( istream& i )
 	neMap.add ( begin(), end() );
 
 	// load all the named entries
-	for ( iterator p = begin(); p < end(); ++p )
-		(*p)->Load(i);
+//	for ( iterator p = begin(); p < end(); ++p )
+//		(*p)->Load(i);
 }
 
 //----------------------------------------------------------
