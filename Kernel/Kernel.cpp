@@ -148,6 +148,16 @@ ReasoningKernel :: forceReload ( void )
 // Prepare reasoning/query
 //-------------------------------------------------
 
+#if 0
+#	define FPP_USE_LOAD(Action)	do { 				\
+		std::ifstream state("FaCT++.state");		\
+		if ( state.good() ) { Load(state); return; }\
+		else { Action; Save("FaCT++.state"); }		\
+		} while(0)
+#else
+#	define FPP_USE_LOAD(Action) Action
+#endif
+
 void
 ReasoningKernel :: processKB ( KBStatus status )
 {
@@ -201,7 +211,7 @@ Classify:	// do classification
 	if ( !pTBox->isConsistent() )
 		return;
 
-	pTBox->performClassification();
+	FPP_USE_LOAD(pTBox->performClassification());
 	return;
 
 Realise:	// do realisation
@@ -209,7 +219,7 @@ Realise:	// do realisation
 	if ( !pTBox->isConsistent() )
 		return;
 
-	pTBox->performRealisation();
+	FPP_USE_LOAD(pTBox->performRealisation());
 }
 
 //-----------------------------------------------------------------------------
