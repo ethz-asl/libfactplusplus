@@ -12,15 +12,15 @@
         </fileset>
     </path> 
     <path id="protege.path.libraries">
-	<pathelement path="/Users/tsarkov/work/Protege-4.1/bundles/org.protege.editor.core.application.jar"/>
-	<fileset dir="/Users/tsarkov/work/Protege-4.1/plugins/">
+	<pathelement path="/Users/tsarkov/work/Protege_4.1/bundles/org.protege.editor.core.application.jar"/>
+	<fileset dir="/Users/tsarkov/work/Protege_4.1/plugins/">
 	    <include name="*.jar"/>
 	</fileset>
     </path>
     <target name="compile">
         <mkdir dir="${builddir}"/>
         <mkdir dir="${classesdir}"/>
-        <javac srcdir="." destdir="${classesdir}">
+        <javac srcdir="." destdir="${classesdir}" target="1.5">
             <classpath refid="path.libraries"/>
 	    <classpath refid="protege.path.libraries"/>
         </javac>
@@ -30,9 +30,22 @@
         <tstamp/>
         <jar basedir="${classesdir}" jarfile="${distdir}/factplusplus-P41-${factplusplus.version}.jar">
             <manifest>
-                <attribute name="Built-By" value="${user.name}"/>
+                <attribute name="Built-By" value="Dmitry Tsarkov"/>
                 <attribute name="Build-Date" value="${TODAY}"/>
                 <attribute name="Version" value="${factplusplus.version}"/>
+                <attribute name="Bundle-ManifestVersion" value="2"/>
+                <attribute name="Bundle-Name" value="Factplusplus Plug-in"/>
+                <attribute name="Bundle-SymbolicName" value="uk.ac.manchester.cs.owl.factplusplus;singleton:=true"/>
+                <attribute name="Bundle-Version" value="${factplusplus.version}"/>
+                <attribute name="Bundle-Vendor" value="University of Manchester"/>
+                <attribute name="Bundle-Description" value="A Protege OWL wrapper for FaCT++"/>
+                <attribute name="Update-Url" value="http://factplusplus.googlecode.com/svn/trunk/update.properties.p4.1"/>
+                <attribute name="Bundle-ClassPath" value="."/>
+                <attribute name="Import-Package" value="org.osgi.framework,
+                 org.apache.log4j,
+                  javax.swing,
+                   javax.xml.datatype"/>
+                <!--attribute name="" value=""/-->
             </manifest>
         </jar>
         <mkdir dir="${distdir}/lib"/>
