@@ -206,14 +206,14 @@ ReasoningKernel :: Save ( std::ostream& o, const char* name ) const
 	SaveKB(o);
 	CHECK_FILE_STATE();
 	t.Stop();
-	std::cout << "Reasoner internal state saved in " << t << " sec\n";
+	std::cout << "Reasoner internal state saved in " << t << " sec" << std::endl;
 }
 
 void
 ReasoningKernel :: Save ( const char* name ) const
 {
 	std::ofstream o(name);
-	Save(o);
+	Save ( o, name );
 }
 
 #undef CHECK_FILE_STATE
@@ -234,14 +234,14 @@ ReasoningKernel :: Load ( std::istream& i, const char* name )
 	LoadKB(i);
 	CHECK_FILE_STATE();
 	t.Stop();
-	std::cout << "Reasoner internal state loaded in " << t << " sec\n";
+	std::cout << "Reasoner internal state loaded in " << t << " sec" << std::endl;
 }
 
 void
 ReasoningKernel :: Load ( const char* name )
 {
 	std::ifstream i(name);
-	Load(i);
+	Load ( i, name );
 }
 
 //-- save/load header (Kernel.h)
@@ -296,7 +296,7 @@ ReasoningKernel :: SaveKB ( ostream& o ) const
 	case kbEmpty:	// nothing to do
 		return;
 	case kbLoading:
-		throw EFPPSaveLoad("Can't load internal state of the unclassified reasoner");
+		throw EFPPSaveLoad("Can't save internal state of the unclassified reasoner");
 	default:
 		getTBox()->Save(o);
 		break;
