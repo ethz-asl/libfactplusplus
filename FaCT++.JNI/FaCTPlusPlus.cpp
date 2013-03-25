@@ -134,6 +134,10 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_setTop
   (JNIEnv * env, jobject obj, jstring ton, jstring bon, jstring tdn, jstring bdn)
 {
 	TRACE_JNI("setTopBottomPropertyNames");
+	TRACE_STR(env,ton);
+	TRACE_STR(env,bon);
+	TRACE_STR(env,tdn);
+	TRACE_STR(env,bdn);
 	JString topObjectName(env,ton);
 	JString botObjectName(env,bon);
 	JString topDataName(env,tdn);

@@ -67,6 +67,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
   (JNIEnv * env, jobject obj, jstring str)
 {
 	TRACE_JNI("getNamedClass");
+	TRACE_STR(env,str);
 	TJNICache* J = getJ(env,obj);
 	JString name(env,str);
 	jobject ret = (jobject)0;
@@ -116,6 +117,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
   (JNIEnv * env, jobject obj, jstring str)
 {
 	TRACE_JNI("getObjectProperty");
+	TRACE_STR(env,str);
 	TJNICache* J = getJ(env,obj);
 	JString name(env,str);
 	jobject ret = (jobject)0;
@@ -165,6 +167,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
   (JNIEnv * env, jobject obj, jstring str)
 {
 	TRACE_JNI("getDataProperty");
+	TRACE_STR(env,str);
 	TJNICache* J = getJ(env,obj);
 	JString name(env,str);
 	jobject ret = (jobject)0;
@@ -188,6 +191,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
   (JNIEnv * env, jobject obj, jstring str)
 {
 	TRACE_JNI("getIndividual");
+	TRACE_STR(env,str);
 	TJNICache* J = getJ(env,obj);
 	JString name(env,str);
 	jobject ret = (jobject)0;
@@ -211,6 +215,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
   (JNIEnv * env, jobject obj, jstring str)
 {
 	TRACE_JNI("getBuiltInDataType");
+	TRACE_STR(env,str);
 	TJNICache* J = getJ(env,obj);
 	JString name(env,str);
 	std::string DTName(name());
@@ -264,6 +269,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
   (JNIEnv * env, jobject obj ATTR_UNUSED, jstring str ATTR_UNUSED, jobject type ATTR_UNUSED)
 {
 	TRACE_JNI("getDataSubType");
+	TRACE_STR(env,str);
 //	TJNICache* J = getJ(env,obj);
 	JString name(env,str);
 	Throw ( env, "FaCT++ Kernel: unsupported operation 'getDataSubType'" );
@@ -494,6 +500,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
   (JNIEnv * env, jobject obj, jstring str, jobject type)
 {
 	TRACE_JNI("getDataValue");
+	TRACE_STR(env,str);
 	TJNICache* J = getJ(env,obj);
 	JString name(env,str);
 	jobject ret = (jobject)0;

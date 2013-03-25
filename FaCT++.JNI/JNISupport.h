@@ -22,7 +22,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <jni.h>
 
 // switch tracing on
-//#define JNI_TRACING
+#define JNI_TRACING
 
 #ifdef ENABLE_CHECKING
 #	define JNI_TRACING
@@ -36,9 +36,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 		const TNamedEntity* ne = dynamic_cast<const TNamedEntity*>(expr); \
 		if ( ne != NULL ) std::cerr << ne->getName();	\
 		std::cerr << "\n"; } while(0)
+#	define TRACE_STR(env,str) std::cerr << " string arg " << JString(env,str)() << "\n"
 #else
 #	define TRACE_JNI(func) (void)NULL
 #	define TRACE_ARG(env,obj,arg) (void)NULL
+#	define TRACE_STR(env,str) (void)NULL
 #endif
 
 //-------------------------------------------------------------
