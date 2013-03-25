@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2012 by Dmitry Tsarkov
+Copyright (C) 2003-2013 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -128,9 +128,9 @@ DLTree* createSNFReducedAnd ( DLTree* C, DLTree* D )
 	}
 	else if ( D->Element().getToken() == AND )
 	{
-		C = createSNFReducedAnd ( C, D->Left() );
-		C = createSNFReducedAnd ( C, D->Right() );
-		delete D;	// just an AND
+		C = createSNFReducedAnd ( C, clone(D->Left()) );
+		C = createSNFReducedAnd ( C, clone(D->Right()) );
+		deleteTree(D);
 		return C;
 	}
 	else	// can't optimise

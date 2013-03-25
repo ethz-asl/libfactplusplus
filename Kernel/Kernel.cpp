@@ -73,7 +73,7 @@ ReasoningKernel :: ReasoningKernel ( void )
 ReasoningKernel :: ~ReasoningKernel ( void )
 {
 	clearTBox();
-	delete cachedQueryTree;
+	deleteTree(cachedQueryTree);
 	delete pMonitor;
 }
 

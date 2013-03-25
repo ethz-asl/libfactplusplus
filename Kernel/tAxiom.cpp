@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2010 by Dmitry Tsarkov
+Copyright (C) 2003-2013 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -29,9 +29,9 @@ TAxiom :: add ( DLTree* p )
 	// flatten the disjunctions on the fly
 	if ( InAx::isOr(p) )
 	{
-		add(p->Left());
-		add(p->Right());
-		delete p;	// delete just AND entry, not the trees
+		add(clone(p->Left()));
+		add(clone(p->Right()));
+		deleteTree(p);
 		return;
 	}
 	for ( const_iterator i = begin(), i_end = end(); i != i_end; ++i )
