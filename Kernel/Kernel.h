@@ -155,6 +155,8 @@ protected:	// members
 	AxiomVec Result;
 		/// JNI cache corresponding to a kernel. External, created and deleted outside
 	TJNICache* JNICache;
+		/// name of an S/L context. do nothing if empty
+	std::string SLContext;
 
 	// Top/Bottom role names: if set, they will appear in all hierarchy-related output
 
@@ -497,6 +499,9 @@ protected:	// methods
 	void LoadOptions ( std::istream& i );
 		/// load the status of the KB and the appropriate part of KB
 	void LoadKB ( std::istream& i );
+
+		/// get a state file name depending on a context. Context assumed to be non-empty
+	std::string getSLFileName ( const std::string& context ) const { return context+".fpp.state"; }
 
 	//----------------------------------------------------------------------------------
 	// knowledge exploration queries
@@ -1279,6 +1284,34 @@ public:
 		/// get a set of axioms that corresponds to the atom with the id INDEX
 	const AxiomVec& getNonLocal ( bool useSemantic, ModuleType moduleType );
 
+	//----------------------------------------------------------------------------------
+	// save/load interface
+	//----------------------------------------------------------------------------------
+
+		/// check whether  @return true if a file with reasoner state with a given NAME exists.
+	bool checkSaveLoadContext ( const std::string& name ) const
+	{
+		if ( name.empty() )
+			return false;
+		// context is there if a file can be opened
+		return !std::ifstream(getSLFileName(name).c_str()).fail();
+	}
+		/// set a save/load file to a given NAME
+	bool setSaveLoadContext ( const std::string& name )
+	{
+		SLContext = name;
+		return checkSaveLoadContext(name);
+	}
+		/// clear a cache for a given name
+	bool clearSaveLoadContext ( const std::string& name ) const
+	{
+		if ( checkSaveLoadContext(name) )
+		{
+			remove(getSLFileName(name).c_str());
+			return true;
+		}
+		return false;
+	}
 }; // ReasoningKernel
 
 #endif

@@ -645,4 +645,13 @@ public class FaCTPlusPlus {
 
 	public native AxiomPointer[] getNonLocal(boolean useSemantic, int moduleType);
 
+	// ------------------------------------------------------------------------
+	// Save/Load interface
+	// ------------------------------------------------------------------------
+
+	public native boolean checkSaveLoadContext(String name);
+
+	public native boolean setSaveLoadContext(String name);
+
+	public native boolean clearSaveLoadContext(String name);
 }

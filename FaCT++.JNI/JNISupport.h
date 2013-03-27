@@ -22,7 +22,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <jni.h>
 
 // switch tracing on
-#define JNI_TRACING
+//#define JNI_TRACING
 
 #ifdef ENABLE_CHECKING
 #	define JNI_TRACING

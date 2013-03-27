@@ -1875,4 +1875,45 @@ public class FaCTPlusPlusReasoner implements OWLReasoner, OWLOntologyChangeListe
 		AxiomPointer[] axioms = kernel.getNonLocal(useSemantic, moduleType);
 		return axiomsToSet(axioms);
 	}
+
+	/**
+	 * Save/load support
+	 */
+
+	/**
+	 * 
+	 * @param name
+	 *            save/load context name
+	 * 
+	 * @return true iff the file exists
+	 */
+	public boolean checkSaveLoadContext(String name) {
+		return kernel.checkSaveLoadContext(name);
+	}
+
+	/**
+	 * Set a save/load file to a given name. If the named file doesn't exist,
+	 * then it would be created and the classified taxonomy would be saved
+	 * there. If the file exists, the once classified taxonomy will be loaded
+	 * from there.
+	 * 
+	 * If the parameter is null, no loading of taxonomy is performed.
+	 * 
+	 * @param name
+	 *            save/load file name. Do not load the pre-classified taxonomy
+	 *            if null
+	 */
+	public boolean setSaveLoadContext(String name) {
+		return kernel.setSaveLoadContext(name);
+	}
+
+	/**
+	 * Clear the saved reasoner state in the file name
+	 * 
+	 * @param name
+	 *            save/load file name
+	 */
+	public boolean clearSaveLoadContext(String name) {
+		return kernel.clearSaveLoadContext(name);
+	}
 }

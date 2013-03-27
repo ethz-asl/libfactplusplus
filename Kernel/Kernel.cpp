@@ -45,6 +45,7 @@ ReasoningKernel :: ReasoningKernel ( void )
 	, ModSyn(NULL)
 	, ModSem(NULL)
 	, JNICache(NULL)
+	, SLContext("")
 	, pMonitor(NULL)
 	, OpTimeout(0)
 	, verboseOutput(false)
@@ -149,13 +150,16 @@ ReasoningKernel :: forceReload ( void )
 //-------------------------------------------------
 
 #if 0
-#	define FPP_USE_LOAD(Action)	do { 				\
-		std::ifstream state("FaCT++.state");		\
-		if ( state.good() ) { Load(state); return; }\
-		else { Action; Save("FaCT++.state"); }		\
-		} while(0)
+#	define FPP_USE_LOAD(Action)	do { 						\
+		std::ifstream state("FaCT++.state");				\
+		if ( state.good() ) { Load(state); return; }		\
+		else { Action; Save("FaCT++.state"); } } while(0)
 #else
-#	define FPP_USE_LOAD(Action) Action
+#	define FPP_USE_LOAD(Action) do { 						\
+		if ( SLContext.empty() ) { Action; } else {			\
+		const char* fn = getSLFileName(SLContext).c_str();	\
+		if ( checkSaveLoadContext(SLContext) )				\
+		{ Load(fn); return; } else { Action; Save(fn); } } } while(0)
 #endif
 
 void
