@@ -83,6 +83,9 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_initKe
 	if ( loadConfiguration ( Kernel, ".fpp-options" ) )
 		loadConfiguration ( Kernel, "fpp-options.txt" );
 
+	// init dumping of the ontology
+	Kernel->setDumpOntology(Kernel->getOptions()->getBool("dumpOntology"));
+
 	// setup JNI cache
 	TJNICache* J = new TJNICache(env);
 	Kernel->setJNICache(J);

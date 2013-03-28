@@ -34,9 +34,6 @@ static bool KernelFirstRun = true;
 // debug related individual/values switch
 //#define FPP_DEBUG_PRINT_RELATED_PROGRESS
 
-// dump loaded ontology in LISP format to the stdout
-//#define FPP_DEBUG_DUMP_LISP_ONTOLOGY
-
 ReasoningKernel :: ReasoningKernel ( void )
 	: pTBox (NULL)
 	, pET(NULL)
@@ -54,6 +51,7 @@ ReasoningKernel :: ReasoningKernel ( void )
 	, cachedQueryTree(NULL)
 	, useAxiomSplitting(false)
 	, ignoreExprCache(false)
+	, dumpOntology(false)
 {
 	// Intro
 	if ( KernelFirstRun )
@@ -135,11 +133,12 @@ ReasoningKernel :: forceReload ( void )
 	TOntologyLoader OntologyLoader(*getTBox());
 	OntologyLoader.visitOntology(Ontology);
 
-#ifdef FPP_DEBUG_DUMP_LISP_ONTOLOGY
-	TLISPOntologyPrinter OntologyPrinter(std::cout);
-//	DRoles.fill(OntologyPrinter);
-	OntologyPrinter.visitOntology(Ontology);
-#endif
+	if ( dumpOntology )
+	{
+		TLISPOntologyPrinter OntologyPrinter(std::cout);
+		//DRoles.fill(OntologyPrinter);
+		OntologyPrinter.visitOntology(Ontology);
+	}
 
 	// after loading ontology became processed completely
 	Ontology.setProcessed();
@@ -844,6 +843,15 @@ bool ReasoningKernel :: initOptions ( void )
 	if ( KernelOptions.RegisterOption (
 		"useELReasoner",
 		"Option 'useELReasoner' forces FaCT++ to use the EL reasoner and exit instead of performing classification",
+		ifOption::iotBool,
+		"false"
+		) )
+		return true;
+
+	// register "dumpOntology" option (28/03/2013)
+	if ( KernelOptions.RegisterOption (
+		"dumpOntology",
+		"Option 'dumpOntology' dumps the ontology loaded into the reasoner in a LISP-like format",
 		ifOption::iotBool,
 		"false"
 		) )

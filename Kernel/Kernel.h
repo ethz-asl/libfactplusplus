@@ -203,6 +203,8 @@ protected:	// members
 	bool useAxiomSplitting;
 		/// ignore cache for the TExpr* (useful for semantic AD)
 	bool ignoreExprCache;
+		/// flag to dump LISP-like ontology
+	bool dumpOntology;
 
 private:	// no copy
 		/// no copy c'tor
@@ -584,6 +586,8 @@ public:	// general staff
 	void setIgnoreExprCache ( bool value ) { ignoreExprCache = value; }
 		/// set the signature of the expression translator
 	void setSignature ( const TSignature* sig ) { if ( pET != NULL ) pET->setSignature(sig); }
+		/// choose whether the loaded ontology should be dumped as a LISP one
+	void setDumpOntology ( bool value ) { dumpOntology = value; }
 
 	//----------------------------------------------
 	//-- Tracing support
