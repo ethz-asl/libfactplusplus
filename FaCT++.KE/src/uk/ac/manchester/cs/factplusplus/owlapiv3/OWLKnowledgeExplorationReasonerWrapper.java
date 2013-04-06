@@ -367,7 +367,7 @@ public class OWLKnowledgeExplorationReasonerWrapper implements
 	}
 
 	public RootNode getRoot(OWLClassExpression expression) {
-		return new RootNodeImpl( this.r.getRoot(expression));
+		return new RootNodeImpl(this.r.getRoot(expression));
 	}
 
 	public Node<? extends OWLObjectPropertyExpression> getObjectNeighbours(
@@ -403,4 +403,9 @@ public class OWLKnowledgeExplorationReasonerWrapper implements
 	public Node<? extends OWLDataRange> getDataLabel(RootNode object, boolean deterministicOnly) {
 		return this.r.getDataLabel((NodePointer)object.getNode(), deterministicOnly);
 	}
+
+	public RootNode getBlocker(RootNode object) {
+		return new RootNodeImpl(this.r.getBlocker((NodePointer)object.getNode()));
+	}
+
 }

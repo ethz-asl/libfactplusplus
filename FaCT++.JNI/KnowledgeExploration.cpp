@@ -144,6 +144,20 @@ JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlu
 	return J->buildArray ( Vec, J->DataTypeExpressionPointer );
 }
 
+/*
+ * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
+ * Method:    getBlocker
+ * Signature: (Luk/ac/manchester/cs/factplusplus/NodePointer;)Luk/ac/manchester/cs/factplusplus/NodePointer;
+ */
+JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_getBlocker
+  (JNIEnv * env, jobject obj, jobject arg)
+{
+	TRACE_JNI("getBlocker");
+	TRACE_ARG(env,obj,arg);
+	TJNICache* J = getJ(env,obj);
+	return J->Node(J->K->getBlocker(getRONode(env,arg)));
+}
+
 #ifdef __cplusplus
 }
 #endif

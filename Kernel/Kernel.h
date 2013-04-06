@@ -1265,6 +1265,8 @@ public:
 		{ Result = KE->getNeighbours ( node, getRole ( role, "Role expression expected in getNeighbours() method" ) ); }
 		/// put into RESULT all the expressions from the NODE label; if ONLYDET is true, return only deterministic elements
 	void getLabel ( const TCGNode* node, TCGItemVec& Result, bool onlyDet ) { Result = KE->getLabel ( node, onlyDet ); }
+		/// @return blocker of a blocked node NODE or NULL if node is not blocked
+	const TCGNode* getBlocker ( const TCGNode* node ) const { return KE->getBlocker(node); }
 
 	//----------------------------------------------------------------------------------
 	// atomic decomposition queries

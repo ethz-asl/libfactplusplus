@@ -627,6 +627,8 @@ public class FaCTPlusPlus {
 
 	public native DataTypePointer[] getDataLabel(NodePointer object, boolean deterministicOnly);
 
+	public native NodePointer getBlocker(NodePointer object);
+
 	// ------------------------------------------------------------------------
 	// Atomic Decomposition interface
 	// ------------------------------------------------------------------------

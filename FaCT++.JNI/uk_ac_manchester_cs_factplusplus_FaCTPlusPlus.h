@@ -1258,6 +1258,14 @@ JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlu
 
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
+ * Method:    getBlocker
+ * Signature: (Luk/ac/manchester/cs/factplusplus/NodePointer;)Luk/ac/manchester/cs/factplusplus/NodePointer;
+ */
+JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_getBlocker
+  (JNIEnv *, jobject, jobject);
+
+/*
+ * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
  * Method:    getAtomicDecompositionSize
  * Signature: (ZI)I
  */

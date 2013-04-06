@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2011-2012 by Dmitry Tsarkov
+Copyright (C) 2011-2013 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -127,6 +127,8 @@ public:		// interface
 	const TCGNodeVec& getNeighbours ( const TCGNode* node, const TRole* role );
 		/// @return the set of all the expressions from the NODE label
 	const TCGItemVec& getLabel ( const TCGNode* node, bool onlyDet );
+		/// @return blocker of a blocked node NODE or NULL if node is not blocked
+	const TCGNode* getBlocker ( const TCGNode* node ) const;
 }; // KnowledgeExplorer
 
 #endif

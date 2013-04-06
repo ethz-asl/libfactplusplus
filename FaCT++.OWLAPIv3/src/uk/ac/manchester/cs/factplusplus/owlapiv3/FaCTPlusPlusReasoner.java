@@ -1787,6 +1787,10 @@ public class FaCTPlusPlusReasoner implements OWLReasoner, OWLOntologyChangeListe
 		return dataRangeTranslator.getNodeFromPointers(kernel.getDataLabel(object, deterministicOnly));
 	}
 
+	public NodePointer getBlocker(NodePointer object) {
+		return kernel.getBlocker(object);
+	}
+
 	/**
 	 * Build an atomic decomposition using syntactic/semantic locality checking
 	 * 
