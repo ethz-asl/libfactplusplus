@@ -1318,6 +1318,12 @@ public:
 		}
 		return false;
 	}
+
+	//----------------------------------------------------------------------------------
+	// conjunctive queries
+	//----------------------------------------------------------------------------------
+
+	void evaluateQuery ( const std::multimap<std::string, TConceptExpr*>& query );
 }; // ReasoningKernel
 
 #endif

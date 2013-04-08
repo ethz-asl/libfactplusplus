@@ -53,5 +53,7 @@ SOURCES = \
           tDLAxiom.cpp\
           AtomicDecomposer.cpp\
           KnowledgeExplorer.cpp\
+          ConjunctiveQueryFolding.cpp\
+          ConjunctiveQuery.cpp\
 
 include ../Makefile.include
