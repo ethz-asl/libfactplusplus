@@ -322,111 +322,6 @@ void transformQueryPhase1(QRQuery * query) {
 
 	std::cout << "Phase 1 starts" << std::endl;
 
-#if 0
-	for (QRSetAtoms::const_iterator atomIterator = query->Body.begin();
-		 atomIterator != query->Body.end();
-		 //No ++atomIterator !!!!!!!!!!!!!!!!!!!!!!!!!! (it will be in the end of the body)
-		 //Otherwise we can skip some atoms because of
-		 //QRSetAtoms::eraseAtom implementation
-		 )
-	{
-		if (const QRRoleAtom * atom = dynamic_cast<const QRRoleAtom*> (* atomIterator) ) {
-			const TDLObjectRoleExpression* role = atom -> getRole();
-			const QRVariable * arg1 = dynamic_cast <const QRVariable *> (atom -> getArg1() ) ;
-			const QRVariable * arg2 = dynamic_cast <const QRVariable *> (atom -> getArg2() ) ;
-
-			if ( query -> FreeVars.find(arg2) != query -> FreeVars.end() &&
-					   passedAtoms.find(* atomIterator) == passedAtoms.end()	 )
-			{
-				std::cout << "Modified code starts here!\n";
-				fflush(stdout);
-
-				if ((dynamic_cast<const QRRoleAtom*> (*atomIterator) ) == NULL) {
-					continue;
-				}
-				QRQuery * queryCopy = new QRQuery(*query);
-				QRSetAtoms::iterator atomIteratorInCopy = queryCopy -> Body . findRoleAtomSemantically ( *atomIterator );
-
-				const QRVariable *newArg2 = VarFact.getNewVar(arg2 -> getName() );
-				std::cout << "Before erasing in copy.\n";
-				fflush(stdout);
-				queryCopy -> Body . eraseAtom(atomIteratorInCopy);
-				QRAtom * newCopyAtom = new QRRoleAtom(role, arg1, newArg2);
-				queryCopy -> addAtom(newCopyAtom);
-				queryCopy -> setVarFree(newArg2);
-
-				printQuery(queryCopy);
-				std::cout << "Running Checker 1\n";
-				fflush(stdout);
-				QueryConnectednessChecker checker (queryCopy);
-				if (checker.isConnected() ) {
-					std::cout << "Connected\n";
-					fflush(stdout);
-
-					nextAtomIterator = query  -> Body.eraseAtom(atomIterator);
-					std::cout << "After erasing in Query\n";
-					fflush(stdout);
-
-					QRAtom * newQueryAtom = new QRRoleAtom(role, arg1, newArg2);
-					query -> addAtom(newQueryAtom);
-					query -> setVarFree(newArg2);
-					passedAtoms.insert(newQueryAtom);
-				} else {
-					std::cout << "Disconnected\n";
-					fflush(stdout);
-
-					passedAtoms.insert(*atomIterator);
-					nextAtomIterator = atomIterator + 1;
-				}
-				atomIterator = nextAtomIterator;
-			} else if ( query -> FreeVars.find(arg1)!= query -> FreeVars.end() &&
-						passedAtoms.find(*atomIterator) == passedAtoms.end() ) {
-				std::cout << "Modified code starts here!\n";
-				fflush(stdout);
-				QRQuery * queryCopy = new QRQuery(*query);
-
-				if ((dynamic_cast<const QRRoleAtom*> (*atomIterator) ) == NULL) {
-					continue;
-				}
-
-				QRSetAtoms::iterator atomIteratorInCopy = queryCopy -> Body . findRoleAtomSemantically ( *atomIterator );
-				const QRVariable *newArg1 = VarFact.getNewVar(arg1 -> getName() );
-				std::cout << "Before erasing in copy.\n";
-				fflush(stdout);
-				queryCopy -> Body . eraseAtom(atomIteratorInCopy);
-				QRAtom * newCopyAtom = new QRRoleAtom(role, newArg1, arg2);
-				queryCopy -> addAtom(newCopyAtom);
-				queryCopy -> setVarFree(newArg1);
-				std::cout << "Running Checker \n";
-				fflush(stdout);
-				QueryConnectednessChecker checker (queryCopy);
-				if (checker.isConnected() ) {
-					std::cout << "Connected\n";
-					fflush(stdout);
-
-					nextAtomIterator = query  -> Body.eraseAtom(atomIterator);
-					std::cout << "After erasing in Query\n";
-					fflush(stdout);
-
-					QRAtom * newQueryAtom = new QRRoleAtom(role, newArg1, arg2);
-					query -> addAtom(newQueryAtom);
-					query -> setVarFree(newArg1);
-					passedAtoms.insert(newQueryAtom);
-				} else {
-					std::cout << "Disconnected\n";
-					fflush(stdout);
-					passedAtoms.insert(*atomIterator);
-					nextAtomIterator = atomIterator + 1;
-				}
-				atomIterator = nextAtomIterator;
-			} else {
-				++ atomIterator;
-			}
-		} else {
-			++ atomIterator;
-		}
-	};
-#else
 	for (QRSetAtoms::const_iterator i = query->Body.begin(), p_end = query->Body.end(); i != p_end; )
 	{
 		const QRRoleAtom* atom = dynamic_cast<const QRRoleAtom*>(*i);
@@ -457,7 +352,6 @@ void transformQueryPhase1(QRQuery * query) {
 		}
 		i++;
 	}
-#endif
 }
 
 
