@@ -163,6 +163,23 @@ inline QRQuery* createQuery(void)
 	return query;
 }
 
+//------------------------------------------------------
+// QRVarSet support
+//------------------------------------------------------
+
+struct QRVarLess
+{
+	bool operator()(const QRVariable* v1, const QRVariable* v2) const
+		{ return v1->getName() < v2->getName(); }
+};
+
+/// sorted set of vars
+#if 1
+	typedef std::set<const QRVariable*, QRVarLess> QRVarSet;
+#else
+	typedef std::set<const QRVariable*> QRVarSet;
+#endif
+
 //----------------------------------------------------------------------------------
 // print methods
 //----------------------------------------------------------------------------------
@@ -200,7 +217,7 @@ operator << ( std::ostream& o, const QRQuery * query )
 }
 
 class QueryConnectednessChecker {
-	std::set<const QRVariable*> PassedVertice;
+	QRVarSet PassedVertice;
 	QRQuery * Query; //const
 public:
 
@@ -383,7 +400,7 @@ public:
 };
 
 class TermAssigner {
-	std::set<const QRVariable*> PassedVertice;
+	QRVarSet PassedVertice;
 	QRQuery * Query;
 	NumberFactory Factory;
 	int N;
