@@ -315,10 +315,36 @@ bool PossiblyReplaceAtom(QRQuery* query,
 	return ret;
 }
 
+/// map between new vars and original vars
+std::map<const QRVariable*, const QRVariable*> NewVarMap;
+
+/// init vars map
+static inline void initVarMap ( const QRQuery* query )
+{
+	NewVarMap.clear();
+	for ( std::set<const QRVariable*>::const_iterator p = query->FreeVars.begin(), p_end = query->FreeVars.end(); p != p_end; ++p )
+		NewVarMap[*p] = *p;
+}
+
+/// create a new var which is a copy of an existing one
+static inline const QRVariable*
+getNewCopyVar ( const QRVariable* old, int suffix )
+{
+	char buf[40];
+	sprintf(buf, "_%d", suffix);
+	const QRVariable* var = VarFact.getNewVar(old->getName()+buf);
+	NewVarMap[var] = old;
+	return var;
+}
+
+
 void transformQueryPhase1(QRQuery * query) {
 	std::set<const QRAtom*> passedAtoms;
-
+	int n = 0;
 	QRSetAtoms::const_iterator nextAtomIterator;
+
+	// clear the map and make identities
+	initVarMap(query);
 
 	std::cout << "Phase 1 starts" << std::endl;
 
@@ -338,14 +364,14 @@ void transformQueryPhase1(QRQuery * query) {
 
 		if ( query->FreeVars.count(arg2) > 0 )
 		{
-			const QRVariable* newArg = VarFact.getNewVar(arg2->getName());
+			const QRVariable* newArg = getNewCopyVar ( arg2, ++n );
 			QRAtom* newAtom = new QRRoleAtom(role, arg1, newArg);
 			if ( PossiblyReplaceAtom(query, i, newAtom, newArg, passedAtoms) )
 				continue;
 		}
 		else if ( query->FreeVars.count(arg1) > 0 )
 		{
-			const QRVariable* newArg = VarFact.getNewVar(arg1->getName());
+			const QRVariable* newArg = getNewCopyVar ( arg1, ++n );
 			QRAtom* newAtom = new QRRoleAtom(role, newArg, arg2);
 			if ( PossiblyReplaceAtom(query, i, newAtom, newArg, passedAtoms) )
 				continue;
@@ -383,10 +409,10 @@ public:
 
 		TConceptExpr * t;
 
-		if ( Query->isFreeVar(v) ) {
+		if ( Query->isFreeVar(NewVarMap[v]) ) {
 			char buf[40];
 			sprintf(buf, "%d", Factory.GetNextNumber());
-			t = pEM -> Concept (v -> getName() + ":" + buf);
+			t = pEM -> Concept (NewVarMap[v]->getName() + ":" + buf);
 		} else {
 			t = pEM -> Top ();
 		}
