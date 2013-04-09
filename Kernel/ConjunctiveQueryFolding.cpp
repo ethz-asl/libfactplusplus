@@ -59,6 +59,10 @@ VariableFactory VarFact;
 #define E(r) pEM->Exists(pEM->ObjectRole(#r),pEM->Top())
 #define Ei(r) pEM->Exists(pEM->Inverse(pEM->ObjectRole(#r)),pEM->Top())
 
+//----------------------------------------------------------------------------------
+// some queries
+//----------------------------------------------------------------------------------
+
 void buildQueryFigure2 ( QRQuery * query)
 {
 	const QRVariable* x = VarFact.getNewVar("x");
@@ -159,51 +163,40 @@ inline QRQuery* createQuery(void)
 	return query;
 }
 
-void printAtom(const QRAtom * queryAtom)
+//----------------------------------------------------------------------------------
+// print methods
+//----------------------------------------------------------------------------------
+
+static inline std::ostream&
+operator << ( std::ostream& o, const QRVariable* var )
 {
-	if (queryAtom == NULL)
-		std::cout << "NULL\n";
-	else
-	{
-		const QRRoleAtom * atom = dynamic_cast<const QRRoleAtom*> (queryAtom);
-		const QRVariable * arg1 = dynamic_cast <const QRVariable *> (atom -> getArg1() ) ;
-		const QRVariable * arg2 = dynamic_cast <const QRVariable *> (atom -> getArg2() ) ;
-
-		std::cout << dynamic_cast<const TDLObjectRoleName*>(atom ->getRole()) -> getName() << "  ";
-		std::cout << arg1->getName() << " ("<< (long int) arg1 << ") " << arg2->getName() << " ("<< (long int) arg2 << ")\n";
-	}
+	o << var->getName().c_str();
+	return o;
 }
 
-void printQuery(QRQuery * query) {
-
-	for (QRSetAtoms::const_iterator atomIterator = query->Body.begin();
-		 atomIterator != query->Body.end();
-		 ++atomIterator)
-	{
-		if (const QRRoleAtom * atom = dynamic_cast<const QRRoleAtom*> (* atomIterator)) {
-			const QRVariable * arg1 = dynamic_cast <const QRVariable *> (atom -> getArg1() ) ;
-			const QRVariable * arg2 = dynamic_cast <const QRVariable *> (atom -> getArg2() ) ;
-
-			std::cout << dynamic_cast<const TDLObjectRoleName*>(atom ->getRole()) -> getName() << "  ";
-			std::cout << arg1 -> getName() << " ("<< (long int) arg1 << ") " ;
-			std::cout << arg2 -> getName() << " ("<< (long int) arg2 << ") ";
-			std::cout << "\n";
-		};
-		if (const QRConceptAtom * atom = dynamic_cast<const QRConceptAtom*> (* atomIterator)) {
-			const QRVariable * arg = dynamic_cast <const QRVariable *> (atom -> getArg() ) ;
-
-			std::cout << dynamic_cast<const TDLConceptName*>(atom ->getConcept()) -> getName() << "  ";
-			std::cout << arg -> getName() << " ("<< (long int) arg << ") " ;
-			std::cout << "\n";
-		};
-
-	}
-	std::cout << "END OF PRINT QUERY\n";
+static inline std::ostream&
+operator << ( std::ostream& o, const QRAtom* atom )
+{
+	if ( atom == NULL )
+		o << "NULL";
+	else if ( const QRRoleAtom* role = dynamic_cast<const QRRoleAtom*>(atom) )
+		o << dynamic_cast<const TDLObjectRoleName*>(role->getRole())->getName() << "("
+		  << dynamic_cast<const QRVariable*>(role->getArg1()) << ","
+		  << dynamic_cast<const QRVariable*>(role->getArg2()) << ")";
+	else if ( const QRConceptAtom* concept = dynamic_cast<const QRConceptAtom*>(atom) )
+		o << dynamic_cast<const TDLConceptName*>(concept->getConcept())->getName() << "("
+		  << dynamic_cast<const QRVariable*>(concept->getArg()) << ")";
+	return o;
 }
 
-
-void printVariable(const QRVariable * var ) {
-	std::cout << var -> getName() << " ("<< (long int) var << ") ";
+static inline std::ostream&
+operator << ( std::ostream& o, const QRQuery * query )
+{
+	o << "Query = {";
+	for (QRSetAtoms::const_iterator p = query->Body.begin(), p_end = query->Body.end(); p != p_end; ++p )
+		o << "\n" << *p;
+	o << " }\n";
+	return o;
 }
 
 class QueryConnectednessChecker {
@@ -288,8 +281,7 @@ bool PossiblyReplaceAtom(QRQuery* query,
 		QRSetAtoms::const_iterator atomIterator, QRAtom* newAtom, const QRVariable* newArg,
 		std::set<const QRAtom*>& passedAtoms)
 {
-	std::cout << "Modified code starts here!\nBefore replacing in copy." << std::endl;
-	printQuery(query);
+	std::cout << "Modified code starts here!\nBefore replacing in copy.\n" << query;
 	QRAtom* oldAtom = query->Body.replaceAtom(atomIterator, newAtom);
 	query->setVarFree(newArg);
 	std::cout << "Running Checker" << std::endl;
@@ -297,8 +289,7 @@ bool PossiblyReplaceAtom(QRQuery* query,
 	bool ret;
 	if (checker.isConnected())
 	{
-		std::cout << "Connected\nAfter replacing in Query" << std::endl;
-		printQuery(query);
+		std::cout << "Connected\nAfter replacing in Query\n" << query;
 		ret = true;
 	}
 	else
@@ -362,14 +353,14 @@ void transformQueryPhase1(QRQuery * query) {
 		const QRVariable* arg1 = dynamic_cast <const QRVariable*>(atom->getArg1()) ;
 		const QRVariable* arg2 = dynamic_cast <const QRVariable*>(atom->getArg2()) ;
 
-		if ( query->FreeVars.count(arg2) > 0 )
+		if ( query->isFreeVar(arg2) )
 		{
 			const QRVariable* newArg = getNewCopyVar ( arg2, ++n );
 			QRAtom* newAtom = new QRRoleAtom(role, arg1, newArg);
 			if ( PossiblyReplaceAtom(query, i, newAtom, newArg, passedAtoms) )
 				continue;
 		}
-		else if ( query->FreeVars.count(arg1) > 0 )
+		else if ( query->isFreeVar(arg1) )
 		{
 			const QRVariable* newArg = getNewCopyVar ( arg1, ++n );
 			QRAtom* newAtom = new QRRoleAtom(role, newArg, arg2);
@@ -398,12 +389,9 @@ class TermAssigner {
 	int N;
 public:
 	TermAssigner(QRQuery * query) : Query (query), Factory(), N(0) {}
-	TConceptExpr * Assign (QRAtom * previousAtom, const QRVariable * v) {
-		std::cout << "Assign:\n variable: ";
-		printVariable(v);
-		std::cout << "\n atom:";
-		printAtom(previousAtom);
-		std::cout << std::endl;
+	TConceptExpr * Assign (QRAtom * previousAtom, const QRVariable * v)
+	{
+		std::cout << "Assign:\n variable: " << v << "\n atom: " << previousAtom << std::endl;
 
 		PassedVertice.insert(v);
 
@@ -481,10 +469,9 @@ public:
 TConceptExpr * transformQueryPhase2(QRQuery * query) {
 	TermAssigner assigner (query);
 	assigner.DeleteFictiveVariables();
-	std::cout << "Assigner initialised; var: ";
-	printVariable(* ( query -> FreeVars.begin()));
-	std::cout << "\n";
-	return assigner.Assign(NULL, * (query -> FreeVars.begin()) );
+	const QRVariable* var = *(query->FreeVars.begin());
+	std::cout << "Assigner initialised; var: " << var << "\n";
+	return assigner.Assign ( NULL, var );
 };
 
 bool IsNominal(const TConceptExpr * expr ) {
@@ -840,8 +827,7 @@ public:		// interface
 	void Run ( void )
 	{
 		transformQueryPhase1(Query);
-		std::cout << "After Phase 1\n";
-		printQuery(Query);
+		std::cout << "After Phase 1\n" << Query;
 		TConceptExpr * term = transformQueryPhase2 (Query);
 		TLISPExpressionPrinter pr(std::cout);
 		char propositionalVariable[20];
@@ -911,8 +897,7 @@ public:		// interface
 
 void doQuery ( QRQuery* query, ReasoningKernel* kernel )
 {
-	std::cout << "Next query: ";
-	printQuery(query);
+	std::cout << "Next query: " << query;
 
 	QueryConnectednessChecker cc1(query);
 	std::cout << "Connected? " << cc1.isConnected() << "\n";
