@@ -167,18 +167,7 @@ inline QRQuery* createQuery(void)
 // QRVarSet support
 //------------------------------------------------------
 
-struct QRVarLess
-{
-	bool operator()(const QRVariable* v1, const QRVariable* v2) const
-		{ return v1->getName() < v2->getName(); }
-};
-
-/// sorted set of vars
-#if 1
-	typedef std::set<const QRVariable*, QRVarLess> QRVarSet;
-#else
-	typedef std::set<const QRVariable*> QRVarSet;
-#endif
+typedef std::set<const QRVariable*> QRVarSet;
 
 //----------------------------------------------------------------------------------
 // print methods
@@ -214,6 +203,22 @@ operator << ( std::ostream& o, const QRQuery * query )
 		o << "\n" << *p;
 	o << " }\n";
 	return o;
+}
+
+//----------------------------------------------------------------------------------
+// smart AND method
+//----------------------------------------------------------------------------------
+
+static inline TConceptExpr*
+And ( TConceptExpr* C, TConceptExpr* D )
+{
+	if ( C == D )
+		return C;
+	if ( dynamic_cast<const TDLConceptTop*>(C) )
+		return D;
+	if ( dynamic_cast<const TDLConceptTop*>(D) )
+		return C;
+	return pEM->And(C,D);
 }
 
 class QueryConnectednessChecker {
@@ -388,42 +393,32 @@ void transformQueryPhase1(QRQuery * query) {
 	}
 }
 
-
-class NumberFactory {
-	int N;
-public:
-	NumberFactory() : N(0) {}
-	~NumberFactory() {}
-	int GetNextNumber() {
-		return ++N;
-	}
-};
-
 class TermAssigner {
 	QRVarSet PassedVertice;
 	QRQuery * Query;
-	NumberFactory Factory;
 	int N;
-public:
-	TermAssigner(QRQuery * query) : Query (query), Factory(), N(0) {}
-	TConceptExpr * Assign (QRAtom * previousAtom, const QRVariable * v)
+
+protected:
+	TConceptExpr* createVar ( const QRVariable* v )
 	{
-		std::cout << "Assign:\n variable: " << v << "\n atom: " << previousAtom << std::endl;
-
-		PassedVertice.insert(v);
-
-		TConceptExpr * t;
-
-		if ( Query->isFreeVar(NewVarMap[v]) ) {
+		if ( Query->isFreeVar(NewVarMap[v]) )
+		{
 			char buf[40];
-			sprintf(buf, "%d", Factory.GetNextNumber());
-			t = pEM -> Concept (NewVarMap[v]->getName() + ":" + buf);
-		} else {
-			t = pEM -> Top ();
+			sprintf(buf, ":%d", ++N);
+			return pEM->Concept(NewVarMap[v]->getName()+buf);
 		}
 
+		return pEM->Top();
+	}
 
-		TConceptExpr * s = pEM -> Top();
+public:
+	TermAssigner(QRQuery * query) : Query (query), N(0) {}
+
+	TConceptExpr* Assign(QRAtom* previousAtom, const QRVariable* v) {
+		std::cout << "Assign:\n variable: " << v << "\n atom: " << previousAtom << std::endl;
+		PassedVertice.insert(v);
+
+		TConceptExpr* s = pEM->Top(), *t = createVar(v);
 
 		for (QRSetAtoms::const_iterator atomIterator = Query->Body.begin();
 			 atomIterator != Query->Body.end();
@@ -439,16 +434,14 @@ public:
 
 				if (arg1 == v) {
 					TConceptExpr * p = Assign ( *atomIterator, arg2);
-					TConceptExpr * p1 = pEM->Exists(role, p);
-					TConceptExpr * newS = pEM -> And(s, p1);
-					s = newS;
+					p = pEM->Exists(role, p);
+					s = And(s, p);
 				}
 
 				if (arg2 == v) {
 					TConceptExpr * p = Assign ( *atomIterator, arg1);
-					TConceptExpr * p1 = pEM->Exists(pEM -> Inverse(role), p);
-					TConceptExpr * newS = pEM -> And(s, p1);
-					s = newS;
+					p = pEM->Exists(pEM -> Inverse(role), p);
+					s = And(s, p);
 				}
 			}
 
@@ -456,15 +449,15 @@ public:
 				const TDLConceptExpression* concept = atom -> getConcept();
 				const QRVariable * arg = dynamic_cast <const QRVariable *> (atom -> getArg() ) ;
 				if (arg == v) {
-					TConceptExpr * newS = pEM -> And(s, concept);
-					s = newS;
+					s = And(s, concept);
 				}
 			}
 		}
-		return pEM -> And(t, s);
+
+		return And(t, s);
 	}
 	void DeleteFictiveVariables () {
-		std::set<const QRVariable *> RealFreeVars;
+		QRQuery::QRVarSet RealFreeVars;
 		for (QRSetAtoms::const_iterator atomIterator = Query->Body.begin();
 				 atomIterator != Query->Body.end();
 				 ++atomIterator)
@@ -478,7 +471,7 @@ public:
 					RealFreeVars.insert(arg2);
 			}
 		}
-		Query -> FreeVars = RealFreeVars;
+		Query->FreeVars = RealFreeVars;
 	}
 };
 
@@ -745,7 +738,7 @@ public:		// visitor interface
 				if (p == expr.begin()) {
 					s = ReplaceResult[*p];
 				} else {
-					s = pEM -> And(s, ReplaceResult[*p]);
+					s = And(s, ReplaceResult[*p]);
 				}
 			}
 			ReplaceResult.insert(std::pair<const TConceptExpr*, const TConceptExpr*>( &(expr), s));
