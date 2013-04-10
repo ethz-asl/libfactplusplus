@@ -335,8 +335,14 @@ std::map<const QRVariable*, const QRVariable*> NewVarMap;
 static inline void initVarMap ( const QRQuery* query )
 {
 	NewVarMap.clear();
-	for ( std::set<const QRVariable*>::const_iterator p = query->FreeVars.begin(), p_end = query->FreeVars.end(); p != p_end; ++p )
-		NewVarMap[*p] = *p;
+	for ( QRSetAtoms::const_iterator p = query->Body.begin(), p_end = query->Body.end(); p != p_end; ++p )
+		if ( const QRRoleAtom* atom = dynamic_cast<const QRRoleAtom*>(*p) )
+		{
+			if ( const QRVariable* var1 = dynamic_cast<const QRVariable*>(atom->getArg1()) )
+				NewVarMap[var1] = var1;
+			if ( const QRVariable* var2 = dynamic_cast<const QRVariable*>(atom->getArg2()) )
+				NewVarMap[var2] = var2;
+		}
 }
 
 /// create a new var which is a copy of an existing one
