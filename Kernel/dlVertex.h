@@ -95,9 +95,9 @@ class DLVertexCache
 {
 protected:	// members
 		/// cache for the positive entry
-	modelCacheInterface* pCache;
+	const modelCacheInterface* pCache;
 		/// cache for the negative entry
-	modelCacheInterface* nCache;
+	const modelCacheInterface* nCache;
 
 public:		// interface
 		/// empty c'tor
@@ -110,7 +110,7 @@ public:		// interface
 		/// return cache wrt positive flag
 	const modelCacheInterface* getCache ( bool pos ) const { return pos ? pCache : nCache; }
 		/// set cache wrt positive flag; note that cache is set up only once
-	void setCache ( bool pos, modelCacheInterface* p )
+	void setCache ( bool pos, const modelCacheInterface* p )
 	{
 		if ( pos )
 			pCache = p;

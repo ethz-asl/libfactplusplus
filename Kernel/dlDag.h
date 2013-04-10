@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2012 by Dmitry Tsarkov
+Copyright (C) 2003-2013 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -267,7 +267,7 @@ public:		// interface
 	const modelCacheInterface* getCache ( BipolarPointer p ) const
 		{ return operator[](p).getCache(isPositive(p)); }
 		/// set cache for given BiPointer; @return given cache
-	void setCache ( BipolarPointer p, modelCacheInterface* cache )
+	void setCache ( BipolarPointer p, const modelCacheInterface* cache )
 		{ operator[](p).setCache ( isPositive(p), cache ); }
 
 	// sort interface
@@ -338,6 +338,10 @@ public:		// interface
 	void Save ( std::ostream& o ) const;
 		/// load entry
 	void Load ( std::istream& i );
+		/// save cache of all nodes
+	void SaveCache ( std::ostream& o ) const;
+		/// load cache of all nodes
+	void LoadCache ( std::istream& i );
 }; // DLDag
 
 #include "dlVHashImpl.h"

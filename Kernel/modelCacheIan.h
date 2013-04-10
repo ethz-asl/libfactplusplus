@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2010 by Dmitry Tsarkov
+Copyright (C) 2003-2013 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -215,6 +215,15 @@ public:
 		/// log this cache entry (with given level)
 	virtual void logCacheEntry ( unsigned int level ) const;
 #endif
+
+	//----------------------------------------------
+	//-- save/load interface; implementation in SaveLoad.cpp
+	//----------------------------------------------
+
+		/// save internal state of the Kernel to a file NAME
+	void Save ( std::ostream& o ) const;
+		/// load internal state of the Kernel from a file NAME
+	void Load ( std::istream& i );
 }; // modelCacheIan
 
 #endif

@@ -352,6 +352,7 @@ TBox :: Save ( ostream& o ) const
 		o << "\nCT";
 		pTax->Save(o);
 	}
+	DLHeap.SaveCache(o);
 }
 
 void
@@ -392,6 +393,7 @@ TBox :: Load ( istream& i, KBStatus status )
 		expectChar(i,'T');
 		pTax->Load(i);
 	}
+	DLHeap.LoadCache(i);
 }
 
 //----------------------------------------------------------
@@ -732,11 +734,152 @@ DLDag :: Load ( istream& i )
 		DagTag tag = static_cast<DagTag>(loadUInt(i));
 		DLVertex* v = new DLVertex(tag);
 		v->Load(i);
-		directAdd(v);	// FIXME!! think about ..AndCache
+		directAdd(v);
 	}
 
 	// only reasoning now -- no cache
 	setFinalSize();
+}
+
+static void
+SaveSingleCache ( std::ostream& o, BipolarPointer bp, const modelCacheInterface* cache )
+{
+	if ( cache == NULL )
+		return;
+	saveUInt(o,cache->getCacheType());
+	switch ( cache->getCacheType() )
+	{
+	case modelCacheInterface::mctConst:
+		saveUInt ( o, cache->getState() == csValid );
+		break;
+
+	case modelCacheInterface::mctSingleton:
+		saveSInt ( o, dynamic_cast<const modelCacheSingleton*>(cache)->getValue() );
+		break;
+
+	case modelCacheInterface::mctIan:
+		dynamic_cast<const modelCacheIan*>(cache)->Save(o);
+		break;
+
+	default:
+		fpp_unreachable();
+	}
+	o << "\n";
+}
+
+static const modelCacheInterface*
+LoadSingleCache ( std::istream& i )
+{
+	modelCacheState state = (modelCacheState)loadUInt(i);
+	switch ( state )
+	{
+	case modelCacheInterface::mctConst:
+		return new modelCacheConst ( loadUInt(i) != 0 );
+	case modelCacheInterface::mctSingleton:
+		return new modelCacheSingleton(loadSInt(i));
+	case modelCacheInterface::mctIan:
+	{
+		bool hasNominals = bool(loadUInt(i));
+		unsigned int nC = loadUInt(i);
+		unsigned int nR = loadUInt(i);
+		modelCacheIan* cache = new modelCacheIan ( hasNominals, nC, nR );
+		cache->Load(i);
+		return cache;
+	}
+
+	default:
+		fpp_unreachable();
+	}
+}
+
+void
+DLDag :: SaveCache ( ostream& o ) const
+{
+	o << "\nDC";	// dag cache
+	for ( unsigned int i = 2; i < Heap.size(); ++i )
+	{
+		DLVertex* v = Heap[i];
+		SaveSingleCache ( o, i, v->getCache(true) );
+		SaveSingleCache ( o, i, v->getCache(false) );
+	}
+	saveUInt(o,0);
+}
+
+void
+DLDag :: LoadCache ( std::istream& i )
+{
+	expectChar(i,'D');
+	expectChar(i,'C');
+	BipolarPointer bp = loadSInt(i);
+	while ( bp != 0 )
+	{
+		setCache ( bp, LoadSingleCache(i) );
+		bp = loadSInt(i);
+	}
+}
+
+//----------------------------------------------------------
+//-- Implementation of the modelCacheIan methods (modelCacheIan.h)
+//----------------------------------------------------------
+
+static void
+SaveIndexSet ( std::ostream& o, const TSetAsTree& Set )
+{
+	for ( unsigned int i = 1; i < Set.maxSize(); ++i )
+		if ( Set.contains(i) )
+			saveUInt(o,i);
+	saveUInt(o,0);
+}
+
+static void
+LoadIndexSet ( std::istream& i, TSetAsTree& Set )
+{
+	unsigned int n = loadUInt(i);
+	while ( n != 0 )
+	{
+		Set.insert(n);
+		n = loadUInt(i);
+	}
+}
+
+void
+modelCacheIan :: Save ( std::ostream& o ) const
+{
+	// header: hasNominals, nC, nR
+	saveUInt(o,hasNominalNode);
+	saveUInt(o,posDConcepts.maxSize());
+	saveUInt(o,existsRoles.maxSize());
+	// the body that will be loaded
+	SaveIndexSet(o,posDConcepts);
+	SaveIndexSet(o,posNConcepts);
+	SaveIndexSet(o,negDConcepts);
+	SaveIndexSet(o,negNConcepts);
+#ifdef RKG_USE_SIMPLE_RULES
+	SaveIndexSet(o,extraDConcepts);
+	SaveIndexSet(o,extraNConcepts);
+#endif
+	SaveIndexSet(o,existsRoles);
+	SaveIndexSet(o,forallRoles);
+	SaveIndexSet(o,funcRoles);
+	saveUInt(o,curState);
+}
+
+void
+modelCacheIan :: Load ( std::istream& i )
+{
+	// note that nominals, nC and nR already read, and all sets are created
+	LoadIndexSet(i,posDConcepts);
+	LoadIndexSet(i,posNConcepts);
+	LoadIndexSet(i,negDConcepts);
+	LoadIndexSet(i,negNConcepts);
+#ifdef RKG_USE_SIMPLE_RULES
+	LoadIndexSet(i,extraDConcepts);
+	LoadIndexSet(i,extraNConcepts);
+#endif
+	LoadIndexSet(i,existsRoles);
+	LoadIndexSet(i,forallRoles);
+	LoadIndexSet(i,funcRoles);
+	curState = (modelCacheState) loadUInt(i);
 }
 
 //----------------------------------------------------------
@@ -747,7 +890,6 @@ void
 DLVertex :: Save ( ostream& o ) const
 {
 	saveUInt(o,static_cast<unsigned int>(Type()));
-	// FIXME!! save Cache if applicable; this will help reasoning
 
 	switch ( Type() )
 	{
@@ -807,8 +949,7 @@ DLVertex :: Save ( ostream& o ) const
 void
 DLVertex :: Load ( istream& i )
 {
-	// now OP is already saved
-	// FIXME!! load Cache if applicable; this will help reasoning
+	// now OP is already loaded
 	switch ( Type() )
 	{
 	case dtBad:

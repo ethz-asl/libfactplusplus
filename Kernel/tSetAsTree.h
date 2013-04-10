@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2011 by Dmitry Tsarkov
+Copyright (C) 2003-2013 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -108,6 +108,11 @@ public:		// interface
 	typedef BaseType::const_iterator const_iterator;
 	const_iterator begin ( void ) const { return Base.begin(); }
 	const_iterator end ( void ) const { return Base.end(); }
+
+		/// size of a set
+	size_t size ( void ) const { return Base.size(); }
+		/// maximal size of a set
+	unsigned int maxSize ( void ) const { return nElems; }
 }; // TSetAsTree
 
 #endif
