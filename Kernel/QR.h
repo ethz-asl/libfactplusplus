@@ -272,11 +272,23 @@ public:		// interface
 /// class for the queries
 class QRQuery
 {
+protected:	// types
+		/// struct to compare vars by name
+	struct QRVarLess
+	{
+		bool operator()(const QRVariable* v1, const QRVariable* v2) const
+			{ return v1->getName() < v2->getName(); }
+	};
+
+public:		// types
+		/// sorted set of vars
+	typedef std::set<const QRVariable*, QRVarLess> QRVarSet;
+
 public:		// members
 		/// query as a set of atoms
 	QRSetAtoms Body;
 		/// set of free variables
-	std::set<const QRVariable*> FreeVars;
+	QRVarSet FreeVars;
 
 public:		// interface
 		/// empty c'tor
