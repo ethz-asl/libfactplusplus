@@ -221,6 +221,10 @@ And ( TConceptExpr* C, TConceptExpr* D )
 	return pEM->And(C,D);
 }
 
+//----------------------------------------------------------------------------------
+// connectivity checker
+//----------------------------------------------------------------------------------
+
 class QueryConnectednessChecker {
 	QRVarSet PassedVertice;
 	QRQuery * Query; //const
@@ -298,8 +302,11 @@ public:
 	}
 };
 
+//----------------------------------------------------------------------------------
+// support for query decycling
+//----------------------------------------------------------------------------------
 
-bool PossiblyReplaceAtom(QRQuery* query,
+static bool PossiblyReplaceAtom(QRQuery* query,
 		QRSetAtoms::const_iterator atomIterator, QRAtom* newAtom, const QRVariable* newArg,
 		std::set<const QRAtom*>& passedAtoms)
 {
@@ -399,6 +406,14 @@ void transformQueryPhase1(QRQuery * query) {
 	}
 }
 
+//----------------------------------------------------------------------------------
+// query to term transformation support
+//----------------------------------------------------------------------------------
+
+std::set<TConceptExpr*> NewNominals;
+
+static inline bool isNominal ( const TConceptExpr * expr ) { return NewNominals.count(expr) > 0; }
+
 class TermAssigner {
 	QRVarSet PassedVertice;
 	QRQuery * Query;
@@ -411,14 +426,16 @@ protected:
 		{
 			char buf[40];
 			sprintf(buf, ":%d", ++N);
-			return pEM->Concept(NewVarMap[v]->getName()+buf);
+			TConceptExpr* var = pEM->Concept(NewVarMap[v]->getName()+buf);
+			NewNominals.insert(var);
+			return var;
 		}
 
 		return pEM->Top();
 	}
 
 public:
-	TermAssigner(QRQuery * query) : Query (query), N(0) {}
+	TermAssigner(QRQuery * query) : Query (query), N(0) { NewNominals.clear(); }
 
 	TConceptExpr* Assign(QRAtom* previousAtom, const QRVariable* v) {
 		std::cout << "Assign:\n variable: " << v << "\n atom: " << previousAtom << std::endl;
@@ -436,7 +453,8 @@ public:
 				const QRVariable * arg1 = dynamic_cast <const QRVariable *> (atom -> getArg1() ) ;
 				const QRVariable * arg2 = dynamic_cast <const QRVariable *> (atom -> getArg2() ) ;
 
-				if (*atomIterator == previousAtom) continue;
+				if (*atomIterator == previousAtom)
+					continue;
 
 				if (arg1 == v) {
 					TConceptExpr * p = Assign ( *atomIterator, arg2);
@@ -454,9 +472,8 @@ public:
 			if (const QRConceptAtom * atom = dynamic_cast<const QRConceptAtom*> (* atomIterator)) {
 				const TDLConceptExpression* concept = atom -> getConcept();
 				const QRVariable * arg = dynamic_cast <const QRVariable *> (atom -> getArg() ) ;
-				if (arg == v) {
+				if (arg == v)
 					s = And(s, concept);
-				}
 			}
 		}
 
@@ -490,18 +507,6 @@ TConceptExpr * transformQueryPhase2(QRQuery * query) {
 	return assigner.Assign ( NULL, var );
 };
 
-bool IsNominal(const TConceptExpr * expr ) {
-	if (const TDLConceptName * conceptName = dynamic_cast<const TDLConceptName * >(expr)) {
-		if ((conceptName -> getName())[0] >='a' && (conceptName -> getName())[0] <= 'z') {
-			return true;
-		} else {
-			return false;
-		}
-	} else {
-		return false;
-	}
-}
-
 class TDepthMeasurer: public DLExpressionVisitorEmpty
 {
 protected:	// members
@@ -525,7 +530,7 @@ public:		// visitor interface
 
 	virtual void visit ( const TDLConceptName& expr )
 	{
-		if (IsNominal(& expr)) {
+		if (isNominal(& expr)) {
 			DepthOfNominalOccurences.insert(std::pair<const TConceptExpr*, int>( dynamic_cast<const TConceptExpr*> (&(expr)) , CurrentDepth));
 			++TotalNominalOccurences;
 		}
@@ -619,12 +624,12 @@ public:
 
 	virtual void visit ( const TDLConceptName& expr )
 	{
-		SimpleTerms.insert(std::pair<TConceptExpr*, bool>( &(expr) , IsNominal(&expr) ));
+		SimpleTerms.insert(std::pair<TConceptExpr*, bool>( &(expr) , isNominal(&expr) ));
 		if ( (&expr) == Nominal) {
 			GoodTerms.insert(std::pair<TConceptExpr*, bool>( &(expr), true));
 			Path.push_back(&(expr));
 		} else {
-			GoodTerms.insert(std::pair<TConceptExpr*, bool>( &(expr), ! IsNominal(&expr) ));
+			GoodTerms.insert(std::pair<TConceptExpr*, bool>( &(expr), ! isNominal(&expr) ));
 		}
 	}
 
@@ -778,7 +783,7 @@ public:
 	{}
 
 	void Solve() {
-		while(! IsNominal(LeftPart)) {
+		while(! isNominal(LeftPart)) {
 			if ( const TDLConceptObjectExists * leftDiamond = dynamic_cast<const TDLConceptObjectExists *>(LeftPart)) {
 				const TDLObjectRoleInverse* invRole = dynamic_cast<const TDLObjectRoleInverse*>(leftDiamond -> getOR() ) ;
 				const TDLObjectRoleExpression * role = invRole -> getOR();

@@ -305,7 +305,7 @@ public:		// interface
 		/// mark a variable as a free one
 	void setVarFree ( const QRVariable* var ) { FreeVars.insert(var); }
 		/// @return true if VAR is a free var
-	bool isFreeVar ( const QRVariable* var ) const { return FreeVars.count(var) > 0; }
+	bool isFreeVar ( const QRVariable* var ) const { return var && FreeVars.count(var) > 0; }
 }; // QRQuery
 
 /// rule in a general form body -> head
