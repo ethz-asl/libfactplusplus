@@ -746,6 +746,7 @@ SaveSingleCache ( std::ostream& o, BipolarPointer bp, const modelCacheInterface*
 {
 	if ( cache == NULL )
 		return;
+	saveSInt(o,bp);
 	saveUInt(o,cache->getCacheType());
 	switch ( cache->getCacheType() )
 	{
@@ -800,7 +801,7 @@ DLDag :: SaveCache ( ostream& o ) const
 	{
 		DLVertex* v = Heap[i];
 		SaveSingleCache ( o, i, v->getCache(true) );
-		SaveSingleCache ( o, i, v->getCache(false) );
+		SaveSingleCache ( o, -i, v->getCache(false) );
 	}
 	saveUInt(o,0);
 }
