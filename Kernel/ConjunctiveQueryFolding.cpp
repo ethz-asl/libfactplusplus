@@ -422,7 +422,7 @@ class TermAssigner {
 protected:
 	TConceptExpr* createVar ( const QRVariable* v )
 	{
-		if ( Query->isFreeVar(NewVarMap[v]) )
+		if ( Query->isFreeVar(v) )	// NewVarMap[v]
 		{
 			char buf[40];
 			sprintf(buf, ":%d", ++N);
