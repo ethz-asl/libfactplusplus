@@ -826,9 +826,8 @@ DLDag :: LoadCache ( std::istream& i )
 static void
 SaveIndexSet ( std::ostream& o, const TSetAsTree& Set )
 {
-	for ( unsigned int i = 1; i < Set.maxSize(); ++i )
-		if ( Set.contains(i) )
-			saveUInt(o,i);
+	for ( TSetAsTree::const_iterator p = Set.begin(), p_end = Set.end(); p != p_end; ++p )
+		saveUInt(o,*p);
 	saveUInt(o,0);
 }
 
