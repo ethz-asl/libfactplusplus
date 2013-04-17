@@ -17,7 +17,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "Kernel.h"
-#include "Actor.h"
 
 typedef std::multimap<std::string, ReasoningKernel::TConceptExpr*> V2CMap;
 
@@ -54,7 +53,7 @@ ReasoningKernel :: evaluateQuery ( const V2CMap& query )
 	}
 
 	// for every var: create an expression of vars
-	std::vector<TConceptExpr*> Concepts;
+	std::vector<DLTree*> Concepts;
 	std::cout << "Tuple <";
 	TExpressionManager* pEM = getExpressionManager();
 	for ( size_t i = 0; i < I2Var.size(); ++i )
@@ -66,20 +65,99 @@ ReasoningKernel :: evaluateQuery ( const V2CMap& query )
 		pEM->newArgList();
 		for ( V2CMap::const_iterator p = query.lower_bound(var), p_end = query.upper_bound(var); p != p_end; ++p )
 			pEM->addArg(p->second);
-		Concepts.push_back(pEM->And());
+		Concepts.push_back(e(pEM->And()));
 	}
 	std::cout << ">\n";
 
-	if ( I2Var.size() == 1 )	// tree-like query
+//	if ( Concepts.size() == 1 )
+		getTBox()->answerQuery(Concepts);
+}
+
+template<typename Elem>
+class Iterable
+{
+public:		// interface
+	typedef std::vector<Elem> ElemVec;
+	const ElemVec Elems;
+	typename ElemVec::const_iterator pBeg, pEnd, pCur;
+		/// init c'tor
+	Iterable ( const ElemVec Init )
+		: Elems(Init)
+		, pBeg(Elems.begin())
+		, pEnd(Elems.end())
+		, pCur(pBeg)
 	{
-		Actor a;
-		a.needIndividuals();
-		getInstances ( Concepts.back(), a );
-		const char** names = a.getElements1D();
-		for ( const char* name = *names; name; name++ )
-			std::cout << name << "\n";
-		std::cout << std::endl;
-		return;
+		if ( Elems.empty() )	// no empty vecs allowed here
+			fpp_unreachable();
 	}
 
+	const Elem getCur ( void ) const { return *pCur; }
+	bool next ( void )
+	{
+		if ( ++pCur == pEnd )
+		{
+			pCur = pBeg;
+			return true;
+		}
+		return false;
+	}
+}; // Iterable
+
+template<typename Elem>
+class IterableVec
+{
+protected:	// members
+		/// cached size of a vec
+	int last;
+
+protected:	// methods
+		/// move I'th iterable forward; deal with end-case
+	bool next ( int i )
+	{
+		if ( Base[i]->next() )	// finish with them
+			return i == 0 ? true : next(i-1);
+		return false;
+	}
+public:
+	typedef std::vector<Iterable<Elem>* > ItVec;
+	ItVec Base;
+		/// empty c'tor
+	IterableVec ( void ) : last(-1) {}
+		/// d'tor: delete individual iterables
+	~IterableVec ( void )
+	{
+		for ( typename ItVec::iterator p = Base.begin(), p_end = Base.end(); p != p_end; ++p )
+			delete *p;
+	}
+
+		/// add a new iteralbe to a vec
+	void add ( Iterable<Elem>* It ) { Base.push_back(It); last++; }
+		/// get next position
+	bool next ( void ) { return next(last); }
+
+	size_t size ( void ) const { return Base.size(); }
+	Elem get(size_t i ) const { return Base[i]->getCur(); }
+}; // IterableVec
+void
+TBox :: answerQuery ( const std::vector<DLTree*>& Cs )
+{
+	typedef std::vector<BipolarPointer> BPvec;
+	BPvec concepts;
+	for ( std::vector<DLTree*>::const_iterator q = Cs.begin(), q_end = Cs.end(); q != q_end; ++q )
+		concepts.push_back(tree2dag(*q));
+//	std::vector<TIndividual*> Attempt(Cs.size());
+//	for ( BPvec::const_iterator p = concepts.begin(), p_end = concepts.end(); p != p_end; ++p )
+	std::vector<int> Sample;
+	for ( int i = 0; i < Cs.size(); i++ )
+		Sample.push_back(i);
+	IterableVec<int> IVint;
+	for ( int i = 0; i < Cs.size(); i++ )
+		IVint.add(new Iterable<int>(Sample));
+
+	do
+	{
+		for ( size_t i = 0; i < IVint.size(); i++ )
+			std::cout << IVint.get(i) << " ";
+		std::cout << "\n";
+	} while ( !IVint.next() );
 }
