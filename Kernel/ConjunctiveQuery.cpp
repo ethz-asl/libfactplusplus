@@ -17,6 +17,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "Kernel.h"
+#include "ReasonerNom.h"
 
 typedef std::multimap<std::string, ReasoningKernel::TConceptExpr*> V2CMap;
 
@@ -123,12 +124,15 @@ public:
 	ItVec Base;
 		/// empty c'tor
 	IterableVec ( void ) : last(-1) {}
-		/// d'tor: delete individual iterables
-	~IterableVec ( void )
+
+	void clear ( void )
 	{
 		for ( typename ItVec::iterator p = Base.begin(), p_end = Base.end(); p != p_end; ++p )
 			delete *p;
+		Base.clear();
 	}
+		/// d'tor: delete individual iterables
+	~IterableVec ( void ) { clear(); }
 
 		/// add a new iteralbe to a vec
 	void add ( Iterable<Elem>* It ) { Base.push_back(It); last++; }
@@ -138,26 +142,47 @@ public:
 	size_t size ( void ) const { return Base.size(); }
 	Elem get(size_t i ) const { return Base[i]->getCur(); }
 }; // IterableVec
+
+IterableVec<TIndividual*> IV;
+typedef std::vector<BipolarPointer> BPvec;
+BPvec concepts;
+
 void
 TBox :: answerQuery ( const std::vector<DLTree*>& Cs )
 {
-	typedef std::vector<BipolarPointer> BPvec;
-	BPvec concepts;
+	// create BPs for all the concepts
+	concepts.clear();
 	for ( std::vector<DLTree*>::const_iterator q = Cs.begin(), q_end = Cs.end(); q != q_end; ++q )
 		concepts.push_back(tree2dag(*q));
-//	std::vector<TIndividual*> Attempt(Cs.size());
-//	for ( BPvec::const_iterator p = concepts.begin(), p_end = concepts.end(); p != p_end; ++p )
-	std::vector<int> Sample;
-	for ( int i = 0; i < Cs.size(); i++ )
-		Sample.push_back(i);
-	IterableVec<int> IVint;
-	for ( int i = 0; i < Cs.size(); i++ )
-		IVint.add(new Iterable<int>(Sample));
+
+	// all individuals to go thru
+	std::vector<TIndividual*> AllInd;
+	for ( i_iterator i = i_begin(), i_e = i_end(); i != i_e; i++ )
+		AllInd.push_back(*i);
+
+	size_t size = Cs.size();
+	IV.clear();
+	for ( size_t j = 0; j < size; j++ )
+		IV.add(new Iterable<TIndividual*>(AllInd));
 
 	do
 	{
-		for ( size_t i = 0; i < IVint.size(); i++ )
-			std::cout << IVint.get(i) << " ";
-		std::cout << "\n";
-	} while ( !IVint.next() );
+		if ( static_cast<NominalReasoner*>(nomReasoner)->checkExtraCond() )
+		{
+			for ( size_t k = 0; k < size; k++ )
+				std::cout << IV.get(k)->getName() << " ";
+			std::cout << "\n";
+		}
+	} while ( !IV.next() );
+}
+
+bool
+NominalReasoner :: checkExtraCond ( void )
+{
+	prepareReasoner();
+	DepSet dummy;
+	for ( size_t i = 0; i < IV.size(); i++ )
+		if ( addToDoEntry ( IV.get(i)->node, concepts[i], dummy, "QA" ) )
+			return true;
+	return runSat();
 }
