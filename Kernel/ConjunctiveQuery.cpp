@@ -70,7 +70,7 @@ ReasoningKernel :: evaluateQuery ( const V2CMap& query )
 	}
 	std::cout << ">\n";
 
-//	if ( Concepts.size() == 1 )
+	if ( Concepts.size() == 1 )
 		getTBox()->answerQuery(Concepts);
 }
 
@@ -184,5 +184,5 @@ NominalReasoner :: checkExtraCond ( void )
 	for ( size_t i = 0; i < IV.size(); i++ )
 		if ( addToDoEntry ( IV.get(i)->node, concepts[i], dummy, "QA" ) )
 			return true;
-	return runSat();
+	return !checkSatisfiability();
 }
