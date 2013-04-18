@@ -198,7 +198,9 @@ operator << ( std::ostream& o, const QRAtom* atom )
 static inline std::ostream&
 operator << ( std::ostream& o, const QRQuery * query )
 {
-	o << "Query = {";
+	o << "Query = { Free Vars:";
+	for ( QRQuery::QRVarSet::const_iterator v = query->FreeVars.begin(), v_end = query->FreeVars.end(); v != v_end; ++v )
+		o << " " << (*v)->getName().c_str();
 	for (QRSetAtoms::const_iterator p = query->Body.begin(), p_end = query->Body.end(); p != p_end; ++p )
 		o << "\n" << *p;
 	o << " }\n";
