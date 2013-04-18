@@ -18,12 +18,16 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "Kernel.h"
 #include "ReasonerNom.h"
+#include "Actor.h"
 
 typedef std::multimap<std::string, ReasoningKernel::TConceptExpr*> V2CMap;
 
 std::map<std::string, int> Var2I;
 std::vector<std::string> I2Var;
 
+// in ConjunctiveQueryFolding.cpp
+typedef std::map<std::string, ReasoningKernel::TConceptExpr*> VarMap;
+extern VarMap VarRestrictions;
 
 /// fills in variable index
 void fillVarIndex ( const V2CMap& query )
@@ -40,6 +44,7 @@ void fillVarIndex ( const V2CMap& query )
 	fpp_assert ( I2Var.size() == n );
 }
 
+static void fillIVec ( ReasoningKernel* kernel );
 
 void
 ReasoningKernel :: evaluateQuery ( const V2CMap& query )
@@ -70,6 +75,9 @@ ReasoningKernel :: evaluateQuery ( const V2CMap& query )
 	}
 	std::cout << ">\n";
 
+	// fills iterable vector
+	fillIVec(this);
+
 //	if ( Concepts.size() == 1 )
 		getTBox()->answerQuery(Concepts);
 }
@@ -82,7 +90,7 @@ public:		// interface
 	const ElemVec Elems;
 	typename ElemVec::const_iterator pBeg, pEnd, pCur;
 		/// init c'tor
-	Iterable ( const ElemVec Init )
+	Iterable ( const ElemVec& Init )
 		: Elems(Init)
 		, pBeg(Elems.begin())
 		, pEnd(Elems.end())
@@ -136,7 +144,7 @@ public:
 	~IterableVec ( void ) { clear(); }
 
 		/// add a new iteralbe to a vec
-	void add ( Iterable<Elem>* It ) { Base.push_back(It); last++; fpp_assert ( last == Base.size()-1 ); }
+	void add ( Iterable<Elem>* It ) { Base.push_back(It); last++; fpp_assert ( last == int(Base.size()-1) ); }
 		/// get next position
 	bool next ( void ) { return next(last); }
 
@@ -147,6 +155,25 @@ public:
 IterableVec<TIndividual*> IV;
 typedef std::vector<BipolarPointer> BPvec;
 BPvec concepts;
+
+static void
+fillIVec ( ReasoningKernel* kernel )
+{
+	std::cout << "Creating iterables...";
+	IV.clear();
+	for ( size_t i = 0; i < I2Var.size(); i++ )
+	{
+		// The i'th var is I2Var[i]; get its concept
+		const TDLConceptExpression* C = VarRestrictions[I2Var[i]];
+		// get all instances of C
+		Actor* a = new Actor();
+		a->needIndividuals();
+		kernel->getInstances(C,*a);
+		IV.add(new Iterable<TIndividual*>(a->getPlain()));
+		delete a;
+	}
+	std::cout << " done" << std::endl;
+}
 
 void
 TBox :: answerQuery ( const std::vector<DLTree*>& Cs )
@@ -164,12 +191,17 @@ TBox :: answerQuery ( const std::vector<DLTree*>& Cs )
 	for ( i_iterator i = i_begin(), i_e = i_end(); i != i_e; i++ )
 		AllInd.push_back(*i);
 
-	std::cout << " done with " << AllInd.size() << " individuals" << std::endl << "Creating iterables...";
+	std::cout << " done with " << AllInd.size() << " individuals" << std::endl;
 	size_t size = Cs.size();
+
+#if 0
+	std::cout << "Creating iterables...";
 	IV.clear();
 	for ( size_t j = 0; j < size; j++ )
 		IV.add(new Iterable<TIndividual*>(AllInd));
-	std::cout << " done\nRun consistency checks...";
+	std::cout << " done\n";
+#endif
+	std::cout << "Run consistency checks...";
 
 	size_t n = 0;
 

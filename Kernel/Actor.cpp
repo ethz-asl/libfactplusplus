@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2006-2011 by Dmitry Tsarkov
+Copyright (C) 2006-2013 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -18,6 +18,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "Actor.h"
 #include "tConcept.h"
+#include "tIndividual.h"
 
 	/// check whether actor is applicable to the ENTRY
 bool
@@ -49,4 +50,15 @@ Actor :: apply ( const TaxonomyVertex& v )
 
 	acc.push_back(syn);
 	return true;
+}
+
+const std::vector<TIndividual*>
+Actor :: getPlain ( void )
+{
+	fpp_assert ( !isRole && !isStandard );
+	std::vector<TIndividual*> vec;
+	for ( SetOfNodes::const_iterator p = acc.begin(), p_end = acc.end(); p != p_end; ++p )
+		for ( SynVector::const_iterator q = p->begin(), q_end = p->end(); q != q_end; ++q )
+			vec.push_back(static_cast<TIndividual*>(const_cast<ClassifiableEntry*>(*q)));
+	return vec;
 }

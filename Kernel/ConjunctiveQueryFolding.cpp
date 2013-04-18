@@ -222,6 +222,42 @@ And ( TConceptExpr* C, TConceptExpr* D )
 }
 
 //----------------------------------------------------------------------------------
+// concept removal
+//----------------------------------------------------------------------------------
+
+typedef std::map<std::string, ReasoningKernel::TConceptExpr*> VarMap;
+VarMap VarRestrictions;
+
+QRQuery* RemoveCFromQuery ( const QRQuery* query )
+{
+	// init VR with \top for all free vars
+	VarRestrictions.clear();
+	QRQuery* ret = new QRQuery();
+	for ( QRQuery::QRVarSet::const_iterator v = query->FreeVars.begin(), v_end = query->FreeVars.end(); v != v_end; ++v )
+	{
+		ret->setVarFree(*v);
+		VarRestrictions[(*v)->getName()] = pEM->Top();
+	}
+	std::cout << "Remove C atoms from the query: before\n" << query;
+	// remove C(v) for free vars
+	for ( QRSetAtoms::const_iterator p = query->Body.begin(), p_end = query->Body.end(); p != p_end; ++p )
+		if ( const QRConceptAtom * atom = dynamic_cast<const QRConceptAtom*>(*p) )
+		{
+			const QRVariable* var = dynamic_cast<const QRVariable *>(atom->getArg());
+			const TDLConceptExpression* C = atom->getConcept();
+			if ( var && query->isFreeVar(var) )
+				VarRestrictions[var->getName()] = And(C, VarRestrictions[var->getName()]);
+			else
+				ret->addAtom(atom->clone());
+		}
+		else
+			ret->addAtom((*p)->clone());
+	std::cout << "after\n" << ret;
+	delete query;
+	return ret;
+}
+
+//----------------------------------------------------------------------------------
 // connectivity checker
 //----------------------------------------------------------------------------------
 
@@ -368,6 +404,9 @@ void transformQueryPhase1(QRQuery * query) {
 	std::set<const QRAtom*> passedAtoms;
 	int n = 0;
 	QRSetAtoms::const_iterator nextAtomIterator;
+
+	// remove C's
+	query = RemoveCFromQuery(query);
 
 	// clear the map and make identities
 	initVarMap(query);

@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2006-2011 by Dmitry Tsarkov
+Copyright (C) 2006-2013 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -20,6 +20,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #define ACTOR_H
 
 #include "taxVertex.h"
+
+class TIndividual;
 
 /// class for acting with concept taxonomy
 class Actor
@@ -109,6 +111,8 @@ public:		// interface
 			vec.insert ( vec.end(), p->begin(), p->end() );
 		return buildArray(vec);
 	}
+
+	const std::vector<TIndividual*> getPlain ( void );
 
 		/// taxonomy walking method.
 		/// @return true if node was processed, and there is no need to go further
