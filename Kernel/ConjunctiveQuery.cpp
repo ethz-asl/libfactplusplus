@@ -70,7 +70,7 @@ ReasoningKernel :: evaluateQuery ( const V2CMap& query )
 	}
 	std::cout << ">\n";
 
-	if ( Concepts.size() == 1 )
+//	if ( Concepts.size() == 1 )
 		getTBox()->answerQuery(Concepts);
 }
 
@@ -130,12 +130,13 @@ public:
 		for ( typename ItVec::iterator p = Base.begin(), p_end = Base.end(); p != p_end; ++p )
 			delete *p;
 		Base.clear();
+		last = -1;
 	}
 		/// d'tor: delete individual iterables
 	~IterableVec ( void ) { clear(); }
 
 		/// add a new iteralbe to a vec
-	void add ( Iterable<Elem>* It ) { Base.push_back(It); last++; }
+	void add ( Iterable<Elem>* It ) { Base.push_back(It); last++; fpp_assert ( last == Base.size()-1 ); }
 		/// get next position
 	bool next ( void ) { return next(last); }
 
@@ -150,23 +151,32 @@ BPvec concepts;
 void
 TBox :: answerQuery ( const std::vector<DLTree*>& Cs )
 {
+	DLHeap.removeQuery();
+	std::cout << "Transforming concepts...";
 	// create BPs for all the concepts
 	concepts.clear();
 	for ( std::vector<DLTree*>::const_iterator q = Cs.begin(), q_end = Cs.end(); q != q_end; ++q )
 		concepts.push_back(tree2dag(*q));
+	std::cout << " done" << std::endl << "Filling all individuals...";
 
 	// all individuals to go thru
 	std::vector<TIndividual*> AllInd;
 	for ( i_iterator i = i_begin(), i_e = i_end(); i != i_e; i++ )
 		AllInd.push_back(*i);
 
+	std::cout << " done with " << AllInd.size() << " individuals" << std::endl << "Creating iterables...";
 	size_t size = Cs.size();
 	IV.clear();
 	for ( size_t j = 0; j < size; j++ )
 		IV.add(new Iterable<TIndividual*>(AllInd));
+	std::cout << " done\nRun consistency checks...";
+
+	size_t n = 0;
 
 	do
 	{
+		if ( n++ % 1000 == 0 )
+			std::cout << n << std::endl;
 		if ( static_cast<NominalReasoner*>(nomReasoner)->checkExtraCond() )
 		{
 			for ( size_t k = 0; k < size; k++ )
