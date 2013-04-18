@@ -402,7 +402,8 @@ getNewCopyVar ( const QRVariable* old, int suffix )
 }
 
 
-void transformQueryPhase1(QRQuery * query) {
+static QRQuery*
+transformQueryPhase1(QRQuery * query) {
 	std::set<const QRAtom*> passedAtoms;
 	int n = 0;
 	QRSetAtoms::const_iterator nextAtomIterator;
@@ -445,6 +446,8 @@ void transformQueryPhase1(QRQuery * query) {
 		}
 		i++;
 	}
+
+	return query;
 }
 
 //----------------------------------------------------------------------------------
@@ -888,7 +891,7 @@ public:		// interface
 		/// main method to do the work
 	void Run ( void )
 	{
-		transformQueryPhase1(Query);
+		Query = transformQueryPhase1(Query);
 		std::cout << "After Phase 1\n" << Query;
 		TConceptExpr * term = transformQueryPhase2 (Query);
 		TLISPExpressionPrinter pr(std::cout);
