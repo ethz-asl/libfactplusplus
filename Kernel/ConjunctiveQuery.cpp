@@ -98,6 +98,7 @@ public:		// interface
 	{
 		if ( Elems.empty() )	// no empty vecs allowed here
 			fpp_unreachable();
+		std::cout << " " << Init.size();
 	}
 
 	const Elem getCur ( void ) const { return *pCur; }
