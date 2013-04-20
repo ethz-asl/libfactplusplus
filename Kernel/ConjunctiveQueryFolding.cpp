@@ -374,7 +374,8 @@ static bool PossiblyReplaceAtom(QRQuery* query,
 }
 
 /// map between new vars and original vars
-std::map<const QRVariable*, const QRVariable*> NewVarMap;
+typedef std::map<const QRVariable*, const QRVariable*> VarVarMap;
+VarVarMap NewVarMap;
 
 /// init vars map
 static inline void initVarMap ( const QRQuery* query )
@@ -578,11 +579,20 @@ public:
 static void BuildAproximation ( const QRQuery* query )
 {
 	QueryApproximation app;
+
+	typedef std::map<const QRVariable*, const TConceptExpr*> VEMap;
+	VEMap approx;
+	for ( VarVarMap::const_iterator p = NewVarMap.begin(), p_end = NewVarMap.end(); p != p_end; ++p )
+		approx[p->second] = pEM->Top();
+
 	for ( QRQuery::QRVarSet::const_iterator v = query->FreeVars.begin(), v_end = query->FreeVars.end(); v != v_end; ++v )
 	{
 		const QRVariable* var = NewVarMap[*v];
-		VarRestrictions[var->getName()] = And ( VarRestrictions[var->getName()], app.Assign ( query, NULL, *v ) );
+		approx[var] = And ( approx[var], app.Assign ( query, NULL, *v ) );
 	}
+
+	for ( VEMap::const_iterator q = approx.begin(), q_end = approx.end(); q!= q_end; ++q )
+		VarRestrictions[q->first->getName()] = And ( VarRestrictions[q->first->getName()], q->second );
 }
 
 class TDepthMeasurer: public DLExpressionVisitorEmpty
