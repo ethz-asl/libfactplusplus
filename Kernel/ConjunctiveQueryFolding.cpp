@@ -458,37 +458,25 @@ std::set<TConceptExpr*> NewNominals;
 
 static inline bool isNominal ( const TConceptExpr * expr ) { return NewNominals.count(expr) > 0; }
 
-class TermAssigner {
+class BuildELIOConcept
+{
 	QRVarSet PassedVertice;
-	QRQuery * Query;
-	int N;
+protected:	// methods
+		/// general creation of a concept by a var
+	virtual TConceptExpr* createConceptByVar ( const QRVariable* v ) = 0;
+public:		// interafce
+		/// empty d'tor
+	virtual ~BuildELIOConcept ( void ) {}
 
-protected:
-	TConceptExpr* createVar ( const QRVariable* v )
-	{
-		if ( Query->isFreeVar(v) )	// NewVarMap[v]
-		{
-			char buf[40];
-			sprintf(buf, ":%d", ++N);
-			TConceptExpr* var = pEM->Concept(NewVarMap[v]->getName()+buf);
-			NewNominals.insert(var);
-			return var;
-		}
-
-		return pEM->Top();
-	}
-
-public:
-	TermAssigner(QRQuery * query) : Query (query), N(0) { NewNominals.clear(); }
-
-	TConceptExpr* Assign(QRAtom* previousAtom, const QRVariable* v) {
+		/// assign the concept to a term
+	TConceptExpr* Assign ( const QRQuery* query, QRAtom* previousAtom, const QRVariable* v) {
 		std::cout << "Assign:\n variable: " << v << "\n atom: " << previousAtom << std::endl;
 		PassedVertice.insert(v);
 
-		TConceptExpr* s = pEM->Top(), *t = createVar(v);
+		TConceptExpr* s = pEM->Top(), *t = createConceptByVar(v);
 
-		for (QRSetAtoms::const_iterator atomIterator = Query->Body.begin();
-			 atomIterator != Query->Body.end();
+		for (QRSetAtoms::const_iterator atomIterator = query->Body.begin();
+			 atomIterator != query->Body.end();
 			 ++atomIterator)
 		{
 
@@ -501,13 +489,13 @@ public:
 					continue;
 
 				if (arg1 == v) {
-					TConceptExpr * p = Assign ( *atomIterator, arg2);
+					TConceptExpr * p = Assign ( query, *atomIterator, arg2 );
 					p = pEM->Exists(role, p);
 					s = And(s, p);
 				}
 
 				if (arg2 == v) {
-					TConceptExpr * p = Assign ( *atomIterator, arg1);
+					TConceptExpr * p = Assign ( query, *atomIterator, arg1);
 					p = pEM->Exists(pEM -> Inverse(role), p);
 					s = And(s, p);
 				}
@@ -523,33 +511,58 @@ public:
 
 		return And(t, s);
 	}
-	void DeleteFictiveVariables () {
-		QRQuery::QRVarSet RealFreeVars;
-		for (QRSetAtoms::const_iterator atomIterator = Query->Body.begin();
-				 atomIterator != Query->Body.end();
-				 ++atomIterator)
-		{
-			if (const QRRoleAtom * atom = dynamic_cast<const QRRoleAtom*> (* atomIterator) ){
-				const QRVariable * arg1 = dynamic_cast <const QRVariable *> (atom -> getArg1() ) ;
-				const QRVariable * arg2 = dynamic_cast <const QRVariable *> (atom -> getArg2() ) ;
-				if ( Query->isFreeVar(arg1) )
-					RealFreeVars.insert(arg1);
-				if ( Query->isFreeVar(arg2) )
-					RealFreeVars.insert(arg2);
-			}
-		}
-		Query->FreeVars = RealFreeVars;
-	}
 };
 
+class TermAssigner : public BuildELIOConcept {
+	const QRQuery* Query;
+	int N;
 
-TConceptExpr * transformQueryPhase2(QRQuery * query) {
-	TermAssigner assigner (query);
-	assigner.DeleteFictiveVariables();
+protected:
+	virtual TConceptExpr* createConceptByVar ( const QRVariable* v )
+	{
+		if ( Query->isFreeVar(v) )	// NewVarMap[v]
+		{
+			char buf[40];
+			sprintf(buf, ":%d", ++N);
+			TConceptExpr* var = pEM->Concept(NewVarMap[v]->getName()+buf);
+			NewNominals.insert(var);
+			return var;
+		}
+
+		return pEM->Top();
+	}
+
+public:
+	TermAssigner ( const QRQuery* query ) : Query(query), N(0) { NewNominals.clear(); }
+	virtual ~TermAssigner ( void ) {}
+};
+
+static void
+deleteFictiveVariables ( QRQuery* query )
+{
+	QRQuery::QRVarSet RealFreeVars;
+	for ( QRSetAtoms::const_iterator p = query->Body.begin(), p_end = query->Body.end(); p != p_end; ++p )
+		if ( const QRRoleAtom * atom = dynamic_cast<const QRRoleAtom*>(*p) )
+		{
+			const QRVariable* arg1 = dynamic_cast<const QRVariable*>(atom->getArg1());
+			const QRVariable* arg2 = dynamic_cast<const QRVariable*>(atom->getArg2());
+			if ( query->isFreeVar(arg1) )
+				RealFreeVars.insert(arg1);
+			if ( query->isFreeVar(arg2) )
+				RealFreeVars.insert(arg2);
+		}
+	query->FreeVars = RealFreeVars;
+}
+
+static TConceptExpr*
+transformQueryPhase2 ( QRQuery* query )
+{
+	deleteFictiveVariables(query);
+	TermAssigner assigner(query);
 	const QRVariable* var = *(query->FreeVars.begin());
 	std::cout << "Assigner initialised; var: " << var << "\n";
-	return assigner.Assign ( NULL, var );
-};
+	return assigner.Assign ( query, NULL, var );
+}
 
 class TDepthMeasurer: public DLExpressionVisitorEmpty
 {
