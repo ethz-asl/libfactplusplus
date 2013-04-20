@@ -564,6 +564,27 @@ transformQueryPhase2 ( QRQuery* query )
 	return assigner.Assign ( query, NULL, var );
 }
 
+class QueryApproximation: public BuildELIOConcept
+{
+protected:
+	virtual TConceptExpr* createConceptByVar ( const QRVariable* v )
+	{
+		return pEM->Top();
+	}
+public:
+	virtual ~QueryApproximation ( void ) {}
+}; // QueryApproximation
+
+static void BuildAproximation ( const QRQuery* query )
+{
+	QueryApproximation app;
+	for ( QRQuery::QRVarSet::const_iterator v = query->FreeVars.begin(), v_end = query->FreeVars.end(); v != v_end; ++v )
+	{
+		const QRVariable* var = NewVarMap[*v];
+		VarRestrictions[var->getName()] = And ( VarRestrictions[var->getName()], app.Assign ( query, NULL, *v ) );
+	}
+}
+
 class TDepthMeasurer: public DLExpressionVisitorEmpty
 {
 protected:	// members
@@ -907,6 +928,7 @@ public:		// interface
 		Query = transformQueryPhase1(Query);
 		std::cout << "After Phase 1\n" << Query;
 		TConceptExpr * term = transformQueryPhase2 (Query);
+		BuildAproximation(Query);
 		TLISPExpressionPrinter pr(std::cout);
 		char propositionalVariable[20];
 		std::string lastNominal;
