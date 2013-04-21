@@ -570,7 +570,7 @@ class QueryApproximation: public BuildELIOConcept
 protected:
 	virtual TConceptExpr* createConceptByVar ( const QRVariable* v )
 	{
-		return pEM->Top();
+		return VarRestrictions[NewVarMap[v]->getName()];
 	}
 public:
 	virtual ~QueryApproximation ( void ) {}
