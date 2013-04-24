@@ -59,6 +59,11 @@ protected:	// visitor helpers
 	int isBotEquivalent ( const TDLExpression* expr ) { return getUpperBoundDirect(*expr); }
 	int isTopEquivalent ( const TDLExpression* expr ) { return getLowerBoundDirect(*expr); }
 
+		/// helper for things like >= m R.C
+	virtual int getMinUpperBound ( int m, const TDLRoleExpression* R, const TDLExpression* C ) = 0;
+		/// helper for things like <= m R.C
+	virtual int getMaxUpperBound ( int m, const TDLRoleExpression* R, const TDLExpression* C ) = 0;
+
 public:		// interface
 		/// init c'tor
 	CardinalityEvaluatorBase ( const TSignature* s ) : SigAccessor(s), value(0) {}
@@ -83,6 +88,29 @@ public:		// interface
 	int getLowerBoundDirect ( const TDLExpression* expr ) { return getLowerBoundDirect(*expr); }
 		/// implementation of evaluation
 	int getLowerBoundComplement ( const TDLExpression* expr ) { return getLowerBoundComplement(*expr); }
+
+public:		// visitor implementation: common cases
+	// concept expressions
+	virtual void visit ( const TDLConceptObjectExists& expr )
+		{ value = getMinUpperBound ( 1, expr.getOR(), expr.getC() ); }
+	virtual void visit ( const TDLConceptObjectMinCardinality& expr )
+		{ value = getMinUpperBound ( expr.getNumber(), expr.getOR(), expr.getC() ); }
+	virtual void visit ( const TDLConceptObjectMaxCardinality& expr )
+		{ value = getMaxUpperBound ( expr.getNumber(), expr.getOR(), expr.getC() ); }
+	virtual void visit ( const TDLConceptDataExists& expr )
+		{ value = getMinUpperBound ( 1, expr.getDR(), expr.getExpr() ); }
+	virtual void visit ( const TDLConceptDataMinCardinality& expr )
+		{ value = getMinUpperBound ( expr.getNumber(), expr.getDR(), expr.getExpr() ); }
+	virtual void visit ( const TDLConceptDataMaxCardinality& expr )
+		{ value = getMaxUpperBound ( expr.getNumber(), expr.getDR(), expr.getExpr() ); }
+
+	// object role expressions
+		// equivalent to R(x,y) and C(x), so copy behaviour from ER.X
+	virtual void visit ( const TDLObjectRoleProjectionFrom& expr )
+		{ value = getMinUpperBound ( 1, expr.getOR(), expr.getC() ); }
+		// equivalent to R(x,y) and C(y), so copy behaviour from ER.X
+	virtual void visit ( const TDLObjectRoleProjectionInto& expr )
+		{ value = getMinUpperBound ( 1, expr.getOR(), expr.getC() ); }
 }; // CardinalityEvaluatorBase
 
 /// determine how many instances can an expression have
@@ -90,19 +118,23 @@ class UpperBoundDirectEvaluator: public CardinalityEvaluatorBase
 {
 protected:	// methods
 		/// helper for things like >= m R.C
-	int getMinUpperBoundDirect ( int m, const TDLRoleExpression* R, const TDLExpression* C )
+	virtual int getMinUpperBound ( int m, const TDLRoleExpression* R, const TDLExpression* C )
 	{
 		// m > 0 and...
 		if ( m <= 0 )
 			return -1;
-		// C \in C^{<= m-1} or R = \bot
+		// R = \bot or...
+		if ( isBotEquivalent(R) == 0 )
+			return 0;
+		// C \in C^{<= m-1}
 		int ubC = getUpperBoundDirect(C);
 		if ( ubC != -1 && ubC < m )
 			return 0;
-		return isBotEquivalent(R);
+		else
+			return -1;
 	}
 		/// helper for things like <= m R.C
-	int getMaxUpperBoundDirect ( int m, const TDLRoleExpression* R, const TDLExpression* C )
+	virtual int getMaxUpperBound ( int m, const TDLRoleExpression* R, const TDLExpression* C )
 	{
 		// R = \top and C\in C^{>= m+1}
 		if ( isTopEquivalent(R) == -1 )
@@ -155,14 +187,8 @@ public:		// visitor implementation
 	virtual void visit ( const TDLConceptOneOf& expr ) { value = expr.size(); }
 	virtual void visit ( const TDLConceptObjectSelf& expr ) { value = isBotEquivalent(expr.getOR()); }
 	virtual void visit ( const TDLConceptObjectValue& expr ) { value = isBotEquivalent(expr.getOR()); }
-	virtual void visit ( const TDLConceptObjectExists& expr )
-		{ value = getMinUpperBoundDirect ( 1, expr.getOR(), expr.getC() ); }
 	virtual void visit ( const TDLConceptObjectForall& expr )
 		{ value = isTopEquivalent(expr.getOR()) && getLowerBoundComplement(expr.getC()) >= 1 ? 0 : -1; }
-	virtual void visit ( const TDLConceptObjectMinCardinality& expr )
-		{ value = getMinUpperBoundDirect ( expr.getNumber(), expr.getOR(), expr.getC() ); }
-	virtual void visit ( const TDLConceptObjectMaxCardinality& expr )
-		{ value = getMaxUpperBoundDirect ( expr.getNumber(), expr.getOR(), expr.getC() ); }
 	virtual void visit ( const TDLConceptObjectExactCardinality& expr )
 	{
 		int m = expr.getNumber();
@@ -170,17 +196,11 @@ public:		// visitor implementation
 		const TDLConceptExpression* C = expr.getC();
 
 		// here the maximal value between Mix and Max is an answer. The -1 case will be dealt with automagically
-		value = std::max ( getMinUpperBoundDirect ( m, R, C ), getMaxUpperBoundDirect ( m, R, C ) );
+		value = std::max ( getMinUpperBound ( m, R, C ), getMaxUpperBound ( m, R, C ) );
 	}
 	virtual void visit ( const TDLConceptDataValue& expr ) { value = isBotEquivalent(expr.getDR()); }
-	virtual void visit ( const TDLConceptDataExists& expr )
-		{ value = getMinUpperBoundDirect ( 1, expr.getDR(), expr.getExpr() ); }
 	virtual void visit ( const TDLConceptDataForall& expr )
 		{ value = isTopEquivalent(expr.getDR()) && getLowerBoundComplement(expr.getExpr()) >= 1 ? 0 : -1; }
-	virtual void visit ( const TDLConceptDataMinCardinality& expr )
-		{ value = getMinUpperBoundDirect ( expr.getNumber(), expr.getDR(), expr.getExpr() ); }
-	virtual void visit ( const TDLConceptDataMaxCardinality& expr )
-		{ value = getMaxUpperBoundDirect ( expr.getNumber(), expr.getDR(), expr.getExpr() ); }
 	virtual void visit ( const TDLConceptDataExactCardinality& expr )
 	{
 		int m = expr.getNumber();
@@ -188,7 +208,7 @@ public:		// visitor implementation
 		const TDLDataExpression* D = expr.getExpr();
 
 		// here the maximal value between Mix and Max is an answer. The -1 case will be dealt with automagically
-		value = std::max ( getMinUpperBoundDirect ( m, R, D ), getMaxUpperBoundDirect ( m, R, D ) );
+		value = std::max ( getMinUpperBound ( m, R, D ), getMaxUpperBound ( m, R, D ) );
 	}
 
 	// object role expressions
@@ -206,12 +226,6 @@ public:		// visitor implementation
 			}
 		value = -1;
 	}
-		// equivalent to R(x,y) and C(x), so copy behaviour from ER.X
-	virtual void visit ( const TDLObjectRoleProjectionFrom& expr )
-		{ value = getMinUpperBoundDirect ( 1, expr.getOR(), expr.getC() ); }
-		// equivalent to R(x,y) and C(y), so copy behaviour from ER.X
-	virtual void visit ( const TDLObjectRoleProjectionInto& expr )
-		{ value = getMinUpperBoundDirect ( 1, expr.getOR(), expr.getC() ); }
 
 	// data role expressions
 	virtual void visit ( const TDLDataRoleTop& ) { value = -1; }
@@ -225,7 +239,7 @@ public:		// visitor implementation
 	//virtual void visit ( const TDLDataTypeName& ) { isBotEq = false; }
 	// FIXME!! not ready
 	//virtual void visit ( const TDLDataTypeRestriction& ) { isBotEq = false; }
-	virtual void visit ( const TDLDataValue& ) { value = 1;; }
+	virtual void visit ( const TDLDataValue& ) { value = 1; }
 	virtual void visit ( const TDLDataNot& expr ) { value = getUpperBoundComplement(expr.getExpr()); }
 	virtual void visit ( const TDLDataAnd& expr )
 	{
@@ -258,15 +272,187 @@ public:		// visitor implementation
 
 class UpperBoundComplementEvaluator: public CardinalityEvaluatorBase
 {
+protected:	// methods
+		/// helper for things like >= m R.C
+	int getMinUpperBound ( int m, const TDLRoleExpression* R, const TDLExpression* C )
+	{
+		// m == 0 or...
+		if ( m == 0 )
+			return 0;
+		// R = \top and...
+		if ( isTopEquivalent(R) == -1 )
+			return -1;
+		// C \in C^{>= m}
+		return getLowerBoundDirect(C) >= m ? 0 : -1;
+	}
+		/// helper for things like <= m R.C
+	int getMaxUpperBound ( int m, const TDLRoleExpression* R, const TDLExpression* C )
+	{
+		// R = \bot or...
+		if ( isBotEquivalent(R) == 0 )
+			return 0;
+		// C\in C^{<= m}
+		int lbC = getUpperBoundDirect(C);
+		if ( lbC != -1 && lbC <= m )
+			return 0;
+		else
+			return -1;
+	}
+
 public:		// interface
 		/// init c'tor
 	UpperBoundComplementEvaluator ( const TSignature* s ) : CardinalityEvaluatorBase(s) {}
 		/// empty d'tor
 	virtual ~UpperBoundComplementEvaluator ( void ) {}
+
+public:		// visitor interface
+	// concept expressions
+	virtual void visit ( const TDLConceptTop& ) { value = 0; }
+	virtual void visit ( const TDLConceptBottom& ) { value = -1; }
+	virtual void visit ( const TDLConceptName& expr ) { value = topCLocal() && nc(expr.getEntity()) ? 0 : -1; }
+	virtual void visit ( const TDLConceptNot& expr ) { value = getUpperBoundDirect(expr.getC()); }
+	virtual void visit ( const TDLConceptAnd& expr )
+	{
+		int sum = 0, n;
+		for ( TDLConceptAnd::iterator p = expr.begin(), p_end = expr.end(); p != p_end; ++p )
+		{
+			n = getUpperBoundComplement(*p);
+			if ( n == -1 )
+			{
+				value = -1;
+				return;
+			}
+			sum += n;
+		}
+		value = n;
+	}
+	virtual void visit ( const TDLConceptOr& expr )
+	{
+		int min = -1, n;
+		for ( TDLConceptOr::iterator p = expr.begin(), p_end = expr.end(); p != p_end; ++p )
+		{
+			n = getUpperBoundComplement(*p);
+			if ( n != -1 )
+				min = min == -1 ? n : std::min ( min, n );
+		}
+		value = min;
+	}
+	virtual void visit ( const TDLConceptOneOf& ) { value = -1; }
+	virtual void visit ( const TDLConceptObjectSelf& expr ) { value = isTopEquivalent(expr.getOR()); }
+	virtual void visit ( const TDLConceptObjectValue& expr ) { value = isTopEquivalent(expr.getOR()); }
+	virtual void visit ( const TDLConceptObjectForall& expr )
+		{ value = isBotEquivalent(expr.getOR()) || getUpperBoundComplement(expr.getC()) == 0 ? 0 : -1;  }
+	virtual void visit ( const TDLConceptObjectExactCardinality& expr )
+	{
+		int m = expr.getNumber();
+		const TDLObjectRoleExpression* R = expr.getOR();
+		const TDLConceptExpression* C = expr.getC();
+
+		// here the minimal value between Mix and Max is an answer. The -1 case will be dealt with automagically
+		value = std::min ( getMinUpperBound ( m, R, C ), getMaxUpperBound ( m, R, C ) );
+	}
+	virtual void visit ( const TDLConceptDataValue& expr )
+		{ value = isTopEquivalent(expr.getDR()); }
+	virtual void visit ( const TDLConceptDataForall& expr )
+		{ value = isBotEquivalent(expr.getDR()) || getUpperBoundComplement(expr.getExpr()) == 0 ? 0 : -1;  }
+	virtual void visit ( const TDLConceptDataExactCardinality& expr )
+	{
+		int m = expr.getNumber();
+		const TDLDataRoleExpression* R = expr.getDR();
+		const TDLDataExpression* D = expr.getExpr();
+
+		// here the minimal value between Mix and Max is an answer. The -1 case will be dealt with automagically
+		value = std::min ( getMinUpperBound ( m, R, D ), getMaxUpperBound ( m, R, D ) );
+	}
+
+	// object role expressions
+	virtual void visit ( const TDLObjectRoleTop& ) { value = 0; }
+	virtual void visit ( const TDLObjectRoleBottom& ) { value = -1; }
+	virtual void visit ( const TDLObjectRoleName& expr ) { value = topRLocal() && nc(expr.getEntity()) ? 0 : -1; }
+	virtual void visit ( const TDLObjectRoleInverse& expr ) { value = getUpperBoundComplement(expr.getOR()); }
+	virtual void visit ( const TDLObjectRoleChain& expr )
+	{
+		for ( TDLObjectRoleChain::iterator p = expr.begin(), p_end = expr.end(); p != p_end; ++p )
+			if ( getUpperBoundComplement(*p) == -1 )
+			{
+				value = -1;
+				return;
+			}
+		value = 0;
+	}
+
+	// data role expressions
+	virtual void visit ( const TDLDataRoleTop& ) { value = 0; }
+	virtual void visit ( const TDLDataRoleBottom& ) { value = -1; }
+	virtual void visit ( const TDLDataRoleName& expr ) { value = topRLocal() && nc(expr.getEntity()) ? 0 : -1; }
+
+	// data expressions
+	virtual void visit ( const TDLDataTop& ) { value = 0; }
+	virtual void visit ( const TDLDataBottom& ) { value = -1; }
+	// FIXME: negated datatype is a union of all other DTs that are infinite
+	virtual void visit ( const TDLDataTypeName& ) { value = -1; }
+	// FIXME: negeted restriction include negated DT
+	virtual void visit ( const TDLDataTypeRestriction& ) { value = -1; }
+	virtual void visit ( const TDLDataValue& ) { value = -1; }
+	virtual void visit ( const TDLDataNot& expr ) { value = getUpperBoundDirect(expr.getExpr()); }
+	virtual void visit ( const TDLDataAnd& expr )
+	{
+		int sum = 0, n;
+		for ( TDLDataAnd::iterator p = expr.begin(), p_end = expr.end(); p != p_end; ++p )
+		{
+			n = getUpperBoundComplement(*p);
+			if ( n == -1 )
+			{
+				value = -1;
+				return;
+			}
+			sum += n;
+		}
+		value = n;
+	}
+	virtual void visit ( const TDLDataOr& expr )
+	{
+		int min = -1, n;
+		for ( TDLDataOr::iterator p = expr.begin(), p_end = expr.end(); p != p_end; ++p )
+		{
+			n = getUpperBoundComplement(*p);
+			if ( n != -1 )
+				min = min == -1 ? n : std::min ( min, n );
+		}
+		value = min;
+	}
+	virtual void visit ( const TDLDataOneOf& ) { value = -1; }
 }; // UpperBoundComplementEvaluator
 
 class LowerBoundDirectEvaluator: public CardinalityEvaluatorBase
 {
+protected:	// methods
+		/// helper for things like >= m R.C
+	int getMinUpperBound ( int m, const TDLRoleExpression* R, const TDLExpression* C )
+	{
+		// m == 0 or...
+		if ( m == 0 )	// all possible n will do
+			return -1;
+		// R = \top and...
+		if ( isTopEquivalent(R) == 0 )
+			return 0;
+		// C \in C^{>= m}
+		return getLowerBoundDirect(C) >= m ? m : 0;
+	}
+		/// helper for things like <= m R.C
+	int getMaxUpperBound ( int m, const TDLRoleExpression* R, const TDLExpression* C )
+	{
+		// R = \bot or...
+		if ( isBotEquivalent(R) == 0 )
+			return 0;
+		// C\in C^{<= m}
+		int lbC = getUpperBoundDirect(C);
+		if ( lbC != -1 && lbC <= m )
+			return 0;
+		else
+			return -1;
+	}
+
 public:		// interface
 		/// init c'tor
 	LowerBoundDirectEvaluator ( const TSignature* s ) : CardinalityEvaluatorBase(s) {}
@@ -276,6 +462,19 @@ public:		// interface
 
 class LowerBoundComplementEvaluator: public CardinalityEvaluatorBase
 {
+protected:	// methods
+		/// helper for things like >= m R.C
+	int getMinUpperBound ( int m, const TDLRoleExpression* R, const TDLExpression* C )
+	{
+		return 0;
+	}
+		/// helper for things like <= m R.C
+	int getMaxUpperBound ( int m, const TDLRoleExpression* R, const TDLExpression* C )
+	{
+		return 0;
+	}
+
+
 public:		// interface
 		/// init c'tor
 	LowerBoundComplementEvaluator ( const TSignature* s ) : CardinalityEvaluatorBase(s) {}
