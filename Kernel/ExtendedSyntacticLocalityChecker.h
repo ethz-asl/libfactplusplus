@@ -491,7 +491,7 @@ public:		// visitor interface
 	virtual void visit ( const TDLConceptNot& expr ) { value = getLowerBoundComplement(expr.getC()); }
 	virtual void visit ( const TDLConceptAnd& expr ) { value = getAndValue(expr); }
 	virtual void visit ( const TDLConceptOr& expr ) { value = getOrValue(expr); }
-	virtual void visit ( const TDLConceptOneOf& ) { value = getNoneValue(); }
+	virtual void visit ( const TDLConceptOneOf& expr ) { value = expr.size() > 0 ? 1 : getNoneValue(); }
 	virtual void visit ( const TDLConceptObjectSelf& expr ) { value = isTopEquivalent(expr.getOR()) ? 1 : getNoneValue(); }
 	// FIXME!! differ from the paper
 	virtual void visit ( const TDLConceptObjectValue& expr ) { value = isTopEquivalent(expr.getOR()) ? 1 : getNoneValue(); }
@@ -500,7 +500,7 @@ public:		// visitor interface
 	// object role expressions
 	virtual void visit ( const TDLObjectRoleTop& ) { value = getAllValue(); }
 	virtual void visit ( const TDLObjectRoleBottom& ) { value = getNoneValue(); }
-	virtual void visit ( const TDLObjectRoleInverse& expr ) { value = getUpperBoundComplement(expr.getOR()); }
+	virtual void visit ( const TDLObjectRoleInverse& expr ) { value = getLowerBoundDirect(expr.getOR()); }
 	virtual void visit ( const TDLObjectRoleChain& expr )
 	{
 		for ( TDLObjectRoleChain::iterator p = expr.begin(), p_end = expr.end(); p != p_end; ++p )
@@ -524,32 +524,142 @@ public:		// visitor interface
 	// negated restriction include negated DT
 	virtual void visit ( const TDLDataTypeRestriction& ) { value = getNoneValue(); }
 	virtual void visit ( const TDLDataValue& ) { value = getNoneValue(); }
-	virtual void visit ( const TDLDataNot& expr ) { value = getUpperBoundDirect(expr.getExpr()); }
+	virtual void visit ( const TDLDataNot& expr ) { value = getLowerBoundComplement(expr.getExpr()); }
 	virtual void visit ( const TDLDataAnd& expr ) { value = getAndValue(expr); }
 	virtual void visit ( const TDLDataOr& expr ) { value = getOrValue(expr); }
-	virtual void visit ( const TDLDataOneOf& ) { value = getNoneValue(); }
+	virtual void visit ( const TDLDataOneOf& expr ) { value = expr.size() > 0 ? 1 : getNoneValue(); }
 }; // LowerBoundDirectEvaluator
 
 class LowerBoundComplementEvaluator: public CardinalityEvaluatorBase
 {
 protected:	// methods
-		/// helper for things like >= m R.C
-	int getMinValue ( int m, const TDLRoleExpression* R, const TDLExpression* C )
+		/// define a special value for concepts that are not in C^{>= n}
+	const int getNoneValue ( void ) const { return 0; }
+		/// define a special value for concepts that are in C^{>= n} for all n
+	const int getAllValue ( void ) const { return -1; }
+
+		/// helper for entities TODO: checks only C top-locality, not R
+	virtual int getEntityValue ( const TNamedEntity* entity )
+		{ return botCLocal() && nc(entity) ? 1 : getNoneValue(); }
+		/// helper for All
+	virtual int getForallValue ( const TDLRoleExpression* R, const TDLExpression* C )
 	{
-		return 0;
+		if ( isTopEquivalent(R) && getLowerBoundComplement(C) >= 1 )
+			return 1;
+		else
+			return getNoneValue();
+	}
+		/// helper for things like >= m R.C
+	virtual int getMinValue ( int m, const TDLRoleExpression* R, const TDLExpression* C )
+	{
+		// m > 0 and...
+		if ( m <= 0 )
+			return getNoneValue();
+		// R = \bot or...
+		if ( isBotEquivalent(R) )
+			return 1;
+		// C \in C^{<= m-1}
+		int ubC = getUpperBoundDirect(C);
+		if ( ubC != getNoneValue() && ubC < m )
+			return 1;
+		else
+			return getNoneValue();
 	}
 		/// helper for things like <= m R.C
-	int getMaxValue ( int m, const TDLRoleExpression* R, const TDLExpression* C )
+	virtual int getMaxValue ( int m, const TDLRoleExpression* R, const TDLExpression* C )
 	{
-		return 0;
+		// R = \top and...
+		if ( !isTopEquivalent(R) )
+			return getNoneValue();
+		// C\in C^{>= m+1}
+		int lbC = getLowerBoundDirect(C);
+		if ( lbC != getNoneValue() && lbC > m )
+			return m+1;
+		else
+			return getNoneValue();
+	}
+		/// helper for things like = m R.C
+	virtual int getExactValue ( int m, const TDLRoleExpression* R, const TDLExpression* C )
+	{
+		// here the maximal value between Mix and Max is an answer. The -1 case will be dealt with automagically
+		// because both min and max are between 0 and m+1
+		return std::max ( getMinValue ( m, R, C ), getMaxValue ( m, R, C ) );
 	}
 
+		/// helper for And
+	template<class C>
+	int getAndValue ( const TDLNAryExpression<C>& expr )
+	{
+		int max = getNoneValue();
+		// we are looking for the maximal value here; -1 will be dealt with automagically
+		for ( typename TDLNAryExpression<C>::iterator p = expr.begin(), p_end = expr.end(); p != p_end; ++p )
+			max = std::max ( max, getUpperBoundDirect(*p) );
+		return max;
+	}
+		/// helper for Or
+	template<class C>
+	int getOrValue ( const TDLNAryExpression<C>& expr )
+	{
+		int sum = 0, n;
+		for ( typename TDLNAryExpression<C>::iterator p = expr.begin(), p_end = expr.end(); p != p_end; ++p )
+		{
+			n = getUpperBoundDirect(*p);
+			if ( n == getNoneValue() )
+				return getNoneValue();
+			sum += n;
+		}
+		return sum;
+	}
 
 public:		// interface
 		/// init c'tor
 	LowerBoundComplementEvaluator ( const TSignature* s ) : CardinalityEvaluatorBase(s) {}
 		/// empty d'tor
 	virtual ~LowerBoundComplementEvaluator ( void ) {}
+
+public:		// visitor implementation
+	// concept expressions
+	virtual void visit ( const TDLConceptTop& ) { value = getNoneValue(); }
+	virtual void visit ( const TDLConceptBottom& ) { value = 1; }
+	virtual void visit ( const TDLConceptNot& expr ) { value = getLowerBoundDirect(expr.getC()); }
+	virtual void visit ( const TDLConceptAnd& expr ) { value = getAndValue(expr); }
+	virtual void visit ( const TDLConceptOr& expr ) { value = getOrValue(expr); }
+	virtual void visit ( const TDLConceptOneOf& ) { value = getNoneValue(); }
+	virtual void visit ( const TDLConceptObjectSelf& expr ) { value = isBotEquivalent(expr.getOR()) ? 1 : getNoneValue(); }
+	virtual void visit ( const TDLConceptObjectValue& expr ) { value = isBotEquivalent(expr.getOR()) ? 1 : getNoneValue(); }
+	virtual void visit ( const TDLConceptDataValue& expr ) { value = isBotEquivalent(expr.getDR()) ? 1 : getNoneValue(); }
+
+	// object role expressions
+	virtual void visit ( const TDLObjectRoleTop& ) { value = getNoneValue(); }
+	virtual void visit ( const TDLObjectRoleBottom& ) { value = getAllValue(); }
+	virtual void visit ( const TDLObjectRoleInverse& expr ) { value = getLowerBoundComplement(expr.getOR()); }
+	virtual void visit ( const TDLObjectRoleChain& expr )
+	{
+		for ( TDLObjectRoleChain::iterator p = expr.begin(), p_end = expr.end(); p != p_end; ++p )
+			if ( isBotEquivalent(*p) )
+			{
+				value = getAllValue();
+				return;
+			}
+		value = getNoneValue();
+	}
+
+	// data role expressions
+	virtual void visit ( const TDLDataRoleTop& ) { value = getNoneValue(); }
+	virtual void visit ( const TDLDataRoleBottom& ) { value = getAllValue(); }
+
+	// data expressions
+	virtual void visit ( const TDLDataTop& ) { value = getNoneValue(); }
+	virtual void visit ( const TDLDataBottom& ) { value = getAllValue(); }
+	// FIXME!! not ready
+	//virtual void visit ( const TDLDataTypeName& ) { isBotEq = false; }
+	// FIXME!! not ready
+	//virtual void visit ( const TDLDataTypeRestriction& ) { isBotEq = false; }
+	virtual void visit ( const TDLDataValue& ) { value = 1; }
+	virtual void visit ( const TDLDataNot& expr ) { value = getLowerBoundDirect(expr.getExpr()); }
+	virtual void visit ( const TDLDataAnd& expr ) { value = getAndValue(expr); }
+	virtual void visit ( const TDLDataOr& expr ) { value = getOrValue(expr); }
+	virtual void visit ( const TDLDataOneOf& ) { value = getNoneValue(); }
 }; // LowerBoundComplementEvaluator
 
 /// implementation of evaluation
