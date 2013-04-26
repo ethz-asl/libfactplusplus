@@ -195,14 +195,11 @@ protected:	// methods
 	template<class C>
 	int getAndValue ( const TDLNAryExpression<C>& expr )
 	{
-		int min = getNoneValue(), n;
+		int max = getNoneValue();
+		// we are looking for the maximal value here; -1 will be dealt with automagically
 		for ( typename TDLNAryExpression<C>::iterator p = expr.begin(), p_end = expr.end(); p != p_end; ++p )
-		{
-			n = getUpperBoundDirect(*p);
-			if ( n != getNoneValue() )
-				min = min == getNoneValue() ? n : std::min ( min, n );
-		}
-		return min;
+			max = std::max ( max, getUpperBoundDirect(*p) );
+		return max;
 	}
 		/// helper for Or
 	template<class C>
@@ -339,14 +336,11 @@ protected:	// methods
 	template<class C>
 	int getOrValue ( const TDLNAryExpression<C>& expr )
 	{
-		int min = getNoneValue(), n;
+		int max = getNoneValue();
+		// we are looking for the maximal value here; -1 will be dealt with automagically
 		for ( typename TDLNAryExpression<C>::iterator p = expr.begin(), p_end = expr.end(); p != p_end; ++p )
-		{
-			n = getUpperBoundDirect(*p);
-			if ( n != getNoneValue() )
-				min = min == getNoneValue() ? n : std::min ( min, n );
-		}
-		return min;
+			max = std::max ( max, getUpperBoundDirect(*p) );
+		return max;
 	}
 
 public:		// interface
@@ -389,9 +383,9 @@ public:		// visitor interface
 	// data expressions
 	virtual void visit ( const TDLDataTop& ) { value = getAllValue(); }
 	virtual void visit ( const TDLDataBottom& ) { value = getNoneValue(); }
-	// FIXME: negated datatype is a union of all other DTs that are infinite
+	// negated datatype is a union of all other DTs that are infinite
 	virtual void visit ( const TDLDataTypeName& ) { value = getNoneValue(); }
-	// FIXME: negeted restriction include negated DT
+	// negated restriction include negated DT
 	virtual void visit ( const TDLDataTypeRestriction& ) { value = getNoneValue(); }
 	virtual void visit ( const TDLDataValue& ) { value = getNoneValue(); }
 	virtual void visit ( const TDLDataNot& expr ) { value = getUpperBoundDirect(expr.getExpr()); }
@@ -403,19 +397,19 @@ public:		// visitor interface
 class LowerBoundDirectEvaluator: public CardinalityEvaluatorBase
 {
 protected:	// methods
-		/// define a special value for concepts that are not in C^{<= n}
-	const int getNoneValue ( void ) const { return -1; }
-		/// define a special value for concepts that are in C^{<= n} for all n
-	const int getAllValue ( void ) const { return 0; }
+		/// define a special value for concepts that are not in C^{>= n}
+	const int getNoneValue ( void ) const { return 0; }
+		/// define a special value for concepts that are in C^{>= n} for all n
+	const int getAllValue ( void ) const { return -1; }
 
 		/// helper for entities TODO: checks only C top-locality, not R
 	virtual int getEntityValue ( const TNamedEntity* entity )
-		{ return topCLocal() && nc(entity) ? getAllValue() : getNoneValue(); }
+		{ return topCLocal() && nc(entity) ? 1 : getNoneValue(); }
 		/// helper for All
 	virtual int getForallValue ( const TDLRoleExpression* R, const TDLExpression* C )
 	{
 		if ( isBotEquivalent(R) || getUpperBoundComplement(C) == 0 )
-			return getAllValue();
+			return 1;
 		else
 			return getNoneValue();
 	}
@@ -429,29 +423,37 @@ protected:	// methods
 		if ( !isTopEquivalent(R) )
 			return getNoneValue();
 		// C \in C^{>= m}
-		return getLowerBoundDirect(C) >= m ? getAllValue() : getNoneValue();
+		return getLowerBoundDirect(C) >= m ? m : getNoneValue();
 	}
 		/// helper for things like <= m R.C
 	int getMaxValue ( int m, const TDLRoleExpression* R, const TDLExpression* C )
 	{
 		// R = \bot or...
 		if ( isBotEquivalent(R) )
-			return getAllValue();
+			return 1;
 		// C\in C^{<= m}
 		int lbC = getUpperBoundDirect(C);
 		if ( lbC != getNoneValue() && lbC <= m )
-			return getAllValue();
+			return 1;
 		else
 			return getNoneValue();
 	}
 		/// helper for things like = m R.C
 	virtual int getExactValue ( int m, const TDLRoleExpression* R, const TDLExpression* C )
 	{
-		// here the minimal value between Mix and Max is an answer. The -1 case will be dealt with automagically
-		return std::min ( getMinValue ( m, R, C ), getMaxValue ( m, R, C ) );
+		int min = getMinValue ( m, R, C ), max = getMaxValue ( m, R, C );
+		// we need to take the lowest value
+		if ( min == getNoneValue() || max == getNoneValue() )
+			return getNoneValue();
+		if ( min == getAllValue() )
+			return max;
+		if ( max == getAllValue() )
+			return min;
+		return std::min ( min, max );
 	}
 
 		/// helper for And
+		// FIXME!! not done yet
 	template<class C>
 	int getAndValue ( const TDLNAryExpression<C>& expr )
 	{
@@ -469,14 +471,11 @@ protected:	// methods
 	template<class C>
 	int getOrValue ( const TDLNAryExpression<C>& expr )
 	{
-		int min = getNoneValue(), n;
+		int max = getNoneValue();
+		// we are looking for the maximal value here; -1 will be dealt with automagically
 		for ( typename TDLNAryExpression<C>::iterator p = expr.begin(), p_end = expr.end(); p != p_end; ++p )
-		{
-			n = getUpperBoundDirect(*p);
-			if ( n != getNoneValue() )
-				min = min == getNoneValue() ? n : std::min ( min, n );
-		}
-		return min;
+			max = std::max ( max, getUpperBoundDirect(*p) );
+		return max;
 	}
 
 public:		// interface
@@ -484,6 +483,51 @@ public:		// interface
 	LowerBoundDirectEvaluator ( const TSignature* s ) : CardinalityEvaluatorBase(s) {}
 		/// empty d'tor
 	virtual ~LowerBoundDirectEvaluator ( void ) {}
+
+public:		// visitor interface
+	// concept expressions
+	virtual void visit ( const TDLConceptTop& ) { value = 1; }
+	virtual void visit ( const TDLConceptBottom& ) { value = getNoneValue(); }
+	virtual void visit ( const TDLConceptNot& expr ) { value = getLowerBoundComplement(expr.getC()); }
+	virtual void visit ( const TDLConceptAnd& expr ) { value = getAndValue(expr); }
+	virtual void visit ( const TDLConceptOr& expr ) { value = getOrValue(expr); }
+	virtual void visit ( const TDLConceptOneOf& ) { value = getNoneValue(); }
+	virtual void visit ( const TDLConceptObjectSelf& expr ) { value = isTopEquivalent(expr.getOR()) ? 1 : getNoneValue(); }
+	// FIXME!! differ from the paper
+	virtual void visit ( const TDLConceptObjectValue& expr ) { value = isTopEquivalent(expr.getOR()) ? 1 : getNoneValue(); }
+	virtual void visit ( const TDLConceptDataValue& expr ) { value = isTopEquivalent(expr.getDR()) ? 1 : getNoneValue(); }
+
+	// object role expressions
+	virtual void visit ( const TDLObjectRoleTop& ) { value = getAllValue(); }
+	virtual void visit ( const TDLObjectRoleBottom& ) { value = getNoneValue(); }
+	virtual void visit ( const TDLObjectRoleInverse& expr ) { value = getUpperBoundComplement(expr.getOR()); }
+	virtual void visit ( const TDLObjectRoleChain& expr )
+	{
+		for ( TDLObjectRoleChain::iterator p = expr.begin(), p_end = expr.end(); p != p_end; ++p )
+			if ( !isTopEquivalent(*p) )
+			{
+				value = getNoneValue();
+				return;
+			}
+		value = getAllValue();
+	}
+
+	// data role expressions
+	virtual void visit ( const TDLDataRoleTop& ) { value = getAllValue(); }
+	virtual void visit ( const TDLDataRoleBottom& ) { value = getNoneValue(); }
+
+	// data expressions
+	virtual void visit ( const TDLDataTop& ) { value = getAllValue(); }
+	virtual void visit ( const TDLDataBottom& ) { value = getNoneValue(); }
+	// negated datatype is a union of all other DTs that are infinite
+	virtual void visit ( const TDLDataTypeName& ) { value = getNoneValue(); }
+	// negated restriction include negated DT
+	virtual void visit ( const TDLDataTypeRestriction& ) { value = getNoneValue(); }
+	virtual void visit ( const TDLDataValue& ) { value = getNoneValue(); }
+	virtual void visit ( const TDLDataNot& expr ) { value = getUpperBoundDirect(expr.getExpr()); }
+	virtual void visit ( const TDLDataAnd& expr ) { value = getAndValue(expr); }
+	virtual void visit ( const TDLDataOr& expr ) { value = getOrValue(expr); }
+	virtual void visit ( const TDLDataOneOf& ) { value = getNoneValue(); }
 }; // LowerBoundDirectEvaluator
 
 class LowerBoundComplementEvaluator: public CardinalityEvaluatorBase
