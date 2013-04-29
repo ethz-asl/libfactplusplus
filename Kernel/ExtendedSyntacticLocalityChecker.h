@@ -457,24 +457,70 @@ protected:	// methods
 	template<class C>
 	int getAndValue ( const TDLNAryExpression<C>& expr )
 	{
-		int sum = 0, n;
+		// return m - sumK, where
+		bool foundC = false;	// true if found a conjunct that is in C^{>=}
+		int foundM;
+		int mMax = 0, kMax = 0;	// the m- and k- values for the C_j with max m+k
+		int sumK = 0;			// sum of all known k
+		// 1st pass: check for none-case, deals with deterministic cases
 		for ( typename TDLNAryExpression<C>::iterator p = expr.begin(), p_end = expr.end(); p != p_end; ++p )
 		{
-			n = getUpperBoundDirect(*p);
-			if ( n == getNoneValue() )
+			int m = getLowerBoundDirect(*p);		// C_j \in C^{>= m}
+			int k = getUpperBoundComplement(*p);	// C_j \in CC^{<= k}
+			// case 0: if both aren't known then we don't know
+			if ( m == getNoneValue() && k == getNoneValue() )
 				return getNoneValue();
-			sum += n;
+			// if only k exists then add it to k
+			if ( m == getNoneValue() )
+			{
+//				if ( k == getAllValue() )	// we don't have any bound then
+//					return getNoneValue();
+				sumK += k;
+				continue;
+			}
+			// if only m exists then set it to m
+			if ( k == getNoneValue() )
+			{
+				if ( foundC )	// should not have 2 elements in C
+					return getNoneValue();
+				foundC = true;
+				foundM = m;
+				continue;
+			}
+			// here both k and m are values
+			sumK += k;	// count k for the
+			if ( k+m > kMax + mMax )
+			{
+				kMax = k;
+				mMax = m;
+			}
 		}
-		return sum;
+		// here we know the best candidate for M, and only need to set it up
+		if ( foundC )	// found during the deterministic case
+		{
+			foundM -= sumK;
+			return foundM > 0 ? foundM : getNoneValue();
+		}
+		else	// no deterministic option; choose the best one
+		{
+			sumK -= kMax;
+			mMax -= sumK;
+			return mMax > 0 ? mMax : getNoneValue();
+		}
 	}
 		/// helper for Or
 	template<class C>
 	int getOrValue ( const TDLNAryExpression<C>& expr )
 	{
 		int max = getNoneValue();
-		// we are looking for the maximal value here; -1 will be dealt with automagically
+		// we are looking for the maximal value here; -1 need to be special-cased
 		for ( typename TDLNAryExpression<C>::iterator p = expr.begin(), p_end = expr.end(); p != p_end; ++p )
-			max = std::max ( max, getUpperBoundDirect(*p) );
+		{
+			int n = getUpperBoundDirect(*p);
+			if ( n == getAllValue() )
+				return getAllValue();
+			max = std::max ( max, n );
+		}
 		return max;
 	}
 
@@ -591,24 +637,70 @@ protected:	// methods
 	int getAndValue ( const TDLNAryExpression<C>& expr )
 	{
 		int max = getNoneValue();
-		// we are looking for the maximal value here; -1 will be dealt with automagically
+		// we are looking for the maximal value here; -1 need to be special-cased
 		for ( typename TDLNAryExpression<C>::iterator p = expr.begin(), p_end = expr.end(); p != p_end; ++p )
-			max = std::max ( max, getUpperBoundDirect(*p) );
+		{
+			int n = getUpperBoundDirect(*p);
+			if ( n == getAllValue() )
+				return getAllValue();
+			max = std::max ( max, n );
+		}
 		return max;
 	}
 		/// helper for Or
 	template<class C>
 	int getOrValue ( const TDLNAryExpression<C>& expr )
 	{
-		int sum = 0, n;
+		// return m - sumK, where
+		bool foundC = false;	// true if found a conjunct that is in C^{>=}
+		int foundM;
+		int mMax = 0, kMax = 0;	// the m- and k- values for the C_j with max m+k
+		int sumK = 0;			// sum of all known k
+		// 1st pass: check for none-case, deals with deterministic cases
 		for ( typename TDLNAryExpression<C>::iterator p = expr.begin(), p_end = expr.end(); p != p_end; ++p )
 		{
-			n = getUpperBoundDirect(*p);
-			if ( n == getNoneValue() )
+			int m = getLowerBoundComplement(*p);	// C_j \in CC^{>= m}
+			int k = getUpperBoundDirect(*p);		// C_j \in C^{<= k}
+			// case 0: if both aren't known then we don't know
+			if ( m == getNoneValue() && k == getNoneValue() )
 				return getNoneValue();
-			sum += n;
+			// if only k exists then add it to k
+			if ( m == getNoneValue() )
+			{
+//				if ( k == getAllValue() )	// we don't have any bound then
+//					return getNoneValue();
+				sumK += k;
+				continue;
+			}
+			// if only m exists then set it to m
+			if ( k == getNoneValue() )
+			{
+				if ( foundC )	// should not have 2 elements in C
+					return getNoneValue();
+				foundC = true;
+				foundM = m;
+				continue;
+			}
+			// here both k and m are values
+			sumK += k;	// count k for the
+			if ( k+m > kMax + mMax )
+			{
+				kMax = k;
+				mMax = m;
+			}
 		}
-		return sum;
+		// here we know the best candidate for M, and only need to set it up
+		if ( foundC )	// found during the deterministic case
+		{
+			foundM -= sumK;
+			return foundM > 0 ? foundM : getNoneValue();
+		}
+		else	// no deterministic option; choose the best one
+		{
+			sumK -= kMax;
+			mMax -= sumK;
+			return mMax > 0 ? mMax : getNoneValue();
+		}
 	}
 
 public:		// interface
