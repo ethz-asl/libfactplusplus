@@ -1811,6 +1811,11 @@ public class FaCTPlusPlusReasoner implements OWLReasoner, OWLOntologyChangeListe
 		return axiomsToSet(axioms);
 	}
 
+	public Set<OWLAxiom> getAtomModule(int index) {
+		AxiomPointer[] axioms = kernel.getAtomModule(index);
+		return axiomsToSet(axioms);
+	}
+
 	private Set<OWLAxiom> axiomsToSet(AxiomPointer[] axioms) {
 		Set<OWLAxiom> toReturn = new HashSet<OWLAxiom>();
 		for (AxiomPointer p : axioms) {
@@ -1824,6 +1829,10 @@ public class FaCTPlusPlusReasoner implements OWLReasoner, OWLOntologyChangeListe
 
 	public int[] getAtomDependents(int index) {
 		return kernel.getAtomDependents(index);
+	}
+
+	public int getLocCheckNumber() {
+		return kernel.getLocCheckNumber();
 	}
 
 	private final class EntityVisitorEx implements OWLEntityVisitorEx<Pointer> {

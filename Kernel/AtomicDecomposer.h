@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2011-2012 by Dmitry Tsarkov
+Copyright (C) 2011-2013 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -120,6 +120,8 @@ public:		// interface
 
 		/// set progress indicator to be PI
 	void setProgressIndicator ( ProgressIndicatorInterface* pi ) { PI = pi; }
+		/// get number of performed locality checks
+	unsigned long long getLocChekNumber ( void ) const { return pModularizer->getNChecks(); }
 }; // AtomicDecomposer
 
 #endif

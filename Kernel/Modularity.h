@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2011-2012 by Dmitry Tsarkov
+Copyright (C) 2011-2013 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -22,7 +22,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <queue>
 
 // uncomment the next line to use AD to speed up modularisation
-//#define RKG_USE_AD_IN_MODULE_EXTRACTION
+#define RKG_USE_AD_IN_MODULE_EXTRACTION
 
 #include "tOntology.h"
 #include "SigIndex.h"
@@ -166,6 +166,7 @@ public:		// interface
 		Checker->preprocessOntology(vec);
 		sigIndex.clear();
 		sigIndex.preprocessOntology(vec);
+		nChecks += 2*vec.size();
 	}
 		/// extract module wrt SIGNATURE and TYPE from the set of axioms [BEGIN,END)
 	void extract ( const_iterator begin, const_iterator end, const TSignature& signature, ModuleType type )

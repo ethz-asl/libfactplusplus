@@ -60,6 +60,19 @@ JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlu
 
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
+ * Method:    getAtomModule
+ * Signature: (I)[Luk/ac/manchester/cs/factplusplus/AxiomPointer;
+ */
+JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_getAtomModule
+  (JNIEnv * env, jobject obj, jint index)
+{
+	TRACE_JNI("getAtomModule");
+	TJNICache* J = getJ(env,obj);
+	return J->buildArray ( J->K->getAtomModule(index), J->AxiomPointer );
+}
+
+/*
+ * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
  * Method:    getAtomDependents
  * Signature: (I)[I
  */
@@ -77,6 +90,19 @@ JNIEXPORT jintArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_g
 	env->SetIntArrayRegion ( ret, 0, sz, buf );
 	delete [] buf;
 	return ret;
+}
+
+/*
+ * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
+ * Method:    getLocCheckNumber
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_getLocCheckNumber
+  (JNIEnv * env, jobject obj)
+{
+	TRACE_JNI("getLocCheckNumber");
+	TJNICache* J = getJ(env,obj);
+	return J->K->getLocCheckNumber();
 }
 
 /*

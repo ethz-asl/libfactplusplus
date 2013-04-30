@@ -593,6 +593,13 @@ ReasoningKernel :: getAtomDependents ( unsigned int index ) const
 	return (*AD->getAOS())[index]->getDepAtoms();
 }
 
+	/// get a number of locality checks performed for creating an AD
+unsigned int
+ReasoningKernel :: getLocCheckNumber ( void ) const
+{
+	return AD->getLocChekNumber();
+}
+
 TModularizer*
 ReasoningKernel :: getModExtractor ( bool useSemantic )
 {

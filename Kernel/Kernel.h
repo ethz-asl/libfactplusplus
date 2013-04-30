@@ -1280,6 +1280,8 @@ public:
 	const TOntologyAtom::AxiomSet& getAtomModule ( unsigned int index ) const;
 		/// get a set of atoms on which atom with index INDEX depends
 	const TOntologyAtom::AtomSet& getAtomDependents ( unsigned int index ) const;
+		/// get a number of locality checks performed for creating an AD
+	unsigned int getLocCheckNumber ( void ) const;
 
 	//----------------------------------------------------------------------------------
 	// modularity queries

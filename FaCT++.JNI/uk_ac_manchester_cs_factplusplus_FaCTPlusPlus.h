@@ -1282,11 +1282,27 @@ JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlu
 
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
+ * Method:    getAtomModule
+ * Signature: (I)[Luk/ac/manchester/cs/factplusplus/AxiomPointer;
+ */
+JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_getAtomModule
+  (JNIEnv *, jobject, jint);
+
+/*
+ * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
  * Method:    getAtomDependents
  * Signature: (I)[I
  */
 JNIEXPORT jintArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_getAtomDependents
   (JNIEnv *, jobject, jint);
+
+/*
+ * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
+ * Method:    getLocCheckNumber
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_getLocCheckNumber
+  (JNIEnv *, jobject);
 
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
