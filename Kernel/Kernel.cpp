@@ -156,9 +156,9 @@ ReasoningKernel :: forceReload ( void )
 #else
 #	define FPP_USE_LOAD(Action) do { 						\
 		if ( SLContext.empty() ) { Action; } else {			\
-		const char* fn = getSLFileName(SLContext).c_str();	\
+		std::string fn = getSLFileName(SLContext);			\
 		if ( checkSaveLoadContext(SLContext) )				\
-		{ Load(fn); return; } else { Action; Save(fn); } } } while(0)
+		{ Load(fn.c_str()); return; } else { Action; Save(fn.c_str()); } } } while(0)
 #endif
 
 void
