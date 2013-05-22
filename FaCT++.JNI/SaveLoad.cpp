@@ -24,11 +24,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "JNIActor.h"
 #include "eFPPTimeout.h"
 
-static inline const char* getCppArg ( JNIEnv* env, jstring str )
-{
-	return str ? JString(env,str)() : "";
-}
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -43,7 +38,10 @@ JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_ch
 {
 	TRACE_JNI("checkSaveLoadContext");
 	TRACE_STR(env,str);
-	return getK(env,obj)->checkSaveLoadContext(getCppArg(env,str));
+	JString* Context = str ? new JString(env,str) : NULL;
+	bool ret = getK(env,obj)->checkSaveLoadContext ( Context ? (*Context)() : "" );
+	delete Context;
+	return ret;
 }
 
 /*
@@ -56,7 +54,10 @@ JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_se
 {
 	TRACE_JNI("setSaveLoadContext");
 	TRACE_STR(env,str);
-	return getK(env,obj)->setSaveLoadContext(getCppArg(env,str));
+	JString* Context = str ? new JString(env,str) : NULL;
+	bool ret = getK(env,obj)->setSaveLoadContext ( Context ? (*Context)() : "" );
+	delete Context;
+	return ret;
 }
 
 /*
@@ -69,7 +70,10 @@ JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_cl
 {
 	TRACE_JNI("clearSaveLoadContext");
 	TRACE_STR(env,str);
-	return getK(env,obj)->clearSaveLoadContext(getCppArg(env,str));
+	JString* Context = str ? new JString(env,str) : NULL;
+	bool ret = getK(env,obj)->clearSaveLoadContext ( Context ? (*Context)() : "" );
+	delete Context;
+	return ret;
 }
 
 #ifdef __cplusplus
