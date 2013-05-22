@@ -797,7 +797,7 @@ void
 DLDag :: SaveCache ( ostream& o ) const
 {
 	o << "\nDC";	// dag cache
-	for ( unsigned int i = 2; i < Heap.size(); ++i )
+	for ( unsigned int i = 2; i < finalDagSize; ++i )
 	{
 		DLVertex* v = Heap[i];
 		SaveSingleCache ( o, i, v->getCache(true) );
