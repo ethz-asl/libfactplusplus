@@ -21,6 +21,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "tOntologyPrinterLISP.h"
 #include "AxiomSplitter.h"
 #include "AtomicDecomposer.h"
+#include "eFPPSaveLoad.h"
 
 const char* ReasoningKernel :: Version = "1.6.2";
 const char* ReasoningKernel :: SupportedDL = "SROIQ(D)";
@@ -154,11 +155,16 @@ ReasoningKernel :: forceReload ( void )
 		if ( state.good() ) { Load(state); return; }		\
 		else { Action; Save("FaCT++.state"); } } while(0)
 #else
-#	define FPP_USE_LOAD(Action) do { 						\
-		if ( SLContext.empty() ) { Action; } else {			\
-		std::string fn = getSLFileName(SLContext);			\
-		if ( checkSaveLoadContext(SLContext) )				\
-		{ Load(fn.c_str()); return; } else { Action; Save(fn.c_str()); } } } while(0)
+#	define FPP_USE_LOAD(Action)								\
+	do { if ( SLContext.empty() ) { Action; }				\
+		 else { std::string fn = getSLFileName(SLContext);	\
+			if ( checkSaveLoadContext(SLContext) )			\
+			{												\
+				try { Load(fn.c_str()); return; }			\
+				catch ( const EFPPSaveLoad& ) {}			\
+			}												\
+			Action; Save(fn.c_str());						\
+		} } while(0)
 #endif
 
 void

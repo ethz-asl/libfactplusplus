@@ -331,12 +331,12 @@ TBox :: Save ( ostream& o ) const
 	neMap.add(pQuery);
 	// datatypes
 //	TreeDeleter Bool(TreeDeleter(DTCenter.getBoolType()));
-//	neMap.add(DTCenter.getStringType()->Element().getNE());
-//	neMap.add(DTCenter.getNumberType()->Element().getNE());
-//	neMap.add(DTCenter.getRealType()->Element().getNE());
-//	neMap.add(DTCenter.getBoolType()->Element().getNE());
-//	neMap.add(DTCenter.getTimeType()->Element().getNE());
-//	neMap.add(DTCenter.getFreshDataType()->Element().getNE());
+	neMap.add(DTCenter.getStringType()->Element().getNE());
+	neMap.add(DTCenter.getNumberType()->Element().getNE());
+	neMap.add(DTCenter.getRealType()->Element().getNE());
+	neMap.add(DTCenter.getBoolType()->Element().getNE());
+	neMap.add(DTCenter.getTimeType()->Element().getNE());
+	neMap.add(DTCenter.getFreshDataType()->Element().getNE());
 	o << "\nC";
 	Concepts.Save(o);
 	o << "\nI";
@@ -345,8 +345,8 @@ TBox :: Save ( ostream& o ) const
 //	ORM.Save(o);
 //	o << "\nDR";
 //	DRM.Save(o);
-//	o << "\nD";
-//	DLHeap.Save(o);
+	o << "\nD";
+	DLHeap.Save(o);
 	if ( Status > kbCChecked )
 	{
 		o << "\nCT";
@@ -366,12 +366,12 @@ TBox :: Load ( istream& i, KBStatus status )
 	neMap.add(pTemp);
 	neMap.add(pQuery);
 	// datatypes
-//	neMap.add(DTCenter.getStringType()->Element().getNE());
-//	neMap.add(DTCenter.getNumberType()->Element().getNE());
-//	neMap.add(DTCenter.getRealType()->Element().getNE());
-//	neMap.add(DTCenter.getBoolType()->Element().getNE());
-//	neMap.add(DTCenter.getTimeType()->Element().getNE());
-//	neMap.add(DTCenter.getFreshDataType()->Element().getNE());
+	neMap.add(DTCenter.getStringType()->Element().getNE());
+	neMap.add(DTCenter.getNumberType()->Element().getNE());
+	neMap.add(DTCenter.getRealType()->Element().getNE());
+	neMap.add(DTCenter.getBoolType()->Element().getNE());
+	neMap.add(DTCenter.getTimeType()->Element().getNE());
+	neMap.add(DTCenter.getFreshDataType()->Element().getNE());
 	expectChar(i,'C');
 	Concepts.Load(i);
 	expectChar(i,'I');
@@ -382,8 +382,10 @@ TBox :: Load ( istream& i, KBStatus status )
 //	expectChar(i,'D');
 //	expectChar(i,'R');
 //	DRM.Load(i);
-//	expectChar(i,'D');
+	expectChar(i,'D');
 //	DLHeap.Load(i);
+	if ( !DLHeap.Verify(i) )
+		throw EFPPSaveLoad("DAG verification failed");
 //	initReasoner();
 	if ( Status > kbCChecked )
 	{
@@ -717,10 +719,10 @@ TaxonomyVertex :: LoadNeighbours ( istream& i )
 void
 DLDag :: Save ( ostream& o ) const
 {
-	saveUInt(o,Heap.size());
+	saveUInt(o,finalDagSize);
 	o << "\n";
 	// skip fake vertex and TOP
-	for ( unsigned int i = 2; i < Heap.size(); ++i )
+	for ( unsigned int i = 2; i < finalDagSize; ++i )
 		Heap[i]->Save(o);
 }
 
@@ -739,6 +741,38 @@ DLDag :: Load ( istream& i )
 
 	// only reasoning now -- no cache
 	setFinalSize();
+}
+
+/// @return true if the DAG in the SL structure is the same that is loaded
+bool
+DLDag :: Verify ( istream& i ) const
+{
+	unsigned int j, size;
+	size = loadUInt(i);
+
+	if ( size != finalDagSize )
+	{
+		std::cout << "DAG verification fail: size " << size << ", expected " << finalDagSize << "\n";
+		return false;
+	}
+
+	for ( j = 2; j < size; ++j )
+	{
+		DagTag tag = static_cast<DagTag>(loadUInt(i));
+		DLVertex* v = new DLVertex(tag);
+		v->Load(i);
+		if ( *v != *(Heap[j]) )
+		{
+			std::cout << "DAG verification fail: dag entry at " << j << " is ";
+			v->Print(std::cout);
+			std::cout << ", expected ";
+			Heap[j]->Print(std::cout);
+			std::cout << "\n";
+			return false;
+		}
+	}
+
+	return true;
 }
 
 static void
@@ -932,9 +966,6 @@ DLVertex :: Save ( ostream& o ) const
 		break;
 
 	case dtDataType:
-		saveUInt(o,neMap.getI(Concept));
-		break;
-
 	case dtDataValue:
 		saveUInt(o,neMap.getI(Concept));
 		saveSInt(o,getC());
@@ -993,9 +1024,6 @@ DLVertex :: Load ( istream& i )
 		break;
 
 	case dtDataType:
-		setConcept(neMap.getP(loadUInt(i)));
-		break;
-
 	case dtDataValue:
 		setConcept(neMap.getP(loadUInt(i)));
 		setChild(loadSInt(i));

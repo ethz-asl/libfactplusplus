@@ -338,6 +338,8 @@ public:		// interface
 	void Save ( std::ostream& o ) const;
 		/// load entry
 	void Load ( std::istream& i );
+		/// @return true if the DAG in the SL structure is the same that is loaded
+	bool Verify ( std::istream& i ) const;
 		/// save cache of all nodes
 	void SaveCache ( std::ostream& o ) const;
 		/// load cache of all nodes
