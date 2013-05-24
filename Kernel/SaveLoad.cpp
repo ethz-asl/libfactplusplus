@@ -768,8 +768,10 @@ DLDag :: Verify ( istream& i ) const
 			std::cout << ", expected ";
 			Heap[j]->Print(std::cout);
 			std::cout << "\n";
+			delete v;
 			return false;
 		}
+		delete v;
 	}
 
 	return true;
@@ -1000,7 +1002,7 @@ DLVertex :: Load ( istream& i )
 	case dtLE:
 		Role = static_cast<const TRole*>(neMap.getP(loadUInt(i)));
 		setChild(loadSInt(i));
-		Child.push_back(loadUInt(i));
+		n = loadUInt(i);
 		break;
 
 	case dtForall:
