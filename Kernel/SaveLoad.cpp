@@ -341,10 +341,10 @@ TBox :: Save ( ostream& o ) const
 	Concepts.Save(o);
 	o << "\nI";
 	Individuals.Save(o);
-//	o << "\nOR";
-//	ORM.Save(o);
-//	o << "\nDR";
-//	DRM.Save(o);
+	o << "\nOR";
+	ORM.Save(o);
+	o << "\nDR";
+	DRM.Save(o);
 	o << "\nD";
 	DLHeap.Save(o);
 	if ( Status > kbCChecked )
@@ -376,12 +376,12 @@ TBox :: Load ( istream& i, KBStatus status )
 	Concepts.Load(i);
 	expectChar(i,'I');
 	Individuals.Load(i);
-//	expectChar(i,'O');
-//	expectChar(i,'R');
-//	ORM.Load(i);
-//	expectChar(i,'D');
-//	expectChar(i,'R');
-//	DRM.Load(i);
+	expectChar(i,'O');
+	expectChar(i,'R');
+	ORM.Load(i);
+	expectChar(i,'D');
+	expectChar(i,'R');
+	DRM.Load(i);
 	expectChar(i,'D');
 //	DLHeap.Load(i);
 	if ( !DLHeap.Verify(i) )
@@ -553,20 +553,20 @@ RoleMaster :: Save ( ostream& o ) const
 	for ( p = p_beg; p < p_end; p += 2 )
 		o << (*p)->getName() << "\n";
 
-	// save the entries itself
-	for ( p = p_beg; p < p_end; ++p )
-		(*p)->Save(o);
-
-	// save the rest of the RM
-	o << "\nRT";
-	pTax->Save(o);
+//	// save the entries itself
+//	for ( p = p_beg; p < p_end; ++p )
+//		(*p)->Save(o);
+//
+//	// save the rest of the RM
+//	o << "\nRT";
+//	pTax->Save(o);
 }
 
 void
 RoleMaster :: Load ( istream& i )
 {
 	// sanity check: Load shall be done for the empty collection and only once
-	fpp_assert ( size() == 0 );
+//	fpp_assert ( size() == 0 );
 
 	unsigned int RMSize, maxLength;
 	RMSize = loadUInt(i);
@@ -588,16 +588,16 @@ RoleMaster :: Load ( istream& i )
 	neMap.add(&universalRole);
 	neMap.add ( begin(), end() );
 
-	// load all the named entries
-	for ( iterator p = begin(); p < end(); ++p )
-		(*p)->Load(i);
-
-	// load the rest of the RM
-	expectChar(i,'R');
-	expectChar(i,'T');
-	pTax = new Taxonomy ( &universalRole, &emptyRole );
-	pTax->Load(i);
-	useUndefinedNames = false;	// no names
+//	// load all the named entries
+//	for ( iterator p = begin(); p < end(); ++p )
+//		(*p)->Load(i);
+//
+//	// load the rest of the RM
+//	expectChar(i,'R');
+//	expectChar(i,'T');
+//	pTax = new Taxonomy ( &universalRole, &emptyRole );
+//	pTax->Load(i);
+//	useUndefinedNames = false;	// no names
 }
 
 //----------------------------------------------------------

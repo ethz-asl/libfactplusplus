@@ -391,19 +391,12 @@ public:		// interface
 		/// compare 2 CEs
 	bool operator == ( const DLVertex& v ) const
 	{
-//		return (Type() == v.Type()) &&
-//			   (Role == v.Role) &&
-//			   (ProjRole == v.ProjRole) &&
-//			   (C == v.C) &&
-//			   (n == v.n) &&
-//			   (Child == v.Child);
-		if ( Type() != v.Type() ) { std::cout << " TYPE "; return false; }
-		if ( Role != v.Role ) { std::cout << " ROLE "; return false; }
-		if ( ProjRole != v.ProjRole ) { std::cout << " PROJROLE "; return false; }
-		if ( C != v.C ) { std::cout << " C "; return false; }
-		if ( n != v.n ) { std::cout << " N "; return false; }
-		if ( Child != v.Child ) { std::cout << " CHILD "; return false; }
-		return true;
+		return (Type() == v.Type()) &&
+			   (Role == v.Role) &&
+			   (ProjRole == v.ProjRole) &&
+			   (C == v.C) &&
+			   (n == v.n) &&
+			   (Child == v.Child);
 	}
 		/// compare 2 CEs
 	bool operator != ( const DLVertex& v ) const { return !(*this == v); }
