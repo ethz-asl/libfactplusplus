@@ -1876,7 +1876,8 @@ public class FaCTPlusPlusReasoner implements OWLReasoner, OWLOntologyChangeListe
 	public Set<OWLAxiom> getModule(Set<OWLEntity> signature, boolean useSemantic, int moduleType) {
 		kernel.initArgList();
 		for (OWLEntity entity : signature)
-			kernel.addArg(entity.accept(entityTranslator));
+			if (entity instanceof OWLLogicalEntity)
+				kernel.addArg(entity.accept(entityTranslator));
 		AxiomPointer[] axioms = kernel.getModule(useSemantic, moduleType);
 		return axiomsToSet(axioms);
 	}
@@ -1884,7 +1885,8 @@ public class FaCTPlusPlusReasoner implements OWLReasoner, OWLOntologyChangeListe
 	public Set<OWLAxiom> getNonLocal(Set<OWLEntity> signature, boolean useSemantic, int moduleType) {
 		kernel.initArgList();
 		for (OWLEntity entity : signature)
-			kernel.addArg(entity.accept(entityTranslator));
+			if (entity instanceof OWLLogicalEntity)
+				kernel.addArg(entity.accept(entityTranslator));
 		AxiomPointer[] axioms = kernel.getNonLocal(useSemantic, moduleType);
 		return axiomsToSet(axioms);
 	}
