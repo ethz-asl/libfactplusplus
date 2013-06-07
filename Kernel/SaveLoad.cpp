@@ -947,9 +947,10 @@ DLVertex :: Save ( ostream& o ) const
 		saveUInt(o,getNumberLE());
 		break;
 
-	case dtForall:
+	case dtForall:	// n here is for the automaton state
 		saveUInt(o,neMap.getI(const_cast<TRole*>(Role)));
 		saveSInt(o,getC());
+		saveUInt(o,getNumberLE());
 		break;
 
 	case dtIrr:
@@ -1008,6 +1009,7 @@ DLVertex :: Load ( istream& i )
 	case dtForall:
 		Role = static_cast<const TRole*>(neMap.getP(loadUInt(i)));
 		setChild(loadSInt(i));
+		n = loadUInt(i);
 		break;
 
 	case dtIrr:
