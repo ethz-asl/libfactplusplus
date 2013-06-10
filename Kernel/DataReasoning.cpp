@@ -120,3 +120,41 @@ DataTypeAppearance :: addNegInterval ( const TDataInterval& Int, const DepSet& d
 		return reportClash ( accDep, "C-MM" );
 	return false;
 }
+
+// comparison methods
+
+/// @return true iff there is at least one point that two DTA share
+bool
+DataTypeAppearance :: operator == ( const DataTypeAppearance& other ) const
+{
+	if ( Constraints.size() != 1 && other.Constraints.size() != 1 )
+		return false;	// FORNOW: just a single interval
+	const TDataInterval& i0 = Constraints[0].getDataInterval();
+	const TDataInterval& i1 = other.Constraints[0].getDataInterval();
+	TDataInterval Both(i0);
+	Both.update(i1);
+	return !Both.empty();
+}
+
+/// @return true iff there is at least one point in OTHER that there is not in THIS
+bool
+DataTypeAppearance :: operator < ( const DataTypeAppearance& other ) const
+{
+	if ( Constraints.size() != 1 && other.Constraints.size() != 1 )
+		return false;	// FORNOW: just a single interval
+	const TDataInterval& i0 = Constraints[0].getDataInterval();
+	const TDataInterval& i1 = other.Constraints[0].getDataInterval();
+	if ( !i1.hasMax() )	// always can find larger one
+		return true;
+	// here i1.max exists
+	if ( !i0.hasMin() )	// always can find a smaller one
+		return true;
+	// here i0.min exists
+	if ( i0.min < i1.max )	// {5,} and {,7}
+		return true;
+	if ( i0.min == i1.max && i0.minExcl && !i1.maxExcl )
+		return true;	// (5,} and {,5]
+	// note that (6,} and {,5] are not in the < relation
+	return false;
+}
+

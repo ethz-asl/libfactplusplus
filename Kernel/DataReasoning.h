@@ -47,12 +47,14 @@ protected:	// classes
 			/// empty d'tor
 		~DepInterval ( void ) {}
 
+			/// get RO access to the base data interval
+		const TDataInterval& getDataInterval ( void ) const { return Constraints; }
 			/// update MIN border of an TYPE's interval with VALUE wrt EXCL
 		bool update ( bool min, bool excl, const ComparableDT& value, const DepSet& dep )
 		{
 			if ( !Constraints.update ( min, excl, value ) )
 				return false;
-			locDep = dep;
+			locDep += dep;
 			return true;
 		}
 			/// correct MIN and MAX operands of a type
@@ -66,7 +68,7 @@ protected:	// classes
 			return false;
 		}
 			/// clear the interval
-		void clear ( void ) { Constraints.clear(); }
+		void clear ( void ) { Constraints.clear(); locDep.clear(); }
 	}; // DepInterval
 
 		/// datatype restriction is a set of intervals
@@ -177,6 +179,13 @@ public:		// methods
 			return reportClash ( *PType+*NType, "TNT" );
 		return false;
 	}
+
+	// comparison methods
+
+		/// @return true iff there is at least one point that two DTA share
+	bool operator == ( const DataTypeAppearance& other ) const;
+		/// @return true iff there is at least one point in OTHER that there is not in THIS
+	bool operator < ( const DataTypeAppearance& other ) const;
 
 	// complex methods
 
@@ -304,6 +313,23 @@ public:		// interface
 		for ( DTAVector::iterator p = Types.begin(), p_end = Types.end(); p < p_end; ++p )
 			(*p)->clear();
 		posType = NULL;
+	}
+
+	// comparison methods
+
+		/// @return true iff there is at least one point that two DTA share
+	bool operator == ( const DataTypeReasoner& other ) const
+	{
+		if ( posType == NULL || other.posType == NULL )
+			return false;
+		return *posType == *(other.posType);
+	}
+		/// @return true iff there is at least one point in OTHER that there is not in THIS
+	bool operator < ( const DataTypeReasoner& other ) const
+	{
+		if ( posType == NULL || other.posType == NULL )
+			return false;
+		return *posType < *(other.posType);
 	}
 
 	// filling structures and getting answers
