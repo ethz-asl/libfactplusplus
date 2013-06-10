@@ -131,9 +131,20 @@ DataTypeAppearance :: operator == ( const DataTypeAppearance& other ) const
 		return false;	// FORNOW: just a single interval
 	const TDataInterval& i0 = Constraints[0].getDataInterval();
 	const TDataInterval& i1 = other.Constraints[0].getDataInterval();
-	TDataInterval Both(i0);
-	Both.update(i1);
-	return !Both.empty();
+	if ( !i0.closed() || !i1.closed() )	// FORNOW: only closed ones
+		return false;
+	const ComparableDT& min0 = i0.min;
+	const ComparableDT& min1 = i1.min;
+	const ComparableDT& max0 = i0.max;
+	const ComparableDT& max1 = i1.max;
+	if ( max0 < min1 || max1 < min0 )	// no intersection
+		return false;
+	// here there is an intersection: minx-miny-maxz-maxt
+	if ( min0 == max1 && (i0.minExcl || i1.maxExcl) )	// no touch with a border
+		return false;
+	if ( min1 == max0 && (i1.minExcl || i0.maxExcl) )	// no touch with a border
+		return false;
+	return true;
 }
 
 /// @return true iff there is at least one point in OTHER that there is not in THIS
