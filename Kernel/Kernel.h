@@ -1242,6 +1242,9 @@ public:
 		/// set RESULT into set of J's such that R(I,J)
 	bool isRelated ( const TIndividualExpr* I, const TORoleExpr* R, const TIndividualExpr* J );
 
+		/// set RESULT into set of individuals such that they do have data roles R and S, and R op S
+	void getDataRelatedIndividuals ( TDRoleExpr* R, TDRoleExpr* S, int op, IndividualSet& Result );
+
 	//----------------------------------------------------------------------------------
 	// knowledge exploration queries
 	//----------------------------------------------------------------------------------

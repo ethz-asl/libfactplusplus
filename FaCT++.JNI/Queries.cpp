@@ -808,6 +808,28 @@ JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_is
 	return ret;
 }
 
+/*
+ * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
+ * Method:    getDataRelatedIndividuals
+ * Signature: (Luk/ac/manchester/cs/factplusplus/DataPropertyPointer;Luk/ac/manchester/cs/factplusplus/DataPropertyPointer;I)[Luk/ac/manchester/cs/factplusplus/IndividualPointer;
+ */
+JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_getDataRelatedIndividuals
+  (JNIEnv * env, jobject obj, jobject arg1, jobject arg2, jint op)
+{
+	TRACE_JNI("getDataRelatedIndividuals");
+	TRACE_ARG(env,obj,arg1);
+	TRACE_ARG(env,obj,arg2);
+	TJNICache* J = getJ(env,obj);
+	ReasoningKernel::NamesVector Js;
+	PROCESS_QUERY ( J->K->getDataRelatedIndividuals ( getRODRoleExpr(env,arg1), getRODRoleExpr(env,arg2), op, Js ) );
+	std::vector<TExpr*> acc;
+	for ( ReasoningKernel::NamesVector::const_iterator p = Js.begin(), p_end = Js.end(); p < p_end; ++p )
+		acc.push_back(J->getIName((*p)->getName()));
+	return J->buildArray ( acc, J->IndividualPointer );
+
+}
+
+
 #undef PROCESS_QUERY
 #undef PROCESS_SIMPLE_QUERY
 

@@ -565,6 +565,77 @@ ReasoningKernel :: isRelated ( const TIndividualExpr* I, const TORoleExpr* R, co
 	return false;
 }
 
+bool
+isEq ( const DlCompletionTree* p, const DlCompletionTree* q )
+{
+	return false;
+}
+
+bool
+isLt ( const DlCompletionTree* p, const DlCompletionTree* q )
+{
+	return false;
+}
+
+
+static bool
+checkDataRelation ( const DlCompletionTree* vR, const DlCompletionTree* vS, int op )
+{
+	switch (op)
+	{
+	case 0:	// =
+		return isEq ( vR, vS );
+	case 1:	// !=
+		return !isEq ( vR, vS );
+	case 2:	// <
+		return isLt ( vR, vS );
+	case 3: // <=
+		return isLt ( vR, vS ) || isEq ( vR, vS );
+	case 4:	// >
+		return isLt ( vS, vR );
+	case 5: // >=
+		return isLt ( vS, vR ) || isEq ( vR, vS );
+	default:
+		throw new EFaCTPlusPlus("Illegal operation in checkIndividualValues()");
+	}
+	return false;
+}
+
+#include "dlCompletionTree.h"
+
+/// set RESULT into set of instances of A such that they do have data roles R and S
+void
+ReasoningKernel :: getDataRelatedIndividuals ( TDRoleExpr* R, TDRoleExpr* S, int op, IndividualSet& Result )
+{
+	realiseKB();	// ensure KB is ready to answer the query
+	Result.clear();
+	const TRole* r = getRole ( R, "Role expression expected in the getIndividualsWith()" );
+	const TRole* s = getRole ( S, "Role expression expected in the getIndividualsWith()" );
+	// vector of individuals
+	typedef TDLNAryExpression<TDLIndividualExpression> IndVec;
+	IndVec Individuals ("individual expression","data related individuals");
+	Individuals.add(getExpressionManager()->getArgList());
+	for ( IndVec::iterator q = Individuals.begin(), q_end = Individuals.end(); q != q_end; ++q )
+	{
+		const TIndividual* ind = getIndividual ( *q, "individual name expected in getDataRelatedIndividuals()" );
+		const DlCompletionTree* vR = NULL;
+		const DlCompletionTree* vS = NULL;
+		for ( DlCompletionTree::const_edge_iterator p = ind->node->begin(), p_end = ind->node->end(); p != p_end; ++p )
+		{
+			const DlCompletionTreeArc* edge = *p;
+			if ( edge->isNeighbour(r) )
+				vR = edge->getArcEnd();
+			else if ( edge->isNeighbour(s) )
+				vS = edge->getArcEnd();
+			if ( vR && vS && checkDataRelation ( vR, vS, op ) )
+			{
+				Result.push_back(ind);
+				break;
+			}
+		}
+	}
+}
+
 //----------------------------------------------------------------------------------
 // atomic decomposition queries
 //----------------------------------------------------------------------------------

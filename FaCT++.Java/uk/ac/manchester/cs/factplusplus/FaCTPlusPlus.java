@@ -548,6 +548,9 @@ public class FaCTPlusPlus {
 
 	public native boolean isSameAs(IndividualPointer i, IndividualPointer j) throws FaCTPlusPlusException;
 
+	public native IndividualPointer[] getDataRelatedIndividuals(DataPropertyPointer r, DataPropertyPointer s, int op)
+			throws FaCTPlusPlusException;
+
 	// ------------------------------------------------------------------------
 	// Options
 	// ------------------------------------------------------------------------
