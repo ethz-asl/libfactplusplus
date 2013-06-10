@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2012 by Dmitry Tsarkov
+Copyright (C) 2003-2013 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -385,10 +385,11 @@ DlSatTester :: hasDataClash ( const DlCompletionTree* Node )
 	DTReasoner.clear();
 
 	// data node may contain only "simple" concepts in there
-	for ( DlCompletionTree::const_label_iterator r = Node->beginl_sc(); r != Node->endl_sc(); ++r )
-		if ( DTReasoner.addDataEntry ( r->bp(), r->getDep() ) )	// clash found
+	for ( DlCompletionTree::const_label_iterator p = Node->beginl_sc(), p_end = Node->endl_sc(); p != p_end; ++p )
+		if ( DTReasoner.addDataEntry ( p->bp(), p->getDep() ) )	// clash found
 			return true;
 
+	fpp_assert ( !DTReasoner.checkClash() );
 	return DTReasoner.checkClash();
 }
 

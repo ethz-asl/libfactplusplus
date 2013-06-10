@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2005-2011 by Dmitry Tsarkov
+Copyright (C) 2005-2013 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -30,8 +30,7 @@ bool DataTypeReasoner :: addDataEntry ( BipolarPointer p, const DepSet& dep )
 		if ( LLM.isWritable(llCDAction) )	// level of logging
 			LL << ' ' << (isPositive(p) ? '+' : '-') << getDataEntry(p)->getName();
 
-		type->setTypePresence ( isPositive(p), dep );
-		return type->checkPNTypeClash();
+		return setTypePresence ( type, isPositive(p), dep );
 	}
 	case dtDataValue:
 		return processDataValue ( isPositive(p), getDataEntry(p), dep );
