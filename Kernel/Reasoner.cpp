@@ -389,8 +389,7 @@ DlSatTester :: hasDataClash ( const DlCompletionTree* Node )
 		if ( DTReasoner.addDataEntry ( p->bp(), p->getDep() ) )	// clash found
 			return true;
 
-	fpp_assert ( !DTReasoner.checkClash() );
-	return DTReasoner.checkClash();
+	return false;
 }
 
 bool DlSatTester :: runSat ( void )

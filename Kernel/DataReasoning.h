@@ -171,7 +171,11 @@ public:		// methods
 			pDep = new DepSet(dep);
 		else	// FIXME!! think whether it is necessary to use the LATEST branching point
 			pDep->add(dep);
-		return checkPNTypeClash();
+
+		// check the case both pos- and neg types are present
+		if ( PType != NULL && NType != NULL )
+			return reportClash ( *PType+*NType, "TNT" );
+		return false;
 	}
 
 	// complex methods
@@ -182,15 +186,6 @@ public:		// methods
 		if ( LLM.isWritable(llCDAction) )	// level of logging
 			LL << ' ' << (pos ? '+' : '-') << Int;
 		return pos ? addPosInterval ( Int, dep ) : addNegInterval ( Int, dep );
-	}
-
-		/// @return true iff PType and NType leads to clash
-	bool checkPNTypeClash ( void )
-	{
-		if ( PType != NULL && NType != NULL )
-			return reportClash ( *PType+*NType, "TNT" );
-
-		return false;
 	}
 }; // DataTypeAppearance
 
@@ -315,8 +310,6 @@ public:		// interface
 
 		/// add data entry to the DTAVector; @return true iff data-data clash was found
 	bool addDataEntry ( BipolarPointer p, const DepSet& dep );
-		/// @return true iff data inconsistency was found in a structure; ClashSet would be set approprietry
-	bool checkClash ( void );
 		/// get clash-set
 	const DepSet& getClashSet ( void ) const { return clashDep; }
 }; // DataTypeReasoner

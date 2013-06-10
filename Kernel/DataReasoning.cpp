@@ -44,44 +44,6 @@ bool DataTypeReasoner :: addDataEntry ( BipolarPointer p, const DepSet& dep )
 	}
 }
 
-	// try to find contradiction:
-
-	// -- if we have 2 same elements or direct contradiction (like "p" and "(not p)")
-	//    then addConcept() will eliminate this;
-	// => negations are not interesting also (p & ~p are eliminated; ~p means "all except p").
-	// -- all cases with 2 different values of the same class are found in previous search;
-	// -- The remaining problems are
-	//   - check if there are 2 different positive classes
-	//   - check if some value is present together with negation of its class
-	//   - check if some value is present together with the other class
-	//   - check if two values of different classes are present at the same time
-
-bool DataTypeReasoner :: checkClash ( void )
-{
-	DataTypeAppearance* type = NULL;
-
-	// find a positive class
-	for ( DTAVector::const_iterator p = Types.begin(), p_end = Types.end(); p < p_end; ++p )
-		if ( (*p)->hasPType() )
-		{
-			if ( type == NULL )
-				type = *p;
-			else	// 2 different positive classes => contradiction
-			{
-				if ( LLM.isWritable(llCDAction) )	// level of logging
-					LL << " DT-TT";					// inform about clash...
-
-				clashDep = *(type->PType);
-				clashDep += *((*p)->PType);
-				return true;
-			}
-		}
-
-	// no clash like (PType, NType) can happen as this will be checked earlier
-	fpp_assert ( !type || !type->checkPNTypeClash() );
-	return false;
-}
-
 // ---------- Processing different alternatives
 
 bool
