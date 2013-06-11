@@ -29,8 +29,6 @@ protected:	// methods
 	virtual bool isTopEquivalent ( const TDLExpression* expr ) = 0;
 		/// @return true iff EXPR is bottom equivalent
 	virtual bool isBotEquivalent ( const TDLExpression* expr ) = 0;
-		/// @return true iff role expression in equivalent to const wrt locality
-	bool isREquivalent ( const TDLExpression* expr ) { return topRLocal() ? isTopEquivalent(expr) : isBotEquivalent(expr); }
 
 public:		// interface
 		/// init c'tor
@@ -44,13 +42,13 @@ public:		// visitor interface
 	virtual void visit ( const TDLAxiomEquivalentConcepts& axiom )
 	{
 		// 1 element => local
-		if ( axiom.size() == 1 )
+		if ( axiom.size() <= 1 )
 		{
 			isLocal = true;
 			return;
 		}
 
-		// axiom is local iff all the classes are either top- or bot-local
+		// axiom is local iff all the elements are either top- or bot-local
 		isLocal = false;
 		TDLAxiomEquivalentConcepts::iterator p = axiom.begin(), p_end = axiom.end();
 		if ( isBotEquivalent(*p) )
@@ -61,9 +59,7 @@ public:		// visitor interface
 		}
 		else
 		{
-			if ( !isTopEquivalent(*p) )
-				return;
-			for ( ++p; p != p_end; ++p )
+			for ( ; p != p_end; ++p )	// need to check the 1st element
 				if ( !isTopEquivalent(*p) )
 					return;
 		}
@@ -72,20 +68,18 @@ public:		// visitor interface
 	}
 	virtual void visit ( const TDLAxiomDisjointConcepts& axiom )
 	{
-		// local iff at most 1 concept is not bot-equiv
+		// local iff at most 1 element is not bot-equiv
 		bool hasNBE = false;
-		isLocal = true;
+		isLocal = false;
 		for ( TDLAxiomDisjointConcepts::iterator p = axiom.begin(), p_end = axiom.end(); p != p_end; ++p )
 			if ( !isBotEquivalent(*p) )
 			{
 				if ( hasNBE )
-				{
-					isLocal = false;
-					break;
-				}
+					return;
 				else
 					hasNBE = true;
 			}
+		isLocal = true;
 	}
 	virtual void visit ( const TDLAxiomDisjointUnion& axiom )
 	{
@@ -120,70 +114,98 @@ public:		// visitor interface
 	}
 	virtual void visit ( const TDLAxiomEquivalentORoles& axiom )
 	{
-		isLocal = true;
+		// 1 element => local
 		if ( axiom.size() <= 1 )
+		{
+			isLocal = true;
 			return;
-		for ( TDLAxiomEquivalentORoles::iterator p = axiom.begin(), p_end = axiom.end(); p != p_end; ++p )
-			if ( !isREquivalent(*p) )
-			{
-				isLocal = false;
-				break;
-			}
+		}
+
+		// axiom is local iff all the elements are either top- or bot-local
+		isLocal = false;
+		TDLAxiomEquivalentORoles::iterator p = axiom.begin(), p_end = axiom.end();
+		if ( isBotEquivalent(*p) )
+		{
+			for ( ++p; p != p_end; ++p )
+				if ( !isBotEquivalent(*p) )
+					return;
+		}
+		else
+		{
+			for ( ; p != p_end; ++p )	// need to check the 1st element
+				if ( !isTopEquivalent(*p) )
+					return;
+		}
+
+		isLocal = true;
 	}
 	virtual void visit ( const TDLAxiomEquivalentDRoles& axiom )
 	{
-		isLocal = true;
+		// 1 element => local
 		if ( axiom.size() <= 1 )
+		{
+			isLocal = true;
 			return;
-		for ( TDLAxiomEquivalentDRoles::iterator p = axiom.begin(), p_end = axiom.end(); p != p_end; ++p )
-			if ( !isREquivalent(*p) )
-			{
-				isLocal = false;
-				break;
-			}
+		}
+
+		// axiom is local iff all the elements are either top- or bot-local
+		isLocal = false;
+		TDLAxiomEquivalentDRoles::iterator p = axiom.begin(), p_end = axiom.end();
+		if ( isBotEquivalent(*p) )
+		{
+			for ( ++p; p != p_end; ++p )
+				if ( !isBotEquivalent(*p) )
+					return;
+		}
+		else
+		{
+			for ( ; p != p_end; ++p )	// need to check the 1st element
+				if ( !isTopEquivalent(*p) )
+					return;
+		}
+
+		isLocal = true;
 	}
 	virtual void visit ( const TDLAxiomDisjointORoles& axiom )
 	{
-		isLocal = false;
-		if ( topRLocal() )
-			return;
-
+		// local iff at most 1 element is not bot-equiv
 		bool hasNBE = false;
+		isLocal = false;
 		for ( TDLAxiomDisjointORoles::iterator p = axiom.begin(), p_end = axiom.end(); p != p_end; ++p )
-			if ( !isREquivalent(*p) )
+			if ( !isBotEquivalent(*p) )
 			{
 				if ( hasNBE )
-					return;	// false here
+					return;
 				else
 					hasNBE = true;
 			}
-
 		isLocal = true;
 	}
 	virtual void visit ( const TDLAxiomDisjointDRoles& axiom )
 	{
-		isLocal = false;
-		if ( topRLocal() )
-			return;
-
+		// local iff at most 1 element is not bot-equiv
 		bool hasNBE = false;
+		isLocal = false;
 		for ( TDLAxiomDisjointDRoles::iterator p = axiom.begin(), p_end = axiom.end(); p != p_end; ++p )
-			if ( !isREquivalent(*p) )
+			if ( !isBotEquivalent(*p) )
 			{
 				if ( hasNBE )
-					return;	// false here
+					return;
 				else
 					hasNBE = true;
 			}
-
 		isLocal = true;
 	}
 	virtual void visit ( const TDLAxiomSameIndividuals& ) { isLocal = false; }
 	virtual void visit ( const TDLAxiomDifferentIndividuals& ) { isLocal = false; }
-		/// there is no such axiom in OWL API, but I hope nobody would use Fairness here
+		/// FaCT++ extension: there is no such axiom in OWL API, but I hope nobody would use Fairness here
 	virtual void visit ( const TDLAxiomFairnessConstraint& ) { isLocal = true; }
 
-	virtual void visit ( const TDLAxiomRoleInverse& axiom ) { isLocal = isREquivalent(axiom.getRole()) && isREquivalent(axiom.getInvRole()); }
+	virtual void visit ( const TDLAxiomRoleInverse& axiom )
+	{
+		isLocal = ( isBotEquivalent(axiom.getRole()) && isBotEquivalent(axiom.getInvRole()) ) ||
+				  ( isTopEquivalent(axiom.getRole()) && isTopEquivalent(axiom.getInvRole()) );
+	}
 	virtual void visit ( const TDLAxiomORoleSubsumption& axiom ) { isLocal = isTopEquivalent(axiom.getRole()) || isBotEquivalent(axiom.getSubRole()); }
 	virtual void visit ( const TDLAxiomDRoleSubsumption& axiom ) { isLocal = isTopEquivalent(axiom.getRole()) || isBotEquivalent(axiom.getSubRole()); }
 	virtual void visit ( const TDLAxiomORoleDomain& axiom )
@@ -194,12 +216,12 @@ public:		// visitor interface
 		{ isLocal = isTopEquivalent(axiom.getRange()) || isBotEquivalent(axiom.getRole()); }
 	virtual void visit ( const TDLAxiomDRoleRange& axiom )
 		{ isLocal = isTopEquivalent(axiom.getRange()) || isBotEquivalent(axiom.getRole()); }
-	virtual void visit ( const TDLAxiomRoleTransitive& axiom ) { isLocal = isREquivalent(axiom.getRole()); }
+	virtual void visit ( const TDLAxiomRoleTransitive& axiom ) { isLocal = isBotEquivalent(axiom.getRole()) || isTopEquivalent(axiom.getRole()); }
 		/// as BotRole is irreflexive, the only local axiom is topEquivalent(R)
 	virtual void visit ( const TDLAxiomRoleReflexive& axiom ) { isLocal = isTopEquivalent(axiom.getRole()); }
 	virtual void visit ( const TDLAxiomRoleIrreflexive& axiom ) { isLocal = isBotEquivalent(axiom.getRole()); }
-	virtual void visit ( const TDLAxiomRoleSymmetric& axiom ) { isLocal = isREquivalent(axiom.getRole()); }
-	virtual void visit ( const TDLAxiomRoleAsymmetric& axiom ) { isLocal = isBotEquivalent(axiom.getRole()); }
+	virtual void visit ( const TDLAxiomRoleSymmetric& axiom ) { isLocal = isBotEquivalent(axiom.getRole()) || isTopEquivalent(axiom.getRole()); }
+	virtual void visit ( const TDLAxiomRoleAsymmetric& axiom ) { isLocal = false; }
 	virtual void visit ( const TDLAxiomORoleFunctional& axiom ) { isLocal = isBotEquivalent(axiom.getRole()); }
 	virtual void visit ( const TDLAxiomDRoleFunctional& axiom ) { isLocal = isBotEquivalent(axiom.getRole()); }
 	virtual void visit ( const TDLAxiomRoleInverseFunctional& axiom ) { isLocal = isBotEquivalent(axiom.getRole()); }

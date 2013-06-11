@@ -62,6 +62,9 @@ protected:	// methods
 	{
 		if ( n == 0 )	// non-empty is enough
 			return isBotDistinct(C);
+		// data top is infinite
+		if ( dynamic_cast<const TDLDataExpression*>(C) && isTopEquivalent(C) )
+			return true;
 		if ( const TDLDataTypeName* namedDT = dynamic_cast<const TDLDataTypeName*>(C) )
 		{	// string/time are infinite DT
 			std::string name = namedDT->getName();
@@ -169,10 +172,10 @@ public:		// visitor interface
 				return;
 		isBotEq = false;
 	}
-		// equivalent to R(x,y) and C(x), so copy behaviour from ER.X
+		// FaCT++ extension: equivalent to R(x,y) and C(x), so copy behaviour from ER.X
 	virtual void visit ( const TDLObjectRoleProjectionFrom& expr )
 		{ isBotEq = isMinBotEquivalent ( 1, expr.getOR(), expr.getC() ); }
-		// equivalent to R(x,y) and C(y), so copy behaviour from ER.X
+		// FaCT++ extension: equivalent to R(x,y) and C(y), so copy behaviour from ER.X
 	virtual void visit ( const TDLObjectRoleProjectionInto& expr )
 		{ isBotEq = isMinBotEquivalent ( 1, expr.getOR(), expr.getC() ); }
 
@@ -242,6 +245,7 @@ protected:	// methods
 	{
 		if ( n == 0 )	// non-empty is enough
 			return isBotDistinct(C);
+		// data top is infinite
 		if ( dynamic_cast<const TDLDataExpression*>(C) && isTopEquivalent(C) )
 			return true;
 		if ( const TDLDataTypeName* namedDT = dynamic_cast<const TDLDataTypeName*>(C) )
@@ -350,10 +354,10 @@ public:		// visitor interface
 				return;
 		isTopEq = true;
 	}
-		// equivalent to R(x,y) and C(x), so copy behaviour from ER.X
+		// FaCT++ extension: equivalent to R(x,y) and C(x), so copy behaviour from ER.X
 	virtual void visit ( const TDLObjectRoleProjectionFrom& expr )
 		{ isTopEq = isMinTopEquivalent ( 1, expr.getOR(), expr.getC() ); }
-		// equivalent to R(x,y) and C(y), so copy behaviour from ER.X
+		// FaCT++ extension: equivalent to R(x,y) and C(y), so copy behaviour from ER.X
 	virtual void visit ( const TDLObjectRoleProjectionInto& expr )
 		{ isTopEq = isMinTopEquivalent ( 1, expr.getOR(), expr.getC() ); }
 
@@ -407,8 +411,6 @@ protected:	// methods
 	virtual bool isTopEquivalent ( const TDLExpression* expr ) { return TopEval.isTopEquivalent(*expr); }
 		/// @return true iff EXPR is bottom equivalent
 	virtual bool isBotEquivalent ( const TDLExpression* expr ) { return BotEval.isBotEquivalent(*expr); }
-		/// @return true iff role expression in equivalent to const wrt locality
-	bool isREquivalent ( const TDLExpression* expr ) { return topRLocal() ? isTopEquivalent(expr) : isBotEquivalent(expr); }
 
 public:		// interface
 		/// init c'tor

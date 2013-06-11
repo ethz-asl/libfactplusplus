@@ -123,10 +123,10 @@ public:		// visitor implementation: common cases
 	// object role expressions
 	virtual void visit ( const TDLObjectRoleName& expr )
 		{ value = getEntityValue(expr.getEntity()); }
-		// equivalent to R(x,y) and C(x), so copy behaviour from ER.X
+		// FaCT++ extension: equivalent to R(x,y) and C(x), so copy behaviour from ER.X
 	virtual void visit ( const TDLObjectRoleProjectionFrom& expr )
 		{ value = getMinValue ( 1, expr.getOR(), expr.getC() ); }
-		// equivalent to R(x,y) and C(y), so copy behaviour from ER.X
+		// FaCT++ extension: equivalent to R(x,y) and C(y), so copy behaviour from ER.X
 	virtual void visit ( const TDLObjectRoleProjectionInto& expr )
 		{ value = getMinValue ( 1, expr.getOR(), expr.getC() ); }
 
@@ -759,7 +759,7 @@ inline int
 CardinalityEvaluatorBase :: getUpperBoundDirect ( const TDLExpression& expr ) { return UBD->getValue(expr); }
 /// implementation of evaluation
 inline int
-CardinalityEvaluatorBase :: getUpperBoundComplement ( const TDLExpression& expr ) { return UBD->getValue(expr); }
+CardinalityEvaluatorBase :: getUpperBoundComplement ( const TDLExpression& expr ) { return UBC->getValue(expr); }
 /// implementation of evaluation
 inline int
 CardinalityEvaluatorBase :: getLowerBoundDirect ( const TDLExpression& expr ) { return LBD->getValue(expr); }
@@ -781,8 +781,6 @@ protected:	// methods
 	virtual bool isTopEquivalent ( const TDLExpression* expr ) { return UBC.getUpperBoundComplement(expr) == 0; }
 		/// @return true iff EXPR is bottom equivalent
 	virtual bool isBotEquivalent ( const TDLExpression* expr ) { return UBD.getUpperBoundDirect(expr) == 0; }
-		/// @return true iff role expression in equivalent to const wrt locality
-	bool isREquivalent ( const TDLExpression* expr ) { return topRLocal() ? isTopEquivalent(expr) : isBotEquivalent(expr); }
 
 public:		// interface
 		/// init c'tor
