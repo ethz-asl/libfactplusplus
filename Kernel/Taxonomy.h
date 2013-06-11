@@ -150,7 +150,7 @@ protected:	// methods
 		/// make the only child -- bottom
 	void setChildBottom ( void ) { Current->addNeighbour ( /*upDirection=*/false, getBottomVertex() ); }
 		/// return 1 if current entry is classified as a synonym of already classified one
-	virtual bool classifySynonym ( void );
+	virtual bool classifySynonym ( void ) { return processSynonym(); }
 
 		/// set up Told Subsumers for the current entry
 	void setToldSubsumers ( void );
@@ -323,6 +323,28 @@ public:		// interface
 			getRelativesInfoRec<onlyDirect, upDirection> ( *p, actor );
 
 		clearCheckedLabel();
+	}
+
+	//------------------------------------------------------------------------------
+	//--	classification support
+	//------------------------------------------------------------------------------
+
+		/// @return true if current entry is a synonym of an already classified one
+	bool processSynonym ( void );
+		/// add PARENT as a parent if it exists and is direct parent
+	void addPossibleParent ( TaxonomyVertex* parent )
+	{
+		if ( parent && isDirectParent(parent) )
+			Current->addNeighbour ( /*upDirection=*/true, parent );
+	}
+		/// insert current node either directly or as a synonym
+	void finishCurrentNode ( void )
+	{
+		TaxonomyVertex* syn = Current->getSynonymNode();
+		if ( syn )
+			addCurrentToSynonym(syn);
+		else
+			insertCurrentNode();
 	}
 
 	//------------------------------------------------------------------------------

@@ -21,12 +21,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 \*******************************************************/
 
 #include "Taxonomy.h"
-#include "globaldef.h"
 #include "logging.h"
-
-#include <fstream>
-
-//#define TMP_PRINT_TAXONOMY_INFO
 
 /********************************************************\
 |* 			Implementation of class Taxonomy			*|
@@ -102,11 +97,7 @@ Taxonomy :: performClassification ( void )
 	generalTwoPhaseClassification();
 
 	// create new vertex
-	TaxonomyVertex* syn = Current->getSynonymNode();
-	if ( syn )
-		addCurrentToSynonym(syn);
-	else
-		insertCurrentNode();
+	finishCurrentNode();
 
 	// clear all labels
 	clearLabels();
@@ -141,8 +132,9 @@ void Taxonomy :: generalTwoPhaseClassification ( void )
 	clearLabels();
 }
 
-bool Taxonomy :: classifySynonym ( void )
+bool Taxonomy :: processSynonym ( void )
 {
+	const ClassifiableEntry* curEntry = Current->getPrimer();
 	const ClassifiableEntry* syn = resolveSynonym(curEntry);
 
 	if ( syn == curEntry )
@@ -160,14 +152,8 @@ Taxonomy :: isDirectParent ( TaxonomyVertex* v ) const
 {
 	for ( TaxonomyVertex::const_iterator q = v->begin(/*upDirection=*/false), q_end = v->end(/*upDirection=*/false); q != q_end; ++q )
 		if ( (*q)->isValued(valueLabel) && (*q)->getValue() == true )
-		{
-#		ifdef WARN_EXTRA_SUBSUMPTION
-			std::cout << "\nCTAX!!: Definition (implies '" << curEntry->getName()
-					  << "','" << (*p)->getName() << "') is extra because of definition (implies '"
-					  << curEntry->getName() << "','" << (*q)->getPrimer()->getName() << "')\n";
-#		endif
 			return false;
-		}
+
 	return true;
 }
 
@@ -182,13 +168,7 @@ void Taxonomy :: setNonRedundantCandidates ( void )
 
 	// test if some "told subsumer" is not an immediate TS (ie, not a border element)
 	for ( ss_iterator p = told_begin(), p_end = told_end(); p < p_end; ++p )
-	{
-		TaxonomyVertex* par = (*p)->getTaxVertex();
-		if ( par == NULL )	// non-classifiable TS
-			continue;
-		if ( isDirectParent(par) )
-			Current->addNeighbour ( /*upDirection=*/true, par );
-	}
+		addPossibleParent((*p)->getTaxVertex());
 }
 
 void Taxonomy :: setToldSubsumers ( void )

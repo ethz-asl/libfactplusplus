@@ -1146,8 +1146,6 @@ public:
 
 		/// get (READ-WRITE) access to internal Taxonomy of concepts
 	DLConceptTaxonomy* getTaxonomy ( void ) { return pTax; }
-		/// get (READ-ONLY) access to internal Taxonomy of concepts
-	const DLConceptTaxonomy* getTaxonomy ( void ) const { return pTax; }
 		/// get RW access to the splits
 	TSplitVars* getSplits ( void ) { return Splits; }
 		/// set split vars
