@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2012 by Dmitry Tsarkov
+Copyright (C) 2003-2013 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -137,6 +137,7 @@ protected:	// methods
 	void setCurrentEntry ( const ClassifiableEntry* p )
 	{
 		Current->clear();
+		Current->setSample(p);
 		curEntry = p;
 	}
 

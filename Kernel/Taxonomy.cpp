@@ -59,6 +59,7 @@ void Taxonomy :: print ( std::ostream& o ) const
 void
 Taxonomy :: addCurrentToSynonym ( TaxonomyVertex* syn )
 {
+	const ClassifiableEntry* curEntry = Current->getPrimer();
 	if ( queryMode() )	// no need to insert; just mark SYN as a host to curEntry
 		syn->setVertexAsHost(curEntry);
 	else
@@ -73,7 +74,6 @@ Taxonomy :: addCurrentToSynonym ( TaxonomyVertex* syn )
 void
 Taxonomy :: insertCurrentNode ( void )
 {
-	Current->setSample(curEntry);	// put curEntry as a representative of Current
 	if ( !queryMode() )	// insert node into taxonomy
 	{
 		Current->incorporate();
