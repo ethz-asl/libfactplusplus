@@ -221,7 +221,7 @@ public:		// visitor interface
 	virtual void visit ( const TDLAxiomRoleReflexive& axiom ) { isLocal = isTopEquivalent(axiom.getRole()); }
 	virtual void visit ( const TDLAxiomRoleIrreflexive& axiom ) { isLocal = isBotEquivalent(axiom.getRole()); }
 	virtual void visit ( const TDLAxiomRoleSymmetric& axiom ) { isLocal = isBotEquivalent(axiom.getRole()) || isTopEquivalent(axiom.getRole()); }
-	virtual void visit ( const TDLAxiomRoleAsymmetric& axiom ) { isLocal = false; }
+	virtual void visit ( const TDLAxiomRoleAsymmetric& ) { isLocal = false; }
 	virtual void visit ( const TDLAxiomORoleFunctional& axiom ) { isLocal = isBotEquivalent(axiom.getRole()); }
 	virtual void visit ( const TDLAxiomDRoleFunctional& axiom ) { isLocal = isBotEquivalent(axiom.getRole()); }
 	virtual void visit ( const TDLAxiomRoleInverseFunctional& axiom ) { isLocal = isBotEquivalent(axiom.getRole()); }
