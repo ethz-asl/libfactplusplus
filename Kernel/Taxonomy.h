@@ -25,10 +25,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 class Taxonomy
 {
-protected:	// FORNOW: friend declarations
-	friend class TaxonomyCreator;
-	friend class DLConceptTaxonomy;
-
 public:		// typedefs
 		/// type for a vector of TaxVertex
 	typedef std::vector<TaxonomyVertex*> TaxVertexVec;
@@ -57,23 +53,37 @@ private:	// no copy
 		/// no assignment
 	Taxonomy& operator = ( const Taxonomy& );
 
-protected:	// methods
+public:		// classification interface
 
 	//-----------------------------------------------------------------
 	//--	General classification support
 	//-----------------------------------------------------------------
 
-		/// make the only parent -- top
-	void setParentTop ( void ) { Current->addNeighbour ( /*upDirection=*/true, getTopVertex() ); }
-		/// make the only child -- bottom
-	void setChildBottom ( void ) { Current->addNeighbour ( /*upDirection=*/false, getBottomVertex() ); }
+		/// @return true if current entry is a synonym of an already classified one
+	bool processSynonym ( void );
 		/// add current entry to a synonym SYN
 	void addCurrentToSynonym ( TaxonomyVertex* syn );
 		/// remove node from the taxonomy; assume no references to the node
 	void removeNode ( TaxonomyVertex* node ) { node->setInUse(false); }
+		/// insert current node either directly or as a synonym
+	void finishCurrentNode ( void );
+
 		/// @return true if taxonomy works in a query mode (no need to insert query vertex)
 	bool queryMode ( void ) const { return !willInsertIntoTaxonomy; }
 
+		/// set node NODE as checked within taxonomy
+	void setVisited ( TaxonomyVertex* node ) const { node->setChecked(visitedLabel); }
+		/// check whether NODE is checked within taxonomy
+	bool isVisited ( TaxonomyVertex* node ) const { return node->isChecked(visitedLabel); }
+		/// clear the CHECKED label from all the taxonomy vertex
+	void clearVisited ( void ) { visitedLabel.newLabel(); }
+
+		/// call this method after taxonomy is built
+	void finalise ( void );
+		/// unlink the bottom from the taxonomy
+	void deFinalise ( void );
+
+protected:	// methods
 		/// apply ACTOR to subgraph starting from NODE as defined by flags
 	template<bool onlyDirect, bool upDirection, class Actor>
 	void getRelativesInfoRec ( TaxonomyVertex* node, Actor& actor )
@@ -154,52 +164,6 @@ public:		// interface
 			getRelativesInfoRec<onlyDirect, upDirection> ( *p, actor );
 
 		clearVisited();
-	}
-
-	//------------------------------------------------------------------------------
-	//--	classification support
-	//------------------------------------------------------------------------------
-
-		/// set node NODE as checked within taxonomy
-	void setVisited ( TaxonomyVertex* node ) const { node->setChecked(visitedLabel); }
-		/// check whether NODE is checked within taxonomy
-	bool isVisited ( TaxonomyVertex* node ) const { return node->isChecked(visitedLabel); }
-		/// @return true if current entry is a synonym of an already classified one
-	bool processSynonym ( void );
-		/// insert current node either directly or as a synonym
-	void finishCurrentNode ( void );
-
-	//------------------------------------------------------------------------------
-	//--	classification interface
-	//------------------------------------------------------------------------------
-
-		/// clear the CHECKED label from all the taxonomy vertex
-	void clearVisited ( void ) { visitedLabel.newLabel(); }
-
-		/// call this method after taxonomy is built
-	void finalise ( void )
-	{	// create links from leaf concepts to bottom
-		const bool upDirection = false;
-		for ( iterator p = itop(), p_end = end(); p < p_end; ++p )
-			if ( likely((*p)->isInUse()) && (*p)->noNeighbours(upDirection) )
-			{
-				(*p)->addNeighbour ( upDirection, getBottomVertex() );
-				getBottomVertex()->addNeighbour ( !upDirection, *p );
-			}
-		willInsertIntoTaxonomy = false;	// after finalisation one shouldn't add new entries to taxonomy
-	}
-		/// unlink the bottom from the taxonomy
-	void deFinalise ( void )
-	{
-		const bool upDirection = true;
-		TaxonomyVertex* bot = getBottomVertex();
-		for ( TaxonomyVertex::iterator
-				p = bot->begin(upDirection),
-				p_end = bot->end(upDirection);
-			  p != p_end; ++p )
-			(*p)->removeLink ( !upDirection, bot );
-		bot->clearLinks(upDirection);
-		willInsertIntoTaxonomy = true;	// it's possible again to add entries
 	}
 
 	// taxonomy info access

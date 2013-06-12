@@ -94,3 +94,29 @@ bool Taxonomy :: processSynonym ( void )
 
 	return true;
 }
+
+/// call this method after taxonomy is built
+void
+Taxonomy :: finalise ( void )
+{	// create links from leaf concepts to bottom
+	const bool upDirection = false;
+	for ( iterator p = itop(), p_end = end(); p < p_end; ++p )
+		if ( likely((*p)->isInUse()) && (*p)->noNeighbours(upDirection) )
+		{
+			(*p)->addNeighbour ( upDirection, getBottomVertex() );
+			getBottomVertex()->addNeighbour ( !upDirection, *p );
+		}
+	willInsertIntoTaxonomy = false;	// after finalisation one shouldn't add new entries to taxonomy
+}
+
+/// unlink the bottom from the taxonomy
+void
+Taxonomy :: deFinalise ( void )
+{
+	const bool upDirection = true;
+	TaxonomyVertex* bot = getBottomVertex();
+	for ( TaxonomyVertex::iterator p = bot->begin(upDirection), p_end = bot->end(upDirection); p != p_end; ++p )
+		(*p)->removeLink ( !upDirection, bot );
+	bot->clearLinks(upDirection);
+	willInsertIntoTaxonomy = true;	// it's possible again to add entries
+}
