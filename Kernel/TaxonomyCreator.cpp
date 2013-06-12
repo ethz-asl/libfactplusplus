@@ -65,8 +65,8 @@ void TaxonomyCreator :: generalTwoPhaseClassification ( void )
 	// run TD phase if necessary (ie, entry is completely defined)
 	if ( needTopDown() )
 	{
-		pTax->getTopVertex()->setValued ( true, valueLabel );		// C [= TOP == true
-		pTax->getBottomVertex()->setValued ( false, valueLabel );	// C [= BOT == false (catched by UNSAT)
+		setValue ( pTax->getTopVertex(), true );		// C [= TOP == true
+		setValue ( pTax->getBottomVertex(), false );	// C [= BOT == false (catched by UNSAT)
 		runTopDown();
 	}
 
@@ -77,7 +77,7 @@ void TaxonomyCreator :: generalTwoPhaseClassification ( void )
 	// run BU if necessary
 	if ( needBottomUp() )
 	{
-		pTax->getBottomVertex()->setValued ( true, valueLabel );	// BOT [= C == true
+		setValue ( pTax->getBottomVertex(), true );		// BOT [= C == true
 		runBottomUp();
 	}
 
@@ -88,7 +88,7 @@ bool
 TaxonomyCreator :: isDirectParent ( TaxonomyVertex* v ) const
 {
 	for ( TaxonomyVertex::const_iterator q = v->begin(/*upDirection=*/false), q_end = v->end(/*upDirection=*/false); q != q_end; ++q )
-		if ( (*q)->isValued(valueLabel) && (*q)->getValue() == true )
+		if ( isValued(*q) && getValue(*q) )
 			return false;
 	return true;
 }
@@ -136,14 +136,14 @@ void
 TaxonomyCreator :: propagateTrueUp ( TaxonomyVertex* node )
 {
 	// if taxonomy class already checked -- do nothing
-	if ( node->isValued(valueLabel) )
+	if ( isValued(node) )
 	{
-		fpp_assert ( node->getValue() );
+		fpp_assert ( getValue(node) );
 		return;
 	}
 
 	// overwise -- value it...
-	node->setValued ( true, valueLabel );
+	setValue ( node, true );
 
 	// ... and value all parents
 	for ( TaxonomyVertex::iterator p = node->begin(/*upDirection=*/true), p_end = node->end(/*upDirection=*/true); p != p_end; ++p )

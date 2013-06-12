@@ -151,10 +151,10 @@ protected:	// methods
 	{
 		++nSubCalls;
 
-		if ( cur->isValued(valueLabel) )
-			return cur->getValue();
+		if ( isValued(cur) )
+			return getValue(cur);
 		else
-			return cur->setValued ( enhancedSubs2 ( upDirection, cur ), valueLabel );
+			return setValue ( cur, enhancedSubs2 ( upDirection, cur ) );
 	}
 		/// explicetely test appropriate subsumption relation
 	bool testSubsumption ( bool upDirection, TaxonomyVertex* cur );

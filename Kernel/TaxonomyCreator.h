@@ -186,6 +186,13 @@ protected:	// methods
 	//--	DFS-based classification
 	//-----------------------------------------------------------------
 
+		/// @return true if a NODE has been valued during current classification pass
+	bool isValued ( TaxonomyVertex* node ) const { return node->isValued(valueLabel); }
+		/// get the subsumption value of a NODE wrt currently classified one
+	bool getValue ( TaxonomyVertex* node ) const { return node->getValue(); }
+		/// set the classification value of a NODE to VALUE
+	bool setValue ( TaxonomyVertex* node, bool value ) const { return node->setValued ( value, valueLabel ); }
+
 		/// prepare known subsumers for given entry if necessary
 	virtual KnownSubsumers* buildKnownSubsumers ( ClassifiableEntry* p )
 		{ return new ToldSubsumers(p->told_begin(), p->told_end()); }
@@ -232,12 +239,6 @@ public:		// interface
 		{}
 		/// d'tor
 	virtual ~TaxonomyCreator ( void ) {}
-
-	//------------------------------------------------------------------------------
-	//--	Access to taxonomy entries
-	//------------------------------------------------------------------------------
-
-	Taxonomy* getTaxonomy ( void ) const { return pTax; }
 
 	//------------------------------------------------------------------------------
 	//--	classification interface

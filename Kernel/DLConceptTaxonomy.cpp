@@ -129,8 +129,8 @@ void DLConceptTaxonomy :: searchBaader ( bool upDirection, TaxonomyVertex* cur )
 		}
 
 	// in case current node is unchecked (no BOTTOM node) -- check it explicitely
-	if ( !cur->isValued(valueLabel) )
-		cur->setValued ( testSubsumption ( upDirection, cur ), valueLabel );
+	if ( !isValued(cur) )
+		setValue ( cur, testSubsumption ( upDirection, cur ) );
 
 	// mark labelled leaf node as a parent
 	if ( noPosSucc && cur->getValue() )

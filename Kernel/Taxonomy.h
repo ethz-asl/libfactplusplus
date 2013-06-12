@@ -42,7 +42,7 @@ protected:	// members
 	TaxVertexVec Graph;
 
 		/// labeller for marking nodes as checked
-	TLabeller checkLabel;
+	TLabeller visitedLabel;
 		/// aux vertex to be included to taxonomy
 	TaxonomyVertex* Current;
 		/// vertex with parent Top and child Bot, represents the fresh entity
@@ -163,9 +163,9 @@ public:		// interface
 	//------------------------------------------------------------------------------
 
 		/// set node NODE as checked within taxonomy
-	void setVisited ( TaxonomyVertex* node ) const { node->setChecked(checkLabel); }
+	void setVisited ( TaxonomyVertex* node ) const { node->setChecked(visitedLabel); }
 		/// check whether NODE is checked within taxonomy
-	bool isVisited ( TaxonomyVertex* node ) const { return node->isChecked(checkLabel); }
+	bool isVisited ( TaxonomyVertex* node ) const { return node->isChecked(visitedLabel); }
 		/// @return true if current entry is a synonym of an already classified one
 	bool processSynonym ( void );
 		/// insert current node either directly or as a synonym
@@ -183,7 +183,7 @@ public:		// interface
 	//------------------------------------------------------------------------------
 
 		/// clear the CHECKED label from all the taxonomy vertex
-	void clearVisited ( void ) { checkLabel.newLabel(); }
+	void clearVisited ( void ) { visitedLabel.newLabel(); }
 
 		/// call this method after taxonomy is built
 	void finalise ( void )
