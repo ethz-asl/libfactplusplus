@@ -29,7 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 Taxonomy :: ~Taxonomy ( void )
 {
 	delete Current;
-	for ( iterator p = Graph.begin(), p_end = Graph.end(); p < p_end; ++p )
+	for ( TaxVertexVec::iterator p = Graph.begin(), p_end = Graph.end(); p < p_end; ++p )
 		delete *p;
 }
 
@@ -37,7 +37,7 @@ void Taxonomy :: print ( std::ostream& o ) const
 {
 	o << "All entries are in format:\n\"entry\" {n: parent_1 ... parent_n} {m: child_1 child_m}\n\n";
 
-	TVSet sorted(itop()+1, end());
+	TVSet sorted(Graph.begin()+2, Graph.end());
 
 	getTopVertex()->print(o);
 	for ( TVSet::const_iterator p = sorted.begin(), p_end = sorted.end(); p != p_end; ++p )
@@ -100,7 +100,7 @@ void
 Taxonomy :: finalise ( void )
 {	// create links from leaf concepts to bottom
 	const bool upDirection = false;
-	for ( iterator p = itop(), p_end = end(); p < p_end; ++p )
+	for ( TaxVertexVec::iterator p = Graph.begin()+1, p_end = Graph.end(); p < p_end; ++p )
 		if ( likely((*p)->isInUse()) && (*p)->noNeighbours(upDirection) )
 		{
 			(*p)->addNeighbour ( upDirection, getBottomVertex() );

@@ -25,24 +25,20 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 class Taxonomy
 {
-public:		// typedefs
+protected:	// typedefs
 		/// type for a vector of TaxVertex
 	typedef std::vector<TaxonomyVertex*> TaxVertexVec;
-		/// iterator on the set of vertex
-	typedef TaxVertexVec::iterator iterator;
-		/// const_iterator on the set of vertex
-	typedef TaxVertexVec::const_iterator const_iterator;
 
 protected:	// members
 		/// array of taxonomy vertices
 	TaxVertexVec Graph;
+		/// vertex with parent Top and child Bot, represents the fresh entity
+	TaxonomyVertex FreshNode;
 
 		/// labeller for marking nodes as checked
 	TLabeller visitedLabel;
 		/// aux vertex to be included to taxonomy
 	TaxonomyVertex* Current;
-		/// vertex with parent Top and child Bot, represents the fresh entity
-	TaxonomyVertex FreshNode;
 
 		/// behaviour flag: if true, insert temporary vertex into taxonomy
 	bool willInsertIntoTaxonomy;
@@ -124,24 +120,10 @@ public:		// interface
 	//--	Access to taxonomy entries
 	//------------------------------------------------------------------------------
 
-	iterator begin ( void ) { return Graph.begin(); }
-	iterator end ( void ) { return Graph.end(); }
-		/// iterator for the bottom of the taxonomy
-	iterator ibottom ( void ) { return begin(); }
-		/// iterator for the Top of the taxonomy
-	iterator itop ( void ) { return begin()+1; }
-
-	const_iterator begin ( void ) const { return Graph.begin(); }
-	const_iterator end ( void ) const { return Graph.end(); }
-		/// iterator for the bottom of the taxonomy
-	const_iterator ibottom ( void ) const { return begin(); }
-		/// iterator for the Top of the taxonomy
-	const_iterator itop ( void ) const { return begin()+1; }
-
 		/// special access to TOP of taxonomy
-	TaxonomyVertex* getTopVertex ( void ) const { return *itop(); }
+	TaxonomyVertex* getTopVertex ( void ) const { return *(Graph.begin()+1); }
 		/// special access to BOTTOM of taxonomy
-	TaxonomyVertex* getBottomVertex ( void ) const { return *ibottom(); }
+	TaxonomyVertex* getBottomVertex ( void ) const { return *Graph.begin(); }
 		/// get node for fresh entity E
 	TaxonomyVertex* getFreshVertex ( const ClassifiableEntry* e ) { FreshNode.setSample(e,false); return &FreshNode; }
 		/// get RW access to current

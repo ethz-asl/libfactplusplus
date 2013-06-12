@@ -625,7 +625,7 @@ TRole :: Load ( istream& i )
 void
 Taxonomy :: Save ( ostream& o ) const
 {
-	const_iterator p, p_beg = begin(), p_end = end();
+	TaxVertexVec::const_iterator p, p_beg = Graph.begin(), p_end = Graph.end();
 	tvMap.clear();	// it would be it's own map for every taxonomy
 	tvMap.add ( p_beg, p_end );
 
@@ -660,7 +660,7 @@ Taxonomy :: Load ( istream& i )
 	}
 
 	// load the hierarchy
-	for ( iterator p = begin(), p_end = end(); p < p_end; ++p )
+	for ( TaxVertexVec::iterator p = Graph.begin(), p_end = Graph.end(); p < p_end; ++p )
 		(*p)->LoadNeighbours(i);
 }
 

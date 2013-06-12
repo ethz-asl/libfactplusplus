@@ -28,7 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 class DLConceptTaxonomy: public TaxonomyCreator
 {
 protected:	// types
-	typedef Taxonomy::TaxVertexVec TaxVertexVec;
+	typedef std::vector<TaxonomyVertex*> TaxVertexVec;
 		/// all the derived subsumers of a class (came from the model)
 	class DerivedSubsumers: public KnownSubsumers
 	{
