@@ -101,8 +101,10 @@ protected:	// members
 		/// aux array to keep synonyms found during TS classification
 	std::vector<ClassifiableEntry*> Syns;
 
-		/// labellers for marking taxonomy
-	TLabeller checkLabel, valueLabel;
+		/// labeller for marking nodes as checked
+	TLabeller checkLabel;
+		/// labeller for marking nodes with a label wrt classification
+	TLabeller valueLabel;
 		/// aux vertex to be included to taxonomy
 	TaxonomyVertex* Current;
 		/// vertex with parent Top and child Bot, represents the fresh entity
@@ -248,11 +250,11 @@ protected:	// methods
 	void getRelativesInfoRec ( TaxonomyVertex* node, Actor& actor )
 	{
 		// recursive applicability checking
-		if ( node->isChecked(checkLabel) )
+		if ( isVisited(node) )
 			return;
 
 		// label node as visited
-		node->setChecked(checkLabel);
+		setVisited(node);
 
 		// if current node processed OK and there is no need to continue -- exit
 		// if node is NOT processed for some reasons -- go to another level
@@ -322,13 +324,17 @@ public:		// interface
 		for ( TaxonomyVertex::iterator p = node->begin(upDirection), p_end = node->end(upDirection); p != p_end; ++p )
 			getRelativesInfoRec<onlyDirect, upDirection> ( *p, actor );
 
-		clearCheckedLabel();
+		clearVisited();
 	}
 
 	//------------------------------------------------------------------------------
 	//--	classification support
 	//------------------------------------------------------------------------------
 
+		/// set node NODE as checked within taxonomy
+	void setVisited ( TaxonomyVertex* node ) const { node->setChecked(checkLabel); }
+		/// check whether NODE is checked within taxonomy
+	bool isVisited ( TaxonomyVertex* node ) const { return node->isChecked(checkLabel); }
 		/// @return true if current entry is a synonym of an already classified one
 	bool processSynonym ( void );
 		/// add PARENT as a parent if it exists and is direct parent
@@ -362,7 +368,7 @@ public:		// interface
 		prepareTS(p);
 	}
 		/// clear the CHECKED label from all the taxonomy vertex
-	void clearCheckedLabel ( void ) { checkLabel.newLabel(); }
+	void clearVisited ( void ) { checkLabel.newLabel(); }
  		/// clear all labels from Taxonomy vertices
 	void clearLabels ( void ) { checkLabel.newLabel(); valueLabel.newLabel(); }
 

@@ -389,7 +389,7 @@ ReasoningKernel :: checkSub ( TConcept* C, TConcept* D )
 	SupConceptActor actor(D);
 	Taxonomy* tax = getCTaxonomy();
 	try { tax->getRelativesInfo</*needCurrent=*/true, /*onlyDirect=*/false, /*upDirection=*/true> ( C->getTaxVertex(), actor ); return false; }
-	catch (...) { tax->clearCheckedLabel(); return true; }
+	catch (...) { tax->clearVisited(); return true; }
 }
 
 //-------------------------------------------------

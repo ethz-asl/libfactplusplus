@@ -113,7 +113,7 @@ void DLConceptTaxonomy :: print ( std::ostream& o ) const
 void DLConceptTaxonomy :: searchBaader ( bool upDirection, TaxonomyVertex* cur )
 {
 	// label 'visited'
-	cur->setChecked(checkLabel);
+	setVisited(cur);
 
 	++nSearchCalls;
 	bool noPosSucc = true;
@@ -122,7 +122,7 @@ void DLConceptTaxonomy :: searchBaader ( bool upDirection, TaxonomyVertex* cur )
 	for ( TaxonomyVertex::iterator p = cur->begin(upDirection), p_end = cur->end(upDirection); p != p_end; ++p )
 		if ( enhancedSubs ( upDirection, *p ) )
 		{
-			if ( !(*p)->isChecked(checkLabel) )
+			if ( !isVisited(*p) )
 				searchBaader ( upDirection, *p );
 
 			noPosSucc = false;
@@ -164,11 +164,11 @@ void
 DLConceptTaxonomy :: propagateOneCommon ( TaxonomyVertex* node )
 {
 	// checked if node already was visited this session
-	if ( node->isChecked(checkLabel) )
+	if ( isVisited(node) )
 		return;
 
 	// mark node visited
-	node->setChecked(checkLabel);
+	setVisited(node);
 	node->setCommon();
 	if ( node->correctCommon(nCommon) )
 		Common.push_back(node);
@@ -192,7 +192,7 @@ bool DLConceptTaxonomy :: propagateUp ( void )
 
 	// define possible successors of the node
 	propagateOneCommon(*p);
-	clearCheckedLabel();
+	clearVisited();
 
 	for ( ++p; p != p_end; ++p )
 	{
@@ -206,7 +206,7 @@ bool DLConceptTaxonomy :: propagateUp ( void )
 		aux.swap(Common);
 		Common.clear();
 		propagateOneCommon(*p);
-		clearCheckedLabel();
+		clearVisited();
 
 		// clear all non-common nodes (visited on a previous run)
 		for ( TaxVertexVec::iterator q = aux.begin(), q_end = aux.end(); q < q_end; ++q )
@@ -214,14 +214,6 @@ bool DLConceptTaxonomy :: propagateUp ( void )
 	}
 
 	return false;
-}
-
-void
-DLConceptTaxonomy :: clearCommon ( void )
-{
-	for ( TaxVertexVec::iterator p = Common.begin(), p_end = Common.end(); p < p_end; ++p )
-		(*p)->clearCommon();
-	Common.clear();
 }
 
 /// check if no BU classification is required as C=TOP

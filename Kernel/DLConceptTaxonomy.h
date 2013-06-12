@@ -173,7 +173,12 @@ protected:	// methods
 		/// mark as COMMON all vertexes that are sub-concepts of every parent of CURRENT
 	bool propagateUp ( void );
 		/// clear all COMMON infornation
-	void clearCommon ( void );
+	void clearCommon ( void )
+	{
+		for ( TaxVertexVec::iterator p = Common.begin(), p_end = Common.end(); p < p_end; ++p )
+			(*p)->clearCommon();
+		Common.clear();
+	}
 		/// check if concept is unsat; add it as a synonym of BOTTOM if necessary
 	bool isUnsatisfiable ( void );
 
