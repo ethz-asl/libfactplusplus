@@ -69,8 +69,6 @@ protected:	// methods
 	void setChildBottom ( void ) { Current->addNeighbour ( /*upDirection=*/false, getBottomVertex() ); }
 		/// add current entry to a synonym SYN
 	void addCurrentToSynonym ( TaxonomyVertex* syn );
-		/// insert current node to a taxonomy (if not in query more)
-	void insertCurrentNode ( void );
 		/// remove node from the taxonomy; assume no references to the node
 	void removeNode ( TaxonomyVertex* node ) { node->setInUse(false); }
 		/// @return true if taxonomy works in a query mode (no need to insert query vertex)
@@ -169,14 +167,7 @@ public:		// interface
 		/// @return true if current entry is a synonym of an already classified one
 	bool processSynonym ( void );
 		/// insert current node either directly or as a synonym
-	void finishCurrentNode ( void )
-	{
-		TaxonomyVertex* syn = Current->getSynonymNode();
-		if ( syn )
-			addCurrentToSynonym(syn);
-		else
-			insertCurrentNode();
-	}
+	void finishCurrentNode ( void );
 
 	//------------------------------------------------------------------------------
 	//--	classification interface

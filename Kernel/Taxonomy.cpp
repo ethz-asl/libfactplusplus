@@ -64,10 +64,14 @@ Taxonomy :: addCurrentToSynonym ( TaxonomyVertex* syn )
 	}
 }
 
+/// insert current node either directly or as a synonym
 void
-Taxonomy :: insertCurrentNode ( void )
+Taxonomy :: finishCurrentNode ( void )
 {
-	if ( !queryMode() )	// insert node into taxonomy
+	TaxonomyVertex* syn = Current->getSynonymNode();
+	if ( syn )
+		addCurrentToSynonym(syn);
+	else if ( !queryMode() )	// insert node into taxonomy
 	{
 		Current->incorporate();
 		Graph.push_back(Current);

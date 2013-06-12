@@ -330,7 +330,7 @@ DLConceptTaxonomy :: mergeSplitVars ( TSplitVar* split )
 	if ( v == cur )
 	{
 		checkExtraParents();
-		pTax->insertCurrentNode();
+		pTax->finishCurrentNode();
 	}
 }
 
