@@ -389,8 +389,8 @@ TBox :: Load ( istream& i, KBStatus status )
 //	initReasoner();
 	if ( Status > kbCChecked )
 	{
-		pTax = new DLConceptTaxonomy ( pTop, pBottom, *this );
-		pTax->setBottomUp(GCIs);
+		initTaxonomy();
+		pTaxCreator->setBottomUp(GCIs);
 		expectChar(i,'C');
 		expectChar(i,'T');
 		pTax->Load(i);

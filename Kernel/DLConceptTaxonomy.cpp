@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2012 by Dmitry Tsarkov
+Copyright (C) 2003-2013 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -85,10 +85,10 @@ bool DLConceptTaxonomy :: testSub ( const TConcept* p, const TConcept* q )
 	return testSubTBox ( p, q );
 }
 
-Taxonomy::KnownSubsumers*
+TaxonomyCreator::KnownSubsumers*
 DLConceptTaxonomy :: buildKnownSubsumers ( ClassifiableEntry* ce )
 {
-	return Taxonomy::buildKnownSubsumers(ce);
+	return TaxonomyCreator::buildKnownSubsumers(ce);
 }
 
 void DLConceptTaxonomy :: print ( std::ostream& o ) const
@@ -106,14 +106,14 @@ void DLConceptTaxonomy :: print ( std::ostream& o ) const
 	  << " Sub calls, of which " << nNonTrivialSubCalls << " non-trivial\n";
 	o << "Current efficiency (wrt Brute-force) is " << nEntries*(nEntries-1)/n << "\n";
 
-	Taxonomy::print(o);
+	TaxonomyCreator::print(o);
 }
 
 // Baader procedures
 void DLConceptTaxonomy :: searchBaader ( bool upDirection, TaxonomyVertex* cur )
 {
 	// label 'visited'
-	setVisited(cur);
+	pTax->setVisited(cur);
 
 	++nSearchCalls;
 	bool noPosSucc = true;
@@ -122,7 +122,7 @@ void DLConceptTaxonomy :: searchBaader ( bool upDirection, TaxonomyVertex* cur )
 	for ( TaxonomyVertex::iterator p = cur->begin(upDirection), p_end = cur->end(upDirection); p != p_end; ++p )
 		if ( enhancedSubs ( upDirection, *p ) )
 		{
-			if ( !isVisited(*p) )
+			if ( !pTax->isVisited(*p) )
 				searchBaader ( upDirection, *p );
 
 			noPosSucc = false;
@@ -134,7 +134,7 @@ void DLConceptTaxonomy :: searchBaader ( bool upDirection, TaxonomyVertex* cur )
 
 	// mark labelled leaf node as a parent
 	if ( noPosSucc && cur->getValue() )
-		Current->addNeighbour ( !upDirection, cur );
+		pTax->getCurrent()->addNeighbour ( !upDirection, cur );
 }
 
 bool DLConceptTaxonomy :: enhancedSubs1 ( bool upDirection, TaxonomyVertex* cur )
@@ -164,11 +164,11 @@ void
 DLConceptTaxonomy :: propagateOneCommon ( TaxonomyVertex* node )
 {
 	// checked if node already was visited this session
-	if ( isVisited(node) )
+	if ( pTax->isVisited(node) )
 		return;
 
 	// mark node visited
-	setVisited(node);
+	pTax->setVisited(node);
 	node->setCommon();
 	if ( node->correctCommon(nCommon) )
 		Common.push_back(node);
@@ -183,6 +183,7 @@ bool DLConceptTaxonomy :: propagateUp ( void )
 	const bool upDirection = true;
 
 	// including node always have some parents (TOP at least)
+	TaxonomyVertex* Current = pTax->getCurrent();
 	TaxonomyVertex::iterator p = Current->begin(upDirection), p_end = Current->end(upDirection);
 	fpp_assert ( p != p_end );	// there is at least one parent (TOP)
 
@@ -192,7 +193,7 @@ bool DLConceptTaxonomy :: propagateUp ( void )
 
 	// define possible successors of the node
 	propagateOneCommon(*p);
-	clearVisited();
+	pTax->clearVisited();
 
 	for ( ++p; p != p_end; ++p )
 	{
@@ -206,7 +207,7 @@ bool DLConceptTaxonomy :: propagateUp ( void )
 		aux.swap(Common);
 		Common.clear();
 		propagateOneCommon(*p);
-		clearVisited();
+		pTax->clearVisited();
 
 		// clear all non-common nodes (visited on a previous run)
 		for ( TaxVertexVec::iterator q = aux.begin(), q_end = aux.end(); q < q_end; ++q )
@@ -225,7 +226,7 @@ DLConceptTaxonomy :: isEqualToTop ( void )
 	if ( cache->getState() != csInvalid )
 		return false;
 	// here concept = TOP
-	Current->addNeighbour ( /*upDirection=*/false, getTopVertex() );
+	pTax->getCurrent()->addNeighbour ( /*upDirection=*/false, pTax->getTopVertex() );
 	return true;
 }
 
@@ -233,7 +234,7 @@ DLConceptTaxonomy :: isEqualToTop ( void )
 bool
 DLConceptTaxonomy :: classifySynonym ( void )
 {
-	if ( Taxonomy::classifySynonym() )
+	if ( TaxonomyCreator::classifySynonym() )
 		return true;
 
 	if ( curConcept()->isSingleton() )
@@ -247,7 +248,7 @@ DLConceptTaxonomy :: classifySynonym ( void )
 
  			if ( tBox.isBlockingDet(curI) )
 			{	// deterministic merge => curI = syn
- 				addCurrentToSynonym(syn->getTaxVertex());
+ 				pTax->addCurrentToSynonym(syn->getTaxVertex());
 				return true;
 			}
 			else	// non-det merge: check whether it is the same
@@ -256,7 +257,7 @@ DLConceptTaxonomy :: classifySynonym ( void )
 					LL << "\nTAX: trying '" << curI->getName() << "' = '" << syn->getName() << "'... ";
 				if ( testSubTBox ( curI, syn ) )	// they are actually the same
 				{
-					addCurrentToSynonym(syn->getTaxVertex());
+					pTax->addCurrentToSynonym(syn->getTaxVertex());
 					return true;
 				}
 			}
@@ -271,6 +272,7 @@ DLConceptTaxonomy :: checkExtraParents ( void )
 {
 	inSplitCheck = true;
 	TaxonomyVertex::iterator p, p_end;
+	TaxonomyVertex* Current = pTax->getCurrent();
 	for ( p = Current->begin(/*upDirection=*/true), p_end = Current->end(/*upDirection=*/true); p != p_end; ++p )
 		propagateTrueUp(*p);
 	Current->clearLinks(/*upDirection=*/true);
@@ -300,31 +302,35 @@ DLConceptTaxonomy :: mergeSplitVars ( TSplitVar* split )
 	TVSet1 splitVertices;
 	TaxonomyVertex* v = split->C->getTaxVertex();
 	bool cIn = ( v != NULL );
-	if ( v != NULL )	// there is C-node in the taxonomy
+	if ( cIn )	// there is C-node in the taxonomy
 		splitVertices.insert(v);
 	TSplitVar::iterator q = split->begin(), q_end = split->end();
 	for ( ; q != q_end; ++q )
 		splitVertices.insert(q->C->getTaxVertex());
 	// set V to be a node-to-add
 	// FIXME!! check later the case whether both TOP and BOT are there
-	if ( splitVertices.count(getBottomVertex()) > 0 )
-		v = getBottomVertex();
-	else if ( splitVertices.count(getTopVertex()) > 0 )
-		v = getTopVertex();
+	TaxonomyVertex* bot = pTax->getBottomVertex();
+	TaxonomyVertex* top = pTax->getTopVertex();
+	TaxonomyVertex* cur = pTax->getCurrent();
+
+	if ( splitVertices.count(bot) > 0 )
+		v = bot;
+	else if ( splitVertices.count(top) > 0 )
+		v = top;
 	else
 	{
 		setCurrentEntry(split->C);
-		v = Current;
+		v = cur;
 	}
 
-	if ( v != Current && !cIn )
+	if ( v != cur && !cIn )
 		v->addSynonym(split->C);
 	for ( TVSet1::iterator p = splitVertices.begin(), p_end = splitVertices.end(); p != p_end; ++p )
 		mergeVertex ( v, *p, splitVertices );
-	if ( v == Current )
+	if ( v == cur )
 	{
 		checkExtraParents();
-		insertCurrentNode();
+		pTax->insertCurrentNode();
 	}
 }
 
@@ -342,10 +348,10 @@ void TBox :: createTaxonomy ( bool needIndividual )
 	// here we sure that ontology is consistent
 	// FIXME!! distinguish later between the 1st run and the following runs
 	if ( pTax == NULL )	// 1st run
-		pTax = new DLConceptTaxonomy ( pTop, pBottom, *this );
+		initTaxonomy();
 
 	DLHeap.setSubOrder();	// init priorities in order to do subsumption tests
-	pTax->setBottomUp(GCIs);
+	pTaxCreator->setBottomUp(GCIs);
 	needConcept |= needIndividual;	// together with concepts
 //	else	// not a first run
 //		return;	// FIXME!! now we don't perform staged reasoning, so everything is done
@@ -378,7 +384,7 @@ void TBox :: createTaxonomy ( bool needIndividual )
 	if ( pMonitor )
 	{
 		pMonitor->setClassificationStarted(nItems);
-		pTax->setProgressIndicator(pMonitor);
+		pTaxCreator->setProgressIndicator(pMonitor);
 	}
 
 	duringClassification = true;
@@ -392,13 +398,13 @@ void TBox :: createTaxonomy ( bool needIndividual )
 
 	duringClassification = false;
 
-	pTax->processSplits();
+	pTaxCreator->processSplits();
 
 	if ( pMonitor )
 	{
 		pMonitor->setFinished();
 		setProgressMonitor(NULL);	// no need of PM after classification done
-		pTax->setProgressIndicator(NULL);
+		pTaxCreator->setProgressIndicator(NULL);
 	}
 	pTax->finalise();
 
@@ -413,8 +419,8 @@ void TBox :: createTaxonomy ( bool needIndividual )
 
 	if ( verboseOutput/* && needIndividual*/ )
 	{
-		std::ofstream of ( "Taxonomy.log" );
-		pTax->print (of);
+		std::ofstream of("Taxonomy.log");
+		pTaxCreator->print(of);
 	}
 }
 
@@ -422,7 +428,7 @@ void
 TBox :: classifyConcepts ( const ConceptVector& collection, bool curCompletelyDefined, const char* type )
 {
 	// set CD for taxonomy
-	pTax->setCompletelyDefined (curCompletelyDefined);
+	pTaxCreator->setCompletelyDefined(curCompletelyDefined);
 
 	if ( LLM.isWritable(llStartCfyConcepts) )
 		LL << "\n\n---Start classifying " << type << " concepts";

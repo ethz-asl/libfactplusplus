@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2012 by Dmitry Tsarkov
+Copyright (C) 2003-2013 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -40,6 +40,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "tSplitExpansionRules.h"
 
 class DlSatTester;
+class Taxonomy;
 class DLConceptTaxonomy;
 class dumpInterface;
 
@@ -159,7 +160,9 @@ protected:	// members
 		/// vectors for Completely defined, Non-CD and Non-primitive concepts
 	ConceptVector arrayCD, arrayNoCD, arrayNP;
 		/// taxonomy structure of a TBox
-	DLConceptTaxonomy* pTax;
+	Taxonomy* pTax;
+		/// classifier
+	DLConceptTaxonomy* pTaxCreator;
 		/// DataType center
 	DataTypeCenter DTCenter;
 		/// set of reasoning options
@@ -679,6 +682,8 @@ protected:	// methods
 
 		/// init reasoning service: create reasoner(s)
 	void initReasoner ( void );				// implemented in Reasoner.h
+		/// init taxonomy and classifier
+	void initTaxonomy ( void );				// implemented in DLConceptTaxonomy.h
 		/// creating taxonomy for given TBox; include individuals if necessary
 	void createTaxonomy ( bool needIndividuals );
 		/// distribute all elements in [begin,end) range wtr theif tags
@@ -1145,7 +1150,7 @@ public:
 	void performRealisation ( void ) { createTaxonomy ( /*needIndividuals=*/true ); }
 
 		/// get (READ-WRITE) access to internal Taxonomy of concepts
-	DLConceptTaxonomy* getTaxonomy ( void ) { return pTax; }
+	Taxonomy* getTaxonomy ( void ) { return pTax; }
 		/// get RW access to the splits
 	TSplitVars* getSplits ( void ) { return Splits; }
 		/// set split vars

@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2012 by Dmitry Tsarkov
+Copyright (C) 2003-2013 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -19,21 +19,22 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef DLCONCEPTTAXONOMY_H
 #define DLCONCEPTTAXONOMY_H
 
-#include "Taxonomy.h"
+#include "TaxonomyCreator.h"
 #include "dlTBox.h"
 #include "tProgressMonitor.h"
 #include "tSplitVars.h"
 
 /// Taxonomy of named DL concepts (and mapped individuals)
-class DLConceptTaxonomy: public Taxonomy
+class DLConceptTaxonomy: public TaxonomyCreator
 {
 protected:	// types
+	typedef Taxonomy::TaxVertexVec TaxVertexVec;
 		/// all the derived subsumers of a class (came from the model)
 	class DerivedSubsumers: public KnownSubsumers
 	{
 	protected:	// typedefs
 			/// set of the subsumers
-		typedef Taxonomy::SubsumerSet SubsumerSet;
+		typedef TaxonomyCreator::SubsumerSet SubsumerSet;
 			/// SS RW iterator
 		typedef SubsumerSet::iterator ss_iterator;
 
@@ -197,7 +198,7 @@ protected:	// methods
 	virtual bool needTopDown ( void ) const
 		{ return !(useCompletelyDefined && curEntry->isCompletelyDefined ()); }
 		/// explicitely run TD phase
-	virtual void runTopDown ( void ) { searchBaader ( /*upDirection=*/false, getTopVertex() ); }
+	virtual void runTopDown ( void ) { searchBaader ( /*upDirection=*/false, pTax->getTopVertex() ); }
 		/// check if it is possible to skip BU phase
 	virtual bool needBottomUp ( void ) const
 	{
@@ -213,8 +214,8 @@ protected:	// methods
 			return;
 		if ( isEqualToTop() )	// nothing to do
 			return;
-		if ( queryMode() )	// after classification -- bottom set up already
-			searchBaader ( /*upDirection=*/true, getBottomVertex() );
+		if ( pTax->queryMode() )	// after classification -- bottom set up already
+			searchBaader ( /*upDirection=*/true, pTax->getBottomVertex() );
 		else	// during classification -- have to find leaf nodes
 			for ( TaxVertexVec::iterator p = Common.begin(), p_end = Common.end(); p < p_end; ++p )
 				if ( (*p)->noNeighbours(/*upDirection=*/false) )
@@ -239,7 +240,7 @@ protected:	// methods
 		if ( likely ( cur != v ) )
 		{
 			cur->mergeIndepNode ( v, excludes, curEntry );
-			removeNode(v);
+			pTax->removeNode(v);
 		}
 	}
 		/// after merging, check whether there are extra neighbours that should be taken into account
@@ -249,8 +250,8 @@ protected:	// methods
 
 public:		// interface
 		/// the only c'tor
-	DLConceptTaxonomy ( const TConcept* pTop, const TConcept* pBottom, TBox& kb )
-		: Taxonomy ( pTop, pBottom )
+	DLConceptTaxonomy ( Taxonomy* tax, TBox& kb )
+		: TaxonomyCreator(tax)
 		, tBox(kb)
 		, nConcepts (0), nTries (0), nPositives (0), nNegatives (0)
 		, nSearchCalls(0)
@@ -291,7 +292,7 @@ inline bool DLConceptTaxonomy :: isUnsatisfiable ( void )
 	if ( tBox.isSatisfiable(p) )
 		return false;
 
-	addCurrentToSynonym(getBottomVertex());
+	pTax->addCurrentToSynonym(pTax->getBottomVertex());
 	return true;
 }
 
@@ -314,12 +315,19 @@ inline bool DLConceptTaxonomy :: immediatelyClassified ( void )
 //-----------------------------------------------------------------------------
 
 inline void
+TBox :: initTaxonomy ( void )
+{
+	pTax = new Taxonomy ( pTop, pBottom );
+	pTaxCreator = new DLConceptTaxonomy ( pTax, *this );
+}
+
+inline void
 TBox :: classifyEntry ( TConcept* entry )
 {
 	if ( unlikely(isBlockedInd(entry)) )
 		classifyEntry(getBlockingInd(entry));	// make sure that the possible synonym is already classified
 	if ( !entry->isClassified() )
-		pTax->classifyEntry(entry);
+		pTaxCreator->classifyEntry(entry);
 }
 
 #endif // DLCONCEPTTAXONOMY_H

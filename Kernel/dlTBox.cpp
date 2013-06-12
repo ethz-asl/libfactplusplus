@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2012 by Dmitry Tsarkov
+Copyright (C) 2003-2013 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -38,6 +38,7 @@ TBox :: TBox ( const ifOptionSet* Options, const std::string& TopORoleName, cons
 	, nomReasoner(NULL)
 	, pMonitor(NULL)
 	, pTax(NULL)
+	, pTaxCreator(NULL)
 	, pOptions (Options)
 	, Status(kbLoading)
 	, curFeature(NULL)
@@ -92,6 +93,7 @@ TBox :: ~TBox ( void )
 	delete stdReasoner;
 	delete nomReasoner;
 	delete pTax;
+	delete pTaxCreator;
 }
 
 /// get unique aux concept
@@ -493,10 +495,10 @@ TBox :: classifyQueryConcept ( void )
 
 	// setup taxonomy behaviour flags
 	fpp_assert ( pTax != NULL );
-	pTax->setCompletelyDefined(false);	// non-primitive concept
+	pTaxCreator->setCompletelyDefined(false);	// non-primitive concept
 
 	// classify the concept
-	pTax->classifyEntry(pQuery);
+	pTaxCreator->classifyEntry(pQuery);
 }
 
 /// knowledge exploration: build a model and return a link to the root

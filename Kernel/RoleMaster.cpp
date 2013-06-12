@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2012 by Dmitry Tsarkov
+Copyright (C) 2003-2013 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -18,6 +18,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "RoleMaster.h"
 #include "eFPPInconsistentKB.h"
+#include "TaxonomyCreator.h"
 
 RoleMaster :: RoleMaster ( bool dataRoles, const std::string& TopRoleName, const std::string& BotRoleName )
 	: newRoleId(1)
@@ -229,11 +230,12 @@ void RoleMaster :: initAncDesc ( void )
 
 	// create roles taxonomy
 	pTax = new Taxonomy ( &universalRole, &emptyRole );
-	pTax->setCompletelyDefined(true);
+	TaxonomyCreator TaxCreator(pTax);
+	TaxCreator.setCompletelyDefined(true);
 
 	for ( p = p_begin; p != p_end; ++p )
 		if ( !(*p)->isClassified() )
-			pTax->classifyEntry(*p);
+			TaxCreator.classifyEntry(*p);
 
 	// stage 3: fills ancestor/descendants using taxonomy
 	for ( p = p_begin; p != p_end; ++p )

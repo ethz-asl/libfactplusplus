@@ -55,5 +55,6 @@ SOURCES = \
           KnowledgeExplorer.cpp\
           ConjunctiveQueryFolding.cpp\
           ConjunctiveQuery.cpp\
+          TaxonomyCreator.cpp\
 
 include ../Makefile.include
