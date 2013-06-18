@@ -459,7 +459,7 @@ protected:	// methods
 	{
 		// return m - sumK, where
 		bool foundC = false;	// true if found a conjunct that is in C^{>=}
-		int foundM;
+		int foundM = 0;
 		int mMax = 0, kMax = 0;	// the m- and k- values for the C_j with max m+k
 		int sumK = 0;			// sum of all known k
 		// 1st pass: check for none-case, deals with deterministic cases
@@ -653,7 +653,7 @@ protected:	// methods
 	{
 		// return m - sumK, where
 		bool foundC = false;	// true if found a conjunct that is in C^{>=}
-		int foundM;
+		int foundM = 0;
 		int mMax = 0, kMax = 0;	// the m- and k- values for the C_j with max m+k
 		int sumK = 0;			// sum of all known k
 		// 1st pass: check for none-case, deals with deterministic cases
