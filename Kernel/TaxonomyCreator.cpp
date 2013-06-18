@@ -67,6 +67,7 @@ void TaxonomyCreator :: generalTwoPhaseClassification ( void )
 	{
 		setValue ( pTax->getTopVertex(), true );		// C [= TOP == true
 		setValue ( pTax->getBottomVertex(), false );	// C [= BOT == false (catched by UNSAT)
+		upDirection = false;
 		runTopDown();
 	}
 
@@ -78,6 +79,7 @@ void TaxonomyCreator :: generalTwoPhaseClassification ( void )
 	if ( needBottomUp() )
 	{
 		setValue ( pTax->getBottomVertex(), true );		// BOT [= C == true
+		upDirection = true;
 		runBottomUp();
 	}
 

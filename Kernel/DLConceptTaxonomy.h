@@ -132,11 +132,11 @@ protected:	// methods
 	// interface from BAADER paper
 
 		/// SEARCH procedure from Baader et al paper
-	void searchBaader ( bool upDirection, TaxonomyVertex* cur );
+	void searchBaader ( TaxonomyVertex* cur );
 		/// ENHANCED_SUBS procedure from Baader et al paper
-	bool enhancedSubs1 ( bool upDirection, TaxonomyVertex* cur );
-		/// short-cuf from ENHANCED_SUBS
-	bool enhancedSubs2 ( bool upDirection, TaxonomyVertex* cur )
+	bool enhancedSubs1 ( TaxonomyVertex* cur );
+		/// short-cut from ENHANCED_SUBS
+	bool enhancedSubs2 ( TaxonomyVertex* cur )
 	{
 		// if bottom-up search and CUR is not a successor of checking entity -- return false
 		if ( unlikely(upDirection && !cur->isCommon()) )
@@ -144,20 +144,20 @@ protected:	// methods
 		// for top-down search it's enough to look at defined concepts and non-det ones
 		if ( likely(!inSplitCheck && !upDirection) && !possibleSub(cur) )
 			return false;
-		return enhancedSubs1 ( upDirection, cur );
+		return enhancedSubs1(cur);
 	}
 		// wrapper for the ENHANCED_SUBS
-	inline bool enhancedSubs ( bool upDirection, TaxonomyVertex* cur )
+	inline bool enhancedSubs ( TaxonomyVertex* cur )
 	{
 		++nSubCalls;
 
 		if ( isValued(cur) )
 			return getValue(cur);
 		else
-			return setValue ( cur, enhancedSubs2 ( upDirection, cur ) );
+			return setValue ( cur, enhancedSubs2(cur) );
 	}
-		/// explicetely test appropriate subsumption relation
-	bool testSubsumption ( bool upDirection, TaxonomyVertex* cur );
+		/// explicetly test appropriate subsumption relation
+	bool testSubsumption ( TaxonomyVertex* cur );
 		/// test whether a node could be a super-node of CUR
 	bool possibleSub ( TaxonomyVertex* v ) const
 	{
@@ -197,8 +197,8 @@ protected:	// methods
 		/// check if it is possible to skip TD phase
 	virtual bool needTopDown ( void ) const
 		{ return !(useCompletelyDefined && curEntry->isCompletelyDefined ()); }
-		/// explicitely run TD phase
-	virtual void runTopDown ( void ) { searchBaader ( /*upDirection=*/false, pTax->getTopVertex() ); }
+		/// explicitly run TD phase
+	virtual void runTopDown ( void ) { searchBaader(pTax->getTopVertex()); }
 		/// check if it is possible to skip BU phase
 	virtual bool needBottomUp ( void ) const
 	{
@@ -207,7 +207,7 @@ protected:	// methods
 		// or no reflexive roles w/RnD precent (Refl(R), Range(R)=D)
 		return flagNeedBottomUp || !useCompletelyDefined || curConcept()->isNonPrimitive();
 	}
-		/// explicitely run BU phase
+		/// explicitly run BU phase
 	virtual void runBottomUp ( void )
 	{
 		if ( propagateUp() )	// Common is set up here
@@ -215,11 +215,11 @@ protected:	// methods
 		if ( isEqualToTop() )	// nothing to do
 			return;
 		if ( pTax->queryMode() )	// after classification -- bottom set up already
-			searchBaader ( /*upDirection=*/true, pTax->getBottomVertex() );
+			searchBaader(pTax->getBottomVertex());
 		else	// during classification -- have to find leaf nodes
 			for ( TaxVertexVec::iterator p = Common.begin(), p_end = Common.end(); p < p_end; ++p )
 				if ( (*p)->noNeighbours(/*upDirection=*/false) )
-					searchBaader ( /*upDirection=*/true, *p );
+					searchBaader(*p);
 	}
 
 		/// actions that to be done BEFORE entry will be classified

@@ -102,6 +102,8 @@ protected:	// members
 		/// number of completely-defined entries
 	unsigned long nCDEntries;
 
+		/// session flag: shows the direction of the search
+	bool upDirection;
 		/// optimisation flag: if entry is completely defined by it's told subsumers, no other classification required
 	bool useCompletelyDefined;
 

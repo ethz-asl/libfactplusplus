@@ -110,7 +110,8 @@ void DLConceptTaxonomy :: print ( std::ostream& o ) const
 }
 
 // Baader procedures
-void DLConceptTaxonomy :: searchBaader ( bool upDirection, TaxonomyVertex* cur )
+void
+DLConceptTaxonomy :: searchBaader ( TaxonomyVertex* cur )
 {
 	// label 'visited'
 	pTax->setVisited(cur);
@@ -120,38 +121,40 @@ void DLConceptTaxonomy :: searchBaader ( bool upDirection, TaxonomyVertex* cur )
 
 	// check if there are positive successors; use DFS on them.
 	for ( TaxonomyVertex::iterator p = cur->begin(upDirection), p_end = cur->end(upDirection); p != p_end; ++p )
-		if ( enhancedSubs ( upDirection, *p ) )
+		if ( enhancedSubs(*p) )
 		{
 			if ( !pTax->isVisited(*p) )
-				searchBaader ( upDirection, *p );
+				searchBaader(*p);
 
 			noPosSucc = false;
 		}
 
 	// in case current node is unchecked (no BOTTOM node) -- check it explicitely
 	if ( !isValued(cur) )
-		setValue ( cur, testSubsumption ( upDirection, cur ) );
+		setValue ( cur, testSubsumption(cur) );
 
 	// mark labelled leaf node as a parent
 	if ( noPosSucc && cur->getValue() )
 		pTax->getCurrent()->addNeighbour ( !upDirection, cur );
 }
 
-bool DLConceptTaxonomy :: enhancedSubs1 ( bool upDirection, TaxonomyVertex* cur )
+bool
+DLConceptTaxonomy :: enhancedSubs1 ( TaxonomyVertex* cur )
 {
 	++nNonTrivialSubCalls;
 
 	// need to be valued -- check all parents
 	// propagate false
 	for ( TaxonomyVertex::iterator p = cur->begin(!upDirection), p_end = cur->end(!upDirection); p != p_end; ++p )
-		if ( !enhancedSubs ( upDirection, *p ) )
+		if ( !enhancedSubs(*p) )
 			return false;
 
 	// all subsumptions holds -- test current for subsumption
-	return testSubsumption ( upDirection, cur );
+	return testSubsumption(cur);
 }
 
-bool DLConceptTaxonomy :: testSubsumption ( bool upDirection, TaxonomyVertex* cur )
+bool
+DLConceptTaxonomy :: testSubsumption ( TaxonomyVertex* cur )
 {
 	const TConcept* testC = static_cast<const TConcept*>(cur->getPrimer());
 	if ( upDirection )
@@ -180,11 +183,9 @@ DLConceptTaxonomy :: propagateOneCommon ( TaxonomyVertex* node )
 
 bool DLConceptTaxonomy :: propagateUp ( void )
 {
-	const bool upDirection = true;
-
 	// including node always have some parents (TOP at least)
 	TaxonomyVertex* Current = pTax->getCurrent();
-	TaxonomyVertex::iterator p = Current->begin(upDirection), p_end = Current->end(upDirection);
+	TaxonomyVertex::iterator p = Current->begin(/*upDirection=*/true), p_end = Current->end(/*upDirection=*/true);
 	fpp_assert ( p != p_end );	// there is at least one parent (TOP)
 
 	TaxVertexVec aux;	// aux set for the verteces in ...
@@ -197,7 +198,7 @@ bool DLConceptTaxonomy :: propagateUp ( void )
 
 	for ( ++p; p != p_end; ++p )
 	{
-		if ( (*p)->noNeighbours(!upDirection) )
+		if ( (*p)->noNeighbours(/*upDirection=*/false) )
 			return true;
 		if ( Common.empty() )
 			return true;
