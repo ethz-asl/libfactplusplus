@@ -198,8 +198,8 @@ public:		// interface
 	void extract ( const AxiomVec& Vec, const TSignature& signature, ModuleType type )
 		{ extract ( Vec.begin(), Vec.end(), signature, type ); }
 		/// extract module wrt SIGNATURE and TYPE from O
-	void extract ( TOntology& O, const TSignature& signature, ModuleType type )
-		{ extract ( O.begin(), O.end(), signature, type ); }
+	void extract ( const TOntology& O, const TSignature& signature, ModuleType type )
+		{ extract ( O.getAxioms(), signature, type ); }
 		/// @return true iff the axiom AX is a tautology wrt given type
 	bool isTautology ( TDLAxiom* ax, ModuleType type )
 	{

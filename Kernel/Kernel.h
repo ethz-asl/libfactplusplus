@@ -32,7 +32,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "tOntologyAtom.h"	// types for AD
 #include "ModuleType.h"
 
-class TModularizer;
+class OntologyBasedModularizer;
 class AtomicDecomposer;
 class TJNICache;	// cached JNI information
 
@@ -148,9 +148,9 @@ protected:	// members
 		/// atomic decomposer
 	AtomicDecomposer* AD;
 		/// syntactic locality based module extractor
-	TModularizer* ModSyn;
+	OntologyBasedModularizer* ModSyn;
 		/// semantic locality based module extractor
-	TModularizer* ModSem;
+	OntologyBasedModularizer* ModSem;
 		/// set to return by the locality checking procedure
 	AxiomVec Result;
 		/// JNI cache corresponding to a kernel. External, created and deleted outside
@@ -512,7 +512,7 @@ protected:	// methods
 		/// add the role R and all its supers to a set RESULT
 	void addRoleWithSupers ( const TRole* R, TCGRoleSet& Result );
 		/// check whether the modularizer need initialisation, init it and return a proper one
-	TModularizer* getModExtractor ( bool useSemantic );
+	OntologyBasedModularizer* getModExtractor ( bool useSemantic );
 
 public:	// general staff
 		/// default c'tor

@@ -21,6 +21,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "tOntologyPrinterLISP.h"
 #include "AxiomSplitter.h"
 #include "AtomicDecomposer.h"
+#include "OntologyBasedModularizer.h"
 #include "eFPPSaveLoad.h"
 #include "dlCompletionTree.h"	// for extended data ranges
 #include "DataReasoning.h"		// for extended data ranges
@@ -661,7 +662,7 @@ ReasoningKernel :: getAtomicDecompositionSize ( bool useSemantic, ModuleType mod
 	if ( unlikely(AD != NULL) )
 		delete AD;
 
-	AD = new AtomicDecomposer(getModExtractor(useSemantic));
+	AD = new AtomicDecomposer(getModExtractor(useSemantic)->getModularizer());
 	return AD->getAOS ( &Ontology, moduleType )->size();
 }
 	/// get a set of axioms that corresponds to the atom with the id INDEX
@@ -690,27 +691,22 @@ ReasoningKernel :: getLocCheckNumber ( void ) const
 	return AD->getLocChekNumber();
 }
 
-TModularizer*
+OntologyBasedModularizer*
 ReasoningKernel :: getModExtractor ( bool useSemantic )
 {
-	bool needInit = false;
 	// check whether we need init
-	if ( useSemantic && unlikely(ModSem == NULL) )
+	if ( useSemantic )
 	{
-		ModSem = new TModularizer(/*useSem=*/true);
-		needInit = true;
+		if ( unlikely(ModSem == NULL) )
+			ModSem = new OntologyBasedModularizer ( getOntology(), /*useSem=*/true );
+		return ModSem;
 	}
-	if ( !useSemantic && unlikely(ModSyn == NULL) )
+	else
 	{
-		ModSyn = new TModularizer(/*useSem=*/false);
-		needInit = true;
+		if ( unlikely(ModSyn == NULL) )
+			ModSyn = new OntologyBasedModularizer ( getOntology(), /*useSem=*/false);
+		return ModSyn;
 	}
-
-	// init if necessary
-	TModularizer* Mod = useSemantic ? ModSem : ModSyn;
-	if ( unlikely(needInit) )
-		Mod->preprocessOntology(getOntology().getAxioms());
-	return Mod;
 }
 
 /// get a set of axioms that corresponds to the atom with the id INDEX
@@ -724,9 +720,7 @@ ReasoningKernel :: getModule ( bool useSemantic, ModuleType moduleType )
 	for ( std::vector<const TDLExpression*>::const_iterator q = signature.begin(), q_end = signature.end(); q != q_end; ++q )
 		if ( const TNamedEntity* entity = dynamic_cast<const TNamedEntity*>(*q) )
 			Sig.add(entity);
-	TModularizer* Mod = getModExtractor(useSemantic);
-	Mod->extract ( getOntology(), Sig, moduleType );
-	return Mod->getModule();
+	return getModExtractor(useSemantic)->getModule ( Sig, moduleType );
 }
 
 /// get a set of axioms that corresponds to the atom with the id INDEX
@@ -742,7 +736,7 @@ ReasoningKernel :: getNonLocal ( bool useSemantic, ModuleType moduleType )
 			Sig.add(entity);
 
 	// do check
-	LocalityChecker* LC = getModExtractor(useSemantic)->getLocalityChecker();
+	LocalityChecker* LC = getModExtractor(useSemantic)->getModularizer()->getLocalityChecker();
 	LC->setSignatureValue(Sig);
 	Result.clear();
 	for ( TOntology::iterator p = getOntology().begin(), p_end = getOntology().end(); p != p_end; ++p )
