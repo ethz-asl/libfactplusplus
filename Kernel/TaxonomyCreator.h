@@ -23,6 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "Taxonomy.h"
 #include "SearchableStack.h"
+#include "tSignature.h"
 
 class TaxonomyCreator
 {
@@ -111,6 +112,8 @@ protected:	// members
 	SearchableStack <ClassifiableEntry*> waitStack;
 		/// told subsumers corresponding to a given entry
 	SearchableStack <KnownSubsumers*> ksStack;
+		/// signature of a \bot-module corresponding to a given entry
+	SearchableStack <TSignature*> sigStack;
 
 private:	// no copy
 		/// no copy c'tor
@@ -198,11 +201,14 @@ protected:	// methods
 		/// prepare known subsumers for given entry if necessary
 	virtual KnownSubsumers* buildKnownSubsumers ( ClassifiableEntry* p )
 		{ return new ToldSubsumers(p->told_begin(), p->told_end()); }
+		/// prepare signature for given entry
+	virtual TSignature* buildSignature ( ClassifiableEntry* p ) { return NULL; }
 		/// add top entry together with its known subsumers
 	void addTop ( ClassifiableEntry* p )
 	{
 		waitStack.push(p);
 		ksStack.push(buildKnownSubsumers(p));
+		sigStack.push(buildSignature(p));
 	}
 		/// remove top entry
 	void removeTop ( void )
@@ -210,6 +216,8 @@ protected:	// methods
 		waitStack.pop();
 		delete ksStack.top();
 		ksStack.pop();
+		delete sigStack.top();
+		sigStack.pop();
 	}
 		/// ensure that all TS of the top entry are classified. @return the reason of cycle or NULL.
 	ClassifiableEntry* prepareTS ( ClassifiableEntry* cur );

@@ -87,6 +87,8 @@ protected:	// members
 	unsigned long nCachedNegative;
 		/// number of non-subsumptions detected by a sorted reasoning
 	unsigned long nSortedNegative;
+		/// number of non-subsumptions because of module reasons
+	unsigned long nModuleNegative;
 
 		/// indicator of taxonomy creation progress
 	TProgressMonitor* pTaxProgress;
@@ -168,6 +170,8 @@ protected:	// methods
 		// all others should be in the possible sups list
 		return ksStack.top()->isPossibleSub(C);
 	}
+		/// @return true if non-subsumption is due to ENTITY is not in the \bot-module
+	bool isNotInModule ( const TNamedEntity* entity ) const;
 
 		/// propagate common value from NODE to all its descendants; save visited nodes
 	void propagateOneCommon ( TaxonomyVertex* node );
@@ -260,6 +264,7 @@ public:		// interface
 		, nCachedPositive(0)
 		, nCachedNegative(0)
 		, nSortedNegative(0)
+		, nModuleNegative(0)
 		, pTaxProgress (NULL)
 		, inSplitCheck(false)
 	{

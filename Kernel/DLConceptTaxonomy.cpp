@@ -59,6 +59,15 @@ bool DLConceptTaxonomy :: testSub ( const TConcept* p, const TConcept* q )
 		return false;
 	}
 
+	if ( isNotInModule(q->getEntity()) )
+	{
+		if ( LLM.isWritable(llTaxTrying) )
+			LL << "NOT holds (module result)";
+
+		++nModuleNegative;
+		return false;
+	}
+
 	switch ( tBox.testCachedNonSubsumption ( p, q ) )
 	{
 	case csValid:	// cached result: satisfiable => non-subsumption
@@ -85,6 +94,17 @@ bool DLConceptTaxonomy :: testSub ( const TConcept* p, const TConcept* q )
 	return testSubTBox ( p, q );
 }
 
+bool
+DLConceptTaxonomy :: isNotInModule ( const TNamedEntity* entity ) const
+{
+	if ( upDirection )	// bottom-up phase
+		return false;
+	const TSignature* sig = sigStack.top();
+	if ( sig && entity && !sig->contains(entity) )
+		return true;
+	return false;
+}
+
 TaxonomyCreator::KnownSubsumers*
 DLConceptTaxonomy :: buildKnownSubsumers ( ClassifiableEntry* ce )
 {
@@ -102,6 +122,8 @@ void DLConceptTaxonomy :: print ( std::ostream& o ) const
 	  << " unsuccessfull subsumption tests were cached\n";
 	if ( nSortedNegative )
 		o << "Sorted reasoning deals with " << nSortedNegative << " non-subsumptions\n";
+	if ( nModuleNegative )
+		o << "Modular reasoning deals with " << nModuleNegative << " non-subsumptions\n";
 	o << "There were made " << nSearchCalls << " search calls\nThere were made " << nSubCalls
 	  << " Sub calls, of which " << nNonTrivialSubCalls << " non-trivial\n";
 	o << "Current efficiency (wrt Brute-force) is " << nEntries*(nEntries-1)/n << "\n";
