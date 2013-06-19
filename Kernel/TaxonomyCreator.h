@@ -202,7 +202,7 @@ protected:	// methods
 	virtual KnownSubsumers* buildKnownSubsumers ( ClassifiableEntry* p )
 		{ return new ToldSubsumers(p->told_begin(), p->told_end()); }
 		/// prepare signature for given entry
-	virtual TSignature* buildSignature ( ClassifiableEntry* p ) { return NULL; }
+	virtual TSignature* buildSignature ( ClassifiableEntry* p ATTR_UNUSED ) { return NULL; }
 		/// add top entry together with its known subsumers
 	void addTop ( ClassifiableEntry* p )
 	{
