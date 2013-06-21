@@ -148,6 +148,23 @@ ReasoningKernel :: forceReload ( void )
 		OntologyPrinter.visitOntology(Ontology);
 	}
 
+	if ( useIncremenmtalReasoning )
+	{
+		OntologyBasedModularizer* ModExtractor = getModExtractor(false);
+		// fill the module signatures of the concepts
+		for ( TBox::c_const_iterator p = getTBox()->c_begin(), p_end = getTBox()->c_end(); p != p_end; ++p )
+		{
+			const TNamedEntity* entity = (*p)->getEntity();
+			if ( entity == NULL )
+				continue;
+			TSignature sig;
+			sig.add(entity);
+			ModExtractor->getModule(sig,M_BOT);
+			Name2Sig[*p] = new TSignature(ModExtractor->getModularizer()->getSignature());
+		}
+		getTBox()->setNameSigMap(&Name2Sig);
+	}
+
 	// after loading ontology became processed completely
 	Ontology.setProcessed();
 }
