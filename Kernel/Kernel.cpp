@@ -55,6 +55,7 @@ ReasoningKernel :: ReasoningKernel ( void )
 	, cachedQueryTree(NULL)
 	, useAxiomSplitting(false)
 	, ignoreExprCache(false)
+	, useIncremenmtalReasoning(false)
 	, dumpOntology(false)
 {
 	// Intro
@@ -101,7 +102,7 @@ ReasoningKernel :: clearTBox ( void )
 }
 
 bool
-ReasoningKernel :: tryIncremental ( void )
+ReasoningKernel :: needForceReload ( void ) const
 {
 	// if no TBox known -- reload
 	if ( pTBox == NULL )
@@ -109,9 +110,10 @@ ReasoningKernel :: tryIncremental ( void )
 	// if ontology wasn't change -- no need to reload
 	if ( !Ontology.isChanged() )
 		return false;
-	// else -- check whether incremental is possible
-	// FOR NOW!! switch off incremental reasoning while the JNI is unstable (as it is the only user ATM)
-	return true;
+	// no incremental required -- nothing to do
+	if ( !useIncremenmtalReasoning )
+		return true;
+	return false;
 }
 
 /// force the re-classification of the changed ontology
@@ -146,6 +148,12 @@ ReasoningKernel :: forceReload ( void )
 
 	// after loading ontology became processed completely
 	Ontology.setProcessed();
+}
+
+void
+ReasoningKernel :: doIncremental ( void )
+{
+	forceReload();
 }
 
 //-------------------------------------------------
@@ -202,8 +210,10 @@ ReasoningKernel :: processKB ( KBStatus status )
 	reasoningFailed = true;
 
 	// load the axioms from the ontology to the TBox
-	if ( tryIncremental() )
+	if ( needForceReload() )
 		forceReload();
+	else
+		doIncremental();
 
 	// do the consistency check
 	pTBox->isConsistent();
@@ -804,6 +814,15 @@ bool ReasoningKernel :: initOptions ( void )
 		"Should always be set to true.",
 		ifOption::iotBool,
 		"true"
+		) )
+		return true;
+
+	// register "useIncremenmtalReasoning" option (21/06/2013)
+	if ( KernelOptions.RegisterOption (
+		"useIncremenmtalReasoning",
+		"Option 'useIncremenmtalReasoning' (development) allows one to reason efficiently about small changes in the ontology.",
+		ifOption::iotBool,
+		"false"
 		) )
 		return true;
 

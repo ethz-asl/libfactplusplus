@@ -203,6 +203,8 @@ protected:	// members
 	bool useAxiomSplitting;
 		/// ignore cache for the TExpr* (useful for semantic AD)
 	bool ignoreExprCache;
+		/// use incremental reasoning
+	bool useIncremenmtalReasoning;
 		/// flag to dump LISP-like ontology
 	bool dumpOntology;
 
@@ -479,10 +481,12 @@ protected:	// methods
 		return R->getTaxVertex();
 	}
 
-		/// try to perform the incremental reasoning on the changed ontology
-	bool tryIncremental ( void );
+		/// check whether it is necessary to reload the ontology
+	bool needForceReload ( void ) const;
 		/// force the re-classification of the changed ontology
 	void forceReload ( void );
+		/// incrementally classify changes
+	void doIncremental ( void );
 
 
 	//----------------------------------------------
@@ -584,6 +588,8 @@ public:	// general staff
 	void setAxiomSplitting ( bool value ) { useAxiomSplitting = value; }
 		/// choose whether TExpr cache should be ignored
 	void setIgnoreExprCache ( bool value ) { ignoreExprCache = value; }
+		/// choose whether inctemental reasoning should be used
+	void setUseIncremenmtalReasoning ( bool value ) { useIncremenmtalReasoning = value; }
 		/// set the signature of the expression translator
 	void setSignature ( const TSignature* sig ) { if ( pET != NULL ) pET->setSignature(sig); }
 		/// choose whether the loaded ontology should be dumped as a LISP one
