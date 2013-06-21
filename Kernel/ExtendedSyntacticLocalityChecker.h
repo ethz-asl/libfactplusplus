@@ -325,7 +325,7 @@ protected:	// methods
 		int sum = 0, n;
 		for ( typename TDLNAryExpression<C>::iterator p = expr.begin(), p_end = expr.end(); p != p_end; ++p )
 		{
-			n = getUpperBoundDirect(*p);
+			n = getUpperBoundComplement(*p);
 			if ( n == getNoneValue() )
 				return getNoneValue();
 			sum += n;
@@ -339,7 +339,7 @@ protected:	// methods
 		int max = getNoneValue();
 		// we are looking for the maximal value here; -1 will be dealt with automagically
 		for ( typename TDLNAryExpression<C>::iterator p = expr.begin(), p_end = expr.end(); p != p_end; ++p )
-			max = std::max ( max, getUpperBoundDirect(*p) );
+			max = std::max ( max, getUpperBoundComplement(*p) );
 		return max;
 	}
 
