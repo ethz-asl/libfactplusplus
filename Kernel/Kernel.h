@@ -105,6 +105,8 @@ public:	// types interface
 protected:	// types
 		/// arguments for property chain querying and friends
 	typedef const std::vector<const TDLExpression*> TExprVec;
+		/// names to module signature map
+	typedef TBox::NameSigMap NameSigMap;
 
 private:
 		/// options for the kernel and all related substructures
@@ -141,6 +143,8 @@ protected:	// members
 	TOntology Ontology;
 		/// expression translator to work with queries
 	TExpressionTranslator* pET;
+		/// name-signature map
+	NameSigMap Name2Sig;
 		/// trace vector for the last operation (set from the TBox trace-sets)
 	AxiomVec TraceVec;
 		/// knowledge exploration support

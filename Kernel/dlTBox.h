@@ -43,6 +43,7 @@ class DlSatTester;
 class Taxonomy;
 class DLConceptTaxonomy;
 class dumpInterface;
+class TSignature;
 
 /// enumeration for the reasoner status
 enum KBStatus
@@ -67,6 +68,8 @@ public:		// type interface
 	typedef std::vector<TConcept*> ConceptVector;
 		/// vector of SINGLETON-like elements
 	typedef std::vector<TIndividual*> SingletonVector;
+		/// map between names and corresponding module signatures
+	typedef std::map<const TNamedEntry*, TSignature*> NameSigMap;
 
 protected:	// types
 		/// type for DISJOINT-like statements
@@ -163,6 +166,8 @@ protected:	// members
 	Taxonomy* pTax;
 		/// classifier
 	DLConceptTaxonomy* pTaxCreator;
+		/// name-signature map
+	NameSigMap* pName2Sig;
 		/// DataType center
 	DataTypeCenter DTCenter;
 		/// set of reasoning options
@@ -684,6 +689,8 @@ protected:	// methods
 	void initReasoner ( void );				// implemented in Reasoner.h
 		/// init taxonomy and classifier
 	void initTaxonomy ( void );				// implemented in DLConceptTaxonomy.h
+		/// set NameSigMap
+	void setNameSigMap ( NameSigMap* p ) { pName2Sig = p; }
 		/// creating taxonomy for given TBox; include individuals if necessary
 	void createTaxonomy ( bool needIndividuals );
 		/// distribute all elements in [begin,end) range wtr theif tags

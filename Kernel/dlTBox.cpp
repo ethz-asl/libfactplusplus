@@ -39,6 +39,7 @@ TBox :: TBox ( const ifOptionSet* Options, const std::string& TopORoleName, cons
 	, pMonitor(NULL)
 	, pTax(NULL)
 	, pTaxCreator(NULL)
+	, pName2Sig(NULL)
 	, pOptions (Options)
 	, Status(kbLoading)
 	, curFeature(NULL)

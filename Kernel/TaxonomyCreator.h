@@ -216,7 +216,6 @@ protected:	// methods
 		waitStack.pop();
 		delete ksStack.top();
 		ksStack.pop();
-		delete sigStack.top();
 		sigStack.pop();
 	}
 		/// ensure that all TS of the top entry are classified. @return the reason of cycle or NULL.

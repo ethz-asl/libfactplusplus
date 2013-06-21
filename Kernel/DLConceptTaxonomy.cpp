@@ -111,6 +111,18 @@ DLConceptTaxonomy :: buildKnownSubsumers ( ClassifiableEntry* ce )
 	return TaxonomyCreator::buildKnownSubsumers(ce);
 }
 
+/// prepare signature for given entry
+TSignature*
+DLConceptTaxonomy :: buildSignature ( ClassifiableEntry* p )
+{
+	if ( tBox.pName2Sig == NULL )
+		return NULL;
+	TBox::NameSigMap::iterator found = tBox.pName2Sig->find(p);
+	if ( found == tBox.pName2Sig->end() )
+		return NULL;
+	return found->second;
+}
+
 void DLConceptTaxonomy :: print ( std::ostream& o ) const
 {
 	o << "Totally " << nTries << " subsumption tests was made\nAmong them ";

@@ -79,6 +79,8 @@ ReasoningKernel :: ~ReasoningKernel ( void )
 	clearTBox();
 	deleteTree(cachedQueryTree);
 	delete pMonitor;
+	for ( NameSigMap::iterator p = Name2Sig.begin(), p_end = Name2Sig.end(); p != p_end; ++p )
+		delete p->second;
 }
 
 /// clear TBox and related structures; keep ontology in place
