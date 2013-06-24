@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2008-2012 by Dmitry Tsarkov
+Copyright (C) 2008-2013 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -34,6 +34,8 @@ public:		// types
 protected:	// members
 		/// all the axioms
 	AxiomVec Axioms;
+		/// retracted since last change
+	AxiomVec Retracted;
 		/// expression manager that builds all the expressions for the axioms
 	TExpressionManager EManager;
 		/// id to be given to the next axiom
@@ -55,7 +57,7 @@ public:		// interface
 		/// @return true iff the ontology was changed since its last load
 	bool isChanged ( void ) const { return changed; }
 		/// set the processed marker to the end of the ontology
-	void setProcessed ( void ) { axiomToProcess = Axioms.size(); changed = false; }
+	void setProcessed ( void ) { axiomToProcess = Axioms.size(); Retracted.clear(); changed = false; }
 
 		/// add given axiom to the ontology
 	TDLAxiom* add ( TDLAxiom* p )
@@ -72,6 +74,7 @@ public:		// interface
 		{
 			changed = true;
 			p->setUsed(false);
+			Retracted.push_back(p);
 		}
 	}
 		/// mark all the axioms as not in the module
@@ -86,6 +89,7 @@ public:		// interface
 		for ( iterator p = Axioms.begin(), p_end = Axioms.end(); p < p_end; ++p )
 			delete *p;
 		Axioms.clear();
+		Retracted.clear();
 		EManager.clear();
 		axiomToProcess = 0;
 		changed = false;
@@ -109,6 +113,10 @@ public:		// interface
 	iterator beginUnprocessed ( void ) { return Axioms.begin()+axiomToProcess; }
 		/// RW end() for the processed part of the ontology
 	iterator endProcessed ( void ) { return beginUnprocessed(); }
+		/// RW begin() for retracted axioms
+	iterator beginRetracted ( void ) { return Retracted.begin(); }
+		/// RW end() for retracted axioms
+	iterator endRetracted ( void ) { return Retracted.end(); }
 		/// get access to the I'th axiom
 	TDLAxiom* operator [] ( int i ) { return Axioms[i]; }
 

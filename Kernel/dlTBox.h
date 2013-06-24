@@ -69,7 +69,7 @@ public:		// type interface
 		/// vector of SINGLETON-like elements
 	typedef std::vector<TIndividual*> SingletonVector;
 		/// map between names and corresponding module signatures
-	typedef std::map<const TNamedEntry*, TSignature*> NameSigMap;
+	typedef std::map<const ClassifiableEntry*, TSignature*> NameSigMap;
 
 protected:	// types
 		/// type for DISJOINT-like statements
