@@ -169,34 +169,6 @@ ReasoningKernel :: forceReload ( void )
 	Ontology.setProcessed();
 }
 
-void
-ReasoningKernel :: doIncremental ( void )
-{
-	// fill in M^+ and M^- sets
-	LocalityChecker* lc = getModExtractor(false)->getModularizer()->getLocalityChecker();
-	TOntology::iterator nb = Ontology.beginUnprocessed(), ne = Ontology.end(), rb = Ontology.beginRetracted(), re = Ontology.endRetracted();
-	// TODO: add new sig here
-	std::vector<const ClassifiableEntry*> MPlus, MMinus;
-	for ( NameSigMap::iterator p = Name2Sig.begin(), p_end = Name2Sig.end(); p != p_end; ++p )
-	{
-		lc->setSignatureValue(*p->second);
-		for ( TOntology::iterator notProcessed = nb; notProcessed != ne; ++notProcessed )
-			if ( !lc->local(*notProcessed) )
-			{
-				MPlus.push_back(p->first);
-				break;
-			}
-		for ( TOntology::iterator retracted = rb; retracted != re; retracted++ )
-			if ( !lc->local(*retracted) )
-			{
-				MMinus.push_back(p->first);
-				break;
-			}
-	}
-
-	forceReload();
-}
-
 //-------------------------------------------------
 // Prepare reasoning/query
 //-------------------------------------------------
