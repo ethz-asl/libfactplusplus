@@ -25,6 +25,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 void
 ReasoningKernel :: doIncremental ( void )
 {
+	// re-set the modularizer to use updated ontology
+	delete getModExtractor(false);
 	// fill in M^+ and M^- sets
 	LocalityChecker* lc = getModExtractor(false)->getModularizer()->getLocalityChecker();
 	TOntology::iterator nb = Ontology.beginUnprocessed(), ne = Ontology.end(), rb = Ontology.beginRetracted(), re = Ontology.endRetracted();
@@ -75,14 +77,18 @@ ReasoningKernel :: doIncremental ( void )
 //	forceReload();
 }
 
-class MyActor: public Actor
+class ConceptActor: public Actor
 {
-public:
+public:		// types
 	typedef Actor::SynVector SynVector;
 	typedef Actor::SetOfNodes SetOfNodes;
-	MyActor(){ needConcepts(); }
+
+public:		// interface
+		/// init c'tor
+	ConceptActor ( void ) { needConcepts(); }
+		/// get RO access to found nodes
 	const SetOfNodes& getNodes ( void ) const { return acc; }
-}; // MyActor
+}; // ConceptActor
 
 /// reclassify (incrementally) NODE wrt ADDED or REMOVED flags
 void
@@ -100,12 +106,12 @@ ReasoningKernel::reclassifyNode ( TaxonomyVertex* node, bool added, bool removed
 		reasoner.getOntology().add(*p);
 	// update top links
 	node->clearLinks(/*upDirection=*/true);
-	MyActor actor;
+	ConceptActor actor;
 	reasoner.getSupConcepts ( static_cast<const TDLConceptName*>(entity), /*direct=*/true, actor );
-	MyActor::SetOfNodes parents = actor.getNodes();
-	for ( MyActor::SetOfNodes::iterator q = parents.begin(), q_end = parents.end(); q != q_end; ++q )
+	ConceptActor::SetOfNodes parents = actor.getNodes();
+	for ( ConceptActor::SetOfNodes::iterator q = parents.begin(), q_end = parents.end(); q != q_end; ++q )
 		node->addNeighbour ( /*upDirection=*/true, (*q->begin())->getTaxVertex() );
-	// clear an ontology FIXME!! later
-//	reasoner.getOntology().clear();
+	// clear an ontology in a safe way
+	reasoner.getOntology().safeClear();
 }
 

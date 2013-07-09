@@ -94,6 +94,8 @@ public:		// interface
 		axiomToProcess = 0;
 		changed = false;
 	}
+		/// safe clear the ontology (do not remove axioms)
+	void safeClear ( void ) { Axioms.clear(); }
 
 		/// get access to an expression manager
 	TExpressionManager* getExpressionManager ( void ) { return &EManager; }
