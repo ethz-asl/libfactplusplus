@@ -20,6 +20,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "Kernel.h"
 #include "OntologyBasedModularizer.h"
+#include "Actor.h"
 
 void
 ReasoningKernel :: doIncremental ( void )
@@ -66,6 +67,45 @@ ReasoningKernel :: doIncremental ( void )
 	}
 	tax->clearVisited();
 
-	forceReload();
+	for ( std::vector<TaxonomyVertex*>::iterator p = toProcess.begin(), p_end = toProcess.end(); p != p_end; ++p )
+	{
+		const ClassifiableEntry* entry = (*p)->getPrimer();
+		reclassifyNode ( *p, MPlus.find(entry) != MPlus.end(), MMinus.find(entry) != MMinus.end() );
+	}
+//	forceReload();
+}
+
+class MyActor: public Actor
+{
+public:
+	typedef Actor::SynVector SynVector;
+	typedef Actor::SetOfNodes SetOfNodes;
+	MyActor(){ needConcepts(); }
+	const SetOfNodes& getNodes ( void ) const { return acc; }
+}; // MyActor
+
+/// reclassify (incrementally) NODE wrt ADDED or REMOVED flags
+void
+ReasoningKernel::reclassifyNode ( TaxonomyVertex* node, bool added, bool removed )
+{
+	const ClassifiableEntry* entry = node->getPrimer();
+	const TNamedEntity* entity = entry->getEntity();
+	TSignature sig;
+	sig.add(entity);
+	AxiomVec Module = getModExtractor(false)->getModule(sig, M_BOT);
+	// update Name2Sig
+	Name2Sig[entry] = new TSignature(getModExtractor(false)->getModularizer()->getSignature());
+	ReasoningKernel reasoner;
+	for ( AxiomVec::iterator p = Module.begin(), p_end = Module.end(); p != p_end; ++p )
+		reasoner.getOntology().add(*p);
+	// update top links
+	node->clearLinks(/*upDirection=*/true);
+	MyActor actor;
+	reasoner.getSupConcepts ( static_cast<const TDLConceptName*>(entity), /*direct=*/true, actor );
+	MyActor::SetOfNodes parents = actor.getNodes();
+	for ( MyActor::SetOfNodes::iterator q = parents.begin(), q_end = parents.end(); q != q_end; ++q )
+		node->addNeighbour ( /*upDirection=*/true, (*q->begin())->getTaxVertex() );
+	// clear an ontology FIXME!! later
+//	reasoner.getOntology().clear();
 }
 

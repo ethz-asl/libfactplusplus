@@ -491,7 +491,8 @@ protected:	// methods
 	void forceReload ( void );
 		/// incrementally classify changes
 	void doIncremental ( void );
-
+		/// reclassify (incrementally) NODE wrt ADDED or REMOVED flags
+	void reclassifyNode ( TaxonomyVertex* node, bool added, bool removed );	// implemented in DLConceptTaxonomy.cpp
 
 	//----------------------------------------------
 	//-- save/load support; implementation in SaveLoad.cpp
