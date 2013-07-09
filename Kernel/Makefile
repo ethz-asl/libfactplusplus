@@ -56,5 +56,6 @@ SOURCES = \
           ConjunctiveQueryFolding.cpp\
           ConjunctiveQuery.cpp\
           TaxonomyCreator.cpp\
+          Incremental.cpp\
 
 include ../Makefile.include
