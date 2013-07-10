@@ -440,8 +440,8 @@ protected:	// methods
 		/// get access to the concept hierarchy
 	Taxonomy* getCTaxonomy ( void )
 	{
-		if ( !isKBClassified() )
-			throw EFaCTPlusPlus("No access to concept taxonomy: ontology not classified");
+//		if ( !isKBClassified() )
+//			throw EFaCTPlusPlus("No access to concept taxonomy: ontology not classified");
 		return getTBox()->getTaxonomy();
 	}
 		/// get access to the object role hierarchy

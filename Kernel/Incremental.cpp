@@ -26,7 +26,8 @@ void
 ReasoningKernel :: doIncremental ( void )
 {
 	// re-set the modularizer to use updated ontology
-	delete getModExtractor(false);
+	delete ModSyn;
+	ModSyn = NULL;
 	// fill in M^+ and M^- sets
 	LocalityChecker* lc = getModExtractor(false)->getModularizer()->getLocalityChecker();
 	TOntology::iterator nb = Ontology.beginUnprocessed(), ne = Ontology.end(), rb = Ontology.beginRetracted(), re = Ontology.endRetracted();
@@ -74,7 +75,7 @@ ReasoningKernel :: doIncremental ( void )
 		const ClassifiableEntry* entry = (*p)->getPrimer();
 		reclassifyNode ( *p, MPlus.find(entry) != MPlus.end(), MMinus.find(entry) != MMinus.end() );
 	}
-//	forceReload();
+	Ontology.setProcessed();
 }
 
 class ConceptActor: public Actor
@@ -100,7 +101,17 @@ ReasoningKernel::reclassifyNode ( TaxonomyVertex* node, bool added, bool removed
 	sig.add(entity);
 	AxiomVec Module = getModExtractor(false)->getModule(sig, M_BOT);
 	// update Name2Sig
-	Name2Sig[entry] = new TSignature(getModExtractor(false)->getModularizer()->getSignature());
+	const TSignature ModSig = getModExtractor(false)->getModularizer()->getSignature();
+	Name2Sig[entry] = new TSignature(ModSig);
+	// renew all signature-2-entry map
+	std::map<const TNamedEntity*, TNamedEntry*> KeepMap;
+	TSignature::iterator s, s_end = ModSig.end();
+	for ( s = ModSig.begin(); s != s_end; s++ )
+	{
+		const TNamedEntity* entity = *s;
+		KeepMap[entity] = entity->getEntry();
+		const_cast<TNamedEntity*>(entity)->setEntry(NULL);
+	}
 	ReasoningKernel reasoner;
 	for ( AxiomVec::iterator p = Module.begin(), p_end = Module.end(); p != p_end; ++p )
 		reasoner.getOntology().add(*p);
@@ -110,8 +121,18 @@ ReasoningKernel::reclassifyNode ( TaxonomyVertex* node, bool added, bool removed
 	reasoner.getSupConcepts ( static_cast<const TDLConceptName*>(entity), /*direct=*/true, actor );
 	ConceptActor::SetOfNodes parents = actor.getNodes();
 	for ( ConceptActor::SetOfNodes::iterator q = parents.begin(), q_end = parents.end(); q != q_end; ++q )
-		node->addNeighbour ( /*upDirection=*/true, (*q->begin())->getTaxVertex() );
+	{
+		const ClassifiableEntry* parentCE = *q->begin();
+		// this CE is of the Reasoner
+		const TNamedEntity* parent = parentCE->getEntity();
+		// note that the entity maps to the Reasoner, so we need to use saved map
+		const TNamedEntry* localNE = KeepMap[parent];
+		node->addNeighbour ( /*upDirection=*/true, dynamic_cast<const ClassifiableEntry*>(localNE)->getTaxVertex() );
+	}
 	// clear an ontology in a safe way
 	reasoner.getOntology().safeClear();
+	// restore all signature-2-entry map
+	for ( s = ModSig.begin(); s != s_end; s++ )
+		const_cast<TNamedEntity*>(*s)->setEntry(KeepMap[*s]);
 }
 

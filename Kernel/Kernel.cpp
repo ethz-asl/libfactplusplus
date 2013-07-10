@@ -226,7 +226,10 @@ ReasoningKernel :: processKB ( KBStatus status )
 	if ( needForceReload() )
 		forceReload();
 	else
+	{
 		doIncremental();
+		return;
+	}
 
 	// do the consistency check
 	pTBox->isConsistent();
