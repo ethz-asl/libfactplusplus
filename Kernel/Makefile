@@ -57,5 +57,6 @@ SOURCES = \
           ConjunctiveQuery.cpp\
           TaxonomyCreator.cpp\
           Incremental.cpp\
+          ExtendedDataRange.cpp\
 
 include ../Makefile.include
