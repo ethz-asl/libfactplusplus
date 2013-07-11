@@ -21,16 +21,23 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Kernel.h"
 #include "OntologyBasedModularizer.h"
 #include "Actor.h"
+#include "tOntologyPrinterLISP.h"
 
 void
 ReasoningKernel :: doIncremental ( void )
 {
+	std::cout << "Incremental!\n";
 	// re-set the modularizer to use updated ontology
 	delete ModSyn;
 	ModSyn = NULL;
 	// fill in M^+ and M^- sets
 	LocalityChecker* lc = getModExtractor(false)->getModularizer()->getLocalityChecker();
 	TOntology::iterator nb = Ontology.beginUnprocessed(), ne = Ontology.end(), rb = Ontology.beginRetracted(), re = Ontology.endRetracted();
+	TLISPOntologyPrinter pr(std::cout);
+	if ( nb != ne )
+		(*nb)->accept(pr);
+	if ( rb != re )
+		(*rb)->accept(pr);
 	// TODO: add new sig here
 	std::set<const ClassifiableEntry*> MPlus, MMinus;
 	for ( NameSigMap::iterator p = Name2Sig.begin(), p_end = Name2Sig.end(); p != p_end; ++p )
@@ -40,12 +47,18 @@ ReasoningKernel :: doIncremental ( void )
 			if ( !lc->local(*notProcessed) )
 			{
 				MPlus.insert(p->first);
+				std::cout << "Non-local NP axiom ";
+				(*notProcessed)->accept(pr);
+				std::cout << " wrt " << p->first->getName() << std::endl;
 				break;
 			}
 		for ( TOntology::iterator retracted = rb; retracted != re; retracted++ )
 			if ( !lc->local(*retracted) )
 			{
 				MMinus.insert(p->first);
+				std::cout << "Non-local RT axiom ";
+				(*retracted)->accept(pr);
+				std::cout << " wrt " << p->first->getName() << std::endl;
 				break;
 			}
 	}
@@ -97,6 +110,7 @@ ReasoningKernel::reclassifyNode ( TaxonomyVertex* node, bool added, bool removed
 {
 	const ClassifiableEntry* entry = node->getPrimer();
 	const TNamedEntity* entity = entry->getEntity();
+	std::cout << "Reclassify " << entity->getName() << std::endl;
 	TSignature sig;
 	sig.add(entity);
 	AxiomVec Module = getModExtractor(false)->getModule(sig, M_BOT);
@@ -113,8 +127,13 @@ ReasoningKernel::reclassifyNode ( TaxonomyVertex* node, bool added, bool removed
 		const_cast<TNamedEntity*>(entity)->setEntry(NULL);
 	}
 	ReasoningKernel reasoner;
+	std::cout << "Module: \n";
+	TLISPOntologyPrinter pr(std::cout);
 	for ( AxiomVec::iterator p = Module.begin(), p_end = Module.end(); p != p_end; ++p )
+	{
 		reasoner.getOntology().add(*p);
+		(*p)->accept(pr);
+	}
 	// update top links
 	node->clearLinks(/*upDirection=*/true);
 	ConceptActor actor;
@@ -127,6 +146,7 @@ ReasoningKernel::reclassifyNode ( TaxonomyVertex* node, bool added, bool removed
 		const TNamedEntity* parent = parentCE->getEntity();
 		// note that the entity maps to the Reasoner, so we need to use saved map
 		const TNamedEntry* localNE = KeepMap[parent];
+		std::cout << "Set parent " << localNE->getName() << std::endl;
 		node->addNeighbour ( /*upDirection=*/true, dynamic_cast<const ClassifiableEntry*>(localNE)->getTaxVertex() );
 	}
 	// clear an ontology in a safe way

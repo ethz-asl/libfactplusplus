@@ -228,6 +228,7 @@ ReasoningKernel :: processKB ( KBStatus status )
 	else
 	{
 		doIncremental();
+		reasoningFailed = false;
 		return;
 	}
 

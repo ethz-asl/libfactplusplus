@@ -70,7 +70,7 @@ public:		// interface
 		/// retract given axiom to the ontology
 	void retract ( TDLAxiom* p )
 	{
-		if ( p->getId() <= Axioms.size() && Axioms[p->getId()-1] == p )
+//		if ( p->getId() <= Axioms.size() && Axioms[p->getId()-1] == p )
 		{
 			changed = true;
 			p->setUsed(false);
