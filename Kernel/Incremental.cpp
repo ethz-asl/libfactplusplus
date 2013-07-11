@@ -23,6 +23,25 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Actor.h"
 #include "tOntologyPrinterLISP.h"
 
+/// initialise the incremental bits on full reload
+void
+ReasoningKernel :: initIncremental ( void )
+{
+	OntologyBasedModularizer* ModExtractor = getModExtractor(false);
+	// fill the module signatures of the concepts
+	for ( TBox::c_const_iterator p = getTBox()->c_begin(), p_end = getTBox()->c_end(); p != p_end; ++p )
+	{
+		const TNamedEntity* entity = (*p)->getEntity();
+		if ( entity == NULL )
+			continue;
+		TSignature sig;
+		sig.add(entity);
+		ModExtractor->getModule(sig,M_BOT);
+		Name2Sig[*p] = new TSignature(ModExtractor->getModularizer()->getSignature());
+	}
+	getTBox()->setNameSigMap(&Name2Sig);
+}
+
 void
 ReasoningKernel :: doIncremental ( void )
 {

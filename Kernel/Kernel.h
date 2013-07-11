@@ -489,6 +489,8 @@ protected:	// methods
 	bool needForceReload ( void ) const;
 		/// force the re-classification of the changed ontology
 	void forceReload ( void );
+		/// initialise the incremental bits on full reload
+	void initIncremental ( void );
 		/// incrementally classify changes
 	void doIncremental ( void );
 		/// reclassify (incrementally) NODE wrt ADDED or REMOVED flags
