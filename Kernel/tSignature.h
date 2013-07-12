@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2011-2012 by Dmitry Tsarkov
+Copyright (C) 2011-2013 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -29,7 +29,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 class TSignature
 {
 public:		// types
+		/// set of entities as a base underlying type os a signature
 	typedef std::set<const TNamedEntity*> BaseType;
+		/// RO iterator over a set of entities
 	typedef BaseType::const_iterator iterator;
 
 protected:	// members
@@ -84,11 +86,9 @@ public:		// interface
 		/// @return true iff signature contains given element
 	bool contains ( const TDLExpression* p ) const
 	{
-		const TNamedEntity* e = dynamic_cast<const TNamedEntity*>(p);
-		if ( e != NULL )
+		if ( const TNamedEntity* e = dynamic_cast<const TNamedEntity*>(p) )
 			return contains(e);
-		const TDLObjectRoleInverse* inv = dynamic_cast<const TDLObjectRoleInverse*>(p);
-		if ( inv != NULL )
+		if ( const TDLObjectRoleInverse* inv = dynamic_cast<const TDLObjectRoleInverse*>(p) )
 			return contains(inv->getOR());
 
 		return false;
@@ -113,10 +113,10 @@ public:		// interface
 	bool botRLocal ( void ) const { return !topRLocality; }
 }; // TSignature
 
-inline std::vector<const TNamedEntity*>
+inline TSignature::BaseType
 intersect ( const TSignature& s1, const TSignature& s2 )
 {
-	std::vector<const TNamedEntity*> ret;
+	TSignature::BaseType ret;
 	set_intersection(s1.begin(), s1.end(), s2.begin(), s2.end(), inserter(ret, ret.begin()));
 	return ret;
 }

@@ -124,6 +124,15 @@ public:		// interface
 
 		/// size of the ontology
 	size_t size ( void ) const { return Axioms.size(); }
+		/// get signature of all ontology axioms
+	TSignature getSignature ( void )
+	{
+		TSignature sig;
+		for ( iterator p = begin(), p_end = end(); p != p_end; ++p )
+			if ( likely((*p)->isUsed()) )
+				sig.add((*p)->getSignature());
+		return sig;
+	}
 }; // TOntology
 
 #endif

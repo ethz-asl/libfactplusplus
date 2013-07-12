@@ -741,7 +741,7 @@ bool ReasoningKernel :: initOptions ( void )
 		"useIncremenmtalReasoning",
 		"Option 'useIncremenmtalReasoning' (development) allows one to reason efficiently about small changes in the ontology.",
 		ifOption::iotBool,
-		"false"
+		"true"
 		) )
 		return true;
 

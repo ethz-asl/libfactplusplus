@@ -27,6 +27,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 void
 ReasoningKernel :: initIncremental ( void )
 {
+	delete ModSyn;
+	ModSyn = NULL;
 	OntologyBasedModularizer* ModExtractor = getModExtractor(false);
 	// fill the module signatures of the concepts
 	for ( TBox::c_const_iterator p = getTBox()->c_begin(), p_end = getTBox()->c_end(); p != p_end; ++p )
@@ -40,6 +42,8 @@ ReasoningKernel :: initIncremental ( void )
 		Name2Sig[*p] = new TSignature(ModExtractor->getModularizer()->getSignature());
 	}
 	getTBox()->setNameSigMap(&Name2Sig);
+	// fill in ontology signature
+	OntoSig = Ontology.getSignature();
 }
 
 void
@@ -49,6 +53,9 @@ ReasoningKernel :: doIncremental ( void )
 	// re-set the modularizer to use updated ontology
 	delete ModSyn;
 	ModSyn = NULL;
+	// detect new- and old- signature elements
+	TSignature NewSig = Ontology.getSignature();
+	OntoSig = NewSig;
 	// fill in M^+ and M^- sets
 	LocalityChecker* lc = getModExtractor(false)->getModularizer()->getLocalityChecker();
 	TOntology::iterator nb = Ontology.beginUnprocessed(), ne = Ontology.end(), rb = Ontology.beginRetracted(), re = Ontology.endRetracted();

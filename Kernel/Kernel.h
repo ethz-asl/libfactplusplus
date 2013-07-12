@@ -145,6 +145,8 @@ protected:	// members
 	TExpressionTranslator* pET;
 		/// name-signature map
 	NameSigMap Name2Sig;
+		/// ontology signature (used in incremental)
+	TSignature OntoSig;
 		/// trace vector for the last operation (set from the TBox trace-sets)
 	AxiomVec TraceVec;
 		/// knowledge exploration support
