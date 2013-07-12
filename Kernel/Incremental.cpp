@@ -23,24 +23,45 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Actor.h"
 #include "tOntologyPrinterLISP.h"
 
+/// setup Name2Sig for a given name C
+AxiomVec
+ReasoningKernel :: setupSig ( const ClassifiableEntry* C )
+{
+	AxiomVec ret;
+
+	// get the entity; do nothing if doesn't exist
+	const TNamedEntity* entity = C->getEntity();
+	if ( entity == NULL )
+		return ret;
+
+	// prepare a place to update
+	TSignature sig;
+	NameSigMap::iterator insert = Name2Sig.find(C);
+	if ( insert == Name2Sig.end() )
+		insert = Name2Sig.insert(std::make_pair(C,&sig)).first;
+	else
+		delete insert->second;
+
+	// calculate a module
+	sig.add(entity);
+	ret = getModExtractor(false)->getModule(sig,M_BOT);
+
+	// perform update
+	insert->second = new TSignature(getModExtractor(false)->getModularizer()->getSignature());
+
+	return ret;
+}
+
 /// initialise the incremental bits on full reload
 void
 ReasoningKernel :: initIncremental ( void )
 {
 	delete ModSyn;
 	ModSyn = NULL;
-	OntologyBasedModularizer* ModExtractor = getModExtractor(false);
 	// fill the module signatures of the concepts
 	for ( TBox::c_const_iterator p = getTBox()->c_begin(), p_end = getTBox()->c_end(); p != p_end; ++p )
-	{
-		const TNamedEntity* entity = (*p)->getEntity();
-		if ( entity == NULL )
-			continue;
-		TSignature sig;
-		sig.add(entity);
-		ModExtractor->getModule(sig,M_BOT);
-		Name2Sig[*p] = new TSignature(ModExtractor->getModularizer()->getSignature());
-	}
+		setupSig(*p);
+
 	getTBox()->setNameSigMap(&Name2Sig);
 	// fill in ontology signature
 	OntoSig = Ontology.getSignature();
@@ -69,6 +90,7 @@ ReasoningKernel :: doIncremental ( void )
 			// remove all links
 			C->getTaxVertex()->remove();
 			// update Name2Sig
+			delete Name2Sig[C];
 			Name2Sig.erase(C);
 		}
 
@@ -165,12 +187,11 @@ ReasoningKernel::reclassifyNode ( TaxonomyVertex* node, bool added, bool removed
 	const ClassifiableEntry* entry = node->getPrimer();
 	const TNamedEntity* entity = entry->getEntity();
 	std::cout << "Reclassify " << entity->getName() << std::endl;
-	TSignature sig;
-	sig.add(entity);
-	AxiomVec Module = getModExtractor(false)->getModule(sig, M_BOT);
+
 	// update Name2Sig
+	AxiomVec Module = setupSig(entry);
 	const TSignature ModSig = getModExtractor(false)->getModularizer()->getSignature();
-	Name2Sig[entry] = new TSignature(ModSig);
+
 	// renew all signature-2-entry map
 	std::map<const TNamedEntity*, TNamedEntry*> KeepMap;
 	TSignature::iterator s, s_end = ModSig.end();
@@ -180,6 +201,7 @@ ReasoningKernel::reclassifyNode ( TaxonomyVertex* node, bool added, bool removed
 		KeepMap[entity] = entity->getEntry();
 		const_cast<TNamedEntity*>(entity)->setEntry(NULL);
 	}
+
 	ReasoningKernel reasoner;
 	std::cout << "Module: \n";
 	TLISPOntologyPrinter pr(std::cout);

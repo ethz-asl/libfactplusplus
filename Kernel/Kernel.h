@@ -491,6 +491,8 @@ protected:	// methods
 	bool needForceReload ( void ) const;
 		/// force the re-classification of the changed ontology
 	void forceReload ( void );
+		/// setup Name2Sig for a given name C; @return a \bot-module for C
+	AxiomVec setupSig ( const ClassifiableEntry* C );
 		/// initialise the incremental bits on full reload
 	void initIncremental ( void );
 		/// incrementally classify changes
