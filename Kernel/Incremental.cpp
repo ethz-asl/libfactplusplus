@@ -55,15 +55,43 @@ ReasoningKernel :: doIncremental ( void )
 	ModSyn = NULL;
 	// detect new- and old- signature elements
 	TSignature NewSig = Ontology.getSignature();
+	TSignature::BaseType RemovedEntities, AddedEntities;
+	TSignature::BaseType::iterator e, e_end;
+	std::set_difference(OntoSig.begin(), OntoSig.end(), NewSig.begin(), NewSig.end(), inserter(RemovedEntities, RemovedEntities.begin()));
+	std::set_difference(NewSig.begin(), NewSig.end(), OntoSig.begin(), OntoSig.end(), inserter(AddedEntities, AddedEntities.begin()));
+
+//	const TSignature::BaseType CommonSig = intersect ( OntoSig, NewSig );
+
+	// deal with removed concepts
+	for ( e = RemovedEntities.begin(), e_end = RemovedEntities.end(); e != e_end; ++e )
+		if ( const TConcept* C = dynamic_cast<const TConcept*>((*e)->getEntry()) )
+		{
+			// remove all links
+			C->getTaxVertex()->remove();
+			// update Name2Sig
+			Name2Sig.erase(C);
+		}
+
+	// deal with added concepts
+	for ( e = AddedEntities.begin(), e_end = AddedEntities.end(); e != e_end; ++e )
+	{
+
+	}
 	OntoSig = NewSig;
 	// fill in M^+ and M^- sets
 	LocalityChecker* lc = getModExtractor(false)->getModularizer()->getLocalityChecker();
-	TOntology::iterator nb = Ontology.beginUnprocessed(), ne = Ontology.end(), rb = Ontology.beginRetracted(), re = Ontology.endRetracted();
+	TOntology::iterator p, nb = Ontology.beginUnprocessed(), ne = Ontology.end(), rb = Ontology.beginRetracted(), re = Ontology.endRetracted();
 	TLISPOntologyPrinter pr(std::cout);
-	if ( nb != ne )
-		(*nb)->accept(pr);
-	if ( rb != re )
-		(*rb)->accept(pr);
+	for ( p = nb; p != ne; ++p )
+	{
+		std::cout << "Add:";
+		(*p)->accept(pr);
+	}
+	for ( p = rb; p != re; ++p )
+	{
+		std::cout << "Del:";
+		(*p)->accept(pr);
+	}
 	// TODO: add new sig here
 	std::set<const ClassifiableEntry*> MPlus, MMinus;
 	for ( NameSigMap::iterator p = Name2Sig.begin(), p_end = Name2Sig.end(); p != p_end; ++p )

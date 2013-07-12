@@ -81,6 +81,15 @@ void TaxonomyVertex :: incorporate ( void )
 	LL << "}";
 }
 
+/// remove one half of a given node from a graph
+void
+TaxonomyVertex :: removeLinks ( bool upDirection )
+{
+	for ( iterator p = begin(upDirection), p_end = end(upDirection); p != p_end; ++p )
+		(*p)->removeLink ( !upDirection, this );
+	clearLinks(upDirection);
+}
+
 /// merge NODE which is independent to THIS
 void
 TaxonomyVertex :: mergeIndepNode ( TaxonomyVertex* node, const std::set<TaxonomyVertex*>& excludes, const ClassifiableEntry* curEntry )

@@ -225,6 +225,10 @@ public:
 	bool removeLink ( bool upDirection, TaxonomyVertex* p );
 		/// clear all links in a given direction
 	void clearLinks ( bool upDirection ) { neigh(upDirection).clear(); }
+		/// remove one half of a given node from a graph
+	void removeLinks ( bool upDirection );
+		/// remove given node from a graph
+	void remove ( void ) { removeLinks(true); removeLinks(false); setInUse(false); }
 		/// merge NODE which is independent to THIS
 	void mergeIndepNode ( TaxonomyVertex* node, const std::set<TaxonomyVertex*>& excludes, const ClassifiableEntry* curEntry );
 
