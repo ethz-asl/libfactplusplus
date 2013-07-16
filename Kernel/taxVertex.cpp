@@ -51,6 +51,7 @@ void TaxonomyVertex :: incorporate ( void )
 				(*u)->removeLink ( /*upDirection=*/false, *d );
 
 		// add new link between v and current
+		(*d)->removeLink (/*upDirection=*/true, this);	// safe in general case, crucial for incremental
 		(*d)->addNeighbour (/*upDirection=*/true, this);
 	}
 
@@ -87,6 +88,7 @@ TaxonomyVertex :: removeLinks ( bool upDirection )
 {
 	for ( iterator p = begin(upDirection), p_end = end(upDirection); p != p_end; ++p )
 		(*p)->removeLink ( !upDirection, this );
+
 	clearLinks(upDirection);
 }
 

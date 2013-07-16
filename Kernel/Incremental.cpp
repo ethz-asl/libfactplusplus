@@ -74,16 +74,20 @@ ReasoningKernel :: doIncremental ( void )
 	// re-set the modularizer to use updated ontology
 	delete ModSyn;
 	ModSyn = NULL;
+
+	Taxonomy* tax = getCTaxonomy();
+	std::cout << "Original Taxonomy:";
+	tax->print(std::cout);
+	std::set<const ClassifiableEntry*> MPlus, MMinus;
+
 	// detect new- and old- signature elements
 	TSignature NewSig = Ontology.getSignature();
 	TSignature::BaseType RemovedEntities, AddedEntities;
-	TSignature::BaseType::iterator e, e_end;
 	std::set_difference(OntoSig.begin(), OntoSig.end(), NewSig.begin(), NewSig.end(), inserter(RemovedEntities, RemovedEntities.begin()));
 	std::set_difference(NewSig.begin(), NewSig.end(), OntoSig.begin(), OntoSig.end(), inserter(AddedEntities, AddedEntities.begin()));
 
-//	const TSignature::BaseType CommonSig = intersect ( OntoSig, NewSig );
-
 	// deal with removed concepts
+	TSignature::BaseType::iterator e, e_end;
 	for ( e = RemovedEntities.begin(), e_end = RemovedEntities.end(); e != e_end; ++e )
 		if ( const TConcept* C = dynamic_cast<const TConcept*>((*e)->getEntry()) )
 		{
@@ -95,11 +99,26 @@ ReasoningKernel :: doIncremental ( void )
 		}
 
 	// deal with added concepts
+	tax->deFinalise();
 	for ( e = AddedEntities.begin(), e_end = AddedEntities.end(); e != e_end; ++e )
-	{
-
-	}
+		if ( const TDLConceptName* cName = dynamic_cast<const TDLConceptName*>(*e) )
+		{
+			// register the name in TBox
+			TreeDeleter TD(this->e(cName));
+			TConcept* C = dynamic_cast<TConcept*>(cName->getEntry());
+			// create sig for it
+			setupSig(C);
+			// init the taxonomy element
+			TaxonomyVertex* cur = tax->getCurrent();
+			cur->clear();
+			cur->setSample(C);
+			cur->addNeighbour ( /*upDirection=*/true, tax->getTopVertex() );
+			tax->finishCurrentNode();
+			std::cout << "Insert " << C->getName() << std::endl;
+		}
+	tax->finalise();
 	OntoSig = NewSig;
+
 	// fill in M^+ and M^- sets
 	LocalityChecker* lc = getModExtractor(false)->getModularizer()->getLocalityChecker();
 	TOntology::iterator p, nb = Ontology.beginUnprocessed(), ne = Ontology.end(), rb = Ontology.beginRetracted(), re = Ontology.endRetracted();
@@ -115,7 +134,6 @@ ReasoningKernel :: doIncremental ( void )
 		(*p)->accept(pr);
 	}
 	// TODO: add new sig here
-	std::set<const ClassifiableEntry*> MPlus, MMinus;
 	for ( NameSigMap::iterator p = Name2Sig.begin(), p_end = Name2Sig.end(); p != p_end; ++p )
 	{
 		lc->setSignatureValue(*p->second);
@@ -142,7 +160,6 @@ ReasoningKernel :: doIncremental ( void )
 	// fill in an order to
 	std::queue<TaxonomyVertex*> queue;
 	std::vector<TaxonomyVertex*> toProcess;
-	Taxonomy* tax = getCTaxonomy();
 	queue.push(tax->getTopVertex());
 	while ( !queue.empty() )
 	{
@@ -159,10 +176,14 @@ ReasoningKernel :: doIncremental ( void )
 	}
 	tax->clearVisited();
 
+	std::cout << "Add/Del names Taxonomy:";
+	tax->print(std::cout);
 	for ( std::vector<TaxonomyVertex*>::iterator p = toProcess.begin(), p_end = toProcess.end(); p != p_end; ++p )
 	{
 		const ClassifiableEntry* entry = (*p)->getPrimer();
 		reclassifyNode ( *p, MPlus.find(entry) != MPlus.end(), MMinus.find(entry) != MMinus.end() );
+		tax->print(std::cout);
+		std::cout.flush();
 	}
 	Ontology.setProcessed();
 }
@@ -211,7 +232,7 @@ ReasoningKernel::reclassifyNode ( TaxonomyVertex* node, bool added, bool removed
 		(*p)->accept(pr);
 	}
 	// update top links
-	node->clearLinks(/*upDirection=*/true);
+	node->removeLinks(/*upDirection=*/true);
 	ConceptActor actor;
 	reasoner.getSupConcepts ( static_cast<const TDLConceptName*>(entity), /*direct=*/true, actor );
 	ConceptActor::SetOfNodes parents = actor.getNodes();
@@ -225,6 +246,8 @@ ReasoningKernel::reclassifyNode ( TaxonomyVertex* node, bool added, bool removed
 		std::cout << "Set parent " << localNE->getName() << std::endl;
 		node->addNeighbour ( /*upDirection=*/true, dynamic_cast<const ClassifiableEntry*>(localNE)->getTaxVertex() );
 	}
+	// actually add node
+	node->incorporate();
 	// clear an ontology in a safe way
 	reasoner.getOntology().safeClear();
 	// restore all signature-2-entry map
