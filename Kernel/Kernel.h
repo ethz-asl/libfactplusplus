@@ -1082,6 +1082,7 @@ public:
 	{
 		classifyKB();	// ensure KB is ready to answer the query
 		setUpCache ( C, csClassified );
+		actor.clear();
 		Taxonomy* tax = getCTaxonomy();
 		if ( direct )
 			tax->getRelativesInfo</*needCurrent=*/false, /*onlyDirect=*/true, /*upDirection=*/true> ( cachedVertex, actor );
@@ -1094,6 +1095,7 @@ public:
 	{
 		classifyKB();	// ensure KB is ready to answer the query
 		setUpCache ( C, csClassified );
+		actor.clear();
 		Taxonomy* tax = getCTaxonomy();
 		if ( direct )
 			tax->getRelativesInfo</*needCurrent=*/false, /*onlyDirect=*/true, /*upDirection=*/false> ( cachedVertex, actor );
@@ -1106,6 +1108,7 @@ public:
 	{
 		classifyKB();	// ensure KB is ready to answer the query
 		setUpCache ( C, csClassified );
+		actor.clear();
 		actor.apply(*cachedVertex);
 	}
 		/// apply actor::apply() to all named concepts disjoint with [complex] C
@@ -1114,6 +1117,7 @@ public:
 	{
 		classifyKB();	// ensure KB is ready to answer the query
 		setUpCache ( getExpressionManager()->Not(C), csClassified );
+		actor.clear();
 		Taxonomy* tax = getCTaxonomy();
 		// we are looking for all sub-concepts of (not C) (including synonyms to it)
 		tax->getRelativesInfo</*needCurrent=*/true, /*onlyDirect=*/false, /*upDirection=*/false> ( cachedVertex, actor );
@@ -1127,6 +1131,7 @@ public:
 	{
 		preprocessKB();	// ensure KB is ready to answer the query
 		TRole* R = getRole ( r, "Role expression expected in getSupRoles()" );
+		actor.clear();
 		Taxonomy* tax = getTaxonomy(R);
 		if ( direct )
 			tax->getRelativesInfo</*needCurrent=*/false, /*onlyDirect=*/true, /*upDirection=*/true> ( getTaxVertex(R), actor );
@@ -1139,6 +1144,7 @@ public:
 	{
 		preprocessKB();	// ensure KB is ready to answer the query
 		TRole* R = getRole ( r, "Role expression expected in getSubRoles()" );
+		actor.clear();
 		Taxonomy* tax = getTaxonomy(R);
 		if ( direct )
 			tax->getRelativesInfo</*needCurrent=*/false, /*onlyDirect=*/true, /*upDirection=*/false> ( getTaxVertex(R), actor );
@@ -1151,6 +1157,7 @@ public:
 	{
 		preprocessKB();	// ensure KB is ready to answer the query
 		TRole* R = getRole ( r, "Role expression expected in getEquivalentRoles()" );
+		actor.clear();
 		actor.apply(*getTaxVertex(R));
 	}
 
@@ -1162,6 +1169,7 @@ public:
 	{
 		classifyKB();	// ensure KB is ready to answer the query
 		setUpCache ( getExpressionManager()->Exists ( r, getExpressionManager()->Top() ), csClassified );
+		actor.clear();
 		Taxonomy* tax = getCTaxonomy();
 		if ( direct )	// gets an exact domain is named concept; otherwise, set of the most specific concepts
 			tax->getRelativesInfo</*needCurrent=*/true, /*onlyDirect=*/true, /*upDirection=*/true> ( cachedVertex, actor );
@@ -1174,6 +1182,7 @@ public:
 	{
 		classifyKB();	// ensure KB is ready to answer the query
 		setUpCache ( getExpressionManager()->Exists ( r, getExpressionManager()->DataTop() ), csClassified );
+		actor.clear();
 		Taxonomy* tax = getCTaxonomy();
 		if ( direct )	// gets an exact domain is named concept; otherwise, set of the most specific concepts
 			tax->getRelativesInfo</*needCurrent=*/true, /*onlyDirect=*/true, /*upDirection=*/true> ( cachedVertex, actor );
@@ -1193,6 +1202,7 @@ public:
 	{
 		realiseKB();	// ensure KB is ready to answer the query
 		setUpCache ( C, csClassified );
+		actor.clear();
 
 		// implement 1-level check by hand
 
@@ -1213,6 +1223,7 @@ public:
 	{	// FIXME!! check for Racer's/IS approach
 		realiseKB();	// ensure KB is ready to answer the query
 		setUpCache ( C, csClassified );
+		actor.clear();
 		Taxonomy* tax = getCTaxonomy();
 		tax->getRelativesInfo</*needCurrent=*/true, /*onlyDirect=*/false, /*upDirection=*/false> ( cachedVertex, actor );
 	}
@@ -1223,6 +1234,7 @@ public:
 	{
 		realiseKB();	// ensure KB is ready to answer the query
 		setUpCache ( getExpressionManager()->OneOf(I), csClassified );
+		actor.clear();
 		Taxonomy* tax = getCTaxonomy();
 		if ( direct )
 			tax->getRelativesInfo</*needCurrent=*/true, /*onlyDirect=*/true, /*upDirection=*/true> ( cachedVertex, actor );

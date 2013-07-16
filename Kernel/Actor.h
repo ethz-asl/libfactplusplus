@@ -26,19 +26,17 @@ class TIndividual;
 /// class for acting with concept taxonomy
 class Actor
 {
-protected:	// types
-		/// array of TNEs
-	typedef std::vector<const ClassifiableEntry*> SynVector;
-		/// array for a set of taxonomy verteces
-	typedef std::vector<SynVector> SetOfNodes;
+public:		// types
+		/// entry in an output
+	typedef ClassifiableEntry EntryType;
+		/// 1D vector of entries
+	typedef std::vector<const EntryType*> Array1D;
+		/// 2D vector of entries
+	typedef std::vector<Array1D> Array2D;
 
 protected:	// members
-		/// 2D array to return
-	SetOfNodes acc;
-		/// 1D array to return
-	SynVector plain;
-		/// temporary vector to keep synonyms
-	SynVector syn;
+		/// vertices that satisfy the condition
+	std::vector<const TaxonomyVertex*> found;
 		/// flag to look at concept-like or role-like entities
 	bool isRole;
 		/// flag to look at concepts or object roles
@@ -48,28 +46,27 @@ protected:	// members
 
 protected:	// methods
 		/// check whether actor is applicable to the ENTRY
-	bool applicable ( const ClassifiableEntry* entry );
-		/// try current entry
-	void tryEntry ( const ClassifiableEntry* p )
+	bool applicable ( const EntryType* entry ) const;
+		/// @return true iff current entry is visible
+	bool tryEntry ( const EntryType* p ) const { return !p->isSystem() && applicable(p);}
+		/// @return true if at least one entry of a vertex V is visible
+	bool tryVertex ( const TaxonomyVertex& v ) const
 	{
-		if ( p->isSystem() )
-			return;
-		if ( applicable(p) )
-			syn.push_back(p);
-/*		if ( unlikely(interrupt) )
-		{
-			plain.push_back(p);
-
-		}*/
+		if ( tryEntry(v.getPrimer()) )
+			return true;
+		for ( TaxonomyVertex::syn_iterator p = v.begin_syn(), p_end=v.end_syn(); p != p_end; ++p )
+			if ( tryEntry(*p) )
+				return true;
+		return false;
 	}
-		/// build the NULL-terminated array of names of entries
-	const char** buildArray ( const SynVector& vec ) const
+		/// fills an array with all suitable data from the vertex
+	void fillArray ( const TaxonomyVertex& v, Array1D& array ) const
 	{
-		const char** ret = new const char*[vec.size()+1];
-		for ( size_t i = 0; i < vec.size(); ++i )
-			ret[i] = vec[i]->getName();
-		ret[vec.size()] = NULL;
-		return ret;
+		if ( tryEntry(v.getPrimer()) )
+			array.push_back(v.getPrimer());
+		for ( TaxonomyVertex::syn_iterator p = v.begin_syn(), p_end=v.end_syn(); p != p_end; ++p )
+			if ( tryEntry(*p) )
+				array.push_back(*p);
 	}
 
 public:		// interface
@@ -77,6 +74,9 @@ public:		// interface
 	Actor ( void ) {}
 		/// empty d'tor
 	virtual ~Actor ( void ) {}
+
+
+	void clear ( void ) { found.clear(); }
 
 	// flags setup
 
@@ -91,33 +91,36 @@ public:		// interface
 		/// set the interrupt parameter to VALUE
 	void setInterruptAfterFirstFound ( bool value ) { interrupt = value; }
 
-	// return values
-		/// get 1-d NULL-terminated array of synonyms of the 1st entry(necessary for Equivalents, for example)
-	const char** getSynonyms ( void ) const { return buildArray ( acc.empty() ? SynVector() : acc[0] ); }
-		/// get NULL-terminated 2D array of all required elements of the taxonomy
-	const char*** getElements2D ( void ) const
-	{
-		const char*** ret = new const char**[acc.size()+1];
-		for ( size_t i = 0; i < acc.size(); ++i )
-			ret[i] = buildArray(acc[i]);
-		ret[acc.size()] = NULL;
-		return ret;
-	}
-		/// get NULL-terminated 1D array of all required elements of the taxonomy
-	const char** getElements1D ( void ) const
-	{
-		SynVector vec;
-		for ( SetOfNodes::const_iterator p = acc.begin(), p_end = acc.end(); p != p_end; ++p )
-			vec.insert ( vec.end(), p->begin(), p->end() );
-		return buildArray(vec);
-	}
+	// fill structures according to what's in the taxonomy
 
-	const std::vector<TIndividual*> getPlain ( void );
+		/// return data as a 1D-array
+	void getFoundData ( Array1D& array ) const
+	{
+		array.clear();
+		for ( size_t i = 0; i < found.size(); i++ )
+			fillArray ( *found[i], array );
+	}
+		/// return data as a 2D-array
+	void getFoundData ( Array2D& array ) const
+	{
+		array.clear();
+		array.resize(found.size());
+		for ( size_t i = 0; i < found.size(); i++ )
+			fillArray ( *found[i], array[i] );
+	}
 
 		/// taxonomy walking method.
-		/// @return true if node was processed, and there is no need to go further
+		/// @return true if node was processed
 		/// @return false if node can not be processed in current settings
-	bool apply ( const TaxonomyVertex& v );
+	bool apply ( const TaxonomyVertex& v )
+	{
+		if ( tryVertex(v) )
+		{
+			found.push_back(&v);
+			return true;
+		}
+		return false;
+	}
 }; // Actor
 
 #endif

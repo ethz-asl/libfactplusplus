@@ -167,11 +167,15 @@ fillIVec ( ReasoningKernel* kernel )
 		// The i'th var is I2Var[i]; get its concept
 		const TDLConceptExpression* C = VarRestrictions[I2Var[i]];
 		// get all instances of C
-		Actor* a = new Actor();
-		a->needIndividuals();
-		kernel->getInstances(C,*a);
-		IV.add(new Iterable<TIndividual*>(a->getPlain()));
-		delete a;
+		Actor a;
+		a.needIndividuals();
+		Actor::Array1D instances;
+		std::vector<TIndividual*> individuals;
+		kernel->getInstances(C,a);
+		a.getFoundData(instances);
+		for ( Actor::Array1D::iterator p = instances.begin(), p_end = instances.end(); p != p_end; ++p )
+			individuals.push_back(static_cast<TIndividual*>(const_cast<ClassifiableEntry*>(*p)));
+		IV.add(new Iterable<TIndividual*>(individuals));
 	}
 	std::cout << " done" << std::endl;
 }

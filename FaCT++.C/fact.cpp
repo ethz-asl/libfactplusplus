@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2011-2012 by Dmitry Tsarkov
+Copyright (C) 2011-2013 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -19,6 +19,56 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "fact.h"
 #include "Kernel.h"
 #include "Actor.h"
+
+/// class for acting with a taxonomy at a C level
+class CActor: public Actor
+{
+protected:	// methods
+		/// build the NULL-terminated array of names of entries
+	const char** buildArray ( const Array1D& vec ) const
+	{
+		const char** ret = new const char*[vec.size()+1];
+		for ( size_t i = 0; i < vec.size(); ++i )
+			ret[i] = vec[i]->getName();
+		ret[vec.size()] = NULL;
+		return ret;
+	}
+
+public:		// interface
+		/// empty c'tor
+	CActor ( void ) {}
+		/// empty d'tor
+	virtual ~CActor ( void ) {}
+
+	// return values
+		/// get 1-d NULL-terminated array of synonyms of the 1st entry(necessary for Equivalents, for example)
+	const char** getSynonyms ( void ) const
+	{
+		if ( found.empty() )
+			return buildArray(Array1D());
+		Array2D acc;
+		getFoundData(acc);
+		return buildArray(acc[0]);
+	}
+		/// get NULL-terminated 2D array of all required elements of the taxonomy
+	const char*** getElements2D ( void ) const
+	{
+		Array2D acc;
+		getFoundData(acc);
+		const char*** ret = new const char**[acc.size()+1];
+		for ( size_t i = 0; i < acc.size(); ++i )
+			ret[i] = buildArray(acc[i]);
+		ret[acc.size()] = NULL;
+		return ret;
+	}
+		/// get NULL-terminated 1D array of all required elements of the taxonomy
+	const char** getElements1D ( void ) const
+	{
+		Array1D vec;
+		getFoundData(vec);
+		return buildArray(vec);
+	}
+}; // Actor
 
 // type declarations
 
@@ -53,7 +103,7 @@ DECLARE_STRUCT(fact_data_value_expression,ReasoningKernel::TDataValueExpr);
 // facet expression
 DECLARE_STRUCT(fact_facet_expression,ReasoningKernel::TFacetExpr);
 // actor to traverse taxonomy
-DECLARE_STRUCT(fact_actor,Actor);
+DECLARE_STRUCT(fact_actor,CActor);
 
 const char *fact_get_version ()
 {
@@ -504,25 +554,25 @@ int fact_is_related (fact_reasoning_kernel *k,
 }
 fact_actor* fact_concept_actor_new()
 {
-	fact_actor* ret = new fact_actor(new Actor());
+	fact_actor* ret = new fact_actor(new CActor());
 	ret->p->needConcepts();
 	return ret;
 }
 fact_actor* fact_individual_actor_new()
 {
-	fact_actor* ret = new fact_actor(new Actor());
+	fact_actor* ret = new fact_actor(new CActor());
 	ret->p->needIndividuals();
 	return ret;
 }
 fact_actor* fact_o_role_actor_new()
 {
-	fact_actor* ret = new fact_actor(new Actor());
+	fact_actor* ret = new fact_actor(new CActor());
 	ret->p->needObjectRoles();
 	return ret;
 }
 fact_actor* fact_d_role_actor_new()
 {
-	fact_actor* ret = new fact_actor(new Actor());
+	fact_actor* ret = new fact_actor(new CActor());
 	ret->p->needDataRoles();
 	return ret;
 }

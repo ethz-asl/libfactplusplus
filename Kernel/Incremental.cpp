@@ -188,19 +188,6 @@ ReasoningKernel :: doIncremental ( void )
 	Ontology.setProcessed();
 }
 
-class ConceptActor: public Actor
-{
-public:		// types
-	typedef Actor::SynVector SynVector;
-	typedef Actor::SetOfNodes SetOfNodes;
-
-public:		// interface
-		/// init c'tor
-	ConceptActor ( void ) { needConcepts(); }
-		/// get RO access to found nodes
-	const SetOfNodes& getNodes ( void ) const { return acc; }
-}; // ConceptActor
-
 /// reclassify (incrementally) NODE wrt ADDED or REMOVED flags
 void
 ReasoningKernel::reclassifyNode ( TaxonomyVertex* node, bool added, bool removed )
@@ -233,10 +220,12 @@ ReasoningKernel::reclassifyNode ( TaxonomyVertex* node, bool added, bool removed
 	}
 	// update top links
 	node->removeLinks(/*upDirection=*/true);
-	ConceptActor actor;
+	Actor actor;
+	actor.needConcepts();
 	reasoner.getSupConcepts ( static_cast<const TDLConceptName*>(entity), /*direct=*/true, actor );
-	ConceptActor::SetOfNodes parents = actor.getNodes();
-	for ( ConceptActor::SetOfNodes::iterator q = parents.begin(), q_end = parents.end(); q != q_end; ++q )
+	Actor::Array2D parents;
+	actor.getFoundData(parents);
+	for ( Actor::Array2D::iterator q = parents.begin(), q_end = parents.end(); q != q_end; ++q )
 	{
 		const ClassifiableEntry* parentCE = *q->begin();
 		// this CE is of the Reasoner

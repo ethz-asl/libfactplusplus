@@ -60,6 +60,7 @@ public:		// interface
 		/// d'tor
 	~JTaxonomyActor ( void ) {}
 
+	void clear ( void ) { acc.clear(); plain.clear(); }
 	// return values
 
 		/// get single vector of synonyms (necessary for Equivalents, for example)

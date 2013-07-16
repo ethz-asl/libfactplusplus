@@ -22,7 +22,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 	/// check whether actor is applicable to the ENTRY
 bool
-Actor :: applicable ( const ClassifiableEntry* entry )
+Actor :: applicable ( const EntryType* entry ) const
 {
 	if ( isRole )	// object- or data-role
 	{
@@ -33,32 +33,4 @@ Actor :: applicable ( const ClassifiableEntry* entry )
 	}
 	else	// concept or individual: standard are concepts
 		return static_cast<const TConcept*>(entry)->isSingleton() != isStandard;
-}
-
-bool
-Actor :: apply ( const TaxonomyVertex& v )
-{
-	syn.clear();
-	tryEntry(v.getPrimer());
-
-	for ( TaxonomyVertex::syn_iterator p = v.begin_syn(), p_end=v.end_syn(); p != p_end; ++p )
-		tryEntry(*p);
-
-	/// no applicable elements were found
-	if ( syn.empty() )
-		return false;
-
-	acc.push_back(syn);
-	return true;
-}
-
-const std::vector<TIndividual*>
-Actor :: getPlain ( void )
-{
-	fpp_assert ( !isRole && !isStandard );
-	std::vector<TIndividual*> vec;
-	for ( SetOfNodes::const_iterator p = acc.begin(), p_end = acc.end(); p != p_end; ++p )
-		for ( SynVector::const_iterator q = p->begin(), q_end = p->end(); q != q_end; ++q )
-			vec.push_back(static_cast<TIndividual*>(const_cast<ClassifiableEntry*>(*q)));
-	return vec;
 }

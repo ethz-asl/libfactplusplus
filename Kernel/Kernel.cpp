@@ -498,6 +498,7 @@ public:
 
 		return ret;
 	}
+	void clear ( void ) { acc.clear(); }
 	const ReasoningKernel::CIVec& getAcc ( void ) const { return acc; }
 }; // RIActor
 
