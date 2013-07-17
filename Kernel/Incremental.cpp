@@ -78,6 +78,12 @@ ReasoningKernel :: doIncremental ( void )
 	Taxonomy* tax = getCTaxonomy();
 	std::cout << "Original Taxonomy:";
 	tax->print(std::cout);
+	getTBox()->ReloadTaxonomy();
+	tax = getCTaxonomy();
+	std::cout << "Reloaded Taxonomy:";
+	tax->print(std::cout);
+	std::cout.flush();
+
 	std::set<const ClassifiableEntry*> MPlus, MMinus;
 
 	// detect new- and old- signature elements
@@ -190,7 +196,7 @@ ReasoningKernel :: doIncremental ( void )
 
 /// reclassify (incrementally) NODE wrt ADDED or REMOVED flags
 void
-ReasoningKernel::reclassifyNode ( TaxonomyVertex* node, bool added, bool removed )
+ReasoningKernel :: reclassifyNode ( TaxonomyVertex* node, bool added, bool removed )
 {
 	const ClassifiableEntry* entry = node->getPrimer();
 	const TNamedEntity* entity = entry->getEntity();

@@ -399,6 +399,51 @@ TBox :: Load ( istream& i, KBStatus status )
 }
 
 //----------------------------------------------------------
+//-- Implementation of the incremental method (Kernel.h)
+//----------------------------------------------------------
+
+void
+TBox :: ReloadTaxonomy ( void )
+{
+	const char* filename = "incremental.tax";
+	// save taxonomy
+	std::ofstream o(filename);
+	tvMap.clear();
+	neMap.clear();
+	neMap.add(pBottom);
+	neMap.add(pTop);
+	neMap.add(pTemp);
+	neMap.add(pQuery);
+	o << "\nC";
+	Concepts.Save(o);
+	o << "\nI";
+	Individuals.Save(o);
+	o << "\nCT";
+	pTax->Save(o);
+	o.close();
+	// do actual change
+	delete pTax;
+	delete pTaxCreator;
+	// load the taxonomy
+	std::ifstream i(filename);
+	tvMap.clear();
+	neMap.clear();
+	neMap.add(pBottom);
+	neMap.add(pTop);
+	neMap.add(pTemp);
+	neMap.add(pQuery);
+	expectChar(i,'C');
+	Concepts.Load(i);
+	expectChar(i,'I');
+	Individuals.Load(i);
+	initTaxonomy();
+	pTaxCreator->setBottomUp(GCIs);
+	expectChar(i,'C');
+	expectChar(i,'T');
+	pTax->Load(i);
+}
+
+//----------------------------------------------------------
 //-- Implementation of the TNECollection methods (tNECollection.h)
 //----------------------------------------------------------
 

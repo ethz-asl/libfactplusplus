@@ -1269,6 +1269,8 @@ public:
 	void Save ( std::ostream& o ) const;
 		/// load the KB from given stream wrt STATUS
 	void Load ( std::istream& o, KBStatus status );
+		/// reload taxonomy (used in the incremental)
+	void ReloadTaxonomy ( void );
 }; // TBox
 
 #endif

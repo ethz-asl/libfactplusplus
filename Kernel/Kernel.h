@@ -516,6 +516,8 @@ protected:	// methods
 	void LoadOptions ( std::istream& i );
 		/// load the status of the KB and the appropriate part of KB
 	void LoadKB ( std::istream& i );
+		/// reload taxonomy (used in the incremental)
+	void ReloadTaxonomy ( void );
 
 		/// get a state file name depending on a context. Context assumed to be non-empty
 	std::string getSLFileName ( const std::string& context ) const { return context+".fpp.state"; }
