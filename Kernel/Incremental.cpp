@@ -84,7 +84,7 @@ ReasoningKernel :: doIncremental ( void )
 	tax->print(std::cout);
 	std::cout.flush();
 
-	std::set<const ClassifiableEntry*> MPlus, MMinus;
+	std::set<const ClassifiableEntry*> MPlus, MMinus, MAll;
 
 	// detect new- and old- signature elements
 	TSignature NewSig = Ontology.getSignature();
@@ -147,6 +147,7 @@ ReasoningKernel :: doIncremental ( void )
 			if ( !lc->local(*notProcessed) )
 			{
 				MPlus.insert(p->first);
+				MAll.insert(p->first);
 				std::cout << "Non-local NP axiom ";
 				(*notProcessed)->accept(pr);
 				std::cout << " wrt " << p->first->getName() << std::endl;
@@ -156,6 +157,7 @@ ReasoningKernel :: doIncremental ( void )
 			if ( !lc->local(*retracted) )
 			{
 				MMinus.insert(p->first);
+				MAll.insert(p->first);
 				std::cout << "Non-local RT axiom ";
 				(*retracted)->accept(pr);
 				std::cout << " wrt " << p->first->getName() << std::endl;
@@ -163,31 +165,11 @@ ReasoningKernel :: doIncremental ( void )
 			}
 	}
 
-	// fill in an order to
-	std::queue<TaxonomyVertex*> queue;
-	std::vector<TaxonomyVertex*> toProcess;
-	queue.push(tax->getTopVertex());
-	while ( !queue.empty() )
-	{
-		TaxonomyVertex* cur = queue.front();
-		queue.pop();
-		if ( tax->isVisited(cur) )
-			continue;
-		tax->setVisited(cur);
-		const ClassifiableEntry* entry = cur->getPrimer();
-		if ( MPlus.find(entry) != MPlus.end() || MMinus.find(entry) != MMinus.end() )
-			toProcess.push_back(cur);
-		for ( TaxonomyVertex::iterator p = cur->begin(/*upDirection=*/false), p_end = cur->end(/*upDirection=*/false); p != p_end; ++p )
-			queue.push(*p);
-	}
-	tax->clearVisited();
-
 	std::cout << "Add/Del names Taxonomy:";
 	tax->print(std::cout);
-	for ( std::vector<TaxonomyVertex*>::iterator p = toProcess.begin(), p_end = toProcess.end(); p != p_end; ++p )
+	for ( std::set<const ClassifiableEntry*>::iterator p = MAll.begin(), p_end = MAll.end(); p != p_end; ++p )
 	{
-		const ClassifiableEntry* entry = (*p)->getPrimer();
-		reclassifyNode ( *p, MPlus.find(entry) != MPlus.end(), MMinus.find(entry) != MMinus.end() );
+		reclassifyNode ( (*p)->getTaxVertex(), MPlus.find(*p) != MPlus.end(), MMinus.find(*p) != MMinus.end() );
 		tax->print(std::cout);
 		std::cout.flush();
 	}
@@ -234,6 +216,11 @@ ReasoningKernel :: reclassifyNode ( TaxonomyVertex* node, bool added, bool remov
 	for ( Actor::Array2D::iterator q = parents.begin(), q_end = parents.end(); q != q_end; ++q )
 	{
 		const ClassifiableEntry* parentCE = *q->begin();
+		if ( parentCE == reasoner.getCTaxonomy()->getTopVertex()->getPrimer() )	// special case it
+		{	// FIXME!! re-think after a proper taxonomy change
+			node->addNeighbour ( /*upDirection=*/true, getCTaxonomy()->getTopVertex() );
+			break;
+		}
 		// this CE is of the Reasoner
 		const TNamedEntity* parent = parentCE->getEntity();
 		// note that the entity maps to the Reasoner, so we need to use saved map
