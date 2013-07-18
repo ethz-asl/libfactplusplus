@@ -25,6 +25,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "procTimer.h"
 
 TsProcTimer moduleTimer, subCheckTimer;
+int nModule = 0;
 
 /// setup Name2Sig for a given name C
 AxiomVec
@@ -49,6 +50,7 @@ ReasoningKernel :: setupSig ( const ClassifiableEntry* C )
 	// calculate a module
 	sig.add(entity);
 	ret = getModExtractor(false)->getModule(sig,M_BOT);
+	++nModule;
 
 	// perform update
 	insert->second = new TSignature(getModExtractor(false)->getModularizer()->getSignature());
@@ -71,7 +73,7 @@ ReasoningKernel :: initIncremental ( void )
 	getTBox()->setNameSigMap(&Name2Sig);
 	// fill in ontology signature
 	OntoSig = Ontology.getSignature();
-	std::cout << "Initial module time: " << moduleTimer << std::endl;
+	std::cout << "Init modules (" << nModule << ") time: " << moduleTimer << std::endl;
 }
 
 void
@@ -133,6 +135,8 @@ ReasoningKernel :: doIncremental ( void )
 	OntoSig = NewSig;
 
 	// fill in M^+ and M^- sets
+	TsProcTimer t;
+	t.Start();
 	LocalityChecker* lc = getModExtractor(false)->getModularizer()->getLocalityChecker();
 	TOntology::iterator p, nb = Ontology.beginUnprocessed(), ne = Ontology.end(), rb = Ontology.beginRetracted(), re = Ontology.endRetracted();
 	TLISPOntologyPrinter pr(std::cout);
@@ -155,9 +159,9 @@ ReasoningKernel :: doIncremental ( void )
 			{
 				MPlus.insert(p->first);
 				MAll.insert(p->first);
-				std::cout << "Non-local NP axiom ";
-				(*notProcessed)->accept(pr);
-				std::cout << " wrt " << p->first->getName() << std::endl;
+//				std::cout << "Non-local NP axiom ";
+//				(*notProcessed)->accept(pr);
+//				std::cout << " wrt " << p->first->getName() << std::endl;
 				break;
 			}
 		for ( TOntology::iterator retracted = rb; retracted != re; retracted++ )
@@ -165,12 +169,14 @@ ReasoningKernel :: doIncremental ( void )
 			{
 				MMinus.insert(p->first);
 				MAll.insert(p->first);
-				std::cout << "Non-local RT axiom ";
-				(*retracted)->accept(pr);
-				std::cout << " wrt " << p->first->getName() << std::endl;
+//				std::cout << "Non-local RT axiom ";
+//				(*retracted)->accept(pr);
+//				std::cout << " wrt " << p->first->getName() << std::endl;
 				break;
 			}
 	}
+	t.Stop();
+	std::cout << "Determine concepts that need reclassification (" << MAll.size() << "): done in " << t << std::endl;
 
 	std::cout << "Add/Del names Taxonomy:";
 //	tax->print(std::cout);
@@ -181,7 +187,7 @@ ReasoningKernel :: doIncremental ( void )
 		std::cout.flush();
 	}
 	Ontology.setProcessed();
-	std::cout << "Total modularization time: " << moduleTimer << "\nTotal reasoning time: " << subCheckTimer << std::endl;
+	std::cout << "Total modularization (" << nModule << ") time: " << moduleTimer << "\nTotal reasoning time: " << subCheckTimer << std::endl;
 }
 
 /// reclassify (incrementally) NODE wrt ADDED or REMOVED flags
@@ -235,7 +241,7 @@ ReasoningKernel :: reclassifyNode ( TaxonomyVertex* node, bool added, bool remov
 		const TNamedEntity* parent = parentCE->getEntity();
 		// note that the entity maps to the Reasoner, so we need to use saved map
 		const TNamedEntry* localNE = KeepMap[parent];
-		std::cout << "Set parent " << localNE->getName() << std::endl;
+//		std::cout << "Set parent " << localNE->getName() << std::endl;
 		node->addNeighbour ( /*upDirection=*/true, dynamic_cast<const ClassifiableEntry*>(localNE)->getTaxVertex() );
 	}
 	// actually add node
