@@ -177,23 +177,33 @@ public class FaCTPlusPlusReasoner implements OWLReasoner, OWLOntologyChangeListe
 	 *            closure of the reasoner root ontology
 	 */
 	private synchronized void computeDiff(Set<OWLAxiom> added, Set<OWLAxiom> removed) {
-		for (OWLOntology ont : rootOntology.getImportsClosure()) {
-			for (OWLAxiom ax : ont.getLogicalAxioms()) {
-				if (!reasonerAxioms.contains(ax.getAxiomWithoutAnnotations())) {
+		for (OWLOntologyChange change : rawChanges) {
+			if (change.isAddAxiom()) {
+				OWLAxiom ax = change.getAxiom();
+				if (!reasonerAxioms.contains(ax.getAxiomWithoutAnnotations()))
 					added.add(ax);
-				}
-			}
-			for (OWLAxiom ax : ont.getAxioms(AxiomType.DECLARATION)) {
-				if (!reasonerAxioms.contains(ax.getAxiomWithoutAnnotations())) {
-					added.add(ax);
-				}
+			} else if (change.isRemoveAxiom()) {
+				removed.add(change.getAxiom());
 			}
 		}
-		for (OWLAxiom ax : reasonerAxioms) {
-			if (!rootOntology.containsAxiomIgnoreAnnotations(ax, true)) {
-				removed.add(ax);
-			}
-		}
+		added.removeAll(removed);
+		// for (OWLOntology ont : rootOntology.getImportsClosure()) {
+		// for (OWLAxiom ax : ont.getLogicalAxioms()) {
+		// if (!reasonerAxioms.contains(ax.getAxiomWithoutAnnotations())) {
+		// added.add(ax);
+		// }
+		// }
+		// for (OWLAxiom ax : ont.getAxioms(AxiomType.DECLARATION)) {
+		// if (!reasonerAxioms.contains(ax.getAxiomWithoutAnnotations())) {
+		// added.add(ax);
+		// }
+		// }
+		// }
+		// for (OWLAxiom ax : reasonerAxioms) {
+		// if (!rootOntology.containsAxiomIgnoreAnnotations(ax, true)) {
+		// removed.add(ax);
+		// }
+		// }
 	}
 
 	/**
