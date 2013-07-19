@@ -23,9 +23,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Actor.h"
 #include "tOntologyPrinterLISP.h"
 #include "procTimer.h"
+#include "IncrementalClassifier.h"
 
 TsProcTimer moduleTimer, subCheckTimer;
 int nModule = 0;
+IncrementalClassifier* Classifier = NULL;
+ReasoningKernel* Reasoner = new ReasoningKernel();
+TSignature OldSig;
 
 /// setup Name2Sig for a given name C
 AxiomVec
@@ -83,6 +87,9 @@ ReasoningKernel :: doIncremental ( void )
 	// re-set the modularizer to use updated ontology
 	delete ModSyn;
 	ModSyn = NULL;
+	delete Reasoner;
+	Reasoner = new ReasoningKernel();
+	OldSig = TSignature();
 
 	Taxonomy* tax = getCTaxonomy();
 /*	std::cout << "Original Taxonomy:";
@@ -131,7 +138,6 @@ ReasoningKernel :: doIncremental ( void )
 			tax->finishCurrentNode();
 			std::cout << "Insert " << C->getName() << std::endl;
 		}
-	tax->finalise();
 	OntoSig = NewSig;
 
 	// fill in M^+ and M^- sets
@@ -158,7 +164,6 @@ ReasoningKernel :: doIncremental ( void )
 			if ( !lc->local(*notProcessed) )
 			{
 				MPlus.insert(p->first);
-				MAll.insert(p->first);
 //				std::cout << "Non-local NP axiom ";
 //				(*notProcessed)->accept(pr);
 //				std::cout << " wrt " << p->first->getName() << std::endl;
@@ -168,7 +173,12 @@ ReasoningKernel :: doIncremental ( void )
 			if ( !lc->local(*retracted) )
 			{
 				MMinus.insert(p->first);
-				MAll.insert(p->first);
+				TaxonomyVertex* v = p->first->getTaxVertex();
+				if ( v->noNeighbours(true) )
+				{
+					v->addNeighbour(true,tax->getTopVertex());
+					tax->getTopVertex()->addNeighbour(false,v);
+				}
 //				std::cout << "Non-local RT axiom ";
 //				(*retracted)->accept(pr);
 //				std::cout << " wrt " << p->first->getName() << std::endl;
@@ -176,18 +186,57 @@ ReasoningKernel :: doIncremental ( void )
 			}
 	}
 	t.Stop();
-	std::cout << "Determine concepts that need reclassification (" << MAll.size() << "): done in " << t << std::endl;
 
-	std::cout << "Add/Del names Taxonomy:";
-//	tax->print(std::cout);
-	for ( std::set<const ClassifiableEntry*>::iterator p = MAll.begin(), p_end = MAll.end(); p != p_end; ++p )
+	// fill in an order to
+	std::queue<TaxonomyVertex*> queue;
+	std::vector<TaxonomyVertex*> toProcess;
+	queue.push(tax->getTopVertex());
+	while ( !queue.empty() )
 	{
-		reclassifyNode ( (*p)->getTaxVertex(), MPlus.find(*p) != MPlus.end(), MMinus.find(*p) != MMinus.end() );
-//		tax->print(std::cout);
-		std::cout.flush();
+		TaxonomyVertex* cur = queue.front();
+		queue.pop();
+		if ( tax->isVisited(cur) )
+			continue;
+		tax->setVisited(cur);
+		const ClassifiableEntry* entry = cur->getPrimer();
+		if ( MPlus.find(entry) != MPlus.end() || MMinus.find(entry) != MMinus.end() )
+			toProcess.push_back(cur);
+		for ( TaxonomyVertex::iterator p = cur->begin(/*upDirection=*/false), p_end = cur->end(/*upDirection=*/false); p != p_end; ++p )
+			queue.push(*p);
 	}
+	tax->clearVisited();
+	std::cout << "Determine concepts that need reclassification (" << toProcess.size() << "): done in " << t << std::endl;
+
+	std::cout << "Add/Del names Taxonomy:\n";
+//	tax->print(std::cout);
+
+	Classifier = new IncrementalClassifier(tax);
+	for ( std::vector<TaxonomyVertex*>::iterator p = toProcess.begin(), p_end = toProcess.end(); p != p_end; ++p )
+	{
+		const ClassifiableEntry* entry = (*p)->getPrimer();
+		reclassifyNode ( *p, MPlus.find(entry) != MPlus.end(), MMinus.find(entry) != MMinus.end() );
+//		tax->print(std::cout);
+//		std::cout.flush();
+	}
+
+//	for ( std::set<const ClassifiableEntry*>::iterator p = MAll.begin(), p_end = MAll.end(); p != p_end; ++p )
+//	{
+//		reclassifyNode ( (*p)->getTaxVertex(), MPlus.find(*p) != MPlus.end(), MMinus.find(*p) != MMinus.end() );
+////		tax->print(std::cout);
+//		std::cout.flush();
+//	}
+	tax->finalise();
 	Ontology.setProcessed();
 	std::cout << "Total modularization (" << nModule << ") time: " << moduleTimer << "\nTotal reasoning time: " << subCheckTimer << std::endl;
+}
+
+static std::ostream& operator << ( std::ostream& o, const TSignature& sig )
+{
+	o << "[";
+	for ( TSignature::iterator p = sig.begin(), p_end = sig.end(); p != p_end; ++p )
+		o << (*p)->getName() << " ";
+	o << "]" << std::endl;
+	return o;
 }
 
 /// reclassify (incrementally) NODE wrt ADDED or REMOVED flags
@@ -196,11 +245,16 @@ ReasoningKernel :: reclassifyNode ( TaxonomyVertex* node, bool added, bool remov
 {
 	const ClassifiableEntry* entry = node->getPrimer();
 	const TNamedEntity* entity = entry->getEntity();
-	std::cout << "Reclassify " << entity->getName() << std::endl;
+	std::cout << "Reclassify " << entity->getName() << " (" << (added?"Added":"") << (removed?" Removed":"") << ")" << std::endl;
 
+	TsProcTimer timer;
+	timer.Start();
 	// update Name2Sig
 	AxiomVec Module = setupSig(entry);
 	const TSignature ModSig = getModExtractor(false)->getModularizer()->getSignature();
+	timer.Stop();
+	std::cout << "Creating module (" << Module.size() << " axioms) time: " << timer;// << " sig: " << ModSig << " old: " << OldSig;
+	timer.Reset();
 
 	// renew all signature-2-entry map
 	std::map<const TNamedEntity*, TNamedEntry*> KeepMap;
@@ -212,15 +266,31 @@ ReasoningKernel :: reclassifyNode ( TaxonomyVertex* node, bool added, bool remov
 		const_cast<TNamedEntity*>(entity)->setEntry(NULL);
 	}
 
-	ReasoningKernel reasoner;
-//	std::cout << "Module: \n";
-	TLISPOntologyPrinter pr(std::cout);
-	subCheckTimer.Start();
-	for ( AxiomVec::iterator p = Module.begin(), p_end = Module.end(); p != p_end; ++p )
+	timer.Start();
+	if ( !(ModSig <= OldSig) )	// create new reasoner
 	{
-		reasoner.getOntology().add(*p);
-//		(*p)->accept(pr);
+		OldSig = ModSig;
+		delete Reasoner;
+		Reasoner = new ReasoningKernel();
+		Reasoner->setUseIncremenmtalReasoning(false);
+		TOntology& ontology = Reasoner->getOntology();
+//		std::cout << "Module: \n";
+//		TLISPOntologyPrinter pr(std::cout);
+		subCheckTimer.Start();
+		for ( AxiomVec::iterator p = Module.begin(), p_end = Module.end(); p != p_end; ++p )
+		{
+			ontology.add(*p);
+//			(*p)->accept(pr);
+		}
+		std::cout.flush();
+		Reasoner->isKBConsistent();
+		timer.Stop();
+		std::cout << "; init reasoner time: " << timer;
 	}
+
+	timer.Reset();
+	timer.Start();
+#if 0
 	// update top links
 	node->removeLinks(/*upDirection=*/true);
 	Actor actor;
@@ -246,8 +316,14 @@ ReasoningKernel :: reclassifyNode ( TaxonomyVertex* node, bool added, bool remov
 	}
 	// actually add node
 	node->incorporate();
+#else
+	Classifier->reclassify ( node, Reasoner, &ModSig, added, removed );
+#endif
+	timer.Stop();
+	std::cout << "; reclassification time: " << timer << std::endl;
+
 	// clear an ontology in a safe way
-	reasoner.getOntology().safeClear();
+	Reasoner->getOntology().safeClear();
 	// restore all signature-2-entry map
 	for ( s = ModSig.begin(); s != s_end; s++ )
 		const_cast<TNamedEntity*>(*s)->setEntry(KeepMap[*s]);
