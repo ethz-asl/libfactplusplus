@@ -491,14 +491,19 @@ protected:	// methods
 	bool needForceReload ( void ) const;
 		/// force the re-classification of the changed ontology
 	void forceReload ( void );
+
+	//----------------------------------------------
+	//-- incremental reasoning support; implementation in Incremental.cpp
+	//----------------------------------------------
+
 		/// setup Name2Sig for a given name C; @return a \bot-module for C
 	AxiomVec setupSig ( const ClassifiableEntry* C );
 		/// initialise the incremental bits on full reload
 	void initIncremental ( void );
 		/// incrementally classify changes
 	void doIncremental ( void );
-		/// reclassify (incrementally) NODE wrt ADDED or REMOVED flags
-	void reclassifyNode ( TaxonomyVertex* node, bool added, bool removed );	// implemented in DLConceptTaxonomy.cpp
+		/// reclassify (incrementally) ENTRY wrt ADDED or REMOVED flags
+	void reclassifyNode ( const ClassifiableEntry* entry, bool added, bool removed );
 
 	//----------------------------------------------
 	//-- save/load support; implementation in SaveLoad.cpp

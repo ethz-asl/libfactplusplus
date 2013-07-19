@@ -189,7 +189,7 @@ ReasoningKernel :: doIncremental ( void )
 
 	// fill in an order to
 	std::queue<TaxonomyVertex*> queue;
-	std::vector<TaxonomyVertex*> toProcess;
+	std::vector<const ClassifiableEntry*> toProcess;
 	queue.push(tax->getTopVertex());
 	while ( !queue.empty() )
 	{
@@ -200,7 +200,7 @@ ReasoningKernel :: doIncremental ( void )
 		tax->setVisited(cur);
 		const ClassifiableEntry* entry = cur->getPrimer();
 		if ( MPlus.find(entry) != MPlus.end() || MMinus.find(entry) != MMinus.end() )
-			toProcess.push_back(cur);
+			toProcess.push_back(entry);
 		for ( TaxonomyVertex::iterator p = cur->begin(/*upDirection=*/false), p_end = cur->end(/*upDirection=*/false); p != p_end; ++p )
 			queue.push(*p);
 	}
@@ -211,10 +211,9 @@ ReasoningKernel :: doIncremental ( void )
 //	tax->print(std::cout);
 
 	Classifier = new IncrementalClassifier(tax);
-	for ( std::vector<TaxonomyVertex*>::iterator p = toProcess.begin(), p_end = toProcess.end(); p != p_end; ++p )
+	for ( std::vector<const ClassifiableEntry*>::iterator p = toProcess.begin(), p_end = toProcess.end(); p != p_end; ++p )
 	{
-		const ClassifiableEntry* entry = (*p)->getPrimer();
-		reclassifyNode ( *p, MPlus.find(entry) != MPlus.end(), MMinus.find(entry) != MMinus.end() );
+		reclassifyNode ( *p, MPlus.find(*p) != MPlus.end(), MMinus.find(*p) != MMinus.end() );
 //		tax->print(std::cout);
 //		std::cout.flush();
 	}
@@ -241,11 +240,10 @@ static std::ostream& operator << ( std::ostream& o, const TSignature& sig )
 
 /// reclassify (incrementally) NODE wrt ADDED or REMOVED flags
 void
-ReasoningKernel :: reclassifyNode ( TaxonomyVertex* node, bool added, bool removed )
+ReasoningKernel :: reclassifyNode ( const ClassifiableEntry* entry, bool added, bool removed )
 {
-	const ClassifiableEntry* entry = node->getPrimer();
-	const TNamedEntity* entity = entry->getEntity();
-	std::cout << "Reclassify " << entity->getName() << " (" << (added?"Added":"") << (removed?" Removed":"") << ")" << std::endl;
+	TaxonomyVertex* node = entry->getTaxVertex();
+	std::cout << "Reclassify " << entry->getName() << " (" << (added?"Added":"") << (removed?" Removed":"") << ")" << std::endl;
 
 	TsProcTimer timer;
 	timer.Start();
@@ -295,14 +293,14 @@ ReasoningKernel :: reclassifyNode ( TaxonomyVertex* node, bool added, bool remov
 	node->removeLinks(/*upDirection=*/true);
 	Actor actor;
 	actor.needConcepts();
-	reasoner.getSupConcepts ( static_cast<const TDLConceptName*>(entity), /*direct=*/true, actor );
+	Reasoner->getSupConcepts ( static_cast<const TDLConceptName*>(entry->getEntity()), /*direct=*/true, actor );
 	subCheckTimer.Stop();
 	Actor::Array2D parents;
 	actor.getFoundData(parents);
 	for ( Actor::Array2D::iterator q = parents.begin(), q_end = parents.end(); q != q_end; ++q )
 	{
 		const ClassifiableEntry* parentCE = *q->begin();
-		if ( parentCE == reasoner.getCTaxonomy()->getTopVertex()->getPrimer() )	// special case it
+		if ( parentCE == Reasoner->getCTaxonomy()->getTopVertex()->getPrimer() )	// special case it
 		{	// FIXME!! re-think after a proper taxonomy change
 			node->addNeighbour ( /*upDirection=*/true, getCTaxonomy()->getTopVertex() );
 			break;
