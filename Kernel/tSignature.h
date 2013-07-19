@@ -42,6 +42,30 @@ protected:	// members
 		/// true if role TOP-locality; false if role BOTTOM-locality
 	bool topRLocality;
 
+protected:	// methods
+		/// @return true if *THIS \subseteq SIG (\subset if IMPROPER = false )
+	bool subset ( const TSignature& sig, bool improper ) const
+	{
+		iterator p = Set.begin(), p_end = Set.end(), q = sig.Set.begin(), q_end = sig.Set.end();
+		bool proper = false;
+		while ( p != p_end && q != q_end )
+		{
+			if ( *p < *q )	// something in THIS doesn't exist in SIG
+				return false;
+			if ( *q < *p )
+				++q, proper = true;
+			else
+				++p, ++q;
+		}
+		if ( p != p_end )	// extra stuff in THIS
+			return false;
+		// here THIS is empty
+		if ( q != q_end )	// there are extra elements in SIG
+			return improper;
+		// both are done; the answer depends on flags
+		return improper ? true : proper;
+	}
+
 public:		// interface
 		/// empty c'tor
 	TSignature ( void ) : topCLocality(false), topRLocality(false) {}
@@ -79,8 +103,14 @@ public:		// interface
 	bool operator == ( const TSignature& sig ) const { return Set == sig.Set; }
 		/// check whether 2 signatures are different
 	bool operator != ( const TSignature& sig ) const { return Set != sig.Set; }
-		/// operator <
-	bool operator < ( const TSignature& sig ) const { return Set < sig.Set; }
+		/// @return true if *THIS \subset SIG
+	bool operator < ( const TSignature& sig ) const { return subset ( sig, /*improper=*/false ); }
+		/// @return true if *THIS \subseteq SIG
+	bool operator <= ( const TSignature& sig ) const { return subset ( sig, /*improper=*/true ); }
+		/// @return true if SIG \subset *THIS
+	bool operator > ( const TSignature& sig ) const { return sig.subset ( *this, /*improper=*/false ); }
+		/// @return true if SIG \subseteq *THIS
+	bool operator >= ( const TSignature& sig ) const { return sig.subset ( *this, /*improper=*/true ); }
 		/// @return true iff signature contains given element
 	bool contains ( const TNamedEntity* p ) const { return Set.count(p) > 0; }
 		/// @return true iff signature contains given element
