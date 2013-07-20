@@ -72,7 +72,7 @@ public class FaCTPlusPlusReasoner implements OWLReasoner, OWLOntologyChangeListe
 	private final List<OWLOntologyChange> rawChanges = new ArrayList<OWLOntologyChange>();
 	// private final ReentrantReadWriteLock rawChangesLock = new
 	// ReentrantReadWriteLock();
-	private final List<OWLAxiom> reasonerAxioms = new ArrayList<OWLAxiom>();
+	private final Set<OWLAxiom> reasonerAxioms = new HashSet<OWLAxiom>();
 	private final long timeOut;
 	private final OWLReasonerConfiguration configuration;
 
@@ -178,32 +178,17 @@ public class FaCTPlusPlusReasoner implements OWLReasoner, OWLOntologyChangeListe
 	 */
 	private synchronized void computeDiff(Set<OWLAxiom> added, Set<OWLAxiom> removed) {
 		for (OWLOntologyChange change : rawChanges) {
-			if (change.isAddAxiom()) {
-				OWLAxiom ax = change.getAxiom();
-				if (!reasonerAxioms.contains(ax.getAxiomWithoutAnnotations()))
+			if (change instanceof AddAxiom) {
+				OWLAxiom ax = change.getAxiom().getAxiomWithoutAnnotations();
+				// check whether an axiom is new
+				if (!reasonerAxioms.contains(ax))
 					added.add(ax);
-			} else if (change.isRemoveAxiom()) {
-				removed.add(change.getAxiom());
+			} else if (change instanceof RemoveAxiom) {
+				removed.add(change.getAxiom().getAxiomWithoutAnnotations());
 			}
 		}
+		// in case an axiom was added and then removed without a flush()
 		added.removeAll(removed);
-		// for (OWLOntology ont : rootOntology.getImportsClosure()) {
-		// for (OWLAxiom ax : ont.getLogicalAxioms()) {
-		// if (!reasonerAxioms.contains(ax.getAxiomWithoutAnnotations())) {
-		// added.add(ax);
-		// }
-		// }
-		// for (OWLAxiom ax : ont.getAxioms(AxiomType.DECLARATION)) {
-		// if (!reasonerAxioms.contains(ax.getAxiomWithoutAnnotations())) {
-		// added.add(ax);
-		// }
-		// }
-		// }
-		// for (OWLAxiom ax : reasonerAxioms) {
-		// if (!rootOntology.containsAxiomIgnoreAnnotations(ax, true)) {
-		// removed.add(ax);
-		// }
-		// }
 	}
 
 	/**
@@ -321,7 +306,7 @@ public class FaCTPlusPlusReasoner implements OWLReasoner, OWLOntologyChangeListe
 		individualTranslator = new IndividualTranslator();
 		axiom2PtrMap.clear();
 		ptr2AxiomMap.clear();
-		for (OWLAxiom ax : getReasonerAxioms()) {
+		for (OWLAxiom ax : reasonerAxioms) {
 			loadAxiom(ax);
 		}
 		getReasonerConfiguration().getProgressMonitor().reasonerTaskStopped();
