@@ -211,12 +211,22 @@ ReasoningKernel :: doIncremental ( void )
 //	tax->print(std::cout);
 
 	Classifier = new IncrementalClassifier(tax);
+	std::set<const ClassifiableEntry*> Processed;
 	for ( std::vector<const ClassifiableEntry*>::iterator p = toProcess.begin(), p_end = toProcess.end(); p != p_end; ++p )
-	{
-		reclassifyNode ( *p, MPlus.find(*p) != MPlus.end(), MMinus.find(*p) != MMinus.end() );
-//		tax->print(std::cout);
-//		std::cout.flush();
-	}
+		if ( Processed.count(*p) == 0 )
+		{
+			reclassifyNode ( *p, MPlus.find(*p) != MPlus.end(), MMinus.find(*p) != MMinus.end() );
+//			tax->print(std::cout);
+//			std::cout.flush();
+			for ( std::vector<const ClassifiableEntry*>::iterator q = p+1; q != p_end; ++q )
+				if ( Processed.count(*q) == 0 && OldSig.contains((*q)->getEntity()) )	// same module
+				{
+					reclassifyNode ( *q, MPlus.find(*q) != MPlus.end(), MMinus.find(*q) != MMinus.end() );
+//					tax->print(std::cout);
+//					std::cout.flush();
+					Processed.insert(*q);
+				}
+		}
 
 //	for ( std::set<const ClassifiableEntry*>::iterator p = MAll.begin(), p_end = MAll.end(); p != p_end; ++p )
 //	{
