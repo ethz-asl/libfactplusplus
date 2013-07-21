@@ -83,19 +83,24 @@ public:		// interface
 		for ( iterator p = Axioms.begin(), p_end = Axioms.end(); p < p_end; ++p )
 			(*p)->setInModule(false);
 	}
-		/// clear the ontology
-	void clear ( void )
+		/// safe clear the ontology (do not remove axioms)
+	void safeClear ( void ) { Axioms.clear(); }
+		/// clear axioms (delete all axioms)
+	void clearAxioms ( void )
 	{
 		for ( iterator p = Axioms.begin(), p_end = Axioms.end(); p < p_end; ++p )
 			delete *p;
-		Axioms.clear();
+		safeClear();
+	}
+		/// clear the ontology
+	void clear ( void )
+	{
+		clearAxioms();
 		Retracted.clear();
 		EManager.clear();
 		axiomToProcess = 0;
 		changed = false;
 	}
-		/// safe clear the ontology (do not remove axioms)
-	void safeClear ( void ) { Axioms.clear(); }
 
 		/// get access to an expression manager
 	TExpressionManager* getExpressionManager ( void ) { return &EManager; }
