@@ -23,6 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "tJNICache.h"
 #include "JNIActor.h"
 #include "eFPPTimeout.h"
+#include "MemoryStat.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -57,6 +58,7 @@ extern "C" {
 JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_isKBConsistent
   (JNIEnv * env, jobject obj)
 {
+	MemoryStatistics MS("Consistency Checking");
 	TRACE_JNI("isKBConsistent");
 	bool ret = false;
 	PROCESS_QUERY ( ret=getK(env,obj)->isKBConsistent() );
@@ -71,6 +73,7 @@ JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_is
 JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_classify
   (JNIEnv * env, jobject obj)
 {
+	MemoryStatistics MS("Classification");
 	TRACE_JNI("classify");
 	PROCESS_QUERY ( getK(env,obj)->classifyKB() );
 }
@@ -83,6 +86,7 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_classi
 JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_realise
   (JNIEnv * env, jobject obj)
 {
+	MemoryStatistics MS("Realization");
 	TRACE_JNI("realise");
 	PROCESS_QUERY ( getK(env,obj)->realiseKB() );
 }
@@ -108,6 +112,7 @@ JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_is
 JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_isClassSatisfiable
   (JNIEnv * env, jobject obj, jobject arg)
 {
+	MemoryStatistics MS("isClassSatisfiable");
 	TRACE_JNI("isClassSatisfiable");
 	TRACE_ARG(env,obj,arg);
 	bool ret = false;
@@ -123,6 +128,7 @@ JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_is
 JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_isClassSubsumedBy
   (JNIEnv * env, jobject obj, jobject arg1, jobject arg2)
 {
+	MemoryStatistics MS("isClassSubsumedBy");
 	TRACE_JNI("isClassSubsumedBy");
 	TRACE_ARG(env,obj,arg1);
 	TRACE_ARG(env,obj,arg2);
@@ -171,6 +177,7 @@ JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_is
 JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_askSubClasses
   (JNIEnv * env, jobject obj, jobject arg, jboolean direct)
 {
+	MemoryStatistics MS("getSubClasses");
 	TRACE_JNI("askSubClasses");
 	TRACE_ARG(env,obj,arg);
 	TJNICache* J = getJ(env,obj);
@@ -188,6 +195,7 @@ JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlu
 JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_askSuperClasses
   (JNIEnv * env, jobject obj, jobject arg, jboolean direct)
 {
+	MemoryStatistics MS("getSuperClasses");
 	TRACE_JNI("askSuperClasses");
 	TRACE_ARG(env,obj,arg);
 	TJNICache* J = getJ(env,obj);

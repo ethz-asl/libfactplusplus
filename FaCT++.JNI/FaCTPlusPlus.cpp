@@ -21,6 +21,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "tJNICache.h"
 #include "JNIMonitor.h"
 #include "configure.h"
+#include "MemoryStat.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -48,6 +49,7 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_initMe
 		Throw ( env, "Can't get 'KernelId' field" );
 		return;
 	}
+	MemoryStatistics MS("init JNI");
 }
 
 //-------------------------------------------------------------
@@ -75,6 +77,7 @@ bool loadConfiguration ( ReasoningKernel* K, const char* file )
 JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_initKernel
   (JNIEnv * env, jobject obj)
 {
+	MemoryStatistics MS("Create Reasoner");
 	// create new kernel and save it in an FaCTPlusPlus object
 	ReasoningKernel* Kernel = new ReasoningKernel();
 	env->SetLongField ( obj, KernelFID, (jlong)Kernel );
@@ -110,6 +113,7 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_initKe
 JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_deleteKernel
   (JNIEnv * env, jobject obj)
 {
+	MemoryStatistics MS("Delete Reasoner");
 	TRACE_JNI("deleteKernel");
 	ReasoningKernel* Kernel = getK(env,obj);
 	delete Kernel->getJNICache();
@@ -126,6 +130,7 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_delete
 JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_clearKernel
   (JNIEnv * env, jobject obj)
 {
+	MemoryStatistics MS("Clear Reasoner");
 	TRACE_JNI("clearKernel");
 	getK(env,obj)->clearKB();
 }
