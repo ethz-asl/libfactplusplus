@@ -264,7 +264,7 @@ ReasoningKernel :: reclassifyNode ( const ClassifiableEntry* entry, bool added, 
 	std::cout << "Creating module (" << Module.size() << " axioms) time: " << timer;// << " sig: " << ModSig << " old: " << OldSig;
 	timer.Reset();
 
-	// renew all signature-2-entry map
+	// save all signature-2-entry map
 	std::map<const TNamedEntity*, TNamedEntry*> KeepMap;
 	TSignature::iterator s, s_end = ModSig.end();
 	for ( s = ModSig.begin(); s != s_end; s++ )
@@ -277,14 +277,17 @@ ReasoningKernel :: reclassifyNode ( const ClassifiableEntry* entry, bool added, 
 	timer.Start();
 	if ( !(ModSig <= OldSig) )	// create new reasoner
 	{
+		// save signature
 		OldSig = ModSig;
+
+		// init the reasoner
 		delete Reasoner;
 		Reasoner = new ReasoningKernel();
 		Reasoner->setUseIncremenmtalReasoning(false);
+
 		TOntology& ontology = Reasoner->getOntology();
 //		std::cout << "Module: \n";
 //		TLISPOntologyPrinter pr(std::cout);
-		subCheckTimer.Start();
 		for ( AxiomVec::iterator p = Module.begin(), p_end = Module.end(); p != p_end; ++p )
 		{
 			ontology.add(*p);
@@ -294,6 +297,9 @@ ReasoningKernel :: reclassifyNode ( const ClassifiableEntry* entry, bool added, 
 		Reasoner->isKBConsistent();
 		timer.Stop();
 		std::cout << "; init reasoner time: " << timer;
+
+		// clear an ontology in a safe way
+		Reasoner->getOntology().safeClear();
 	}
 
 	timer.Reset();
@@ -303,6 +309,7 @@ ReasoningKernel :: reclassifyNode ( const ClassifiableEntry* entry, bool added, 
 	node->removeLinks(/*upDirection=*/true);
 	Actor actor;
 	actor.needConcepts();
+	subCheckTimer.Start();
 	Reasoner->getSupConcepts ( static_cast<const TDLConceptName*>(entry->getEntity()), /*direct=*/true, actor );
 	subCheckTimer.Stop();
 	Actor::Array2D parents;
@@ -315,12 +322,8 @@ ReasoningKernel :: reclassifyNode ( const ClassifiableEntry* entry, bool added, 
 			node->addNeighbour ( /*upDirection=*/true, getCTaxonomy()->getTopVertex() );
 			break;
 		}
-		// this CE is of the Reasoner
-		const TNamedEntity* parent = parentCE->getEntity();
-		// note that the entity maps to the Reasoner, so we need to use saved map
-		const TNamedEntry* localNE = KeepMap[parent];
-//		std::cout << "Set parent " << localNE->getName() << std::endl;
-		node->addNeighbour ( /*upDirection=*/true, dynamic_cast<const ClassifiableEntry*>(localNE)->getTaxVertex() );
+//		std::cout << "Set parent " << parentCE->getName() << std::endl;
+		node->addNeighbour ( /*upDirection=*/true, getTBox()->getConcept(parentCE->getName())->getTaxVertex() );
 	}
 	// actually add node
 	node->incorporate();
@@ -330,8 +333,6 @@ ReasoningKernel :: reclassifyNode ( const ClassifiableEntry* entry, bool added, 
 	timer.Stop();
 	std::cout << "; reclassification time: " << timer << std::endl;
 
-	// clear an ontology in a safe way
-	Reasoner->getOntology().safeClear();
 	// restore all signature-2-entry map
 	for ( s = ModSig.begin(); s != s_end; s++ )
 		const_cast<TNamedEntity*>(*s)->setEntry(KeepMap[*s]);
