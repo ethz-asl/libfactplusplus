@@ -493,13 +493,10 @@ TNECollection<T> :: Load ( istream& i )
 	for ( unsigned int j = 0; j < collSize; ++j )
 	{
 		i.getline ( name, maxLength, '\n' );
-		get(name);
+		neMap.add(get(name));
 	}
 
 	delete [] name;
-
-	// register all entries in the global map
-	neMap.add ( begin(), end() );
 
 	// load all the named entries
 //	for ( iterator p = begin(); p < end(); ++p )
