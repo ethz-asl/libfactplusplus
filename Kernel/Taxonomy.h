@@ -130,6 +130,8 @@ public:		// interface
 	TaxonomyVertex* getCurrent ( void ) { return Current; }
 		/// get RO access to current
 	const TaxonomyVertex* getCurrent ( void ) const { return Current; }
+		/// set current to a given node
+	void setCurrent ( TaxonomyVertex* cur ) { Current = cur; }
 
 		/// apply ACTOR to subgraph starting from NODE as defined by flags;
 	template<bool needCurrent, bool onlyDirect, bool upDirection, class Actor>
@@ -156,7 +158,7 @@ public:		// interface
 	// save/load interface; implementation is in SaveLoad.cpp
 
 		/// save entry
-	void Save ( std::ostream& o ) const;
+	void Save ( std::ostream& o, const std::set<const TNamedEntry*>& excluded ) const;
 		/// load entry
 	void Load ( std::istream& i );
 }; // Taxonomy

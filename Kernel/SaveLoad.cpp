@@ -338,9 +338,10 @@ TBox :: Save ( ostream& o ) const
 	neMap.add(DTCenter.getTimeType()->Element().getNE());
 	neMap.add(DTCenter.getFreshDataType()->Element().getNE());
 	o << "\nC";
-	Concepts.Save(o);
+	std::set<const TNamedEntry*> empty;
+	Concepts.Save(o,empty);
 	o << "\nI";
-	Individuals.Save(o);
+	Individuals.Save(o,empty);
 	o << "\nOR";
 	ORM.Save(o);
 	o << "\nDR";
@@ -350,7 +351,7 @@ TBox :: Save ( ostream& o ) const
 	if ( Status > kbCChecked )
 	{
 		o << "\nCT";
-		pTax->Save(o);
+		pTax->Save(o,empty);
 	}
 	DLHeap.SaveCache(o);
 }
@@ -403,11 +404,8 @@ TBox :: Load ( istream& i, KBStatus status )
 //----------------------------------------------------------
 
 void
-TBox :: ReloadTaxonomy ( void )
+TBox :: SaveTaxonomy ( std::ostream& o, const std::set<const TNamedEntry*>& excluded )
 {
-	const char* filename = "incremental.tax";
-	// save taxonomy
-	std::ofstream o(filename);
 	tvMap.clear();
 	neMap.clear();
 	neMap.add(pBottom);
@@ -415,17 +413,16 @@ TBox :: ReloadTaxonomy ( void )
 	neMap.add(pTemp);
 	neMap.add(pQuery);
 	o << "\nC";
-	Concepts.Save(o);
+	Concepts.Save(o,excluded);
 	o << "\nI";
-	Individuals.Save(o);
+	Individuals.Save(o,excluded);
 	o << "\nCT";
-	pTax->Save(o);
-	o.close();
-	// do actual change
-	delete pTax;
-	delete pTaxCreator;
-	// load the taxonomy
-	std::ifstream i(filename);
+	pTax->Save(o,excluded);
+}
+
+void
+TBox :: LoadTaxonomy ( std::istream& i )
+{
 	tvMap.clear();
 	neMap.clear();
 	neMap.add(pBottom);
@@ -450,14 +447,14 @@ TBox :: ReloadTaxonomy ( void )
 /// Save all the objects in the collection
 template<class T>
 void
-TNECollection<T> :: Save ( ostream& o ) const
+TNECollection<T> :: Save ( ostream& o, const std::set<const TNamedEntry*>& excluded ) const
 {
 	const_iterator p, p_beg = begin(), p_end = end();
 	// get the max length of the identifier in the collection
 	unsigned int maxLength = 0, curLength;
 
 	for ( p = p_beg; p < p_end; ++p )
-		if ( maxLength < (curLength = strlen((*p)->getName())) )
+		if ( /*excluded.count(*p) == 0 && */maxLength < (curLength = strlen((*p)->getName())) )
 			maxLength = curLength;
 
 	// save number of entries and max length of the entry
@@ -469,7 +466,8 @@ TNECollection<T> :: Save ( ostream& o ) const
 
 	// save names of all entries
 	for ( p = p_beg; p < p_end; ++p )
-		o << (*p)->getName() << "\n";
+//		if ( excluded.count(*p) == 0 )
+			o << (*p)->getName() << "\n";
 
 	// save the entries itself
 //	for ( p = p_beg; p < p_end; ++p )
@@ -665,23 +663,25 @@ TRole :: Load ( istream& i )
 //----------------------------------------------------------
 
 void
-Taxonomy :: Save ( ostream& o ) const
+Taxonomy :: Save ( ostream& o, const std::set<const TNamedEntry*>& excluded ) const
 {
 	TaxVertexVec::const_iterator p, p_beg = Graph.begin(), p_end = Graph.end();
 	tvMap.clear();	// it would be it's own map for every taxonomy
 	tvMap.add ( p_beg, p_end );
 
 	// save number of taxonomy elements
-	saveUInt(o,Graph.size());
+	saveUInt(o,Graph.size()/*-excluded.size()*/);
 	o << "\n";
 
 	// save labels for all verteces of the taxonomy
 	for ( p = p_beg; p != p_end; ++p )
-		(*p)->SaveLabel(o);
+//		if ( excluded.count((*p)->getPrimer()) == 0 )
+			(*p)->SaveLabel(o);
 
 	// save the taxonomys hierarchy
 	for ( p = p_beg; p != p_end; ++p )
-		(*p)->SaveNeighbours(o);
+//		if ( excluded.count((*p)->getPrimer()) == 0 )
+			(*p)->SaveNeighbours(o);
 }
 
 void

@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2005-2012 by Dmitry Tsarkov
+Copyright (C) 2005-2013 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -20,6 +20,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #define TNECOLLECTION_H
 
 #include <vector>
+#include <set>
 
 #include "globaldef.h"
 #include "tNamedEntry.h"
@@ -140,7 +141,7 @@ public:		// interface
 	// save/load interface; implementation is in SaveLoad.cpp
 
 		/// Save all the objects in the collection
-	void Save ( std::ostream& o ) const;
+	void Save ( std::ostream& o, const std::set<const TNamedEntry*>& excluded ) const;
 		/// Load all the objects into the collection
 	void Load ( std::istream& i );
 }; // TNECollection

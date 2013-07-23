@@ -35,6 +35,7 @@ bool DLConceptTaxonomy :: testSub ( const TConcept* p, const TConcept* q )
 	fpp_assert ( p != NULL );
 	fpp_assert ( q != NULL );
 
+//	std::cout << "Testing sub " << p->getName() << " [= " << q->getName() << std::endl;
 	if ( q->isSingleton()		// singleton on the RHS is useless iff...
 		 && q->isPrimitive()	// it is primitive
 		 && !q->isNominal() )	// nominals should be classified as usual concepts
@@ -117,7 +118,7 @@ DLConceptTaxonomy :: buildSignature ( ClassifiableEntry* p )
 {
 	if ( tBox.pName2Sig == NULL )
 		return NULL;
-	TBox::NameSigMap::iterator found = tBox.pName2Sig->find(p);
+	TBox::NameSigMap::iterator found = tBox.pName2Sig->find(p->getName());
 	if ( found == tBox.pName2Sig->end() )
 		return NULL;
 	return found->second;
@@ -367,6 +368,86 @@ DLConceptTaxonomy :: mergeSplitVars ( TSplitVar* split )
 		checkExtraParents();
 		pTax->finishCurrentNode();
 	}
+}
+
+void 		/// fill candidates
+DLConceptTaxonomy :: fillCandidates ( TaxonomyVertex* cur )
+{
+//	std::cout << "fill candidates: " << cur->getPrimer()->getName() << std::endl;
+	if ( isValued(cur) )
+	{
+		if ( getValue(cur) )	// positive value -- nothing to do
+			return;
+	}
+	else
+		candidates.insert(cur);
+
+	for ( TaxonomyVertex::iterator p = cur->begin(true), p_end = cur->end(true); p != p_end; ++p )
+		fillCandidates(*p);
+}
+
+
+void
+DLConceptTaxonomy :: reclassify ( TaxonomyVertex* node, const TSignature* s, bool added, bool removed )
+{
+	upDirection = false;
+	sigStack.push(s);
+	curEntry = node->getPrimer();
+	TaxonomyVertex* oldCur = pTax->getCurrent();
+	pTax->setCurrent(node);
+
+	// FIXME!! check the unsatisfiability later
+
+	fpp_assert ( added || removed );
+	typedef std::vector<TaxonomyVertex*> TVArray;
+	clearLabels();
+
+	if ( node->noNeighbours(true) )
+		node->addNeighbour(true, pTax->getTopVertex());
+
+	// we use candidates set if nothing was added (so no need to look further from current subs)
+	useCandidates = !added;
+	candidates.clear();
+	if ( removed )	// re-check all parents
+	{
+		TVArray pos, neg;
+		for ( TaxonomyVertex::iterator p = node->begin(true), p_end = node->end(true); p != p_end; ++p )
+		{
+			bool sub = testSubsumption(*p);
+			setValue ( *p, sub );
+			if ( sub )
+			{
+				pos.push_back(*p);
+				propagateTrueUp(*p);
+			}
+			else
+				neg.push_back(*p);
+		}
+		node->removeLinks(true);
+		for ( TVArray::iterator q = pos.begin(), q_end = pos.end(); q != q_end; ++q )
+			node->addNeighbour(true, *q);
+		if ( useCandidates )
+			for ( TVArray::iterator q = neg.begin(), q_end = neg.end(); q != q_end; ++q )
+				fillCandidates(*q);
+	}
+	else	// all parents are there
+	{
+		for ( TaxonomyVertex::iterator p = node->begin(true), p_end = node->end(true); p != p_end; ++p )
+		{
+			setValue ( *p, true );
+			propagateTrueUp(*p);
+		}
+		node->removeLinks(true);
+	}
+
+	// FIXME!! for now. later check the equivalence etc
+	setValue ( node, false );
+	// the landscape is prepared
+	searchBaader(pTax->getTopVertex());
+	node->incorporate();
+	clearLabels();
+	sigStack.pop();
+	pTax->setCurrent(oldCur);
 }
 
 /********************************************************\

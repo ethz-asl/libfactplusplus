@@ -67,6 +67,10 @@ protected:	// types
 protected:	// members
 		/// host tBox
 	TBox& tBox;
+		/// set of possible parents
+	std::set<TaxonomyVertex*> candidates;
+		/// whether look into it
+	bool useCandidates;
 		/// common descendants of all parents of currently classified concept
 	TaxVertexVec Common;
 		/// number of processed common parents
@@ -144,7 +148,9 @@ protected:	// methods
 		if ( unlikely(upDirection && !cur->isCommon()) )
 			return false;
 		// for top-down search it's enough to look at defined concepts and non-det ones
-		if ( likely(!inSplitCheck && !upDirection) && !possibleSub(cur) )
+//		if ( likely(!inSplitCheck && !upDirection) && !possibleSub(cur) )
+//			return false;
+		if ( unlikely ( useCandidates && candidates.find(cur) != candidates.end() ) )
 			return false;
 		return enhancedSubs1(cur);
 	}
@@ -186,6 +192,8 @@ protected:	// methods
 	}
 		/// check if concept is unsat; add it as a synonym of BOTTOM if necessary
 	bool isUnsatisfiable ( void );
+		/// fill candidates
+	void fillCandidates ( TaxonomyVertex* cur );
 
 	//-----------------------------------------------------------------
 	//--	Tunable methods (depending on taxonomy type)
@@ -259,6 +267,7 @@ public:		// interface
 	DLConceptTaxonomy ( Taxonomy* tax, TBox& kb )
 		: TaxonomyCreator(tax)
 		, tBox(kb)
+		, useCandidates(false)
 		, nConcepts (0), nTries (0), nPositives (0), nNegatives (0)
 		, nSearchCalls(0)
 		, nSubCalls(0)
@@ -282,6 +291,8 @@ public:		// interface
 	}
 		/// set bottom-up flag
 	void setBottomUp ( const TKBFlags& GCIs ) { flagNeedBottomUp = (GCIs.isGCI() || (GCIs.isReflexive() && GCIs.isRnD())); }
+		/// reclassify node
+	void reclassify ( TaxonomyVertex* node, const TSignature* s, bool added, bool removed );
 		/// set progress indicator
 	void setProgressIndicator ( TProgressMonitor* pMon ) { pTaxProgress = pMon; }
 		/// output taxonomy to a stream
@@ -335,6 +346,12 @@ TBox :: classifyEntry ( TConcept* entry )
 		classifyEntry(getBlockingInd(entry));	// make sure that the possible synonym is already classified
 	if ( !entry->isClassified() )
 		pTaxCreator->classifyEntry(entry);
+}
+
+inline void
+TBox :: reclassify ( TaxonomyVertex* node, const TSignature* s, bool added, bool removed )
+{
+	pTaxCreator->reclassify ( node, s, added, removed );
 }
 
 #endif // DLCONCEPTTAXONOMY_H

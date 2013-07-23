@@ -113,7 +113,7 @@ protected:	// members
 		/// told subsumers corresponding to a given entry
 	SearchableStack <KnownSubsumers*> ksStack;
 		/// signature of a \bot-module corresponding to a given entry
-	SearchableStack <TSignature*> sigStack;
+	SearchableStack <const TSignature*> sigStack;
 
 private:	// no copy
 		/// no copy c'tor
@@ -202,7 +202,7 @@ protected:	// methods
 	virtual KnownSubsumers* buildKnownSubsumers ( ClassifiableEntry* p )
 		{ return new ToldSubsumers(p->told_begin(), p->told_end()); }
 		/// prepare signature for given entry
-	virtual TSignature* buildSignature ( ClassifiableEntry* p ATTR_UNUSED ) { return NULL; }
+	virtual const TSignature* buildSignature ( ClassifiableEntry* p ATTR_UNUSED ) { return NULL; }
 		/// add top entry together with its known subsumers
 	void addTop ( ClassifiableEntry* p )
 	{

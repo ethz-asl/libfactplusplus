@@ -69,7 +69,7 @@ public:		// type interface
 		/// vector of SINGLETON-like elements
 	typedef std::vector<TIndividual*> SingletonVector;
 		/// map between names and corresponding module signatures
-	typedef std::map<const ClassifiableEntry*, TSignature*> NameSigMap;
+	typedef std::map<std::string, TSignature*> NameSigMap;
 
 protected:	// types
 		/// type for DISJOINT-like statements
@@ -1155,6 +1155,8 @@ public:
 	void performClassification ( void ) { createTaxonomy ( /*needIndividuals=*/false ); }
 		/// perform realisation (assuming KB is consistent)
 	void performRealisation ( void ) { createTaxonomy ( /*needIndividuals=*/true ); }
+		/// reclassify node
+	void reclassify ( TaxonomyVertex* node, const TSignature* s, bool added, bool removed );
 
 		/// get (READ-WRITE) access to internal Taxonomy of concepts
 	Taxonomy* getTaxonomy ( void ) { return pTax; }
@@ -1268,9 +1270,11 @@ public:
 		/// save the KB into the given stream
 	void Save ( std::ostream& o ) const;
 		/// load the KB from given stream wrt STATUS
-	void Load ( std::istream& o, KBStatus status );
-		/// reload taxonomy (used in the incremental)
-	void ReloadTaxonomy ( void );
+	void Load ( std::istream& i, KBStatus status );
+		/// save taxonomy with names (used in the incremental)
+	void SaveTaxonomy ( std::ostream& o, const std::set<const TNamedEntry*>& excluded );
+		/// load taxonomy with names (used in the incremental)
+	void LoadTaxonomy ( std::istream& i );
 }; // TBox
 
 #endif
