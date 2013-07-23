@@ -16,6 +16,7 @@ SOURCES = \
 	Modularity.cpp\
 	Queries.cpp\
 	SaveLoad.cpp\
+	MemoryStat.cpp\
 	FaCTPlusPlus.cpp
 
 include ../Makefile.include
