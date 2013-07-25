@@ -150,7 +150,7 @@ protected:	// methods
 		// for top-down search it's enough to look at defined concepts and non-det ones
 //		if ( likely(!inSplitCheck && !upDirection) && !possibleSub(cur) )
 //			return false;
-		if ( unlikely ( useCandidates && candidates.find(cur) != candidates.end() ) )
+		if ( unlikely ( useCandidates && candidates.find(cur) == candidates.end() ) )
 			return false;
 		return enhancedSubs1(cur);
 	}
