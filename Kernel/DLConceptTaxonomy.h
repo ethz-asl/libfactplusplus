@@ -67,6 +67,8 @@ protected:	// types
 protected:	// members
 		/// host tBox
 	TBox& tBox;
+		/// incremental sets M+ and M-
+	std::set<std::string> MPlus, MMinus;
 		/// set of possible parents
 	std::set<TaxonomyVertex*> candidates;
 		/// whether look into it
@@ -178,6 +180,8 @@ protected:	// methods
 	}
 		/// @return true if non-subsumption is due to ENTITY is not in the \bot-module
 	bool isNotInModule ( const TNamedEntity* entity ) const;
+		/// reclassify node
+	void reclassify ( TaxonomyVertex* node, const TSignature* s );
 
 		/// propagate common value from NODE to all its descendants; save visited nodes
 	void propagateOneCommon ( TaxonomyVertex* node );
@@ -291,8 +295,8 @@ public:		// interface
 	}
 		/// set bottom-up flag
 	void setBottomUp ( const TKBFlags& GCIs ) { flagNeedBottomUp = (GCIs.isGCI() || (GCIs.isReflexive() && GCIs.isRnD())); }
-		/// reclassify node
-	void reclassify ( TaxonomyVertex* node, const TSignature* s, bool added, bool removed );
+		/// reclassify taxonomy wrt changed sets
+	void reclassify ( const std::set<std::string>& MPlus, const std::set<std::string>& MMinus );
 		/// set progress indicator
 	void setProgressIndicator ( TProgressMonitor* pMon ) { pTaxProgress = pMon; }
 		/// output taxonomy to a stream
@@ -349,9 +353,9 @@ TBox :: classifyEntry ( TConcept* entry )
 }
 
 inline void
-TBox :: reclassify ( TaxonomyVertex* node, const TSignature* s, bool added, bool removed )
+TBox :: reclassify ( const std::set<std::string>& MPlus, const std::set<std::string>& MMinus )
 {
-	pTaxCreator->reclassify ( node, s, added, removed );
+	pTaxCreator->reclassify ( MPlus, MMinus );
 }
 
 #endif // DLCONCEPTTAXONOMY_H

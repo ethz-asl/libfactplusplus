@@ -26,6 +26,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "globaldef.h"
 #include "logging.h"
 
+#include <queue>
+
 /********************************************************\
 |* 			Implementation of class Taxonomy			*|
 \********************************************************/
@@ -386,9 +388,56 @@ DLConceptTaxonomy :: fillCandidates ( TaxonomyVertex* cur )
 		fillCandidates(*p);
 }
 
+void
+DLConceptTaxonomy ::  reclassify ( const std::set<std::string>& plus, const std::set<std::string>& minus )
+{
+	MPlus = plus;
+	MMinus = minus;
+	pTax->deFinalise();
+
+	// fill in an order to
+	std::queue<TaxonomyVertex*> queue;
+	std::vector<const ClassifiableEntry*> toProcess;
+	queue.push(pTax->getTopVertex());
+	while ( !queue.empty() )
+	{
+		TaxonomyVertex* cur = queue.front();
+		queue.pop();
+		if ( pTax->isVisited(cur) )
+			continue;
+		pTax->setVisited(cur);
+		const ClassifiableEntry* entry = cur->getPrimer();
+		if ( MPlus.find(entry->getName()) != MPlus.end() || MMinus.find(entry->getName()) != MMinus.end() )
+			toProcess.push_back(entry);
+		for ( TaxonomyVertex::iterator p = cur->begin(/*upDirection=*/false), p_end = cur->end(/*upDirection=*/false); p != p_end; ++p )
+			queue.push(*p);
+	}
+	pTax->clearVisited();
+//	std::cout << "Add/Del names Taxonomy:\n";
+//	pTax->print(std::cout);
+
+	for ( std::vector<const ClassifiableEntry*>::iterator p = toProcess.begin(), p_end = toProcess.end(); p != p_end; ++p )
+	{
+		const ClassifiableEntry* entry = *p;
+		TaxonomyVertex* node = entry->getTaxVertex();
+		std::cout << "Reclassify " << entry->getName() << " (" << (MPlus.count(entry->getName()) > 0 ?"Added":"") << (MMinus.count(entry->getName()) > 0 ?" Removed":"") << ")";
+
+		TsProcTimer timer;
+		timer.Start();
+		reclassify ( node, (*tBox.pName2Sig)[entry->getName()] );
+		timer.Stop();
+		std::cout << "; reclassification time: " << timer << std::endl;
+//		tax->print(std::cout);
+//		std::cout.flush();
+	}
+
+	pTax->finalise();
+//	pTax->print(std::cout);
+//	std::cout.flush();
+}
 
 void
-DLConceptTaxonomy :: reclassify ( TaxonomyVertex* node, const TSignature* s, bool added, bool removed )
+DLConceptTaxonomy :: reclassify ( TaxonomyVertex* node, const TSignature* s )
 {
 	upDirection = false;
 	sigStack.push(s);
@@ -398,6 +447,8 @@ DLConceptTaxonomy :: reclassify ( TaxonomyVertex* node, const TSignature* s, boo
 
 	// FIXME!! check the unsatisfiability later
 
+	bool added = MPlus.count(curEntry->getName()) > 0;
+	bool removed = MMinus.count(curEntry->getName()) > 0;
 	fpp_assert ( added || removed );
 	typedef std::vector<TaxonomyVertex*> TVArray;
 	clearLabels();

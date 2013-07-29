@@ -1153,8 +1153,8 @@ public:
 	void performClassification ( void ) { createTaxonomy ( /*needIndividuals=*/false ); }
 		/// perform realisation (assuming KB is consistent)
 	void performRealisation ( void ) { createTaxonomy ( /*needIndividuals=*/true ); }
-		/// reclassify node
-	void reclassify ( TaxonomyVertex* node, const TSignature* s, bool added, bool removed );
+		/// reclassify taxonomy wrt changed sets
+	void reclassify ( const std::set<std::string>& MPlus, const std::set<std::string>& MMinus );
 
 		/// get (READ-WRITE) access to internal Taxonomy of concepts
 	Taxonomy* getTaxonomy ( void ) { return pTax; }

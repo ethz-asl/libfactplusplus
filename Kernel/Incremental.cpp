@@ -62,6 +62,7 @@ ReasoningKernel :: initIncremental ( void )
 	delete ModSyn;
 	ModSyn = NULL;
 	// fill the module signatures of the concepts
+	Name2Sig.clear();
 	for ( TBox::c_const_iterator p = getTBox()->c_begin(), p_end = getTBox()->c_end(); p != p_end; ++p )
 		setupSig((*p)->getEntity());
 
@@ -181,6 +182,7 @@ ReasoningKernel :: doIncremental ( void )
 
 	}
 	t.Stop();
+	std::cout << "Determine concepts that need reclassification: done in " << t << std::endl;
 
 	tax->finalise();
 //	std::cout << "Adjusted Taxonomy:";
@@ -195,6 +197,7 @@ ReasoningKernel :: doIncremental ( void )
 	// do actual change
 	useIncremenmtalReasoning = false;
 	forceReload();
+	pTBox->setNameSigMap(&Name2Sig);
 	pTBox->isConsistent();
 	useIncremenmtalReasoning = true;
 
@@ -207,41 +210,9 @@ ReasoningKernel :: doIncremental ( void )
 //	tax->print(std::cout);
 //	std::cout.flush();
 
-	tax->deFinalise();
-
-	// fill in an order to
-	std::queue<TaxonomyVertex*> queue;
-	std::vector<const ClassifiableEntry*> toProcess;
-	queue.push(tax->getTopVertex());
-	while ( !queue.empty() )
-	{
-		TaxonomyVertex* cur = queue.front();
-		queue.pop();
-		if ( tax->isVisited(cur) )
-			continue;
-		tax->setVisited(cur);
-		const ClassifiableEntry* entry = cur->getPrimer();
-		if ( MPlus.find(entry->getName()) != MPlus.end() || MMinus.find(entry->getName()) != MMinus.end() )
-			toProcess.push_back(entry);
-		for ( TaxonomyVertex::iterator p = cur->begin(/*upDirection=*/false), p_end = cur->end(/*upDirection=*/false); p != p_end; ++p )
-			queue.push(*p);
-	}
-	tax->clearVisited();
-	std::cout << "Determine concepts that need reclassification (" << toProcess.size() << "): done in " << t << std::endl;
-
-//	std::cout << "Add/Del names Taxonomy:\n";
-//	tax->print(std::cout);
-
-	for ( std::vector<const ClassifiableEntry*>::iterator p = toProcess.begin(), p_end = toProcess.end(); p != p_end; ++p )
-	{
-		reclassifyNode ( *p, MPlus.find((*p)->getName()) != MPlus.end(), MMinus.find((*p)->getName()) != MMinus.end() );
-//		tax->print(std::cout);
-//		std::cout.flush();
-	}
-
-	tax->finalise();
-//	tax->print(std::cout);
-//	std::cout.flush();
+	subCheckTimer.Start();
+	getTBox()->reclassify ( MPlus, MMinus );
+	subCheckTimer.Stop();
 	Ontology.setProcessed();
 	std::cout << "Total modularization (" << nModule << ") time: " << moduleTimer << "\nTotal reasoning time: " << subCheckTimer << std::endl;
 }
@@ -259,14 +230,4 @@ static std::ostream& operator << ( std::ostream& o, const TSignature& sig )
 void
 ReasoningKernel :: reclassifyNode ( const ClassifiableEntry* entry, bool added, bool removed )
 {
-	TaxonomyVertex* node = entry->getTaxVertex();
-	std::cout << "Reclassify " << entry->getName() << " (" << (added?"Added":"") << (removed?" Removed":"") << ")";
-
-	TsProcTimer timer;
-	timer.Start();
-	subCheckTimer.Start();
-	getTBox()->reclassify ( node, Name2Sig[entry->getName()], added, removed );
-	subCheckTimer.Stop();
-	timer.Stop();
-	std::cout << "; reclassification time: " << timer << std::endl;
 }
