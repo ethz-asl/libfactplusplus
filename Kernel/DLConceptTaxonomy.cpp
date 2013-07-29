@@ -182,6 +182,8 @@ DLConceptTaxonomy :: enhancedSubs1 ( TaxonomyVertex* cur )
 
 	// need to be valued -- check all parents
 	// propagate false
+	// do this only if the concept is not it M-
+	if ( MMinus.empty() || MMinus.count(cur->getPrimer()->getName()) == 0 )
 	for ( TaxonomyVertex::iterator p = cur->begin(!upDirection), p_end = cur->end(!upDirection); p != p_end; ++p )
 		if ( !enhancedSubs(*p) )
 			return false;

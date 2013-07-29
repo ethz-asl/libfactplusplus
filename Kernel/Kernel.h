@@ -502,8 +502,6 @@ protected:	// methods
 	void initIncremental ( void );
 		/// incrementally classify changes
 	void doIncremental ( void );
-		/// reclassify (incrementally) ENTRY wrt ADDED or REMOVED flags
-	void reclassifyNode ( const ClassifiableEntry* entry, bool added, bool removed );
 
 	//----------------------------------------------
 	//-- save/load support; implementation in SaveLoad.cpp

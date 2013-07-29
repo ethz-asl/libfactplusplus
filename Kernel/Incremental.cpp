@@ -225,9 +225,3 @@ static std::ostream& operator << ( std::ostream& o, const TSignature& sig )
 	o << "]" << std::endl;
 	return o;
 }
-
-/// reclassify (incrementally) NODE wrt ADDED or REMOVED flags
-void
-ReasoningKernel :: reclassifyNode ( const ClassifiableEntry* entry, bool added, bool removed )
-{
-}
