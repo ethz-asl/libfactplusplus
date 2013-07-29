@@ -20,13 +20,31 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "MemoryStat.h"
 
-#if 0
+// set to 1 for memory logging
+#define USE_MEMORY_LOG 0
+
+#if USE_MEMORY_LOG
 std::ofstream StatLogFile("MemoryLog.txt");
+#endif
 
-#include<mach/mach.h>
+#ifdef __linux__
+#	include <sys/sysinfo.h>
+#endif
 
-static long getProcessMemory ( void )
+#ifdef __APPLE__
+#	include <mach/mach.h>
+#endif
+
+#ifdef _WINDOWS
+#	include <windows.h>
+#	include <psapi.h>
+#else
+#	include <sys/resource.h>
+#endif
+
+static size_t getProcessMemory ( bool resident = true )
 {
+#ifdef __APPLE__
 	struct task_basic_info t_info;
 	mach_msg_type_number_t t_info_count = TASK_BASIC_INFO_COUNT;
 
@@ -34,28 +52,23 @@ static long getProcessMemory ( void )
                               	  TASK_BASIC_INFO, (task_info_t)&t_info,
                               	  &t_info_count))
 		return 0;
-	return t_info.resident_size;
-}
-
-#include "windows.h"
-#include "psapi.h"
-
-static long getProcessMemory ( void )
-{
+	return resident ? t_info.resident_size : t_info.virtual_size;
+#elif defined(_WINDOWS)
 	PROCESS_MEMORY_COUNTERS_EX pmc;
 	if ( 0 == GetProcessMemoryInfo(GetCurrentProcess(), &pmc, sizeof(pmc)) )
 		return 0;
-	SIZE_T virtualMemUsedByMe = pmc.PrivateUsage;
-	SIZE_T physMemUsedByMe = pmc.WorkingSetSize;
-	return physMemUsedByMe;
+//	return resident ? pmc.WorkingSetSize : pmc.PrivateUsage;
+	return resident ? pmc.WorkingSetSize : pmc.PagefileUsage;
+#else	// undefined platform
+	return 0;
+#endif
 }
 
 MemoryStatistics :: ~MemoryStatistics ( void )
 {
+#if USE_MEMORY_LOG
 	timer.Stop();
 	StatLogFile << operation.c_str() << ": time " << timer << " sec, memory " << getProcessMemory()/1024 << " kb\n";
 	timer.Reset();
-}
-#else
-MemoryStatistics :: ~MemoryStatistics ( void ) {}
 #endif
+}
