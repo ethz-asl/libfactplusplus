@@ -860,15 +860,6 @@ bool ReasoningKernel :: initOptions ( void )
 		) )
 		return true;
 
-	// register "useELReasoner" option (24/02/2012)
-	if ( KernelOptions.RegisterOption (
-		"useELReasoner",
-		"Option 'useELReasoner' forces FaCT++ to use the EL reasoner and exit instead of performing classification",
-		ifOption::iotBool,
-		"false"
-		) )
-		return true;
-
 	// register "dumpOntology" option (28/03/2013)
 	if ( KernelOptions.RegisterOption (
 		"dumpOntology",

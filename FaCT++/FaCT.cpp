@@ -29,9 +29,6 @@ Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #include "Kernel.h"
 #include "cpm.h"
 
-#include "ELFNormalizer.h"
-#include "ELFReasoner.h"
-
 TsProcTimer totalTimer, wTimer;
 Configuration Config;
 ReasoningKernel Kernel;
@@ -265,27 +262,6 @@ int main ( int argc, char *argv[] )
 	if ( Kernel.getOptions()->getBool("checkAD") )	// check atomic decomposition and exit
 	{
 		CreateAD(&Kernel.getOntology(), useSem);
-		return 0;
-	}
-
-	if ( Kernel.getOptions()->getBool("useELReasoner") )	// run ELF reasoner and exit
-	{
-		ELFAxiomChecker ac;
-		TOntology& Ontology = Kernel.getOntology();
-		ac.visitOntology(Ontology);
-		if ( ac )
-		{
-			std::cerr << "Normalizing EL ontology... ";
-			ELFNormalizer normalizer(Kernel.getExpressionManager());
-			normalizer.visitOntology(Ontology);
-			std::cerr << "done\nLoading EL ontology... ";
-			ELFReasoner reasoner(Ontology);
-			std::cerr << "done\nClassifying EL ontology... ";
-			reasoner.classify();
-			std::cerr << "done\n";
-		}
-		else
-			std::cerr << "Not an EL ontology. Nothing to do\n";
 		return 0;
 	}
 
