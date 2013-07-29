@@ -29,19 +29,18 @@ int nModule = 0;
 
 /// setup Name2Sig for a given name C
 void
-ReasoningKernel :: setupSig ( const ClassifiableEntry* C )
+ReasoningKernel :: setupSig ( const TNamedEntity* entity )
 {
-	moduleTimer.Start();
-	// get the entity; do nothing if doesn't exist
-	const TNamedEntity* entity = C->getEntity();
+	// do nothing if entity doesn't exist
 	if ( entity == NULL )
 		return;
 
+	moduleTimer.Start();
 	// prepare a place to update
 	TSignature sig;
-	NameSigMap::iterator insert = Name2Sig.find(C->getName());
+	NameSigMap::iterator insert = Name2Sig.find(entity->getName());
 	if ( insert == Name2Sig.end() )
-		insert = Name2Sig.insert(std::make_pair(C->getName(),&sig)).first;
+		insert = Name2Sig.insert(std::make_pair(entity->getName(),&sig)).first;
 	else
 		delete insert->second;
 
@@ -64,7 +63,7 @@ ReasoningKernel :: initIncremental ( void )
 	ModSyn = NULL;
 	// fill the module signatures of the concepts
 	for ( TBox::c_const_iterator p = getTBox()->c_begin(), p_end = getTBox()->c_end(); p != p_end; ++p )
-		setupSig(*p);
+		setupSig((*p)->getEntity());
 
 	getTBox()->setNameSigMap(&Name2Sig);
 	// fill in ontology signature
@@ -115,7 +114,7 @@ ReasoningKernel :: doIncremental ( void )
 			TreeDeleter TD(this->e(cName));
 			TConcept* C = dynamic_cast<TConcept*>(cName->getEntry());
 			// create sig for it
-			setupSig(C);
+			setupSig(cName);
 			// init the taxonomy element
 			TaxonomyVertex* cur = tax->getCurrent();
 			cur->clear();
@@ -142,13 +141,14 @@ ReasoningKernel :: doIncremental ( void )
 //		std::cout << "Del:";
 //		(*p)->accept(pr);
 //	}
-	// TODO: add new sig here
 	for ( NameSigMap::iterator p = Name2Sig.begin(), p_end = Name2Sig.end(); p != p_end; ++p )
 	{
 		lc->setSignatureValue(*p->second);
+		bool changed = false;
 		for ( TOntology::iterator notProcessed = nb; notProcessed != ne; ++notProcessed )
 			if ( !lc->local(*notProcessed) )
 			{
+				changed = true;
 				MPlus.insert(p->first);
 //				std::cout << "Non-local NP axiom ";
 //				(*notProcessed)->accept(pr);
@@ -158,6 +158,7 @@ ReasoningKernel :: doIncremental ( void )
 		for ( TOntology::iterator retracted = rb; retracted != re; retracted++ )
 			if ( !lc->local(*retracted) )
 			{
+				changed = true;
 				MMinus.insert(p->first);
 				// FIXME!! only concepts for now
 				TaxonomyVertex* v = pTBox->getConcept(p->first)->getTaxVertex();
@@ -171,6 +172,13 @@ ReasoningKernel :: doIncremental ( void )
 //				std::cout << " wrt " << p->first->getName() << std::endl;
 				break;
 			}
+		if ( changed )
+		{
+			// FIXME!! check individuals later on
+			setupSig(getExpressionManager()->Concept(p->first));
+//			std::cout << "Creating module (" << getModExtractor(false)->getModularizer()->getModule().size() << " axioms) time: " << timer;// << " sig: " << ModSig << " old: " << OldSig;
+		}
+
 	}
 	t.Stop();
 
@@ -252,21 +260,12 @@ void
 ReasoningKernel :: reclassifyNode ( const ClassifiableEntry* entry, bool added, bool removed )
 {
 	TaxonomyVertex* node = entry->getTaxVertex();
-	std::cout << "Reclassify " << entry->getName() << " (" << (added?"Added":"") << (removed?" Removed":"") << ")" << std::endl;
+	std::cout << "Reclassify " << entry->getName() << " (" << (added?"Added":"") << (removed?" Removed":"") << ")";
 
 	TsProcTimer timer;
 	timer.Start();
-	// update Name2Sig
-	setupSig(entry);
-	const TSignature ModSig = getModExtractor(false)->getModularizer()->getSignature();
-	timer.Stop();
-	std::cout << "Creating module (" << getModExtractor(false)->getModularizer()->getModule().size() << " axioms) time: " << timer;// << " sig: " << ModSig << " old: " << OldSig;
-	timer.Reset();
-
-	timer.Start();
-	timer.Start();
 	subCheckTimer.Start();
-	getTBox()->reclassify ( node, &ModSig, added, removed );
+	getTBox()->reclassify ( node, Name2Sig[entry->getName()], added, removed );
 	subCheckTimer.Stop();
 	timer.Stop();
 	std::cout << "; reclassification time: " << timer << std::endl;

@@ -496,8 +496,8 @@ protected:	// methods
 	//-- incremental reasoning support; implementation in Incremental.cpp
 	//----------------------------------------------
 
-		/// setup Name2Sig for a given name C
-	void setupSig ( const ClassifiableEntry* C );
+		/// setup Name2Sig for a given ENTITY
+	void setupSig ( const TNamedEntity* entity );
 		/// initialise the incremental bits on full reload
 	void initIncremental ( void );
 		/// incrementally classify changes
