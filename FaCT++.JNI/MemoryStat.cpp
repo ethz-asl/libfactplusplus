@@ -54,7 +54,7 @@ static size_t getProcessMemory ( bool resident = true )
 		return 0;
 	return resident ? t_info.resident_size : t_info.virtual_size;
 #elif defined(_WINDOWS)
-	PROCESS_MEMORY_COUNTERS_EX pmc;
+	PROCESS_MEMORY_COUNTERS pmc;
 	if ( 0 == GetProcessMemoryInfo(GetCurrentProcess(), &pmc, sizeof(pmc)) )
 		return 0;
 //	return resident ? pmc.WorkingSetSize : pmc.PrivateUsage;
