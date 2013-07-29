@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2010-2012 by Dmitry Tsarkov
+Copyright (C) 2010-2013 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -181,11 +181,11 @@ public:		// interface
 	// concepts
 
 		/// get TOP concept
-	TDLConceptExpression* Top ( void ) const { return CTop; }
+	TDLConceptTop* Top ( void ) const { return CTop; }
 		/// get BOTTOM concept
-	TDLConceptExpression* Bottom ( void ) const { return CBottom; }
+	TDLConceptBottom* Bottom ( void ) const { return CBottom; }
 		/// get named concept
-	TDLConceptExpression* Concept ( const std::string& name ) { return NS_C.insert(name); }
+	TDLConceptName* Concept ( const std::string& name ) { return NS_C.insert(name); }
 		/// get negation of a concept C
 	TDLConceptExpression* Not ( const TDLConceptExpression* C ) { return record(new TDLConceptNot(C)); }
 		/// get an n-ary conjunction expression; take the arguments from the last argument list
@@ -252,7 +252,7 @@ public:		// interface
 	// individuals
 
 		/// get named individual
-	TDLIndividualExpression* Individual ( const std::string& name ) { return NS_I.insert(name); }
+	TDLIndividualName* Individual ( const std::string& name ) { return NS_I.insert(name); }
 
 	// object roles
 
@@ -261,7 +261,7 @@ public:		// interface
 		/// get BOTTOM object role
 	TDLObjectRoleExpression* ObjectRoleBottom ( void ) const { return ORBottom; }
 		/// get named object role
-	TDLObjectRoleExpression* ObjectRole ( const std::string& name ) { return NS_OR.insert(name); }
+	TDLObjectRoleName* ObjectRole ( const std::string& name ) { return NS_OR.insert(name); }
 		/// get an inverse of a given object role expression R
 	TDLObjectRoleExpression* Inverse ( const TDLObjectRoleExpression* R ) { return InverseRoleCache.get(R); }
 		/// get a role chain corresponding to R1 o ... o Rn; take the arguments from the last argument list
@@ -280,7 +280,7 @@ public:		// interface
 		/// get BOTTOM data role
 	TDLDataRoleExpression* DataRoleBottom ( void ) const { return DRBottom; }
 		/// get named data role
-	TDLDataRoleExpression* DataRole ( const std::string& name ) { return NS_DR.insert(name); }
+	TDLDataRoleName* DataRole ( const std::string& name ) { return NS_DR.insert(name); }
 
 	// data expressions
 
