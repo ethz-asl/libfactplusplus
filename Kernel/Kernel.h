@@ -496,8 +496,8 @@ protected:	// methods
 	//-- incremental reasoning support; implementation in Incremental.cpp
 	//----------------------------------------------
 
-		/// setup Name2Sig for a given name C; @return a \bot-module for C
-	AxiomVec setupSig ( const ClassifiableEntry* C );
+		/// setup Name2Sig for a given name C
+	void setupSig ( const ClassifiableEntry* C );
 		/// initialise the incremental bits on full reload
 	void initIncremental ( void );
 		/// incrementally classify changes

@@ -27,21 +27,16 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 TsProcTimer moduleTimer, subCheckTimer;
 int nModule = 0;
-IncrementalClassifier* Classifier = NULL;
-ReasoningKernel* Reasoner = new ReasoningKernel();
-TSignature OldSig;
 
 /// setup Name2Sig for a given name C
-AxiomVec
+void
 ReasoningKernel :: setupSig ( const ClassifiableEntry* C )
 {
-	AxiomVec ret;
-
 	moduleTimer.Start();
 	// get the entity; do nothing if doesn't exist
 	const TNamedEntity* entity = C->getEntity();
 	if ( entity == NULL )
-		return ret;
+		return;
 
 	// prepare a place to update
 	TSignature sig;
@@ -53,15 +48,13 @@ ReasoningKernel :: setupSig ( const ClassifiableEntry* C )
 
 	// calculate a module
 	sig.add(entity);
-	ret = getModExtractor(false)->getModule(sig,M_BOT);
+	getModExtractor(false)->getModule(sig,M_BOT);
 	++nModule;
 
 	// perform update
 	insert->second = new TSignature(getModExtractor(false)->getModularizer()->getSignature());
 
 	moduleTimer.Stop();
-
-	return ret;
 }
 
 /// initialise the incremental bits on full reload
@@ -87,9 +80,6 @@ ReasoningKernel :: doIncremental ( void )
 	// re-set the modularizer to use updated ontology
 	delete ModSyn;
 	ModSyn = NULL;
-	delete Reasoner;
-	Reasoner = new ReasoningKernel();
-	OldSig = TSignature();
 
 	std::set<std::string> MPlus, MMinus;
 	std::set<const TNamedEntry*> excluded;
@@ -235,33 +225,16 @@ ReasoningKernel :: doIncremental ( void )
 //	std::cout << "Add/Del names Taxonomy:\n";
 //	tax->print(std::cout);
 
-//	Classifier = new IncrementalClassifier(tax);
-	std::set<const ClassifiableEntry*> Processed;
 	for ( std::vector<const ClassifiableEntry*>::iterator p = toProcess.begin(), p_end = toProcess.end(); p != p_end; ++p )
-		if ( Processed.count(*p) == 0 )
-		{
-			reclassifyNode ( *p, MPlus.find((*p)->getName()) != MPlus.end(), MMinus.find((*p)->getName()) != MMinus.end() );
-//			tax->print(std::cout);
-//			std::cout.flush();
-			for ( std::vector<const ClassifiableEntry*>::iterator q = p+1; q != p_end; ++q )
-				if ( Processed.count(*q) == 0 && OldSig.contains((*q)->getEntity()) )	// same module
-				{
-					reclassifyNode ( *q, MPlus.find((*q)->getName()) != MPlus.end(), MMinus.find((*q)->getName()) != MMinus.end() );
-//					tax->print(std::cout);
-//					std::cout.flush();
-					Processed.insert(*q);
-				}
-		}
-
-//	for ( std::set<const ClassifiableEntry*>::iterator p = MAll.begin(), p_end = MAll.end(); p != p_end; ++p )
-//	{
-//		reclassifyNode ( (*p)->getTaxVertex(), MPlus.find(*p) != MPlus.end(), MMinus.find(*p) != MMinus.end() );
-////		tax->print(std::cout);
+	{
+		reclassifyNode ( *p, MPlus.find((*p)->getName()) != MPlus.end(), MMinus.find((*p)->getName()) != MMinus.end() );
+//		tax->print(std::cout);
 //		std::cout.flush();
-//	}
+	}
+
 	tax->finalise();
-//			tax->print(std::cout);
-//			std::cout.flush();
+//	tax->print(std::cout);
+//	std::cout.flush();
 	Ontology.setProcessed();
 	std::cout << "Total modularization (" << nModule << ") time: " << moduleTimer << "\nTotal reasoning time: " << subCheckTimer << std::endl;
 }
@@ -285,86 +258,17 @@ ReasoningKernel :: reclassifyNode ( const ClassifiableEntry* entry, bool added, 
 	TsProcTimer timer;
 	timer.Start();
 	// update Name2Sig
-	AxiomVec Module = setupSig(entry);
+	setupSig(entry);
 	const TSignature ModSig = getModExtractor(false)->getModularizer()->getSignature();
 	timer.Stop();
-	std::cout << "Creating module (" << Module.size() << " axioms) time: " << timer;// << " sig: " << ModSig << " old: " << OldSig;
+	std::cout << "Creating module (" << getModExtractor(false)->getModularizer()->getModule().size() << " axioms) time: " << timer;// << " sig: " << ModSig << " old: " << OldSig;
 	timer.Reset();
 
-	// save all signature-2-entry map
-//	std::map<const TNamedEntity*, TNamedEntry*> KeepMap;
-//	TSignature::iterator s, s_end = ModSig.end();
-//	for ( s = ModSig.begin(); s != s_end; s++ )
-//	{
-//		const TNamedEntity* entity = *s;
-//		KeepMap[entity] = entity->getEntry();
-//		const_cast<TNamedEntity*>(entity)->setEntry(NULL);
-//	}
-
 	timer.Start();
-//	if ( !(ModSig <= OldSig) )	// create new reasoner
-//	{
-//		// save signature
-//		OldSig = ModSig;
-//
-//		// init the reasoner
-//		delete Reasoner;
-//		Reasoner = new ReasoningKernel();
-//		Reasoner->setUseIncremenmtalReasoning(false);
-//
-//		TOntology& ontology = Reasoner->getOntology();
-////		std::cout << "Module: \n";
-////		TLISPOntologyPrinter pr(std::cout);
-//		for ( AxiomVec::iterator p = Module.begin(), p_end = Module.end(); p != p_end; ++p )
-//		{
-//			ontology.add(*p);
-////			(*p)->accept(pr);
-//		}
-//		std::cout.flush();
-//		Reasoner->isKBConsistent();
-//		timer.Stop();
-//		std::cout << "; init reasoner time: " << timer;
-//
-//		// clear an ontology in a safe way
-//		Reasoner->getOntology().safeClear();
-//	}
-//
-	timer.Reset();
 	timer.Start();
 	subCheckTimer.Start();
-#if 0
-	// update top links
-	node->removeLinks(/*upDirection=*/true);
-	Actor actor;
-	actor.needConcepts();
-	subCheckTimer.Start();
-	Reasoner->getSupConcepts ( static_cast<const TDLConceptName*>(entry->getEntity()), /*direct=*/true, actor );
-	subCheckTimer.Stop();
-	Actor::Array2D parents;
-	actor.getFoundData(parents);
-	for ( Actor::Array2D::iterator q = parents.begin(), q_end = parents.end(); q != q_end; ++q )
-	{
-		const ClassifiableEntry* parentCE = *q->begin();
-		if ( parentCE == Reasoner->getCTaxonomy()->getTopVertex()->getPrimer() )	// special case it
-		{	// FIXME!! re-think after a proper taxonomy change
-			node->addNeighbour ( /*upDirection=*/true, getCTaxonomy()->getTopVertex() );
-			break;
-		}
-//		std::cout << "Set parent " << parentCE->getName() << std::endl;
-		node->addNeighbour ( /*upDirection=*/true, getTBox()->getConcept(parentCE->getName())->getTaxVertex() );
-	}
-	// actually add node
-	node->incorporate();
-#elif 0
-	Classifier->reclassify ( node, Reasoner, &ModSig, added, removed );
-#elif 1
 	getTBox()->reclassify ( node, &ModSig, added, removed );
-#endif
 	subCheckTimer.Stop();
 	timer.Stop();
 	std::cout << "; reclassification time: " << timer << std::endl;
-
-	// restore all signature-2-entry map
-//	for ( s = ModSig.begin(); s != s_end; s++ )
-//		const_cast<TNamedEntity*>(*s)->setEntry(KeepMap[*s]);
 }
