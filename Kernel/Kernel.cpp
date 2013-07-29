@@ -737,15 +737,6 @@ bool ReasoningKernel :: initOptions ( void )
 		) )
 		return true;
 
-	// register "useIncremenmtalReasoning" option (21/06/2013)
-	if ( KernelOptions.RegisterOption (
-		"useIncremenmtalReasoning",
-		"Option 'useIncremenmtalReasoning' (development) allows one to reason efficiently about small changes in the ontology.",
-		ifOption::iotBool,
-		"true"
-		) )
-		return true;
-
 	// options for DLDag
 
 	// register "orSortSub" option (20/12/2004)
@@ -858,7 +849,7 @@ bool ReasoningKernel :: initOptions ( void )
 		) )
 		return true;
 
-	// options for testing
+	// options for kernel
 
 	// register "checkAD" option (24/02/2012)
 	if ( KernelOptions.RegisterOption (
@@ -882,6 +873,15 @@ bool ReasoningKernel :: initOptions ( void )
 	if ( KernelOptions.RegisterOption (
 		"dumpOntology",
 		"Option 'dumpOntology' dumps the ontology loaded into the reasoner in a LISP-like format",
+		ifOption::iotBool,
+		"false"
+		) )
+		return true;
+
+	// register "useIncremenmtalReasoning" option (21/06/2013)
+	if ( KernelOptions.RegisterOption (
+		"useIncremenmtalReasoning",
+		"Option 'useIncremenmtalReasoning' (development) allows one to reason efficiently about small changes in the ontology.",
 		ifOption::iotBool,
 		"false"
 		) )

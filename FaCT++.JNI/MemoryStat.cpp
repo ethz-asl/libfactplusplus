@@ -34,13 +34,26 @@ static long getProcessMemory ( void )
                               	  TASK_BASIC_INFO, (task_info_t)&t_info,
                               	  &t_info_count))
 		return 0;
-	return t_info.resident_size / 1024;
+	return t_info.resident_size;
+}
+
+#include "windows.h"
+#include "psapi.h"
+
+static long getProcessMemory ( void )
+{
+	PROCESS_MEMORY_COUNTERS_EX pmc;
+	if ( 0 == GetProcessMemoryInfo(GetCurrentProcess(), &pmc, sizeof(pmc)) )
+		return 0;
+	SIZE_T virtualMemUsedByMe = pmc.PrivateUsage;
+	SIZE_T physMemUsedByMe = pmc.WorkingSetSize;
+	return physMemUsedByMe;
 }
 
 MemoryStatistics :: ~MemoryStatistics ( void )
 {
 	timer.Stop();
-	StatLogFile << operation.c_str() << ": time " << timer << " sec, memory " << getProcessMemory() << " kb\n";
+	StatLogFile << operation.c_str() << ": time " << timer << " sec, memory " << getProcessMemory()/1024 << " kb\n";
 	timer.Reset();
 }
 #else
