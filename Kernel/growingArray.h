@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2009 by Dmitry Tsarkov
+Copyright (C) 2003-2013 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -16,8 +16,8 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef _GROWINGARRAY_H
-#define _GROWINGARRAY_H
+#ifndef GROWINGARRAY_H
+#define GROWINGARRAY_H
 
 #include <vector>
 
@@ -37,7 +37,7 @@ protected:	// members
 		/// body of an aggay
 	std::vector<C> Body;
 		/// index of the element after last actual element in array
-	unsigned int last;
+	size_t last;
 
 public:		// interface
 		/// the empty c'tor
@@ -52,17 +52,17 @@ public:		// interface
 		/// check whether array is empty
 	bool empty ( void ) const { return ( last == 0 ); }
 		/// make sure array is big enough to keep N elements (leaving 'last' unchanged)
-	void reserve ( unsigned int n )
+	void reserve ( size_t n )
 	{
 		if ( n >= Body.size() )
 			Body.resize(2*n+1);
 	}
 		/// set the last element to given index
-	void resize ( unsigned int n ) { reserve(n); last = n; }
+	void resize ( size_t n ) { reserve(n); last = n; }
 		/// clear the array
 	void clear ( void ) { last = 0; }
 		/// get the count of elements
-	unsigned int size ( void ) const { return last; }
+	size_t size ( void ) const { return last; }
 
 	// access to elements
 

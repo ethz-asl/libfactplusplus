@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2005-2010 by Dmitry Tsarkov
+Copyright (C) 2005-2013 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -16,8 +16,8 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef _GROWINGARRAYP_H
-#define _GROWINGARRAYP_H
+#ifndef GROWINGARRAYP_H
+#define GROWINGARRAYP_H
 
 #include <vector>
 
@@ -44,7 +44,7 @@ protected:	// members
 		/// heap itself
 	baseType Base;
 		/// index of the next unallocated entry
-	unsigned int last;
+	size_t last;
 
 private:	// prevent from copying
 		/// no copy c'tor
@@ -64,7 +64,7 @@ protected:	// methods
 		/// increase heap size
 	void grow ( void )
 	{
-		unsigned int size = Base.size();
+		size_t size = Base.size();
 		Base.resize(size?size*2:1);
 		initArray ( Base.begin()+size, Base.end() );
 	}
@@ -75,7 +75,7 @@ protected:	// methods
 			grow();
 	}
 		/// ensure that size of vector is enough to keep N elements
-	void ensureHeapSize ( unsigned int n )
+	void ensureHeapSize ( size_t n )
 	{
 		while ( n >= Base.size() )
 			grow();
@@ -83,7 +83,7 @@ protected:	// methods
 
 public:		// interface
 		/// c'tor: make SIZE objects
-	growingArrayP ( unsigned int size = 0 ) : Base(size), last(0)
+	growingArrayP ( size_t size = 0 ) : Base(size), last(0)
 	{
 		initArray ( Base.begin(), Base.end() );
 	}
@@ -95,9 +95,9 @@ public:		// interface
 	}
 
 		/// resize an array
-	void resize ( unsigned int n ) { ensureHeapSize(n); last = n; }
+	void resize ( size_t n ) { ensureHeapSize(n); last = n; }
 		/// get the number of elements
-	unsigned int size ( void ) const { return last; }
+	size_t size ( void ) const { return last; }
 		/// check if heap is empty
 	bool empty ( void ) const { return last == 0; }
 		/// mark all array elements as unused
