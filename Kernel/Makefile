@@ -45,8 +45,6 @@ SOURCES = \
           ReasonerNom.cpp\
           tExpressionManager.cpp\
           CascadedCache.cpp\
-          TriRelation.cpp\
-          tSubsumptionMap.cpp\
           Actor.cpp\
           tDag2Interface.cpp\
           tSplitExpansionRules.cpp\
