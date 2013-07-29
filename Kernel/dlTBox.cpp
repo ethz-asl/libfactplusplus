@@ -421,7 +421,6 @@ void TBox :: readConfig ( const ifOptionSet* Options )
 
 	// TBox options
 	addBoolOption(useCompletelyDefined);
-	addBoolOption(useRelevantOnly);
 	addBoolOption(dumpQuery);
 	addBoolOption(alwaysPreferEquals);
 	addBoolOption(useSpecialDomains);

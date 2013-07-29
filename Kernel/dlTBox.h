@@ -280,8 +280,6 @@ protected:	// members
 	// User-defined flags
 	//---------------------------------------------------------------------------
 
-		/// flag for full/short KB
-	bool useRelevantOnly;
 		/// flag for creating taxonomy
 	bool useCompletelyDefined;
 		/// flag for dumping TBox relevant to query

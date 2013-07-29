@@ -686,16 +686,6 @@ bool ReasoningKernel :: initOptions ( void )
 
 	// options for TBox
 
-	// register "useRelevantOnly" option
-	if ( KernelOptions.RegisterOption (
-		"useRelevantOnly",
-		"Option 'useRelevantOnly' is used when creating internal DAG representation for externally given TBox. "
-		"If true, DAG contains only concepts, relevant to query. It is safe to leave this option false.",
-		ifOption::iotBool,
-		"false"
-		) )
-		return true;
-
 	// register "dumpQuery" option -- 11-08-04
 	if ( KernelOptions.RegisterOption (
 		"dumpQuery",
