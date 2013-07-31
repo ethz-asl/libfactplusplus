@@ -82,7 +82,12 @@ getNextName ( TsScanner& sc, TExpressionManager* pEM )
 		LispToken t = sc.getNameKeyword();
 
 		if ( t != ID )
-			return t == L_TOP ? pEM->Top() : pEM->Bottom();
+		{
+			if ( t == L_TOP )
+				return pEM->Top();
+			else
+				return pEM->Bottom();
+		}
 		try
 		{
 			return pEM->Concept(sc.GetName());
@@ -103,12 +108,12 @@ getNextName ( TsScanner& sc, TExpressionManager* pEM )
 
 const char* getConceptName ( ReasoningKernel::TConceptExpr* C )
 {
-	if ( dynamic_cast<const TDLConceptTop*>(C) != NULL )
+	if ( const TDLConceptName* name = dynamic_cast<const TDLConceptName*>(C) )
+		return name->getName();
+	if ( dynamic_cast<const TDLConceptTop*>(C) )
 		return "*TOP*";
-	if ( dynamic_cast<const TDLConceptBottom*>(C) != NULL )
+	if ( dynamic_cast<const TDLConceptBottom*>(C)  )
 		return "*BOTTOM*";
-	if ( dynamic_cast<const TDLConceptName*>(C) != NULL )
-		return dynamic_cast<const TDLConceptName*>(C)->getName();
 	return "concept expression";
 }
 
