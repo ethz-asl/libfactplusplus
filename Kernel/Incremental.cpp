@@ -38,9 +38,9 @@ ReasoningKernel :: setupSig ( const TNamedEntity* entity )
 	moduleTimer.Start();
 	// prepare a place to update
 	TSignature sig;
-	NameSigMap::iterator insert = Name2Sig.find(entity->getName());
+	NameSigMap::iterator insert = Name2Sig.find(entity);
 	if ( insert == Name2Sig.end() )
-		insert = Name2Sig.insert(std::make_pair(entity->getName(),&sig)).first;
+		insert = Name2Sig.insert(std::make_pair(entity,&sig)).first;
 	else
 		delete insert->second;
 
@@ -80,7 +80,7 @@ ReasoningKernel :: doIncremental ( void )
 	delete ModSyn;
 	ModSyn = NULL;
 
-	std::set<std::string> MPlus, MMinus;
+	std::set<const TNamedEntity*> MPlus, MMinus;
 	std::set<const TNamedEntry*> excluded;
 
 	// detect new- and old- signature elements
@@ -102,8 +102,8 @@ ReasoningKernel :: doIncremental ( void )
 			// remove all links
 			C->getTaxVertex()->remove();
 			// update Name2Sig
-			delete Name2Sig[C->getName()];
-			Name2Sig.erase(C->getName());
+			delete Name2Sig[*e];
+			Name2Sig.erase(*e);
 		}
 
 	// deal with added concepts
@@ -162,7 +162,7 @@ ReasoningKernel :: doIncremental ( void )
 				changed = true;
 				MMinus.insert(p->first);
 				// FIXME!! only concepts for now
-				TaxonomyVertex* v = pTBox->getConcept(p->first)->getTaxVertex();
+				TaxonomyVertex* v = dynamic_cast<const ClassifiableEntry*>(p->first->getEntry())->getTaxVertex();
 				if ( v->noNeighbours(true) )
 				{
 					v->addNeighbour(true,tax->getTopVertex());
@@ -176,7 +176,7 @@ ReasoningKernel :: doIncremental ( void )
 		if ( changed )
 		{
 			// FIXME!! check individuals later on
-			setupSig(getExpressionManager()->Concept(p->first));
+			setupSig(p->first);
 //			std::cout << "Creating module (" << getModExtractor(false)->getModularizer()->getModule().size() << " axioms) time: " << timer;// << " sig: " << ModSig << " old: " << OldSig;
 		}
 

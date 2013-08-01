@@ -69,7 +69,7 @@ public:		// type interface
 		/// vector of SINGLETON-like elements
 	typedef std::vector<TIndividual*> SingletonVector;
 		/// map between names and corresponding module signatures
-	typedef std::map<std::string, TSignature*> NameSigMap;
+	typedef std::map<const TNamedEntity*, TSignature*> NameSigMap;
 
 protected:	// types
 		/// type for DISJOINT-like statements
@@ -1154,7 +1154,7 @@ public:
 		/// perform realisation (assuming KB is consistent)
 	void performRealisation ( void ) { createTaxonomy ( /*needIndividuals=*/true ); }
 		/// reclassify taxonomy wrt changed sets
-	void reclassify ( const std::set<std::string>& MPlus, const std::set<std::string>& MMinus );
+	void reclassify ( const std::set<const TNamedEntity*>& MPlus, const std::set<const TNamedEntity*>& MMinus );
 
 		/// get (READ-WRITE) access to internal Taxonomy of concepts
 	Taxonomy* getTaxonomy ( void ) { return pTax; }

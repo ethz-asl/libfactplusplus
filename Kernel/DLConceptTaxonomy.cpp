@@ -120,7 +120,9 @@ DLConceptTaxonomy :: buildSignature ( ClassifiableEntry* p )
 {
 	if ( tBox.pName2Sig == NULL )
 		return NULL;
-	TBox::NameSigMap::iterator found = tBox.pName2Sig->find(p->getName());
+	if ( p->getEntity() == NULL )
+		return NULL;
+	TBox::NameSigMap::iterator found = tBox.pName2Sig->find(p->getEntity());
 	if ( found == tBox.pName2Sig->end() )
 		return NULL;
 	return found->second;
@@ -182,8 +184,6 @@ DLConceptTaxonomy :: enhancedSubs1 ( TaxonomyVertex* cur )
 
 	// need to be valued -- check all parents
 	// propagate false
-	// do this only if the concept is not it M-
-	if ( MMinus.empty() || MMinus.count(cur->getPrimer()->getName()) == 0 )
 	for ( TaxonomyVertex::iterator p = cur->begin(!upDirection), p_end = cur->end(!upDirection); p != p_end; ++p )
 		if ( !enhancedSubs(*p) )
 			return false;
@@ -391,7 +391,7 @@ DLConceptTaxonomy :: fillCandidates ( TaxonomyVertex* cur )
 }
 
 void
-DLConceptTaxonomy ::  reclassify ( const std::set<std::string>& plus, const std::set<std::string>& minus )
+DLConceptTaxonomy ::  reclassify ( const std::set<const TNamedEntity*>& plus, const std::set<const TNamedEntity*>& minus )
 {
 	MPlus = plus;
 	MMinus = minus;
@@ -409,7 +409,8 @@ DLConceptTaxonomy ::  reclassify ( const std::set<std::string>& plus, const std:
 			continue;
 		pTax->setVisited(cur);
 		const ClassifiableEntry* entry = cur->getPrimer();
-		if ( MPlus.find(entry->getName()) != MPlus.end() || MMinus.find(entry->getName()) != MMinus.end() )
+		const TNamedEntity* entity = entry->getEntity();
+		if ( MPlus.find(entity) != MPlus.end() || MMinus.find(entity) != MMinus.end() )
 			toProcess.push_back(entry);
 		for ( TaxonomyVertex::iterator p = cur->begin(/*upDirection=*/false), p_end = cur->end(/*upDirection=*/false); p != p_end; ++p )
 			queue.push(*p);
@@ -420,13 +421,13 @@ DLConceptTaxonomy ::  reclassify ( const std::set<std::string>& plus, const std:
 
 	for ( std::vector<const ClassifiableEntry*>::iterator p = toProcess.begin(), p_end = toProcess.end(); p != p_end; ++p )
 	{
-		const ClassifiableEntry* entry = *p;
-		TaxonomyVertex* node = entry->getTaxVertex();
-		std::cout << "Reclassify " << entry->getName() << " (" << (MPlus.count(entry->getName()) > 0 ?"Added":"") << (MMinus.count(entry->getName()) > 0 ?" Removed":"") << ")";
+		TaxonomyVertex* node = (*p)->getTaxVertex();
+		const TNamedEntity* entity = (*p)->getEntity();
+		std::cout << "Reclassify " << entity->getName() << " (" << (MPlus.count(entity) > 0 ?"Added":"") << (MMinus.count(entity) > 0 ?" Removed":"") << ")";
 
 		TsProcTimer timer;
 		timer.Start();
-		reclassify ( node, (*tBox.pName2Sig)[entry->getName()] );
+		reclassify ( node, (*tBox.pName2Sig)[entity] );
 		timer.Stop();
 		std::cout << "; reclassification time: " << timer << std::endl;
 //		tax->print(std::cout);
@@ -449,8 +450,8 @@ DLConceptTaxonomy :: reclassify ( TaxonomyVertex* node, const TSignature* s )
 
 	// FIXME!! check the unsatisfiability later
 
-	bool added = MPlus.count(curEntry->getName()) > 0;
-	bool removed = MMinus.count(curEntry->getName()) > 0;
+	bool added = MPlus.count(curEntry->getEntity()) > 0;
+	bool removed = MMinus.count(curEntry->getEntity()) > 0;
 	fpp_assert ( added || removed );
 	typedef std::vector<TaxonomyVertex*> TVArray;
 	clearLabels();

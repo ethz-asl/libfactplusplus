@@ -68,7 +68,7 @@ protected:	// members
 		/// host tBox
 	TBox& tBox;
 		/// incremental sets M+ and M-
-	std::set<std::string> MPlus, MMinus;
+	std::set<const TNamedEntity*> MPlus, MMinus;
 		/// set of possible parents
 	std::set<TaxonomyVertex*> candidates;
 		/// whether look into it
@@ -296,7 +296,7 @@ public:		// interface
 		/// set bottom-up flag
 	void setBottomUp ( const TKBFlags& GCIs ) { flagNeedBottomUp = (GCIs.isGCI() || (GCIs.isReflexive() && GCIs.isRnD())); }
 		/// reclassify taxonomy wrt changed sets
-	void reclassify ( const std::set<std::string>& MPlus, const std::set<std::string>& MMinus );
+	void reclassify ( const std::set<const TNamedEntity*>& MPlus, const std::set<const TNamedEntity*>& MMinus );
 		/// set progress indicator
 	void setProgressIndicator ( TProgressMonitor* pMon ) { pTaxProgress = pMon; }
 		/// output taxonomy to a stream
@@ -353,7 +353,7 @@ TBox :: classifyEntry ( TConcept* entry )
 }
 
 inline void
-TBox :: reclassify ( const std::set<std::string>& MPlus, const std::set<std::string>& MMinus )
+TBox :: reclassify ( const std::set<const TNamedEntity*>& MPlus, const std::set<const TNamedEntity*>& MMinus )
 {
 	pTaxCreator->reclassify ( MPlus, MMinus );
 }
