@@ -29,7 +29,7 @@ int nModule = 0;
 
 /// setup Name2Sig for a given name C
 void
-ReasoningKernel :: setupSig ( const TNamedEntity* entity )
+ReasoningKernel :: setupSig ( const TNamedEntity* entity, const AxiomVec& Module )
 {
 	// do nothing if entity doesn't exist
 	if ( entity == NULL )
@@ -46,13 +46,21 @@ ReasoningKernel :: setupSig ( const TNamedEntity* entity )
 
 	// calculate a module
 	sig.add(entity);
-	getModExtractor(false)->getModule(sig,M_BOT);
+	getModExtractor(false)->getModule(Module,sig,M_BOT);
 	++nModule;
 
 	// perform update
 	insert->second = new TSignature(getModExtractor(false)->getModularizer()->getSignature());
 
 	moduleTimer.Stop();
+}
+
+/// build signature for ENTITY and all dependent entities from toProcess; look for modules in Module;
+void
+ReasoningKernel :: buildSignature ( const TNamedEntity* entity, const AxiomVec& Module, std::set<const TNamedEntity*>& toProcess )
+{
+	toProcess.erase(entity);
+	setupSig ( entity, Module );
 }
 
 /// initialise the incremental bits on full reload
@@ -63,8 +71,14 @@ ReasoningKernel :: initIncremental ( void )
 	ModSyn = NULL;
 	// fill the module signatures of the concepts
 	Name2Sig.clear();
+	// found all entities
+	std::set<const TNamedEntity*> toProcess;
 	for ( TBox::c_const_iterator p = getTBox()->c_begin(), p_end = getTBox()->c_end(); p != p_end; ++p )
-		setupSig((*p)->getEntity());
+		toProcess.insert((*p)->getEntity());
+	// process all entries recursively
+	while ( !toProcess.empty() )
+		buildSignature ( *toProcess.begin(), Ontology.getAxioms(), toProcess );
+
 
 	getTBox()->setNameSigMap(&Name2Sig);
 	// fill in ontology signature

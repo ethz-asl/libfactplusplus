@@ -42,11 +42,14 @@ public:		// interface
 	~OntologyBasedModularizer ( void ) { delete Modularizer; }
 
 		/// get module
-	const AxiomVec& getModule ( const TSignature& sig, ModuleType type )
+	const AxiomVec& getModule ( const AxiomVec& From, const TSignature& sig, ModuleType type )
 	{
-		Modularizer->extract ( Ontology, sig, type );
+		Modularizer->extract ( From, sig, type );
 		return Modularizer->getModule();
 	}
+		/// get module
+	const AxiomVec& getModule ( const TSignature& sig, ModuleType type )
+		{ return getModule ( Ontology.getAxioms(), sig, type ); }
 		/// get access to a modularizer
 	TModularizer* getModularizer ( void ) { return Modularizer; }
 }; // OntologyBasedModularizer

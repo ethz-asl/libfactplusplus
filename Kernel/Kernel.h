@@ -497,7 +497,11 @@ protected:	// methods
 	//----------------------------------------------
 
 		/// setup Name2Sig for a given ENTITY
-	void setupSig ( const TNamedEntity* entity );
+	void setupSig ( const TNamedEntity* entity, const AxiomVec& Module );
+		/// setup Name2Sig for a given ENTITY
+	void setupSig ( const TNamedEntity* entity ) { setupSig ( entity, Ontology.getAxioms() ); }
+		/// build signature for ENTITY and all dependent entities from toProcess; look for modules in Module;
+	void buildSignature ( const TNamedEntity* entity, const AxiomVec& Module, std::set<const TNamedEntity*>& toProcess );
 		/// initialise the incremental bits on full reload
 	void initIncremental ( void );
 		/// incrementally classify changes
