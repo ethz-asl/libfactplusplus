@@ -61,6 +61,14 @@ ReasoningKernel :: buildSignature ( const TNamedEntity* entity, const AxiomVec& 
 {
 	toProcess.erase(entity);
 	setupSig ( entity, Module );
+	const AxiomVec NewModule = getModExtractor(false)->getModularizer()->getModule();
+	if ( Module.size() == NewModule.size() )	// the same module
+		return;
+	// smaller module: recurse
+	TSignature ModSig = getModExtractor(false)->getModularizer()->getSignature();
+	for ( TSignature::iterator p = ModSig.begin(), p_end = ModSig.end(); p != p_end; ++p )
+		if ( toProcess.count(*p) > 0 )	// need to process
+			buildSignature ( *p, NewModule, toProcess );
 }
 
 /// initialise the incremental bits on full reload
@@ -136,7 +144,7 @@ ReasoningKernel :: doIncremental ( void )
 			cur->setSample(C);
 			cur->addNeighbour ( /*upDirection=*/true, tax->getTopVertex() );
 			tax->finishCurrentNode();
-			std::cout << "Insert " << C->getName() << std::endl;
+//			std::cout << "Insert " << C->getName() << std::endl;
 		}
 	OntoSig = NewSig;
 
@@ -159,11 +167,9 @@ ReasoningKernel :: doIncremental ( void )
 	for ( NameSigMap::iterator p = Name2Sig.begin(), p_end = Name2Sig.end(); p != p_end; ++p )
 	{
 		lc->setSignatureValue(*p->second);
-		bool changed = false;
 		for ( TOntology::iterator notProcessed = nb; notProcessed != ne; ++notProcessed )
 			if ( !lc->local(*notProcessed) )
 			{
-				changed = true;
 				MPlus.insert(p->first);
 //				std::cout << "Non-local NP axiom ";
 //				(*notProcessed)->accept(pr);
@@ -173,7 +179,6 @@ ReasoningKernel :: doIncremental ( void )
 		for ( TOntology::iterator retracted = rb; retracted != re; retracted++ )
 			if ( !lc->local(*retracted) )
 			{
-				changed = true;
 				MMinus.insert(p->first);
 				// FIXME!! only concepts for now
 				TaxonomyVertex* v = dynamic_cast<const ClassifiableEntry*>(p->first->getEntry())->getTaxVertex();
@@ -187,16 +192,16 @@ ReasoningKernel :: doIncremental ( void )
 //				std::cout << " wrt " << p->first->getName() << std::endl;
 				break;
 			}
-		if ( changed )
-		{
-			// FIXME!! check individuals later on
-			setupSig(p->first);
-//			std::cout << "Creating module (" << getModExtractor(false)->getModularizer()->getModule().size() << " axioms) time: " << timer;// << " sig: " << ModSig << " old: " << OldSig;
-		}
-
 	}
 	t.Stop();
 	std::cout << "Determine concepts that need reclassification: done in " << t << std::endl;
+
+	// build changed modules
+	std::set<const TNamedEntity*> toProcess(MPlus);
+	toProcess.insert ( MMinus.begin(), MMinus.end() );
+	// process all entries recursively
+	while ( !toProcess.empty() )
+		buildSignature ( *toProcess.begin(), Ontology.getAxioms(), toProcess );
 
 	tax->finalise();
 //	std::cout << "Adjusted Taxonomy:";
