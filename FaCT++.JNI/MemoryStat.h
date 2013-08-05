@@ -30,9 +30,12 @@ class MemoryStatistics
 protected:	// members
 	TsProcTimer timer;
 	std::string operation;
+	size_t startMem;
 
 public:
-	MemoryStatistics ( const std::string& name ) : operation(name) { timer.Start(); }
+		/// c'tor: start timer, save memory usage
+	MemoryStatistics ( const std::string& name );
+		/// d'tor: dump taken time and memory usage
 	~MemoryStatistics ( void );
 }; // MemoryStatistics
 

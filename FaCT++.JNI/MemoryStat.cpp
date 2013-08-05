@@ -21,11 +21,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "MemoryStat.h"
 
 // set to 1 for memory logging
-#define USE_MEMORY_LOG 0
-
-#if USE_MEMORY_LOG
-std::ofstream StatLogFile("MemoryLog.txt");
+#ifndef USE_MEMORY_LOG
+#	define USE_MEMORY_LOG 0
 #endif
+
+std::ofstream StatLogFile
+#if USE_MEMORY_LOG
+	("MemoryLog.txt")
+#endif
+;
 
 #ifdef __linux__
 #	include <sys/sysinfo.h>
@@ -64,11 +68,23 @@ static size_t getProcessMemory ( bool resident = true )
 #endif
 }
 
+MemoryStatistics :: MemoryStatistics ( const std::string& name )
+	: operation(name)
+{
+	if ( USE_MEMORY_LOG )
+	{
+		timer.Start();
+		startMem = getProcessMemory()/1024/1024;
+	}
+}
+
 MemoryStatistics :: ~MemoryStatistics ( void )
 {
-#if USE_MEMORY_LOG
-	timer.Stop();
-	StatLogFile << operation.c_str() << ": time " << timer << " sec, memory " << getProcessMemory()/1024 << " kb\n";
-	timer.Reset();
-#endif
+	if ( USE_MEMORY_LOG )
+	{
+		timer.Stop();
+		size_t endMem = getProcessMemory()/1024/1024;
+		StatLogFile << operation.c_str() << ": time " << timer << " sec, op memory " << endMem-startMem << " Mb, total memory " << endMem << " Mb\n";
+		timer.Reset();
+	}
 }
