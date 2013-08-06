@@ -91,12 +91,14 @@ ReasoningKernel :: initIncremental ( void )
 	getTBox()->setNameSigMap(&Name2Sig);
 	// fill in ontology signature
 	OntoSig = Ontology.getSignature();
-	std::cout << "Init modules (" << nModule << ") time: " << moduleTimer << std::endl;
+	std::cout << "Init modules (" << nModule << ") time: " << moduleTimer << " sec" << std::endl;
 }
 
 void
 ReasoningKernel :: doIncremental ( void )
 {
+	TsProcTimer total;
+	total.Start();
 	std::cout << "Incremental!\n";
 	// re-set the modularizer to use updated ontology
 	delete ModSyn;
@@ -233,7 +235,9 @@ ReasoningKernel :: doIncremental ( void )
 	getTBox()->reclassify ( MPlus, MMinus );
 	subCheckTimer.Stop();
 	Ontology.setProcessed();
-	std::cout << "Total modularization (" << nModule << ") time: " << moduleTimer << "\nTotal reasoning time: " << subCheckTimer << std::endl;
+	total.Stop();
+	std::cout << "Total modularization (" << nModule << ") time: " << moduleTimer << " sec\nTotal reasoning time: " << subCheckTimer
+			  << " sec\nTotal reclassification time: " << total << " sec" << std::endl;
 }
 
 static std::ostream& operator << ( std::ostream& o, const TSignature& sig )
