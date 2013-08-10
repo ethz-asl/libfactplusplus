@@ -53,7 +53,7 @@ ReasoningKernel :: ReasoningKernel ( void )
 	, cachedQueryTree(NULL)
 	, useAxiomSplitting(false)
 	, ignoreExprCache(false)
-	, useIncremenmtalReasoning(false)
+	, useIncrementalReasoning(false)
 	, dumpOntology(false)
 {
 	// Intro
@@ -111,7 +111,7 @@ ReasoningKernel :: needForceReload ( void ) const
 	if ( !Ontology.isChanged() )
 		return false;
 	// no incremental required -- nothing to do
-	if ( !useIncremenmtalReasoning )
+	if ( !useIncrementalReasoning )
 		return true;
 	return false;
 }
@@ -146,7 +146,7 @@ ReasoningKernel :: forceReload ( void )
 		OntologyPrinter.visitOntology(Ontology);
 	}
 
-	if ( useIncremenmtalReasoning )
+	if ( useIncrementalReasoning )
 		initIncremental();
 
 	// after loading ontology became processed completely
@@ -859,10 +859,10 @@ bool ReasoningKernel :: initOptions ( void )
 		) )
 		return true;
 
-	// register "useIncremenmtalReasoning" option (21/06/2013)
+	// register "useIncrementalReasoning" option (21/06/2013)
 	if ( KernelOptions.RegisterOption (
-		"useIncremenmtalReasoning",
-		"Option 'useIncremenmtalReasoning' (development) allows one to reason efficiently about small changes in the ontology.",
+		"useIncrementalReasoning",
+		"Option 'useIncrementalReasoning' (development) allows one to reason efficiently about small changes in the ontology.",
 		ifOption::iotBool,
 		"false"
 		) )

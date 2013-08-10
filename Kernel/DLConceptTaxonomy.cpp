@@ -435,8 +435,8 @@ DLConceptTaxonomy ::  reclassify ( const std::set<const TNamedEntity*>& plus, co
 	}
 
 	pTax->finalise();
-//	pTax->print(std::cout);
-//	std::cout.flush();
+	print(std::cout);
+	std::cout.flush();
 }
 
 void

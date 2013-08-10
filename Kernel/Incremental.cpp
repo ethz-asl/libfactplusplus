@@ -216,11 +216,11 @@ ReasoningKernel :: doIncremental ( void )
 	o.close();
 
 	// do actual change
-	useIncremenmtalReasoning = false;
+	useIncrementalReasoning = false;
 	forceReload();
 	pTBox->setNameSigMap(&Name2Sig);
 	pTBox->isConsistent();
-	useIncremenmtalReasoning = true;
+	useIncrementalReasoning = true;
 
 	// load the taxonomy
 	std::ifstream i(filename);

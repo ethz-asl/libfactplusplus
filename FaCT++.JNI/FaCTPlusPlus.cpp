@@ -89,7 +89,7 @@ JNIEXPORT void JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_initKe
 	// init dumping of the ontology
 	Kernel->setDumpOntology(Kernel->getOptions()->getBool("dumpOntology"));
 	// init incremental reasoning
-	Kernel->setUseIncremenmtalReasoning(Kernel->getOptions()->getBool("useIncremenmtalReasoning"));
+	Kernel->setUseIncrementalReasoning(Kernel->getOptions()->getBool("useIncrementalReasoning"));
 
 	// setup JNI cache
 	TJNICache* J = new TJNICache(env);

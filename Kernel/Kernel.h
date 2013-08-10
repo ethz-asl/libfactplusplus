@@ -210,7 +210,7 @@ protected:	// members
 		/// ignore cache for the TExpr* (useful for semantic AD)
 	bool ignoreExprCache;
 		/// use incremental reasoning
-	bool useIncremenmtalReasoning;
+	bool useIncrementalReasoning;
 		/// flag to dump LISP-like ontology
 	bool dumpOntology;
 
@@ -609,7 +609,7 @@ public:	// general staff
 		/// choose whether TExpr cache should be ignored
 	void setIgnoreExprCache ( bool value ) { ignoreExprCache = value; }
 		/// choose whether inctemental reasoning should be used
-	void setUseIncremenmtalReasoning ( bool value ) { useIncremenmtalReasoning = value; }
+	void setUseIncrementalReasoning ( bool value ) { useIncrementalReasoning = value; }
 		/// set the signature of the expression translator
 	void setSignature ( const TSignature* sig ) { if ( pET != NULL ) pET->setSignature(sig); }
 		/// choose whether the loaded ontology should be dumped as a LISP one
