@@ -170,7 +170,7 @@ DLConceptTaxonomy :: searchBaader ( TaxonomyVertex* cur )
 
 	// in case current node is unchecked (no BOTTOM node) -- check it explicitely
 	if ( !isValued(cur) )
-		setValue ( cur, testSubsumption(cur) );
+		setAndPropagate ( cur, testSubsumption(cur) );
 
 	// mark labelled leaf node as a parent (self check for incremental)
 	if ( noPosSucc && cur->getValue() && cur != pTax->getCurrent() )

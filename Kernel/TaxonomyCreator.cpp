@@ -152,6 +152,25 @@ TaxonomyCreator :: propagateTrueUp ( TaxonomyVertex* node )
 		propagateTrueUp(*p);
 }
 
+/// propagate the FALSE value of the KS subsumption down the hierarchy
+void
+TaxonomyCreator :: propagateFalseDown ( TaxonomyVertex* node )
+{
+	// if taxonomy class already checked -- do nothing
+	if ( isValued(node) )
+	{
+		fpp_assert ( getValue(node) == false );
+		return;
+	}
+
+	// overwise -- value it...
+	setValue ( node, false );
+
+	// ... and value all children
+	for ( TaxonomyVertex::iterator p = node->begin(/*upDirection=*/false), p_end = node->end(/*upDirection=*/false); p != p_end; ++p )
+		propagateFalseDown(*p);
+}
+
 //-----------------------------------------------------------------
 //--	DFS-based classification methods
 //-----------------------------------------------------------------

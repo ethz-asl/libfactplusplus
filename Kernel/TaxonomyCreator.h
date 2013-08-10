@@ -228,8 +228,19 @@ protected:	// methods
 		performClassification();
 		removeTop();
 	}
-		/// propagate the TRUE value of the KS subsumption up the taxonomy
+		/// propagate the TRUE value of the KS subsumption up the hierarchy
 	void propagateTrueUp ( TaxonomyVertex* node );
+		/// propagate the FALSE value of the KS subsumption down the hierarchy
+	void propagateFalseDown ( TaxonomyVertex* node );
+		/// propagate constant VALUE into an appropriate direction
+	bool setAndPropagate ( TaxonomyVertex* node, bool value )
+	{
+		if ( value )
+			propagateTrueUp(node);
+		else
+			propagateFalseDown(node);
+		return value;
+	}
 
 	ss_iterator told_begin ( void ) { return ksStack.top()->s_begin(); }
 	ss_iterator told_end ( void ) { return ksStack.top()->s_end(); }
