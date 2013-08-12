@@ -170,7 +170,7 @@ DLConceptTaxonomy :: searchBaader ( TaxonomyVertex* cur )
 
 	// in case current node is unchecked (no BOTTOM node) -- check it explicitely
 	if ( !isValued(cur) )
-		setAndPropagate ( cur, testSubsumption(cur) );
+		setValue ( cur, testSubsumption(cur) );
 
 	// mark labelled leaf node as a parent (self check for incremental)
 	if ( noPosSucc && cur->getValue() && cur != pTax->getCurrent() )
@@ -435,8 +435,8 @@ DLConceptTaxonomy ::  reclassify ( const std::set<const TNamedEntity*>& plus, co
 	}
 
 	pTax->finalise();
-	print(std::cout);
-	std::cout.flush();
+//	print(std::cout);
+//	std::cout.flush();
 }
 
 void
@@ -456,6 +456,7 @@ DLConceptTaxonomy :: reclassify ( TaxonomyVertex* node, const TSignature* s )
 	typedef std::vector<TaxonomyVertex*> TVArray;
 	clearLabels();
 
+	setValue ( pTax->getTopVertex(), true );
 	if ( node->noNeighbours(true) )
 		node->addNeighbour(true, pTax->getTopVertex());
 
@@ -470,14 +471,16 @@ DLConceptTaxonomy :: reclassify ( TaxonomyVertex* node, const TSignature* s )
 			if ( isValued(*p) && getValue(*p) )
 				continue;
 			bool sub = testSubsumption(*p);
-			setValue ( *p, sub );
 			if ( sub )
 			{
 				pos.push_back(*p);
 				propagateTrueUp(*p);
 			}
 			else
+			{
+				setValue ( *p, sub );
 				neg.push_back(*p);
+			}
 		}
 		node->removeLinks(true);
 //		for ( TVArray::iterator q = pos.begin(), q_end = pos.end(); q != q_end; ++q )
@@ -489,16 +492,12 @@ DLConceptTaxonomy :: reclassify ( TaxonomyVertex* node, const TSignature* s )
 	else	// all parents are there
 	{
 		for ( TaxonomyVertex::iterator p = node->begin(true), p_end = node->end(true); p != p_end; ++p )
-		{
-			setValue ( *p, true );
 			propagateTrueUp(*p);
-		}
 		node->removeLinks(true);
 	}
 
 	// FIXME!! for now. later check the equivalence etc
 	setValue ( node, true );
-	setValue ( pTax->getTopVertex(), true );
 	// the landscape is prepared
 	searchBaader(pTax->getTopVertex());
 	node->incorporate();

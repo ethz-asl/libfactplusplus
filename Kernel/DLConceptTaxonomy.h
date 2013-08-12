@@ -164,7 +164,7 @@ protected:	// methods
 		if ( isValued(cur) )
 			return getValue(cur);
 		else
-			return setAndPropagate( cur, enhancedSubs2(cur) );
+			return setValue ( cur, enhancedSubs2(cur) );
 	}
 		/// explicetly test appropriate subsumption relation
 	bool testSubsumption ( TaxonomyVertex* cur );
