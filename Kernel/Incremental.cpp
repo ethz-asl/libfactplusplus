@@ -209,6 +209,8 @@ ReasoningKernel :: doIncremental ( void )
 //	std::cout << "Adjusted Taxonomy:";
 //	tax->print(std::cout);
 
+	t.Reset();
+	t.Start();
 	const char* filename = "incremental.tax";
 	// save taxonomy
 	std::ofstream o(filename);
@@ -225,6 +227,9 @@ ReasoningKernel :: doIncremental ( void )
 	// load the taxonomy
 	std::ifstream i(filename);
 	getTBox()->LoadTaxonomy(i);
+	t.Stop();
+
+	std::cout << "Reloading ontology: done in " << t << std::endl;
 
 	tax = getCTaxonomy();
 //	std::cout << "Reloaded Taxonomy:";
