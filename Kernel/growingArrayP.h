@@ -21,6 +21,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <vector>
 
+using std::size_t;
+
 /**
  *	Generic class for structures which creates elements (by pointers) and re-use
  *	them (does not delete things).  Derived types may add operations.
