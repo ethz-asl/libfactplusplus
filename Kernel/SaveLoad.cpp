@@ -134,11 +134,11 @@ protected:	// members
 
 protected:	// methods
 		/// @return true if given pointer present in the map
-	bool in ( Pointer p ) const { return p2i.find(p) != p2i.end(); }
+	bool in ( const Pointer p ) const { return p2i.find(p) != p2i.end(); }
 		/// @return true if given index present in the map
 	bool in ( unsigned int i ) const { return i < last; }
 		/// @throw an exception if P is not registered
-	void ensure ( Pointer p ) const { if ( !in(p) ) throw EFPPSaveLoad("Cannot save unregistered pointer"); }
+	void ensure ( const Pointer p ) const { if ( !in(p) ) throw EFPPSaveLoad("Cannot save unregistered pointer"); }
 		/// @throw an exception if I is not registered
 	void ensure ( unsigned int i ) const { if ( !in(i) ) throw EFPPSaveLoad("Cannot load unregistered index"); }
 
@@ -178,13 +178,23 @@ public:		// interface
 		/// get the NE by index I
 	Pointer getP ( unsigned int i ) { ensure(i); return i2p[i]; }
 		/// get the index by NE P
-	unsigned int getI ( Pointer p ) { ensure(p); return p2i[p]; }
+	unsigned int getI ( const Pointer p ) { ensure(p); return p2i[p]; }
 }; // PointerMap
 
+
+// int -> named entity map for the current taxonomy
+PointerMap<TNamedEntity*> eMap;
 // int -> named entry map for the current taxonomy
 PointerMap<TNamedEntry*> neMap;
 // uint -> TaxonomyVertex map to update the taxonomy
 PointerMap<TaxonomyVertex*> tvMap;
+
+inline void regPointer ( const TNamedEntry* p )
+{
+	neMap.add(const_cast<TNamedEntry*>(p));
+	if ( p->getEntity() != NULL )
+		eMap.add(const_cast<TNamedEntity*>(p->getEntity()));
+}
 
 //----------------------------------------------------------
 //-- Implementation of the Kernel methods (Kernel.h)
@@ -204,6 +214,8 @@ ReasoningKernel :: Save ( std::ostream& o, const char* name ) const
 	SaveOptions(o);
 	CHECK_FILE_STATE();
 	SaveKB(o);
+	CHECK_FILE_STATE();
+	SaveIncremental(o);
 	CHECK_FILE_STATE();
 	t.Stop();
 	std::cout << "Reasoner internal state saved in " << t << " sec" << std::endl;
@@ -232,6 +244,8 @@ ReasoningKernel :: Load ( std::istream& i, const char* name )
 	LoadOptions(i);
 	CHECK_FILE_STATE();
 	LoadKB(i);
+	CHECK_FILE_STATE();
+	LoadIncremental(i);
 	CHECK_FILE_STATE();
 	t.Stop();
 	std::cout << "Reasoner internal state loaded in " << t << " sec" << std::endl;
@@ -400,6 +414,46 @@ TBox :: Load ( istream& i, KBStatus status )
 }
 
 //----------------------------------------------------------
+//-- Save/Load incremental structures (Kernel.h)
+//----------------------------------------------------------
+
+void
+ReasoningKernel :: SaveIncremental ( std::ostream& o ) const
+{
+	if ( !useIncrementalReasoning )
+		return;
+	o << "\nQ";
+	saveUInt(o,Name2Sig.size());
+	for ( NameSigMap::const_iterator p = Name2Sig.begin(), p_end = Name2Sig.end(); p != p_end; ++p )
+	{
+		saveUInt(o,eMap.getI(const_cast<TNamedEntity*>(p->first)));
+		saveUInt(o,p->second->size());
+
+		for ( TSignature::iterator q = p->second->begin(), q_end = p->second->end(); q != q_end; ++q )
+			saveUInt(o,eMap.getI(const_cast<TNamedEntity*>(*q)));
+	}
+}
+
+void
+ReasoningKernel :: LoadIncremental ( std::istream& i )
+{
+	if ( !useIncrementalReasoning )
+		return;
+	expectChar(i,'Q');
+	Name2Sig.clear();
+	unsigned int size = loadUInt(i);
+	for ( unsigned int j = 0; j < size; j++ )
+	{
+		TNamedEntity* entity = eMap.getP(loadUInt(i));
+		unsigned int sigSize = loadUInt(i);
+		TSignature* sig = new TSignature();
+		for ( unsigned int k = 0; k < sigSize; k++ )
+			sig->add(eMap.getP(loadUInt(i)));
+		Name2Sig[entity] = sig;
+	}
+}
+
+//----------------------------------------------------------
 //-- Implementation of the incremental method (Kernel.h)
 //----------------------------------------------------------
 
@@ -461,13 +515,14 @@ TNECollection<T> :: Save ( ostream& o, const std::set<const TNamedEntry*>& exclu
 	saveUInt(o,size());
 	saveUInt(o,maxLength);
 
-	// register all entries in the global map
-	neMap.add ( p_beg, p_end );
-
 	// save names of all entries
 	for ( p = p_beg; p < p_end; ++p )
+	{
+		// register all entries in the global map
+		regPointer(*p);
 //		if ( excluded.count(*p) == 0 )
 			o << (*p)->getName() << "\n";
+	}
 
 	// save the entries itself
 //	for ( p = p_beg; p < p_end; ++p )
@@ -491,7 +546,7 @@ TNECollection<T> :: Load ( istream& i )
 	for ( unsigned int j = 0; j < collSize; ++j )
 	{
 		i.getline ( name, maxLength, '\n' );
-		neMap.add(get(name));
+		regPointer(get(name));
 	}
 
 	delete [] name;
@@ -585,13 +640,15 @@ RoleMaster :: Save ( ostream& o ) const
 	saveUInt(o,maxLength);
 
 	// register all entries in the global map
-	neMap.add(const_cast<ClassifiableEntry*>((const ClassifiableEntry*)&emptyRole));
-	neMap.add(const_cast<ClassifiableEntry*>((const ClassifiableEntry*)&universalRole));
-	neMap.add ( p_beg, p_end );
+	regPointer(&emptyRole);
+	regPointer(&universalRole);
 
 	// save names of all (non-inverse) entries
 	for ( p = p_beg; p < p_end; p += 2 )
+	{
+		regPointer(*p);
 		o << (*p)->getName() << "\n";
+	}
 
 //	// save the entries itself
 //	for ( p = p_beg; p < p_end; ++p )
@@ -614,19 +671,18 @@ RoleMaster :: Load ( istream& i )
 	++maxLength;
 	char* name = new char[maxLength];
 
+	// register all entries in the global map
+	regPointer(&emptyRole);
+	regPointer(&universalRole);
+
 	// register all the named entries
 	for ( unsigned int j = 0; j < RMSize; ++j )
 	{
 		i.getline ( name, maxLength, '\n' );
-		ensureRoleName(name);
+		regPointer(ensureRoleName(name));
 	}
 
 	delete [] name;
-
-	// register all entries in the global map
-	neMap.add(&emptyRole);
-	neMap.add(&universalRole);
-	neMap.add ( begin(), end() );
 
 //	// load all the named entries
 //	for ( iterator p = begin(); p < end(); ++p )

@@ -517,12 +517,16 @@ protected:	// methods
 	void SaveOptions ( std::ostream& o ) const;
 		/// save the status of the KB and the appropriate part of KB
 	void SaveKB ( std::ostream& o ) const;
+		/// save incremental
+	void SaveIncremental ( std::ostream& o ) const;
 		/// load the header for the kernel
 	bool LoadHeader ( std::istream& i );
 		/// load the set of Kernel's options
 	void LoadOptions ( std::istream& i );
 		/// load the status of the KB and the appropriate part of KB
 	void LoadKB ( std::istream& i );
+		/// load incremental
+	void LoadIncremental ( std::istream& i );
 		/// reload taxonomy (used in the incremental)
 	void ReloadTaxonomy ( void );
 
