@@ -199,7 +199,7 @@ TBox :: answerQuery ( const std::vector<DLTree*>& Cs )
 	std::cout << " done with " << AllInd.size() << " individuals" << std::endl;
 	size_t size = Cs.size();
 
-#if 0
+#if 1
 	std::cout << "Creating iterables...";
 	IV.clear();
 	for ( size_t j = 0; j < size; j++ )
@@ -208,12 +208,16 @@ TBox :: answerQuery ( const std::vector<DLTree*>& Cs )
 #endif
 	std::cout << "Run consistency checks...";
 
-	size_t n = 0;
-
+	size_t n = 0, nAns = 0;
+	TsProcTimer timer;
+	timer.Start();
 	do
 	{
-		if ( n++ % 1000 == 0 )
-			std::cout << n << std::endl;
+		if ( n++ % 100 == 0 )
+		{
+			float time = timer;
+			std::cout << n << " tries, " << nAns << " answers, " << time << " total time, " << time/n << " avg time" << std::endl;
+		}
 		if ( static_cast<NominalReasoner*>(nomReasoner)->checkExtraCond() )
 		{
 			for ( size_t k = 0; k < size; k++ )
@@ -221,6 +225,8 @@ TBox :: answerQuery ( const std::vector<DLTree*>& Cs )
 			std::cout << "\n";
 		}
 	} while ( !IV.next() );
+	timer.Stop();
+	std::cout << "Total " << n << " tries, " << nAns << " answers, " << timer << " total time, " << timer/n << " avg time" << std::endl;
 }
 
 bool
