@@ -319,20 +319,17 @@ public:
 				const QRVariable * arg1 = dynamic_cast <const QRVariable *> (atom -> getArg1() ) ;
 				const QRVariable * arg2 = dynamic_cast <const QRVariable *> (atom -> getArg2() ) ;
 
-				if (arg1 != var && arg2 != var || arg1 == var && arg2 == var) {
+				if ( (arg1 != var && arg2 != var) || (arg1 == var && arg2 == var) )
 					continue;
-				}
 
 				const QRVariable * neighbour;
-				if (arg1 == var ) {
+				if (arg1 == var )
 					neighbour = arg2;
-				} else {
+				else
 					neighbour = arg1;
-				}
 
-				if (PassedVertice.find( neighbour ) != PassedVertice.end()) {
+				if ( PassedVertice.find( neighbour ) != PassedVertice.end() )
 					continue;
-				}
 
 				MarkVertex(neighbour);
 			}
