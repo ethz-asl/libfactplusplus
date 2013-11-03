@@ -36,6 +36,8 @@ std::ofstream Out;
 
 // defined in AD.cpp
 void CreateAD ( TOntology* O, bool useSem );
+// defined in QA.cpp
+void doQueryAnswering ( ReasoningKernel& Kernel );
 
 // local methods
 inline void Usage ( void )
@@ -62,7 +64,8 @@ inline void OutTime ( std::ostream& o )
 std::string Query[2];
 
 /// fill query target names by configure
-void fillSatSubQuery ( void )
+static void
+fillSatSubQuery ( void )
 {
 	// founds a target for checking
 	if ( !Config.checkValue ( "Query", "Target" ) )
@@ -72,7 +75,7 @@ void fillSatSubQuery ( void )
 		Query[1] = Config.getString();
 }
 
-ReasoningKernel::TConceptExpr*
+static ReasoningKernel::TConceptExpr*
 getNextName ( TsScanner& sc, TExpressionManager* pEM )
 {
 	for (;;)
@@ -106,7 +109,8 @@ getNextName ( TsScanner& sc, TExpressionManager* pEM )
 	}
 }
 
-const char* getConceptName ( ReasoningKernel::TConceptExpr* C )
+static const char*
+getConceptName ( ReasoningKernel::TConceptExpr* C )
 {
 	if ( const TDLConceptName* name = dynamic_cast<const TDLConceptName*>(C) )
 		return name->getName();
@@ -135,7 +139,8 @@ const char* getConceptName ( ReasoningKernel::TConceptExpr* C )
 		  exit(0); }					\
 	} while (0)
 
-void testSat ( const std::string& names, ReasoningKernel& Kernel )
+static void
+testSat ( const std::string& names, ReasoningKernel& Kernel )
 {
 	std::stringstream s(names);
 	TsScanner sc(&s);
@@ -156,7 +161,8 @@ void testSat ( const std::string& names, ReasoningKernel& Kernel )
 	}
 }
 
-void testSub ( const std::string& names1, const std::string& names2, ReasoningKernel& Kernel )
+static void
+testSub ( const std::string& names1, const std::string& names2, ReasoningKernel& Kernel )
 {
 	std::stringstream s1(names1), s2(names2);
 	TsScanner sc1(&s1), sc2(&s2);
@@ -179,6 +185,26 @@ void testSub ( const std::string& names1, const std::string& names2, ReasoningKe
 	}
 }
 
+static void
+doReasoningQuery ( void )
+{
+	if ( Query[0].empty() )
+	{
+		if ( Query[1].empty() )
+			TryReasoning(Kernel.realiseKB());
+		else
+			error ( "Query: Incorrect options" );
+	}
+	else
+	{
+		if ( Query[1].empty() )		// sat
+			testSat ( Query[0], Kernel );
+		else
+			testSub ( Query[0], Query[1], Kernel );
+	}
+}
+
+
 //**********************  Main function  ************************************
 int main ( int argc, char *argv[] )
 {
@@ -187,7 +213,6 @@ int main ( int argc, char *argv[] )
 	totalTimer. Start ();
 
 	Kernel.setTopBottomRoleNames ( "*UROLE*", "*EROLE*", "*UDROLE*", "*EDROLE*" );
-	Kernel.setUseUndefinedNames(false);
 
 	// parse options
 	if ( argc > 3 || argc < 2 )
@@ -245,6 +270,10 @@ int main ( int argc, char *argv[] )
 	if ( LLM.isWritable(llAlways) )
 		LL << "Init testTimeout = " << testTimeout << "\n";
 
+	// init undefined names
+	bool queryAnswering = Kernel.getOptions()->getBool("queryAnswering");
+	Kernel.setUseUndefinedNames(queryAnswering);
+
 	// Load the ontology
 	DLLispParser TBoxParser ( &iTBox, &Kernel );
 	Kernel.setVerboseOutput(true);
@@ -283,20 +312,10 @@ int main ( int argc, char *argv[] )
 		std::cerr << "WARNING: KB is inconsistent. Query is NOT processed\n";
 	else	// perform reasoning
 	{
-		if ( Query[0].empty() )
-		{
-			if ( Query[1].empty() )
-				TryReasoning(Kernel.realiseKB());
-			else
-				error ( "Query: Incorrect options" );
-		}
+		if ( queryAnswering )
+			doQueryAnswering(Kernel);
 		else
-		{
-			if ( Query[1].empty() )		// sat
-				testSat ( Query[0], Kernel );
-			else
-				testSub ( Query[0], Query[1], Kernel );
-		}
+			doReasoningQuery();
 	}
 
 	pt.Stop();
