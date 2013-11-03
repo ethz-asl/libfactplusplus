@@ -456,22 +456,38 @@ std::set<TConceptExpr*> NewNominals;
 
 static inline bool isNominal ( const TConceptExpr * expr ) { return NewNominals.count(expr) > 0; }
 
+// print Dl expressions to std::cout
+TLISPExpressionPrinter lp(std::cout);
+std::ostream& operator << (std::ostream& o, const TExpr* p )
+{
+	if ( p )
+		p->accept(lp);
+	else
+		o << "(null)";
+	return o;
+}
+
 class BuildELIOConcept
 {
 	QRVarSet PassedVertice;
+
 protected:	// methods
 		/// general creation of a concept by a var
 	virtual TConceptExpr* createConceptByVar ( const QRVariable* v ) = 0;
 public:		// interafce
+		/// empty c'tor
+	BuildELIOConcept ( void )  {}
 		/// empty d'tor
 	virtual ~BuildELIOConcept ( void ) {}
 
 		/// assign the concept to a term
-	TConceptExpr* Assign ( const QRQuery* query, QRAtom* previousAtom, const QRVariable* v) {
+	TConceptExpr* Assign ( const QRQuery* query, QRAtom* previousAtom, const QRVariable* v )
+	{
 		std::cout << "Assign:\n variable: " << v << "\n atom: " << previousAtom << std::endl;
 		PassedVertice.insert(v);
 
 		TConceptExpr* s = pEM->Top(), *t = createConceptByVar(v);
+		std::cout << "init t=" << t << std::endl;
 
 		for (QRSetAtoms::const_iterator atomIterator = query->Body.begin();
 			 atomIterator != query->Body.end();
@@ -487,15 +503,19 @@ public:		// interafce
 					continue;
 
 				if (arg1 == v) {
-					TConceptExpr * p = Assign ( query, *atomIterator, arg2 );
+					TConceptExpr *p = Assign ( query, *atomIterator, arg2 );
 					p = pEM->Exists(role, p);
+					std::cout << "s=" << s << ", p=" << p << std::endl;
 					s = And(s, p);
+					std::cout << "now s=" << s << std::endl;
 				}
 
 				if (arg2 == v) {
-					TConceptExpr * p = Assign ( query, *atomIterator, arg1);
+					TConceptExpr *p = Assign ( query, *atomIterator, arg1 );
 					p = pEM->Exists(pEM -> Inverse(role), p);
+					std::cout << "s=" << s << ", p=" << p << std::endl;
 					s = And(s, p);
+					std::cout << "now s=" << s << std::endl;
 				}
 			}
 
@@ -504,10 +524,14 @@ public:		// interafce
 				const QRVariable * arg = dynamic_cast <const QRVariable *> (atom -> getArg() ) ;
 				if (arg == v)
 					s = And(s, concept);
+				std::cout << "now s=" << s << std::endl;
 			}
 		}
 
-		return And(t, s);
+		std::cout << "s=" << s << ", t=" << t << std::endl;
+		s = And(t,s);
+		std::cout << "finally s=" << s << std::endl;
+		return s;
 	}
 };
 
