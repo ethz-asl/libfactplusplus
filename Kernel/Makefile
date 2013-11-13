@@ -56,5 +56,6 @@ SOURCES = \
           TaxonomyCreator.cpp\
           Incremental.cpp\
           ExtendedDataRange.cpp\
+          SaveLoadManager.cpp\
 
 include ../Makefile.include

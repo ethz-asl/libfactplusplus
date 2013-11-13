@@ -35,6 +35,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 class OntologyBasedModularizer;
 class AtomicDecomposer;
 class TJNICache;	// cached JNI information
+class SaveLoadManager;
 
 class ReasoningKernel
 {
@@ -162,7 +163,7 @@ protected:	// members
 		/// JNI cache corresponding to a kernel. External, created and deleted outside
 	TJNICache* JNICache;
 		/// name of an S/L context. do nothing if empty
-	std::string SLContext;
+	SaveLoadManager* pSLManager;
 
 	// Top/Bottom role names: if set, they will appear in all hierarchy-related output
 
@@ -531,9 +532,10 @@ protected:	// methods
 	void LoadIncremental ( std::istream& i );
 		/// reload taxonomy (used in the incremental)
 	void ReloadTaxonomy ( void );
-
-		/// get a state file name depending on a context. Context assumed to be non-empty
-	std::string getSLFileName ( const std::string& context ) const { return context+".fpp.state"; }
+		/// save internal state of the Kernel to a file NAME
+	void Save ( std::ostream& o, const char* name = "<output>" ) const;
+		/// load internal state of the Kernel from a file NAME
+	void Load ( std::istream& i, const char* name = "<input>");
 
 	//----------------------------------------------------------------------------------
 	// knowledge exploration queries
@@ -638,14 +640,10 @@ public:	// general staff
 	//-- save/load interface; implementation in SaveLoad.cpp
 	//----------------------------------------------
 
-		/// save internal state of the Kernel to a file NAME
-	void Save ( std::ostream& o, const char* name = "<output>" ) const;
-		/// load internal state of the Kernel from a file NAME
-	void Load ( std::istream& i, const char* name = "<input>");
-		/// save internal state of the Kernel to a file NAME
-	void Save ( const char* name ) const;
-		/// load internal state of the Kernel from a file NAME
-	void Load ( const char* name );
+		/// save internal state of the Kernel using S/L Manager
+	void Save ( void );
+		/// load internal state of the Kernel using S/L Manager
+	void Load ( void );
 
 		/// get access to an expression manager
 	TExpressionManager* getExpressionManager ( void ) { return Ontology.getExpressionManager(); }
@@ -1344,29 +1342,11 @@ public:
 	//----------------------------------------------------------------------------------
 
 		/// check whether  @return true if a file with reasoner state with a given NAME exists.
-	bool checkSaveLoadContext ( const std::string& name ) const
-	{
-		if ( name.empty() )
-			return false;
-		// context is there if a file can be opened
-		return !std::ifstream(getSLFileName(name).c_str()).fail();
-	}
+	bool checkSaveLoadContext ( const std::string& name ) const;
 		/// set a save/load file to a given NAME
-	bool setSaveLoadContext ( const std::string& name )
-	{
-		SLContext = name;
-		return checkSaveLoadContext(name);
-	}
+	bool setSaveLoadContext ( const std::string& name );
 		/// clear a cache for a given name
-	bool clearSaveLoadContext ( const std::string& name ) const
-	{
-		if ( checkSaveLoadContext(name) )
-		{
-			remove(getSLFileName(name).c_str());
-			return true;
-		}
-		return false;
-	}
+	bool clearSaveLoadContext ( const std::string& name ) const;
 
 	//----------------------------------------------------------------------------------
 	// conjunctive queries

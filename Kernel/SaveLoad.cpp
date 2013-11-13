@@ -25,6 +25,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "eFPPSaveLoad.h"
 #include "Kernel.h"
 #include "ReasonerNom.h"	// for initReasoner()
+#include "SaveLoadManager.h"
 
 using namespace std;
 
@@ -222,10 +223,11 @@ ReasoningKernel :: Save ( std::ostream& o, const char* name ) const
 }
 
 void
-ReasoningKernel :: Save ( const char* name ) const
+ReasoningKernel :: Save ( void )
 {
-	std::ofstream o(name);
-	Save ( o, name );
+	fpp_assert ( pSLManager != NULL );
+	pSLManager->prepare(/*input=*/false);
+	Save(pSLManager->o());
 }
 
 #undef CHECK_FILE_STATE
@@ -252,10 +254,11 @@ ReasoningKernel :: Load ( std::istream& i, const char* name )
 }
 
 void
-ReasoningKernel :: Load ( const char* name )
+ReasoningKernel :: Load ( void )
 {
-	std::ifstream i(name);
-	Load ( i, name );
+	fpp_assert ( pSLManager != NULL );
+	pSLManager->prepare(/*input=*/true);
+	Load(pSLManager->i());
 }
 
 //-- save/load header (Kernel.h)

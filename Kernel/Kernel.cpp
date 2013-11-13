@@ -23,6 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "AtomicDecomposer.h"
 #include "OntologyBasedModularizer.h"
 #include "eFPPSaveLoad.h"
+#include "SaveLoadManager.h"
 
 const char* ReasoningKernel :: Version = "1.6.2";
 const char* ReasoningKernel :: SupportedDL = "SROIQ(D)";
@@ -44,7 +45,7 @@ ReasoningKernel :: ReasoningKernel ( void )
 	, ModSyn(NULL)
 	, ModSem(NULL)
 	, JNICache(NULL)
-	, SLContext("")
+	, pSLManager(NULL)
 	, pMonitor(NULL)
 	, OpTimeout(0)
 	, verboseOutput(false)
@@ -77,6 +78,7 @@ ReasoningKernel :: ~ReasoningKernel ( void )
 	clearTBox();
 	deleteTree(cachedQueryTree);
 	delete pMonitor;
+	delete pSLManager;
 	for ( NameSigMap::iterator p = Name2Sig.begin(), p_end = Name2Sig.end(); p != p_end; ++p )
 		delete p->second;
 }
@@ -160,14 +162,13 @@ ReasoningKernel :: forceReload ( void )
 void
 ReasoningKernel :: ClassifyOrLoad ( bool needIndividuals )
 {
-	std::string fn = getSLFileName(SLContext);
-	if ( !SLContext.empty() )	// try to load the taxonomy
+	if ( pSLManager != NULL )	// try to load the taxonomy
 	{
-		if ( checkSaveLoadContext(SLContext) )
+		if ( pSLManager->existsContent() )
 		{	// previous version exists
 			try
 			{
-				Load(fn.c_str());	// loaded => nothing to do
+				Load();	// loaded => nothing to do
 				return;
 			}
 			catch ( const EFPPSaveLoad& )
@@ -183,8 +184,8 @@ ReasoningKernel :: ClassifyOrLoad ( bool needIndividuals )
 		pTBox->performClassification();
 
 	// save the result if necessary
-	if ( !SLContext.empty() )
-		Save(fn.c_str());
+	if ( pSLManager != NULL )
+		Save();
 }
 
 void
@@ -669,6 +670,37 @@ ReasoningKernel :: getNonLocal ( bool useSemantic, ModuleType moduleType )
 	return Result;
 }
 
+//----------------------------------------------------------------------------------
+// save/load interface
+//----------------------------------------------------------------------------------
+
+/// check whether  @return true if a file with reasoner state with a given NAME exists.
+bool
+ReasoningKernel :: checkSaveLoadContext ( const std::string& name ) const
+{
+	return SaveLoadManager(name).existsContent();
+}
+
+/// set a save/load file to a given NAME
+bool
+ReasoningKernel :: setSaveLoadContext ( const std::string& name )
+{
+	delete pSLManager;
+	pSLManager = new SaveLoadManager(name);
+	return pSLManager->existsContent();
+}
+
+/// clear a cache for a given name
+bool
+ReasoningKernel :: clearSaveLoadContext ( const std::string& name ) const
+{
+	if ( checkSaveLoadContext(name) )
+	{
+		SaveLoadManager(name).clearContent();
+		return true;
+	}
+	return false;
+}
 
 //******************************************
 //* Initialization
