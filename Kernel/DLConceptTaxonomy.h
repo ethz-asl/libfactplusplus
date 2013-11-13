@@ -356,6 +356,7 @@ inline void
 TBox :: reclassify ( const std::set<const TNamedEntity*>& MPlus, const std::set<const TNamedEntity*>& MMinus )
 {
 	pTaxCreator->reclassify ( MPlus, MMinus );
+	Status = kbRealised;	// FIXME!! check whether it is classified/realised
 }
 
 #endif // DLCONCEPTTAXONOMY_H

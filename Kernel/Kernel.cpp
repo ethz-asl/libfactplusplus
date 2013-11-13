@@ -184,65 +184,50 @@ ReasoningKernel :: processKB ( KBStatus status )
 	if ( reasoningFailed )
 		throw EFaCTPlusPlus("Can't classify KB because of previous errors");
 
-	// check if something have to be done
-	if ( getStatus() >= status )
+	KBStatus curStatus = getStatus();
+
+	if ( curStatus >= status )
 	{	// nothing to do; but make sure that we are consistent
 		if ( !isKBConsistent() )
 			throw EFPPInconsistentKB();
 		return;
 	}
 
-	// here we have to do something: let's decide what to do
-	switch ( getStatus() )
-	{
-	case kbEmpty:
-	case kbLoading:		break;	// need to do the whole cycle -- just after the switch
-	case kbCChecked:	goto Classify;	// do classification
-	case kbClassified:	goto Realise;	// do realisation
-	default:	// nothing should be here
-		fpp_unreachable();
-	}
+	// here curStatus < kbRealised, and status >= kbChecked
+	if ( curStatus == kbEmpty || curStatus == kbLoading )
+	{	// load and preprocess KB -- here might be failures
+		reasoningFailed = true;
 
-	// start with loading and preprocessing -- here might be a failures
-	reasoningFailed = true;
+		// load the axioms from the ontology to the TBox
+		if ( needForceReload() )
+			forceReload();
+		else	// just do incremental classification and exit
+		{
+			doIncremental();
+			reasoningFailed = false;
+			return;
+		}
 
-	// load the axioms from the ontology to the TBox
-	if ( needForceReload() )
-		forceReload();
-	else
-	{
-		doIncremental();
+		// do the preprocessing and consistency check
+		pTBox->isConsistent();
+
+		// if there were no exception thrown -- clear the failure status
 		reasoningFailed = false;
-		return;
+
+		// if the consistency check is all we need -- return
+		if ( status == kbCChecked )
+			return;
 	}
 
-	// do the consistency check
-	pTBox->isConsistent();
+	// here we need to do classification or realisation
 
-	// if there were no exception thrown -- clear the failure status
-	reasoningFailed = false;
-
-	if ( status == kbCChecked )
+	if ( !pTBox->isConsistent() )	// nothing to do for inconsistent ontologies
 		return;
 
-Classify:	// do classification
-
-	// don't do classification twice
 	if ( status == kbRealised )
-		goto Realise;
-
-	if ( !pTBox->isConsistent() )
-		return;
-
-	FPP_USE_LOAD(pTBox->performClassification());
-	return;
-
-Realise:	// do realisation
-
-	if ( !pTBox->isConsistent() )
-		return;
-
-	FPP_USE_LOAD(pTBox->performRealisation());
+		FPP_USE_LOAD(pTBox->performRealisation());
+	else
+		FPP_USE_LOAD(pTBox->performClassification());
 }
 
 //-----------------------------------------------------------------------------
