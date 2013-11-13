@@ -157,23 +157,35 @@ ReasoningKernel :: forceReload ( void )
 // Prepare reasoning/query
 //-------------------------------------------------
 
-#if 0
-#	define FPP_USE_LOAD(Action)	do { 						\
-		std::ifstream state("FaCT++.state");				\
-		if ( state.good() ) { Load(state); return; }		\
-		else { Action; Save("FaCT++.state"); } } while(0)
-#else
-#	define FPP_USE_LOAD(Action)								\
-	do { if ( SLContext.empty() ) { Action; }				\
-		 else { std::string fn = getSLFileName(SLContext);	\
-			if ( checkSaveLoadContext(SLContext) )			\
-			{												\
-				try { Load(fn.c_str()); return; }			\
-				catch ( const EFPPSaveLoad& ) {}			\
-			}												\
-			Action; Save(fn.c_str());						\
-		} } while(0)
-#endif
+void
+ReasoningKernel :: ClassifyOrLoad ( bool needIndividuals )
+{
+	std::string fn = getSLFileName(SLContext);
+	if ( !SLContext.empty() )	// try to load the taxonomy
+	{
+		if ( checkSaveLoadContext(SLContext) )
+		{	// previous version exists
+			try
+			{
+				Load(fn.c_str());	// loaded => nothing to do
+				return;
+			}
+			catch ( const EFPPSaveLoad& )
+			{
+				// fail to load -- fall through to the real action
+			}
+		}
+	}
+	// perform the real classification
+	if ( needIndividuals )
+		pTBox->performRealisation();
+	else
+		pTBox->performClassification();
+
+	// save the result if necessary
+	if ( !SLContext.empty() )
+		Save(fn.c_str());
+}
 
 void
 ReasoningKernel :: processKB ( KBStatus status )
@@ -224,10 +236,7 @@ ReasoningKernel :: processKB ( KBStatus status )
 	if ( !pTBox->isConsistent() )	// nothing to do for inconsistent ontologies
 		return;
 
-	if ( status == kbRealised )
-		FPP_USE_LOAD(pTBox->performRealisation());
-	else
-		FPP_USE_LOAD(pTBox->performClassification());
+	ClassifyOrLoad(status == kbRealised);
 }
 
 //-----------------------------------------------------------------------------

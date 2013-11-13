@@ -237,6 +237,8 @@ protected:	// methods
 	}
 		/// process KB wrt STATUS
 	void processKB ( KBStatus status );
+		/// classify/realise KB only if it is impossible to load results
+	void ClassifyOrLoad ( bool needIndividuals );
 
 		/// get DLTree corresponding to an expression EXPR
 	DLTree* e ( const TExpr* expr )
