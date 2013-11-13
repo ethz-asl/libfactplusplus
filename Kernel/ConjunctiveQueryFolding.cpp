@@ -469,63 +469,65 @@ std::ostream& operator << (std::ostream& o, const TExpr* p )
 
 class BuildELIOConcept
 {
-	QRVarSet PassedVertice;
+protected:	// members
+		/// query to work on
+	const QRQuery* query;
+		/// visited vars
+	QRVarSet Visited;
 
 protected:	// methods
 		/// general creation of a concept by a var
 	virtual TConceptExpr* createConceptByVar ( const QRVariable* v ) = 0;
+
 public:		// interafce
-		/// empty c'tor
-	BuildELIOConcept ( void )  {}
+		/// init c'tor
+	BuildELIOConcept ( const QRQuery* q ) : query(q) {}
 		/// empty d'tor
 	virtual ~BuildELIOConcept ( void ) {}
 
 		/// assign the concept to a term
-	TConceptExpr* Assign ( const QRQuery* query, QRAtom* previousAtom, const QRVariable* v )
+	TConceptExpr* Assign ( const QRAtom* previousAtom, const QRVariable* v )
 	{
 		std::cout << "Assign:\n variable: " << v << "\n atom: " << previousAtom << std::endl;
-		PassedVertice.insert(v);
+		Visited.insert(v);
 
 		TConceptExpr* s = pEM->Top(), *t = createConceptByVar(v);
 		std::cout << "init t=" << t << std::endl;
 
-		for (QRSetAtoms::const_iterator atomIterator = query->Body.begin();
-			 atomIterator != query->Body.end();
-			 ++atomIterator)
+		for ( QRSetAtoms::const_iterator i = query->Body.begin(), i_end = query->Body.end(); i != i_end; ++i )
 		{
+			if ( *i == previousAtom )	// not going back
+				continue;
 
-			if (const QRRoleAtom * atom = dynamic_cast<const QRRoleAtom*> (* atomIterator)) {
-				const TDLObjectRoleExpression* role = atom -> getRole();
-				const QRVariable * arg1 = dynamic_cast <const QRVariable *> (atom -> getArg1() ) ;
-				const QRVariable * arg2 = dynamic_cast <const QRVariable *> (atom -> getArg2() ) ;
-
-				if (*atomIterator == previousAtom)
-					continue;
-
-				if (arg1 == v) {
-					TConceptExpr *p = Assign ( query, *atomIterator, arg2 );
-					p = pEM->Exists(role, p);
+			// for a role atom:
+			if (const QRRoleAtom* atom = dynamic_cast<const QRRoleAtom*>(*i))
+			{
+				if ( v == atom->getArg1() )	// R(v,x)
+				{
+					TConceptExpr* p = Assign ( atom, dynamic_cast<const QRVariable*>(atom->getArg2()) );
+					p = pEM->Exists(atom->getRole(), p);
 					std::cout << "s=" << s << ", p=" << p << std::endl;
 					s = And(s, p);
 					std::cout << "now s=" << s << std::endl;
 				}
 
-				if (arg2 == v) {
-					TConceptExpr *p = Assign ( query, *atomIterator, arg1 );
-					p = pEM->Exists(pEM -> Inverse(role), p);
+				if ( v == atom->getArg2() )	// R(x,v)
+				{
+					TConceptExpr* p = Assign ( atom, dynamic_cast<const QRVariable*>(atom->getArg1()) );
+					p = pEM->Exists(pEM->Inverse(atom->getRole()), p);
 					std::cout << "s=" << s << ", p=" << p << std::endl;
 					s = And(s, p);
 					std::cout << "now s=" << s << std::endl;
 				}
 			}
 
-			if (const QRConceptAtom * atom = dynamic_cast<const QRConceptAtom*> (* atomIterator)) {
-				const TDLConceptExpression* concept = atom -> getConcept();
-				const QRVariable * arg = dynamic_cast <const QRVariable *> (atom -> getArg() ) ;
-				if (arg == v)
-					s = And(s, concept);
-				std::cout << "now s=" << s << std::endl;
-			}
+			if (const QRConceptAtom* atom = dynamic_cast<const QRConceptAtom*>(*i))
+				if ( v == atom->getArg() )	// C(v)
+				{
+					std::cout << "s=" << s << std::endl;
+					s = And(s, atom->getConcept());
+					std::cout << "now s=" << s << std::endl;
+				}
 		}
 
 		std::cout << "s=" << s << ", t=" << t << std::endl;
@@ -533,16 +535,15 @@ public:		// interafce
 		std::cout << "finally s=" << s << std::endl;
 		return s;
 	}
-};
+}; // BuildELIOConcept
 
 class TermAssigner : public BuildELIOConcept {
-	const QRQuery* Query;
 	int N;
 
 protected:
 	virtual TConceptExpr* createConceptByVar ( const QRVariable* v )
 	{
-		if ( Query->isFreeVar(v) )	// NewVarMap[v]
+		if ( query->isFreeVar(v) )	// NewVarMap[v]
 		{
 			char buf[40];
 			sprintf(buf, ":%d", ++N);
@@ -555,9 +556,11 @@ protected:
 	}
 
 public:
-	TermAssigner ( const QRQuery* query ) : Query(query), N(0) { NewNominals.clear(); }
+		/// init c'tor
+	TermAssigner ( const QRQuery* query ) : BuildELIOConcept(query), N(0) { NewNominals.clear(); }
+		/// empty d'tor
 	virtual ~TermAssigner ( void ) {}
-};
+}; // TermAssigner
 
 static void
 deleteFictiveVariables ( QRQuery* query )
@@ -583,7 +586,7 @@ transformQueryPhase2 ( QRQuery* query )
 	TermAssigner assigner(query);
 	const QRVariable* var = *(query->FreeVars.begin());
 	std::cout << "Assigner initialised; var: " << var << "\n";
-	return assigner.Assign ( query, NULL, var );
+	return assigner.Assign ( NULL, var );
 }
 
 class QueryApproximation: public BuildELIOConcept
@@ -591,27 +594,40 @@ class QueryApproximation: public BuildELIOConcept
 protected:
 	virtual TConceptExpr* createConceptByVar ( const QRVariable* v )
 	{
-		return VarRestrictions[NewVarMap[v]->getName()];
+		if ( query->isFreeVar(v) )
+			return VarRestrictions[NewVarMap[v]->getName()];
+		return pEM->Top();
 	}
+
 public:
+		/// init c'tor
+	QueryApproximation ( const QRQuery* query ) : BuildELIOConcept(query) {}
+		/// empty d'tor
 	virtual ~QueryApproximation ( void ) {}
 }; // QueryApproximation
 
 static void BuildAproximation ( const QRQuery* query )
 {
-	QueryApproximation app;
+	QueryApproximation app(query);
+	std::cout << "Building approximation of " << query << std::endl;
 
 	typedef std::map<const QRVariable*, const TConceptExpr*> VEMap;
 	VEMap approx;
+	std::cout << "Var map:\n";
 	for ( VarVarMap::const_iterator p = NewVarMap.begin(), p_end = NewVarMap.end(); p != p_end; ++p )
+	{
+		std::cout << p->first << " -> " << p->second << "\n";
 		approx[p->second] = pEM->Top();
+	}
 
 	for ( QRQuery::QRVarSet::const_iterator v = query->FreeVars.begin(), v_end = query->FreeVars.end(); v != v_end; ++v )
 	{
 		const QRVariable* var = NewVarMap[*v];
-		approx[var] = And ( approx[var], app.Assign ( query, NULL, *v ) );
+		std::cout << "Approximating var " << var << std::endl;
+		approx[var] = And ( approx[var], app.Assign ( NULL, *v ) );
 	}
 
+	std::cout << "Approximation done\n";
 	for ( VEMap::const_iterator q = approx.begin(), q_end = approx.end(); q!= q_end; ++q )
 		VarRestrictions[q->first->getName()] = And ( VarRestrictions[q->first->getName()], q->second );
 }
