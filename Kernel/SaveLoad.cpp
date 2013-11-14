@@ -426,349 +426,6 @@ LoadRoleMaster ( RoleMaster& RM, SaveLoadManager& m )
 //	useUndefinedNames = false;	// no names
 }
 
-
-//----------------------------------------------------------
-//-- Implementation of the TBox methods (dlTBox.h)
-//----------------------------------------------------------
-
-void
-TBox :: Save ( SaveLoadManager& m ) const
-{
-	tvMap.clear();
-	neMap.clear();
-	neMap.add(pBottom);
-	neMap.add(pTop);
-	neMap.add(pTemp);
-	neMap.add(pQuery);
-	// datatypes
-//	TreeDeleter Bool(TreeDeleter(DTCenter.getBoolType()));
-	neMap.add(DTCenter.getStringType()->Element().getNE());
-	neMap.add(DTCenter.getNumberType()->Element().getNE());
-	neMap.add(DTCenter.getRealType()->Element().getNE());
-	neMap.add(DTCenter.getBoolType()->Element().getNE());
-	neMap.add(DTCenter.getTimeType()->Element().getNE());
-	neMap.add(DTCenter.getFreshDataType()->Element().getNE());
-	m.o() << "\nC";
-	std::set<const TNamedEntry*> empty;
-	SaveTNECollection(Concepts,m,empty);
-	m.o() << "\nI";
-	SaveTNECollection(Individuals,m,empty);
-	m.o() << "\nOR";
-	SaveRoleMaster(ORM,m);
-	m.o() << "\nDR";
-	SaveRoleMaster(DRM,m);
-	m.o() << "\nD";
-	DLHeap.Save(m);
-	if ( Status > kbCChecked )
-	{
-		m.o() << "\nCT";
-		pTax->Save(m,empty);
-	}
-	DLHeap.SaveCache(m);
-}
-
-void
-TBox :: Load ( SaveLoadManager& m, KBStatus status )
-{
-	Status = status;
-	tvMap.clear();
-	neMap.clear();
-	neMap.add(pBottom);
-	neMap.add(pTop);
-	neMap.add(pTemp);
-	neMap.add(pQuery);
-	// datatypes
-	neMap.add(DTCenter.getStringType()->Element().getNE());
-	neMap.add(DTCenter.getNumberType()->Element().getNE());
-	neMap.add(DTCenter.getRealType()->Element().getNE());
-	neMap.add(DTCenter.getBoolType()->Element().getNE());
-	neMap.add(DTCenter.getTimeType()->Element().getNE());
-	neMap.add(DTCenter.getFreshDataType()->Element().getNE());
-	m.expectChar('C');
-	LoadTNECollection(Concepts,m);
-	m.expectChar('I');
-	LoadTNECollection(Individuals,m);
-	m.expectChar('O');
-	m.expectChar('R');
-	LoadRoleMaster(ORM,m);
-	m.expectChar('D');
-	m.expectChar('R');
-	LoadRoleMaster(DRM,m);
-	m.expectChar('D');
-//	DLHeap.Load(m);
-	if ( !DLHeap.Verify(m) )
-		throw EFPPSaveLoad("DAG verification failed");
-//	initReasoner();
-	if ( Status > kbCChecked )
-	{
-		initTaxonomy();
-		pTaxCreator->setBottomUp(GCIs);
-		m.expectChar('C');
-		m.expectChar('T');
-		pTax->Load(m);
-	}
-	DLHeap.LoadCache(m);
-}
-
-//----------------------------------------------------------
-//-- Save/Load incremental structures (Kernel.h)
-//----------------------------------------------------------
-
-void
-ReasoningKernel :: SaveIncremental ( SaveLoadManager& m ) const
-{
-	if ( !useIncrementalReasoning )
-		return;
-	m.o() << "\nQ";
-	m.saveUInt(Name2Sig.size());
-	for ( NameSigMap::const_iterator p = Name2Sig.begin(), p_end = Name2Sig.end(); p != p_end; ++p )
-	{
-		m.saveUInt(eMap.getI(const_cast<TNamedEntity*>(p->first)));
-		m.saveUInt(p->second->size());
-
-		for ( TSignature::iterator q = p->second->begin(), q_end = p->second->end(); q != q_end; ++q )
-			m.saveUInt(eMap.getI(const_cast<TNamedEntity*>(*q)));
-	}
-}
-
-void
-ReasoningKernel :: LoadIncremental ( SaveLoadManager& m )
-{
-	if ( !useIncrementalReasoning )
-		return;
-	m.expectChar('Q');
-	Name2Sig.clear();
-	unsigned int size = m.loadUInt();
-	for ( unsigned int j = 0; j < size; j++ )
-	{
-		TNamedEntity* entity = eMap.getP(m.loadUInt());
-		unsigned int sigSize = m.loadUInt();
-		TSignature* sig = new TSignature();
-		for ( unsigned int k = 0; k < sigSize; k++ )
-			sig->add(eMap.getP(m.loadUInt()));
-		Name2Sig[entity] = sig;
-	}
-}
-
-//----------------------------------------------------------
-//-- Implementation of the incremental method (Kernel.h)
-//----------------------------------------------------------
-
-void
-TBox :: SaveTaxonomy ( SaveLoadManager& m, const std::set<const TNamedEntry*>& excluded )
-{
-	tvMap.clear();
-	neMap.clear();
-	neMap.add(pBottom);
-	neMap.add(pTop);
-	neMap.add(pTemp);
-	neMap.add(pQuery);
-	m.o() << "\nC";
-	SaveTNECollection(Concepts,m,excluded);
-	m.o() << "\nI";
-	SaveTNECollection(Individuals,m,excluded);
-	m.o() << "\nCT";
-	pTax->Save(m,excluded);
-}
-
-void
-TBox :: LoadTaxonomy ( SaveLoadManager& m )
-{
-	tvMap.clear();
-	neMap.clear();
-	neMap.add(pBottom);
-	neMap.add(pTop);
-	neMap.add(pTemp);
-	neMap.add(pQuery);
-	m.expectChar('C');
-	LoadTNECollection(Concepts,m);
-	m.expectChar('I');
-	LoadTNECollection(Individuals,m);
-	initTaxonomy();
-	pTaxCreator->setBottomUp(GCIs);
-	m.expectChar('C');
-	m.expectChar('T');
-	pTax->Load(m);
-}
-
-//----------------------------------------------------------
-//-- Implementation of the TNamedEntry methods (tNamedEntry.h)
-//----------------------------------------------------------
-
-void
-TNamedEntry :: Save ( SaveLoadManager& m ) const
-{
-	m.saveUInt(getAllFlags());
-}
-
-void
-TNamedEntry :: Load ( SaveLoadManager& m )
-{
-	setAllFlags(m.loadUInt());
-}
-
-//----------------------------------------------------------
-//-- Implementation of the TConcept methods (tConcept.h)
-//----------------------------------------------------------
-
-void
-TConcept :: Save ( SaveLoadManager& m ) const
-{
-	ClassifiableEntry::Save(m);
-	m.saveUInt((unsigned int)classTag);
-	m.saveUInt(tsDepth);
-	m.saveSInt(pName);
-	m.saveSInt(pBody);
-	m.saveUInt(posFeatures.getAllFlags());
-	m.saveUInt(negFeatures.getAllFlags());
-//	ERSet.Save(m);
-}
-
-void
-TConcept :: Load ( SaveLoadManager& m )
-{
-	ClassifiableEntry::Load(m);
-	classTag = CTTag(m.loadUInt());
-	tsDepth = m.loadUInt();
-	pName = m.loadSInt();
-	pBody = m.loadSInt();
-	posFeatures.setAllFlags(m.loadUInt());
-	negFeatures.setAllFlags(m.loadUInt());
-//	ERSet.Load(m);
-}
-
-//----------------------------------------------------------
-//-- Implementation of the TIndividual methods (tIndividual.h)
-//----------------------------------------------------------
-
-void
-TIndividual :: Save ( SaveLoadManager& m ) const
-{
-	TConcept::Save(m);
-//	RelatedIndex.Save(m);
-}
-
-void
-TIndividual :: Load ( SaveLoadManager& m )
-{
-	TConcept::Load(m);
-//	RelatedIndex.Load(m);
-}
-
-//----------------------------------------------------------
-//-- Implementation of the TRole methods (tRole.h)
-//----------------------------------------------------------
-
-void
-TRole :: Save ( SaveLoadManager& m ) const
-{
-	ClassifiableEntry::Save(m);
-	// FIXME!! think about automaton
-}
-
-void
-TRole :: Load ( SaveLoadManager& m )
-{
-	ClassifiableEntry::Load(m);
-	// FIXME!! think about automaton
-}
-
-//----------------------------------------------------------
-//-- Implementation of the Taxonomy methods (Taxonomy.h)
-//----------------------------------------------------------
-
-void
-Taxonomy :: Save ( SaveLoadManager& m, const std::set<const TNamedEntry*>& excluded ) const
-{
-	TaxVertexVec::const_iterator p, p_beg = Graph.begin(), p_end = Graph.end();
-	tvMap.clear();	// it would be it's own map for every taxonomy
-	tvMap.add ( p_beg, p_end );
-
-	// save number of taxonomy elements
-	m.saveUInt(Graph.size()/*-excluded.size()*/);
-	m.o() << "\n";
-
-	// save labels for all verteces of the taxonomy
-	for ( p = p_beg; p != p_end; ++p )
-//		if ( excluded.count((*p)->getPrimer()) == 0 )
-			(*p)->SaveLabel(m);
-
-	// save the taxonomys hierarchy
-	for ( p = p_beg; p != p_end; ++p )
-//		if ( excluded.count((*p)->getPrimer()) == 0 )
-			(*p)->SaveNeighbours(m);
-}
-
-void
-Taxonomy :: Load ( SaveLoadManager& m )
-{
-	unsigned int size = m.loadUInt();
-	tvMap.clear();
-	Graph.clear();	// both TOP and BOTTOM elements would be load;
-
-	// create all the verteces and load their labels
-	for ( unsigned int j = 0; j < size; ++j )
-	{
-		ClassifiableEntry* p = static_cast<ClassifiableEntry*>(neMap.getP(m.loadUInt()));
-		TaxonomyVertex* v = new TaxonomyVertex(p);
-		Graph.push_back(v);
-		v->LoadLabel(m);
-		tvMap.add(v);
-	}
-
-	// load the hierarchy
-	for ( TaxVertexVec::iterator p = Graph.begin(), p_end = Graph.end(); p < p_end; ++p )
-		(*p)->LoadNeighbours(m);
-}
-
-//----------------------------------------------------------
-//-- Implementation of the TaxonomyVertex methods (taxVertex.h)
-//----------------------------------------------------------
-
-void
-TaxonomyVertex :: SaveLabel ( SaveLoadManager& m ) const
-{
-	m.saveUInt(neMap.getI(const_cast<ClassifiableEntry*>(sample)));
-	m.saveUInt(synonyms.size());
-	for ( syn_iterator p = begin_syn(), p_end = end_syn(); p < p_end; ++p )
-		m.saveUInt(neMap.getI(const_cast<ClassifiableEntry*>(*p)));
-	m.o() << "\n";
-}
-
-void
-TaxonomyVertex :: LoadLabel ( SaveLoadManager& m )
-{
-	// note that sample is already loaded
-	unsigned int size = m.loadUInt();
-	for ( unsigned int j = 0; j < size; ++j )
-		addSynonym(static_cast<ClassifiableEntry*>(neMap.getP(m.loadUInt())));
-}
-
-void
-TaxonomyVertex :: SaveNeighbours ( SaveLoadManager& m ) const
-{
-	const_iterator p, p_end;
-	m.saveUInt(neigh(true).size());
-	for ( p = begin(true), p_end = end(true); p != p_end; ++p )
-		m.saveUInt(tvMap.getI(*p));
-	m.saveUInt(neigh(false).size());
-	for ( p = begin(false), p_end = end(false); p != p_end; ++p )
-		m.saveUInt(tvMap.getI(*p));
-	m.o() << "\n";
-}
-
-void
-TaxonomyVertex :: LoadNeighbours ( SaveLoadManager& m )
-{
-	unsigned int j, size;
-	size = m.loadUInt();
-	for ( j = 0; j < size; ++j )
-		addNeighbour ( true, tvMap.getP(m.loadUInt()) );
-	size = m.loadUInt();
-	for ( j = 0; j < size; ++j )
-		addNeighbour ( false, tvMap.getP(m.loadUInt()) );
-}
-
 //----------------------------------------------------------
 //-- Implementation of the DLDag methods (dlDag.h)
 //----------------------------------------------------------
@@ -910,6 +567,345 @@ DLDag :: LoadCache ( SaveLoadManager& m )
 		setCache ( bp, LoadSingleCache(m) );
 		bp = m.loadSInt();
 	}
+}
+
+
+//----------------------------------------------------------
+//-- Implementation of the TBox methods (dlTBox.h)
+//----------------------------------------------------------
+
+void
+TBox :: Save ( SaveLoadManager& m ) const
+{
+	tvMap.clear();
+	neMap.clear();
+	neMap.add(pBottom);
+	neMap.add(pTop);
+	neMap.add(pTemp);
+	neMap.add(pQuery);
+	// datatypes
+//	TreeDeleter Bool(TreeDeleter(DTCenter.getBoolType()));
+	neMap.add(DTCenter.getStringType()->Element().getNE());
+	neMap.add(DTCenter.getNumberType()->Element().getNE());
+	neMap.add(DTCenter.getRealType()->Element().getNE());
+	neMap.add(DTCenter.getBoolType()->Element().getNE());
+	neMap.add(DTCenter.getTimeType()->Element().getNE());
+	neMap.add(DTCenter.getFreshDataType()->Element().getNE());
+	m.o() << "\nC";
+	std::set<const TNamedEntry*> empty;
+	SaveTNECollection(Concepts,m,empty);
+	m.o() << "\nI";
+	SaveTNECollection(Individuals,m,empty);
+	m.o() << "\nOR";
+	SaveRoleMaster(ORM,m);
+	m.o() << "\nDR";
+	SaveRoleMaster(DRM,m);
+	m.o() << "\nD";
+	DLHeap.Save(m);
+	if ( Status > kbCChecked )
+	{
+		m.o() << "\nCT";
+		pTax->Save(m,empty);
+	}
+	DLHeap.SaveCache(m);
+}
+
+void
+TBox :: Load ( SaveLoadManager& m, KBStatus status )
+{
+	Status = status;
+	tvMap.clear();
+	neMap.clear();
+	neMap.add(pBottom);
+	neMap.add(pTop);
+	neMap.add(pTemp);
+	neMap.add(pQuery);
+	// datatypes
+	neMap.add(DTCenter.getStringType()->Element().getNE());
+	neMap.add(DTCenter.getNumberType()->Element().getNE());
+	neMap.add(DTCenter.getRealType()->Element().getNE());
+	neMap.add(DTCenter.getBoolType()->Element().getNE());
+	neMap.add(DTCenter.getTimeType()->Element().getNE());
+	neMap.add(DTCenter.getFreshDataType()->Element().getNE());
+	m.expectChar('C');
+	LoadTNECollection(Concepts,m);
+	m.expectChar('I');
+	LoadTNECollection(Individuals,m);
+	m.expectChar('O');
+	m.expectChar('R');
+	LoadRoleMaster(ORM,m);
+	m.expectChar('D');
+	m.expectChar('R');
+	LoadRoleMaster(DRM,m);
+	m.expectChar('D');
+//	DLHeap.Load(m);
+	if ( !DLHeap.Verify(m) )
+		throw EFPPSaveLoad("DAG verification failed");
+//	initReasoner();
+	if ( Status > kbCChecked )
+	{
+		initTaxonomy();
+		pTaxCreator->setBottomUp(GCIs);
+		m.expectChar('C');
+		m.expectChar('T');
+		pTax->Load(m);
+	}
+	DLHeap.LoadCache(m);
+}
+
+void
+TBox :: SaveTaxonomy ( SaveLoadManager& m, const std::set<const TNamedEntry*>& excluded )
+{
+	tvMap.clear();
+	neMap.clear();
+	neMap.add(pBottom);
+	neMap.add(pTop);
+	neMap.add(pTemp);
+	neMap.add(pQuery);
+	m.o() << "\nC";
+	SaveTNECollection(Concepts,m,excluded);
+	m.o() << "\nI";
+	SaveTNECollection(Individuals,m,excluded);
+	m.o() << "\nCT";
+	pTax->Save(m,excluded);
+}
+
+void
+TBox :: LoadTaxonomy ( SaveLoadManager& m )
+{
+	tvMap.clear();
+	neMap.clear();
+	neMap.add(pBottom);
+	neMap.add(pTop);
+	neMap.add(pTemp);
+	neMap.add(pQuery);
+	m.expectChar('C');
+	LoadTNECollection(Concepts,m);
+	m.expectChar('I');
+	LoadTNECollection(Individuals,m);
+	initTaxonomy();
+	pTaxCreator->setBottomUp(GCIs);
+	m.expectChar('C');
+	m.expectChar('T');
+	pTax->Load(m);
+}
+
+//----------------------------------------------------------
+//-- Save/Load incremental structures (Kernel.h)
+//----------------------------------------------------------
+
+void
+ReasoningKernel :: SaveIncremental ( SaveLoadManager& m ) const
+{
+	if ( !useIncrementalReasoning )
+		return;
+	m.o() << "\nQ";
+	m.saveUInt(Name2Sig.size());
+	for ( NameSigMap::const_iterator p = Name2Sig.begin(), p_end = Name2Sig.end(); p != p_end; ++p )
+	{
+		m.saveUInt(eMap.getI(const_cast<TNamedEntity*>(p->first)));
+		m.saveUInt(p->second->size());
+
+		for ( TSignature::iterator q = p->second->begin(), q_end = p->second->end(); q != q_end; ++q )
+			m.saveUInt(eMap.getI(const_cast<TNamedEntity*>(*q)));
+	}
+}
+
+void
+ReasoningKernel :: LoadIncremental ( SaveLoadManager& m )
+{
+	if ( !useIncrementalReasoning )
+		return;
+	m.expectChar('Q');
+	Name2Sig.clear();
+	unsigned int size = m.loadUInt();
+	for ( unsigned int j = 0; j < size; j++ )
+	{
+		TNamedEntity* entity = eMap.getP(m.loadUInt());
+		unsigned int sigSize = m.loadUInt();
+		TSignature* sig = new TSignature();
+		for ( unsigned int k = 0; k < sigSize; k++ )
+			sig->add(eMap.getP(m.loadUInt()));
+		Name2Sig[entity] = sig;
+	}
+}
+
+//----------------------------------------------------------
+//-- Implementation of the TNamedEntry methods (tNamedEntry.h)
+//----------------------------------------------------------
+
+void
+TNamedEntry :: Save ( SaveLoadManager& m ) const
+{
+	m.saveUInt(getAllFlags());
+}
+
+void
+TNamedEntry :: Load ( SaveLoadManager& m )
+{
+	setAllFlags(m.loadUInt());
+}
+
+//----------------------------------------------------------
+//-- Implementation of the TConcept methods (tConcept.h)
+//----------------------------------------------------------
+
+void
+TConcept :: Save ( SaveLoadManager& m ) const
+{
+	ClassifiableEntry::Save(m);
+	m.saveUInt((unsigned int)classTag);
+	m.saveUInt(tsDepth);
+	m.saveSInt(pName);
+	m.saveSInt(pBody);
+	m.saveUInt(posFeatures.getAllFlags());
+	m.saveUInt(negFeatures.getAllFlags());
+//	ERSet.Save(m);
+}
+
+void
+TConcept :: Load ( SaveLoadManager& m )
+{
+	ClassifiableEntry::Load(m);
+	classTag = CTTag(m.loadUInt());
+	tsDepth = m.loadUInt();
+	pName = m.loadSInt();
+	pBody = m.loadSInt();
+	posFeatures.setAllFlags(m.loadUInt());
+	negFeatures.setAllFlags(m.loadUInt());
+//	ERSet.Load(m);
+}
+
+//----------------------------------------------------------
+//-- Implementation of the TIndividual methods (tIndividual.h)
+//----------------------------------------------------------
+
+void
+TIndividual :: Save ( SaveLoadManager& m ) const
+{
+	TConcept::Save(m);
+//	RelatedIndex.Save(m);
+}
+
+void
+TIndividual :: Load ( SaveLoadManager& m )
+{
+	TConcept::Load(m);
+//	RelatedIndex.Load(m);
+}
+
+//----------------------------------------------------------
+//-- Implementation of the TRole methods (tRole.h)
+//----------------------------------------------------------
+
+void
+TRole :: Save ( SaveLoadManager& m ) const
+{
+	ClassifiableEntry::Save(m);
+	// FIXME!! think about automaton
+}
+
+void
+TRole :: Load ( SaveLoadManager& m )
+{
+	ClassifiableEntry::Load(m);
+	// FIXME!! think about automaton
+}
+
+//----------------------------------------------------------
+//-- Implementation of the TaxonomyVertex methods (taxVertex.h)
+//----------------------------------------------------------
+
+void
+TaxonomyVertex :: SaveLabel ( SaveLoadManager& m ) const
+{
+	m.saveUInt(neMap.getI(const_cast<ClassifiableEntry*>(sample)));
+	m.saveUInt(synonyms.size());
+	for ( syn_iterator p = begin_syn(), p_end = end_syn(); p < p_end; ++p )
+		m.saveUInt(neMap.getI(const_cast<ClassifiableEntry*>(*p)));
+	m.o() << "\n";
+}
+
+void
+TaxonomyVertex :: LoadLabel ( SaveLoadManager& m )
+{
+	// note that sample is already loaded
+	unsigned int size = m.loadUInt();
+	for ( unsigned int j = 0; j < size; ++j )
+		addSynonym(static_cast<ClassifiableEntry*>(neMap.getP(m.loadUInt())));
+}
+
+void
+TaxonomyVertex :: SaveNeighbours ( SaveLoadManager& m ) const
+{
+	const_iterator p, p_end;
+	m.saveUInt(neigh(true).size());
+	for ( p = begin(true), p_end = end(true); p != p_end; ++p )
+		m.saveUInt(tvMap.getI(*p));
+	m.saveUInt(neigh(false).size());
+	for ( p = begin(false), p_end = end(false); p != p_end; ++p )
+		m.saveUInt(tvMap.getI(*p));
+	m.o() << "\n";
+}
+
+void
+TaxonomyVertex :: LoadNeighbours ( SaveLoadManager& m )
+{
+	unsigned int j, size;
+	size = m.loadUInt();
+	for ( j = 0; j < size; ++j )
+		addNeighbour ( true, tvMap.getP(m.loadUInt()) );
+	size = m.loadUInt();
+	for ( j = 0; j < size; ++j )
+		addNeighbour ( false, tvMap.getP(m.loadUInt()) );
+}
+
+//----------------------------------------------------------
+//-- Implementation of the Taxonomy methods (Taxonomy.h)
+//----------------------------------------------------------
+
+void
+Taxonomy :: Save ( SaveLoadManager& m, const std::set<const TNamedEntry*>& excluded ) const
+{
+	TaxVertexVec::const_iterator p, p_beg = Graph.begin(), p_end = Graph.end();
+	tvMap.clear();	// it would be it's own map for every taxonomy
+	tvMap.add ( p_beg, p_end );
+
+	// save number of taxonomy elements
+	m.saveUInt(Graph.size()/*-excluded.size()*/);
+	m.o() << "\n";
+
+	// save labels for all verteces of the taxonomy
+	for ( p = p_beg; p != p_end; ++p )
+//		if ( excluded.count((*p)->getPrimer()) == 0 )
+			(*p)->SaveLabel(m);
+
+	// save the taxonomys hierarchy
+	for ( p = p_beg; p != p_end; ++p )
+//		if ( excluded.count((*p)->getPrimer()) == 0 )
+			(*p)->SaveNeighbours(m);
+}
+
+void
+Taxonomy :: Load ( SaveLoadManager& m )
+{
+	unsigned int size = m.loadUInt();
+	tvMap.clear();
+	Graph.clear();	// both TOP and BOTTOM elements would be load;
+
+	// create all the verteces and load their labels
+	for ( unsigned int j = 0; j < size; ++j )
+	{
+		ClassifiableEntry* p = static_cast<ClassifiableEntry*>(neMap.getP(m.loadUInt()));
+		TaxonomyVertex* v = new TaxonomyVertex(p);
+		Graph.push_back(v);
+		v->LoadLabel(m);
+		tvMap.add(v);
+	}
+
+	// load the hierarchy
+	for ( TaxVertexVec::iterator p = Graph.begin(), p_end = Graph.end(); p < p_end; ++p )
+		(*p)->LoadNeighbours(m);
 }
 
 //----------------------------------------------------------
