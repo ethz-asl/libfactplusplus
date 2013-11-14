@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2012 by Dmitry Tsarkov
+Copyright (C) 2003-2013 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -133,8 +133,12 @@ public:		// interface
 
 		/// @return pointer to a TOP role
 	TRole* getTopRole ( void ) { return &universalRole; }
+		/// @return const pointer to a TOP role
+	const TRole* getTopRole ( void ) const { return &universalRole; }
 		/// @return pointer to a BOTTOM role
 	TRole* getBotRole ( void ) { return &emptyRole; }
+		/// @return const pointer to a BOTTOM role
+	const TRole* getBotRole ( void ) const { return &emptyRole; }
 		/// RW pointer to the first user-defined role
 	iterator begin ( void ) { return Roles.begin()+firstRoleIndex(); }
 		/// RW pointer after the last user-defined role
@@ -163,14 +167,6 @@ public:		// interface
 		for ( const_iterator p = begin(); p != end(); ++p )
 			(*p)->Print(o);
 	}
-
-
-	// save/load interface; implementation is in SaveLoad.cpp
-
-		/// save entry
-	void Save ( std::ostream& o ) const;
-		/// load entry
-	void Load ( std::istream& i );
 }; // RoleMaster
 
 inline bool

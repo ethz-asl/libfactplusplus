@@ -334,6 +334,145 @@ ReasoningKernel :: LoadKB ( istream& i )
 }
 
 //----------------------------------------------------------
+//-- Helpers: Save/Load of class TNECollection
+//----------------------------------------------------------
+
+/// Save all the objects in the collection
+template<class T>
+static void
+SaveTNECollection ( const TNECollection<T>& collection, ostream& o, const std::set<const TNamedEntry*>& excluded )
+{
+	typename TNECollection<T>::const_iterator p, p_beg = collection.begin(), p_end = collection.end();
+	// get the max length of the identifier in the collection
+	unsigned int maxLength = 0, curLength;
+
+	for ( p = p_beg; p < p_end; ++p )
+		if ( /*excluded.count(*p) == 0 && */maxLength < (curLength = strlen((*p)->getName())) )
+			maxLength = curLength;
+
+	// save number of entries and max length of the entry
+	saveUInt(o,collection.size());
+	saveUInt(o,maxLength);
+
+	// save names of all entries
+	for ( p = p_beg; p < p_end; ++p )
+	{
+		// register all entries in the global map
+		regPointer(*p);
+//		if ( excluded.count(*p) == 0 )
+			o << (*p)->getName() << "\n";
+	}
+
+	// save the entries itself
+//	for ( p = p_beg; p < p_end; ++p )
+//		(*p)->Save(o);
+}
+/// Load all the objects into the collection
+template<class T>
+static void
+LoadTNECollection ( TNECollection<T>& collection, istream& i )
+{
+	// sanity check: Load shall be done for the empty collection and only once
+//	fpp_assert ( size() == 0 );
+
+	unsigned int collSize, maxLength;
+	collSize = loadUInt(i);
+	maxLength = loadUInt(i);
+	++maxLength;
+	char* name = new char[maxLength];
+
+	// register all the named entries
+	for ( unsigned int j = 0; j < collSize; ++j )
+	{
+		i.getline ( name, maxLength, '\n' );
+		regPointer(collection.get(name));
+	}
+
+	delete [] name;
+
+	// load all the named entries
+//	for ( iterator p = begin(); p < end(); ++p )
+//		(*p)->Load(i);
+}
+
+//----------------------------------------------------------
+//-- Helpers: Save/Load of class RoleMaster
+//----------------------------------------------------------
+
+static void
+SaveRoleMaster ( const RoleMaster& RM, ostream& o )
+{
+	RoleMaster::const_iterator p, p_beg = RM.begin(), p_end = RM.end();
+	// get the max length of the identifier in the collection
+	unsigned int maxLength = 0, curLength, size = 0;
+
+	for ( p = p_beg; p != p_end; p += 2, size++ )
+		if ( maxLength < (curLength = strlen((*p)->getName())) )
+			maxLength = curLength;
+
+	// save number of entries and max length of the entry
+	saveUInt(o,size);
+	saveUInt(o,maxLength);
+
+	// register const entries in the global map
+	regPointer(RM.getBotRole());
+	regPointer(RM.getTopRole());
+
+	// save names of all (non-inverse) entries
+	for ( p = p_beg; p != p_end; p += 2 )
+	{
+		regPointer(*p);
+		o << (*p)->getName() << "\n";
+	}
+
+//	// save the entries itself
+//	for ( p = p_beg; p < p_end; ++p )
+//		(*p)->Save(o);
+//
+//	// save the rest of the RM
+//	o << "\nRT";
+//	pTax->Save(o);
+}
+
+static void
+LoadRoleMaster ( RoleMaster& RM, istream& i )
+{
+	// sanity check: Load shall be done for the empty collection and only once
+//	fpp_assert ( size() == 0 );
+
+	unsigned int RMSize, maxLength;
+	RMSize = loadUInt(i);
+	maxLength = loadUInt(i);
+	++maxLength;
+	char* name = new char[maxLength];
+
+	// register const entries in the global map
+	regPointer(RM.getBotRole());
+	regPointer(RM.getTopRole());
+
+	// register all the named entries
+	for ( unsigned int j = 0; j < RMSize; ++j )
+	{
+		i.getline ( name, maxLength, '\n' );
+		regPointer(RM.ensureRoleName(name));
+	}
+
+	delete [] name;
+
+//	// load all the named entries
+//	for ( iterator p = begin(); p < end(); ++p )
+//		(*p)->Load(i);
+//
+//	// load the rest of the RM
+//	expectChar(i,'R');
+//	expectChar(i,'T');
+//	pTax = new Taxonomy ( &universalRole, &emptyRole );
+//	pTax->Load(i);
+//	useUndefinedNames = false;	// no names
+}
+
+
+//----------------------------------------------------------
 //-- Implementation of the TBox methods (dlTBox.h)
 //----------------------------------------------------------
 
@@ -356,13 +495,13 @@ TBox :: Save ( ostream& o ) const
 	neMap.add(DTCenter.getFreshDataType()->Element().getNE());
 	o << "\nC";
 	std::set<const TNamedEntry*> empty;
-	Concepts.Save(o,empty);
+	SaveTNECollection(Concepts,o,empty);
 	o << "\nI";
-	Individuals.Save(o,empty);
+	SaveTNECollection(Individuals,o,empty);
 	o << "\nOR";
-	ORM.Save(o);
+	SaveRoleMaster(ORM,o);
 	o << "\nDR";
-	DRM.Save(o);
+	SaveRoleMaster(DRM,o);
 	o << "\nD";
 	DLHeap.Save(o);
 	if ( Status > kbCChecked )
@@ -391,15 +530,15 @@ TBox :: Load ( istream& i, KBStatus status )
 	neMap.add(DTCenter.getTimeType()->Element().getNE());
 	neMap.add(DTCenter.getFreshDataType()->Element().getNE());
 	expectChar(i,'C');
-	Concepts.Load(i);
+	LoadTNECollection(Concepts,i);
 	expectChar(i,'I');
-	Individuals.Load(i);
+	LoadTNECollection(Individuals,i);
 	expectChar(i,'O');
 	expectChar(i,'R');
-	ORM.Load(i);
+	LoadRoleMaster(ORM,i);
 	expectChar(i,'D');
 	expectChar(i,'R');
-	DRM.Load(i);
+	LoadRoleMaster(DRM,i);
 	expectChar(i,'D');
 //	DLHeap.Load(i);
 	if ( !DLHeap.Verify(i) )
@@ -470,9 +609,9 @@ TBox :: SaveTaxonomy ( std::ostream& o, const std::set<const TNamedEntry*>& excl
 	neMap.add(pTemp);
 	neMap.add(pQuery);
 	o << "\nC";
-	Concepts.Save(o,excluded);
+	SaveTNECollection(Concepts,o,excluded);
 	o << "\nI";
-	Individuals.Save(o,excluded);
+	SaveTNECollection(Individuals,o,excluded);
 	o << "\nCT";
 	pTax->Save(o,excluded);
 }
@@ -487,76 +626,14 @@ TBox :: LoadTaxonomy ( std::istream& i )
 	neMap.add(pTemp);
 	neMap.add(pQuery);
 	expectChar(i,'C');
-	Concepts.Load(i);
+	LoadTNECollection(Concepts,i);
 	expectChar(i,'I');
-	Individuals.Load(i);
+	LoadTNECollection(Individuals,i);
 	initTaxonomy();
 	pTaxCreator->setBottomUp(GCIs);
 	expectChar(i,'C');
 	expectChar(i,'T');
 	pTax->Load(i);
-}
-
-//----------------------------------------------------------
-//-- Implementation of the TNECollection methods (tNECollection.h)
-//----------------------------------------------------------
-
-/// Save all the objects in the collection
-template<class T>
-void
-TNECollection<T> :: Save ( ostream& o, const std::set<const TNamedEntry*>& excluded ) const
-{
-	const_iterator p, p_beg = begin(), p_end = end();
-	// get the max length of the identifier in the collection
-	unsigned int maxLength = 0, curLength;
-
-	for ( p = p_beg; p < p_end; ++p )
-		if ( /*excluded.count(*p) == 0 && */maxLength < (curLength = strlen((*p)->getName())) )
-			maxLength = curLength;
-
-	// save number of entries and max length of the entry
-	saveUInt(o,size());
-	saveUInt(o,maxLength);
-
-	// save names of all entries
-	for ( p = p_beg; p < p_end; ++p )
-	{
-		// register all entries in the global map
-		regPointer(*p);
-//		if ( excluded.count(*p) == 0 )
-			o << (*p)->getName() << "\n";
-	}
-
-	// save the entries itself
-//	for ( p = p_beg; p < p_end; ++p )
-//		(*p)->Save(o);
-}
-/// Load all the objects into the collection
-template<class T>
-void
-TNECollection<T> :: Load ( istream& i )
-{
-	// sanity check: Load shall be done for the empty collection and only once
-//	fpp_assert ( size() == 0 );
-
-	unsigned int collSize, maxLength;
-	collSize = loadUInt(i);
-	maxLength = loadUInt(i);
-	++maxLength;
-	char* name = new char[maxLength];
-
-	// register all the named entries
-	for ( unsigned int j = 0; j < collSize; ++j )
-	{
-		i.getline ( name, maxLength, '\n' );
-		regPointer(get(name));
-	}
-
-	delete [] name;
-
-	// load all the named entries
-//	for ( iterator p = begin(); p < end(); ++p )
-//		(*p)->Load(i);
 }
 
 //----------------------------------------------------------
@@ -621,82 +698,6 @@ TIndividual :: Load ( istream& i )
 {
 	TConcept::Load(i);
 //	RelatedIndex.Load(i);
-}
-
-//----------------------------------------------------------
-//-- Implementation of the RoleMaster methods (RoleMaster.h)
-//----------------------------------------------------------
-
-void
-RoleMaster :: Save ( ostream& o ) const
-{
-	const_iterator p, p_beg = begin(), p_end = end();
-	// get the max length of the identifier in the collection
-	unsigned int maxLength = 0, curLength;
-
-	for ( p = p_beg; p < p_end; p += 2 )
-		if ( maxLength < (curLength = strlen((*p)->getName())) )
-			maxLength = curLength;
-
-	// save number of entries and max length of the entry
-	saveUInt(o,size());
-	saveUInt(o,maxLength);
-
-	// register all entries in the global map
-	regPointer(&emptyRole);
-	regPointer(&universalRole);
-
-	// save names of all (non-inverse) entries
-	for ( p = p_beg; p < p_end; p += 2 )
-	{
-		regPointer(*p);
-		o << (*p)->getName() << "\n";
-	}
-
-//	// save the entries itself
-//	for ( p = p_beg; p < p_end; ++p )
-//		(*p)->Save(o);
-//
-//	// save the rest of the RM
-//	o << "\nRT";
-//	pTax->Save(o);
-}
-
-void
-RoleMaster :: Load ( istream& i )
-{
-	// sanity check: Load shall be done for the empty collection and only once
-//	fpp_assert ( size() == 0 );
-
-	unsigned int RMSize, maxLength;
-	RMSize = loadUInt(i);
-	maxLength = loadUInt(i);
-	++maxLength;
-	char* name = new char[maxLength];
-
-	// register all entries in the global map
-	regPointer(&emptyRole);
-	regPointer(&universalRole);
-
-	// register all the named entries
-	for ( unsigned int j = 0; j < RMSize; ++j )
-	{
-		i.getline ( name, maxLength, '\n' );
-		regPointer(ensureRoleName(name));
-	}
-
-	delete [] name;
-
-//	// load all the named entries
-//	for ( iterator p = begin(); p < end(); ++p )
-//		(*p)->Load(i);
-//
-//	// load the rest of the RM
-//	expectChar(i,'R');
-//	expectChar(i,'T');
-//	pTax = new Taxonomy ( &universalRole, &emptyRole );
-//	pTax->Load(i);
-//	useUndefinedNames = false;	// no names
 }
 
 //----------------------------------------------------------

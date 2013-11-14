@@ -137,13 +137,6 @@ public:		// interface
 	const_iterator end ( void ) const { return Base.end(); }
 
 	size_t size ( void ) const { return Base.size()-1; }
-
-	// save/load interface; implementation is in SaveLoad.cpp
-
-		/// Save all the objects in the collection
-	void Save ( std::ostream& o, const std::set<const TNamedEntry*>& excluded ) const;
-		/// Load all the objects into the collection
-	void Load ( std::istream& i );
 }; // TNECollection
 
 #endif
