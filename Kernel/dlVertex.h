@@ -31,6 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 class DLDag;
 class TRole;
 class TNamedEntry;
+class SaveLoadManager;
 
 /// different Concept Expression tags
 /*
@@ -452,9 +453,9 @@ public:		// interface
 	// save/load interface; implementation is in SaveLoad.cpp
 
 		/// save entry
-	void Save ( std::ostream& o ) const;
+	void Save ( SaveLoadManager& m ) const;
 		/// load entry
-	void Load ( std::istream& i );
+	void Load ( SaveLoadManager& m );
 };	// DLVertex
 
 

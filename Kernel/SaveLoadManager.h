@@ -22,9 +22,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <string>
 #include <iostream>
 
+#include "eFPPSaveLoad.h"
+
 class SaveLoadManager
 {
-protected:
+protected:	// members
 		/// name of S/L dir
 	std::string dirname;
 		/// file name
@@ -34,7 +36,7 @@ protected:
 		/// output stream pointer
 	std::ostream* op;
 
-public:
+public:		// methods
 		/// init c'tor: remember the S/L name
 	SaveLoadManager ( const std::string& name ) : dirname(name), ip(NULL), op(NULL) { filename = name+".fpp.state"; }
 		/// empty d'tor
@@ -55,6 +57,42 @@ public:
 	std::istream& i ( void ) { return *ip; }
 		/// get an output stream
 	std::ostream& o ( void ) { return *op; }
+
+	// save/load primitives
+
+		/// load a single char from input, throw an exception if it is not a given one
+	inline void expectChar ( const char C )
+	{
+		char c;
+		i() >> c;
+		if ( c != C )
+			throw EFPPSaveLoad(C);
+	}
+
+	// save/load integers
+
+		/// save unsigned integer
+	inline void saveUInt ( unsigned int n ) { o() << "(" << n << ")"; }
+		/// save signed integer
+	inline void saveSInt ( int n ) { o() << "(" << n << ")"; }
+		/// load unsigned integer
+	inline unsigned int loadUInt ( void )
+	{
+		unsigned int ret;
+		expectChar('(');
+		i() >> ret;
+		expectChar(')');
+		return ret;
+	}
+		/// load signed integer
+	inline int loadSInt ( void )
+	{
+		int ret;
+		expectChar('(');
+		i() >> ret;
+		expectChar(')');
+		return ret;
+	}
 }; // SaveLoadManager
 
 #endif

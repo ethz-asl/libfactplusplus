@@ -23,6 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Actor.h"
 #include "tOntologyPrinterLISP.h"
 #include "procTimer.h"
+#include "SaveLoadManager.h"	// for saving/restoring ontology
 
 TsProcTimer moduleTimer, subCheckTimer;
 int nModule = 0;
@@ -211,11 +212,10 @@ ReasoningKernel :: doIncremental ( void )
 
 	t.Reset();
 	t.Start();
-	const char* filename = "incremental.tax";
 	// save taxonomy
-	std::ofstream o(filename);
-	getTBox()->SaveTaxonomy(o,excluded);
-	o.close();
+	SaveLoadManager SLManager("Incremental");
+	SLManager.prepare(/*input=*/false);
+	getTBox()->SaveTaxonomy(SLManager,excluded);
 
 	// do actual change
 	useIncrementalReasoning = false;
@@ -225,8 +225,8 @@ ReasoningKernel :: doIncremental ( void )
 	useIncrementalReasoning = true;
 
 	// load the taxonomy
-	std::ifstream i(filename);
-	getTBox()->LoadTaxonomy(i);
+	SLManager.prepare(/*input=*/true);
+	getTBox()->LoadTaxonomy(SLManager);
 	t.Stop();
 
 	std::cout << "Reloading ontology: done in " << t << std::endl;

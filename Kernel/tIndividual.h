@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2011 by Dmitry Tsarkov
+Copyright (C) 2003-2013 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -25,6 +25,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 class DlCompletionTree;
 class TRelated;
+class SaveLoadManager;
 
 class TIndividual;
 
@@ -154,9 +155,9 @@ public:		// interface
 	// save/load interface; implementation is in SaveLoad.cpp
 
 		/// save entry
-	virtual void Save ( std::ostream& o ) const;
+	virtual void Save ( SaveLoadManager& m ) const;
 		/// load entry
-	virtual void Load ( std::istream& i );
+	virtual void Load ( SaveLoadManager& m );
 }; // TIndividual
 
 #endif

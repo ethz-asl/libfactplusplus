@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2011 by Dmitry Tsarkov
+Copyright (C) 2003-2013 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -63,6 +63,7 @@ inline char getCTTagName ( CTTag tag )
 }
 
 class TRole;
+class SaveLoadManager;
 
 /// class for representing concept-like entries
 class TConcept: public ClassifiableEntry
@@ -283,9 +284,9 @@ public:		// methods
 	// save/load interface; implementation is in SaveLoad.cpp
 
 		/// save entry
-	virtual void Save ( std::ostream& o ) const;
+	virtual void Save ( SaveLoadManager& m ) const;
 		/// load entry
-	virtual void Load ( std::istream& i );
+	virtual void Load ( SaveLoadManager& m );
 }; // TConcept
 
 /// Class for comparison of TConcepts wrt told subsumer depth

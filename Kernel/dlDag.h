@@ -33,6 +33,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 class RoleMaster;
 class TConcept;
+class SaveLoadManager;
 
 /** DAG of DL Verteces used in FaCT++ reasoner */
 class DLDag
@@ -335,15 +336,15 @@ public:		// interface
 	// save/load interface; implementation is in SaveLoad.cpp
 
 		/// save entry
-	void Save ( std::ostream& o ) const;
+	void Save ( SaveLoadManager& m ) const;
 		/// load entry
-	void Load ( std::istream& i );
+	void Load ( SaveLoadManager& m );
 		/// @return true if the DAG in the SL structure is the same that is loaded
-	bool Verify ( std::istream& i ) const;
+	bool Verify ( SaveLoadManager& m ) const;
 		/// save cache of all nodes
-	void SaveCache ( std::ostream& o ) const;
+	void SaveCache ( SaveLoadManager& m ) const;
 		/// load cache of all nodes
-	void LoadCache ( std::istream& i );
+	void LoadCache ( SaveLoadManager& m );
 }; // DLDag
 
 #include "dlVHashImpl.h"

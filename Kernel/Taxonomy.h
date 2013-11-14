@@ -23,6 +23,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "taxVertex.h"
 
+class SaveLoadManager;
+
 class Taxonomy
 {
 protected:	// typedefs
@@ -158,9 +160,9 @@ public:		// interface
 	// save/load interface; implementation is in SaveLoad.cpp
 
 		/// save entry
-	void Save ( std::ostream& o, const std::set<const TNamedEntry*>& excluded ) const;
+	void Save ( SaveLoadManager& m, const std::set<const TNamedEntry*>& excluded ) const;
 		/// load entry
-	void Load ( std::istream& i );
+	void Load ( SaveLoadManager& m );
 }; // Taxonomy
 
 #endif // TAXONOMY_H

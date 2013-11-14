@@ -27,6 +27,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "taxNamEntry.h"
 #include "tLabeller.h"
 
+class SaveLoadManager;
+
 class TaxonomyVertex
 {
 protected:	// typedefs
@@ -253,13 +255,13 @@ public:
 	// save/load interface; implementation is in SaveLoad.cpp
 
 		/// save label of the entry
-	void SaveLabel ( std::ostream& o ) const;
+	void SaveLabel ( SaveLoadManager& m ) const;
 		/// load label of the entry
-	void LoadLabel ( std::istream& i );
+	void LoadLabel ( SaveLoadManager& m );
 		/// save neighbours of the entry
-	void SaveNeighbours ( std::ostream& o ) const;
+	void SaveNeighbours ( SaveLoadManager& m ) const;
 		/// load neighbours of the entry
-	void LoadNeighbours ( std::istream& i );
+	void LoadNeighbours ( SaveLoadManager& m );
 }; // TaxonomyVertex
 
 /// structure to sort tax vertices

@@ -44,6 +44,7 @@ class Taxonomy;
 class DLConceptTaxonomy;
 class dumpInterface;
 class TSignature;
+class SaveLoadManager;
 
 /// enumeration for the reasoner status
 enum KBStatus
@@ -1266,13 +1267,13 @@ public:
 //-----------------------------------------------------------------------------
 
 		/// save the KB into the given stream
-	void Save ( std::ostream& o ) const;
+	void Save ( SaveLoadManager& m ) const;
 		/// load the KB from given stream wrt STATUS
-	void Load ( std::istream& i, KBStatus status );
+	void Load ( SaveLoadManager& m, KBStatus status );
 		/// save taxonomy with names (used in the incremental)
-	void SaveTaxonomy ( std::ostream& o, const std::set<const TNamedEntry*>& excluded );
+	void SaveTaxonomy ( SaveLoadManager& m, const std::set<const TNamedEntry*>& excluded );
 		/// load taxonomy with names (used in the incremental)
-	void LoadTaxonomy ( std::istream& i );
+	void LoadTaxonomy ( SaveLoadManager& m );
 }; // TBox
 
 #endif

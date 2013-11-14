@@ -24,6 +24,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "dlDag.h"
 #include "tSetAsTree.h"
 
+class SaveLoadManager;
+
 /** model caching implementation of Ian's algorithms.
 	Very fast cache check, but less precise than AsTree one.
 */
@@ -221,9 +223,9 @@ public:
 	//----------------------------------------------
 
 		/// save internal state of the Kernel to a file NAME
-	void Save ( std::ostream& o ) const;
+	void Save ( SaveLoadManager& m ) const;
 		/// load internal state of the Kernel from a file NAME
-	void Load ( std::istream& i );
+	void Load ( SaveLoadManager& m );
 }; // modelCacheIan
 
 #endif

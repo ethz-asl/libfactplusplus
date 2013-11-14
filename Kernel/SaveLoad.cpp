@@ -20,9 +20,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 //-- Saving/restoring internal state of the FaCT++
 //-------------------------------------------------------
 
-#include <istream>
-
-#include "eFPPSaveLoad.h"
 #include "Kernel.h"
 #include "ReasonerNom.h"	// for initReasoner()
 #include "SaveLoadManager.h"
@@ -33,15 +30,6 @@ const char* ReasoningKernel :: InternalStateFileHeader = "FaCT++InternalStateDum
 
 const int bytesInInt = sizeof(int);
 
-static inline
-void expectChar ( istream& i, const char C )
-{
-	char c;
-	i >> c;
-	if ( c != C )
-		throw EFPPSaveLoad(C);
-}
-
 #if 0
 // FIXME!! try to avoid recursion later on
 static inline
@@ -49,7 +37,7 @@ void saveUIntAux ( ostream& o, unsigned int n, const int rest )
 {
 	if ( rest > 1 )
 		saveUIntAux ( o, n/256, rest-1 );
-	o << (unsigned char)n%256;
+	m.o() << (unsigned char)n%256;
 }
 
 static inline
@@ -77,39 +65,6 @@ unsigned int loadUInt ( istream& i )
 
 static inline
 int loadSInt ( istream& i ) { return (int)loadUInt(i); }
-#else
-static inline
-void saveUInt ( ostream& o, unsigned int n )
-{
-	o << "(" << n << ")";
-}
-
-static inline
-void saveSInt ( ostream& o, int n )
-{
-	o << "(" << n << ")";
-}
-
-static inline
-unsigned int loadUInt ( istream& i )
-{
-	unsigned int ret;
-	expectChar(i,'(');
-	i >> ret;
-	expectChar(i,')');
-	return ret;
-}
-
-static inline
-int loadSInt ( istream& i )
-{
-	int ret;
-	expectChar(i,'(');
-	i >> ret;
-	expectChar(i,')');
-	return ret;
-}
-
 #endif	// 0
 
 //----------------------------------------------------------
@@ -202,21 +157,21 @@ inline void regPointer ( const TNamedEntry* p )
 //----------------------------------------------------------
 
 #undef CHECK_FILE_STATE
-#define CHECK_FILE_STATE() if ( !o.good() ) throw(EFPPSaveLoad(name,/*save=*/true))
+#define CHECK_FILE_STATE() if ( !m.o().good() ) throw(EFPPSaveLoad(name,/*save=*/true))
 
 void
-ReasoningKernel :: Save ( std::ostream& o, const char* name ) const
+ReasoningKernel :: Save ( SaveLoadManager& m, const char* name ) const
 {
 	TsProcTimer t;
 	t.Start();
 	CHECK_FILE_STATE();
-	SaveHeader(o);
+	SaveHeader(m);
 	CHECK_FILE_STATE();
-	SaveOptions(o);
+	SaveOptions(m);
 	CHECK_FILE_STATE();
-	SaveKB(o);
+	SaveKB(m);
 	CHECK_FILE_STATE();
-	SaveIncremental(o);
+	SaveIncremental(m);
 	CHECK_FILE_STATE();
 	t.Stop();
 	std::cout << "Reasoner internal state saved in " << t << " sec" << std::endl;
@@ -227,27 +182,27 @@ ReasoningKernel :: Save ( void )
 {
 	fpp_assert ( pSLManager != NULL );
 	pSLManager->prepare(/*input=*/false);
-	Save(pSLManager->o());
+	Save(*pSLManager);
 }
 
 #undef CHECK_FILE_STATE
-#define CHECK_FILE_STATE() if ( !i.good() ) throw(EFPPSaveLoad(name,/*save=*/false))
+#define CHECK_FILE_STATE() if ( !m.i().good() ) throw(EFPPSaveLoad(name,/*save=*/false))
 
 void
-ReasoningKernel :: Load ( std::istream& i, const char* name )
+ReasoningKernel :: Load ( SaveLoadManager& m, const char* name )
 {
 	TsProcTimer t;
 	t.Start();
 	CHECK_FILE_STATE();
 //	releaseKB();	// we'll start a new one if necessary
-	if ( LoadHeader(i) )
+	if ( LoadHeader(m) )
 		throw(EFPPSaveLoad(name,/*save=*/false));
 	CHECK_FILE_STATE();
-	LoadOptions(i);
+	LoadOptions(m);
 	CHECK_FILE_STATE();
-	LoadKB(i);
+	LoadKB(m);
 	CHECK_FILE_STATE();
-	LoadIncremental(i);
+	LoadIncremental(m);
 	CHECK_FILE_STATE();
 	t.Stop();
 	std::cout << "Reasoner internal state loaded in " << t << " sec" << std::endl;
@@ -258,30 +213,30 @@ ReasoningKernel :: Load ( void )
 {
 	fpp_assert ( pSLManager != NULL );
 	pSLManager->prepare(/*input=*/true);
-	Load(pSLManager->i());
+	Load(*pSLManager);
 }
 
 //-- save/load header (Kernel.h)
 
 void
-ReasoningKernel :: SaveHeader ( ostream& o ) const
+ReasoningKernel :: SaveHeader ( SaveLoadManager& m ) const
 {
-	o << InternalStateFileHeader << "\n" << Version << "\n" << bytesInInt << "\n";
+	m.o() << InternalStateFileHeader << "\n" << Version << "\n" << bytesInInt << "\n";
 }
 
 bool
-ReasoningKernel :: LoadHeader ( istream& i )
+ReasoningKernel :: LoadHeader ( SaveLoadManager& m )
 {
 	string str;
-	i >> str;
+	m.i() >> str;
 	if ( str != InternalStateFileHeader )
 		return true;
-	i >> str;
+	m.i() >> str;
 	// FIXME!! we don't check version equivalence for now
 //	if ( str != Version )
 //		return true;
 	int n;
-	i >> n;
+	m.i() >> n;
 	if ( n != bytesInInt )
 		return true;
 	return false;
@@ -290,24 +245,24 @@ ReasoningKernel :: LoadHeader ( istream& i )
 //-- save/load options (Kernel.h)
 
 void
-ReasoningKernel :: SaveOptions ( ostream& o ) const
+ReasoningKernel :: SaveOptions ( SaveLoadManager& m ) const
 {
-	o << "Options\n";
+	m.o() << "Options\n";
 }
 
 void
-ReasoningKernel :: LoadOptions ( istream& i )
+ReasoningKernel :: LoadOptions ( SaveLoadManager& m )
 {
 	std::string options;
-	i >> options;
+	m.i() >> options;
 }
 
 //-- save/load KB (Kernel.h)
 
 void
-ReasoningKernel :: SaveKB ( ostream& o ) const
+ReasoningKernel :: SaveKB ( SaveLoadManager& m ) const
 {
-	saveUInt(o,(unsigned int)getStatus());
+	m.saveUInt((unsigned int)getStatus());
 	switch ( getStatus() )
 	{
 	case kbEmpty:	// nothing to do
@@ -315,22 +270,22 @@ ReasoningKernel :: SaveKB ( ostream& o ) const
 	case kbLoading:
 		throw EFPPSaveLoad("Can't save internal state of the unclassified reasoner");
 	default:
-		getTBox()->Save(o);
+		getTBox()->Save(m);
 		break;
 	}
 }
 
 void
-ReasoningKernel :: LoadKB ( istream& i )
+ReasoningKernel :: LoadKB ( SaveLoadManager& m )
 {
-	KBStatus status = (KBStatus)loadUInt(i);
+	KBStatus status = (KBStatus)m.loadUInt();
 //	initCacheAndFlags();	// will be done
 	// no classification => no need to monitor
 	pMonitor = NULL;
 	if ( status == kbEmpty )
 		return;
 //	newKB();
-	getTBox()->Load(i,status);
+	getTBox()->Load(m,status);
 }
 
 //----------------------------------------------------------
@@ -340,7 +295,7 @@ ReasoningKernel :: LoadKB ( istream& i )
 /// Save all the objects in the collection
 template<class T>
 static void
-SaveTNECollection ( const TNECollection<T>& collection, ostream& o, const std::set<const TNamedEntry*>& excluded )
+SaveTNECollection ( const TNECollection<T>& collection, SaveLoadManager& m, const std::set<const TNamedEntry*>& excluded )
 {
 	typename TNECollection<T>::const_iterator p, p_beg = collection.begin(), p_end = collection.end();
 	// get the max length of the identifier in the collection
@@ -351,8 +306,8 @@ SaveTNECollection ( const TNECollection<T>& collection, ostream& o, const std::s
 			maxLength = curLength;
 
 	// save number of entries and max length of the entry
-	saveUInt(o,collection.size());
-	saveUInt(o,maxLength);
+	m.saveUInt(collection.size());
+	m.saveUInt(maxLength);
 
 	// save names of all entries
 	for ( p = p_beg; p < p_end; ++p )
@@ -360,7 +315,7 @@ SaveTNECollection ( const TNECollection<T>& collection, ostream& o, const std::s
 		// register all entries in the global map
 		regPointer(*p);
 //		if ( excluded.count(*p) == 0 )
-			o << (*p)->getName() << "\n";
+			m.o() << (*p)->getName() << "\n";
 	}
 
 	// save the entries itself
@@ -370,21 +325,21 @@ SaveTNECollection ( const TNECollection<T>& collection, ostream& o, const std::s
 /// Load all the objects into the collection
 template<class T>
 static void
-LoadTNECollection ( TNECollection<T>& collection, istream& i )
+LoadTNECollection ( TNECollection<T>& collection, SaveLoadManager& m )
 {
 	// sanity check: Load shall be done for the empty collection and only once
 //	fpp_assert ( size() == 0 );
 
 	unsigned int collSize, maxLength;
-	collSize = loadUInt(i);
-	maxLength = loadUInt(i);
+	collSize = m.loadUInt();
+	maxLength = m.loadUInt();
 	++maxLength;
 	char* name = new char[maxLength];
 
 	// register all the named entries
 	for ( unsigned int j = 0; j < collSize; ++j )
 	{
-		i.getline ( name, maxLength, '\n' );
+		m.i().getline ( name, maxLength, '\n' );
 		regPointer(collection.get(name));
 	}
 
@@ -400,7 +355,7 @@ LoadTNECollection ( TNECollection<T>& collection, istream& i )
 //----------------------------------------------------------
 
 static void
-SaveRoleMaster ( const RoleMaster& RM, ostream& o )
+SaveRoleMaster ( const RoleMaster& RM, SaveLoadManager& m )
 {
 	RoleMaster::const_iterator p, p_beg = RM.begin(), p_end = RM.end();
 	// get the max length of the identifier in the collection
@@ -411,8 +366,8 @@ SaveRoleMaster ( const RoleMaster& RM, ostream& o )
 			maxLength = curLength;
 
 	// save number of entries and max length of the entry
-	saveUInt(o,size);
-	saveUInt(o,maxLength);
+	m.saveUInt(size);
+	m.saveUInt(maxLength);
 
 	// register const entries in the global map
 	regPointer(RM.getBotRole());
@@ -422,7 +377,7 @@ SaveRoleMaster ( const RoleMaster& RM, ostream& o )
 	for ( p = p_beg; p != p_end; p += 2 )
 	{
 		regPointer(*p);
-		o << (*p)->getName() << "\n";
+		m.o() << (*p)->getName() << "\n";
 	}
 
 //	// save the entries itself
@@ -435,14 +390,14 @@ SaveRoleMaster ( const RoleMaster& RM, ostream& o )
 }
 
 static void
-LoadRoleMaster ( RoleMaster& RM, istream& i )
+LoadRoleMaster ( RoleMaster& RM, SaveLoadManager& m )
 {
 	// sanity check: Load shall be done for the empty collection and only once
 //	fpp_assert ( size() == 0 );
 
 	unsigned int RMSize, maxLength;
-	RMSize = loadUInt(i);
-	maxLength = loadUInt(i);
+	RMSize = m.loadUInt();
+	maxLength = m.loadUInt();
 	++maxLength;
 	char* name = new char[maxLength];
 
@@ -453,7 +408,7 @@ LoadRoleMaster ( RoleMaster& RM, istream& i )
 	// register all the named entries
 	for ( unsigned int j = 0; j < RMSize; ++j )
 	{
-		i.getline ( name, maxLength, '\n' );
+		m.i().getline ( name, maxLength, '\n' );
 		regPointer(RM.ensureRoleName(name));
 	}
 
@@ -477,7 +432,7 @@ LoadRoleMaster ( RoleMaster& RM, istream& i )
 //----------------------------------------------------------
 
 void
-TBox :: Save ( ostream& o ) const
+TBox :: Save ( SaveLoadManager& m ) const
 {
 	tvMap.clear();
 	neMap.clear();
@@ -493,27 +448,27 @@ TBox :: Save ( ostream& o ) const
 	neMap.add(DTCenter.getBoolType()->Element().getNE());
 	neMap.add(DTCenter.getTimeType()->Element().getNE());
 	neMap.add(DTCenter.getFreshDataType()->Element().getNE());
-	o << "\nC";
+	m.o() << "\nC";
 	std::set<const TNamedEntry*> empty;
-	SaveTNECollection(Concepts,o,empty);
-	o << "\nI";
-	SaveTNECollection(Individuals,o,empty);
-	o << "\nOR";
-	SaveRoleMaster(ORM,o);
-	o << "\nDR";
-	SaveRoleMaster(DRM,o);
-	o << "\nD";
-	DLHeap.Save(o);
+	SaveTNECollection(Concepts,m,empty);
+	m.o() << "\nI";
+	SaveTNECollection(Individuals,m,empty);
+	m.o() << "\nOR";
+	SaveRoleMaster(ORM,m);
+	m.o() << "\nDR";
+	SaveRoleMaster(DRM,m);
+	m.o() << "\nD";
+	DLHeap.Save(m);
 	if ( Status > kbCChecked )
 	{
-		o << "\nCT";
-		pTax->Save(o,empty);
+		m.o() << "\nCT";
+		pTax->Save(m,empty);
 	}
-	DLHeap.SaveCache(o);
+	DLHeap.SaveCache(m);
 }
 
 void
-TBox :: Load ( istream& i, KBStatus status )
+TBox :: Load ( SaveLoadManager& m, KBStatus status )
 {
 	Status = status;
 	tvMap.clear();
@@ -529,30 +484,30 @@ TBox :: Load ( istream& i, KBStatus status )
 	neMap.add(DTCenter.getBoolType()->Element().getNE());
 	neMap.add(DTCenter.getTimeType()->Element().getNE());
 	neMap.add(DTCenter.getFreshDataType()->Element().getNE());
-	expectChar(i,'C');
-	LoadTNECollection(Concepts,i);
-	expectChar(i,'I');
-	LoadTNECollection(Individuals,i);
-	expectChar(i,'O');
-	expectChar(i,'R');
-	LoadRoleMaster(ORM,i);
-	expectChar(i,'D');
-	expectChar(i,'R');
-	LoadRoleMaster(DRM,i);
-	expectChar(i,'D');
-//	DLHeap.Load(i);
-	if ( !DLHeap.Verify(i) )
+	m.expectChar('C');
+	LoadTNECollection(Concepts,m);
+	m.expectChar('I');
+	LoadTNECollection(Individuals,m);
+	m.expectChar('O');
+	m.expectChar('R');
+	LoadRoleMaster(ORM,m);
+	m.expectChar('D');
+	m.expectChar('R');
+	LoadRoleMaster(DRM,m);
+	m.expectChar('D');
+//	DLHeap.Load(m);
+	if ( !DLHeap.Verify(m) )
 		throw EFPPSaveLoad("DAG verification failed");
 //	initReasoner();
 	if ( Status > kbCChecked )
 	{
 		initTaxonomy();
 		pTaxCreator->setBottomUp(GCIs);
-		expectChar(i,'C');
-		expectChar(i,'T');
-		pTax->Load(i);
+		m.expectChar('C');
+		m.expectChar('T');
+		pTax->Load(m);
 	}
-	DLHeap.LoadCache(i);
+	DLHeap.LoadCache(m);
 }
 
 //----------------------------------------------------------
@@ -560,37 +515,37 @@ TBox :: Load ( istream& i, KBStatus status )
 //----------------------------------------------------------
 
 void
-ReasoningKernel :: SaveIncremental ( std::ostream& o ) const
+ReasoningKernel :: SaveIncremental ( SaveLoadManager& m ) const
 {
 	if ( !useIncrementalReasoning )
 		return;
-	o << "\nQ";
-	saveUInt(o,Name2Sig.size());
+	m.o() << "\nQ";
+	m.saveUInt(Name2Sig.size());
 	for ( NameSigMap::const_iterator p = Name2Sig.begin(), p_end = Name2Sig.end(); p != p_end; ++p )
 	{
-		saveUInt(o,eMap.getI(const_cast<TNamedEntity*>(p->first)));
-		saveUInt(o,p->second->size());
+		m.saveUInt(eMap.getI(const_cast<TNamedEntity*>(p->first)));
+		m.saveUInt(p->second->size());
 
 		for ( TSignature::iterator q = p->second->begin(), q_end = p->second->end(); q != q_end; ++q )
-			saveUInt(o,eMap.getI(const_cast<TNamedEntity*>(*q)));
+			m.saveUInt(eMap.getI(const_cast<TNamedEntity*>(*q)));
 	}
 }
 
 void
-ReasoningKernel :: LoadIncremental ( std::istream& i )
+ReasoningKernel :: LoadIncremental ( SaveLoadManager& m )
 {
 	if ( !useIncrementalReasoning )
 		return;
-	expectChar(i,'Q');
+	m.expectChar('Q');
 	Name2Sig.clear();
-	unsigned int size = loadUInt(i);
+	unsigned int size = m.loadUInt();
 	for ( unsigned int j = 0; j < size; j++ )
 	{
-		TNamedEntity* entity = eMap.getP(loadUInt(i));
-		unsigned int sigSize = loadUInt(i);
+		TNamedEntity* entity = eMap.getP(m.loadUInt());
+		unsigned int sigSize = m.loadUInt();
 		TSignature* sig = new TSignature();
 		for ( unsigned int k = 0; k < sigSize; k++ )
-			sig->add(eMap.getP(loadUInt(i)));
+			sig->add(eMap.getP(m.loadUInt()));
 		Name2Sig[entity] = sig;
 	}
 }
@@ -600,7 +555,7 @@ ReasoningKernel :: LoadIncremental ( std::istream& i )
 //----------------------------------------------------------
 
 void
-TBox :: SaveTaxonomy ( std::ostream& o, const std::set<const TNamedEntry*>& excluded )
+TBox :: SaveTaxonomy ( SaveLoadManager& m, const std::set<const TNamedEntry*>& excluded )
 {
 	tvMap.clear();
 	neMap.clear();
@@ -608,16 +563,16 @@ TBox :: SaveTaxonomy ( std::ostream& o, const std::set<const TNamedEntry*>& excl
 	neMap.add(pTop);
 	neMap.add(pTemp);
 	neMap.add(pQuery);
-	o << "\nC";
-	SaveTNECollection(Concepts,o,excluded);
-	o << "\nI";
-	SaveTNECollection(Individuals,o,excluded);
-	o << "\nCT";
-	pTax->Save(o,excluded);
+	m.o() << "\nC";
+	SaveTNECollection(Concepts,m,excluded);
+	m.o() << "\nI";
+	SaveTNECollection(Individuals,m,excluded);
+	m.o() << "\nCT";
+	pTax->Save(m,excluded);
 }
 
 void
-TBox :: LoadTaxonomy ( std::istream& i )
+TBox :: LoadTaxonomy ( SaveLoadManager& m )
 {
 	tvMap.clear();
 	neMap.clear();
@@ -625,15 +580,15 @@ TBox :: LoadTaxonomy ( std::istream& i )
 	neMap.add(pTop);
 	neMap.add(pTemp);
 	neMap.add(pQuery);
-	expectChar(i,'C');
-	LoadTNECollection(Concepts,i);
-	expectChar(i,'I');
-	LoadTNECollection(Individuals,i);
+	m.expectChar('C');
+	LoadTNECollection(Concepts,m);
+	m.expectChar('I');
+	LoadTNECollection(Individuals,m);
 	initTaxonomy();
 	pTaxCreator->setBottomUp(GCIs);
-	expectChar(i,'C');
-	expectChar(i,'T');
-	pTax->Load(i);
+	m.expectChar('C');
+	m.expectChar('T');
+	pTax->Load(m);
 }
 
 //----------------------------------------------------------
@@ -641,15 +596,15 @@ TBox :: LoadTaxonomy ( std::istream& i )
 //----------------------------------------------------------
 
 void
-TNamedEntry :: Save ( ostream& o ) const
+TNamedEntry :: Save ( SaveLoadManager& m ) const
 {
-	saveUInt(o,getAllFlags());
+	m.saveUInt(getAllFlags());
 }
 
 void
-TNamedEntry :: Load ( istream& i )
+TNamedEntry :: Load ( SaveLoadManager& m )
 {
-	setAllFlags(loadUInt(i));
+	setAllFlags(m.loadUInt());
 }
 
 //----------------------------------------------------------
@@ -657,29 +612,29 @@ TNamedEntry :: Load ( istream& i )
 //----------------------------------------------------------
 
 void
-TConcept :: Save ( ostream& o ) const
+TConcept :: Save ( SaveLoadManager& m ) const
 {
-	ClassifiableEntry::Save(o);
-	saveUInt(o,(unsigned int)classTag);
-	saveUInt(o,tsDepth);
-	saveSInt(o,pName);
-	saveSInt(o,pBody);
-	saveUInt(o,posFeatures.getAllFlags());
-	saveUInt(o,negFeatures.getAllFlags());
-//	ERSet.Save(o);
+	ClassifiableEntry::Save(m);
+	m.saveUInt((unsigned int)classTag);
+	m.saveUInt(tsDepth);
+	m.saveSInt(pName);
+	m.saveSInt(pBody);
+	m.saveUInt(posFeatures.getAllFlags());
+	m.saveUInt(negFeatures.getAllFlags());
+//	ERSet.Save(m);
 }
 
 void
-TConcept :: Load ( istream& i )
+TConcept :: Load ( SaveLoadManager& m )
 {
-	ClassifiableEntry::Load(i);
-	classTag = CTTag(loadUInt(i));
-	tsDepth = loadUInt(i);
-	pName = loadSInt(i);
-	pBody = loadSInt(i);
-	posFeatures.setAllFlags(loadUInt(i));
-	negFeatures.setAllFlags(loadUInt(i));
-//	ERSet.Load(i);
+	ClassifiableEntry::Load(m);
+	classTag = CTTag(m.loadUInt());
+	tsDepth = m.loadUInt();
+	pName = m.loadSInt();
+	pBody = m.loadSInt();
+	posFeatures.setAllFlags(m.loadUInt());
+	negFeatures.setAllFlags(m.loadUInt());
+//	ERSet.Load(m);
 }
 
 //----------------------------------------------------------
@@ -687,17 +642,17 @@ TConcept :: Load ( istream& i )
 //----------------------------------------------------------
 
 void
-TIndividual :: Save ( ostream& o ) const
+TIndividual :: Save ( SaveLoadManager& m ) const
 {
-	TConcept::Save(o);
-//	RelatedIndex.Save(o);
+	TConcept::Save(m);
+//	RelatedIndex.Save(m);
 }
 
 void
-TIndividual :: Load ( istream& i )
+TIndividual :: Load ( SaveLoadManager& m )
 {
-	TConcept::Load(i);
-//	RelatedIndex.Load(i);
+	TConcept::Load(m);
+//	RelatedIndex.Load(m);
 }
 
 //----------------------------------------------------------
@@ -705,16 +660,16 @@ TIndividual :: Load ( istream& i )
 //----------------------------------------------------------
 
 void
-TRole :: Save ( ostream& o ) const
+TRole :: Save ( SaveLoadManager& m ) const
 {
-	ClassifiableEntry::Save(o);
+	ClassifiableEntry::Save(m);
 	// FIXME!! think about automaton
 }
 
 void
-TRole :: Load ( istream& i )
+TRole :: Load ( SaveLoadManager& m )
 {
-	ClassifiableEntry::Load(i);
+	ClassifiableEntry::Load(m);
 	// FIXME!! think about automaton
 }
 
@@ -723,47 +678,47 @@ TRole :: Load ( istream& i )
 //----------------------------------------------------------
 
 void
-Taxonomy :: Save ( ostream& o, const std::set<const TNamedEntry*>& excluded ) const
+Taxonomy :: Save ( SaveLoadManager& m, const std::set<const TNamedEntry*>& excluded ) const
 {
 	TaxVertexVec::const_iterator p, p_beg = Graph.begin(), p_end = Graph.end();
 	tvMap.clear();	// it would be it's own map for every taxonomy
 	tvMap.add ( p_beg, p_end );
 
 	// save number of taxonomy elements
-	saveUInt(o,Graph.size()/*-excluded.size()*/);
-	o << "\n";
+	m.saveUInt(Graph.size()/*-excluded.size()*/);
+	m.o() << "\n";
 
 	// save labels for all verteces of the taxonomy
 	for ( p = p_beg; p != p_end; ++p )
 //		if ( excluded.count((*p)->getPrimer()) == 0 )
-			(*p)->SaveLabel(o);
+			(*p)->SaveLabel(m);
 
 	// save the taxonomys hierarchy
 	for ( p = p_beg; p != p_end; ++p )
 //		if ( excluded.count((*p)->getPrimer()) == 0 )
-			(*p)->SaveNeighbours(o);
+			(*p)->SaveNeighbours(m);
 }
 
 void
-Taxonomy :: Load ( istream& i )
+Taxonomy :: Load ( SaveLoadManager& m )
 {
-	unsigned int size = loadUInt(i);
+	unsigned int size = m.loadUInt();
 	tvMap.clear();
 	Graph.clear();	// both TOP and BOTTOM elements would be load;
 
 	// create all the verteces and load their labels
 	for ( unsigned int j = 0; j < size; ++j )
 	{
-		ClassifiableEntry* p = static_cast<ClassifiableEntry*>(neMap.getP(loadUInt(i)));
+		ClassifiableEntry* p = static_cast<ClassifiableEntry*>(neMap.getP(m.loadUInt()));
 		TaxonomyVertex* v = new TaxonomyVertex(p);
 		Graph.push_back(v);
-		v->LoadLabel(i);
+		v->LoadLabel(m);
 		tvMap.add(v);
 	}
 
 	// load the hierarchy
 	for ( TaxVertexVec::iterator p = Graph.begin(), p_end = Graph.end(); p < p_end; ++p )
-		(*p)->LoadNeighbours(i);
+		(*p)->LoadNeighbours(m);
 }
 
 //----------------------------------------------------------
@@ -771,47 +726,47 @@ Taxonomy :: Load ( istream& i )
 //----------------------------------------------------------
 
 void
-TaxonomyVertex :: SaveLabel ( ostream& o ) const
+TaxonomyVertex :: SaveLabel ( SaveLoadManager& m ) const
 {
-	saveUInt(o,neMap.getI(const_cast<ClassifiableEntry*>(sample)));
-	saveUInt(o,synonyms.size());
+	m.saveUInt(neMap.getI(const_cast<ClassifiableEntry*>(sample)));
+	m.saveUInt(synonyms.size());
 	for ( syn_iterator p = begin_syn(), p_end = end_syn(); p < p_end; ++p )
-		saveUInt(o,neMap.getI(const_cast<ClassifiableEntry*>(*p)));
-	o << "\n";
+		m.saveUInt(neMap.getI(const_cast<ClassifiableEntry*>(*p)));
+	m.o() << "\n";
 }
 
 void
-TaxonomyVertex :: LoadLabel ( istream& i )
+TaxonomyVertex :: LoadLabel ( SaveLoadManager& m )
 {
 	// note that sample is already loaded
-	unsigned int size = loadUInt(i);
+	unsigned int size = m.loadUInt();
 	for ( unsigned int j = 0; j < size; ++j )
-		addSynonym(static_cast<ClassifiableEntry*>(neMap.getP(loadUInt(i))));
+		addSynonym(static_cast<ClassifiableEntry*>(neMap.getP(m.loadUInt())));
 }
 
 void
-TaxonomyVertex :: SaveNeighbours ( ostream& o ) const
+TaxonomyVertex :: SaveNeighbours ( SaveLoadManager& m ) const
 {
 	const_iterator p, p_end;
-	saveUInt(o,neigh(true).size());
+	m.saveUInt(neigh(true).size());
 	for ( p = begin(true), p_end = end(true); p != p_end; ++p )
-		saveUInt(o,tvMap.getI(*p));
-	saveUInt(o,neigh(false).size());
+		m.saveUInt(tvMap.getI(*p));
+	m.saveUInt(neigh(false).size());
 	for ( p = begin(false), p_end = end(false); p != p_end; ++p )
-		saveUInt(o,tvMap.getI(*p));
-	o << "\n";
+		m.saveUInt(tvMap.getI(*p));
+	m.o() << "\n";
 }
 
 void
-TaxonomyVertex :: LoadNeighbours ( istream& i )
+TaxonomyVertex :: LoadNeighbours ( SaveLoadManager& m )
 {
 	unsigned int j, size;
-	size = loadUInt(i);
+	size = m.loadUInt();
 	for ( j = 0; j < size; ++j )
-		addNeighbour ( true, tvMap.getP(loadUInt(i)) );
-	size = loadUInt(i);
+		addNeighbour ( true, tvMap.getP(m.loadUInt()) );
+	size = m.loadUInt();
 	for ( j = 0; j < size; ++j )
-		addNeighbour ( false, tvMap.getP(loadUInt(i)) );
+		addNeighbour ( false, tvMap.getP(m.loadUInt()) );
 }
 
 //----------------------------------------------------------
@@ -819,25 +774,25 @@ TaxonomyVertex :: LoadNeighbours ( istream& i )
 //----------------------------------------------------------
 
 void
-DLDag :: Save ( ostream& o ) const
+DLDag :: Save ( SaveLoadManager& m ) const
 {
-	saveUInt(o,finalDagSize);
-	o << "\n";
+	m.saveUInt(finalDagSize);
+	m.o() << "\n";
 	// skip fake vertex and TOP
 	for ( unsigned int i = 2; i < finalDagSize; ++i )
-		Heap[i]->Save(o);
+		Heap[i]->Save(m);
 }
 
 void
-DLDag :: Load ( istream& i )
+DLDag :: Load ( SaveLoadManager& m )
 {
 	unsigned int j, size;
-	size = loadUInt(i);
+	size = m.loadUInt();
 	for ( j = 2; j < size; ++j )
 	{
-		DagTag tag = static_cast<DagTag>(loadUInt(i));
+		DagTag tag = static_cast<DagTag>(m.loadUInt());
 		DLVertex* v = new DLVertex(tag);
-		v->Load(i);
+		v->Load(m);
 		directAdd(v);
 	}
 
@@ -847,10 +802,10 @@ DLDag :: Load ( istream& i )
 
 /// @return true if the DAG in the SL structure is the same that is loaded
 bool
-DLDag :: Verify ( istream& i ) const
+DLDag :: Verify ( SaveLoadManager& m ) const
 {
 	unsigned int j, size;
-	size = loadUInt(i);
+	size = m.loadUInt();
 
 	if ( size != finalDagSize )
 	{
@@ -860,9 +815,9 @@ DLDag :: Verify ( istream& i ) const
 
 	for ( j = 2; j < size; ++j )
 	{
-		DagTag tag = static_cast<DagTag>(loadUInt(i));
+		DagTag tag = static_cast<DagTag>(m.loadUInt());
 		DLVertex* v = new DLVertex(tag);
-		v->Load(i);
+		v->Load(m);
 		if ( *v != *(Heap[j]) )
 		{
 			std::cout << "DAG verification fail: dag entry at " << j << " is ";
@@ -880,49 +835,49 @@ DLDag :: Verify ( istream& i ) const
 }
 
 static void
-SaveSingleCache ( std::ostream& o, BipolarPointer bp, const modelCacheInterface* cache )
+SaveSingleCache ( SaveLoadManager& m, BipolarPointer bp, const modelCacheInterface* cache )
 {
 	if ( cache == NULL )
 		return;
-	saveSInt(o,bp);
-	saveUInt(o,cache->getCacheType());
+	m.saveSInt(bp);
+	m.saveUInt(cache->getCacheType());
 	switch ( cache->getCacheType() )
 	{
 	case modelCacheInterface::mctConst:
-		saveUInt ( o, cache->getState() == csValid );
+		m.saveUInt(cache->getState() == csValid);
 		break;
 
 	case modelCacheInterface::mctSingleton:
-		saveSInt ( o, dynamic_cast<const modelCacheSingleton*>(cache)->getValue() );
+		m.saveSInt(dynamic_cast<const modelCacheSingleton*>(cache)->getValue());
 		break;
 
 	case modelCacheInterface::mctIan:
-		dynamic_cast<const modelCacheIan*>(cache)->Save(o);
+		dynamic_cast<const modelCacheIan*>(cache)->Save(m);
 		break;
 
 	default:
 		fpp_unreachable();
 	}
-	o << "\n";
+	m.o() << "\n";
 }
 
 static const modelCacheInterface*
-LoadSingleCache ( std::istream& i )
+LoadSingleCache ( SaveLoadManager& m )
 {
-	modelCacheState state = (modelCacheState)loadUInt(i);
+	modelCacheState state = (modelCacheState)m.loadUInt();
 	switch ( state )
 	{
 	case modelCacheInterface::mctConst:
-		return new modelCacheConst ( loadUInt(i) != 0 );
+		return new modelCacheConst ( m.loadUInt() != 0 );
 	case modelCacheInterface::mctSingleton:
-		return new modelCacheSingleton(loadSInt(i));
+		return new modelCacheSingleton(m.loadSInt());
 	case modelCacheInterface::mctIan:
 	{
-		bool hasNominals = bool(loadUInt(i));
-		unsigned int nC = loadUInt(i);
-		unsigned int nR = loadUInt(i);
+		bool hasNominals = bool(m.loadUInt());
+		unsigned int nC = m.loadUInt();
+		unsigned int nR = m.loadUInt();
 		modelCacheIan* cache = new modelCacheIan ( hasNominals, nC, nR );
-		cache->Load(i);
+		cache->Load(m);
 		return cache;
 	}
 
@@ -932,28 +887,28 @@ LoadSingleCache ( std::istream& i )
 }
 
 void
-DLDag :: SaveCache ( ostream& o ) const
+DLDag :: SaveCache ( SaveLoadManager& m ) const
 {
-	o << "\nDC";	// dag cache
+	m.o() << "\nDC";	// dag cache
 	for ( unsigned int i = 2; i < finalDagSize; ++i )
 	{
 		DLVertex* v = Heap[i];
-		SaveSingleCache ( o, i, v->getCache(true) );
-		SaveSingleCache ( o, -i, v->getCache(false) );
+		SaveSingleCache ( m, i, v->getCache(true) );
+		SaveSingleCache ( m, -i, v->getCache(false) );
 	}
-	saveUInt(o,0);
+	m.saveUInt(0);
 }
 
 void
-DLDag :: LoadCache ( std::istream& i )
+DLDag :: LoadCache ( SaveLoadManager& m )
 {
-	expectChar(i,'D');
-	expectChar(i,'C');
-	BipolarPointer bp = loadSInt(i);
+	m.expectChar('D');
+	m.expectChar('C');
+	BipolarPointer bp = m.loadSInt();
 	while ( bp != 0 )
 	{
-		setCache ( bp, LoadSingleCache(i) );
-		bp = loadSInt(i);
+		setCache ( bp, LoadSingleCache(m) );
+		bp = m.loadSInt();
 	}
 }
 
@@ -962,62 +917,62 @@ DLDag :: LoadCache ( std::istream& i )
 //----------------------------------------------------------
 
 static void
-SaveIndexSet ( std::ostream& o, const TSetAsTree& Set )
+SaveIndexSet ( SaveLoadManager& m, const TSetAsTree& Set )
 {
 	for ( TSetAsTree::const_iterator p = Set.begin(), p_end = Set.end(); p != p_end; ++p )
-		saveUInt(o,*p);
-	saveUInt(o,0);
+		m.saveUInt(*p);
+	m.saveUInt(0);
 }
 
 static void
-LoadIndexSet ( std::istream& i, TSetAsTree& Set )
+LoadIndexSet ( SaveLoadManager& m, TSetAsTree& Set )
 {
-	unsigned int n = loadUInt(i);
+	unsigned int n = m.loadUInt();
 	while ( n != 0 )
 	{
 		Set.insert(n);
-		n = loadUInt(i);
+		n = m.loadUInt();
 	}
 }
 
 void
-modelCacheIan :: Save ( std::ostream& o ) const
+modelCacheIan :: Save ( SaveLoadManager& m ) const
 {
 	// header: hasNominals, nC, nR
-	saveUInt(o,hasNominalNode);
-	saveUInt(o,posDConcepts.maxSize());
-	saveUInt(o,existsRoles.maxSize());
+	m.saveUInt(hasNominalNode);
+	m.saveUInt(posDConcepts.maxSize());
+	m.saveUInt(existsRoles.maxSize());
 	// the body that will be loaded
-	SaveIndexSet(o,posDConcepts);
-	SaveIndexSet(o,posNConcepts);
-	SaveIndexSet(o,negDConcepts);
-	SaveIndexSet(o,negNConcepts);
+	SaveIndexSet(m,posDConcepts);
+	SaveIndexSet(m,posNConcepts);
+	SaveIndexSet(m,negDConcepts);
+	SaveIndexSet(m,negNConcepts);
 #ifdef RKG_USE_SIMPLE_RULES
 	SaveIndexSet(o,extraDConcepts);
 	SaveIndexSet(o,extraNConcepts);
 #endif
-	SaveIndexSet(o,existsRoles);
-	SaveIndexSet(o,forallRoles);
-	SaveIndexSet(o,funcRoles);
-	saveUInt(o,curState);
+	SaveIndexSet(m,existsRoles);
+	SaveIndexSet(m,forallRoles);
+	SaveIndexSet(m,funcRoles);
+	m.saveUInt(curState);
 }
 
 void
-modelCacheIan :: Load ( std::istream& i )
+modelCacheIan :: Load ( SaveLoadManager& m )
 {
 	// note that nominals, nC and nR already read, and all sets are created
-	LoadIndexSet(i,posDConcepts);
-	LoadIndexSet(i,posNConcepts);
-	LoadIndexSet(i,negDConcepts);
-	LoadIndexSet(i,negNConcepts);
+	LoadIndexSet(m,posDConcepts);
+	LoadIndexSet(m,posNConcepts);
+	LoadIndexSet(m,negDConcepts);
+	LoadIndexSet(m,negNConcepts);
 #ifdef RKG_USE_SIMPLE_RULES
-	LoadIndexSet(i,extraDConcepts);
-	LoadIndexSet(i,extraNConcepts);
+	LoadIndexSet(m,extraDConcepts);
+	LoadIndexSet(m,extraNConcepts);
 #endif
-	LoadIndexSet(i,existsRoles);
-	LoadIndexSet(i,forallRoles);
-	LoadIndexSet(i,funcRoles);
-	curState = (modelCacheState) loadUInt(i);
+	LoadIndexSet(m,existsRoles);
+	LoadIndexSet(m,forallRoles);
+	LoadIndexSet(m,funcRoles);
+	curState = (modelCacheState) m.loadUInt();
 }
 
 //----------------------------------------------------------
@@ -1025,9 +980,9 @@ modelCacheIan :: Load ( std::istream& i )
 //----------------------------------------------------------
 
 void
-DLVertex :: Save ( ostream& o ) const
+DLVertex :: Save ( SaveLoadManager& m ) const
 {
-	saveUInt(o,static_cast<unsigned int>(Type()));
+	m.saveUInt(static_cast<unsigned int>(Type()));
 
 	switch ( Type() )
 	{
@@ -1038,33 +993,33 @@ DLVertex :: Save ( ostream& o ) const
 		break;
 
 	case dtAnd:
-		saveUInt(o,Child.size());
+		m.saveUInt(Child.size());
 		for ( const_iterator p = begin(); p != end(); ++p )
-			saveSInt(o,*p);
+			m.saveSInt(*p);
 		break;
 
 	case dtLE:
-		saveUInt(o,neMap.getI(const_cast<TRole*>(Role)));
-		saveSInt(o,getC());
-		saveUInt(o,getNumberLE());
+		m.saveUInt(neMap.getI(const_cast<TRole*>(Role)));
+		m.saveSInt(getC());
+		m.saveUInt(getNumberLE());
 		break;
 
 	case dtForall:	// n here is for the automaton state
-		saveUInt(o,neMap.getI(const_cast<TRole*>(Role)));
-		saveSInt(o,getC());
-		saveUInt(o,getNumberLE());
+		m.saveUInt(neMap.getI(const_cast<TRole*>(Role)));
+		m.saveSInt(getC());
+		m.saveUInt(getNumberLE());
 		break;
 
 	case dtIrr:
-		saveUInt(o,neMap.getI(const_cast<TRole*>(Role)));
+		m.saveUInt(neMap.getI(const_cast<TRole*>(Role)));
 		break;
 
 	case dtPConcept:
 	case dtNConcept:
 	case dtPSingleton:
 	case dtNSingleton:
-		saveUInt(o,neMap.getI(static_cast<TConcept*>(Concept)));
-		saveSInt(o,getC());
+		m.saveUInt(neMap.getI(static_cast<TConcept*>(Concept)));
+		m.saveSInt(getC());
 		break;
 
 	case dtNN:	// nothing to do
@@ -1072,18 +1027,18 @@ DLVertex :: Save ( ostream& o ) const
 
 	case dtDataType:
 	case dtDataValue:
-		saveUInt(o,neMap.getI(Concept));
-		saveSInt(o,getC());
+		m.saveUInt(neMap.getI(Concept));
+		m.saveSInt(getC());
 		break;
 
 	case dtDataExpr:
 		break;	// FIXME!! for now
 	}
-	o << "\n";
+	m.o() << "\n";
 }
 
 void
-DLVertex :: Load ( istream& i )
+DLVertex :: Load ( SaveLoadManager& m )
 {
 	// now OP is already loaded
 	switch ( Type() )
@@ -1096,34 +1051,34 @@ DLVertex :: Load ( istream& i )
 
 	case dtAnd:
 	{
-		unsigned int size = loadUInt(i);
+		unsigned int size = m.loadUInt();
 		for ( unsigned int j = 0; j < size; ++j )
-			Child.push_back(loadSInt(i));
+			Child.push_back(m.loadSInt());
 		break;
 	}
 
 	case dtLE:
-		Role = static_cast<const TRole*>(neMap.getP(loadUInt(i)));
-		setChild(loadSInt(i));
-		n = loadUInt(i);
+		Role = static_cast<const TRole*>(neMap.getP(m.loadUInt()));
+		setChild(m.loadSInt());
+		n = m.loadUInt();
 		break;
 
 	case dtForall:
-		Role = static_cast<const TRole*>(neMap.getP(loadUInt(i)));
-		setChild(loadSInt(i));
-		n = loadUInt(i);
+		Role = static_cast<const TRole*>(neMap.getP(m.loadUInt()));
+		setChild(m.loadSInt());
+		n = m.loadUInt();
 		break;
 
 	case dtIrr:
-		Role = static_cast<const TRole*>(neMap.getP(loadUInt(i)));
+		Role = static_cast<const TRole*>(neMap.getP(m.loadUInt()));
 		break;
 
 	case dtPConcept:
 	case dtNConcept:
 	case dtPSingleton:
 	case dtNSingleton:
-		setConcept(neMap.getP(loadUInt(i)));
-		setChild(loadSInt(i));
+		setConcept(neMap.getP(m.loadUInt()));
+		setChild(m.loadSInt());
 		break;
 
 	case dtNN:	// nothing to do
@@ -1131,8 +1086,8 @@ DLVertex :: Load ( istream& i )
 
 	case dtDataType:
 	case dtDataValue:
-		setConcept(neMap.getP(loadUInt(i)));
-		setChild(loadSInt(i));
+		setConcept(neMap.getP(m.loadUInt()));
+		setChild(m.loadSInt());
 		break;
 
 	case dtDataExpr:

@@ -515,27 +515,31 @@ protected:	// methods
 	//----------------------------------------------
 
 		/// save the header of the kernel
-	void SaveHeader ( std::ostream& o ) const;
+	void SaveHeader ( SaveLoadManager& m ) const;
 		/// save the set of Kernel's options
-	void SaveOptions ( std::ostream& o ) const;
+	void SaveOptions ( SaveLoadManager& m ) const;
 		/// save the status of the KB and the appropriate part of KB
-	void SaveKB ( std::ostream& o ) const;
+	void SaveKB ( SaveLoadManager& m ) const;
 		/// save incremental
-	void SaveIncremental ( std::ostream& o ) const;
+	void SaveIncremental ( SaveLoadManager& m ) const;
 		/// load the header for the kernel
-	bool LoadHeader ( std::istream& i );
+	bool LoadHeader ( SaveLoadManager& m );
 		/// load the set of Kernel's options
-	void LoadOptions ( std::istream& i );
+	void LoadOptions ( SaveLoadManager& m );
 		/// load the status of the KB and the appropriate part of KB
-	void LoadKB ( std::istream& i );
+	void LoadKB ( SaveLoadManager& m );
 		/// load incremental
-	void LoadIncremental ( std::istream& i );
+	void LoadIncremental ( SaveLoadManager& m );
 		/// reload taxonomy (used in the incremental)
 	void ReloadTaxonomy ( void );
 		/// save internal state of the Kernel to a file NAME
-	void Save ( std::ostream& o, const char* name = "<output>" ) const;
+	void Save ( SaveLoadManager& m, const char* name = "<output>" ) const;
 		/// load internal state of the Kernel from a file NAME
-	void Load ( std::istream& i, const char* name = "<input>");
+	void Load ( SaveLoadManager& m, const char* name = "<input>");
+		/// save internal state of the Kernel using S/L Manager
+	void Save ( void );
+		/// load internal state of the Kernel using S/L Manager
+	void Load ( void );
 
 	//----------------------------------------------------------------------------------
 	// knowledge exploration queries
@@ -635,15 +639,6 @@ public:	// general staff
 		TraceVec.clear();
 		return TraceVec;
 	}
-
-	//----------------------------------------------
-	//-- save/load interface; implementation in SaveLoad.cpp
-	//----------------------------------------------
-
-		/// save internal state of the Kernel using S/L Manager
-	void Save ( void );
-		/// load internal state of the Kernel using S/L Manager
-	void Load ( void );
 
 		/// get access to an expression manager
 	TExpressionManager* getExpressionManager ( void ) { return Ontology.getExpressionManager(); }
