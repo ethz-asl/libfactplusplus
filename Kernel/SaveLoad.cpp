@@ -160,7 +160,7 @@ inline void regPointer ( const TNamedEntry* p )
 #define CHECK_FILE_STATE() if ( !m.o().good() ) throw(EFPPSaveLoad(name,/*save=*/true))
 
 void
-ReasoningKernel :: Save ( SaveLoadManager& m, const char* name ) const
+ReasoningKernel :: Save ( SaveLoadManager& m, const char* name )
 {
 	TsProcTimer t;
 	t.Start();
@@ -260,7 +260,7 @@ ReasoningKernel :: LoadOptions ( SaveLoadManager& m )
 //-- save/load KB (Kernel.h)
 
 void
-ReasoningKernel :: SaveKB ( SaveLoadManager& m ) const
+ReasoningKernel :: SaveKB ( SaveLoadManager& m )
 {
 	m.saveUInt((unsigned int)getStatus());
 	switch ( getStatus() )
@@ -430,18 +430,18 @@ LoadRoleMaster ( RoleMaster& RM, SaveLoadManager& m )
 //-- Implementation of the DLDag methods (dlDag.h)
 //----------------------------------------------------------
 
-void
-DLDag :: Save ( SaveLoadManager& m ) const
+static void
+SaveDLDag ( const DLDag& dag, SaveLoadManager& m )
 {
-	m.saveUInt(finalDagSize);
+	m.saveUInt(dag.size());
 	m.o() << "\n";
 	// skip fake vertex and TOP
-	for ( unsigned int i = 2; i < finalDagSize; ++i )
-		Heap[i]->Save(m);
+	for ( unsigned int i = 2; i < dag.size(); ++i )
+		dag[i].Save(m);
 }
 
-void
-DLDag :: Load ( SaveLoadManager& m )
+static void
+LoadDLDag ( DLDag& dag, SaveLoadManager& m )
 {
 	unsigned int j, size;
 	size = m.loadUInt();
@@ -450,23 +450,23 @@ DLDag :: Load ( SaveLoadManager& m )
 		DagTag tag = static_cast<DagTag>(m.loadUInt());
 		DLVertex* v = new DLVertex(tag);
 		v->Load(m);
-		directAdd(v);
+		dag.directAdd(v);
 	}
 
 	// only reasoning now -- no cache
-	setFinalSize();
+	dag.setFinalSize();
 }
 
 /// @return true if the DAG in the SL structure is the same that is loaded
-bool
-DLDag :: Verify ( SaveLoadManager& m ) const
+static bool
+VerifyDag ( const DLDag& dag, SaveLoadManager& m )
 {
 	unsigned int j, size;
 	size = m.loadUInt();
 
-	if ( size != finalDagSize )
+	if ( size != dag.size() )
 	{
-		std::cout << "DAG verification fail: size " << size << ", expected " << finalDagSize << "\n";
+		std::cout << "DAG verification fail: size " << size << ", expected " << dag.size() << "\n";
 		return false;
 	}
 
@@ -475,12 +475,12 @@ DLDag :: Verify ( SaveLoadManager& m ) const
 		DagTag tag = static_cast<DagTag>(m.loadUInt());
 		DLVertex* v = new DLVertex(tag);
 		v->Load(m);
-		if ( *v != *(Heap[j]) )
+		if ( *v != dag[j] )
 		{
 			std::cout << "DAG verification fail: dag entry at " << j << " is ";
 			v->Print(std::cout);
 			std::cout << ", expected ";
-			Heap[j]->Print(std::cout);
+			dag[j].Print(std::cout);
 			std::cout << "\n";
 			delete v;
 			return false;
@@ -543,30 +543,26 @@ LoadSingleCache ( SaveLoadManager& m )
 	}
 }
 
-void
-DLDag :: SaveCache ( SaveLoadManager& m ) const
+static void
+SaveDagCache ( const DLDag& dag, SaveLoadManager& m )
 {
 	m.o() << "\nDC";	// dag cache
-	for ( unsigned int i = 2; i < finalDagSize; ++i )
+	for ( unsigned int i = 2; i < dag.size(); ++i )
 	{
-		DLVertex* v = Heap[i];
-		SaveSingleCache ( m, i, v->getCache(true) );
-		SaveSingleCache ( m, -i, v->getCache(false) );
+		const DLVertex& v = dag[i];
+		SaveSingleCache ( m, i, v.getCache(true) );
+		SaveSingleCache ( m, -i, v.getCache(false) );
 	}
 	m.saveUInt(0);
 }
 
-void
-DLDag :: LoadCache ( SaveLoadManager& m )
+static void
+LoadDagCache ( DLDag& dag, SaveLoadManager& m )
 {
 	m.expectChar('D');
 	m.expectChar('C');
-	BipolarPointer bp = m.loadSInt();
-	while ( bp != 0 )
-	{
-		setCache ( bp, LoadSingleCache(m) );
-		bp = m.loadSInt();
-	}
+	while ( BipolarPointer bp = m.loadSInt() )
+		dag.setCache ( bp, LoadSingleCache(m) );
 }
 
 
@@ -575,7 +571,7 @@ DLDag :: LoadCache ( SaveLoadManager& m )
 //----------------------------------------------------------
 
 void
-TBox :: Save ( SaveLoadManager& m ) const
+TBox :: Save ( SaveLoadManager& m )
 {
 	tvMap.clear();
 	neMap.clear();
@@ -601,13 +597,14 @@ TBox :: Save ( SaveLoadManager& m ) const
 	m.o() << "\nDR";
 	SaveRoleMaster(DRM,m);
 	m.o() << "\nD";
-	DLHeap.Save(m);
+	DLHeap.removeQuery();
+	SaveDLDag(DLHeap,m);
 	if ( Status > kbCChecked )
 	{
 		m.o() << "\nCT";
 		pTax->Save(m,empty);
 	}
-	DLHeap.SaveCache(m);
+	SaveDagCache(DLHeap,m);
 }
 
 void
@@ -638,8 +635,8 @@ TBox :: Load ( SaveLoadManager& m, KBStatus status )
 	m.expectChar('R');
 	LoadRoleMaster(DRM,m);
 	m.expectChar('D');
-//	DLHeap.Load(m);
-	if ( !DLHeap.Verify(m) )
+//	LoadDLDag(DLHeap,m);
+	if ( !VerifyDag(DLHeap,m) )
 		throw EFPPSaveLoad("DAG verification failed");
 //	initReasoner();
 	if ( Status > kbCChecked )
@@ -650,7 +647,7 @@ TBox :: Load ( SaveLoadManager& m, KBStatus status )
 		m.expectChar('T');
 		pTax->Load(m);
 	}
-	DLHeap.LoadCache(m);
+	LoadDagCache(DLHeap,m);
 }
 
 void

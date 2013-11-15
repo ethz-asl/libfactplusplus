@@ -1267,7 +1267,7 @@ public:
 //-----------------------------------------------------------------------------
 
 		/// save the KB into the given stream
-	void Save ( SaveLoadManager& m ) const;
+	void Save ( SaveLoadManager& m );
 		/// load the KB from given stream wrt STATUS
 	void Load ( SaveLoadManager& m, KBStatus status );
 		/// save taxonomy with names (used in the incremental)
