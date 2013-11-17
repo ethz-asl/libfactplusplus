@@ -22,6 +22,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <string>
 #include <iostream>
 
+#include "globaldef.h"
 #include "eFPPSaveLoad.h"
 
 class SaveLoadManager
@@ -57,6 +58,14 @@ public:		// methods
 	std::istream& i ( void ) { return *ip; }
 		/// get an output stream
 	std::ostream& o ( void ) { return *op; }
+		/// check whether stream is in a good shape
+	void checkStream ( void ) const
+	{
+		if ( ip && unlikely(!ip->good()) )
+			throw EFPPSaveLoad ( filename, /*save=*/false);
+		if ( op && unlikely(!op->good()) )
+			throw EFPPSaveLoad ( filename, /*save=*/true);
+	}
 
 	// save/load primitives
 

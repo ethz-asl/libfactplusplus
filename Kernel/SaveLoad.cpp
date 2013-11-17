@@ -24,8 +24,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ReasonerNom.h"	// for initReasoner()
 #include "SaveLoadManager.h"
 
-using namespace std;
-
 const char* ReasoningKernel :: InternalStateFileHeader = "FaCT++InternalStateDump1.0";
 
 const int bytesInInt = sizeof(int);
@@ -156,23 +154,20 @@ inline void regPointer ( const TNamedEntry* p )
 //-- Implementation of the Kernel methods (Kernel.h)
 //----------------------------------------------------------
 
-#undef CHECK_FILE_STATE
-#define CHECK_FILE_STATE() if ( !m.o().good() ) throw(EFPPSaveLoad(name,/*save=*/true))
-
 void
-ReasoningKernel :: Save ( SaveLoadManager& m, const char* name )
+ReasoningKernel :: Save ( SaveLoadManager& m )
 {
 	TsProcTimer t;
 	t.Start();
-	CHECK_FILE_STATE();
+	m.checkStream();
 	SaveHeader(m);
-	CHECK_FILE_STATE();
+	m.checkStream();
 	SaveOptions(m);
-	CHECK_FILE_STATE();
+	m.checkStream();
 	SaveKB(m);
-	CHECK_FILE_STATE();
+	m.checkStream();
 	SaveIncremental(m);
-	CHECK_FILE_STATE();
+	m.checkStream();
 	t.Stop();
 	std::cout << "Reasoner internal state saved in " << t << " sec" << std::endl;
 }
@@ -185,25 +180,21 @@ ReasoningKernel :: Save ( void )
 	Save(*pSLManager);
 }
 
-#undef CHECK_FILE_STATE
-#define CHECK_FILE_STATE() if ( !m.i().good() ) throw(EFPPSaveLoad(name,/*save=*/false))
-
 void
-ReasoningKernel :: Load ( SaveLoadManager& m, const char* name )
+ReasoningKernel :: Load ( SaveLoadManager& m )
 {
 	TsProcTimer t;
 	t.Start();
-	CHECK_FILE_STATE();
+	m.checkStream();
 //	releaseKB();	// we'll start a new one if necessary
-	if ( LoadHeader(m) )
-		throw(EFPPSaveLoad(name,/*save=*/false));
-	CHECK_FILE_STATE();
+	LoadHeader(m);
+	m.checkStream();
 	LoadOptions(m);
-	CHECK_FILE_STATE();
+	m.checkStream();
 	LoadKB(m);
-	CHECK_FILE_STATE();
+	m.checkStream();
 	LoadIncremental(m);
-	CHECK_FILE_STATE();
+	m.checkStream();
 	t.Stop();
 	std::cout << "Reasoner internal state loaded in " << t << " sec" << std::endl;
 }
@@ -224,13 +215,13 @@ ReasoningKernel :: SaveHeader ( SaveLoadManager& m ) const
 	m.o() << InternalStateFileHeader << "\n" << Version << "\n" << bytesInInt << "\n";
 }
 
-bool
+void
 ReasoningKernel :: LoadHeader ( SaveLoadManager& m )
 {
-	string str;
+	std::string str;
 	m.i() >> str;
 	if ( str != InternalStateFileHeader )
-		return true;
+		throw EFPPSaveLoad("Incompatible save/load header");
 	m.i() >> str;
 	// FIXME!! we don't check version equivalence for now
 //	if ( str != Version )
@@ -238,8 +229,7 @@ ReasoningKernel :: LoadHeader ( SaveLoadManager& m )
 	int n;
 	m.i() >> n;
 	if ( n != bytesInInt )
-		return true;
-	return false;
+		throw EFPPSaveLoad("Saved file differ in word size");
 }
 
 //-- save/load options (Kernel.h)
@@ -440,7 +430,7 @@ SaveDLDag ( const DLDag& dag, SaveLoadManager& m )
 		dag[i].Save(m);
 }
 
-static void
+void
 LoadDLDag ( DLDag& dag, SaveLoadManager& m )
 {
 	unsigned int j, size;

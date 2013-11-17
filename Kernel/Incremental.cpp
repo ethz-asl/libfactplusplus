@@ -245,7 +245,8 @@ ReasoningKernel :: doIncremental ( void )
 			  << " sec\nTotal reclassification time: " << total << " sec" << std::endl;
 }
 
-static std::ostream& operator << ( std::ostream& o, const TSignature& sig )
+std::ostream&
+operator << ( std::ostream& o, const TSignature& sig )
 {
 	o << "[";
 	for ( TSignature::iterator p = sig.begin(), p_end = sig.end(); p != p_end; ++p )

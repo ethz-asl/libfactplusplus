@@ -523,19 +523,17 @@ protected:	// methods
 		/// save incremental
 	void SaveIncremental ( SaveLoadManager& m ) const;
 		/// load the header for the kernel
-	bool LoadHeader ( SaveLoadManager& m );
+	void LoadHeader ( SaveLoadManager& m );
 		/// load the set of Kernel's options
 	void LoadOptions ( SaveLoadManager& m );
 		/// load the status of the KB and the appropriate part of KB
 	void LoadKB ( SaveLoadManager& m );
 		/// load incremental
 	void LoadIncremental ( SaveLoadManager& m );
-		/// reload taxonomy (used in the incremental)
-	void ReloadTaxonomy ( void );
 		/// save internal state of the Kernel to a file NAME
-	void Save ( SaveLoadManager& m, const char* name = "<output>" );
+	void Save ( SaveLoadManager& m );
 		/// load internal state of the Kernel from a file NAME
-	void Load ( SaveLoadManager& m, const char* name = "<input>");
+	void Load ( SaveLoadManager& m );
 		/// save internal state of the Kernel using S/L Manager
 	void Save ( void );
 		/// load internal state of the Kernel using S/L Manager
