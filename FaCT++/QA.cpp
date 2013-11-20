@@ -19,53 +19,31 @@ Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #include "Kernel.h"
 
 #include "QR.h"
+#include "ConjunctiveQuerySet.h"
+
 extern TExpressionManager* pEM;
 extern VariableFactory VarFact;
 #include "lubm2.h"
 #include "NCIT_Queries.h"
 #include "BSPO_Queries.h"
-extern QRQuery* createQuery(void);
-extern void doQuery(QRQuery * query, ReasoningKernel* kernel);
+extern void runQueries ( CQSet& queries, ReasoningKernel* kernel );
 
 //----------------------------------------------------------------------------------
 // SAT/SUB queries
 //----------------------------------------------------------------------------------
 
-/// try to do a reasoning; react if exception was thrown
-#define TryReasoning(action)			\
-	do {								\
-		try { action; }					\
-		catch ( const EFPPInconsistentKB& ) {} 	\
-		catch ( const EFPPCantRegName& crn )	\
-		{ std::cout << "Query name " << crn.getName()		\
-			<< " is undefined in TBox\n"; }					\
-		catch ( const EFPPNonSimpleRole& nsr )	\
-		{ std::cerr << "WARNING: KB is incorrect: " 		\
-			<< nsr.what() << ". Query is NOT processed\n";	\
-		  exit(0); }					\
-		catch ( const EFPPCycleInRIA& cir )	\
-		{ std::cerr << "WARNING: KB is incorrect: " 		\
-			<< cir.what() << ". Query is NOT processed\n";	\
-		  exit(0); }					\
-	} while (0)
-
-//**********************  Main function  ************************************
 void
 doQueryAnswering ( ReasoningKernel& Kernel )
 {
-	TryReasoning(Kernel.realiseKB());
 	// perform query answering
-	pEM = Kernel.getExpressionManager();
+	CQSet* queries =
+			new BSPOQuery ( Kernel.getExpressionManager(), &VarFact );
 
-//	for ( int i = 1; i < 11; i++ )
-//	if ( i != 6 && i != 7 )
-	for ( int i = 0; i < 2; i++ )
-	{
-		QRQuery* query =
-//			buildLUBM2Query(i,&VarFact, pEM);
-//			buildNCITQuery(i,&VarFact, pEM);
-			buildBSPOQuery(i,&VarFact, pEM);
-		doQuery(query, &Kernel);
-		delete query;
-	}
+	if ( queries->isArtificialABox() )
+		Kernel.classifyKB();
+	else
+		Kernel.realiseKB();
+
+	runQueries ( *queries, &Kernel );
+	delete queries;
 }

@@ -1345,7 +1345,7 @@ public:
 	// conjunctive queries
 	//----------------------------------------------------------------------------------
 
-	void evaluateQuery ( const std::multimap<std::string, TConceptExpr*>& query );
+	void evaluateQuery ( const std::multimap<std::string, TConceptExpr*>& query, bool artificialABox );
 }; // ReasoningKernel
 
 #endif

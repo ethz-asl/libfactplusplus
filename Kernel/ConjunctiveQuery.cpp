@@ -44,10 +44,10 @@ void fillVarIndex ( const V2CMap& query )
 	fpp_assert ( I2Var.size() == n );
 }
 
-static void fillIVec ( ReasoningKernel* kernel );
+static void fillIVec ( ReasoningKernel* kernel, bool artificialABox );
 
 void
-ReasoningKernel :: evaluateQuery ( const V2CMap& query )
+ReasoningKernel :: evaluateQuery ( const V2CMap& query, bool artificialABox )
 {
 	// make index of all vars
 	fillVarIndex(query);
@@ -76,7 +76,7 @@ ReasoningKernel :: evaluateQuery ( const V2CMap& query )
 	std::cout << ">\n";
 
 	// fills iterable vector
-	fillIVec(this);
+	fillIVec ( this, artificialABox );
 
 //	if ( Concepts.size() == 1 )
 		getTBox()->answerQuery(Concepts);
@@ -158,25 +158,44 @@ typedef std::vector<BipolarPointer> BPvec;
 BPvec concepts;
 
 static void
-fillIVec ( ReasoningKernel* kernel )
+getABoxInstances ( ReasoningKernel* kernel, const TDLConceptExpression* C, bool artificialABox )
+{
+	// get all instances of C
+	Actor a;
+	std::vector<TIndividual*> individuals;
+	Actor::Array1D result;
+	if ( artificialABox )	// HACK: work only for our individualisation of NCIt/etc
+	{
+		a.needConcepts();
+		kernel->getSubConcepts(C,false,a);
+		a.getFoundData(result);
+		TExpressionManager* pEM = kernel->getExpressionManager();
+		for ( Actor::Array1D::iterator p = result.begin(), p_end = result.end(); p != p_end; ++p )
+		{
+			const TDLIndividualName* ind = pEM->Individual((*p)->getName());
+			individuals.push_back(static_cast<TIndividual*>(ind->getEntry()));
+		}
+	}
+	else
+	{
+		a.needIndividuals();
+		kernel->getInstances(C,a);
+		a.getFoundData(result);
+		for ( Actor::Array1D::iterator p = result.begin(), p_end = result.end(); p != p_end; ++p )
+			individuals.push_back(static_cast<TIndividual*>(const_cast<ClassifiableEntry*>(*p)));
+	}
+	IV.add(new Iterable<TIndividual*>(individuals));
+
+}
+static void
+fillIVec ( ReasoningKernel* kernel, bool artificialABox )
 {
 	std::cout << "Creating iterables...";
 	IV.clear();
 	for ( size_t i = 0; i < I2Var.size(); i++ )
-	{
 		// The i'th var is I2Var[i]; get its concept
-		const TDLConceptExpression* C = VarRestrictions[I2Var[i]];
-		// get all instances of C
-		Actor a;
-		a.needIndividuals();
-		Actor::Array1D instances;
-		std::vector<TIndividual*> individuals;
-		kernel->getInstances(C,a);
-		a.getFoundData(instances);
-		for ( Actor::Array1D::iterator p = instances.begin(), p_end = instances.end(); p != p_end; ++p )
-			individuals.push_back(static_cast<TIndividual*>(const_cast<ClassifiableEntry*>(*p)));
-		IV.add(new Iterable<TIndividual*>(individuals));
-	}
+		getABoxInstances ( kernel, VarRestrictions[I2Var[i]], artificialABox );
+
 	std::cout << " done" << std::endl;
 }
 
@@ -199,13 +218,12 @@ TBox :: answerQuery ( const std::vector<DLTree*>& Cs )
 	std::cout << " done with " << AllInd.size() << " individuals" << std::endl;
 	size_t size = Cs.size();
 
-#if 1
 	std::cout << "Creating iterables...";
 	IV.clear();
 	for ( size_t j = 0; j < size; j++ )
 		IV.add(new Iterable<TIndividual*>(AllInd));
 	std::cout << " done\n";
-#endif
+
 	std::cout << "Run consistency checks...";
 
 	size_t n = 0, nAns = 0;

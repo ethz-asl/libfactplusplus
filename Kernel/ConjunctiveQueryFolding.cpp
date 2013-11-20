@@ -22,6 +22,7 @@ Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #include "Kernel.h"
 #include "tExpressionPrinterLISP.h"
 #include "QR.h"
+#include "ConjunctiveQuerySet.h"
 
 //-------------------------------------------------------------
 // Expression typedefs
@@ -1042,7 +1043,8 @@ public:		// interface
 	}
 }; // TQueryToConceptsTransformer
 
-void doQuery ( QRQuery* query, ReasoningKernel* kernel )
+static void
+doQuery ( QRQuery* query, ReasoningKernel* kernel, bool artificialABox )
 {
 	std::cout << "Next query: " << query;
 
@@ -1052,5 +1054,12 @@ void doQuery ( QRQuery* query, ReasoningKernel* kernel )
 	TQueryToConceptsTransformer transformer(query);
 	transformer.Run();
 	transformer.printResult();
-	kernel->evaluateQuery(transformer.getResult());
+	kernel->evaluateQuery ( transformer.getResult(), artificialABox );
+}
+
+void
+runQueries ( CQSet& queries, ReasoningKernel* kernel )
+{
+	for ( int i = 0; i < queries.size(); i++ )
+		doQuery ( queries[i], kernel, queries.isArtificialABox() );
 }
