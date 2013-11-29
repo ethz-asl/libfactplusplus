@@ -256,7 +256,6 @@ QRQuery* RemoveCFromQuery ( const QRQuery* query )
 		else
 			ret->addAtom((*p)->clone());
 	std::cout << "after\n" << ret;
-	delete query;
 	return ret;
 }
 
