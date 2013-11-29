@@ -23,9 +23,11 @@ Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 
 extern TExpressionManager* pEM;
 extern VariableFactory VarFact;
-#include "lubm2.h"
+#include "LUBM2_Queries.h"
+
 #include "NCIT_Queries.h"
 #include "BSPO_Queries.h"
+#include "PO_Queries.h"
 extern void runQueries ( CQSet& queries, ReasoningKernel* kernel );
 
 //----------------------------------------------------------------------------------
@@ -36,8 +38,12 @@ void
 doQueryAnswering ( ReasoningKernel& Kernel )
 {
 	// perform query answering
+	pEM = Kernel.getExpressionManager();
 	CQSet* queries =
-			new BSPOQuery ( Kernel.getExpressionManager(), &VarFact );
+			new POQuery ( pEM, &VarFact );
+//			new BSPOQuery ( pEM, &VarFact );
+
+	Kernel.setSaveLoadContext("QueryAnswering");
 
 	if ( queries->isArtificialABox() )
 		Kernel.classifyKB();
