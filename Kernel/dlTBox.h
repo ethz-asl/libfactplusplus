@@ -903,6 +903,13 @@ protected:	// methods
 		/// dump all (relevant) roles
 	void dumpAllRoles ( dumpInterface* dump ) const;
 
+//-----------------------------------------------------------------------------
+//--		internal save/load interface; implementation in SaveLoad.cpp
+//-----------------------------------------------------------------------------
+
+		/// init pointer2int maps
+	void initPointerMaps ( SaveLoadManager& m ) const;
+
 public:
 		/// init c'tor
 	TBox ( const ifOptionSet* Options,

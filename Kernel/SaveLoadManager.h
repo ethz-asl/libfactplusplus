@@ -21,12 +21,79 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <string>
 #include <iostream>
+#include <vector>
+#include <map>
 
 #include "globaldef.h"
 #include "eFPPSaveLoad.h"
 
+class TNamedEntity;
+class TNamedEntry;
+class TaxonomyVertex;
+
 class SaveLoadManager
 {
+protected:	// types
+		// maps pointers and numbers
+	template<class T>
+	class PointerMap
+	{
+	protected:	// types
+			/// map int->pointer type
+		typedef std::vector<const T*> I2PMap;
+			/// map pointer->int type
+		typedef std::map<const T*, unsigned int> P2IMap;
+
+	protected:	// members
+			/// map i -> pointer
+		I2PMap i2p;
+			/// map pointer -> i
+		P2IMap p2i;
+			/// ID of the last recorded NE
+		unsigned int last;
+
+	protected:	// methods
+			/// @return true if given pointer present in the map
+		bool in ( const T* p ) const { return p2i.find(p) != p2i.end(); }
+			/// @return true if given index present in the map
+		bool in ( unsigned int i ) const { return i < last; }
+			/// @throw an exception if P is not registered
+		void ensure ( const T* p ) const { if ( !in(p) ) throw EFPPSaveLoad("Cannot save unregistered pointer"); }
+			/// @throw an exception if I is not registered
+		void ensure ( unsigned int i ) const { if ( !in(i) ) throw EFPPSaveLoad("Cannot load unregistered index"); }
+
+	public:		// interface
+			/// empty c'tor
+		PointerMap ( void ) : last(0) {}
+			/// empty d'tor
+		~PointerMap ( void ) {}
+			/// clear the maps
+		void clear ( void )
+		{
+			i2p.clear();
+			p2i.clear();
+			last = 0;
+		}
+
+		// populate the map
+
+			/// add an entry
+		void add ( T* p )
+		{
+			if ( in(p) )
+				return;
+			i2p.push_back(p);
+			p2i[p] = last++;
+		}
+
+		// access to the mapped element
+
+			/// get the NE by index I
+		T* getP ( unsigned int i ) { ensure(i); return const_cast<T*>(i2p[i]); }
+			/// get the index by NE P
+		unsigned int getI ( const T* p ) { ensure(p); return p2i[p]; }
+	}; // PointerMap
+
 protected:	// members
 		/// name of S/L dir
 	std::string dirname;
@@ -36,6 +103,13 @@ protected:	// members
 	std::istream* ip;
 		/// output stream pointer
 	std::ostream* op;
+
+		// uint <-> named entity map for the current taxonomy
+	PointerMap<TNamedEntity> eMap;
+		// uint <-> named entry map for the current taxonomy
+	PointerMap<TNamedEntry> neMap;
+		// uint <-> TaxonomyVertex map to update the taxonomy
+	PointerMap<TaxonomyVertex> tvMap;
 
 public:		// methods
 		/// init c'tor: remember the S/L name
@@ -102,6 +176,34 @@ public:		// methods
 		expectChar(')');
 		return ret;
 	}
+
+	// pointer <-> int related methods
+
+		/// clear all maps
+	void clearPointerMaps ( void )
+	{
+		neMap.clear();
+		eMap.clear();
+		tvMap.clear();
+	}
+		/// register named entry together with entity (if available)
+	void registerE ( const TNamedEntry* p );
+		/// register taxonomy vertex
+	void registerV ( TaxonomyVertex* v ) { tvMap.add(v); }
+
+		/// save Entry pointer
+	void savePointer ( const TNamedEntry* p ) { saveUInt(neMap.getI(p)); }
+		/// save Entity pointer
+	void savePointer ( const TNamedEntity* p ) { saveUInt(eMap.getI(const_cast<TNamedEntity*>(p))); }
+		/// save Vertex pointer
+	void savePointer ( const TaxonomyVertex* p ) { saveUInt(tvMap.getI(const_cast<TaxonomyVertex*>(p))); }
+
+		/// load Entry pointer
+	TNamedEntry* loadEntry ( void ) { return neMap.getP(loadUInt()); }
+		/// load Entity pointer
+	TNamedEntity* loadEntity ( void ) { return eMap.getP(loadUInt()); }
+		/// load Vetrex pointer
+	TaxonomyVertex* loadVertex ( void ) { return tvMap.getP(loadUInt()); }
 }; // SaveLoadManager
 
 #endif

@@ -66,91 +66,6 @@ int loadSInt ( istream& i ) { return (int)loadUInt(i); }
 #endif	// 0
 
 //----------------------------------------------------------
-//-- Global structures used for the methods below
-//----------------------------------------------------------
-
-template<class Pointer>
-class PointerMap
-{
-protected:	// types
-		/// map int->pointer type
-	typedef std::vector<Pointer> I2PMap;
-		/// map pointer->int type
-	typedef std::map<Pointer, unsigned int> P2IMap;
-
-protected:	// members
-		/// map i -> pointer
-	I2PMap i2p;
-		/// map pointer -> i
-	P2IMap p2i;
-		/// ID of the last recorded NE
-	unsigned int last;
-
-protected:	// methods
-		/// @return true if given pointer present in the map
-	bool in ( const Pointer p ) const { return p2i.find(p) != p2i.end(); }
-		/// @return true if given index present in the map
-	bool in ( unsigned int i ) const { return i < last; }
-		/// @throw an exception if P is not registered
-	void ensure ( const Pointer p ) const { if ( !in(p) ) throw EFPPSaveLoad("Cannot save unregistered pointer"); }
-		/// @throw an exception if I is not registered
-	void ensure ( unsigned int i ) const { if ( !in(i) ) throw EFPPSaveLoad("Cannot load unregistered index"); }
-
-public:		// interface
-		/// empty c'tor
-	PointerMap ( void ) : last(0) {}
-		/// empty d'tor
-	~PointerMap ( void ) { clear(); }
-		/// clear the maps
-	void clear ( void )
-	{
-		i2p.clear();
-		p2i.clear();
-		last = 0;
-	}
-
-	// populate the map
-
-		/// add an entry
-	void add ( Pointer p )
-	{
-		if ( in(p) )
-			return;
-		i2p.push_back(p);
-		p2i[p] = last++;
-	}
-		/// add entries from the [begin,end) range
-	template<class Iterator>
-	void add ( Iterator begin, Iterator end )
-	{
-		for ( ; begin != end; ++begin )
-			add(*begin);
-	}
-
-	// access to the mapped element
-
-		/// get the NE by index I
-	Pointer getP ( unsigned int i ) { ensure(i); return i2p[i]; }
-		/// get the index by NE P
-	unsigned int getI ( const Pointer p ) { ensure(p); return p2i[p]; }
-}; // PointerMap
-
-
-// int -> named entity map for the current taxonomy
-PointerMap<TNamedEntity*> eMap;
-// int -> named entry map for the current taxonomy
-PointerMap<TNamedEntry*> neMap;
-// uint -> TaxonomyVertex map to update the taxonomy
-PointerMap<TaxonomyVertex*> tvMap;
-
-inline void regPointer ( const TNamedEntry* p )
-{
-	neMap.add(const_cast<TNamedEntry*>(p));
-	if ( p->getEntity() != NULL )
-		eMap.add(const_cast<TNamedEntity*>(p->getEntity()));
-}
-
-//----------------------------------------------------------
 //-- Implementation of the Kernel methods (Kernel.h)
 //----------------------------------------------------------
 
@@ -303,7 +218,7 @@ SaveTNECollection ( const TNECollection<T>& collection, SaveLoadManager& m, cons
 	for ( p = p_beg; p < p_end; ++p )
 	{
 		// register all entries in the global map
-		regPointer(*p);
+		m.registerE(*p);
 //		if ( excluded.count(*p) == 0 )
 			m.o() << (*p)->getName() << "\n";
 	}
@@ -330,7 +245,7 @@ LoadTNECollection ( TNECollection<T>& collection, SaveLoadManager& m )
 	for ( unsigned int j = 0; j < collSize; ++j )
 	{
 		m.i().getline ( name, maxLength, '\n' );
-		regPointer(collection.get(name));
+		m.registerE(collection.get(name));
 	}
 
 	delete [] name;
@@ -360,13 +275,13 @@ SaveRoleMaster ( const RoleMaster& RM, SaveLoadManager& m )
 	m.saveUInt(maxLength);
 
 	// register const entries in the global map
-	regPointer(RM.getBotRole());
-	regPointer(RM.getTopRole());
+	m.registerE(RM.getBotRole());
+	m.registerE(RM.getTopRole());
 
 	// save names of all (non-inverse) entries
 	for ( p = p_beg; p != p_end; p += 2 )
 	{
-		regPointer(*p);
+		m.registerE(*p);
 		m.o() << (*p)->getName() << "\n";
 	}
 
@@ -392,14 +307,14 @@ LoadRoleMaster ( RoleMaster& RM, SaveLoadManager& m )
 	char* name = new char[maxLength];
 
 	// register const entries in the global map
-	regPointer(RM.getBotRole());
-	regPointer(RM.getTopRole());
+	m.registerE(RM.getBotRole());
+	m.registerE(RM.getTopRole());
 
 	// register all the named entries
 	for ( unsigned int j = 0; j < RMSize; ++j )
 	{
 		m.i().getline ( name, maxLength, '\n' );
-		regPointer(RM.ensureRoleName(name));
+		m.registerE(RM.ensureRoleName(name));
 	}
 
 	delete [] name;
@@ -561,22 +476,28 @@ LoadDagCache ( DLDag& dag, SaveLoadManager& m )
 //----------------------------------------------------------
 
 void
-TBox :: Save ( SaveLoadManager& m )
+TBox :: initPointerMaps ( SaveLoadManager& m ) const
 {
-	tvMap.clear();
-	neMap.clear();
-	neMap.add(pBottom);
-	neMap.add(pTop);
-	neMap.add(pTemp);
-	neMap.add(pQuery);
+	m.clearPointerMaps();
+	m.registerE(pBottom);
+	m.registerE(pTop);
+	m.registerE(pTemp);
+	m.registerE(pQuery);
+
 	// datatypes
 //	TreeDeleter Bool(TreeDeleter(DTCenter.getBoolType()));
-	neMap.add(DTCenter.getStringType()->Element().getNE());
-	neMap.add(DTCenter.getNumberType()->Element().getNE());
-	neMap.add(DTCenter.getRealType()->Element().getNE());
-	neMap.add(DTCenter.getBoolType()->Element().getNE());
-	neMap.add(DTCenter.getTimeType()->Element().getNE());
-	neMap.add(DTCenter.getFreshDataType()->Element().getNE());
+	m.registerE(DTCenter.getStringType()->Element().getNE());
+	m.registerE(DTCenter.getNumberType()->Element().getNE());
+	m.registerE(DTCenter.getRealType()->Element().getNE());
+	m.registerE(DTCenter.getBoolType()->Element().getNE());
+	m.registerE(DTCenter.getTimeType()->Element().getNE());
+	m.registerE(DTCenter.getFreshDataType()->Element().getNE());
+}
+
+void
+TBox :: Save ( SaveLoadManager& m )
+{
+	initPointerMaps(m);
 	m.o() << "\nC";
 	std::set<const TNamedEntry*> empty;
 	SaveTNECollection(Concepts,m,empty);
@@ -601,19 +522,7 @@ void
 TBox :: Load ( SaveLoadManager& m, KBStatus status )
 {
 	Status = status;
-	tvMap.clear();
-	neMap.clear();
-	neMap.add(pBottom);
-	neMap.add(pTop);
-	neMap.add(pTemp);
-	neMap.add(pQuery);
-	// datatypes
-	neMap.add(DTCenter.getStringType()->Element().getNE());
-	neMap.add(DTCenter.getNumberType()->Element().getNE());
-	neMap.add(DTCenter.getRealType()->Element().getNE());
-	neMap.add(DTCenter.getBoolType()->Element().getNE());
-	neMap.add(DTCenter.getTimeType()->Element().getNE());
-	neMap.add(DTCenter.getFreshDataType()->Element().getNE());
+	initPointerMaps(m);
 	m.expectChar('C');
 	LoadTNECollection(Concepts,m);
 	m.expectChar('I');
@@ -643,12 +552,7 @@ TBox :: Load ( SaveLoadManager& m, KBStatus status )
 void
 TBox :: SaveTaxonomy ( SaveLoadManager& m, const std::set<const TNamedEntry*>& excluded )
 {
-	tvMap.clear();
-	neMap.clear();
-	neMap.add(pBottom);
-	neMap.add(pTop);
-	neMap.add(pTemp);
-	neMap.add(pQuery);
+	initPointerMaps(m);
 	m.o() << "\nC";
 	SaveTNECollection(Concepts,m,excluded);
 	m.o() << "\nI";
@@ -660,12 +564,7 @@ TBox :: SaveTaxonomy ( SaveLoadManager& m, const std::set<const TNamedEntry*>& e
 void
 TBox :: LoadTaxonomy ( SaveLoadManager& m )
 {
-	tvMap.clear();
-	neMap.clear();
-	neMap.add(pBottom);
-	neMap.add(pTop);
-	neMap.add(pTemp);
-	neMap.add(pQuery);
+	initPointerMaps(m);
 	m.expectChar('C');
 	LoadTNECollection(Concepts,m);
 	m.expectChar('I');
@@ -690,11 +589,11 @@ ReasoningKernel :: SaveIncremental ( SaveLoadManager& m ) const
 	m.saveUInt(Name2Sig.size());
 	for ( NameSigMap::const_iterator p = Name2Sig.begin(), p_end = Name2Sig.end(); p != p_end; ++p )
 	{
-		m.saveUInt(eMap.getI(const_cast<TNamedEntity*>(p->first)));
+		m.savePointer(p->first);
 		m.saveUInt(p->second->size());
 
 		for ( TSignature::iterator q = p->second->begin(), q_end = p->second->end(); q != q_end; ++q )
-			m.saveUInt(eMap.getI(const_cast<TNamedEntity*>(*q)));
+			m.savePointer(*q);
 	}
 }
 
@@ -708,11 +607,11 @@ ReasoningKernel :: LoadIncremental ( SaveLoadManager& m )
 	unsigned int size = m.loadUInt();
 	for ( unsigned int j = 0; j < size; j++ )
 	{
-		TNamedEntity* entity = eMap.getP(m.loadUInt());
+		TNamedEntity* entity = m.loadEntity();
 		unsigned int sigSize = m.loadUInt();
 		TSignature* sig = new TSignature();
 		for ( unsigned int k = 0; k < sigSize; k++ )
-			sig->add(eMap.getP(m.loadUInt()));
+			sig->add(m.loadEntity());
 		Name2Sig[entity] = sig;
 	}
 }
@@ -806,10 +705,10 @@ TRole :: Load ( SaveLoadManager& m )
 void
 TaxonomyVertex :: SaveLabel ( SaveLoadManager& m ) const
 {
-	m.saveUInt(neMap.getI(const_cast<ClassifiableEntry*>(sample)));
+	m.savePointer(sample);
 	m.saveUInt(synonyms.size());
 	for ( syn_iterator p = begin_syn(), p_end = end_syn(); p < p_end; ++p )
-		m.saveUInt(neMap.getI(const_cast<ClassifiableEntry*>(*p)));
+		m.savePointer(*p);
 	m.o() << "\n";
 }
 
@@ -819,7 +718,7 @@ TaxonomyVertex :: LoadLabel ( SaveLoadManager& m )
 	// note that sample is already loaded
 	unsigned int size = m.loadUInt();
 	for ( unsigned int j = 0; j < size; ++j )
-		addSynonym(static_cast<ClassifiableEntry*>(neMap.getP(m.loadUInt())));
+		addSynonym(static_cast<ClassifiableEntry*>(m.loadEntry()));
 }
 
 void
@@ -828,10 +727,10 @@ TaxonomyVertex :: SaveNeighbours ( SaveLoadManager& m ) const
 	const_iterator p, p_end;
 	m.saveUInt(neigh(true).size());
 	for ( p = begin(true), p_end = end(true); p != p_end; ++p )
-		m.saveUInt(tvMap.getI(*p));
+		m.savePointer(*p);
 	m.saveUInt(neigh(false).size());
 	for ( p = begin(false), p_end = end(false); p != p_end; ++p )
-		m.saveUInt(tvMap.getI(*p));
+		m.savePointer(*p);
 	m.o() << "\n";
 }
 
@@ -841,10 +740,10 @@ TaxonomyVertex :: LoadNeighbours ( SaveLoadManager& m )
 	unsigned int j, size;
 	size = m.loadUInt();
 	for ( j = 0; j < size; ++j )
-		addNeighbour ( true, tvMap.getP(m.loadUInt()) );
+		addNeighbour ( true, m.loadVertex() );
 	size = m.loadUInt();
 	for ( j = 0; j < size; ++j )
-		addNeighbour ( false, tvMap.getP(m.loadUInt()) );
+		addNeighbour ( false, m.loadVertex() );
 }
 
 //----------------------------------------------------------
@@ -855,8 +754,8 @@ void
 Taxonomy :: Save ( SaveLoadManager& m, const std::set<const TNamedEntry*>& excluded ) const
 {
 	TaxVertexVec::const_iterator p, p_beg = Graph.begin(), p_end = Graph.end();
-	tvMap.clear();	// it would be it's own map for every taxonomy
-	tvMap.add ( p_beg, p_end );
+	for ( p = p_beg; p != p_end; ++p )
+		m.registerV(*p);
 
 	// save number of taxonomy elements
 	m.saveUInt(Graph.size()/*-excluded.size()*/);
@@ -877,17 +776,16 @@ void
 Taxonomy :: Load ( SaveLoadManager& m )
 {
 	unsigned int size = m.loadUInt();
-	tvMap.clear();
 	Graph.clear();	// both TOP and BOTTOM elements would be load;
 
 	// create all the verteces and load their labels
 	for ( unsigned int j = 0; j < size; ++j )
 	{
-		ClassifiableEntry* p = static_cast<ClassifiableEntry*>(neMap.getP(m.loadUInt()));
+		ClassifiableEntry* p = static_cast<ClassifiableEntry*>(m.loadEntry());
 		TaxonomyVertex* v = new TaxonomyVertex(p);
 		Graph.push_back(v);
 		v->LoadLabel(m);
-		tvMap.add(v);
+		m.registerV(v);
 	}
 
 	// load the hierarchy
@@ -982,26 +880,26 @@ DLVertex :: Save ( SaveLoadManager& m ) const
 		break;
 
 	case dtLE:
-		m.saveUInt(neMap.getI(const_cast<TRole*>(Role)));
+		m.savePointer(Role);
 		m.saveSInt(getC());
 		m.saveUInt(getNumberLE());
 		break;
 
 	case dtForall:	// n here is for the automaton state
-		m.saveUInt(neMap.getI(const_cast<TRole*>(Role)));
+		m.savePointer(Role);
 		m.saveSInt(getC());
 		m.saveUInt(getNumberLE());
 		break;
 
 	case dtIrr:
-		m.saveUInt(neMap.getI(const_cast<TRole*>(Role)));
+		m.savePointer(Role);
 		break;
 
 	case dtPConcept:
 	case dtNConcept:
 	case dtPSingleton:
 	case dtNSingleton:
-		m.saveUInt(neMap.getI(static_cast<TConcept*>(Concept)));
+		m.savePointer(Concept);
 		m.saveSInt(getC());
 		break;
 
@@ -1010,7 +908,7 @@ DLVertex :: Save ( SaveLoadManager& m ) const
 
 	case dtDataType:
 	case dtDataValue:
-		m.saveUInt(neMap.getI(Concept));
+		m.savePointer(Concept);
 		m.saveSInt(getC());
 		break;
 
@@ -1041,26 +939,26 @@ DLVertex :: Load ( SaveLoadManager& m )
 	}
 
 	case dtLE:
-		Role = static_cast<const TRole*>(neMap.getP(m.loadUInt()));
+		Role = static_cast<const TRole*>(m.loadEntry());
 		setChild(m.loadSInt());
 		n = m.loadUInt();
 		break;
 
 	case dtForall:
-		Role = static_cast<const TRole*>(neMap.getP(m.loadUInt()));
+		Role = static_cast<const TRole*>(m.loadEntry());
 		setChild(m.loadSInt());
 		n = m.loadUInt();
 		break;
 
 	case dtIrr:
-		Role = static_cast<const TRole*>(neMap.getP(m.loadUInt()));
+		Role = static_cast<const TRole*>(m.loadEntry());
 		break;
 
 	case dtPConcept:
 	case dtNConcept:
 	case dtPSingleton:
 	case dtNSingleton:
-		setConcept(neMap.getP(m.loadUInt()));
+		setConcept(m.loadEntry());
 		setChild(m.loadSInt());
 		break;
 
@@ -1069,7 +967,7 @@ DLVertex :: Load ( SaveLoadManager& m )
 
 	case dtDataType:
 	case dtDataValue:
-		setConcept(neMap.getP(m.loadUInt()));
+		setConcept(m.loadEntry());
 		setChild(m.loadSInt());
 		break;
 

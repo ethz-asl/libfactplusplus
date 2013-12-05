@@ -16,8 +16,10 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
+#include <fstream>
+
 #include "SaveLoadManager.h"
-#include "fstream"
+#include "tNamedEntry.h"
 
 bool
 SaveLoadManager :: existsContent ( void ) const
@@ -46,6 +48,14 @@ SaveLoadManager :: prepare ( bool input )
 		ip = new std::ifstream(filename.c_str());
 	else
 		op = new std::ofstream(filename.c_str());
+}
+
+void
+SaveLoadManager :: registerE ( const TNamedEntry* p )
+{
+	neMap.add(const_cast<TNamedEntry*>(p));
+	if ( p->getEntity() != NULL )
+		eMap.add(const_cast<TNamedEntity*>(p->getEntity()));
 }
 
 #if 0
