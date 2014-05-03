@@ -493,10 +493,10 @@ protected:	// methods
 	bool applyAxiomCToCN ( DLTree* D, DLTree*& CN );
 		/// tries to apply axiom CN [= D; @return true if applicable
 	bool applyAxiomCNToC ( DLTree*& CN, DLTree* D );
-		/// tries to add LHS = RHS for the concept LHS; @return true if OK
-	bool addNonprimitiveDefinition ( DLTree* lhs, DLTree* rhs );
-		/// tries to add LHS = RHS for the concept LHS [= X; @return true if OK
-	bool switchToNonprimitive ( DLTree* lhs, DLTree* rhs );
+		/// tries to add C = RHS for the concept C; @return true if OK
+	bool addNonprimitiveDefinition ( TConcept* C, DLTree* rhs );
+		/// tries to add C = RHS for the concept C [= X; @return true if OK
+	bool switchToNonprimitive ( TConcept* C, DLTree* rhs );
 
 	// for complex Concept operations
 		/// try to absorb GCI C[=D; if not possible, just record this GCI

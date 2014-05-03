@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2012 by Dmitry Tsarkov
+Copyright (C) 2003-2014 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -162,44 +162,57 @@ bool TBox :: axiomToRangeDomain ( DLTree* sub, DLTree* sup )
 void
 TBox :: addEqualityAxiom ( DLTree* lhs, DLTree* rhs )
 {
-	// try to make a definition LHS = RHS for LHS = C with no definition
-	if ( addNonprimitiveDefinition ( lhs, rhs ) )
+	// check whether LHS is a named concept
+	TConcept* C = resolveSynonym(getCI(lhs));
+	bool isNamedLHS = ( C && C != pTop && C != pBottom );
+
+	// check whether RHS is a named concept
+	TConcept* D = resolveSynonym(getCI(rhs));
+	bool isNamedRHS = ( D && D != pTop && D != pBottom );
+
+	// try to make a definition C = RHS for C with no definition
+	if ( isNamedLHS && addNonprimitiveDefinition ( C, rhs ) )
+	{
+		deleteTree(lhs);
 		return;
+	}
 
 	// try to make a definition RHS = LHS for RHS = C with no definition
-	if ( addNonprimitiveDefinition ( rhs, lhs ) )
+	if ( isNamedRHS && addNonprimitiveDefinition ( D, lhs ) )
+	{
+		deleteTree(rhs);
 		return;
+	}
 
-	// try to make a definition LHS = RHS for LHS = C with C [= D
-	if ( switchToNonprimitive ( lhs, rhs ) )
+	// try to make a definition C = RHS for C [= D
+	if ( isNamedLHS && switchToNonprimitive ( C, rhs ) )
+	{
+		deleteTree(lhs);
 		return;
+	}
 
 	// try to make a definition RHS = LHS for RHS = C with C [= D
-	if ( switchToNonprimitive ( rhs, lhs ) )
+	if ( isNamedRHS && switchToNonprimitive ( D, lhs ) )
+	{
+		deleteTree(rhs);
 		return;
+	}
 
 	// fail to make a concept definition; separate the definition
 	addSubsumeAxiom ( clone(lhs), clone(rhs) );
 	addSubsumeAxiom ( rhs, lhs );
 }
 
-/// tries to add LHS = RHS for the concept LHS; @return true if OK
+/// tries to add C = RHS for the concept C; @return true if OK
 bool
-TBox :: addNonprimitiveDefinition ( DLTree* lhs, DLTree* rhs )
+TBox :: addNonprimitiveDefinition ( TConcept* C, DLTree* rhs )
 {
-	TConcept* C = resolveSynonym(getCI(lhs));
-
-	// not a named concept -- not doing anything
-	if ( C == NULL || C == pTop || C == pBottom )
-		return false;
-
 	// check whether the case is C=D for a (concept-like) D
 	TConcept* D = getCI(rhs);
 
 	// nothing to do for the case C := D for named concepts C,D with D = C already
 	if ( D && resolveSynonym(D) == C )
 	{
-		deleteTree(lhs);
 		deleteTree(rhs);
 		return true;
 	}
@@ -213,7 +226,6 @@ TBox :: addNonprimitiveDefinition ( DLTree* lhs, DLTree* rhs )
 	{
 		// delete return value in case of (possibly) duplicated description
 		deleteTree ( makeNonPrimitive ( C, rhs ) );
-		deleteTree(lhs);
 		return true;
 	}
 
@@ -221,16 +233,10 @@ TBox :: addNonprimitiveDefinition ( DLTree* lhs, DLTree* rhs )
 	return false;
 }
 
-/// tries to add LHS = RHS for the concept LHS [= X; @return true if OK
+/// tries to add C = RHS for the concept C [= X; @return true if OK
 bool
-TBox :: switchToNonprimitive ( DLTree* lhs, DLTree* rhs )
+TBox :: switchToNonprimitive ( TConcept* C, DLTree* rhs )
 {
-	TConcept* C = resolveSynonym(getCI(lhs));
-
-	// not a named concept
-	if ( C == NULL || C == pTop || C == pBottom )
-		return false;
-
 	// make sure that we avoid making an individual equals to smth-else
 	TConcept* D = resolveSynonym(getCI(rhs));
 	if ( C->isSingleton() && D && !D->isSingleton() )
@@ -239,7 +245,6 @@ TBox :: switchToNonprimitive ( DLTree* lhs, DLTree* rhs )
 	// check whether we process C=D where C is defined as C[=E
 	if ( alwaysPreferEquals && C->isPrimitive() )	// change C to C=... with additional GCI C[=x
 	{
-		deleteTree(lhs);
 		addSubsumeForDefined ( C, makeNonPrimitive(C,rhs) );
 		return true;
 	}
