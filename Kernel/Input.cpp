@@ -35,13 +35,19 @@ void TBox :: addSubsumeAxiom ( DLTree* sub, DLTree* sup )
 
 	// try to apply C [= CN
 	if ( isCN(sup) )
-		if ( applyAxiomCToCN ( sub, sup ) )
+	{
+		sup = applyAxiomCToCN ( sub, sup );
+		if ( sup == NULL )
 			return;
+	}
 
 	// try to apply CN [= C
 	if ( isCN(sub) )
-		if ( applyAxiomCNToC ( sub, sup ) )
+	{
+		sub = applyAxiomCNToC ( sub, sup );
+		if ( sub == NULL )
 			return;
+	}
 
 	// check if an axiom looks like T [= \AR.C
 	if ( axiomToRangeDomain ( sub, sup ) )
@@ -50,19 +56,19 @@ void TBox :: addSubsumeAxiom ( DLTree* sub, DLTree* sup )
 		processGCI ( sub, sup );
 }
 
-/// tries to apply axiom D [= CN; @return true if applicable
-bool
-TBox :: applyAxiomCToCN ( DLTree* D, DLTree*& CN )
+/// tries to apply axiom D [= CN; @return NULL if applicable or new CN
+DLTree*
+TBox :: applyAxiomCToCN ( DLTree* D, DLTree* CN )
 {
 	TConcept* C = resolveSynonym(getCI(CN));
-	fpp_assert ( C != NULL );
+	if ( C == NULL )	// not applicable
+		return CN;
 
-	// check whether name is a synonym of a constant (mainly for owl:Thing)
+	// D [= BOTTOM: transform later as GCI
 	if ( C == pBottom )
 	{
 		deleteTree(CN);
-		CN = createBottom();
-		return false;
+		return createBottom();
 	}
 
 	// D [= TOP: nothing to do
@@ -70,28 +76,29 @@ TBox :: applyAxiomCToCN ( DLTree* D, DLTree*& CN )
 		deleteTree(D);
 	// check for D [= CN with CN [= D already defined
 	// don't do this for D is a DN and C is an individual as cycle detection will do it better
-	// FIXME!! check for C->isPrimitive()
 	else if ( equalTrees ( C->Description, D ) && !( C->isSingleton() && isName(D) ) )
 		deleteTree ( makeNonPrimitive(C,D) );
 	else	// n/a
-		return false;
+		return CN;
 
+	// success
 	deleteTree(CN);
-	return true;
+	return NULL;
 }
 
-/// tries to apply axiom CN [= D; @return true if applicable
-bool
-TBox :: applyAxiomCNToC ( DLTree*& CN, DLTree* D )
+/// tries to apply axiom CN [= D; @return NULL if applicable or new CN
+DLTree*
+TBox :: applyAxiomCNToC ( DLTree* CN, DLTree* D )
 {
 	TConcept* C = resolveSynonym(getCI(CN));
-	fpp_assert ( C != NULL );
-	// TOP [= D: n/a
+	if ( C == NULL )	// not applicable
+		return CN;
+
+	// TOP [= D: transform later as GCI
 	if ( C == pTop )
 	{
 		deleteTree(CN);
-		CN = createTop();
-		return false;
+		return createTop();
 	}
 
 	// BOTTOM [= D: nothing to do
@@ -102,8 +109,9 @@ TBox :: applyAxiomCNToC ( DLTree*& CN, DLTree* D )
 	else	// C is defined
 		addSubsumeForDefined ( C, D );
 
+	// success
 	deleteTree(CN);
-	return true;
+	return NULL;
 }
 
 /// add an axiom CN [= D for defined CN (CN=E already in base)

@@ -489,10 +489,10 @@ protected:	// methods
 		Individuals.setLocked(val);
 		return Concepts.setLocked(val);
 	}
-		/// tries to apply axiom D [= CN; @return true if applicable
-	bool applyAxiomCToCN ( DLTree* D, DLTree*& CN );
-		/// tries to apply axiom CN [= D; @return true if applicable
-	bool applyAxiomCNToC ( DLTree*& CN, DLTree* D );
+		/// tries to apply axiom C [= CN; @return NULL if applicable or new CN
+	DLTree* applyAxiomCToCN ( DLTree* C, DLTree* CN );
+		/// tries to apply axiom CN [= C; @return NULL if applicable or new CN
+	DLTree* applyAxiomCNToC ( DLTree* CN, DLTree* C );
 		/// tries to add C = RHS for the concept C; @return true if OK
 	bool addNonprimitiveDefinition ( TConcept* C, DLTree* rhs );
 		/// tries to add C = RHS for the concept C [= X; @return true if OK
