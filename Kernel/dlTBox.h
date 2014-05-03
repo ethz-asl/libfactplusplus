@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2013 by Dmitry Tsarkov
+Copyright (C) 2003-2014 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -21,6 +21,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <string>
 #include <vector>
+#include <map>
 
 #include "tConcept.h"
 #include "tIndividual.h"
@@ -83,6 +84,8 @@ protected:	// types
 	typedef std::vector<TRelated*> RelatedCollection;
 		/// type for a collection of DIFFERENT individuals
 	typedef std::vector<SingletonVector> DifferentIndividuals;
+		/// type for a A -> C map
+	typedef std::map<TConcept*, DLTree*> ConceptDefMap;
 
 		/// class for simple rules like Ch :- Cb1, Cbi, CbN; all C are primitive named concepts
 	class TSimpleRule
@@ -220,6 +223,8 @@ protected:	// members
 	TSplitRules SplitRules;
 		/// set of split vars
 	TSplitVars* Splits;
+		/// map from A->C for axioms A [= C where A = D is in the TBox
+	ConceptDefMap ExtraConceptDefs;
 
 		/// internalisation of a general axioms
 	BipolarPointer T_G;
@@ -384,34 +389,25 @@ protected:	// methods
 //--		internal concept building interface
 //-----------------------------------------------------------------------------
 
-		/// add description to a concept; @return true in case of error
-	bool initNonPrimitive ( TConcept* p, DLTree* desc )
+		/// checks if C is defined as C=D and set Synonyms accordingly
+	void checkEarlySynonym ( TConcept* C )
 	{
-		if ( !p->canInitNonPrim(desc) )
-			return true;
-		// delete return value in case of duplicated desc
-		deleteTree(makeNonPrimitive(p,desc));
-		return false;
-	}
-		/// make concept non-primitive; @return it's old description
-	DLTree* makeNonPrimitive ( TConcept* p, DLTree* desc )
-	{
-		DLTree* ret = p->makeNonPrimitive(desc);
-		checkEarlySynonym(p);
-		return ret;
-	}
-	/// checks if C is defined as C=D and set Synonyms accordingly
-	void checkEarlySynonym ( TConcept* p )
-	{
-		if ( p->isSynonym() )
+		if ( C->isSynonym() )
 			return;	// nothing to do
-		if ( p->isPrimitive() )
+		if ( C->isPrimitive() )
 			return;	// couldn't be a synonym
-		if ( !isCN (p->Description) )
+		if ( !isCN(C->Description) )
 			return;	// complex expression -- not a synonym(imm.)
 
-		p->setSynonym(getCI(p->Description));
-		p->initToldSubsumers();
+		C->setSynonym(getCI(C->Description));
+		C->initToldSubsumers();
+	}
+		/// make concept C non-primitive with definition DESC; @return it's old description
+	DLTree* makeNonPrimitive ( TConcept* C, DLTree* desc )
+	{
+		DLTree* ret = C->makeNonPrimitive(desc);
+		checkEarlySynonym(C);
+		return ret;
 	}
 
 //-----------------------------------------------------------------------------
@@ -497,10 +493,10 @@ protected:	// methods
 	bool applyAxiomCToCN ( DLTree* D, DLTree*& CN );
 		/// tries to apply axiom CN [= D; @return true if applicable
 	bool applyAxiomCNToC ( DLTree*& CN, DLTree* D );
-		/// tries to add LEFT = RIGHT for the concept LEFT; @return true if OK
-	bool addNonprimitiveDefinition ( DLTree* left, DLTree* right );
-		/// tries to add LEFT = RIGHT for the concept LEFT [= X; @return true if OK
-	bool switchToNonprimitive ( DLTree* left, DLTree* right );
+		/// tries to add LHS = RHS for the concept LHS; @return true if OK
+	bool addNonprimitiveDefinition ( DLTree* lhs, DLTree* rhs );
+		/// tries to add LHS = RHS for the concept LHS [= X; @return true if OK
+	bool switchToNonprimitive ( DLTree* lhs, DLTree* rhs );
 
 	// for complex Concept operations
 		/// try to absorb GCI C[=D; if not possible, just record this GCI

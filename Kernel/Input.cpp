@@ -158,47 +158,49 @@ bool TBox :: axiomToRangeDomain ( DLTree* sub, DLTree* sup )
 //--		Equality axioms and support
 //-----------------------------------------------------------------------------
 
-// return true if undefined concept found
+/// process the definition LHS = RHS
 void
-TBox :: addEqualityAxiom ( DLTree* left, DLTree* right )
+TBox :: addEqualityAxiom ( DLTree* lhs, DLTree* rhs )
 {
-	// try to make a concept definition LEFT = RIGHT
-	if ( addNonprimitiveDefinition ( left, right ) )
+	// try to make a definition LHS = RHS for LHS = C with no definition
+	if ( addNonprimitiveDefinition ( lhs, rhs ) )
 		return;
 
-	// try to make a concept definition RIGHT = LEFT
-	if ( addNonprimitiveDefinition ( right, left ) )
+	// try to make a definition RHS = LHS for RHS = C with no definition
+	if ( addNonprimitiveDefinition ( rhs, lhs ) )
 		return;
 
-	if ( switchToNonprimitive ( left, right ) )
+	// try to make a definition LHS = RHS for LHS = C with C [= D
+	if ( switchToNonprimitive ( lhs, rhs ) )
 		return;
 
-	if ( switchToNonprimitive ( right, left ) )
+	// try to make a definition RHS = LHS for RHS = C with C [= D
+	if ( switchToNonprimitive ( rhs, lhs ) )
 		return;
 
-	/// here either C and D are complex expressions, or definition fails
-	addSubsumeAxiom ( clone(left), clone(right) );
-	addSubsumeAxiom ( right, left );
+	// fail to make a concept definition; separate the definition
+	addSubsumeAxiom ( clone(lhs), clone(rhs) );
+	addSubsumeAxiom ( rhs, lhs );
 }
 
-/// tries to add LEFT = RIGHT for the concept LEFT; @return true if OK
+/// tries to add LHS = RHS for the concept LHS; @return true if OK
 bool
-TBox :: addNonprimitiveDefinition ( DLTree* left, DLTree* right )
+TBox :: addNonprimitiveDefinition ( DLTree* lhs, DLTree* rhs )
 {
-	TConcept* C = resolveSynonym(getCI(left));
+	TConcept* C = resolveSynonym(getCI(lhs));
 
-	// not a named concept
+	// not a named concept -- not doing anything
 	if ( C == NULL || C == pTop || C == pBottom )
 		return false;
 
 	// check whether the case is C=D for a (concept-like) D
-	TConcept* D = getCI(right);
+	TConcept* D = getCI(rhs);
 
 	// nothing to do for the case C := D for named concepts C,D with D = C already
 	if ( D && resolveSynonym(D) == C )
 	{
-		deleteTree(left);
-		deleteTree(right);
+		deleteTree(lhs);
+		deleteTree(rhs);
 		return true;
 	}
 
@@ -206,40 +208,39 @@ TBox :: addNonprimitiveDefinition ( DLTree* left, DLTree* right )
 	if ( C->isSingleton() && D != NULL && !D->isSingleton() )
 		return false;
 
-	// if axiom is in form C=... or C=D, D [= ...
-	if ( D == NULL || C->Description == NULL || D->isPrimitive() )
-	{	// try to define C
-		if ( !initNonPrimitive ( C, right ) )
-		{
-			deleteTree(left);
-			return true;
-		}
+	// check the case whether C=RHS or C [= \top
+	if ( C->canInitNonPrim(rhs) )
+	{
+		// delete return value in case of (possibly) duplicated description
+		deleteTree ( makeNonPrimitive ( C, rhs ) );
+		deleteTree(lhs);
+		return true;
 	}
 
 	// can't make definition
 	return false;
 }
 
-/// tries to add LEFT = RIGHT for the concept LEFT [= X; @return true if OK
+/// tries to add LHS = RHS for the concept LHS [= X; @return true if OK
 bool
-TBox :: switchToNonprimitive ( DLTree* left, DLTree* right )
+TBox :: switchToNonprimitive ( DLTree* lhs, DLTree* rhs )
 {
-	TConcept* C = resolveSynonym(getCI(left));
+	TConcept* C = resolveSynonym(getCI(lhs));
 
 	// not a named concept
 	if ( C == NULL || C == pTop || C == pBottom )
 		return false;
 
 	// make sure that we avoid making an individual equals to smth-else
-	TConcept* D = resolveSynonym(getCI(right));
+	TConcept* D = resolveSynonym(getCI(rhs));
 	if ( C->isSingleton() && D && !D->isSingleton() )
 		return false;
 
 	// check whether we process C=D where C is defined as C[=E
 	if ( alwaysPreferEquals && C->isPrimitive() )	// change C to C=... with additional GCI C[=x
 	{
-		deleteTree(left);
-		addSubsumeForDefined ( C, makeNonPrimitive(C,right) );
+		deleteTree(lhs);
+		addSubsumeForDefined ( C, makeNonPrimitive(C,rhs) );
 		return true;
 	}
 
