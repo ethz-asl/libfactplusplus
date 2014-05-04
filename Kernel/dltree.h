@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2012 by Dmitry Tsarkov
+Copyright (C) 2003-2014 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -44,8 +44,6 @@ inline DLTree* clone ( const DLTree* t ) { return (t==NULL) ? NULL : t->clone();
 	// check if DL tree is a concept constant
 inline bool isConst ( const DLTree* t )
 {
-	if ( t == NULL )
-		return false;
 	switch (t->Element().getToken())
 	{
 	case TOP:
@@ -59,8 +57,6 @@ inline bool isConst ( const DLTree* t )
 	// check if DL tree is a concept/individual name
 inline bool isName ( const DLTree* t )
 {
-	if ( t == NULL )
-		return false;
 	switch (t->Element().getToken())
 	{
 	case CNAME:
@@ -74,8 +70,6 @@ inline bool isName ( const DLTree* t )
 	// check if DL tree is a (data)role name
 inline bool isRName ( const DLTree* t )
 {
-	if ( t == NULL )
-		return false;
 	switch (t->Element().getToken())
 	{
 	case RNAME:
@@ -87,8 +81,19 @@ inline bool isRName ( const DLTree* t )
 }
 
 	// check if DL tree is a concept-like name
-inline bool isCN ( const DLTree* t ) { return isConst(t) || isName(t); }
-
+inline bool isCN ( const DLTree* t )
+{
+	switch (t->Element().getToken())
+	{
+	case TOP:
+	case BOTTOM:
+	case CNAME:
+	case INAME:
+		return true;
+	default:
+		return false;
+	}
+}
 	/// check whether T is a bottom (empty) role
 inline bool isBotRole ( const DLTree* t ) { return likely(isRName(t)) && unlikely(t->Element().getNE()->isBottom()); }
 	/// check whether T is a top (universal) role
@@ -97,15 +102,13 @@ inline bool isTopRole ( const DLTree* t ) { return likely(isRName(t)) && unlikel
 	/// check whether T is an expression in the form (atmost 1 RNAME)
 inline bool isFunctionalExpr ( const DLTree* t, const TNamedEntry* R )
 {
-	return t && t->Element().getToken() == LE && R == t->Left()->Element().getNE() &&
+	return t->Element().getToken() == LE && R == t->Left()->Element().getNE() &&
 		   t->Element().getData() == 1 && t->Right()->Element().getToken() == TOP;
 }
 
 	// check if DL Tree represents negated ONE-OF constructor
 inline bool isNegOneOf ( const DLTree* t )
 {
-	if ( t == NULL )
-		return false;
 	switch (t->Element().getToken())
 	{
 	case AND:
@@ -119,8 +122,6 @@ inline bool isNegOneOf ( const DLTree* t )
 	// check if DL Tree represents ONE-OF constructor
 inline bool isOneOf ( const DLTree* t )
 {
-	if ( t == NULL )
-		return false;
 	switch (t->Element().getToken())
 	{
 	case INAME:
