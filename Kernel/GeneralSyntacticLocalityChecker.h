@@ -31,53 +31,48 @@ protected:	// methods
 	virtual bool isBotEquivalent ( const TDLExpression* expr ) = 0;
 
 protected:	// methods
-		/// processing method for all Equivalent axioms
+		/// processing method for all Equivalent axioms; @return true if axiom is local
 	template<class Entity>
-	void processEquivalentAxiom ( const TDLNAryExpression<Entity>& axiom )
+	bool processEquivalentAxiom ( const TDLNAryExpression<Entity>& axiom )
 	{
 		// 1 element => local
 		if ( axiom.size() <= 1 )
-		{
-			isLocal = true;
-			return;
-		}
+			return true;
 		// axiom is local iff all the elements are either top- or bot-local
-		isLocal = false;
 		typename TDLNAryExpression<Entity>::iterator p = axiom.begin(), p_end = axiom.end();
 		if ( isBotEquivalent(*p) )
 		{	// all should be \bot-eq
 			while ( ++p != p_end )
 				if ( !isBotEquivalent(*p) )
-					return;
+					return false;
 		}
 		else if ( isTopEquivalent(*p) )
 		{	// all should be \top-eq
 			while ( ++p != p_end )
 				if ( !isTopEquivalent(*p) )
-					return;
+					return false;
 		}
 		else	// neither \bot- no \top-eq: non-local
-			return;
+			return false;
 
 		// all elements have the same locality
-		isLocal = true;
+		return true;
 	}
-		/// processing method for all Disjoint axioms
+		/// processing method for all Disjoint axioms; @return true if axiom is local
 	template<class Entity>
-	void processDisjointAxiom ( const TDLNAryExpression<Entity>& axiom )
+	bool processDisjointAxiom ( const TDLNAryExpression<Entity>& axiom )
 	{
 		// local iff at most 1 element is not bot-equiv
 		bool hasNBE = false;
-		isLocal = false;
 		for ( typename TDLNAryExpression<Entity>::iterator p = axiom.begin(), p_end = axiom.end(); p != p_end; ++p )
 			if ( !isBotEquivalent(*p) )
 			{
 				if ( hasNBE )	// already seen one non-bot-eq element
-					return;		// non-local
+					return false;		// non-local
 				else	// record that 1 non-bot-eq element was found
 					hasNBE = true;
 			}
-		isLocal = true;
+		return true;
 	}
 
 public:		// interface
@@ -89,8 +84,8 @@ public:		// interface
 public:		// visitor interface
 	virtual void visit ( const TDLAxiomDeclaration& ) { isLocal = true; }
 
-	virtual void visit ( const TDLAxiomEquivalentConcepts& axiom ) { processEquivalentAxiom(axiom); }
-	virtual void visit ( const TDLAxiomDisjointConcepts& axiom ) { processDisjointAxiom(axiom); }
+	virtual void visit ( const TDLAxiomEquivalentConcepts& axiom ) { isLocal = processEquivalentAxiom(axiom); }
+	virtual void visit ( const TDLAxiomDisjointConcepts& axiom ) { isLocal = processDisjointAxiom(axiom); }
 	virtual void visit ( const TDLAxiomDisjointUnion& axiom )
 	{
 		// DisjointUnion(A, C1,..., Cn) is local if
@@ -127,10 +122,10 @@ public:		// visitor interface
 		// it is local in the end!
 		isLocal = true;
 	}
-	virtual void visit ( const TDLAxiomEquivalentORoles& axiom ) { processEquivalentAxiom(axiom); }
-	virtual void visit ( const TDLAxiomEquivalentDRoles& axiom ) { processEquivalentAxiom(axiom); }
-	virtual void visit ( const TDLAxiomDisjointORoles& axiom ) { processDisjointAxiom(axiom); }
-	virtual void visit ( const TDLAxiomDisjointDRoles& axiom ) { processDisjointAxiom(axiom); }
+	virtual void visit ( const TDLAxiomEquivalentORoles& axiom ) { isLocal = processEquivalentAxiom(axiom); }
+	virtual void visit ( const TDLAxiomEquivalentDRoles& axiom ) { isLocal = processEquivalentAxiom(axiom); }
+	virtual void visit ( const TDLAxiomDisjointORoles& axiom ) { isLocal = processDisjointAxiom(axiom); }
+	virtual void visit ( const TDLAxiomDisjointDRoles& axiom ) { isLocal = processDisjointAxiom(axiom); }
 	virtual void visit ( const TDLAxiomSameIndividuals& ) { isLocal = false; }
 	virtual void visit ( const TDLAxiomDifferentIndividuals& ) { isLocal = false; }
 		/// FaCT++ extension: there is no such axiom in OWL API, but I hope nobody would use Fairness here
