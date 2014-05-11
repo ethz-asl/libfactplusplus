@@ -114,30 +114,31 @@ TBox :: applyAxiomCNToC ( DLTree* CN, DLTree* D )
 	return NULL;
 }
 
-/// add an axiom CN [= D for defined CN (CN=E already in base)
+/// add an axiom CN [= E for defined CN (CN=D already in base)
 void
-TBox :: addSubsumeForDefined ( TConcept* C, DLTree* D )
+TBox :: addSubsumeForDefined ( TConcept* C, DLTree* E )
 {
-	// if D is a syntactic sub-class of E, then nothing to do
-	if ( isSubTree ( D, C->Description ) )
+	// if E is a syntactic sub-class of D, then nothing to do
+	if ( isSubTree ( E, C->Description ) )
 	{
-		deleteTree(D);
+		deleteTree(E);
 		return;
 	}
+
 	DLTree* oldDesc = clone(C->Description);
 	// try to see whether C contains a reference to itself at the top level
 	C->removeSelfFromDescription();
 	if ( equalTrees ( oldDesc, C->Description ) )
 	{
-		processGCI ( oldDesc, D );
+		processGCI ( oldDesc, E );
 		return;
 	}
 
 	// note that we don't know exact semantics of C for now;
 	// we need to split it's definition and work via GCIs
-	C->setPrimitive();	// now we have C [= B
-	C->addDesc(D);		// here C [= (B and D)
-	// all we need is to add (old C's desc) [= C
+	C->setPrimitive();	// now we have C [= D
+	C->addDesc(E);		// here C [= (D and E)
+	// all we need is to add (old C's desc)D' [= C
 	addSubsumeAxiom ( oldDesc, getTree(C) );
 }
 
