@@ -497,6 +497,15 @@ protected:	// methods
 	bool addNonprimitiveDefinition ( TConcept* C, DLTree* rhs );
 		/// tries to add C = RHS for the concept C [= X; @return true if OK
 	bool switchToNonprimitive ( TConcept* C, DLTree* rhs );
+		/// transform definition C=D' with C [= E into C [= (D' and E) with D [= C
+		/// D is usually D', but see addSubsumeForDefined()
+	void makeDefinitionPrimitive ( TConcept* C, DLTree* E, DLTree* D )
+	{
+		C->setPrimitive();	// now we have C [= D'
+		C->addDesc(E);		// here C [= (D' and E)
+		// all we need is to add (old C's desc)D [= C
+		addSubsumeAxiom ( D, getTree(C) );
+	}
 
 	// for complex Concept operations
 		/// try to absorb GCI C[=D; if not possible, just record this GCI
@@ -1025,10 +1034,10 @@ public:
 	void addSubsumeAxiom ( DLTree* C, DLTree* D );
 		/// add axiom CN [= D for concept CN
 	void addSubsumeAxiom ( TConcept* C, DLTree* D ) { addSubsumeAxiom ( getTree(C), D ); }
-		/// add an axiom CN [= D for defined CN (CN=E already in base)
-	void addSubsumeForDefined ( TConcept* C, DLTree* D );
-		/// add an axiom C = D
-	void addEqualityAxiom ( DLTree* left, DLTree* right );
+		/// add an axiom CN [= E for defined CN (CN=D already in base)
+	void addSubsumeForDefined ( TConcept* C, DLTree* E );
+		/// add an axiom LHS = RHS
+	void addEqualityAxiom ( DLTree* lhs, DLTree* rhs );
 
 		/// add simple rule RULE to the TBox' rules
 	inline

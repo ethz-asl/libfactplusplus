@@ -136,10 +136,7 @@ TBox :: addSubsumeForDefined ( TConcept* C, DLTree* E )
 
 	// note that we don't know exact semantics of C for now;
 	// we need to split it's definition and work via GCIs
-	C->setPrimitive();	// now we have C [= D
-	C->addDesc(E);		// here C [= (D and E)
-	// all we need is to add (old C's desc)D' [= C
-	addSubsumeAxiom ( oldDesc, getTree(C) );
+	makeDefinitionPrimitive ( C, E, oldDesc );
 }
 
 bool TBox :: axiomToRangeDomain ( DLTree* sub, DLTree* sup )
