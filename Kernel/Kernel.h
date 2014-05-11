@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2013 by Dmitry Tsarkov
+Copyright (C) 2003-2014 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -284,7 +284,6 @@ protected:	// methods
 		clearQueryCache();
 		cachedConcept = NULL;
 		cachedVertex = NULL;
-		reasoningFailed = false;
 		NeedTracing = false;
 	}
 
@@ -675,6 +674,8 @@ public:
 	{
 		clearTBox();
 		Ontology.clear();
+		// the new KB is coming so the failures of the precious one doesn't matter
+		reasoningFailed = false;
 
 		return false;
 	}

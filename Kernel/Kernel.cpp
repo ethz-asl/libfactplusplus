@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2013 by Dmitry Tsarkov
+Copyright (C) 2003-2014 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -52,6 +52,8 @@ ReasoningKernel :: ReasoningKernel ( void )
 	, useUndefinedNames(true)
 	, cachedQuery(NULL)
 	, cachedQueryTree(NULL)
+	, reasoningFailed(false)
+	, NeedTracing(false)
 	, useAxiomSplitting(false)
 	, ignoreExprCache(false)
 	, useIncrementalReasoning(false)
@@ -195,7 +197,7 @@ ReasoningKernel :: processKB ( KBStatus status )
 
 	// check whether reasoning was failed
 	if ( reasoningFailed )
-		throw EFaCTPlusPlus("Can't classify KB because of previous errors");
+		throw EFaCTPlusPlus("Can't answer queries due to previous errors");
 
 	KBStatus curStatus = getStatus();
 
