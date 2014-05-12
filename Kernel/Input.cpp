@@ -125,18 +125,18 @@ TBox :: addSubsumeForDefined ( TConcept* C, DLTree* E )
 		return;
 	}
 
-	DLTree* oldDesc = clone(C->Description);
+	DLTree* D = clone(C->Description);
 	// try to see whether C contains a reference to itself at the top level
 	C->removeSelfFromDescription();
-	if ( equalTrees ( oldDesc, C->Description ) )
+	if ( equalTrees ( D, C->Description ) )
 	{
-		processGCI ( oldDesc, E );
+		processGCI ( D, E );
 		return;
 	}
 
 	// note that we don't know exact semantics of C for now;
 	// we need to split it's definition and work via GCIs
-	makeDefinitionPrimitive ( C, E, oldDesc );
+	makeDefinitionPrimitive ( C, E, D );
 }
 
 bool TBox :: axiomToRangeDomain ( DLTree* sub, DLTree* sup )
