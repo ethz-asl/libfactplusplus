@@ -127,10 +127,21 @@ TBox :: addSubsumeForDefined ( TConcept* C, DLTree* E )
 
 	DLTree* D = clone(C->Description);
 	// try to see whether C contains a reference to itself at the top level
+	// TODO: rewrite via hasSelfInDesc()
 	C->removeSelfFromDescription();
 	if ( equalTrees ( D, C->Description ) )
 	{
-		processGCI ( D, E );
+		if ( 1 )	// for now: it's not clear of what's going wrong
+			processGCI ( D, E );
+		else	// here we leave the definition of C = D, and delay the processing of C [= E
+		{
+			deleteTree(D);
+			ConceptDefMap::iterator p = ExtraConceptDefs.find(C);
+			if ( p == ExtraConceptDefs.end() )	// no such entry
+				ExtraConceptDefs[C] = E;	// save C [= E
+			else	// we have C [= X; change to C [= (X and E)
+				p->second = createSNFAnd ( p->second, E );
+		}
 		return;
 	}
 

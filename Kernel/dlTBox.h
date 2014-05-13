@@ -21,6 +21,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <string>
 #include <vector>
+#include <set>
 #include <map>
 
 #include "tConcept.h"
@@ -86,6 +87,8 @@ protected:	// types
 	typedef std::vector<SingletonVector> DifferentIndividuals;
 		/// type for a A -> C map
 	typedef std::map<TConcept*, DLTree*> ConceptDefMap;
+		/// type for a set of concepts
+	typedef std::set<TConcept*> ConceptSet;
 
 		/// class for simple rules like Ch :- Cb1, Cbi, CbN; all C are primitive named concepts
 	class TSimpleRule
@@ -503,6 +506,7 @@ protected:	// methods
 	{
 		C->setPrimitive();	// now we have C [= D'
 		C->addDesc(E);		// here C [= (D' and E)
+		C->initToldSubsumers();
 		// all we need is to add (old C's desc)D [= C
 		addSubsumeAxiom ( D, getTree(C) );
 	}
@@ -544,6 +548,8 @@ protected:	// methods
 
 		/// build a roles taxonomy and a DAG
 	void Preprocess ( void );
+		/// transform C [= D with C = E into GCIs
+	void TransformExtraSubsumptions ( void );
 		/// absorb all axioms
 	void AbsorbAxioms ( void )
 	{
@@ -616,6 +622,28 @@ protected:	// methods
 	TIndividual* transformSingletonWithSP ( TConcept* p );
 		/// helper to the previous function
 	TIndividual* getSPForConcept ( TConcept* p );
+
+		/// @return true if C is referenced in TREE; use PROCESSED to record explored names
+	bool isReferenced ( TConcept* C, DLTree* tree, ConceptSet& processed );
+		/// @return true if C is referenced in the definition of concept D; use PROCESSED to record explored names
+	bool isReferenced ( TConcept* C, TConcept* D, ConceptSet& processed )
+	{
+		// mark D as processed
+		processed.insert(D);
+		// check the description of D
+		if ( D->Description == NULL )
+			return false;
+		if ( isReferenced ( C, D->Description, processed ) )
+			return true;
+		// we are done for primitive concepts
+		if ( D->isPrimitive() )
+			return false;
+		// check if D has an extra description
+		ConceptDefMap::iterator p = ExtraConceptDefs.find(D);
+		if ( p != ExtraConceptDefs.end() )
+			return isReferenced ( C, p->second, processed );
+		return false;
+	}
 
 		/// @return number of synonyms in the KB
 	unsigned int countSynonyms ( void ) const

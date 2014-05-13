@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2013 by Dmitry Tsarkov
+Copyright (C) 2003-2014 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -64,6 +64,9 @@ void TBox :: Preprocess ( void )
 	BEGIN_PASS("Preprocess related axioms");
 	preprocessRelated();
 	END_PASS();
+
+	// FIXME!! find a proper place for this
+	TransformExtraSubsumptions();
 
 	// init told subsumers as they would be used soon
 	BEGIN_PASS("Init told subsumers");
@@ -297,7 +300,16 @@ redo:
 				DLTree* desc = NULL;
 				for ( q = ToldSynonyms.begin(); q < q_end; ++q )
 					if ( *q != p )	// make it a synonym of RET, save old desc
+					{
 						desc = createSNFAnd ( desc, makeNonPrimitive ( *q, getTree(p) ) );
+						// check whether we had an extra definition for Q
+						ConceptDefMap::iterator extra = ExtraConceptDefs.find(*q);
+						if ( extra != ExtraConceptDefs.end() )
+						{
+							desc = createSNFAnd ( desc, extra->second );
+							ExtraConceptDefs.erase(extra);
+						}
+					}
 
 				ToldSynonyms.clear();
 
@@ -394,6 +406,88 @@ TBox :: transformSingletonWithSP ( TConcept* p )
 	addSubsumeAxiom ( i, makeNonPrimitive ( p, getTree(i) )	);
 
 	return i;
+}
+
+/// @return true if C is referenced in TREE; use PROCESSED to record explored names
+bool
+TBox :: isReferenced ( TConcept* C, DLTree* tree, ConceptSet& processed )
+{
+	fpp_assert ( tree != NULL );
+	switch ( tree->Element().getToken() )
+	{
+	// names
+	case CNAME:
+	case INAME:
+	{
+		TConcept* D = toConcept(tree->Element().getNE());
+		// check whether we found cycle
+		if ( C == D )
+			return true;
+		// check if we already processed D
+		if ( processed.count(D) > 0 )
+			return false;
+		// recurse here
+		return isReferenced ( C, D, processed );
+	}
+
+	// binary concept operations
+	case AND:
+	case OR:
+		return isReferenced ( C, tree->Left(), processed ) || isReferenced ( C, tree->Right(), processed );
+
+	// operations with a single concept
+	case NOT:
+		return isReferenced ( C, tree->Left(), processed );
+	case EXISTS:
+	case FORALL:
+	case GE:
+	case LE:
+		return isReferenced ( C, tree->Right(), processed );
+
+	// operations w/o concept
+	case SELF:
+	case TOP:
+	case BOTTOM:
+		return false;
+
+	// non-concept expressions: should not be here
+	case INV:
+	case RCOMPOSITION:	// role composition
+	case PROJINTO:		// role projection into
+	case PROJFROM:		// role projection from
+	case DATAEXPR:	// any data expression: data value, [constrained] datatype
+	case RNAME:
+	case DNAME:
+		fpp_unreachable();
+
+	default:	// just for safety: all possible options were checked
+		fpp_unreachable();
+	}
+	return false;
+}
+
+/// transform C [= E with C = D into GCIs
+void
+TBox :: TransformExtraSubsumptions ( void )
+{
+	for ( ConceptDefMap::iterator p = ExtraConceptDefs.begin(), p_next = p, p_end = ExtraConceptDefs.end(); p != p_end; )
+	{
+		++p_next;
+		TConcept* C = p->first;
+		DLTree* D = clone(C->Description);
+		DLTree* E = p->second;
+		// for every C here we have C = D in KB and C [= E in ExtraDefs
+		ConceptSet processed;
+		// if there is a cycle for C
+		if ( isReferenced ( C, C, processed ) )
+			// then we should make C [= (D and E) and go with GCI D [= C
+			makeDefinitionPrimitive ( C, E, D );
+		else	// it is safe to keep definition C = D and go with GCI D [= E
+			processGCI ( D, E );
+		// remove processed entry from the set. This will invalidate p, so use p_next
+		ExtraConceptDefs.erase(p);
+		p = p_next;
+	}
 }
 
 void
