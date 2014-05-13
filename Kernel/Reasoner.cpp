@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2013 by Dmitry Tsarkov
+Copyright (C) 2003-2014 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -36,7 +36,7 @@ DlSatTester :: DlSatTester ( TBox& tbox )
 	, DLHeap(tbox.DLHeap)
 	, Manager(64)
 	, CGraph(1,this)
-	, TODO(tBox.PriorityMatrix)
+	, TODO(tBox.PriorityMatrix,CGraph.getRareStack())
 	, DTReasoner(tbox.DLHeap)
 	// It's unsafe to have a cache that touches a nominal in a node; set flagNominals to prevent it
 	, newNodeCache ( true, tBox.nC, tBox.nR )

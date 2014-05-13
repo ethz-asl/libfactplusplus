@@ -22,6 +22,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "globaldef.h"
 #include "fpp_assert.h"
 #include "PriorityMatrix.h"
+#include "tRareSaveStack.h"
 
 /// the entry of TODO table
 struct ToDoEntry
@@ -107,14 +108,10 @@ protected:	// classes
 	class queueQueueSaveState
 	{
 	public:		// members
-			/// save whole array
-		growingArray<ToDoEntry> Wait;
 			/// save start point of queue of entries
 		unsigned int sp;
 			/// save end point of queue of entries
 		unsigned int ep;
-			/// save flag of queue's consistency
-		bool queueBroken;
 
 	public:		// methods
 			/// empty c'tor
@@ -127,17 +124,38 @@ protected:	// classes
 		/// class to represent single priority queue
 	class queueQueue
 	{
+	protected:	// types
+			/// type for restore the whole queue
+		class QueueRestorer: public TRestorer
+		{
+		protected:	// members
+				/// copy of a queue
+			growingArray<ToDoEntry> Wait;
+				/// pointer to a queue to restore
+			queueQueue* queue;
+				/// start pointer
+			unsigned int sp;
+
+		public:		// interface
+				/// init c'tor
+			QueueRestorer ( queueQueue* q ) : Wait(q->Wait), queue(q), sp(q->sPointer) {}
+				/// empty d'tor
+			virtual ~QueueRestorer ( void ) {}
+				/// restore: copy the queue back, adjust pointers
+			virtual void restore ( void ) { queue->Wait = Wait; queue->sPointer = sp; }
+		};
+
 	protected:	// members
 			/// waiting ops queue
 		growingArray<ToDoEntry> Wait;
+			/// stack to save states for the overwritten queue
+		TRareSaveStack* stack;
 			/// start pointer; points to the 1st element in the queue
 		unsigned int sPointer;
-			/// flag for checking whether queue was reordered
-		bool queueBroken;
 
 	public:		// interface
 			/// c'tor: make an empty queue
-		queueQueue ( void ) : sPointer(0), queueBroken(false) {}
+		queueQueue ( TRareSaveStack* s ) : stack(s), sPointer(0) {}
 			/// empty d'tor
 		~queueQueue ( void ) {}
 
@@ -153,6 +171,7 @@ protected:	// classes
 			}
 
 			// here we need to put e on the proper place
+			stack->push(new QueueRestorer(this));
 			unsigned int n = Wait.size();
 			Wait.add(e);	// will be rewritten
 			while ( n > sPointer && Wait[n-1].Node->getNominalLevel() > Node->getNominalLevel() )
@@ -161,10 +180,9 @@ protected:	// classes
 				--n;
 			}
 			Wait[n] = e;
-			queueBroken = true;
 		}
 			/// clear queue
-		void clear ( void ) { sPointer = 0; queueBroken = false; Wait.clear(); }
+		void clear ( void ) { sPointer = 0; Wait.clear(); }
 			/// check if queue empty
 		bool empty ( void ) const { return sPointer == Wait.size(); }
 			/// get next entry from the queue; works for non-empty queues
@@ -173,23 +191,14 @@ protected:	// classes
 			/// save queue content to the given entry
 		void save ( queueQueueSaveState& tss )
 		{
-			tss.queueBroken = queueBroken;
 			tss.sp = sPointer;
-			if ( queueBroken )	// save the whole queue
-				tss.Wait = Wait;
-			else				// save just end pointer
-				tss.ep = Wait.size();
-			queueBroken = false;	// clear flag for the next session
+			tss.ep = Wait.size();
 		}
 			/// restore queue content from the given entry
 		void restore ( const queueQueueSaveState& tss )
 		{
-			queueBroken = tss.queueBroken;
 			sPointer = tss.sp;
-			if ( queueBroken )	// restore the whole queue
-				Wait = tss.Wait;
-			else				// save just end pointer
-				Wait.resize(tss.ep);
+			Wait.resize(tss.ep);
 		}
 	}; // queueQueue
 	//--------------------------------------------------------------------------
@@ -266,7 +275,7 @@ protected:	// methods
 
 public:
 		/// init c'tor
-	ToDoList ( const ToDoPriorMatrix& matrix ) : Matrix(matrix), noe(0) {}
+	ToDoList ( const ToDoPriorMatrix& matrix, TRareSaveStack* stack ) : queueNN(stack), Matrix(matrix), noe(0) {}
 		/// d'tor: delete all entries
 	~ToDoList ( void ) { clear(); }
 
