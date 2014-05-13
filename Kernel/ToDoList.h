@@ -44,8 +44,8 @@ struct ToDoEntry
 class ToDoList
 {
 protected:	// classes
-		/// class for saving/restoring array TODO queue
-	class arrayQueueSaveState
+		/// class for saving/restoring ToDoQueue
+	class QueueSaveState
 	{
 	public:		// members
 			/// save start point of queue of entries
@@ -55,10 +55,10 @@ protected:	// classes
 
 	public:		// methods
 			/// empty c'tor
-		arrayQueueSaveState ( void ) {}
+		QueueSaveState ( void ) {}
 			/// empty d'tor
-		~arrayQueueSaveState ( void ) {}
-	}; // arrayQueueSaveState
+		~QueueSaveState ( void ) {}
+	}; // QueueSaveState
 	//--------------------------------------------------------------------------
 
 		/// class to represent single queue
@@ -90,35 +90,18 @@ protected:	// classes
 		const ToDoEntry* get ( void ) { return &(Wait[sPointer++]); }
 
 			/// save queue content to the given entry
-		void save ( arrayQueueSaveState& tss ) const
+		void save ( QueueSaveState& tss ) const
 		{
 			tss.sp = sPointer;
 			tss.ep = Wait.size();
 		}
 			/// restore queue content from the given entry
-		void restore ( const arrayQueueSaveState& tss )
+		void restore ( const QueueSaveState& tss )
 		{
 			sPointer = tss.sp;
 			Wait.resize(tss.ep);
 		}
 	}; // arrayQueue
-	//--------------------------------------------------------------------------
-
-		/// class for saving/restoring priority queue TODO
-	class queueQueueSaveState
-	{
-	public:		// members
-			/// save start point of queue of entries
-		unsigned int sp;
-			/// save end point of queue of entries
-		unsigned int ep;
-
-	public:		// methods
-			/// empty c'tor
-		queueQueueSaveState ( void ) {}
-			/// empty d'tor
-		~queueQueueSaveState ( void ) {}
-	}; // queueQueueSaveState
 	//--------------------------------------------------------------------------
 
 		/// class to represent single priority queue
@@ -189,13 +172,13 @@ protected:	// classes
 		const ToDoEntry* get ( void ) { return &(Wait[sPointer++]); }
 
 			/// save queue content to the given entry
-		void save ( queueQueueSaveState& tss )
+		void save ( QueueSaveState& tss )
 		{
 			tss.sp = sPointer;
 			tss.ep = Wait.size();
 		}
 			/// restore queue content from the given entry
-		void restore ( const queueQueueSaveState& tss )
+		void restore ( const QueueSaveState& tss )
 		{
 			sPointer = tss.sp;
 			Wait.resize(tss.ep);
@@ -206,8 +189,6 @@ protected:	// classes
 protected:	// internal typedefs
 		/// typedef for NN-queue (which should support complete S/R)
 	typedef queueQueue NNQueue;
-		/// typedef for NN-queue's save state
-	typedef queueQueueSaveState NNQueueSaveState;
 
 protected:	// classes
 		/// class for saving/restoring array TODO table
@@ -215,11 +196,11 @@ protected:	// classes
 	{
 	public:		// members
 			/// save state for queueID
-		arrayQueueSaveState backupID;
+		QueueSaveState backupID;
 			/// save state for queueNN
-		NNQueueSaveState backupNN;
+		QueueSaveState backupNN;
 			/// save state of all regular queues
-		arrayQueueSaveState backup[nRegularOps];
+		QueueSaveState backup[nRegularOps];
 			/// save number-of-entries to do
 		unsigned int noe;
 
