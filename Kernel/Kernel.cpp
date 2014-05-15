@@ -25,11 +25,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "eFPPSaveLoad.h"
 #include "SaveLoadManager.h"
 
-const char* ReasoningKernel :: Version = "1.6.2";
+const char* ReasoningKernel :: Version = "1.6.3";
 const char* ReasoningKernel :: SupportedDL = "SROIQ(D)";
 const char* ReasoningKernel :: Copyright =
-	"Copyright (C) Dmitry Tsarkov, 2002-2013";
-const char* ReasoningKernel :: ReleaseDate = "19 February 2013";
+	"Copyright (C) Dmitry Tsarkov, 2002-2014";
+const char* ReasoningKernel :: ReleaseDate = "15 May 2014";
 
 // print the FaCT++ information only once
 static bool KernelFirstRun = true;
