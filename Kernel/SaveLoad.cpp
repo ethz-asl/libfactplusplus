@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2008-2013 by Dmitry Tsarkov
+Copyright (C) 2008-2014 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -281,8 +281,10 @@ SaveRoleMaster ( const RoleMaster& RM, SaveLoadManager& m )
 	// save names of all (non-inverse) entries
 	for ( p = p_beg; p != p_end; p += 2 )
 	{
-		m.registerE(*p);
-		m.o() << (*p)->getName() << "\n";
+		TRole* R = *p;
+		m.registerE(R);
+		m.registerE(R->inverse());
+		m.o() << R->getName() << "\n";
 	}
 
 //	// save the entries itself
@@ -314,7 +316,9 @@ LoadRoleMaster ( RoleMaster& RM, SaveLoadManager& m )
 	for ( unsigned int j = 0; j < RMSize; ++j )
 	{
 		m.i().getline ( name, maxLength, '\n' );
-		m.registerE(RM.ensureRoleName(name));
+		TRole* R = RM.ensureRoleName(name);
+		m.registerE(R);
+		m.registerE(R->inverse());
 	}
 
 	delete [] name;
