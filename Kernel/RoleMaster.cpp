@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2013 by Dmitry Tsarkov
+Copyright (C) 2003-2014 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -75,7 +75,7 @@ RoleMaster :: registerRole ( TRole* r )
 	++newRoleId;
 }
 
-TNamedEntry*
+TRole*
 RoleMaster :: ensureRoleName ( const std::string& name )
 {
 	// check for the Top/Bottom names

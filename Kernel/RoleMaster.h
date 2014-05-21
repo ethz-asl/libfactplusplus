@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2013 by Dmitry Tsarkov
+Copyright (C) 2003-2014 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -96,7 +96,7 @@ public:		// interface
 	~RoleMaster ( void ) { delete pTax; }
 
 		/// create role entry with given name
-	TNamedEntry* ensureRoleName ( const std::string& name );
+	TRole* ensureRoleName ( const std::string& name );
 
 		/// add parent for the input role or role composition; delete ROLE afterwards
 	void addRoleParent ( DLTree* role, TRole* parent ) const;
