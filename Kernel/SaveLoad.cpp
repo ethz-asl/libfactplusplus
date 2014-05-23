@@ -586,6 +586,7 @@ TBox :: Load ( SaveLoadManager& m, KBStatus status )
 	m.expectChar('R');
 	LoadRoleMaster(DRM,m);
 	m.expectChar('D');
+	DLHeap.setSubOrder();
 //	LoadDLDag(DLHeap,m);
 	if ( !VerifyDag(DLHeap,m) )
 		throw EFPPSaveLoad("DAG verification failed");
