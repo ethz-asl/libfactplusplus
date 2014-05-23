@@ -204,14 +204,20 @@ SaveTNECollection ( const TNECollection<T>& collection, SaveLoadManager& m, cons
 {
 	typename TNECollection<T>::const_iterator p, p_beg = collection.begin(), p_end = collection.end();
 	// get the max length of the identifier in the collection
-	unsigned int maxLength = 0, curLength;
+	unsigned int maxLength = 0, curLength, size = 0;
 
 	for ( p = p_beg; p < p_end; ++p )
-		if ( /*excluded.count(*p) == 0 && */maxLength < (curLength = strlen((*p)->getName())) )
-			maxLength = curLength;
+	{
+		if ( excluded.count(*p) == 0 )
+		{
+			++size;
+			if ( maxLength < (curLength = strlen((*p)->getName())) )
+				maxLength = curLength;
+		}
+	}
 
 	// save number of entries and max length of the entry
-	m.saveUInt(collection.size());
+	m.saveUInt(size);
 	m.saveUInt(maxLength);
 
 	// save names of all entries
@@ -219,7 +225,7 @@ SaveTNECollection ( const TNECollection<T>& collection, SaveLoadManager& m, cons
 	{
 		// register all entries in the global map
 		m.registerE(*p);
-//		if ( excluded.count(*p) == 0 )
+		if ( excluded.count(*p) == 0 )
 			m.o() << (*p)->getName() << "\n";
 	}
 

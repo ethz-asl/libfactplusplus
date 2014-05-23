@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2013 by Dmitry Tsarkov
+Copyright (C) 2013-2014 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -215,6 +215,8 @@ ReasoningKernel :: doIncremental ( void )
 	// save taxonomy
 	SaveLoadManager SLManager("Incremental");
 	SLManager.prepare(/*input=*/false);
+	// FIXME!! for now
+	excluded.clear();
 	getTBox()->SaveTaxonomy(SLManager,excluded);
 
 	// do actual change
