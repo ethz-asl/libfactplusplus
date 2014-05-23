@@ -849,20 +849,17 @@ Taxonomy :: Load ( SaveLoadManager& m )
 static void
 SaveIndexSet ( SaveLoadManager& m, const TSetAsTree& Set )
 {
+	m.saveUInt(Set.size());
 	for ( TSetAsTree::const_iterator p = Set.begin(), p_end = Set.end(); p != p_end; ++p )
 		m.saveUInt(*p);
-	m.saveUInt(0);
 }
 
 static void
 LoadIndexSet ( SaveLoadManager& m, TSetAsTree& Set )
 {
 	unsigned int n = m.loadUInt();
-	while ( n != 0 )
-	{
-		Set.insert(n);
-		n = m.loadUInt();
-	}
+	for ( unsigned int i = 0; i < n; i++ )
+		Set.insert(m.loadUInt());
 }
 
 void
@@ -952,6 +949,12 @@ DLVertex :: Save ( SaveLoadManager& m ) const
 		m.saveSInt(getC());
 		break;
 
+	case dtProj:
+		m.saveSInt(getC());
+		m.savePointer(Role);
+		m.savePointer(ProjRole);
+		break;
+
 	case dtNN:	// nothing to do
 		break;
 
@@ -1007,6 +1010,12 @@ DLVertex :: Load ( SaveLoadManager& m )
 	case dtNSingleton:
 		setConcept(m.loadEntry());
 		setChild(m.loadSInt());
+		break;
+
+	case dtProj:
+		setChild(m.loadSInt());
+		Role = static_cast<const TRole*>(m.loadEntry());
+		ProjRole = static_cast<const TRole*>(m.loadEntry());
 		break;
 
 	case dtNN:	// nothing to do
