@@ -342,6 +342,50 @@ LoadRoleMaster ( RoleMaster& RM, SaveLoadManager& m )
 }
 
 //----------------------------------------------------------
+//-- Helpers: Save/Load of class TDataType
+//----------------------------------------------------------
+
+static void
+SaveDataType ( const TDataType* dt, SaveLoadManager& m )
+{
+	// register the DT itself
+	m.registerE(dt->getType());
+	// register all the data values excluding expressions
+	typedef std::set<const TNamedEntry*> TNESet;
+	TNESet expressions;
+	TNECollection<TDataEntry>::const_iterator p, p_beg = dt->begin(), p_end = dt->end();
+	for ( p = p_beg; p != p_end; ++p )
+		if ( (*p)->isRestrictedDataType() )
+		{
+			std::cout << "\nExpression: ";
+			(*p)->printLISP(std::cout);
+			expressions.insert(*p);
+		}
+	SaveTNECollection ( *dt, m, expressions );
+	// for expressions: register facets in the same order
+	for ( p = p_beg; p != p_end; ++p )
+		if ( (*p)->isRestrictedDataType() )
+		{
+			const TDataEntry* de = static_cast<const TDataEntry*>(*p);
+			m.registerE(de);
+		}
+}
+
+static void
+LoadDataType ( TDataType* dt, SaveLoadManager& m )
+{
+	// register the DT itself
+	m.registerE(dt->getType());
+	// register all the data values
+	LoadTNECollection ( *dt, m );
+	// for expressions: register facets
+	for ( TNECollection<TDataEntry>::const_iterator p = dt->begin(), p_end = dt->end(); p != p_end; ++p )
+		if ( (*p)->isRestrictedDataType() )
+			m.registerE(*p);
+}
+
+
+//----------------------------------------------------------
 //-- Implementation of the DLDag methods (dlDag.h)
 //----------------------------------------------------------
 
@@ -493,21 +537,15 @@ TBox :: initPointerMaps ( SaveLoadManager& m ) const
 	m.registerE(pTop);
 	m.registerE(pTemp);
 	m.registerE(pQuery);
-
-	// datatypes
-//	TreeDeleter Bool(TreeDeleter(DTCenter.getBoolType()));
-	m.registerE(DTCenter.getStringType()->Element().getNE());
-	m.registerE(DTCenter.getNumberType()->Element().getNE());
-	m.registerE(DTCenter.getRealType()->Element().getNE());
-	m.registerE(DTCenter.getBoolType()->Element().getNE());
-	m.registerE(DTCenter.getTimeType()->Element().getNE());
-	m.registerE(DTCenter.getFreshDataType()->Element().getNE());
 }
 
 void
 TBox :: Save ( SaveLoadManager& m )
 {
 	initPointerMaps(m);
+	m.o() << "\nDT";
+	for ( DataTypeCenter::const_iterator p = DTCenter.begin(), p_end = DTCenter.end(); p != p_end; ++p )
+		SaveDataType(*p,m);
 	m.o() << "\nC";
 	std::set<const TNamedEntry*> empty;
 	SaveTNECollection(Concepts,m,empty);
@@ -533,6 +571,10 @@ TBox :: Load ( SaveLoadManager& m, KBStatus status )
 {
 	Status = status;
 	initPointerMaps(m);
+	m.expectChar('D');
+	m.expectChar('T');
+	for ( DataTypeCenter::iterator p = DTCenter.begin(), p_end = DTCenter.end(); p != p_end; ++p )
+		LoadDataType(*p,m);
 	m.expectChar('C');
 	LoadTNECollection(Concepts,m);
 	m.expectChar('I');
@@ -918,12 +960,10 @@ DLVertex :: Save ( SaveLoadManager& m ) const
 
 	case dtDataType:
 	case dtDataValue:
+	case dtDataExpr:
 		m.savePointer(Concept);
 		m.saveSInt(getC());
 		break;
-
-	case dtDataExpr:
-		break;	// FIXME!! for now
 	}
 	m.o() << "\n";
 }
@@ -977,11 +1017,9 @@ DLVertex :: Load ( SaveLoadManager& m )
 
 	case dtDataType:
 	case dtDataValue:
+	case dtDataExpr:
 		setConcept(m.loadEntry());
 		setChild(m.loadSInt());
 		break;
-
-	case dtDataExpr:
-		break;	// FIXME!! for now
 	}
 }
