@@ -356,11 +356,7 @@ SaveDataType ( const TDataType* dt, SaveLoadManager& m )
 	TNECollection<TDataEntry>::const_iterator p, p_beg = dt->begin(), p_end = dt->end();
 	for ( p = p_beg; p != p_end; ++p )
 		if ( (*p)->isRestrictedDataType() )
-		{
-			std::cout << "\nExpression: ";
-			(*p)->printLISP(std::cout);
 			expressions.insert(*p);
-		}
 	SaveTNECollection ( *dt, m, expressions );
 	// for expressions: register facets in the same order
 	for ( p = p_beg; p != p_end; ++p )
