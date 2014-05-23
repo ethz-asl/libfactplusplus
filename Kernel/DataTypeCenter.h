@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2013 by Dmitry Tsarkov
+Copyright (C) 2003-2014 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -27,7 +27,7 @@ class DataTypeReasoner;
 
 class DataTypeCenter
 {
-protected:	// interface
+public:		// interface
 		/// vector of DATATYPEs
 	typedef std::vector<TDataType*> TypesVector;
 
@@ -43,17 +43,6 @@ protected:	// members
 protected:	// methods
 		/// register new data type
 	void RegisterDataType ( TDataType* p ) { Types.push_back(p); }
-
-	// iterators
-
-		/// begin (RW)
-	iterator begin ( void ) { return Types.begin(); }
-		/// end (RW)
-	iterator end ( void ) { return Types.end(); }
-		/// begin (RO)
-	const_iterator begin ( void ) const { return Types.begin(); }
-		/// end (RO)
-	const_iterator end ( void ) const { return Types.end(); }
 
 	// access to datatypes
 
@@ -104,6 +93,17 @@ public:		// interface
 	}
 		/// d'tor: delete all datatypes
 	~DataTypeCenter ( void );
+
+	// iterators
+
+		/// begin (RW)
+	iterator begin ( void ) { return Types.begin(); }
+		/// end (RW)
+	iterator end ( void ) { return Types.end(); }
+		/// begin (RO)
+	const_iterator begin ( void ) const { return Types.begin(); }
+		/// end (RO)
+	const_iterator end ( void ) const { return Types.end(); }
 
 	// DLTree interface
 

@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2005-2011 by Dmitry Tsarkov
+Copyright (C) 2005-2014 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -26,8 +26,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "fpp_assert.h"
 #include "globaldef.h"
 
-class TDataEntry;
-
 /// allows one to compare DataType values wrt appropriate type
 class ComparableDT
 {
@@ -41,7 +39,7 @@ private:
 		/// value as a date
 	long timeValue;	// FIXME!! FORNOW
 		/// tag of a value
-	enum { UNUSED = 0, INT, STR, FLOAT, TIME } vType;
+	enum ValueType { UNUSED = 0, INT, STR, FLOAT, TIME } vType;
 
 public:
 		/// create empty dt
@@ -76,8 +74,8 @@ public:
 		, timeValue(0)
 		, vType(FLOAT)
 		{}
-		/// create dateTime's dt; use dummy to distinguish it from INT one
-	explicit ComparableDT ( long value, int dummy ATTR_UNUSED )
+		/// create dateTime's dt; use dummy parameter to distinguish it from INT one
+	explicit ComparableDT ( long value, int )
 		: strValue("")
 		, longIntValue(0)
 		, floatValue(0.0)
