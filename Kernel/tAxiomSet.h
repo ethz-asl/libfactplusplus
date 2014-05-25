@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2010 by Dmitry Tsarkov
+Copyright (C) 2003-2014 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -45,10 +45,12 @@ protected:	// internal types
 protected:	// members
 		/// host TBox that holds all concepts/etc
 	TBox& Host;
-		/// set of axioms that accumilates incoming (and newly created) axioms; Tg
+		/// set of axioms that accumulates incoming (and newly created) axioms;
 	AxiomCollection Accum;
-		/// sett of absorption action, in order
+		/// set of absorption action, in order
 	AbsActVector ActionVector;
+		/// the index of the currently processing axiom in Accum
+	unsigned int curAxiom;
 
 protected:	// methods
 
@@ -61,29 +63,23 @@ protected:	// methods
 #	endif
 		Accum.push_back(p);
 	}
-		/// @return true iff axiom Q is new in the set
-	bool needed ( TAxiom* q )
+		/// @return true iff axiom Q is a copy of an axiom in range [p,p_end)
+	bool copyOf ( TAxiom* q, AxiomCollection::const_iterator p, AxiomCollection::const_iterator p_end ) const
 	{
-		for ( AxiomCollection::const_iterator p = Accum.begin(), p_end = Accum.end(); p != p_end; ++p )
+		for ( ; p != p_end; ++p )
 			if ( *q == **p )
 			{
 #			ifdef RKG_DEBUG_ABSORPTION
 				std::cout << " same as (" << p-Accum.begin() << ")";
 #			endif
-				return false;
+				return true;
 			}
-		return true;
+		return false;
 	}
-		/// insert GCI if new; @return true iff already exists
-	bool insertIfNew ( TAxiom* q )
-	{
-		if ( needed(q) )
-		{
-			insertGCI(q);
-			return false;
-		}
-		return true;
-	}
+		/// @return true iff axiom Q is a copy of already processed axiom
+	bool copyOfProcessed ( TAxiom* q ) const { return copyOf ( q, Accum.begin(), Accum.begin()+curAxiom ); }
+		/// @return true iff axiom Q is a copy of newly introduced axiom
+	bool copyOfNew ( TAxiom* q ) const { return copyOf ( q, Accum.begin()+curAxiom, Accum.end() ); }
 		/// absorb single GCI wrt absorption flags
 	bool absorbGCI ( const TAxiom* p );
 		/// split given axiom
@@ -91,13 +87,23 @@ protected:	// methods
 		/// helper that inserts an axiom into Accum; @return bool if success
 	bool processNewAxiom ( TAxiom* q )
 	{
+		// no input axiom -- nothing to add
 		if ( q == NULL )
 			return false;
-		if ( insertIfNew(q) )
+		// if an axiom is a copy of already processed one -- fail to add (will result in a cycle)
+		if ( copyOfProcessed(q) )
 		{
 			delete q;
 			return false;
 		}
+		// if an axiom is a copy of a new one -- succeed but didn't really add anything
+		if ( copyOfNew(q) )
+		{
+			delete q;
+			return true;
+		}
+		// fresh axiom -- add it
+		insertGCI(q);
 		return true;
 	}
 		/// replace a defined concept with its description

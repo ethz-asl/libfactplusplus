@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2010 by Dmitry Tsarkov
+Copyright (C) 2003-2014 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -31,26 +31,39 @@ TAxiomSet :: ~TAxiomSet ( void )
 bool
 TAxiomSet :: split ( const TAxiom* p )
 {
-	AxiomCollection Splitted;
+	AxiomCollection Splitted, Kept, Unneeded;
 	if ( !p->split(Splitted) )	// nothing to split
 		return false;
 
 	AxiomCollection::iterator q = Splitted.begin(), q_end = Splitted.end();
-	bool cont = true;
+	bool fail = false;
 	for ( ; q != q_end; ++q )
-		if ( !needed(*q) )
-		{	// there is already such an axiom in process; delete it
-			cont = false;
+	{
+		// axiom is a copy of a processed one: fail to do split
+		if ( copyOfProcessed(*q) )
+		{
+			fail = true;
 			break;
 		}
-	// do the actual insertion if necessary
-	for ( q = Splitted.begin(); q != q_end; ++q )
-		if ( cont )
-			insertGCI(*q);
-		else
+		// axiom is a copy of a new one: skip it
+		if ( copyOfNew(*q) )
+			Unneeded.push_back(*q);
+		else	// new axiom: keep it
+			Kept.push_back(*q);
+	}
+	// if fail to split: delete all the axioms
+	if ( fail )
+	{
+		for ( q = Splitted.begin(); q != q_end; ++q )
 			delete *q;
-
-	return cont;
+		return false;
+	}
+	// no failure: delete all the unneded axioms, add all kept ones
+	for ( q = Unneeded.begin(), q_end = Unneeded.end(); q != q_end; ++q )
+		delete *q;
+	for ( q = Kept.begin(), q_end = Kept.end(); q != q_end; ++q )
+		insertGCI(*q);
+	return true;
 }
 
 unsigned int TAxiomSet :: absorb ( void )
@@ -59,12 +72,12 @@ unsigned int TAxiomSet :: absorb ( void )
 	AxiomCollection Absorbed, GCIs;
 
 	// we will change Accum (via split rule), so indexing and compare with size
-	for ( unsigned int i = 0; i < Accum.size(); ++i )
+	for ( curAxiom = 0; curAxiom < Accum.size(); ++curAxiom )
 	{
 #	ifdef RKG_DEBUG_ABSORPTION
-		std::cout << "\nProcessing (" << i << "):";
+		std::cout << "\nProcessing (" << curAxiom << "):";
 #	endif
-		TAxiom* ax = Accum[i];
+		TAxiom* ax = Accum[curAxiom];
 		if ( absorbGCI(ax) )
 			Absorbed.push_back(ax);
 		else
