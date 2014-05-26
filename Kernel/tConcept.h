@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2013 by Dmitry Tsarkov
+Copyright (C) 2003-2014 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -197,10 +197,12 @@ public:		// methods
 
 		/// add concept expression to concept description
 	void addDesc ( DLTree* Desc );
+		/// @return true iff description contains top-level references to THIS concept
+	bool hasSelfInDesc ( void ) const { return hasSelfInDesc(Description); }
 		/// remove concept from its own definition (like in case C [= (or C ...)
 	void removeSelfFromDescription ( void )
 	{
-		if ( hasSelfInDesc(Description) )
+		if ( hasSelfInDesc() )
 		{
 			DLTree* desc = Description;
 			Description = replaceSelfWithConst(desc);

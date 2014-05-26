@@ -474,16 +474,17 @@ TBox :: TransformExtraSubsumptions ( void )
 	{
 		++p_next;
 		TConcept* C = p->first;
-		DLTree* D = clone(C->Description);
 		DLTree* E = p->second;
 		// for every C here we have C = D in KB and C [= E in ExtraDefs
-		ConceptSet processed;
 		// if there is a cycle for C
-		if ( isReferenced ( C, C, processed ) )
+		if ( isCyclic(C) )
+		{
+			DLTree* D = clone(C->Description);
 			// then we should make C [= (D and E) and go with GCI D [= C
 			makeDefinitionPrimitive ( C, E, D );
-		else	// it is safe to keep definition C = D and go with GCI D [= E
-			processGCI ( D, E );
+		}
+		else	// it is safe to keep definition C = D and go with GCI C [= E
+			processGCI ( getTree(C), E );
 		// remove processed entry from the set. This will invalidate p, so use p_next
 		ExtraConceptDefs.erase(p);
 		p = p_next;

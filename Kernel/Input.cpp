@@ -125,29 +125,32 @@ TBox :: addSubsumeForDefined ( TConcept* C, DLTree* E )
 		return;
 	}
 
-	DLTree* D = clone(C->Description);
 	// try to see whether C contains a reference to itself at the top level
-	// TODO: rewrite via hasSelfInDesc()
-	C->removeSelfFromDescription();
-	if ( equalTrees ( D, C->Description ) )
+	if ( C->hasSelfInDesc() )
+	{
+		// remember the old description value
+		DLTree* D = clone(C->Description);
+		// remove C from the description
+		C->removeSelfFromDescription();
+		// the trees should differ here
+		fpp_assert ( !equalTrees ( D, C->Description ) );
+		// note that we don't know exact semantics of C for now;
+		// we need to split it's definition and work via GCIs
+		makeDefinitionPrimitive ( C, E, D );
+	}
+	else	// here we have the definition of C = D, and subsumption C [= E
 	{
 		if ( 1 )	// for now: it's not clear of what's going wrong
-			processGCI ( D, E );
+			processGCI ( getTree(C), E );
 		else	// here we leave the definition of C = D, and delay the processing of C [= E
 		{
-			deleteTree(D);
 			ConceptDefMap::iterator p = ExtraConceptDefs.find(C);
 			if ( p == ExtraConceptDefs.end() )	// no such entry
 				ExtraConceptDefs[C] = E;	// save C [= E
 			else	// we have C [= X; change to C [= (X and E)
 				p->second = createSNFAnd ( p->second, E );
 		}
-		return;
 	}
-
-	// note that we don't know exact semantics of C for now;
-	// we need to split it's definition and work via GCIs
-	makeDefinitionPrimitive ( C, E, D );
 }
 
 bool TBox :: axiomToRangeDomain ( DLTree* sub, DLTree* sup )

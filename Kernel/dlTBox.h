@@ -644,6 +644,12 @@ protected:	// methods
 			return isReferenced ( C, p->second, processed );
 		return false;
 	}
+		/// @return true iff C has a cyclic definition, ie is referenced in its own description
+	bool isCyclic ( TConcept* C )
+	{
+		ConceptSet processed;
+		return isReferenced ( C, C, processed );
+	}
 
 		/// @return number of synonyms in the KB
 	unsigned int countSynonyms ( void ) const
