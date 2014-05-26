@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2013 by Dmitry Tsarkov
+Copyright (C) 2003-2014 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -19,6 +19,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "tAxiom.h"
 #include "tRole.h"
 #include "dlTBox.h"
+
+bool
+InAx :: isNP ( const TConcept* C, TBox& )
+{
+	return C->isNonPrimitive();
+}
 
 /// add DLTree to an axiom
 void
@@ -44,15 +50,15 @@ TAxiom :: add ( DLTree* p )
 }
 
 TAxiom*
-TAxiom :: simplifyCN ( void ) const
+TAxiom :: simplifyCN ( TBox& KB ) const
 {
 	for ( const_iterator i = begin(), i_end = end(); i != i_end; ++i )
 	{
 		const DLTree* p = *i;
 
-		if ( InAx::isPosNP(p) )
+		if ( InAx::isPosNP(p,KB) )
 			return simplifyPosNP(p);
-		else if ( InAx::isNegNP(p) )
+		else if ( InAx::isNegNP(p,KB) )
 			return simplifyNegNP(p);
 	}
 

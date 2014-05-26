@@ -57,6 +57,8 @@ namespace InAx
 		/// build an RO concept from a given [C|I]NAME-rooted DLTree
 	inline const TConcept* getConcept ( const DLTree* p )
 		{ return static_cast<const TConcept*>(p->Element().getNE()); }
+		/// @ return true if a concept C is a concept is non-primitive
+	bool isNP ( const TConcept* C, TBox& KB );
 
 		/// @return true iff P is a TOP
 	inline bool isTop ( const DLTree* p ) { return p->Element() == BOTTOM; }
@@ -65,16 +67,16 @@ namespace InAx
 		/// @return true iff P is a positive concept name
 	inline bool isPosCN ( const DLTree* p ) { return p->Element() == NOT && isName(p->Left()); }
 		/// @return true iff P is a positive non-primitive CN
-	inline bool isPosNP ( const DLTree* p )
-		{ return isPosCN(p) && !getConcept(p->Left())->isPrimitive(); }
+	inline bool isPosNP ( const DLTree* p, TBox& KB )
+		{ return isPosCN(p) && isNP(getConcept(p->Left()),KB); }
 		/// @return true iff P is a positive primitive CN
 	inline bool isPosPC ( const DLTree* p )
 		{ return isPosCN(p) && getConcept(p->Left())->isPrimitive(); }
 		/// @return true iff P is a negative concept name
 	inline bool isNegCN ( const DLTree* p ) { return isName(p); }
 		/// @return true iff P is a negative non-primitive CN
-	inline bool isNegNP ( const DLTree* p )
-		{ return isNegCN(p) && !getConcept(p)->isPrimitive(); }
+	inline bool isNegNP ( const DLTree* p, TBox& KB )
+		{ return isNegCN(p) && isNP(getConcept(p),KB); }
 		/// @return true iff P is a negative primitive CN
 	inline bool isNegPC ( const DLTree* p )
 		{ return isNegCN(p) && getConcept(p)->isPrimitive(); }
@@ -230,7 +232,7 @@ public:		// interface
 	}
 
 		/// replace a defined concept with its description
-	TAxiom* simplifyCN ( void ) const;
+	TAxiom* simplifyCN ( TBox& KB ) const;
 		/// replace a universal restriction with a fresh concept
 	TAxiom* simplifyForall ( TBox& KB ) const;
 		/// split an axiom; @return new axiom and/or NULL

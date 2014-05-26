@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2013 by Dmitry Tsarkov
+Copyright (C) 2003-2014 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -129,8 +129,12 @@ TBox :: replaceForall ( DLTree* RC )
 	// see R and C at the first time
 	X = getAuxConcept();
 	DLTree* C = createSNFNot(clone(RC->Right()));
+	DLTree* Forall = createSNFForall ( createInverse(clone(RC->Left())), getTree(X) );
+#ifdef RKG_DEBUG_ABSORPTION
+	std::cout << "\nReplaceForall: add" << C << " [=" << Forall;
+#endif
 	// create ax axiom C [= AR^-.X
-	addSubsumeAxiom ( C, createSNFForall ( createInverse(clone(RC->Left())), getTree(X) ) );
+	addSubsumeAxiom ( C, Forall );
 	// save cache for R,C
 	setRCCache ( RC, X );
 

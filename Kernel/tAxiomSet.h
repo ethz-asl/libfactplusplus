@@ -103,7 +103,7 @@ protected:	// methods
 		return true;
 	}
 		/// replace a defined concept with its description
-	bool simplifyCN ( const TAxiom* p ) { return processNewAxiom(p->simplifyCN()); }
+	bool simplifyCN ( const TAxiom* p ) { return processNewAxiom(p->simplifyCN(Host)); }
 		/// replace a universal restriction with a fresh concept
 	bool simplifyForall ( const TAxiom* p ) { return processNewAxiom(p->simplifyForall(Host)); }
 

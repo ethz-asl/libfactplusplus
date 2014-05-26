@@ -549,7 +549,7 @@ void TBox :: createTaxonomy ( bool needIndividual )
 
 //	if ( needConcept )
 		nItems += fillArrays ( c_begin(), c_end() );
-//	if ( needIndividual )
+//	if ( needIndividual || nNominalReferences > 0 )	// TODO ORE
 		nItems += fillArrays ( i_begin(), i_end() );
 
 	// taxonomy progress
