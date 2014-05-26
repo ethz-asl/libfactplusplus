@@ -40,13 +40,13 @@ TAxiomSet :: split ( const TAxiom* p )
 	for ( ; q != q_end; ++q )
 	{
 		// axiom is a copy of a processed one: fail to do split
-		if ( copyOfProcessed(*q) )
+		if ( (*q)->isCyclic() )
 		{
 			fail = true;
 			break;
 		}
 		// axiom is a copy of a new one: skip it
-		if ( copyOfNew(*q) )
+		if ( copyOfExisting(*q) )
 			Unneeded.push_back(*q);
 		else	// new axiom: keep it
 			Kept.push_back(*q);

@@ -101,6 +101,9 @@ namespace InAx
 class TAxiom
 {
 private:	// no assignment
+		/// copy c'tor
+	TAxiom ( const TAxiom& ax );
+		/// assignment
 	TAxiom& operator = ( const TAxiom& ax );
 
 protected:	// types
@@ -116,6 +119,8 @@ protected:	// types
 protected:	// members
 		/// GCI is presented in the form (or Disjuncts);
 	absorptionSet Disjuncts;
+		/// the origin of an axiom if obtained during processing
+	const TAxiom* origin;
 
 protected:	// methods
 	// access to labels
@@ -132,7 +137,7 @@ protected:	// methods
 		/// create a copy of a given GCI; ignore SKIP entry
 	TAxiom* copy ( const DLTree* skip ) const
 	{
-		TAxiom* ret = new TAxiom();
+		TAxiom* ret = new TAxiom(this);
 		for ( const_iterator i = begin(), i_end = end(); i != i_end; ++i )
 			if ( *i != skip )
 				ret->Disjuncts.push_back(clone(*i));
@@ -185,13 +190,7 @@ protected:	// methods
 
 public:		// interface
 		/// create an empty GCI
-	TAxiom ( void ) {}
-		/// create a copy of a given GCI
-	TAxiom ( const TAxiom& ax )
-	{
-		for ( const_iterator i = ax.begin(), i_end = ax.end(); i != i_end; ++i )
-			Disjuncts.push_back(clone(*i));
-	}
+	TAxiom ( const TAxiom* parent ) : origin(parent) {}
 		/// d'tor: delete elements if AX is not in use
 	~TAxiom ( void )
 	{
@@ -254,6 +253,19 @@ public:		// interface
 				return true;
 			}
 
+		return false;
+	}
+		/// @return true iff an axiom is the same as one of its ancestors
+	bool isCyclic ( void ) const
+	{
+		for ( const TAxiom* p = origin; p; p = p->origin )
+			if ( *p == *this )
+			{
+#			ifdef RKG_DEBUG_ABSORPTION
+				std::cout << " same as ancestor";
+#			endif
+				return true;
+			}
 		return false;
 	}
 		/// absorb into BOTTOM; @return true if absorption is performed

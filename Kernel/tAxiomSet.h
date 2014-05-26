@@ -63,23 +63,19 @@ protected:	// methods
 #	endif
 		Accum.push_back(p);
 	}
-		/// @return true iff axiom Q is a copy of an axiom in range [p,p_end)
-	bool copyOf ( TAxiom* q, AxiomCollection::const_iterator p, AxiomCollection::const_iterator p_end ) const
+		/// @return true iff axiom Q is a copy of already existing axiom
+	bool copyOfExisting ( TAxiom* q ) const
 	{
-		for ( ; p != p_end; ++p )
+		for ( AxiomCollection::const_iterator p = Accum.begin(), p_end = Accum.end(); p != p_end; ++p )
 			if ( *q == **p )
 			{
 #			ifdef RKG_DEBUG_ABSORPTION
-				std::cout << " same as (" << p-Accum.begin() << ")";
+				std::cout << " same as (" << p-Accum.begin() << "); skip";
 #			endif
 				return true;
 			}
 		return false;
 	}
-		/// @return true iff axiom Q is a copy of already processed axiom
-	bool copyOfProcessed ( TAxiom* q ) const { return copyOf ( q, Accum.begin(), Accum.begin()+curAxiom ); }
-		/// @return true iff axiom Q is a copy of newly introduced axiom
-	bool copyOfNew ( TAxiom* q ) const { return copyOf ( q, Accum.begin()+curAxiom, Accum.end() ); }
 		/// absorb single GCI wrt absorption flags
 	bool absorbGCI ( const TAxiom* p );
 		/// split given axiom
@@ -91,13 +87,13 @@ protected:	// methods
 		if ( q == NULL )
 			return false;
 		// if an axiom is a copy of already processed one -- fail to add (will result in a cycle)
-		if ( copyOfProcessed(q) )
+		if ( q->isCyclic() )
 		{
 			delete q;
 			return false;
 		}
 		// if an axiom is a copy of a new one -- succeed but didn't really add anything
-		if ( copyOfNew(q) )
+		if ( copyOfExisting(q) )
 		{
 			delete q;
 			return true;
@@ -136,7 +132,7 @@ public:		// interface
 	void addAxiom ( DLTree* C, DLTree* D )
 	{
 		Stat::SAbsInput();
-		TAxiom* p = new TAxiom();
+		TAxiom* p = new TAxiom(NULL);
 		p->add(C);
 		p->add(createSNFNot(D));
 		insertGCI(p);
