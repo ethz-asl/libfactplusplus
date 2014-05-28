@@ -76,6 +76,16 @@ TAxiom :: simplifyForall ( TBox& KB ) const
 }
 
 TAxiom*
+TAxiom :: simplifySForall ( TBox& KB ) const
+{
+	for ( const_iterator i = begin(), i_end = end(); i != i_end; ++i )
+		if ( InAx::isSimpleForall(*i) )
+			return simplifyForall ( *i, KB );
+
+	return NULL;
+}
+
+TAxiom*
 TAxiom :: simplifyForall ( const DLTree* rep, TBox& KB ) const
 {
 	Stat::SAbsRepForall();

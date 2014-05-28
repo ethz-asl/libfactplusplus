@@ -106,6 +106,8 @@ protected:	// methods
 	bool simplifyCN ( const TAxiom* p ) { return processNewAxiom(p->simplifyCN(Host)); }
 		/// replace a universal restriction with a fresh concept
 	bool simplifyForall ( const TAxiom* p ) { return processNewAxiom(p->simplifyForall(Host)); }
+		/// replace a simple universal restriction with a fresh concept
+	bool simplifySForall ( const TAxiom* p ) { return processNewAxiom(p->simplifySForall(Host)); }
 
 		/// absorb single axiom AX into BOTTOM; @return true if succeed
 	bool absorbIntoBottom ( const TAxiom* ax ) { return ax->absorbIntoBottom(); }

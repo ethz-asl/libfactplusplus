@@ -98,6 +98,15 @@ namespace InAx
 			return false;
 		return !isName(C) || !getConcept(C)->isSystem();
 	}
+		/// @return true iff P is a FORALL expression suitable for absorption with name at the end
+	inline bool isSimpleForall ( const DLTree* p )
+	{
+		if ( !isAbsForall(p) )
+			return false;
+		const DLTree* C = p->Left()->Right();
+		// forall is simple if its filler is a name of a primitive concept
+		return isName(C) && (getConcept(C)->Description == NULL);
+	}
 } // InAx
 
 class TAxiom
@@ -235,6 +244,8 @@ public:		// interface
 	TAxiom* simplifyCN ( TBox& KB ) const;
 		/// replace a universal restriction with a fresh concept
 	TAxiom* simplifyForall ( TBox& KB ) const;
+		/// replace a simple universal restriction with a fresh concept
+	TAxiom* simplifySForall ( TBox& KB ) const;
 		/// split an axiom; @return new axiom and/or NULL
 	bool split ( std::vector<TAxiom*>& acc ) const
 	{

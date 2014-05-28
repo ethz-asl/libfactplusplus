@@ -729,9 +729,10 @@ bool ReasoningKernel :: initOptions ( void )
 		"Option 'absorptionFlags' sets up absorption process for general axioms. "
 		"It text field of arbitrary length; every symbol means the absorption action: "
 		"(B)ottom Absorption), (T)op absorption, (E)quivalent concepts replacement, (C)oncept absorption, "
-		"(N)egated concept absorption, (F)orall expression replacement, (R)ole absorption, (S)plit",
+		"(N)egated concept absorption, (F)orall expression replacement, Simple (f)orall expression replacement, "
+		"(R)ole absorption, (S)plit",
 		ifOption::iotText,
-		"BTECFSR"
+		"BTEfCFSR"
 		) )
 		return true;
 

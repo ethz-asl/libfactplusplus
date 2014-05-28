@@ -122,6 +122,7 @@ bool TAxiomSet :: initAbsorptionFlags ( const std::string& flags )
 		case 'E': ActionVector.push_back(&TAxiomSet::simplifyCN); break;
 		case 'C': ActionVector.push_back(&TAxiomSet::absorbIntoConcept); break;
 		case 'N': ActionVector.push_back(&TAxiomSet::absorbIntoNegConcept); break;
+		case 'f': ActionVector.push_back(&TAxiomSet::simplifySForall); break;
 		case 'F': ActionVector.push_back(&TAxiomSet::simplifyForall); break;
 		case 'R': ActionVector.push_back(&TAxiomSet::absorbIntoDomain); break;
 		case 'S': ActionVector.push_back(&TAxiomSet::split); break;
