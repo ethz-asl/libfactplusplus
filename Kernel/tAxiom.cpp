@@ -20,10 +20,51 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "tRole.h"
 #include "dlTBox.h"
 
+// this is to define the hard cycle in concepts: C = \exists R D, D = \exists S C
+// we saw cycles of that type of length 2
+
+typedef std::set<const TConcept*> ConceptSet;
+
+static bool
+hasDefCycle ( const TConcept* C, ConceptSet& visited )
+{
+	// interested in non-primitive
+	if ( C->isPrimitive() )
+		return false;
+	// already seen -- cycle
+	if ( visited.count(C) > 0 )
+		return true;
+	// check the structure: looking for the \exists R.C
+	const DLTree* p = C->Description;
+	if ( p->Element().getToken() != NOT )
+		return false;
+	p = p->Left();
+	if ( p->Element().getToken() != FORALL )
+		return false;
+	p = p->Right();
+	if ( p->Element().getToken() != NOT )
+		return false;
+	p = p->Left();
+	if ( !isName(p) )
+		return false;
+	// here P is a concept
+	// remember C
+	visited.insert(C);
+	// check p
+	return hasDefCycle ( static_cast<const TConcept*>(p->Element().getNE()), visited );
+}
+
+static bool
+hasDefCycle ( const TConcept* C )
+{
+	ConceptSet visited;
+	return hasDefCycle ( C, visited );
+}
+
 bool
 InAx :: isNP ( const TConcept* C, TBox& )
 {
-	return C->isNonPrimitive();
+	return C->isNonPrimitive() && !hasDefCycle(C);
 }
 
 /// add DLTree to an axiom
