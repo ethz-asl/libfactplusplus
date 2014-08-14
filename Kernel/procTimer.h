@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2008 by Dmitry Tsarkov
+Copyright (C) 2003-2014 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -16,8 +16,8 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef _PROCTIMER_H
-#define _PROCTIMER_H
+#ifndef PROCTIMER_H
+#define PROCTIMER_H
 
 #include <time.h>
 
@@ -76,7 +76,7 @@ inline float TsProcTimer :: calcDelta ( void ) const
 	clock_t finishTime = clock();
 
 	// calculate difference between cuttent time and start time
-	float realProcTime = float(finishTime>startTime ?
+	float realProcTime = float(finishTime>=startTime ?
 		finishTime-startTime :
 		((clock_t)-1)-startTime+finishTime ) / CLOCKS_PER_SEC;
 
