@@ -1,5 +1,5 @@
 # global optimisation options
-GCC_OPT_OPT = -finline-limit=1200 -ffast-math -W -Wall -Wextra -O3 -fomit-frame-pointer -fPIC
+GCC_OPT_OPT = -ffast-math -W -Wall -Wextra -O3 -fomit-frame-pointer -fPIC
 
 # GCC 3.3 optimisation options that are not included in -O3
 GCC_33_OPT = -ftracer -fgcse-sm
@@ -19,10 +19,10 @@ GCC_44_OPT = $(GCC_43_OPT)
 
 # define architecture; it will affect file extentions, dynamic flags.
 # now LINUX, WINDOWS(untested), MACOSX are supported
-OS = LINUX
+OS = MACOSX
 
 # ALL_DEF is an external defines
-GENERAL_DEFINES = $(GCC_OPT_OPT) $(GCC_42_OPT) $(ALL_DEF)
+GENERAL_DEFINES = $(GCC_OPT_OPT) $(ALL_DEF)
 
 #---------------------------------------------------------
 # please do not change following lines
@@ -56,7 +56,8 @@ ifeq ($(OS),MACOSX)
 override EXEEXT :=
 override LIBEXT := .a
 override DLLEXT := .jnilib
-override OS_DEF := -mmacosx-version-min=10.4
+override OS_DEF := -mmacosx-version-min=10.6 -flto
+override CXXFLAGS += -emit-llvm
 endif
 
 #define Windows flags (untested)
@@ -84,6 +85,7 @@ $(BUILD_DIR):
 # Set C++ compilers and linker
 
 override CXX := g++$(GCC_SUFFIX) $(OS_DEF)
+#override CXX := ccache g++$(GCC_SUFFIX) $(OS_DEF)
 
 # Library building tools
 
@@ -135,7 +137,11 @@ endif
 ifneq ($(filter -g,$(DEFINES)),)
 override CL_LDFLAGS_OTHER += -g
 else
+
+ifneq ($(OS),MACOSX)
 override CL_LDFLAGS_OTHER += -s
+endif
+
 endif
 ifneq ($(filter -m64,$(DEFINES)),)
 override CL_LDFLAGS_OTHER += -m64
