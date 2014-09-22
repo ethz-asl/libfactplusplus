@@ -312,10 +312,6 @@ protected:	// members
 	std::vector<BipolarPointer> SessionGCIs;
 		/// set of active splits
 	std::set<BipolarPointer> ActiveSplits;
-		/// concept signature of current CGraph
-	TSplitRules::SigSet SessionSignature;
-		/// signature to dep-set map for current session
-	TSplitRules::SigDeps SessionSigDepSet;
 
 		/// size of the DAG with some extra space
 	size_t dagSize;
@@ -361,8 +357,6 @@ protected:	// methods
 	bool useSemanticBranching ( void ) const { return tBox.useSemanticBranching; }
 		/// @return true iff lazy blocking is used
 	bool useLazyBlocking ( void ) const { return tBox.useLazyBlocking; }
-		/// @return true iff active signature is in use
-	bool useActiveSignature ( void ) const { return !tBox.getSplits()->empty(); }
 
 		/// reset all session flags
 	void resetSessionFlags ( void );
@@ -388,35 +382,6 @@ protected:	// methods
 		/// add C to a set of session GCIs; init all nodes with (C,dep)
 	bool addSessionGCI ( BipolarPointer C, const DepSet& dep );
 
-	// split rules support
-
-		/// apply split rule RULE to a reasoner. @return true if clash was found
-	bool applySplitRule ( TSplitRules::const_iterator rule );
-		/// check whether any split rules should be run and do it. @return true iff clash was found
-	bool checkSplitRules ( void );
-		/// add entity->dep to a session structures
-	void updateSessionSignature ( const TNamedEntity* entity, const DepSet& dep )
-	{
-		if ( unlikely ( entity != NULL ) )
-		{
-			SessionSignature.insert(entity);
-			SessionSigDepSet[entity].add(dep);
-		}
-	}
-		/// update session signature with all names from a given node
-	void updateSignatureByNode ( DlCompletionTree* node)
-	{
-		const CGLabel& lab = node->label();
-		for ( CGLabel::const_iterator p = lab.begin_sc(), p_end = lab.end_sc(); p != p_end; ++p )
-			updateSessionSignature ( tBox.SplitRules.getEntity(p->bp()), p->getDep() );
-	}
-		/// update session signature for all non-data nodes
-	void updateSessionSignature ( void )
-	{
-		for ( DlCompletionGraph::iterator p = CGraph.begin(), p_end = CGraph.end(); p != p_end; ++p )
-			if ( isObjectNodeUnblocked(*p) )
-				updateSignatureByNode(*p);
-	}
 
 		/// put TODO entry for either BP or inverse(BP) in NODE's label
 	void updateName ( DlCompletionTree* node, BipolarPointer bp )
@@ -487,7 +452,6 @@ protected:	// methods
 			dagSize = DLHeap.maxSize();
 			pUsed.ensureMaxSetSize(dagSize);
 			nUsed.ensureMaxSetSize(dagSize);
-			tBox.SplitRules.ensureDagSize(dagSize);
 		}
 	}
 

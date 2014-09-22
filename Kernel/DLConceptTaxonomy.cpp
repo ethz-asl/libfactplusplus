@@ -333,47 +333,6 @@ DLConceptTaxonomy :: checkExtraParents ( void )
 	inSplitCheck = false;
 }
 
-/// merge vars came from a given SPLIT together
-void
-DLConceptTaxonomy :: mergeSplitVars ( TSplitVar* split )
-{
-	typedef std::set<TaxonomyVertex*> TVSet1;
-
-	TVSet1 splitVertices;
-	TaxonomyVertex* v = split->C->getTaxVertex();
-	bool cIn = ( v != NULL );
-	if ( cIn )	// there is C-node in the taxonomy
-		splitVertices.insert(v);
-	TSplitVar::iterator q = split->begin(), q_end = split->end();
-	for ( ; q != q_end; ++q )
-		splitVertices.insert(q->C->getTaxVertex());
-	// set V to be a node-to-add
-	// FIXME!! check later the case whether both TOP and BOT are there
-	TaxonomyVertex* bot = pTax->getBottomVertex();
-	TaxonomyVertex* top = pTax->getTopVertex();
-	TaxonomyVertex* cur = pTax->getCurrent();
-
-	if ( splitVertices.count(bot) > 0 )
-		v = bot;
-	else if ( splitVertices.count(top) > 0 )
-		v = top;
-	else
-	{
-		setCurrentEntry(split->C);
-		v = cur;
-	}
-
-	if ( v != cur && !cIn )
-		v->addSynonym(split->C);
-	for ( TVSet1::iterator p = splitVertices.begin(), p_end = splitVertices.end(); p != p_end; ++p )
-		mergeVertex ( v, *p, splitVertices );
-	if ( v == cur )
-	{
-		checkExtraParents();
-		pTax->finishCurrentNode();
-	}
-}
-
 void 		/// fill candidates
 DLConceptTaxonomy :: fillCandidates ( TaxonomyVertex* cur )
 {
@@ -569,8 +528,6 @@ void TBox :: createTaxonomy ( bool needIndividual )
 	classifyConcepts ( arrayNP, false, "non-primitive" );
 
 	duringClassification = false;
-
-	pTaxCreator->processSplits();
 
 	if ( pMonitor )
 	{
