@@ -1341,6 +1341,12 @@ public:
 	bool setSaveLoadContext ( const std::string& name );
 		/// clear a cache for a given name
 	bool clearSaveLoadContext ( const std::string& name ) const;
+
+	//----------------------------------------------------------------------------------
+	// conjunctive queries
+	//----------------------------------------------------------------------------------
+
+	void evaluateQuery ( const std::multimap<std::string, TConceptExpr*>& query, bool artificialABox );
 }; // ReasoningKernel
 
 #endif

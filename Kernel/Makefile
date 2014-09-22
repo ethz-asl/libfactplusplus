@@ -51,6 +51,8 @@ SOURCES = \
           tDLAxiom.cpp\
           AtomicDecomposer.cpp\
           KnowledgeExplorer.cpp\
+          ConjunctiveQueryFolding.cpp\
+          ConjunctiveQuery.cpp\
           TaxonomyCreator.cpp\
           Incremental.cpp\
           ExtendedDataRange.cpp\
