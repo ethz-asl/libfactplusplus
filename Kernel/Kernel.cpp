@@ -906,12 +906,12 @@ bool ReasoningKernel :: initOptions ( void )
 		) )
 		return true;
 
-	// register "queryAnswering" option (03/11/2013)
+	// register "useAxiomSplitting" option (22/09/2014)
 	if ( KernelOptions.RegisterOption (
-		"queryAnswering",
-		"Option 'queryAnswering', if true, switches the reasoner to a query answering mode.",
+		"useAxiomSplitting",
+		"Option 'useAxiomSplitting', if true, force reasoner to split name A in case A=B and A[=C present in the KB.",
 		ifOption::iotBool,
-		"false"
+		"true"
 		) )
 		return true;
 
