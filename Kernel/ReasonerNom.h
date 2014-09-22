@@ -85,9 +85,6 @@ public:
 
 		/// check whether ontology with nominals is consistent
 	bool consistentNominalCloud ( void );
-
-		/// check an extra conditions (for query answering)
-	bool checkExtraCond ( void );
 }; // NominalReasoner
 
 //-----------------------------------------------------------------------------
