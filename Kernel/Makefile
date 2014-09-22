@@ -47,7 +47,6 @@ SOURCES = \
           CascadedCache.cpp\
           Actor.cpp\
           tDag2Interface.cpp\
-          tSplitExpansionRules.cpp\
           tDLAxiom.cpp\
           AtomicDecomposer.cpp\
           KnowledgeExplorer.cpp\

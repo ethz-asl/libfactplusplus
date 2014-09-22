@@ -100,11 +100,6 @@ void TBox :: Preprocess ( void )
 	buildDAG();
 	END_PASS();
 
-	// now split expansion rules could be build
-	BEGIN_PASS("Build Split rules");
-	buildSplitRules();
-	END_PASS();
-
 	// fills classification tag (strictly after told cycles)
 	BEGIN_PASS("Detect classification tags");
 	fillsClassificationTag();

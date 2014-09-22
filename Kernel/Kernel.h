@@ -206,8 +206,6 @@ protected:	// members
 	bool reasoningFailed;
 		/// flag to gather trace information for the next reasoner's call
 	bool NeedTracing;
-		/// whether axiom splitting should be used
-	bool useAxiomSplitting;
 		/// ignore cache for the TExpr* (useful for semantic AD)
 	bool ignoreExprCache;
 		/// use incremental reasoning
@@ -613,8 +611,6 @@ public:	// general staff
 		if ( pTBox != NULL )
 			pTBox->setTestTimeout(value);
 	}
-		/// choose whether axiom splitting should be used
-	void setAxiomSplitting ( bool value ) { useAxiomSplitting = value; }
 		/// choose whether TExpr cache should be ignored
 	void setIgnoreExprCache ( bool value ) { ignoreExprCache = value; }
 		/// choose whether inctemental reasoning should be used
