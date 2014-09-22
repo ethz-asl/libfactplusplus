@@ -49,6 +49,7 @@ TBox :: TBox ( const ifOptionSet* Options, const std::string& TopORoleName, cons
 	, ORM ( /*data=*/false, TopORoleName, BotORoleName )
 	, DRM ( /*data=*/true, TopDRoleName, BotDRoleName )
 	, Axioms(*this)
+	, Splits(NULL)
 	, T_G(bpTOP)	// initialise GCA's concept with Top
 	, nC(0)
 	, nR(0)

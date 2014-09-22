@@ -47,6 +47,10 @@ void TBox :: buildDAG ( void )
 	initRangeDomain(ORM);
 	initRangeDomain(DRM);
 
+	// build all splits
+	for ( TSplitVars::iterator s = getSplits()->begin(), s_end = getSplits()->end(); s != s_end; ++s )
+		split2dag(*s);
+
 	RoleMaster::iterator p, p_end;
 
 	// build all GCIs
@@ -304,6 +308,19 @@ BipolarPointer TBox :: atmost2dag ( unsigned int n, const TRole* R, BipolarPoint
 	DLHeap.directAddAndCache(new DLVertex(dtNN));
 
 	return ret;
+}
+
+/// transform splitted concept registered in SPLIT to a dag representation
+void
+TBox :: split2dag ( TSplitVar* split )
+{
+	DLVertex* v = new DLVertex(dtSplitConcept);
+	for ( TSplitVar::iterator p = split->begin(), p_end = split->end(); p != p_end; ++p )
+		v->addChild(p->C->pName);
+	split->C->pBody = DLHeap.directAdd(v);
+	split->C->setPrimitive(false);
+	DLHeap.replaceVertex ( split->C->pName, new DLVertex ( dtNConcept, split->C->pBody ), split->C );
+	DLHeap.directAdd(new DLVertex ( dtChoose, split->C->pName ));
 }
 
 bool TBox :: fillANDVertex ( DLVertex* v, const DLTree* t )

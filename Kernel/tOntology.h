@@ -22,6 +22,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <vector>
 #include "tDLAxiom.h"
 #include "tExpressionManager.h"
+#include "tSplitVars.h"
 
 /// define ontology as a set of axioms
 class TOntology
@@ -43,6 +44,9 @@ protected:	// members
 	size_t axiomToProcess;
 		/// true iff ontology was changed
 	bool changed;
+
+public:
+	TSplitVars Splits;
 
 public:		// interface
 		/// empty c'tor

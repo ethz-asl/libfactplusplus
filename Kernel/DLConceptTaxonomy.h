@@ -22,6 +22,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "TaxonomyCreator.h"
 #include "dlTBox.h"
 #include "tProgressMonitor.h"
+#include "tSplitVars.h"
 
 /// Taxonomy of named DL concepts (and mapped individuals)
 class DLConceptTaxonomy: public TaxonomyCreator
@@ -249,6 +250,8 @@ protected:	// methods
 		/// @return true iff curEntry is classified as a synonym
 	virtual bool classifySynonym ( void );
 
+		/// merge vars came from a given SPLIT together
+	void mergeSplitVars ( TSplitVar* split );
 		/// merge a single vertex V to a node represented by CUR
 	void mergeVertex ( TaxonomyVertex* cur, TaxonomyVertex* v, const std::set<TaxonomyVertex*>& excludes )
 	{
@@ -284,6 +287,12 @@ public:		// interface
 		/// d'tor
 	virtual ~DLConceptTaxonomy ( void ) {}
 
+		/// process all splits
+	void processSplits ( void )
+	{
+		for ( TSplitVars::iterator p = tBox.Splits->begin(), p_end = tBox.Splits->end(); p != p_end; ++p )
+			mergeSplitVars(*p);
+	}
 		/// set bottom-up flag
 	void setBottomUp ( const TKBFlags& GCIs ) { flagNeedBottomUp = (GCIs.isGCI() || (GCIs.isReflexive() && GCIs.isRnD())); }
 		/// reclassify taxonomy wrt changed sets
