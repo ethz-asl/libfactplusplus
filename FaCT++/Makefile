@@ -11,6 +11,7 @@ SOURCES = \
           scanner.cpp\
           parser.cpp\
           AD.cpp\
+          QA.cpp\
           FaCT.cpp
 
 include ../Makefile.include

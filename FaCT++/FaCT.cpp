@@ -313,7 +313,7 @@ int main ( int argc, char *argv[] )
 	else	// perform reasoning
 	{
 		if ( queryAnswering )
-			;//doQueryAnswering(Kernel);	// FIXME!! uncomment when general QA will be ready
+			doQueryAnswering(Kernel);
 		else
 			doReasoningQuery();
 	}
