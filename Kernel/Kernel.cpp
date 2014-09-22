@@ -897,6 +897,15 @@ bool ReasoningKernel :: initOptions ( void )
 		) )
 		return true;
 
+	// register "queryAnswering" option (03/11/2013)
+	if ( KernelOptions.RegisterOption (
+		"queryAnswering",
+		"Option 'queryAnswering', if true, switches the reasoner to a query answering mode.",
+		ifOption::iotBool,
+		"true"
+		) )
+		return true;
+
 	// all was registered OK
 	return false;
 }
