@@ -74,13 +74,13 @@ sizeAD ( AOStructure* AOS )
 }
 
 void
-CreateAD ( TOntology* Ontology, bool useSem )
+CreateAD ( TOntology* Ontology, ModuleMethod moduleMethod )
 {
 	std::cerr << "\n";
 	// do the atomic decomposition
 	TsProcTimer timer;
 	timer.Start();
-	TModularizer mod ( useSem ? SEM_LOC : SYN_LOC_STD );
+	TModularizer mod(moduleMethod);
 	AtomicDecomposer* AD = new AtomicDecomposer(&mod);
 	AD->setProgressIndicator(new CPPI());
 	AOStructure* AOS = AD->getAOS ( Ontology, M_BOT );
