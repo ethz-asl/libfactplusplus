@@ -35,9 +35,7 @@ ReasoningKernel Kernel;
 std::ofstream Out;
 
 // defined in AD.cpp
-void CreateAD ( TOntology* O, bool useSem );
-// defined in QA.cpp
-void doQueryAnswering ( ReasoningKernel& Kernel );
+void CreateAD ( TOntology* O, ModuleMethod moduleMethod );
 
 // local methods
 inline void Usage ( void )
@@ -271,8 +269,7 @@ int main ( int argc, char *argv[] )
 		LL << "Init testTimeout = " << testTimeout << "\n";
 
 	// init undefined names
-	bool queryAnswering = Kernel.getOptions()->getBool("queryAnswering");
-	Kernel.setUseUndefinedNames(queryAnswering);
+	Kernel.setUseUndefinedNames(false);
 
 	// Load the ontology
 	DLLispParser TBoxParser ( &iTBox, &Kernel );
@@ -289,13 +286,26 @@ int main ( int argc, char *argv[] )
 
 	Out << "loading time " << wTimer << " seconds\n";
 
-	bool useSem = false;
-	if ( argc > 1 && argv[1][0] == 'n' )
-		useSem = true;
-
 	if ( Kernel.getOptions()->getBool("checkAD") )	// check atomic decomposition and exit
 	{
-		CreateAD(&Kernel.getOntology(), useSem);
+		if ( argc < 2 )
+		{
+			std::cerr << "Atomic Decomposition option missed: use s,c,n for syntactic, counting or semantic locality checking\n";
+			exit(1);
+		}
+		char c = argv[1][0];
+		ModuleMethod moduleMethod;
+		switch ( c )
+		{
+		case 's' : moduleMethod = SYN_LOC_STD; break;
+		case 'c' : moduleMethod = SYN_LOC_COUNT; break;
+		case 'n' : moduleMethod = SEM_LOC; break;
+		default:
+			std::cerr << "Wrong AD option: " << c << "\n";
+			exit(1);
+		}
+
+		CreateAD(&Kernel.getOntology(), moduleMethod);
 		return 0;
 	}
 
@@ -311,12 +321,7 @@ int main ( int argc, char *argv[] )
 	if ( !Kernel.isKBConsistent() )
 		std::cerr << "WARNING: KB is inconsistent. Query is NOT processed\n";
 	else	// perform reasoning
-	{
-		if ( queryAnswering )
-			doQueryAnswering(Kernel);
-		else
 			doReasoningQuery();
-	}
 
 	pt.Stop();
 
