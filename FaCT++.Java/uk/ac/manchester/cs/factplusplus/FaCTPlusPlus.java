@@ -636,7 +636,7 @@ public class FaCTPlusPlus {
 	// Atomic Decomposition interface
 	// ------------------------------------------------------------------------
 
-	public native int getAtomicDecompositionSize(boolean useSemantic, int moduleType);
+	public native int getAtomicDecompositionSize(int moduleMethod, int moduleType);
 
 	public native AxiomPointer[] getAtomAxioms(int index);
 
@@ -650,9 +650,9 @@ public class FaCTPlusPlus {
 	// Modularity interface
 	// ------------------------------------------------------------------------
 
-	public native AxiomPointer[] getModule(boolean useSemantic, int moduleType);
+	public native AxiomPointer[] getModule(int moduleMethod, int moduleType);
 
-	public native AxiomPointer[] getNonLocal(boolean useSemantic, int moduleType);
+	public native AxiomPointer[] getNonLocal(int moduleMethod, int moduleType);
 
 	// ------------------------------------------------------------------------
 	// Save/Load interface

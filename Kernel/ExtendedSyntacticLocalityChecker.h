@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2013 by Dmitry Tsarkov
+Copyright (C) 2013-2014 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -140,9 +140,9 @@ class UpperBoundDirectEvaluator: public CardinalityEvaluatorBase
 {
 protected:	// methods
 		/// define a special value for concepts that are not in C^{<= n}
-	const int getNoneValue ( void ) const { return -1; }
+	int getNoneValue ( void ) const { return -1; }
 		/// define a special value for concepts that are in C^{<= n} for all n
-	const int getAllValue ( void ) const { return 0; }
+	int getAllValue ( void ) const { return 0; }
 
 		/// helper for entities TODO: checks only C top-locality, not R
 	virtual int getEntityValue ( const TNamedEntity* entity )
@@ -271,9 +271,9 @@ class UpperBoundComplementEvaluator: public CardinalityEvaluatorBase
 {
 protected:	// methods
 		/// define a special value for concepts that are not in C^{<= n}
-	const int getNoneValue ( void ) const { return -1; }
+	int getNoneValue ( void ) const { return -1; }
 		/// define a special value for concepts that are in C^{<= n} for all n
-	const int getAllValue ( void ) const { return 0; }
+	int getAllValue ( void ) const { return 0; }
 
 		/// helper for entities TODO: checks only C top-locality, not R
 	virtual int getEntityValue ( const TNamedEntity* entity )
@@ -398,9 +398,9 @@ class LowerBoundDirectEvaluator: public CardinalityEvaluatorBase
 {
 protected:	// methods
 		/// define a special value for concepts that are not in C^{>= n}
-	const int getNoneValue ( void ) const { return 0; }
+	int getNoneValue ( void ) const { return 0; }
 		/// define a special value for concepts that are in C^{>= n} for all n
-	const int getAllValue ( void ) const { return -1; }
+	int getAllValue ( void ) const { return -1; }
 
 		/// helper for entities TODO: checks only C top-locality, not R
 	virtual int getEntityValue ( const TNamedEntity* entity )
@@ -580,9 +580,9 @@ class LowerBoundComplementEvaluator: public CardinalityEvaluatorBase
 {
 protected:	// methods
 		/// define a special value for concepts that are not in C^{>= n}
-	const int getNoneValue ( void ) const { return 0; }
+	int getNoneValue ( void ) const { return 0; }
 		/// define a special value for concepts that are in C^{>= n} for all n
-	const int getAllValue ( void ) const { return -1; }
+	int getAllValue ( void ) const { return -1; }
 
 		/// helper for entities TODO: checks only C top-locality, not R
 	virtual int getEntityValue ( const TNamedEntity* entity )

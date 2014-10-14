@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2012-2013 by Dmitry Tsarkov
+Copyright (C) 2012-2014 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -32,10 +32,10 @@ protected:	// members
 
 public:		// interface
 		/// init c'tor
-	OntologyBasedModularizer ( const TOntology& ontology, bool useSemantic )
+	OntologyBasedModularizer ( const TOntology& ontology, ModuleMethod moduleMethod )
 		: Ontology(ontology)
 	{
-		Modularizer = new TModularizer(useSemantic);
+		Modularizer = new TModularizer(moduleMethod);
 		Modularizer->preprocessOntology(Ontology.getAxioms());
 	}
 		/// d'tor
