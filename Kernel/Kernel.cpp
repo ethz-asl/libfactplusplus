@@ -42,6 +42,7 @@ ReasoningKernel :: ReasoningKernel ( void )
 	, KE(NULL)
 	, AD(NULL)
 	, ModSyn(NULL)
+	, ModSynCount(NULL)
 	, ModSem(NULL)
 	, JNICache(NULL)
 	, pSLManager(NULL)
@@ -99,6 +100,8 @@ ReasoningKernel :: clearTBox ( void )
 	ModSem = NULL;
 	delete ModSyn;
 	ModSyn = NULL;
+	delete ModSynCount;
+	ModSynCount = NULL;
 	// during preprocessing the TBox names were cached. clear that cache now.
 	getExpressionManager()->clearNameCache();
 }
@@ -574,13 +577,13 @@ ReasoningKernel :: isRelated ( const TIndividualExpr* I, const TORoleExpr* R, co
 
 	/// create new atomic decomposition of the loaded ontology using TYPE. @return size of the AD
 unsigned int
-ReasoningKernel :: getAtomicDecompositionSize ( bool useSemantic, ModuleType moduleType )
+ReasoningKernel :: getAtomicDecompositionSize ( ModuleMethod moduleMethod, ModuleType moduleType )
 {
 	// init AD field
 	if ( unlikely(AD != NULL) )
 		delete AD;
 
-	AD = new AtomicDecomposer(getModExtractor(useSemantic)->getModularizer());
+	AD = new AtomicDecomposer(getModExtractor(moduleMethod)->getModularizer());
 	return AD->getAOS ( &Ontology, moduleType )->size();
 }
 	/// get a set of axioms that corresponds to the atom with the id INDEX
@@ -610,40 +613,33 @@ ReasoningKernel :: getLocCheckNumber ( void ) const
 }
 
 OntologyBasedModularizer*
-ReasoningKernel :: getModExtractor ( bool useSemantic )
+ReasoningKernel :: getModExtractor ( ModuleMethod moduleMethod )
 {
 	// check whether we need init
-	if ( useSemantic )
-	{
-		if ( unlikely(ModSem == NULL) )
-			ModSem = new OntologyBasedModularizer ( getOntology(), /*useSem=*/true );
-		return ModSem;
-	}
-	else
-	{
-		if ( unlikely(ModSyn == NULL) )
-			ModSyn = new OntologyBasedModularizer ( getOntology(), /*useSem=*/false);
-		return ModSyn;
-	}
+	OntologyBasedModularizer*& pMod = getModPointer(moduleMethod);
+	if ( unlikely(pMod == NULL) )
+		pMod = new OntologyBasedModularizer ( getOntology(), moduleMethod );
+	return pMod;
 }
 
 /// get a set of axioms that corresponds to the atom with the id INDEX
 const AxiomVec&
-ReasoningKernel :: getModule ( bool useSemantic, ModuleType moduleType )
+ReasoningKernel :: getModule ( ModuleMethod moduleMethod, ModuleType moduleType )
 {
 	// init signature
 	TSignature Sig;
+	// NB: we don't care about locality type here as modularizer will change it
 	Sig.setLocality(false);
 	const std::vector<const TDLExpression*> signature = getExpressionManager()->getArgList();
 	for ( std::vector<const TDLExpression*>::const_iterator q = signature.begin(), q_end = signature.end(); q != q_end; ++q )
 		if ( const TNamedEntity* entity = dynamic_cast<const TNamedEntity*>(*q) )
 			Sig.add(entity);
-	return getModExtractor(useSemantic)->getModule ( Sig, moduleType );
+	return getModExtractor(moduleMethod)->getModule ( Sig, moduleType );
 }
 
 /// get a set of axioms that corresponds to the atom with the id INDEX
 const AxiomVec&
-ReasoningKernel :: getNonLocal ( bool useSemantic, ModuleType moduleType )
+ReasoningKernel :: getNonLocal ( ModuleMethod moduleMethod, ModuleType moduleType )
 {
 	// init signature
 	TSignature Sig;
@@ -654,7 +650,7 @@ ReasoningKernel :: getNonLocal ( bool useSemantic, ModuleType moduleType )
 			Sig.add(entity);
 
 	// do check
-	LocalityChecker* LC = getModExtractor(useSemantic)->getModularizer()->getLocalityChecker();
+	LocalityChecker* LC = getModExtractor(moduleMethod)->getModularizer()->getLocalityChecker();
 	LC->setSignatureValue(Sig);
 	Result.clear();
 	for ( TOntology::iterator p = getOntology().begin(), p_end = getOntology().end(); p != p_end; ++p )

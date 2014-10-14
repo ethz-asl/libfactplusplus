@@ -47,11 +47,11 @@ ReasoningKernel :: setupSig ( const TNamedEntity* entity, const AxiomVec& Module
 
 	// calculate a module
 	sig.add(entity);
-	getModExtractor(false)->getModule(Module,sig,M_BOT);
+	getModExtractor(SYN_LOC_STD)->getModule(Module,sig,M_BOT);
 	++nModule;
 
 	// perform update
-	insert->second = new TSignature(getModExtractor(false)->getModularizer()->getSignature());
+	insert->second = new TSignature(getModExtractor(SYN_LOC_STD)->getModularizer()->getSignature());
 
 	moduleTimer.Stop();
 }
@@ -62,11 +62,11 @@ ReasoningKernel :: buildSignature ( const TNamedEntity* entity, const AxiomVec& 
 {
 	toProcess.erase(entity);
 	setupSig ( entity, Module );
-	const AxiomVec NewModule = getModExtractor(false)->getModularizer()->getModule();
+	const AxiomVec NewModule = getModExtractor(SYN_LOC_STD)->getModularizer()->getModule();
 	if ( Module.size() == NewModule.size() )	// the same module
 		return;
 	// smaller module: recurse
-	TSignature ModSig = getModExtractor(false)->getModularizer()->getSignature();
+	TSignature ModSig = getModExtractor(SYN_LOC_STD)->getModularizer()->getSignature();
 	for ( TSignature::iterator p = ModSig.begin(), p_end = ModSig.end(); p != p_end; ++p )
 		if ( toProcess.count(*p) > 0 )	// need to process
 			buildSignature ( *p, NewModule, toProcess );
@@ -154,7 +154,7 @@ ReasoningKernel :: doIncremental ( void )
 	// fill in M^+ and M^- sets
 	TsProcTimer t;
 	t.Start();
-	LocalityChecker* lc = getModExtractor(false)->getModularizer()->getLocalityChecker();
+	LocalityChecker* lc = getModExtractor(SYN_LOC_STD)->getModularizer()->getLocalityChecker();
 	TOntology::iterator p, nb = Ontology.beginUnprocessed(), ne = Ontology.end(), rb = Ontology.beginRetracted(), re = Ontology.endRetracted();
 //	TLISPOntologyPrinter pr(std::cout);
 //	for ( p = nb; p != ne; ++p )

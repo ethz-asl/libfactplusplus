@@ -1275,10 +1275,10 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
  * Method:    getAtomicDecompositionSize
- * Signature: (ZI)I
+ * Signature: (II)I
  */
 JNIEXPORT jint JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_getAtomicDecompositionSize
-  (JNIEnv *, jobject, jboolean, jint);
+  (JNIEnv *, jobject, jint, jint);
 
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
@@ -1315,18 +1315,18 @@ JNIEXPORT jint JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_getLoc
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
  * Method:    getModule
- * Signature: (ZI)[Luk/ac/manchester/cs/factplusplus/AxiomPointer;
+ * Signature: (II)[Luk/ac/manchester/cs/factplusplus/AxiomPointer;
  */
 JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_getModule
-  (JNIEnv *, jobject, jboolean, jint);
+  (JNIEnv *, jobject, jint, jint);
 
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus
  * Method:    getNonLocal
- * Signature: (ZI)[Luk/ac/manchester/cs/factplusplus/AxiomPointer;
+ * Signature: (II)[Luk/ac/manchester/cs/factplusplus/AxiomPointer;
  */
 JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_getNonLocal
-  (JNIEnv *, jobject, jboolean, jint);
+  (JNIEnv *, jobject, jint, jint);
 
 /*
  * Class:     uk_ac_manchester_cs_factplusplus_FaCTPlusPlus

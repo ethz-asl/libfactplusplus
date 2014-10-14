@@ -7,6 +7,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.xml.datatype.*;
 
+import org.semanticweb.owlapi.atomicdecomposition.ModuleMethod;
 import org.semanticweb.owlapi.model.*;
 import org.semanticweb.owlapi.reasoner.*;
 import org.semanticweb.owlapi.reasoner.impl.*;
@@ -14,6 +15,7 @@ import org.semanticweb.owlapi.util.Version;
 import org.semanticweb.owlapi.vocab.*;
 
 import uk.ac.manchester.cs.factplusplus.*;
+import uk.ac.manchester.cs.owlapi.modularity.ModuleType;
 
 /*
  * Copyright (C) 2009-2010, University of Manchester
@@ -1811,6 +1813,40 @@ public class FaCTPlusPlusReasoner implements OWLReasoner, OWLOntologyChangeListe
 	}
 
 	/**
+	 * Translate OWLAPI enum for the type of module into the interface-friendly
+	 * int
+	 */
+	private int getIndexByModuleType(ModuleType moduleType) {
+		switch (moduleType) {
+		case BOT:
+			return 0;
+		case TOP:
+			return 1;
+		case STAR:
+			return 2;
+		default:
+			throw new ReasonerInternalException("Unsupported module type");
+		}
+	}
+
+	/**
+	 * Translate OWLAPI enum for the method of modularisation into the
+	 * interface-friendly int
+	 */
+	private int getIndexByModuleMethod(ModuleMethod moduleMethod) {
+		switch (moduleMethod) {
+		case SYNTACTIC_STANDARD:
+			return 0;
+		case SYNTACTIC_COUNTING:
+			return 1;
+		case SEMANTIC:
+			return 2;
+		default:
+			throw new ReasonerInternalException("Unsupported module method");
+		}
+	}
+
+	/**
 	 * Build an atomic decomposition using syntactic/semantic locality checking
 	 * 
 	 * @param useSemantic
@@ -1821,8 +1857,10 @@ public class FaCTPlusPlusReasoner implements OWLReasoner, OWLOntologyChangeListe
 	 *            modules
 	 * @return the size of the constructed atomic decomposition
 	 */
-	public int getAtomicDecompositionSize(boolean useSemantic, int moduleType) {
-		return kernel.getAtomicDecompositionSize(useSemantic, moduleType);
+	public int getAtomicDecompositionSize(ModuleMethod moduleMethod, ModuleType moduleType) {
+		final int iModuleMethod = getIndexByModuleMethod(moduleMethod);
+		final int iModuleType = getIndexByModuleType(moduleType);
+		return kernel.getAtomicDecompositionSize(iModuleMethod, iModuleType);
 	}
 
 	public Set<OWLAxiom> getAtomAxioms(int index) {
@@ -1892,21 +1930,25 @@ public class FaCTPlusPlusReasoner implements OWLReasoner, OWLOntologyChangeListe
 	 *            modules
 	 * @return
 	 */
-	public Set<OWLAxiom> getModule(Set<OWLEntity> signature, boolean useSemantic, int moduleType) {
+	public Set<OWLAxiom> getModule(Set<OWLEntity> signature, ModuleMethod moduleMethod, ModuleType moduleType) {
 		kernel.initArgList();
 		for (OWLEntity entity : signature)
 			if (entity instanceof OWLLogicalEntity)
 				kernel.addArg(entity.accept(entityTranslator));
-		AxiomPointer[] axioms = kernel.getModule(useSemantic, moduleType);
+		final int iModuleMethod = getIndexByModuleMethod(moduleMethod);
+		final int iModuleType = getIndexByModuleType(moduleType);
+		AxiomPointer[] axioms = kernel.getModule(iModuleMethod, iModuleType);
 		return axiomsToSet(axioms);
 	}
 
-	public Set<OWLAxiom> getNonLocal(Set<OWLEntity> signature, boolean useSemantic, int moduleType) {
+	public Set<OWLAxiom> getNonLocal(Set<OWLEntity> signature, ModuleMethod moduleMethod, ModuleType moduleType) {
 		kernel.initArgList();
 		for (OWLEntity entity : signature)
 			if (entity instanceof OWLLogicalEntity)
 				kernel.addArg(entity.accept(entityTranslator));
-		AxiomPointer[] axioms = kernel.getNonLocal(useSemantic, moduleType);
+		final int iModuleMethod = getIndexByModuleMethod(moduleMethod);
+		final int iModuleType = getIndexByModuleType(moduleType);
+		AxiomPointer[] axioms = kernel.getNonLocal(iModuleMethod, iModuleType);
 		return axiomsToSet(axioms);
 	}
 
