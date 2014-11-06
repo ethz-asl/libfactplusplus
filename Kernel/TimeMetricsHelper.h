@@ -1,3 +1,21 @@
+/* This file is part of the FaCT++ DL reasoner
+Copyright (C) 2014 by Dmitry Tsarkov
+
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+*/
+
 #ifndef TIMEMETRICSHELPER_H
 #define TIMEMETRICSHELPER_H
 
@@ -23,6 +41,11 @@ protected:	// members
 		/// experiment id as passed
 	std::string experimentId;
 
+		/// out the stages
+//	std::ostream oStage;
+		/// out the subsumptions
+//	std::ostream oSub;
+
 		/// time for stages
 	timeval stageTime[4];
 
@@ -36,6 +59,9 @@ protected:	// methods
 
 		/// move pCur to the next available slot
 	void progressCur ( void );
+
+		/// print the subsumption test results
+	void printST ( std::ostream& o, const SubTest& st ) const;
 
 public:		// interface
 		/// init c'tor: read setup, create dirs, open files
