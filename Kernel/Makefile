@@ -54,5 +54,8 @@ SOURCES = \
           Incremental.cpp\
           ExtendedDataRange.cpp\
           SaveLoadManager.cpp\
+          TimeMetricsHelper.cpp\
+          dir_util.cpp\
+
 
 include ../Makefile.include

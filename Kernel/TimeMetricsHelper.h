@@ -20,6 +20,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #define TIMEMETRICSHELPER_H
 
 #include <sys/time.h>
+#include <iosfwd>
 
 /// class for gather and dump different timings
 class TimeMetricsHelper
@@ -36,15 +37,15 @@ protected:	// classes
 	};
 
 protected:	// members
+		/// output dir as passed
+	std::string dir;
 		/// reasoner id as passed
 	std::string reasonerId;
 		/// experiment id as passed
 	std::string experimentId;
 
-		/// out the stages
-//	std::ostream oStage;
 		/// out the subsumptions
-//	std::ostream oSub;
+	std::ofstream o;
 
 		/// time for stages
 	timeval stageTime[4];

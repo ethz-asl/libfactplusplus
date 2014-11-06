@@ -17,20 +17,36 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include <iomanip>
+#include <fstream>
 
 #include "tConcept.h"
 #include "TimeMetricsHelper.h"
+#include "dir_util.h"
+
 
 /// init c'tor: read setup, create dirs, open files
 TimeMetricsHelper :: TimeMetricsHelper ( void )
 {
+	// init input values
 
-}
+	// FORNOW: by constants
+	dir = "my_dir";
+	reasonerId = "FaCT++";
+	experimentId = "1029384756";
 
-/// d'tor: flush streams, close files
-TimeMetricsHelper :: ~TimeMetricsHelper ( void )
-{
+	// create requested directory if necessary
+	dirCreate(dir.c_str());
 
+	// create $dir/tmp
+	std::string tmp_dir(dir+"/tmp");
+	dirCreate(tmp_dir.c_str());
+
+	// create file for sub test stats
+	std::string file_sub(dir+"/"+experimentId+"subtestfile.txt");
+	o.open(file_sub.c_str());
+
+	static SubTest st;
+	pCur = &st;
 }
 
 // output
@@ -70,6 +86,22 @@ void
 TimeMetricsHelper :: progressCur ( void )
 {
 
+}
+
+/// d'tor: flush streams, close files
+TimeMetricsHelper :: ~TimeMetricsHelper ( void )
+{
+	// create time output file if necessary
+	std::string file_stage(dir+"/classificationmetadata_fact.csv");
+	std::ofstream ofs ( file_stage.c_str(), std::ofstream::out | std::ofstream::app );
+	// reasoner_id, experiment_id
+	ofs << reasonerId.c_str() << "," << experimentId.c_str()
+	// consistency_start, consistency_finish
+		<< *getStageTimeVal(true,true) << *getStageTimeVal(true,false)
+	// classification_start, classification_finish
+		<< *getStageTimeVal(false,true) << *getStageTimeVal(false,false)
+	// end of csv line
+		<< "\n";
 }
 
 
