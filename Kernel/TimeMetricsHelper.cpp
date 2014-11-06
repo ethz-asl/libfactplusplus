@@ -48,6 +48,9 @@ TimeMetricsHelper :: TimeMetricsHelper ( void )
 	// setup cache and pointers
 	pCur = subTests;
 	pEnd = subTests+cacheSize;
+
+	// clear the output timer
+	timerclear(&outTime);
 }
 
 // output
@@ -110,6 +113,8 @@ TimeMetricsHelper :: ~TimeMetricsHelper ( void )
 		<< *getStageTimeVal(true,true) << *getStageTimeVal(true,false)
 	// classification_start, classification_finish
 		<< *getStageTimeVal(false,true) << *getStageTimeVal(false,false)
+	// time spent for output statistics
+		<< outTime
 	// end of csv line
 		<< "\n";
 }

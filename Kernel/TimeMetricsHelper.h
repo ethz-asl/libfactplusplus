@@ -53,6 +53,8 @@ protected:	// members
 
 		/// time for stages
 	timeval stageTime[4];
+		/// time spend in output
+	timeval outTime;
 
 		/// pointer to the end of subsumption tests
 	SubTest* pEnd;
@@ -72,8 +74,16 @@ protected:	// methods
 		/// print all the test results up to a given pointer
 	void printAll ( const SubTest* last )
 	{
+		timeval beg, end;
+		// record start time
+		gettimeofday ( &beg, NULL );
 		for ( const SubTest* p = subTests; p != last; ++p )
 			printST ( o, *p );
+		// record finish time
+		gettimeofday ( &end, NULL );
+		// calculate delta
+		timeradd ( &outTime, &end, &outTime );
+		timersub ( &outTime, &beg, &outTime );
 	}
 
 public:		// interface
