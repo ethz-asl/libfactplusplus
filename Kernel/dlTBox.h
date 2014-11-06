@@ -37,7 +37,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "tAxiomSet.h"
 #include "DataTypeCenter.h"
 #include "tProgressMonitor.h"
-#include "TimeMetricsHelper.h"
 #include "tKBFlags.h"
 
 class DlSatTester;
@@ -45,6 +44,7 @@ class Taxonomy;
 class DLConceptTaxonomy;
 class dumpInterface;
 class TSignature;
+class TimeMetricsHelper;
 class SaveLoadManager;
 
 /// enumeration for the reasoner status

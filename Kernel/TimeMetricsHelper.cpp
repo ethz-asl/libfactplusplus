@@ -16,15 +16,6 @@ TimeMetricsHelper :: ~TimeMetricsHelper ( void )
 
 // interface calls
 
-/// mark the stage of the reasoning process
-/// consistency check or traversal, wrt CONSISTENCY
-/// start or finish of the stage, wrt START
-void
-TimeMetricsHelper :: markStage ( bool consistency, bool start )
-{
-
-}
-
 /// mark the beginning of the subsumption check
 void
 TimeMetricsHelper :: subsumptionStart ( const TConcept* p, const TConcept* q )

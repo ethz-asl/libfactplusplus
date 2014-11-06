@@ -28,6 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "procTimer.h"
 #include "dumpLisp.h"
 #include "logging.h"
+#include "TimeMetricsHelper.h"
 
 // uncomment the following line to print currently checking subsumption
 //#define FPP_DEBUG_PRINT_CURRENT_SUBSUMPTION
