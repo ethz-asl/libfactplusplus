@@ -16,16 +16,9 @@ TimeMetricsHelper :: ~TimeMetricsHelper ( void )
 
 // interface calls
 
-/// mark the beginning of the subsumption check
+/// move pCur to the next available slot
 void
-TimeMetricsHelper :: subsumptionStart ( const TConcept* p, const TConcept* q )
-{
-
-}
-
-/// mark the finish of the subsumption check
-void
-TimeMetricsHelper :: subsumptionFinish ( bool result )
+TimeMetricsHelper :: progressCur ( void )
 {
 
 }
