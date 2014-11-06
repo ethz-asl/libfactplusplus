@@ -29,10 +29,10 @@ TimeMetricsHelper :: TimeMetricsHelper ( void )
 {
 	// init input values
 
-	// FORNOW: by constants
-	dir = "my_dir";
-	reasonerId = "FaCT++";
-	experimentId = "1029384756";
+	std::ifstream i("fpp_args.txt");
+	// that is fine since none of the strings have ws
+	i >> dir >> reasonerId >> experimentId;
+	i.close();
 
 	// create requested directory if necessary
 	dirCreate(dir.c_str());
