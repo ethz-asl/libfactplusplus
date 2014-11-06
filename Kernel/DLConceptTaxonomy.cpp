@@ -518,6 +518,8 @@ void TBox :: createTaxonomy ( bool needIndividual )
 		pTaxCreator->setProgressIndicator(pMonitor);
 	}
 
+	// mark the start of classification
+	tmHelper->markStage ( /*consistency=*/false, /*start=*/true );
 	duringClassification = true;
 
 //	sort ( arrayCD.begin(), arrayCD.end(), TSDepthCompare() );
@@ -527,6 +529,8 @@ void TBox :: createTaxonomy ( bool needIndividual )
 //	sort ( arrayNP.begin(), arrayNP.end(), TSDepthCompare() );
 	classifyConcepts ( arrayNP, false, "non-primitive" );
 
+	// mark the end of of classification
+	tmHelper->markStage ( /*consistency=*/false, /*start=*/false );
 	duringClassification = false;
 
 	if ( pMonitor )
@@ -545,6 +549,10 @@ void TBox :: createTaxonomy ( bool needIndividual )
 		Status = kbClassified;
 	if ( needIndividual )
 		Status = kbRealised;
+
+	// Time Metrics are not necessary, so delete them
+	delete tmHelper;
+	tmHelper = NULL;
 
 	if ( verboseOutput/* && needIndividual*/ )
 	{

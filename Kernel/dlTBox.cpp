@@ -50,6 +50,7 @@ TBox :: TBox ( const ifOptionSet* Options, const std::string& TopORoleName, cons
 	, DRM ( /*data=*/true, TopDRoleName, BotDRoleName )
 	, Axioms(*this)
 	, T_G(bpTOP)	// initialise GCA's concept with Top
+	, tmHelper(new TimeMetricsHelper)
 	, nC(0)
 	, nR(0)
 	, auxConceptID(0)
@@ -246,6 +247,9 @@ TBox :: performConsistencyCheck ( void )
 	TsProcTimer pt;
 	pt.Start();
 
+	// mark the start of a consistency check
+	tmHelper->markStage ( /*consistency=*/true, /*start=*/true );
+
 	buildSimpleCache();
 
 	TConcept* test = ( NCFeatures.hasSingletons() ? *i_begin() : NULL );
@@ -263,6 +267,9 @@ TBox :: performConsistencyCheck ( void )
 	}
 	else
 		ret = isSatisfiable(pTop);
+
+	// mark the end of a consistency check
+	tmHelper->markStage ( /*consistency=*/true, /*start=*/false );
 
 	// setup cache for GCI
 	if ( GCIs.isGCI() )
@@ -337,8 +344,10 @@ TBox :: isSubHolds ( const TConcept* pConcept, const TConcept* qConcept )
 		LL << "\n";
 
 	// perform reasoning with a proper logical features
+	tmHelper->subsumptionStart ( pConcept, qConcept );
 	prepareFeatures ( pConcept, qConcept );
 	bool result = !getReasoner()->runSat ( pConcept->resolveId(), inverse(qConcept->resolveId()) );
+	tmHelper->subsumptionFinish(result);
 	clearFeatures();
 
 #ifdef FPP_DEBUG_PRINT_CURRENT_SUBSUMPTION

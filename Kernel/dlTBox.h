@@ -37,6 +37,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "tAxiomSet.h"
 #include "DataTypeCenter.h"
 #include "tProgressMonitor.h"
+#include "TimeMetricsHelper.h"
 #include "tKBFlags.h"
 
 class DlSatTester;
@@ -233,6 +234,9 @@ protected:	// members
 
 		/// maps from concept index to concept itself
 	ConceptVector ConceptMap;
+
+		/// time metrics
+	TimeMetricsHelper* tmHelper;
 
 		/// number of concepts and individuals; used to set index for modelCache
 	unsigned int nC;
