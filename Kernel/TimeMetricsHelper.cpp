@@ -45,8 +45,9 @@ TimeMetricsHelper :: TimeMetricsHelper ( void )
 	std::string file_sub(dir+"/"+experimentId+"subtestfile.txt");
 	o.open(file_sub.c_str());
 
-	static SubTest st;
-	pCur = &st;
+	// setup cache and pointers
+	pCur = subTests;
+	pEnd = subTests+cacheSize;
 }
 
 // output
@@ -55,7 +56,7 @@ TimeMetricsHelper :: TimeMetricsHelper ( void )
 inline std::ostream&
 operator << ( std::ostream& o, const timeval& tv )
 {
-	o << "," << tv.tv_sec << std::setw(6) << tv.tv_usec << "000";
+	o << "," << tv.tv_sec << std::setfill('0') << std::setw(6) << tv.tv_usec << "000";
 	return o;
 }
 	/// print the concept name
@@ -85,12 +86,21 @@ TimeMetricsHelper :: printST ( std::ostream& o, const SubTest& st ) const
 void
 TimeMetricsHelper :: progressCur ( void )
 {
-
+	// move pointer in the cache and watch for overflow
+	if ( ++pCur != pEnd )
+		return;
+	// cache overflow: dump all elements
+	printAll(pEnd);
+	// reset cache
+	pCur = subTests;
 }
 
 /// d'tor: flush streams, close files
 TimeMetricsHelper :: ~TimeMetricsHelper ( void )
 {
+	// output the last bit of tests
+	printAll(pCur);
+
 	// create time output file if necessary
 	std::string file_stage(dir+"/classificationmetadata_fact.csv");
 	std::ofstream ofs ( file_stage.c_str(), std::ofstream::out | std::ofstream::app );

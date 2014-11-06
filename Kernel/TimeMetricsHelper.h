@@ -37,6 +37,10 @@ protected:	// classes
 	};
 
 protected:	// members
+		/// size of a test info cache
+	static const unsigned int cacheSize = 10000;
+		/// a cache for subsumption tests
+	SubTest subTests[cacheSize];
 		/// output dir as passed
 	std::string dir;
 		/// reasoner id as passed
@@ -50,6 +54,8 @@ protected:	// members
 		/// time for stages
 	timeval stageTime[4];
 
+		/// pointer to the end of subsumption tests
+	SubTest* pEnd;
 		/// pointer to the current subsumption test
 	SubTest* pCur;
 
@@ -63,6 +69,12 @@ protected:	// methods
 
 		/// print the subsumption test results
 	void printST ( std::ostream& o, const SubTest& st ) const;
+		/// print all the test results up to a given pointer
+	void printAll ( const SubTest* last )
+	{
+		for ( const SubTest* p = subTests; p != last; ++p )
+			printST ( o, *p );
+	}
 
 public:		// interface
 		/// init c'tor: read setup, create dirs, open files
