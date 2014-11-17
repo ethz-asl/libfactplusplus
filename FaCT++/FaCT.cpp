@@ -274,6 +274,8 @@ int main ( int argc, char *argv[] )
 	// Load the ontology
 	DLLispParser TBoxParser ( &iTBox, &Kernel );
 	Kernel.setVerboseOutput(true);
+//	Kernel.clearSaveLoadContext("fpp.state");
+//	Kernel.setSaveLoadContext("fpp.state");
 	TProgressMonitor* pMon = new ConsoleProgressMonitor;
 	Kernel.setProgressMonitor(pMon);
 
