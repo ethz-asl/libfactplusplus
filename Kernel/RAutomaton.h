@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2006-2012 by Dmitry Tsarkov
+Copyright (C) 2006-2014 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -292,7 +292,7 @@ public:		// interface
 		/// create new state
 	RAState newState ( void )
 	{
-		RAState ret = Base.size();
+		RAState ret = (RAState) Base.size();
 		ensureState(ret);
 		return ret;
 	}
@@ -323,7 +323,7 @@ public:		// interface
 		/// add an Automaton to the chain that would start from the iRA; OSAFE shows the safety of a previous automaton in a chain
 	bool addToChain ( const RoleAutomaton& RA, bool oSafe, RAState fRA );
 		/// add an Automaton to the chain with a default final state
-	bool addToChain ( const RoleAutomaton& RA, bool oSafe ) { return addToChain ( RA, oSafe, size()+1 ); }
+	bool addToChain ( const RoleAutomaton& RA, bool oSafe ) { return addToChain ( RA, oSafe, (RAState) size()+1 ); }
 
 	// i/o safety
 
@@ -342,7 +342,7 @@ public:		// interface
 	// get some stats
 
 		/// return number of distinct states
-	unsigned int size ( void ) const { return Base.size(); }
+	size_t size ( void ) const { return Base.size(); }
 		/// @return true iff the automaton is simple
 	bool isSimple ( void ) const
 	{

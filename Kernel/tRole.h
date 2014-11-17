@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2013 by Dmitry Tsarkov
+Copyright (C) 2003-2014 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -208,7 +208,9 @@ public:		// interface
 	unsigned int getIndex ( void ) const
 	{
 		int i = 2*getId();
-		return i > 0 ? i : 1-i;
+		return i > 0
+			? (unsigned int)i
+			: (unsigned int)(1-i);
 	}
 
 	// synonym operations

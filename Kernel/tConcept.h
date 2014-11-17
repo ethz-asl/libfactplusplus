@@ -74,7 +74,7 @@ private:	// members
 
 protected:	// types
 		/// set of extra rules
-	typedef std::vector<unsigned int> ERSet;
+	typedef std::vector<size_t> ERSet;
 		/// set of roles
 	typedef std::set<const TRole*> RoleSSet;
 
@@ -169,9 +169,10 @@ public:		// methods
 	// simple rules support
 
 		/// add index of a simple rule in TBox to the ER set
-	void addExtraRule ( unsigned int p )
+	void addExtraRule ( size_t index )
 	{
-		erSet.push_back(p);
+		erSet.push_back(index);
+		// FIXME!! double check this!
 		setCompletelyDefined(false);
 	}
 		/// check if a concept is in a disjoint relation with anything

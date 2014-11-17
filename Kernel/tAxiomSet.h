@@ -49,8 +49,6 @@ protected:	// members
 	AxiomCollection Accum;
 		/// set of absorption action, in order
 	AbsActVector ActionVector;
-		/// the index of the currently processing axiom in Accum
-	unsigned int curAxiom;
 
 protected:	// methods
 
@@ -141,9 +139,9 @@ public:		// interface
 	}
 
 		/// absorb set of axioms; @return size of not absorbed set
-	unsigned int absorb ( void );
+	size_t absorb ( void );
 		/// get number of (not absorbed) GCIs
-	unsigned int size ( void ) const { return Accum.size(); }
+	size_t size ( void ) const { return Accum.size(); }
 		/// @return true if non-concept aborption were executed
 	bool wasRoleAbsorptionApplied ( void ) const { return Stat::SAbsRApply::objects_created > 0; }
 		/// get GCI of all non-absorbed axioms

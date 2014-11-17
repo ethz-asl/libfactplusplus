@@ -505,8 +505,8 @@ SaveDagCache ( const DLDag& dag, SaveLoadManager& m )
 	for ( unsigned int i = 2; i < dag.size(); ++i )
 	{
 		const DLVertex& v = dag[i];
-		SaveSingleCache ( m, i, v.getCache(true) );
-		SaveSingleCache ( m, -i, v.getCache(false) );
+		SaveSingleCache ( m, createBiPointer(i,true), v.getCache(true) );
+		SaveSingleCache ( m, createBiPointer(i,false), v.getCache(false) );
 	}
 	m.saveUInt(0);
 }

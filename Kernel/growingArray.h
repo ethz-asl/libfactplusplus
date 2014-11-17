@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2013 by Dmitry Tsarkov
+Copyright (C) 2003-2014 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -73,7 +73,7 @@ public:		// interface
 		Body[last++] = entry;
 	}
 		/// random access (non-const version)
-	C& operator [] ( unsigned int i )
+	C& operator [] ( size_t i )
 	{
 #	ifdef ENABLE_CHECKING
 		fpp_assert ( i < last );
@@ -83,7 +83,7 @@ public:		// interface
 	}
 
 		/// random access (const version)
-	const C& operator [] ( unsigned int i ) const
+	const C& operator [] ( size_t i ) const
 	{
 #	ifdef ENABLE_CHECKING
 		fpp_assert ( i < last );
@@ -95,8 +95,8 @@ public:		// interface
 	// iterators
 	iterator begin ( void ) { return Body.begin(); }
 	const_iterator begin ( void ) const { return Body.begin(); }
-	iterator end ( void ) { return begin()+last; }
-	const_iterator end ( void ) const { return begin()+last; }
+	iterator end ( void ) { return begin()+(long)last; }
+	const_iterator end ( void ) const { return begin()+(long)last; }
 }; // growingArray
 
 #endif

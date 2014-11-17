@@ -66,13 +66,13 @@ TAxiomSet :: split ( const TAxiom* p )
 	return true;
 }
 
-unsigned int TAxiomSet :: absorb ( void )
+size_t TAxiomSet :: absorb ( void )
 {
 	// absorbed- and unabsorbable GCIs
 	AxiomCollection Absorbed, GCIs;
 
 	// we will change Accum (via split rule), so indexing and compare with size
-	for ( curAxiom = 0; curAxiom < Accum.size(); ++curAxiom )
+	for ( size_t curAxiom = 0; curAxiom < Accum.size(); ++curAxiom )
 	{
 #	ifdef RKG_DEBUG_ABSORPTION
 		std::cout << "\nProcessing (" << curAxiom << "):";
