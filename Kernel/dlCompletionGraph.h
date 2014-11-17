@@ -52,11 +52,11 @@ protected:	// types
 	{
 	public:		// members
 			/// number of valid nodes
-		unsigned int nNodes;
+		size_t nNodes;
 			/// end pointer of saved nodes
-		unsigned int sNodes;
+		size_t sNodes;
 			/// number of used edges
-		unsigned int nEdges;
+		size_t nEdges;
 
 	public:		// interface
 			/// empty c'tor
@@ -83,7 +83,7 @@ protected:	// members
 		/// remember the last generated ID for the node
 	unsigned int nodeId;
 		/// index of the next unallocated entry
-	unsigned int endUsed;
+	size_t endUsed;
 		/// current branching level (synchronised with resoner's one)
 	unsigned int branchingLevel;
 		/// current IR level (should be valid BP)
@@ -107,7 +107,7 @@ protected:	// members
 		/// number of node' saves
 	unsigned int nNodeRestores;
 		/// maximal size of the graph
-	unsigned int maxGraphSize;
+	size_t maxGraphSize;
 
 	// flags
 
@@ -333,11 +333,11 @@ public:		// interface
 		/// begin (RO) of USED nodes
 	const_iterator begin ( void ) const { return NodeBase.begin(); }
 		/// end (RO) of USED nodes
-	const_iterator end ( void ) const { return NodeBase.begin()+endUsed; }
+	const_iterator end ( void ) const { return NodeBase.begin()+(long)endUsed; }
 		/// begin (RW) of USED nodes
 	iterator begin ( void ) { return NodeBase.begin(); }
 		/// end (RW) of USED nodes
-	iterator end ( void ) { return NodeBase.begin()+endUsed; }
+	iterator end ( void ) { return NodeBase.begin()+(long)endUsed; }
 
 	// blocking
 

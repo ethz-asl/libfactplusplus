@@ -204,7 +204,7 @@ SaveTNECollection ( const TNECollection<T>& collection, SaveLoadManager& m, cons
 {
 	typename TNECollection<T>::const_iterator p, p_beg = collection.begin(), p_end = collection.end();
 	// get the max length of the identifier in the collection
-	unsigned int maxLength = 0, curLength, size = 0;
+	size_t maxLength = 0, curLength, size = 0;
 
 	for ( p = p_beg; p < p_end; ++p )
 	{
@@ -270,7 +270,7 @@ SaveRoleMaster ( const RoleMaster& RM, SaveLoadManager& m )
 {
 	RoleMaster::const_iterator p, p_beg = RM.begin(), p_end = RM.end();
 	// get the max length of the identifier in the collection
-	unsigned int maxLength = 0, curLength, size = 0;
+	size_t maxLength = 0, curLength, size = 0;
 
 	for ( p = p_beg; p != p_end; p += 2, size++ )
 		if ( maxLength < (curLength = strlen((*p)->getName())) )
@@ -504,7 +504,7 @@ SaveDagCache ( const DLDag& dag, SaveLoadManager& m )
 	m.o() << "\nDC";	// dag cache
 	for ( unsigned int i = 2; i < dag.size(); ++i )
 	{
-		const DLVertex& v = dag[i];
+		const DLVertex& v = dag[(int)i];
 		SaveSingleCache ( m, createBiPointer(i,true), v.getCache(true) );
 		SaveSingleCache ( m, createBiPointer(i,false), v.getCache(false) );
 	}

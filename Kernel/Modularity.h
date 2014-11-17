@@ -148,8 +148,9 @@ protected:	// methods
 		/// extract module wrt presence of a sig index
 	void extractModule ( const_iterator begin, const_iterator end )
 	{
+		size_t size = (size_t)(end-begin);
 		Module.clear();
-		Module.reserve(end-begin);
+		Module.reserve(size);
 		// clear the module flag in the input
 		const_iterator p;
 		for ( p = begin; p != end; ++p )

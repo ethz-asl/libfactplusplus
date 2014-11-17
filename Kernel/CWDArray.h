@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2012 by Dmitry Tsarkov
+Copyright (C) 2003-2014 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -52,7 +52,7 @@ public:		// type interface
 
 	public:		// interface
 			/// empty c'tor
-		SaveState ( void ) {}
+		SaveState ( void ) : ep(0) {}
 			/// copy c'tor
 		SaveState ( const SaveState& node ) : ep(node.ep) {}
 			/// empty d'tor
@@ -68,7 +68,7 @@ protected:	// members
 
 public:		// interface
 		/// init/clear label with given size
-	void init ( unsigned int size )
+	void init ( size_t size )
 	{
 		Base.reserve(size);
 		Base.clear();
@@ -106,7 +106,7 @@ public:		// interface
 		/// check whether label contains BP (ignoring dep-set)
 	bool contains ( BipolarPointer bp ) const { return std::find ( begin(), end(), bp ) != end(); }
 		/// get the concept by given index in the node's label
-	const ConceptWDep& getConcept ( int n ) const { return Base[n]; }
+	const ConceptWDep& getConcept ( size_t n ) const { return Base[n]; }
 
 	//----------------------------------------------
 	// Blocking support

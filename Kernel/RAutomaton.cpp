@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2006-2012 by Dmitry Tsarkov
+Copyright (C) 2006-2014 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -28,7 +28,7 @@ RATransition :: isTop ( void ) const
 
 /// set up state transitions: no more additions to the structure
 void
-RAStateTransitions :: setup ( RAState state, unsigned int nRoles, bool data )
+RAStateTransitions :: setup ( RAState state, size_t nRoles, bool data )
 {
 	from = state;
 	DataRole = data;
@@ -102,11 +102,11 @@ RoleAutomaton :: addCopy ( const RoleAutomaton& RA )
 
 /// init internal map according to RA size, with new initial state from chainState and final (FRA) states
 void
-RoleAutomaton :: initMap ( unsigned int RASize, RAState fRA )
+RoleAutomaton :: initMap ( size_t RASize, RAState fRA )
 {
 	map.resize(RASize);
 	// new state in the automaton
-	RAState newState = size()-1;
+	RAState newState = (RAState) size()-1;
 
 	// fill initial state; it is always known in the automata
 	map[0] = iRA;
@@ -114,7 +114,7 @@ RoleAutomaton :: initMap ( unsigned int RASize, RAState fRA )
 	// fills the final state; if it is not known -- adjust newState
 	if ( fRA >= size() )
 	{
-		fRA = size();	// make sure we don't create an extra unused state
+		fRA = (RAState) size();	// make sure we don't create an extra unused state
 		++newState;
 	}
 	map[1] = fRA;
@@ -143,7 +143,7 @@ RoleAutomaton :: addToChain ( const RoleAutomaton& RA, bool oSafe, RAState fRA )
 	if ( !oSafe && !RA.isISafe() )
 		nextChainTransition(newState());
 	// check whether we need an output transition
-	initMap ( RA.size(), needFinalTrans ? size() : fRA );
+	initMap ( RA.size(), needFinalTrans ? (RAState) size() : fRA );
 	addCopy(RA);
 	if ( needFinalTrans )
 		nextChainTransition(fRA);

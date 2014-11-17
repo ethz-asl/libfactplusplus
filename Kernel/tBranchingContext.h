@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2012 by Dmitry Tsarkov
+Copyright (C) 2003-2014 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -64,14 +64,14 @@ public:		// types
 	typedef OrIndex::const_iterator or_iterator;
 
 public:		// members
-		/// current branching index
-	unsigned int branchIndex;
 		/// relevant disjuncts (ready to add)
 	OrIndex applicableOrEntries;
+		/// current branching index
+	int branchIndex;
 
 public:		// interface
 		/// empty c'tor
-	BCOr ( void ) : BranchingContext() {}
+	BCOr ( void ) : BranchingContext(), branchIndex(0) {}
 		/// empty d'tor
 	virtual ~BCOr ( void ) {}
 		/// init branch index
@@ -127,20 +127,23 @@ template<class T>
 class BCLE: public BranchingContext
 {
 public:		// types
+		/// Cardinality Restriction index type
+		// TODO: make it 8-bit or so
+	typedef unsigned short int CRIndex;
 		/// vector of edges
 	typedef std::vector<T*> EdgeVector;
 
 public:		// members
-		/// index of a edge into which the merge is performing
-	unsigned int toIndex;
-		/// index of a merge candidate
-	unsigned int fromIndex;
 		/// vector of edges to be merged
 	EdgeVector ItemsToMerge;
+		/// index of a edge into which the merge is performing
+	CRIndex toIndex;
+		/// index of a merge candidate
+	CRIndex fromIndex;
 
 public:		// interface
 		/// empty c'tor
-	BCLE ( void ) : BranchingContext() {}
+	BCLE ( void ) : BranchingContext(), toIndex(0), fromIndex(0) {}
 		/// empty d'tor
 	virtual ~BCLE ( void ) {}
 		/// init indices
@@ -150,7 +153,7 @@ public:		// interface
 		fromIndex = 0;
 	}
 		/// correct fromIndex after changing
-	void resetMCI ( void ) { fromIndex = ItemsToMerge.size()-1; }
+	void resetMCI ( void ) { fromIndex = (CRIndex)ItemsToMerge.size()-1; }
 		/// give the next branching alternative
 	virtual void nextOption ( void )
 	{

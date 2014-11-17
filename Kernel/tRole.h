@@ -464,13 +464,13 @@ public:		// interface
 		return eliminateToldCycles ( RInProcess, ToldSynonyms );
 	}
 		/// init ancestors and descendants using Taxonomy
-	void initADbyTaxonomy ( Taxonomy* pTax, unsigned int ADMapSize );
+	void initADbyTaxonomy ( Taxonomy* pTax, size_t ADMapSize );
 		/// init other fields that requires Anc/Desc for all roles
 	void postProcess ( void );
 		/// fills role composition by given TREE
 	void fillsComposition ( TRoleVec& Composition, const DLTree* tree ) const;
 		/// complete role automaton
-	void completeAutomaton ( unsigned int nRoles )
+	void completeAutomaton ( size_t nRoles )
 	{
 		TRoleSet RInProcess;
 		completeAutomaton(RInProcess);

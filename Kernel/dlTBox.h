@@ -1117,7 +1117,7 @@ public:
 		/// GCI Axioms access
 	BipolarPointer getTG ( void ) const { return T_G; }
 		/// get simple rule by its INDEX
-	const TSimpleRule* getSimpleRule ( unsigned int index ) const { return SimpleRules[index]; }
+	const TSimpleRule* getSimpleRule ( size_t index ) const { return SimpleRules[index]; }
 
 		/// check if the relevant part of KB contains inverse roles.
 	bool isIRinQuery ( void ) const

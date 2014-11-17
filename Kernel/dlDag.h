@@ -58,7 +58,7 @@ protected:	// members
 
 #ifdef RKG_USE_SORTED_REASONING
 		/// size of sort array
-	unsigned int sortArraySize;
+	size_t sortArraySize;
 #endif
 
 	// tunable flags (set by readConfig)
