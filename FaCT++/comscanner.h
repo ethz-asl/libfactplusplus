@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2011 by Dmitry Tsarkov
+Copyright (C) 2003-2014 by Dmitry Tsarkov
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -44,7 +44,7 @@ protected:	// members
 
 protected:	// methods
 		/// get next symbol from the stream
-	char NextChar ( void ) const { return InFile->get(); }
+	char NextChar ( void ) const { return (char)InFile->get(); }
 		/// return given symbol back to stream
 	void PutBack ( char c ) const { InFile->putback(c); }
 		/// check whether C is a EOF char
@@ -62,7 +62,7 @@ public:		// interface
 		/// get string collected in buffer
 	const char* GetName ( void ) const { return LexBuff; }
 		/// get number by string from buffer
-	unsigned long GetNumber ( void ) const { return atol ( LexBuff ); }
+	unsigned long GetNumber ( void ) const { return (unsigned long) atol(LexBuff); }
 		/// get current input line
 	unsigned int Line ( void ) const { return CurLine; }
 		/// check if Buffer contains given Word (in any register)

@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2011 by Dmitry Tsarkov
+Copyright (C) 2003-2014 by Dmitry Tsarkov
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -422,8 +422,7 @@ DLLispParser :: getComplexConceptExpression ( void )
 	{
 	case L_GE:
 	case L_LE:
-		// hack: id here is a number restriction
-		n = scan.GetNumber ();
+		n = (unsigned int)scan.GetNumber();
 		NextLex ();
 		// hack: throughout
 	case L_FORALL:

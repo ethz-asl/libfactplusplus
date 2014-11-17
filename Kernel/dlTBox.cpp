@@ -436,7 +436,7 @@ void TBox :: readConfig ( const ifOptionSet* Options )
 	if ( Axioms.initAbsorptionFlags(Options->getText("absorptionFlags")) )
 		throw EFaCTPlusPlus ( "Incorrect absorption flags given" );
 
-	testTimeout = Options->getInt("testTimeout");
+	testTimeout = (unsigned)Options->getInt("testTimeout");
 	if ( LLM.isWritable(llAlways) )
 		LL << "Init testTimeout = " << testTimeout << "\n";
 
@@ -588,7 +588,7 @@ void TBox :: PrintDagEntry ( std::ostream& o, BipolarPointer p ) const
 		return;
 	}
 
-	const DLVertex& v = DLHeap [getValue(p)];
+	const DLVertex& v = DLHeap[p];
 
 	switch ( v.Type() )
 	{

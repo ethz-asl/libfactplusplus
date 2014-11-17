@@ -475,7 +475,8 @@ bool DlSatTester :: checkSatisfiability ( void )
 			loop = 0;
 			if ( tBox.isCancelled() )
 				return false;
-			if ( unlikely(getSatTimeout()) && 1000*(float)testTimer >= getSatTimeout() )
+			unsigned long timeout = getSatTimeout();
+			if ( unlikely(timeout > 0) && 1000*(float)testTimer >= timeout )
 				throw EFPPTimeout();
 		}
 		// here curNode/curConcept are set
@@ -615,7 +616,8 @@ void DlSatTester :: restore ( unsigned int newTryLevel )
 void DlSatTester :: logIndentation ( void ) const
 {
 	CHECK_LL_RETURN(llGTA);	// useless but safe
-	LL << "\n" << std::setw(getCurLevel()) << "[";
+	int level = int(getCurLevel());
+	LL << "\n" << std::setw(level) << "[";
 }
 void DlSatTester :: logStartEntry ( void ) const
 {

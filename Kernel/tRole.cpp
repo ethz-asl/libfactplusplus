@@ -237,7 +237,8 @@ public:
 }; // AddRoleActor
 
 /// init ancestors and descendants using Taxonomy
-void TRole :: initADbyTaxonomy ( Taxonomy* pTax, unsigned int nRoles )
+void
+TRole :: initADbyTaxonomy ( Taxonomy* pTax, size_t nRoles )
 {
 	fpp_assert ( isClassified() );	// safety check
 	fpp_assert ( Ancestor.empty() && Descendant.empty() );

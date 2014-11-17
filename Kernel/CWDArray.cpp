@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2012 by Dmitry Tsarkov
+Copyright (C) 2003-2014 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -27,7 +27,11 @@ protected:
 	int offset;
 	DepSet dep;
 public:
-	UnMerge ( CWDArray& lab, CWDArray::iterator p ) : label(lab), offset(p-lab.begin()), dep(p->getDep()) {}
+	UnMerge ( CWDArray& lab, CWDArray::iterator p )
+		: label(lab)
+		, offset(int(p-lab.begin()))
+		, dep(p->getDep())
+	{}
 	virtual ~UnMerge ( void ) {}
 	void restore ( void )
 	{

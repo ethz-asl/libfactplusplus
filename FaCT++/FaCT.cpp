@@ -263,7 +263,7 @@ int main ( int argc, char *argv[] )
 #endif
 
 	// init timeout option
-	unsigned long testTimeout = Kernel.getOptions()->getInt("testTimeout");
+	unsigned long testTimeout = (unsigned long)Kernel.getOptions()->getInt("testTimeout");
 	Kernel.setOperationTimeout(testTimeout);
 	if ( LLM.isWritable(llAlways) )
 		LL << "Init testTimeout = " << testTimeout << "\n";

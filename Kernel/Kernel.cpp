@@ -576,7 +576,7 @@ ReasoningKernel :: isRelated ( const TIndividualExpr* I, const TORoleExpr* R, co
 //----------------------------------------------------------------------------------
 
 	/// create new atomic decomposition of the loaded ontology using TYPE. @return size of the AD
-unsigned int
+size_t
 ReasoningKernel :: getAtomicDecompositionSize ( ModuleMethod moduleMethod, ModuleType moduleType )
 {
 	// init AD field
@@ -606,7 +606,7 @@ ReasoningKernel :: getAtomDependents ( unsigned int index ) const
 }
 
 	/// get a number of locality checks performed for creating an AD
-unsigned int
+unsigned long long
 ReasoningKernel :: getLocCheckNumber ( void ) const
 {
 	return AD->getLocChekNumber();
