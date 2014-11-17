@@ -199,7 +199,7 @@ RoleMaster :: addRoleParentProper ( TRole* role, TRole* parent ) const
 void RoleMaster :: initAncDesc ( void )
 {
 	iterator p, p_begin = begin(), p_end = end();
-	unsigned int nRoles = Roles.size();
+	size_t nRoles = Roles.size();
 
 	// stage 0.1: eliminate told cycles
 	for ( p = p_begin; p != p_end; ++p )

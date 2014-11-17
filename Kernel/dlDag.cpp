@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2012 by Dmitry Tsarkov
+Copyright (C) 2003-2014 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -247,7 +247,7 @@ DLDag :: gatherStatistic ( void )
 
 	clearDFS();
 
-	for ( int i = size()-1; i > 1; --i )
+	for ( BipolarPointer i = (BipolarPointer)size()-1; i > 1; --i )
 	{
 		if ( isCNameTag((*this)[i].Type()) )
 			computeVertexFreq(i);

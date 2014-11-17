@@ -1322,7 +1322,7 @@ public:
 	//----------------------------------------------------------------------------------
 
 		/// create new atomic decomposition of the loaded ontology using TYPE. @return size of the AD
-	unsigned int getAtomicDecompositionSize ( ModuleMethod moduleMethod, ModuleType moduleType );
+	size_t getAtomicDecompositionSize ( ModuleMethod moduleMethod, ModuleType moduleType );
 		/// get a set of axioms that corresponds to the atom with the id INDEX
 	const TOntologyAtom::AxiomSet& getAtomAxioms ( unsigned int index ) const;
 		/// get a set of axioms that corresponds to the module of the atom with the id INDEX
@@ -1330,7 +1330,7 @@ public:
 		/// get a set of atoms on which atom with index INDEX depends
 	const TOntologyAtom::AtomSet& getAtomDependents ( unsigned int index ) const;
 		/// get a number of locality checks performed for creating an AD
-	unsigned int getLocCheckNumber ( void ) const;
+	unsigned long long getLocCheckNumber ( void ) const;
 
 	//----------------------------------------------------------------------------------
 	// modularity queries

@@ -70,7 +70,7 @@ protected:	// internal classes
 			/// curLevel of the Node structure
 		unsigned int curLevel;
 			/// amount of neighbours
-		unsigned int nNeighbours;
+		size_t nNeighbours;
 
 	private:	// protection from copying
 			/// no assignment
@@ -233,9 +233,11 @@ protected:	// methods
 		{
 			if ( RST.empty() )	// no possible applications
 				return true;
+			// pointer to current forall
+			BipolarPointer bp = C - (BipolarPointer)v.getState();
 			if ( RST.isSingleton() )
-				return B2Simple ( RST, C-v.getState()+RST.getTransitionEnd() );
-			return B2Complex ( RST, C-v.getState() );
+				return B2Simple ( RST, bp + (BipolarPointer)RST.getTransitionEnd() );
+			return B2Complex ( RST, bp );
 		}
 	}
 		/// check if B3 holds for (<= n S.C)\in w' (p is a candidate for blocker)

@@ -104,8 +104,6 @@ void TBox :: gatherRelevanceInfo ( void )
 {
 	nRelevantCCalls = 0;
 	nRelevantBCalls = 0;
-	unsigned int cSize = 0;
-	unsigned int bSize = 0;
 
 	// gather GCIs features
 	curFeature = &GCIFeatures;
@@ -129,8 +127,8 @@ void TBox :: gatherRelevanceInfo ( void )
 
 	for ( c_iterator pc = c_begin(); pc != c_end(); ++pc )
 		setConceptRelevant(*pc);
-	cSize = ( c_end() - c_begin() ) + ( i_end() - i_begin() );
-	bSize = DLHeap.size()-2;
+	long cSize = ( c_end() - c_begin() ) + ( i_end() - i_begin() );
+	size_t bSize = DLHeap.size()-2;
 
 	curFeature = NULL;
 
@@ -140,17 +138,18 @@ void TBox :: gatherRelevanceInfo ( void )
 		cRatio = ((float)nRelevantCCalls)/cSize;
 		sqCSize = sqrtf((float)cSize);
 		if ( cSize > 1 )
-			logCSize = log((float)cSize);
+			logCSize = logf((float)cSize);
 	}
 	if ( bSize > 20 )
 	{
 		bRatio = ((float)nRelevantBCalls)/bSize;
-		sqBSize = sqrt((float)bSize);
+		sqBSize = sqrtf((float)bSize);
 		if ( bSize > 1 )
-			logBSize = log((float)bSize);
+			logBSize = logf((float)bSize);
 	}
 
-#if 0
+	if (0)	// relevance stat
+	{
 	if ( LLM.isWritable(llAlways) && cSize > 10 )
 		LL << "There were made " << nRelevantCCalls << " relevance C calls for "
 		   << cSize << " concepts\nRC ratio=" << cRatio << ", ratio/logSize="
@@ -161,7 +160,7 @@ void TBox :: gatherRelevanceInfo ( void )
 		   << bSize << " nodes\nRB ratio=" << bRatio << ", ratio/logSize="
 		   << bRatio/logBSize << ", ratio/sqSize=" << bRatio/sqBSize << ", ratio/size="
 		   << bRatio/bSize << "\n";
-#endif
+	}
 
 	// set up GALEN-like flag; based on r/n^{3/2}, add r/n^2<1
 	isLikeGALEN = (bRatio > sqBSize*20) && (bRatio < bSize);

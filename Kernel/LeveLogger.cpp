@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2006 by Dmitry Tsarkov
+Copyright (C) 2003-2014 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -48,7 +48,7 @@ bool LeveLogger :: initLogger ( Configuration& Config )
 	if ( Config.checkValue ( "allowedLevel" ) )
 		l = 0;
 	else
-		l = Config.getLong ();
+		l = (unsigned int) Config.getLong ();
 
 	// try to load input value
 	if ( Config.checkValue ( "file" ) )

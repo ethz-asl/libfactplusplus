@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2011 by Dmitry Tsarkov
+Copyright (C) 2003-2014 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -63,7 +63,7 @@ clash:	// clash found: clear all stuff; returns true
 		goto clash;
 
 	// we need to insert p into set
-	unsigned int offset = q - Child.begin();
+	long offset = q - Child.begin();
 	Child.push_back(Child.back());
 
 	for ( q_end = Child.begin()+offset, q = Child.end()-1; q != q_end; --q )
@@ -88,19 +88,19 @@ void DLVertex :: sortEntry ( const DLDag& dag )
 		return;
 
 	register BipolarPointer x;	// value of moved element
-	register int j;
-	unsigned int size = Child.size();
+	size_t size = Child.size();
 
-	for ( register unsigned int i = 1; i < size; ++i )
+	for ( register size_t i = 1; i < size; ++i )
 	{
 		x = Child[i];
 
 		// put x to the place s.t. SxL, where S <= x < L wrt dag.less()
-		for ( j = i-1; j >= 0 && dag.less ( x, Child[j] ); --j )
-			Child[j+1] = Child[j];
+		register size_t j = i;
+		for ( ; j > 0 && dag.less ( x, Child[j-1] ); --j )
+			Child[j] = Child[j-1];
 
 		// insert new element on it's place
-		Child[j+1] = x;
+		Child[j] = x;
 	}
 }
 
