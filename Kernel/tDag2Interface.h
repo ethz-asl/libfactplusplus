@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2011-2012 by Dmitry Tsarkov
+Copyright (C) 2011-2014 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -81,18 +81,20 @@ public:		// interface
 	{
 		if ( isNegative(p) )
 			return Manager->Not(getCExpr(inverse(p)));
-		if ( TransC[p] == NULL )
-			TransC[p] = buildCExpr(Dag[p]);
-		return TransC[p];
+		unsigned int i = (unsigned int)p;
+		if ( TransC[i] == NULL )
+			TransC[i] = buildCExpr(Dag[p]);
+		return TransC[i];
 	}
 		/// get data expression corresponding index of vertex
 	const TDLDataExpression* getDExpr ( BipolarPointer p )
 	{
 		if ( isNegative(p) )
 			return Manager->DataNot(getDExpr(inverse(p)));
-		if ( TransD[p] == NULL )
-			TransD[p] = buildDExpr(Dag[p]);
-		return TransD[p];
+		unsigned int i = (unsigned int)p;
+		if ( TransD[i] == NULL )
+			TransD[i] = buildDExpr(Dag[p]);
+		return TransD[i];
 	}
 		/// get expression corresponding index of vertex given the DATA flag
 	const TDLExpression* getExpr ( BipolarPointer p, bool data )

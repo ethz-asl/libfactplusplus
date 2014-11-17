@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2012 by Dmitry Tsarkov
+Copyright (C) 2003-2014 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -124,7 +124,7 @@ protected:	// internal classes
 	{
 	protected:
 		DlCompletionTree* p;
-		unsigned int n;
+		size_t n;
 	public:
 		IRRestorer ( DlCompletionTree* q ) : p(q), n(q->IR.size()) {}
 		virtual ~IRRestorer ( void ) {}
@@ -587,7 +587,7 @@ public:		// methods
 
 #ifdef RKG_IR_IN_NODE_LABEL
 		/// init IR with given entry and dep-set; @return true if IR already has this label
-	bool initIR ( unsigned int level, const DepSet& ds )
+	bool initIR ( BipolarPointer level, const DepSet& ds )
 	{
 		ConceptWDep C(level,ds);
 		DepSet dummy;	// we don't need a clash-set here
