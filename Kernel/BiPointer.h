@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2004 by Dmitry Tsarkov
+Copyright (C) 2003-2014 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -16,19 +16,20 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef _BIPOINTER_H
-#define _BIPOINTER_H
+#ifndef BIPOINTER_H
+#define BIPOINTER_H
 
 typedef int BipolarPointer;
 
 inline BipolarPointer createBiPointer ( int index, bool pos ) { return (pos ? index : -index); }
+inline BipolarPointer createBiPointer ( unsigned int index, bool pos ) { return createBiPointer ( (int)index, pos ); }
 
 inline bool isCorrect ( BipolarPointer p ) { return (p!=0); }
 inline bool isValid ( BipolarPointer p ) { return (p!=0); }
 inline bool isPositive ( BipolarPointer p ) { return (p>0); }
 inline bool isNegative ( BipolarPointer p ) { return (p<0); }
 
-inline unsigned int getValue ( BipolarPointer p ) { return (p>0?p:-p); }
+inline unsigned int getValue ( BipolarPointer p ) { return (p>0?(unsigned int)p:(unsigned int)-p); }
 
 inline BipolarPointer inverse ( BipolarPointer p ) { return -p; }
 inline BipolarPointer getPositive ( BipolarPointer p ) { return (p>0?p:-p); }

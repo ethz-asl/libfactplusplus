@@ -67,7 +67,7 @@ protected:	// types
 
 private:	// constants
 		/// initial value of IR level
-	static const unsigned int initIRLevel = 0;
+	static const BipolarPointer initIRLevel = 0;
 
 private:	// members
 		/// allocator for edges
@@ -87,7 +87,7 @@ protected:	// members
 		/// current branching level (synchronised with resoner's one)
 	unsigned int branchingLevel;
 		/// current IR level (should be valid BP)
-	unsigned int IRLevel;
+	BipolarPointer IRLevel;
 		/// stack for rarely changed information
 	TRareSaveStack RareStack;
 		/// stack for usual saving/restoring

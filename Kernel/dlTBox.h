@@ -646,7 +646,7 @@ protected:	// methods
 
 		/// init Extra Rule field in concepts given by a vector V with a given INDEX
 	inline void
-	initRuleFields ( const ConceptVector& v, unsigned int index ) const
+	initRuleFields ( const ConceptVector& v, size_t index ) const
 	{
 		for ( ConceptVector::const_iterator q = v.begin(), q_end = v.end(); q < q_end; ++q )
 			(*q)->addExtraRule(index);

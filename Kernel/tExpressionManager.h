@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2010-2013 by Dmitry Tsarkov
+Copyright (C) 2010-2014 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -159,13 +159,13 @@ public:		// interface
 	// entries count
 
 		/// get number of registered concepts
-	unsigned int nConcepts ( void ) const { return NS_C.size(); }
+	size_t nConcepts ( void ) const { return NS_C.size(); }
 		/// get number of registered individuals
-	unsigned int nIndividuals ( void ) const { return NS_I.size(); }
+	size_t nIndividuals ( void ) const { return NS_I.size(); }
 		/// get number of registered object roles
-	unsigned int nORoles ( void ) const { return NS_OR.size(); }
+	size_t nORoles ( void ) const { return NS_OR.size(); }
 		/// get number of registered data roles
-	unsigned int nDRoles ( void ) const { return NS_DR.size(); }
+	size_t nDRoles ( void ) const { return NS_DR.size(); }
 
 	// argument lists
 

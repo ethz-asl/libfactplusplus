@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2012 by Dmitry Tsarkov
+Copyright (C) 2003-2014 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -112,7 +112,7 @@ public:		// interface
 		Base.clear();
 	}
 		/// get size of a name set
-	unsigned int size ( void ) const { return Base.size(); }
+	size_t size ( void ) const { return Base.size(); }
 		/// RW begin iterator
 	iterator begin ( void ) { return Base.begin(); }
 		/// RW end iterator

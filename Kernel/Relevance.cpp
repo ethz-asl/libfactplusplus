@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2005-2011 by Dmitry Tsarkov
+Copyright (C) 2005-2014 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -138,7 +138,7 @@ void TBox :: gatherRelevanceInfo ( void )
 	if ( cSize > 10 )
 	{
 		cRatio = ((float)nRelevantCCalls)/cSize;
-		sqCSize = sqrt((float)cSize);
+		sqCSize = sqrtf((float)cSize);
 		if ( cSize > 1 )
 			logCSize = log((float)cSize);
 	}

@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2012 by Dmitry Tsarkov
+Copyright (C) 2003-2014 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -338,8 +338,8 @@ void
 TRole :: preprocessComposition ( TRoleVec& RS )
 {
 	bool same = false;
-	unsigned int last = RS.size()-1;
-	unsigned int i = 0;	// current element of the composition
+	size_t last = RS.size()-1;
+	size_t i = 0;	// current element of the composition
 
 	for ( TRoleVec::iterator p = RS.begin(), p_end = RS.end(); p != p_end; ++p, ++i )
 	{
