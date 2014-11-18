@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2006-2013 by Dmitry Tsarkov
+Copyright (C) 2006-2014 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -70,9 +70,9 @@ public:		// interface
 	{
 		if ( AccessPolicy::needPlain() )
 			return getArray(plain);
-		jobjectArray ret = J->env->NewObjectArray ( acc.size(), AccessPolicy::getIDs(J).ArrayClassID, NULL );
+		jobjectArray ret = J->env->NewObjectArray ( (jsize)acc.size(), AccessPolicy::getIDs(J).ArrayClassID, NULL );
 		for ( unsigned int i = 0; i < acc.size(); ++i )
-			J->env->SetObjectArrayElement ( ret, i, getArray(acc[i]) );
+			J->env->SetObjectArrayElement ( ret, (jsize)i, getArray(acc[i]) );
 		return ret;
 	}
 
