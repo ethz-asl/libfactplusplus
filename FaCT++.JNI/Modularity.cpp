@@ -93,8 +93,9 @@ JNIEXPORT jintArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_g
 	TOntologyAtom::AtomSet::const_iterator p = aSet.begin();
 	for ( size_t i = 0; i < sz; ++i, ++p )
 		buf[i] = (*p)->getId();
-	jintArray ret = env->NewIntArray(sz);
-	env->SetIntArrayRegion ( ret, 0, sz, buf );
+	jint size = (jint)sz;
+	jintArray ret = env->NewIntArray(size);
+	env->SetIntArrayRegion ( ret, 0, size, buf );
 	delete [] buf;
 	return ret;
 }
