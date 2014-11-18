@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2011 by Dmitry Tsarkov
+Copyright (C) 2003-2014 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -75,7 +75,6 @@ void DLDag :: mergeSorts ( DLVertex& v )
 		v.merge(const_cast<TRole*>(v.getRole())->getRangeLabel());
 		break;
 	case dtAnd:
-	case dtSplitConcept:
 		for ( DLVertex::const_iterator q = v.begin(), q_end = v.end(); q < q_end; ++q )
 			merge ( v.getSort(), *q );
 		break;

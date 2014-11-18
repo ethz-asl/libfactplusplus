@@ -102,8 +102,6 @@ protected:	// members
 
 		/// flag to use Bottom-Up search
 	bool flagNeedBottomUp;
-		/// flag shows that subsumption check could be simplified
-	bool inSplitCheck;
 
 private:	// no copy
 		/// no copy c'tor
@@ -148,9 +146,6 @@ protected:	// methods
 		// if bottom-up search and CUR is not a successor of checking entity -- return false
 		if ( unlikely(upDirection && !cur->isCommon()) )
 			return false;
-		// for top-down search it's enough to look at defined concepts and non-det ones
-//		if ( likely(!inSplitCheck && !upDirection) && !possibleSub(cur) )
-//			return false;
 		if ( unlikely ( useCandidates && candidates.find(cur) == candidates.end() ) )
 			return false;
 		return enhancedSubs1(cur);
@@ -165,7 +160,7 @@ protected:	// methods
 		else
 			return setValue ( cur, enhancedSubs2(cur) );
 	}
-		/// explicetly test appropriate subsumption relation
+		/// explicitly test appropriate subsumption relation
 	bool testSubsumption ( TaxonomyVertex* cur );
 		/// test whether a node could be a super-node of CUR
 	bool possibleSub ( TaxonomyVertex* v ) const
@@ -186,7 +181,7 @@ protected:	// methods
 	void propagateOneCommon ( TaxonomyVertex* node );
 		/// mark as COMMON all vertexes that are sub-concepts of every parent of CURRENT
 	bool propagateUp ( void );
-		/// clear all COMMON infornation
+		/// clear all COMMON information
 	void clearCommon ( void )
 	{
 		for ( TaxVertexVec::iterator p = Common.begin(), p_end = Common.end(); p < p_end; ++p )
@@ -249,17 +244,6 @@ protected:	// methods
 		/// @return true iff curEntry is classified as a synonym
 	virtual bool classifySynonym ( void );
 
-		/// merge a single vertex V to a node represented by CUR
-	void mergeVertex ( TaxonomyVertex* cur, TaxonomyVertex* v, const std::set<TaxonomyVertex*>& excludes )
-	{
-		if ( likely ( cur != v ) )
-		{
-			cur->mergeIndepNode ( v, excludes, curEntry );
-			pTax->removeNode(v);
-		}
-	}
-		/// after merging, check whether there are extra neighbours that should be taken into account
-	void checkExtraParents ( void );
 		/// check if it is necessary to log taxonomy action
 	virtual bool needLogging ( void ) const { return true; }
 
@@ -269,6 +253,7 @@ public:		// interface
 		: TaxonomyCreator(tax)
 		, tBox(kb)
 		, useCandidates(false)
+		, nCommon(0)
 		, nConcepts (0), nTries (0), nPositives (0), nNegatives (0)
 		, nSearchCalls(0)
 		, nSubCalls(0)
@@ -278,7 +263,6 @@ public:		// interface
 		, nSortedNegative(0)
 		, nModuleNegative(0)
 		, pTaxProgress (NULL)
-		, inSplitCheck(false)
 	{
 	}
 		/// d'tor

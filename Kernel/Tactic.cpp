@@ -134,9 +134,6 @@ bool DlSatTester :: commonTacticBody ( const DLVertex& cur )
 		fpp_assert ( isPositive (curConcept.bp()) );
 		return commonTacticBodyProj ( cur.getRole(), cur.getC(), cur.getProjRole() );
 
-	case dtSplitConcept:
-		return commonTacticBodySplit(cur);
-
 	case dtChoose:
 		fpp_assert ( isPositive (curConcept.bp()) );
 		return applyChooseRule ( curNode, cur.getC() );
@@ -1702,20 +1699,4 @@ bool DlSatTester :: checkProjection ( DlCompletionTreeArc* pA, BipolarPointer C,
 	DlCompletionTree* child = pA->getArcEnd();
 	pA = CGraph.addRoleLabel ( curNode, child, pA->isPredEdge(), ProjR, dep );
 	return setupEdge ( pA, dep, redoForall|redoFunc|redoAtMost|redoIrr );
-}
-
-/// expansion rule for split
-bool
-DlSatTester :: commonTacticBodySplit ( const DLVertex& cur )
-{
-	if ( tBox.duringClassification && likely ( ActiveSplits.count(getValue(curConcept.bp())) == 0 ) )
-		return false;
-
-	const DepSet& dep = curConcept.getDep();
-	bool pos = isPositive(curConcept.bp());
-
-	for ( DLVertex::const_iterator q = cur.begin(), q_end = cur.end(); q != q_end; ++q )
-		switchResult ( addToDoEntry ( curNode, createBiPointer(*q, pos), dep ) );
-
-	return false;
 }

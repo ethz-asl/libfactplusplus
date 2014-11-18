@@ -138,7 +138,6 @@ DLDag :: computeVertexStat ( BipolarPointer p )
 	switch ( v.Type() )
 	{
 	case dtAnd:	// check all the conjuncts
-	case dtSplitConcept:
 		for ( DLVertex::const_iterator q = v.begin(), q_end = v.end(); q < q_end; ++q )
 			computeVertexStat ( *q, pos );
 		break;

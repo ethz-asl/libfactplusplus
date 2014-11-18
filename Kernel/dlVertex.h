@@ -70,7 +70,6 @@ enum DagTag {
 	dtNConcept,			// non-primitive concept
 	dtPSingleton,
 	dtNSingleton,
-	dtSplitConcept,		// splitted concept
 	dtDataType,
 	dtDataValue,
 	dtDataExpr,		// data type with restrictions

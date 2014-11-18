@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2013 by Dmitry Tsarkov
+Copyright (C) 2003-2014 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -231,8 +231,6 @@ public:
 	void removeLinks ( bool upDirection );
 		/// remove given node from a graph
 	void remove ( void ) { removeLinks(true); removeLinks(false); setInUse(false); }
-		/// merge NODE which is independent to THIS
-	void mergeIndepNode ( TaxonomyVertex* node, const std::set<TaxonomyVertex*>& excludes, const ClassifiableEntry* curEntry );
 
 	// usage methods
 

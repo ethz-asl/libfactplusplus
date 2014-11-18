@@ -43,13 +43,6 @@ bool DLConceptTaxonomy :: testSub ( const TConcept* p, const TConcept* q )
 		 && !q->isNominal() )	// nominals should be classified as usual concepts
 		return false;
 
-	if ( unlikely(inSplitCheck) )
-	{
-		if ( q->isPrimitive() )	// only defined ones in split checks
-			return false;
-		return testSubTBox ( p, q );
-	}
-
 	if ( LLM.isWritable(llTaxTrying) )
 		LL << "\nTAX: trying '" << p->getName() << "' [= '" << q->getName() << "'... ";
 
@@ -307,32 +300,6 @@ DLConceptTaxonomy :: classifySynonym ( void )
 	return false;
 }
 
-void
-DLConceptTaxonomy :: checkExtraParents ( void )
-{
-	inSplitCheck = true;
-	TaxonomyVertex::iterator p, p_end;
-	TaxonomyVertex* Current = pTax->getCurrent();
-	for ( p = Current->begin(/*upDirection=*/true), p_end = Current->end(/*upDirection=*/true); p != p_end; ++p )
-		propagateTrueUp(*p);
-	Current->clearLinks(/*upDirection=*/true);
-	runTopDown();
-	// save all indirect parents to remove them later (to avoid iterator invalidation)
-	TaxVertexVec vec;
-	for ( p = Current->begin(/*upDirection=*/true), p_end = Current->end(/*upDirection=*/true); p != p_end; ++p )
-		if ( !isDirectParent(*p) )
-			vec.push_back(*p);
-	// now it is time to remove links
-	for ( TaxVertexVec::iterator q = vec.begin(), q_end = vec.end(); q != q_end; ++q )
-	{
-		(*q)->removeLink ( /*upDirection=*/false, Current );
-		Current->removeLink ( /*upDirection=*/true, *q );
-	}
-
-	clearLabels();
-	inSplitCheck = false;
-}
-
 void 		/// fill candidates
 DLConceptTaxonomy :: fillCandidates ( TaxonomyVertex* cur )
 {
@@ -350,7 +317,7 @@ DLConceptTaxonomy :: fillCandidates ( TaxonomyVertex* cur )
 }
 
 void
-DLConceptTaxonomy ::  reclassify ( const std::set<const TNamedEntity*>& plus, const std::set<const TNamedEntity*>& minus )
+DLConceptTaxonomy :: reclassify ( const std::set<const TNamedEntity*>& plus, const std::set<const TNamedEntity*>& minus )
 {
 	MPlus = plus;
 	MMinus = minus;
@@ -518,16 +485,12 @@ void TBox :: createTaxonomy ( bool needIndividual )
 		pTaxCreator->setProgressIndicator(pMonitor);
 	}
 
-	duringClassification = true;
-
 //	sort ( arrayCD.begin(), arrayCD.end(), TSDepthCompare() );
 	classifyConcepts ( arrayCD, true, "completely defined" );
 //	sort ( arrayNoCD.begin(), arrayNoCD.end(), TSDepthCompare() );
 	classifyConcepts ( arrayNoCD, false, "regular" );
 //	sort ( arrayNP.begin(), arrayNP.end(), TSDepthCompare() );
 	classifyConcepts ( arrayNP, false, "non-primitive" );
-
-	duringClassification = false;
 
 	if ( pMonitor )
 	{
