@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2013 by Dmitry Tsarkov
+Copyright (C) 2003-2014 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -90,32 +90,6 @@ TaxonomyVertex :: removeLinks ( bool upDirection )
 		(*p)->removeLink ( !upDirection, this );
 
 	clearLinks(upDirection);
-}
-
-/// merge NODE which is independent to THIS
-void
-TaxonomyVertex :: mergeIndepNode ( TaxonomyVertex* node, const std::set<TaxonomyVertex*>& excludes, const ClassifiableEntry* curEntry )
-{
-	// copy synonyms here
-	if ( node->getPrimer() != curEntry )
-		addSynonym(node->getPrimer());
-	for ( syn_iterator q = node->begin_syn(), q_end = node->end_syn(); q != q_end; ++q )
-		addSynonym(*q);
-	bool upDirection = true;
-	iterator p, p_end;
-	for ( p = node->begin(upDirection), p_end = node->end(upDirection); p != p_end; ++p )
-	{
-		if ( excludes.count(*p) == 0 )
-			addNeighbour ( upDirection, *p );
-		(*p)->removeLink ( !upDirection, node );
-	}
-	upDirection = false;
-	for ( p = node->begin(upDirection), p_end = node->end(upDirection); p != p_end; ++p )
-	{
-		if ( excludes.count(*p) == 0 )
-			addNeighbour ( upDirection, *p );
-		(*p)->removeLink ( !upDirection, node );
-	}
 }
 
 void TaxonomyVertex :: printSynonyms ( std::ostream& o ) const

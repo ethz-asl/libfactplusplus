@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2011-2012 by Dmitry Tsarkov
+Copyright (C) 2011-2014 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -53,8 +53,7 @@ TDag2Interface :: buildCExpr ( const DLVertex& v )
 		return Manager->Not(Manager->SelfReference(ORName(v.getRole())));
 	case dtProj:
 	case dtNN:
-	case dtChoose:
-	case dtSplitConcept:	// these are artificial constructions and shouldn't be visible
+	case dtChoose:	// these are artificial constructions and shouldn't be visible
 		return Manager->Top();
 	default:
 		fpp_unreachable();

@@ -254,8 +254,6 @@ protected:	// members
 	unsigned int tryLevel;
 		/// shift in order to determine the 1st non-det application
 	unsigned int nonDetShift;
-		/// last level when split rules were applied
-	unsigned int splitRuleLevel;
 
 	// statistic elements
 
@@ -310,8 +308,6 @@ protected:	// members
 	ConceptWDep curConcept;
 		/// GCIs local to session
 	std::vector<BipolarPointer> SessionGCIs;
-		/// set of active splits
-	std::set<BipolarPointer> ActiveSplits;
 
 		/// size of the DAG with some extra space
 	size_t dagSize;
@@ -548,8 +544,6 @@ protected:	// methods
 	bool commonTacticBodyNN ( const DLVertex& cur );
 		/// expansion rule for auxilliary projection-construction
 	bool commonTacticBodyProj ( const TRole* R, BipolarPointer C, const TRole* ProjR );
-		/// expansion rule for split
-	bool commonTacticBodySplit ( const DLVertex& cur );
 
 		/// expansion rule for the functional restriction with top role
 	bool processTopRoleFunc ( const DLVertex& cur );
@@ -979,7 +973,6 @@ inline void DlSatTester :: resetSessionFlags ( void )
 
 	encounterNominal = false;
 	checkDataNode = true;
-	splitRuleLevel = 0;
 }
 
 inline bool
