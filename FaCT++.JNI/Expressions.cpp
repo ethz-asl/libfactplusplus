@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2006-2013 by Dmitry Tsarkov
+Copyright (C) 2006-2014 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -642,7 +642,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
 {
 	TRACE_JNI("getObjectAtLeast");
 	TJNICache* J = getJ(env,obj);
-	return J->Class ( J->EM->MinCardinality ( n, getORoleExpr(env,arg1), getConceptExpr(env,arg2) ) );
+	return J->Class ( J->EM->MinCardinality ( (unsigned int)n, getORoleExpr(env,arg1), getConceptExpr(env,arg2) ) );
 }
 
 /*
@@ -655,7 +655,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
 {
 	TRACE_JNI("getObjectExact");
 	TJNICache* J = getJ(env,obj);
-	return J->Class ( J->EM->Cardinality ( n, getORoleExpr(env,arg1), getConceptExpr(env,arg2) ) );
+	return J->Class ( J->EM->Cardinality ( (unsigned int)n, getORoleExpr(env,arg1), getConceptExpr(env,arg2) ) );
 }
 
 /*
@@ -668,7 +668,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
 {
 	TRACE_JNI("getObjectAtMost");
 	TJNICache* J = getJ(env,obj);
-	return J->Class ( J->EM->MaxCardinality ( n, getORoleExpr(env,arg1), getConceptExpr(env,arg2) ) );
+	return J->Class ( J->EM->MaxCardinality ( (unsigned int)n, getORoleExpr(env,arg1), getConceptExpr(env,arg2) ) );
 }
 
 /*
@@ -681,7 +681,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
 {
 	TRACE_JNI("getDataAtLeast");
 	TJNICache* J = getJ(env,obj);
-	return J->Class ( J->EM->MinCardinality ( n, getDRoleExpr(env,arg1), getDataExpr(env,arg2) ) );
+	return J->Class ( J->EM->MinCardinality ( (unsigned int)n, getDRoleExpr(env,arg1), getDataExpr(env,arg2) ) );
 }
 
 /*
@@ -694,7 +694,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
 {
 	TRACE_JNI("getDataExact");
 	TJNICache* J = getJ(env,obj);
-	return J->Class ( J->EM->Cardinality ( n, getDRoleExpr(env,arg1), getDataExpr(env,arg2) ) );
+	return J->Class ( J->EM->Cardinality ( (unsigned int)n, getDRoleExpr(env,arg1), getDataExpr(env,arg2) ) );
 }
 
 /*
@@ -707,7 +707,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
 {
 	TRACE_JNI("getDataAtMost");
 	TJNICache* J = getJ(env,obj);
-	return J->Class ( J->EM->MaxCardinality ( n, getDRoleExpr(env,arg1), getDataExpr(env,arg2) ) );
+	return J->Class ( J->EM->MaxCardinality ( (unsigned int)n, getDRoleExpr(env,arg1), getDataExpr(env,arg2) ) );
 }
 
 /*

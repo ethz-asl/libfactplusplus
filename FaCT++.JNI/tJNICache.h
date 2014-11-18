@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2006-2013 by Dmitry Tsarkov
+Copyright (C) 2006-2014 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -208,9 +208,9 @@ public:		// members
 	template<class T>
 	jobjectArray buildArray ( const std::vector<T*>& vec, const TClassFieldMethodIDs& ID )
 	{
-		jobjectArray ret = env->NewObjectArray ( vec.size(), ID.ClassID, NULL );
+		jobjectArray ret = env->NewObjectArray ( (jsize)vec.size(), ID.ClassID, NULL );
 		for ( unsigned int i = 0; i < vec.size(); ++i )
-			env->SetObjectArrayElement ( ret, i, retObject ( vec[i], ID ) );
+			env->SetObjectArrayElement ( ret, (jsize)i, retObject ( vec[i], ID ) );
 		return ret;
 	}
 
