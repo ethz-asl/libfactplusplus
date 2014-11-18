@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2013 by Dmitry Tsarkov
+Copyright (C) 2003-2014 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -118,7 +118,7 @@ protected:	// methods
 	const TConcept* curConcept ( void ) const { return static_cast<const TConcept*>(curEntry); }
 		/// tests subsumption (via tBox) and gather statistics.  Use cache and other optimisations.
 	bool testSub ( const TConcept* p, const TConcept* q );
-		/// test subsumption via TBox explicitely
+		/// test subsumption via TBox explicitly
 	bool testSubTBox ( const TConcept* p, const TConcept* q )
 	{
 		bool res = tBox.isSubHolds ( p, q );
@@ -216,7 +216,7 @@ protected:	// methods
 	{
 		// we DON'T need bottom-up phase for primitive concepts during CD-like reasoning
 		// if no GCIs are in the TBox (C [= T, T [= X or Y, X [= D, Y [= D) or (T [= {o})
-		// or no reflexive roles w/RnD precent (Refl(R), Range(R)=D)
+		// or no reflexive roles w/RnD present (Refl(R), Range(R)=D)
 		return flagNeedBottomUp || !useCompletelyDefined || curConcept()->isNonPrimitive();
 	}
 		/// explicitly run BU phase
@@ -308,7 +308,7 @@ inline bool DLConceptTaxonomy :: immediatelyClassified ( void )
 }
 
 //-----------------------------------------------------------------------------
-//--		implemenation of taxonomy-related parts of TBox
+//--		implementation of taxonomy-related parts of TBox
 //-----------------------------------------------------------------------------
 
 inline void
