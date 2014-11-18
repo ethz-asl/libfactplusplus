@@ -89,9 +89,6 @@ inline short int ToDoPriorMatrix :: getIndex ( DagTag Op, bool Sign, bool Nomina
 	case dtAnd:
 		return (Sign?iAnd:iOr);
 
-	case dtSplitConcept:
-		return iAnd;
-
 	case dtForall:
 	case dtIrr:		// process local (ir-)reflexivity as a FORALL
 		return (Sign?iForall:iExists);

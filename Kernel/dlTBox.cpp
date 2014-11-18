@@ -55,7 +55,6 @@ TBox :: TBox ( const ifOptionSet* Options, const std::string& TopORoleName, cons
 	, auxConceptID(0)
 	, testTimeout(0)
 	, useNodeCache(true)
-	, duringClassification(false)
 	, useSortedReasoning(true)
 	, isLikeGALEN(false)	// just in case Relevance part would be omited
 	, isLikeWINE(false)
@@ -611,7 +610,6 @@ void TBox :: PrintDagEntry ( std::ostream& o, BipolarPointer p ) const
 		return;
 
 	case dtAnd:
-	case dtSplitConcept:
 		o << " (" << v.getTagName();
 		for ( DLVertex::const_iterator q = v.begin(); q != v.end(); ++q )
 			PrintDagEntry ( o, *q );

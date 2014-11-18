@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2012 by Dmitry Tsarkov
+Copyright (C) 2003-2014 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -68,11 +68,10 @@ DlSatTester :: prepareCascadedCache ( BipolarPointer p )
 
 	switch ( v.Type() )
 	{
-	case dtTop:
-	case dtSplitConcept:	// no need to put cache for this
+	case dtTop:		// no need to put cache for this
 		break;
 
-	case dtDataType:	// data things are checked by data inferer
+	case dtDataType:	// data things are checked by data reasoner
 	case dtDataValue:
 	case dtDataExpr:
 		break;

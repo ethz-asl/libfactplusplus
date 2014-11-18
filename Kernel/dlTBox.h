@@ -274,8 +274,6 @@ protected:	// members
 	bool useAnywhereBlocking;
 		/// flag to use caching during completion tree construction
 	bool useNodeCache;
-		/// let reasoner know that we are in the classificaton (for splits)
-	bool duringClassification;
 		/// how many nodes skip before block; work only with FAIRNESS
 	int nSkipBeforeBlock;
 

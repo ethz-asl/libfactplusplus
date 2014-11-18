@@ -586,10 +586,6 @@ void DlSatTester :: restore ( unsigned int newTryLevel )
 	// skip all intermediate restores
 	setCurLevel(newTryLevel);
 
-	// update split level
-	if ( getCurLevel() < splitRuleLevel )
-		splitRuleLevel = 0;
-
 	// restore local
 	bContext = Stack.top(getCurLevel());
 	restoreBC();
