@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2006-2012 by Dmitry Tsarkov
+Copyright (C) 2006-2014 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -28,6 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 class TRole;
 
 /// state of the role automaton
+// TODO: think to use short
 typedef unsigned int RAState;
 
 /// transition in the automaton for the role in RIQ-like languages
@@ -166,7 +167,7 @@ public:		// interface
 	}
 
 		/// set up state transitions: no more additions to the structure
-	void setup ( RAState state, unsigned int nRoles, bool data );
+	void setup ( RAState state, size_t nRoles, bool data );
 
 		/// add a transition from a given state
 	void add ( RATransition* trans )
@@ -264,7 +265,7 @@ protected:	// methods
 		/// add copy of the RA to given one; use internal MAP to renumber the states
 	void addCopy ( const RoleAutomaton& RA );
 		/// init internal map according to RA size and final (FRA) states
-	void initMap ( unsigned int RASize, RAState fRA );
+	void initMap ( size_t RASize, RAState fRA );
 
 public:		// interface
 		/// empty c'tor
@@ -292,7 +293,7 @@ public:		// interface
 		/// create new state
 	RAState newState ( void )
 	{
-		RAState ret = Base.size();
+		RAState ret = (RAState) Base.size();
 		ensureState(ret);
 		return ret;
 	}
@@ -300,7 +301,7 @@ public:		// interface
 		/// get access to the transitions starting from STATE
 	const RAStateTransitions& operator [] ( RAState state ) const { return Base[state]; }
 		/// set up all transitions passing number of roles
-	void setup ( unsigned int nRoles, bool data )
+	void setup ( size_t nRoles, bool data )
 	{
 		for ( RAState i = 0; i < Base.size(); ++i )
 			Base[i].setup ( i, nRoles, data );
@@ -323,7 +324,7 @@ public:		// interface
 		/// add an Automaton to the chain that would start from the iRA; OSAFE shows the safety of a previous automaton in a chain
 	bool addToChain ( const RoleAutomaton& RA, bool oSafe, RAState fRA );
 		/// add an Automaton to the chain with a default final state
-	bool addToChain ( const RoleAutomaton& RA, bool oSafe ) { return addToChain ( RA, oSafe, size()+1 ); }
+	bool addToChain ( const RoleAutomaton& RA, bool oSafe ) { return addToChain ( RA, oSafe, (RAState) size()+1 ); }
 
 	// i/o safety
 
@@ -342,7 +343,7 @@ public:		// interface
 	// get some stats
 
 		/// return number of distinct states
-	unsigned int size ( void ) const { return Base.size(); }
+	size_t size ( void ) const { return Base.size(); }
 		/// @return true iff the automaton is simple
 	bool isSimple ( void ) const
 	{

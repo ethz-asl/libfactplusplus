@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2011 by Dmitry Tsarkov
+Copyright (C) 2003-2014 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -251,11 +251,14 @@ DlCompletionTree :: B2Complex ( const RAStateTransitions& RST, BipolarPointer C 
 
 		for ( q = RST.begin(); q != q_end; ++q )
 			if ( (*q)->applicable(R) )
-				if ( !parLab.containsCC(C+(*q)->final()) )
+			{
+				BipolarPointer bpFinal = C + (BipolarPointer) (*q)->final();
+				if ( !parLab.containsCC(bpFinal) )
 				{
 					FAIL_B(2);
 					return false;
 				}
+			}
 	}
 
 	return true;

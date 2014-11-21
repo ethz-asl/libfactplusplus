@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2013 by Dmitry Tsarkov
+Copyright (C) 2003-2014 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -132,7 +132,7 @@ void DLConceptTaxonomy :: print ( std::ostream& o ) const
 {
 	o << "Totally " << nTries << " subsumption tests was made\nAmong them ";
 
-	unsigned int n = ( nTries ? nTries : 1 );
+	unsigned long n = ( nTries ? nTries : 1 );
 
 	o << nPositives << " (" << (unsigned long)(nPositives*100/n) << "%) successfull\n";
 	o << "Besides that " << nCachedPositive << " successfull and " << nCachedNegative

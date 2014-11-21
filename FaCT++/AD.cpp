@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2012 by Dmitry Tsarkov
+Copyright (C) 2003-2014 by Dmitry Tsarkov
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -74,13 +74,13 @@ sizeAD ( AOStructure* AOS )
 }
 
 void
-CreateAD ( TOntology* Ontology, bool useSem )
+CreateAD ( TOntology* Ontology, ModuleMethod moduleMethod )
 {
 	std::cerr << "\n";
 	// do the atomic decomposition
 	TsProcTimer timer;
 	timer.Start();
-	TModularizer mod(useSem);
+	TModularizer mod(moduleMethod);
 	AtomicDecomposer* AD = new AtomicDecomposer(&mod);
 	AD->setProgressIndicator(new CPPI());
 	AOStructure* AOS = AD->getAOS ( Ontology, M_BOT );

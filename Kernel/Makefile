@@ -55,5 +55,7 @@ SOURCES = \
           Incremental.cpp\
           ExtendedDataRange.cpp\
           SaveLoadManager.cpp\
+          dir_util.cpp\
+
 
 include ../Makefile.include

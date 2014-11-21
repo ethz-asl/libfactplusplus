@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2006-2011 by Dmitry Tsarkov
+Copyright (C) 2006-2014 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -109,9 +109,9 @@ public:		// interface
 	// TODO table interface
 
 		/// get ToDoEntry offset by given SC labels' iterator
-	int getSCOffset ( const_iterator p ) const { return p-begin_sc(); }
+	int getSCOffset ( const_iterator p ) const { return int(p-begin_sc()); }
 		/// get ToDoEntry offset by given CC labels' iterator
-	int getCCOffset ( const_iterator p ) const { return -(p-begin_cc()+1); }
+	int getCCOffset ( const_iterator p ) const { return int(-(p-begin_cc()+1)); }
 		/// get the index of the latest (ie just inserted) concept in the label
 	int getLast ( DagTag tag ) const
 	{
@@ -124,9 +124,9 @@ public:		// interface
 	const ConceptWDep& getConcept ( int n ) const
 	{
 		if ( n < 0 )
-			return ccLabel.getConcept(-n-1);
+			return ccLabel.getConcept(size_t(-n-1));
 		else
-			return scLabel.getConcept(n);
+			return scLabel.getConcept(size_t(n));
 	}
 		/// get CC offset of a complex concept BP that appears in the label
 	int getCCOffset ( BipolarPointer bp ) const

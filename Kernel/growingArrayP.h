@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2005-2013 by Dmitry Tsarkov
+Copyright (C) 2005-2014 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -68,7 +68,7 @@ protected:	// methods
 	{
 		size_t size = Base.size();
 		Base.resize(size?size*2:1);
-		initArray ( Base.begin()+size, Base.end() );
+		initArray ( Base.begin()+(long)size, Base.end() );
 	}
 		/// ensure that size of vector is enough to fit the last element
 	void ensureHeapSize ( void )

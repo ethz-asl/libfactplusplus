@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2006-2011 by Dmitry Tsarkov
+Copyright (C) 2006-2014 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -131,7 +131,7 @@ class TDepSetManager: public growingArrayP<TDepSetCache>
 {
 protected:	// methods
 		/// create a new entry with an improved level
-	virtual TDepSetCache* createNew ( void ) { return new TDepSetCache ( this, last++ ); }
+	virtual TDepSetCache* createNew ( void ) { return new TDepSetCache ( this, (unsigned int)last++ ); }
 
 public:		// interface
 		/// c'tor: init N basement elements

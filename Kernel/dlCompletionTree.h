@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2012 by Dmitry Tsarkov
+Copyright (C) 2003-2014 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -70,7 +70,7 @@ protected:	// internal classes
 			/// curLevel of the Node structure
 		unsigned int curLevel;
 			/// amount of neighbours
-		unsigned int nNeighbours;
+		size_t nNeighbours;
 
 	private:	// protection from copying
 			/// no assignment
@@ -124,7 +124,7 @@ protected:	// internal classes
 	{
 	protected:
 		DlCompletionTree* p;
-		unsigned int n;
+		size_t n;
 	public:
 		IRRestorer ( DlCompletionTree* q ) : p(q), n(q->IR.size()) {}
 		virtual ~IRRestorer ( void ) {}
@@ -233,9 +233,11 @@ protected:	// methods
 		{
 			if ( RST.empty() )	// no possible applications
 				return true;
+			// pointer to current forall
+			BipolarPointer bp = C - (BipolarPointer)v.getState();
 			if ( RST.isSingleton() )
-				return B2Simple ( RST, C-v.getState()+RST.getTransitionEnd() );
-			return B2Complex ( RST, C-v.getState() );
+				return B2Simple ( RST, bp + (BipolarPointer)RST.getTransitionEnd() );
+			return B2Complex ( RST, bp );
 		}
 	}
 		/// check if B3 holds for (<= n S.C)\in w' (p is a candidate for blocker)
@@ -587,7 +589,7 @@ public:		// methods
 
 #ifdef RKG_IR_IN_NODE_LABEL
 		/// init IR with given entry and dep-set; @return true if IR already has this label
-	bool initIR ( unsigned int level, const DepSet& ds )
+	bool initIR ( BipolarPointer level, const DepSet& ds )
 	{
 		ConceptWDep C(level,ds);
 		DepSet dummy;	// we don't need a clash-set here

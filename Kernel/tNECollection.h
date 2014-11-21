@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2005-2013 by Dmitry Tsarkov
+Copyright (C) 2005-2014 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -59,7 +59,7 @@ protected:	// methods
 		/// register new element in a collection; return this element
 	T* registerElem ( T* p )
 	{
-		p->setId(Base.size());
+		p->setId((int)Base.size());
 		Base.push_back(p);
 		registerNew(p);
 		return p;

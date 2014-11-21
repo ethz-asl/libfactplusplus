@@ -14,7 +14,7 @@
     <target name="compile">
         <mkdir dir="${builddir}"/>
         <mkdir dir="${classesdir}"/>
-        <javac srcdir=".:../FaCT++.Java" destdir="${classesdir}" target="1.5">
+        <javac srcdir=".:../FaCT++.Java" destdir="${classesdir}" target="1.6">
             <classpath refid="path.libraries"/>
         </javac>
     </target>

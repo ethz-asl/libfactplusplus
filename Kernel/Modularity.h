@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2011-2013 by Dmitry Tsarkov
+Copyright (C) 2011-2014 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -29,8 +29,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 // locality checking
 #include "SemanticLocalityChecker.h"
 #include "SyntacticLocalityChecker.h"
+#include "ExtendedSyntacticLocalityChecker.h"
 
 #include "ModuleType.h"
+#include "ModuleMethod.h"
 
 #ifdef RKG_USE_AD_IN_MODULE_EXTRACTION
 #	include "tOntologyAtom.h"
@@ -61,6 +63,18 @@ protected:	// members
 		/// true if no atoms are processed ATM
 	bool noAtomsProcessing;
 
+private:	// methods
+		/// get locality checker by a method
+	static inline LocalityChecker* getLocalityChecker ( ModuleMethod moduleMethod, TSignature* pSig )
+	{
+		switch ( moduleMethod )
+		{
+		case SYN_LOC_STD: return new SyntacticLocalityChecker(pSig);
+		case SYN_LOC_COUNT: return new ExtendedSyntacticLocalityChecker(pSig);
+		case SEM_LOC: return new SemanticLocalityChecker(pSig);
+		default: fpp_unreachable();
+		}
+	}
 protected:	// methods
 		/// update SIG wrt the axiom signature
 	void addAxiomSig ( const TSignature& axiomSig )
@@ -134,8 +148,9 @@ protected:	// methods
 		/// extract module wrt presence of a sig index
 	void extractModule ( const_iterator begin, const_iterator end )
 	{
+		size_t size = (size_t)(end-begin);
 		Module.clear();
-		Module.reserve(end-begin);
+		Module.reserve(size);
 		// clear the module flag in the input
 		const_iterator p;
 		for ( p = begin; p != end; ++p )
@@ -150,8 +165,8 @@ protected:	// methods
 
 public:		// interface
 		/// init c'tor
-	TModularizer ( bool useSem )
-		: Checker ( useSem ? (LocalityChecker*) new SemanticLocalityChecker(&sig) : (LocalityChecker*) new SyntacticLocalityChecker(&sig) )
+	TModularizer ( ModuleMethod moduleMethod )
+		: Checker(getLocalityChecker(moduleMethod,&sig))
 		, sigIndex(Checker)
 		, nChecks(0)
 		, nNonLocal(0)

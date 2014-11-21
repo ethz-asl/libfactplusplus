@@ -49,9 +49,9 @@ protected:	// classes
 	{
 	public:		// members
 			/// save start point of queue of entries
-		unsigned int sp;
+		size_t sp;
 			/// save end point of queue of entries
-		unsigned int ep;
+		size_t ep;
 
 	public:		// methods
 			/// empty c'tor
@@ -68,7 +68,7 @@ protected:	// classes
 			/// waiting ops queue
 		growingArray<ToDoEntry> Wait;
 			/// start pointer; points to the 1st element in the queue
-		unsigned int sPointer;
+		size_t sPointer;
 
 	public:		// interface
 			/// c'tor: init queue with proper size and reset it
@@ -117,7 +117,7 @@ protected:	// classes
 				/// pointer to a queue to restore
 			queueQueue* queue;
 				/// start pointer
-			unsigned int sp;
+			size_t sp;
 
 		public:		// interface
 				/// init c'tor
@@ -134,7 +134,7 @@ protected:	// classes
 			/// stack to save states for the overwritten queue
 		TRareSaveStack* stack;
 			/// start pointer; points to the 1st element in the queue
-		unsigned int sPointer;
+		size_t sPointer;
 
 	public:		// interface
 			/// c'tor: make an empty queue
@@ -155,7 +155,7 @@ protected:	// classes
 
 			// here we need to put e on the proper place
 			stack->push(new QueueRestorer(this));
-			unsigned int n = Wait.size();
+			size_t n = Wait.size();
 			Wait.add(e);	// will be rewritten
 			while ( n > sPointer && Wait[n-1].Node->getNominalLevel() > Node->getNominalLevel() )
 			{
@@ -281,7 +281,7 @@ public:
 		/// add entry with given NODE and CONCEPT with given OFFSET to the TODO table
 	void addEntry ( DlCompletionTree* node, DagTag type, const ConceptWDep& C, int offset )
 	{
-		unsigned int index = Matrix.getIndex ( type, isPositive(C.bp()), node->isNominalNode() );
+		short index = Matrix.getIndex ( type, isPositive(C.bp()), node->isNominalNode() );
 		switch ( index )
 		{
 		case nRegularOps:	// unused entry

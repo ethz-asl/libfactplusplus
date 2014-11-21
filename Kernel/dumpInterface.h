@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2009 by Dmitry Tsarkov
+Copyright (C) 2003-2014 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -16,8 +16,8 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef _DUMPINTERFACE_H
-#define _DUMPINTERFACE_H
+#ifndef DUMPINTERFACE_H
+#define DUMPINTERFACE_H
 
 #include <ostream>
 
@@ -134,7 +134,7 @@ inline void dumpInterface :: skipIndent ( void )
 	if ( oneliner )
 		return;
 	o << "\n";
-	for ( int i = indent-1; i >= 0; --i )
+	for ( unsigned int i = indent; i > 0; --i )
 		o << "  ";
 }
 

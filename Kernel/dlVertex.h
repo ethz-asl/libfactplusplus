@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2013 by Dmitry Tsarkov
+Copyright (C) 2003-2014 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -369,7 +369,7 @@ public:		// interface
 		, n(0)
 		{}
 		/// c'tor for <= n R_C; and for \A R{n}_C; Note order C, n, R->pointer
-	DLVertex ( DagTag op, BipolarPointer m, const TRole* R, BipolarPointer c )
+	DLVertex ( DagTag op, unsigned int m, const TRole* R, BipolarPointer c )
 		: DLVertexTagDFS(op)
 		, Concept(NULL)
 		, Role(R)

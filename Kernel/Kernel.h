@@ -31,6 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "KnowledgeExplorer.h"
 #include "tOntologyAtom.h"	// types for AD
 #include "ModuleType.h"
+#include "ModuleMethod.h"
 
 class OntologyBasedModularizer;
 class AtomicDecomposer;
@@ -156,6 +157,8 @@ protected:	// members
 	AtomicDecomposer* AD;
 		/// syntactic locality based module extractor
 	OntologyBasedModularizer* ModSyn;
+		/// syntactic with counting locality based module extractor
+	OntologyBasedModularizer* ModSynCount;
 		/// semantic locality based module extractor
 	OntologyBasedModularizer* ModSem;
 		/// set to return by the locality checking procedure
@@ -544,8 +547,19 @@ protected:	// methods
 
 		/// add the role R and all its supers to a set RESULT
 	void addRoleWithSupers ( const TRole* R, TCGRoleSet& Result );
+		/// @return a pointer to a modularizer according to given method
+	OntologyBasedModularizer*& getModPointer ( ModuleMethod moduleMethod )
+	{
+		switch ( moduleMethod )
+		{
+		case SYN_LOC_STD:	return ModSyn;
+		case SYN_LOC_COUNT:	return ModSynCount;
+		case SEM_LOC:		return ModSem;
+		default: fpp_unreachable();
+		}
+	}
 		/// check whether the modularizer need initialisation, init it and return a proper one
-	OntologyBasedModularizer* getModExtractor ( bool useSemantic );
+	OntologyBasedModularizer* getModExtractor ( ModuleMethod moduleMethod );
 
 public:	// general staff
 		/// default c'tor
@@ -1312,7 +1326,7 @@ public:
 	//----------------------------------------------------------------------------------
 
 		/// create new atomic decomposition of the loaded ontology using TYPE. @return size of the AD
-	unsigned int getAtomicDecompositionSize ( bool useSemantic, ModuleType moduleType );
+	size_t getAtomicDecompositionSize ( ModuleMethod moduleMethod, ModuleType moduleType );
 		/// get a set of axioms that corresponds to the atom with the id INDEX
 	const TOntologyAtom::AxiomSet& getAtomAxioms ( unsigned int index ) const;
 		/// get a set of axioms that corresponds to the module of the atom with the id INDEX
@@ -1320,16 +1334,16 @@ public:
 		/// get a set of atoms on which atom with index INDEX depends
 	const TOntologyAtom::AtomSet& getAtomDependents ( unsigned int index ) const;
 		/// get a number of locality checks performed for creating an AD
-	unsigned int getLocCheckNumber ( void ) const;
+	unsigned long long getLocCheckNumber ( void ) const;
 
 	//----------------------------------------------------------------------------------
 	// modularity queries
 	//----------------------------------------------------------------------------------
 
-		/// get a set of axioms that corresponds to the atom with the id INDEX
-	const AxiomVec& getModule ( bool useSemantic, ModuleType moduleType );
-		/// get a set of axioms that corresponds to the atom with the id INDEX
-	const AxiomVec& getNonLocal ( bool useSemantic, ModuleType moduleType );
+		/// get a module of an ontology wrt given method.
+	const AxiomVec& getModule ( ModuleMethod moduleMethod, ModuleType moduleType );
+		/// get a set of non-local axioms of an ontology wrt given method.
+	const AxiomVec& getNonLocal ( ModuleMethod moduleMethod, ModuleType moduleType );
 
 	//----------------------------------------------------------------------------------
 	// save/load interface

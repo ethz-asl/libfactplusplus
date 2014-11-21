@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2010 by Dmitry Tsarkov
+Copyright (C) 2003-2014 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -39,21 +39,25 @@ private:	// members
 		/// all lists of arguments for n-ary predicates/commands
 	BaseType Base;
 		/// pre-current index of n-ary statement
-	int level;
+	size_t level;
 
 private:	// methods
 		/// increase size of internal AUX array
 	void grow ( void )
 	{
-		unsigned int n = Base.size();
+		size_t n = Base.size();
 		Base.resize(2*n);
-		for ( iterator p = Base.begin()+n, p_end = Base.end(); p < p_end; ++p )
+		for ( iterator p = Base.begin()+(long)n, p_end = Base.end(); p < p_end; ++p )
 			*p = new DLExpressionArray;
 	}
 
 public:		// interface
 		/// empty c'tor
-	TNAryQueue ( void ) : level(-1) { Base.push_back(new DLExpressionArray); }
+	TNAryQueue ( void ) : level(0)
+	{
+		Base.push_back(NULL);	// corresponds to level 0 -- never used
+		Base.push_back(new DLExpressionArray);
+	}
 		/// d'tor
 	~TNAryQueue ( void )
 	{
@@ -66,7 +70,7 @@ public:		// interface
 		/// init the next argument list
 	void openArgList ( void )
 	{
-		if ( (unsigned)++level >= Base.size() )
+		if ( ++level >= Base.size() )
 			grow();
 		Base[level]->clear();
 	}

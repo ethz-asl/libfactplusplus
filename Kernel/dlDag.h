@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2013 by Dmitry Tsarkov
+Copyright (C) 2003-2014 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -39,7 +39,7 @@ class DLDag
 {
 public:		// types
 	typedef std::vector<DLVertex*> HeapType;
-	typedef std::vector<unsigned int> StatVector;
+	typedef std::vector<BipolarPointer> StatVector;
 		/// typedef for the hash-table
 	typedef dlVHashTable HashTable;
 
@@ -58,7 +58,7 @@ protected:	// members
 
 #ifdef RKG_USE_SORTED_REASONING
 		/// size of sort array
-	unsigned int sortArraySize;
+	size_t sortArraySize;
 #endif
 
 	// tunable flags (set by readConfig)
@@ -90,7 +90,7 @@ protected:	// methods
 	{
 		if ( str == NULL )
 			return false;
-		unsigned int n = strlen(str);
+		size_t n = strlen(str);
 		if ( n < 1 || n > 3 )
 			return false;
 		char Method = str[0],
@@ -126,14 +126,14 @@ protected:	// methods
 	void Recompute ( void )
 	{
 		for ( StatVector::const_iterator p = listAnds.begin(), p_end = listAnds.end(); p < p_end; ++p )
-			Heap[*p]->sortEntry(*this);
+			(*this)[*p].sortEntry(*this);
 	}
 		/// set OR sort flags based on given option string; Recompute if necessary
 	void setOrderOptions ( const char* opt );
 		/// clear all DFS info from elements of DAG
 	void clearDFS ( void )
 	{
-		for ( unsigned int i = Heap.size()-1; i > 0; --i )
+		for ( size_t i = Heap.size()-1; i > 0; --i )
 			Heap[i]->clearDFS();
 	}
 
@@ -189,9 +189,10 @@ public:		// interface
 		/// add vertex to the end of DAG and calculate it's statistic if necessary
 	BipolarPointer directAdd ( DLVertex* v )
 	{
+		BipolarPointer toReturn = BipolarPointer(Heap.size());
 		Heap.push_back(v);
 		// return an index of just added entry
-		return Heap.size()-1;
+		return toReturn;
 	}
 		/// add vertex to the end of DAG and calculate it's statistic if necessary; put it into cache
 	BipolarPointer directAddAndCache ( DLVertex* v )
@@ -288,16 +289,16 @@ public:		// interface
 		merge ( R->getRangeLabel(), b );
 	}
 		/// check if two BPs are of the same sort
-	bool haveSameSort ( unsigned int p, unsigned int q )
+	bool haveSameSort ( BipolarPointer p, BipolarPointer q ) const
 	{
 		fpp_assert ( p > 0 && q > 0 );	// sanity check
 
 		// everything has the same label as TOP
-		if ( p == 1 || q == 1 )
+		if ( unlikely(p == 1 || q == 1) )
 			return true;
 
 		// if some concepts were added to DAG => nothing to say
-		if ( p >= sortArraySize || q >= sortArraySize )
+		if ( unlikely(getValue(p) >= sortArraySize || getValue(q) >= sortArraySize) )
 			return true;
 
 		// check whether two sorts are identical
@@ -323,10 +324,10 @@ public:		// interface
 	{
 		o << "\nDag structure";
 
-		for ( unsigned int i = 1; i < size(); ++i )
+		for ( size_t i = 1; i < size(); ++i )
 		{
 			o << "\n" << i << " ";
-			(*this)[i].Print(o);
+			Heap[i]->Print(o);
 		}
 
 		o << std::endl;

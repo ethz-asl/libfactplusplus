@@ -160,9 +160,9 @@ void DlCompletionGraph :: restore ( unsigned int level )
 	RareStack.restore(level);
 	SaveState* s = Stack.pop(level);
 	endUsed = s->nNodes;
-	unsigned int nSaved = s->sNodes;
-	iterator p = SavedNodes.begin()+nSaved, p_end = SavedNodes.end();
-	if ( endUsed < unsigned(p_end-p) )	// it's cheaper to restore all nodes
+	size_t nSaved = s->sNodes;
+	iterator p = SavedNodes.begin()+(long)nSaved, p_end = SavedNodes.end();
+	if ( endUsed < size_t(p_end-p) )	// it's cheaper to restore all nodes
 		for ( p = begin(), p_end = end(); p < p_end; ++p )
 			restoreNode ( (*p), level );
 	else

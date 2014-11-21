@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2013 by Dmitry Tsarkov
+Copyright (C) 2013-2014 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -64,11 +64,11 @@ protected:	// visitor helpers
 		/// helper for All
 	virtual int getForallValue ( const TDLRoleExpression* R, const TDLExpression* C ) = 0;
 		/// helper for things like >= m R.C
-	virtual int getMinValue ( int m, const TDLRoleExpression* R, const TDLExpression* C ) = 0;
+	virtual int getMinValue ( unsigned int m, const TDLRoleExpression* R, const TDLExpression* C ) = 0;
 		/// helper for things like <= m R.C
-	virtual int getMaxValue ( int m, const TDLRoleExpression* R, const TDLExpression* C ) = 0;
+	virtual int getMaxValue ( unsigned int m, const TDLRoleExpression* R, const TDLExpression* C ) = 0;
 		/// helper for things like = m R.C
-	virtual int getExactValue ( int m, const TDLRoleExpression* R, const TDLExpression* C ) = 0;
+	virtual int getExactValue ( unsigned int m, const TDLRoleExpression* R, const TDLExpression* C ) = 0;
 
 public:		// interface
 		/// init c'tor
@@ -140,9 +140,9 @@ class UpperBoundDirectEvaluator: public CardinalityEvaluatorBase
 {
 protected:	// methods
 		/// define a special value for concepts that are not in C^{<= n}
-	const int getNoneValue ( void ) const { return -1; }
+	int getNoneValue ( void ) const { return -1; }
 		/// define a special value for concepts that are in C^{<= n} for all n
-	const int getAllValue ( void ) const { return 0; }
+	int getAllValue ( void ) const { return 0; }
 
 		/// helper for entities TODO: checks only C top-locality, not R
 	virtual int getEntityValue ( const TNamedEntity* entity )
@@ -156,7 +156,7 @@ protected:	// methods
 			return getNoneValue();
 	}
 		/// helper for things like >= m R.C
-	virtual int getMinValue ( int m, const TDLRoleExpression* R, const TDLExpression* C )
+	virtual int getMinValue ( unsigned int m, const TDLRoleExpression* R, const TDLExpression* C )
 	{
 		// m > 0 and...
 		if ( m <= 0 )
@@ -166,26 +166,26 @@ protected:	// methods
 			return getAllValue();
 		// C \in C^{<= m-1}
 		int ubC = getUpperBoundDirect(C);
-		if ( ubC != getNoneValue() && ubC < m )
+		if ( ubC != getNoneValue() && ubC < (int)m )
 			return getAllValue();
 		else
 			return getNoneValue();
 	}
 		/// helper for things like <= m R.C
-	virtual int getMaxValue ( int m, const TDLRoleExpression* R, const TDLExpression* C )
+	virtual int getMaxValue ( unsigned int m, const TDLRoleExpression* R, const TDLExpression* C )
 	{
 		// R = \top and...
 		if ( !isTopEquivalent(R) )
 			return getNoneValue();
 		// C\in C^{>= m+1}
 		int lbC = getLowerBoundDirect(C);
-		if ( lbC != getNoneValue() && lbC > m )
+		if ( lbC != getNoneValue() && lbC > (int)m )
 			return getAllValue();
 		else
 			return getNoneValue();
 	}
 		/// helper for things like = m R.C
-	virtual int getExactValue ( int m, const TDLRoleExpression* R, const TDLExpression* C )
+	virtual int getExactValue ( unsigned int m, const TDLRoleExpression* R, const TDLExpression* C )
 	{
 		// here the maximal value between Mix and Max is an answer. The -1 case will be dealt with automagically
 		return std::max ( getMinValue ( m, R, C ), getMaxValue ( m, R, C ) );
@@ -223,13 +223,15 @@ public:		// interface
 	virtual ~UpperBoundDirectEvaluator ( void ) {}
 
 public:		// visitor implementation
+	// make all other visit() methods from the base implementation visible
+	using CardinalityEvaluatorBase::visit;
 	// concept expressions
 	virtual void visit ( const TDLConceptTop& ) { value = getNoneValue(); }
 	virtual void visit ( const TDLConceptBottom& ) { value = getAllValue(); }
 	virtual void visit ( const TDLConceptNot& expr ) { value = getUpperBoundComplement(expr.getC()); }
 	virtual void visit ( const TDLConceptAnd& expr ) { value = getAndValue(expr); }
 	virtual void visit ( const TDLConceptOr& expr ) { value = getOrValue(expr); }
-	virtual void visit ( const TDLConceptOneOf& expr ) { value = expr.size(); }
+	virtual void visit ( const TDLConceptOneOf& expr ) { value = (int)expr.size(); }
 	virtual void visit ( const TDLConceptObjectSelf& expr ) { value = isBotEquivalent(expr.getOR()) ? getAllValue() : getNoneValue(); }
 	virtual void visit ( const TDLConceptObjectValue& expr ) { value = isBotEquivalent(expr.getOR()) ? getAllValue() : getNoneValue(); }
 	virtual void visit ( const TDLConceptDataValue& expr ) { value = isBotEquivalent(expr.getDR()) ? getAllValue() : getNoneValue(); }
@@ -264,16 +266,16 @@ public:		// visitor implementation
 	virtual void visit ( const TDLDataNot& expr ) { value = getUpperBoundComplement(expr.getExpr()); }
 	virtual void visit ( const TDLDataAnd& expr ) { value = getAndValue(expr); }
 	virtual void visit ( const TDLDataOr& expr ) { value = getOrValue(expr); }
-	virtual void visit ( const TDLDataOneOf& expr ) { value = expr.size(); }
+	virtual void visit ( const TDLDataOneOf& expr ) { value = (int)expr.size(); }
 }; // UpperBoundDirectEvaluator
 
 class UpperBoundComplementEvaluator: public CardinalityEvaluatorBase
 {
 protected:	// methods
 		/// define a special value for concepts that are not in C^{<= n}
-	const int getNoneValue ( void ) const { return -1; }
+	int getNoneValue ( void ) const { return -1; }
 		/// define a special value for concepts that are in C^{<= n} for all n
-	const int getAllValue ( void ) const { return 0; }
+	int getAllValue ( void ) const { return 0; }
 
 		/// helper for entities TODO: checks only C top-locality, not R
 	virtual int getEntityValue ( const TNamedEntity* entity )
@@ -287,7 +289,7 @@ protected:	// methods
 			return getNoneValue();
 	}
 		/// helper for things like >= m R.C
-	int getMinValue ( int m, const TDLRoleExpression* R, const TDLExpression* C )
+	virtual int getMinValue ( unsigned int m, const TDLRoleExpression* R, const TDLExpression* C )
 	{
 		// m == 0 or...
 		if ( m == 0 )
@@ -296,23 +298,23 @@ protected:	// methods
 		if ( !isTopEquivalent(R) )
 			return getNoneValue();
 		// C \in C^{>= m}
-		return getLowerBoundDirect(C) >= m ? getAllValue() : getNoneValue();
+		return getLowerBoundDirect(C) >= (int)m ? getAllValue() : getNoneValue();
 	}
 		/// helper for things like <= m R.C
-	int getMaxValue ( int m, const TDLRoleExpression* R, const TDLExpression* C )
+	virtual int getMaxValue ( unsigned int m, const TDLRoleExpression* R, const TDLExpression* C )
 	{
 		// R = \bot or...
 		if ( isBotEquivalent(R)  )
 			return getAllValue();
 		// C\in C^{<= m}
 		int lbC = getUpperBoundDirect(C);
-		if ( lbC != getNoneValue() && lbC <= m )
+		if ( lbC != getNoneValue() && lbC <= (int)m )
 			return getAllValue();
 		else
 			return getNoneValue();
 	}
 		/// helper for things like = m R.C
-	virtual int getExactValue ( int m, const TDLRoleExpression* R, const TDLExpression* C )
+	virtual int getExactValue ( unsigned int m, const TDLRoleExpression* R, const TDLExpression* C )
 	{
 		// here the minimal value between Mix and Max is an answer. The -1 case will be dealt with automagically
 		return std::min ( getMinValue ( m, R, C ), getMaxValue ( m, R, C ) );
@@ -350,6 +352,8 @@ public:		// interface
 	virtual ~UpperBoundComplementEvaluator ( void ) {}
 
 public:		// visitor interface
+	// make all other visit() methods from the base implementation visible
+	using CardinalityEvaluatorBase::visit;
 	// concept expressions
 	virtual void visit ( const TDLConceptTop& ) { value = getAllValue(); }
 	virtual void visit ( const TDLConceptBottom& ) { value = getNoneValue(); }
@@ -398,9 +402,9 @@ class LowerBoundDirectEvaluator: public CardinalityEvaluatorBase
 {
 protected:	// methods
 		/// define a special value for concepts that are not in C^{>= n}
-	const int getNoneValue ( void ) const { return 0; }
+	int getNoneValue ( void ) const { return 0; }
 		/// define a special value for concepts that are in C^{>= n} for all n
-	const int getAllValue ( void ) const { return -1; }
+	int getAllValue ( void ) const { return -1; }
 
 		/// helper for entities TODO: checks only C top-locality, not R
 	virtual int getEntityValue ( const TNamedEntity* entity )
@@ -414,7 +418,7 @@ protected:	// methods
 			return getNoneValue();
 	}
 		/// helper for things like >= m R.C
-	int getMinValue ( int m, const TDLRoleExpression* R, const TDLExpression* C )
+	virtual int getMinValue ( unsigned int m, const TDLRoleExpression* R, const TDLExpression* C )
 	{
 		// m == 0 or...
 		if ( m == 0 )
@@ -423,23 +427,23 @@ protected:	// methods
 		if ( !isTopEquivalent(R) )
 			return getNoneValue();
 		// C \in C^{>= m}
-		return getLowerBoundDirect(C) >= m ? m : getNoneValue();
+		return getLowerBoundDirect(C) >= (int)m ? (int)m : getNoneValue();
 	}
 		/// helper for things like <= m R.C
-	int getMaxValue ( int m, const TDLRoleExpression* R, const TDLExpression* C )
+	virtual int getMaxValue ( unsigned int m, const TDLRoleExpression* R, const TDLExpression* C )
 	{
 		// R = \bot or...
 		if ( isBotEquivalent(R) )
 			return 1;
 		// C\in C^{<= m}
 		int lbC = getUpperBoundDirect(C);
-		if ( lbC != getNoneValue() && lbC <= m )
+		if ( lbC != getNoneValue() && lbC <= (int)m )
 			return 1;
 		else
 			return getNoneValue();
 	}
 		/// helper for things like = m R.C
-	virtual int getExactValue ( int m, const TDLRoleExpression* R, const TDLExpression* C )
+	virtual int getExactValue ( unsigned int m, const TDLRoleExpression* R, const TDLExpression* C )
 	{
 		int min = getMinValue ( m, R, C ), max = getMaxValue ( m, R, C );
 		// we need to take the lowest value
@@ -531,6 +535,8 @@ public:		// interface
 	virtual ~LowerBoundDirectEvaluator ( void ) {}
 
 public:		// visitor interface
+	// make all other visit() methods from the base implementation visible
+	using CardinalityEvaluatorBase::visit;
 	// concept expressions
 	virtual void visit ( const TDLConceptTop& ) { value = 1; }
 	virtual void visit ( const TDLConceptBottom& ) { value = getNoneValue(); }
@@ -580,9 +586,9 @@ class LowerBoundComplementEvaluator: public CardinalityEvaluatorBase
 {
 protected:	// methods
 		/// define a special value for concepts that are not in C^{>= n}
-	const int getNoneValue ( void ) const { return 0; }
+	int getNoneValue ( void ) const { return 0; }
 		/// define a special value for concepts that are in C^{>= n} for all n
-	const int getAllValue ( void ) const { return -1; }
+	int getAllValue ( void ) const { return -1; }
 
 		/// helper for entities TODO: checks only C top-locality, not R
 	virtual int getEntityValue ( const TNamedEntity* entity )
@@ -596,7 +602,7 @@ protected:	// methods
 			return getNoneValue();
 	}
 		/// helper for things like >= m R.C
-	virtual int getMinValue ( int m, const TDLRoleExpression* R, const TDLExpression* C )
+	virtual int getMinValue ( unsigned int m, const TDLRoleExpression* R, const TDLExpression* C )
 	{
 		// m > 0 and...
 		if ( m <= 0 )
@@ -606,26 +612,26 @@ protected:	// methods
 			return 1;
 		// C \in C^{<= m-1}
 		int ubC = getUpperBoundDirect(C);
-		if ( ubC != getNoneValue() && ubC < m )
+		if ( ubC != getNoneValue() && ubC < (int)m )
 			return 1;
 		else
 			return getNoneValue();
 	}
 		/// helper for things like <= m R.C
-	virtual int getMaxValue ( int m, const TDLRoleExpression* R, const TDLExpression* C )
+	virtual int getMaxValue ( unsigned int m, const TDLRoleExpression* R, const TDLExpression* C )
 	{
 		// R = \top and...
 		if ( !isTopEquivalent(R) )
 			return getNoneValue();
 		// C\in C^{>= m+1}
 		int lbC = getLowerBoundDirect(C);
-		if ( lbC != getNoneValue() && lbC > m )
-			return m+1;
+		if ( lbC != getNoneValue() && lbC > (int)m )
+			return (int)m+1;
 		else
 			return getNoneValue();
 	}
 		/// helper for things like = m R.C
-	virtual int getExactValue ( int m, const TDLRoleExpression* R, const TDLExpression* C )
+	virtual int getExactValue ( unsigned int m, const TDLRoleExpression* R, const TDLExpression* C )
 	{
 		// here the maximal value between Mix and Max is an answer. The -1 case will be dealt with automagically
 		// because both min and max are between 0 and m+1
@@ -710,6 +716,8 @@ public:		// interface
 	virtual ~LowerBoundComplementEvaluator ( void ) {}
 
 public:		// visitor implementation
+	// make all other visit() methods from the base implementation visible
+	using CardinalityEvaluatorBase::visit;
 	// concept expressions
 	virtual void visit ( const TDLConceptTop& ) { value = getNoneValue(); }
 	virtual void visit ( const TDLConceptBottom& ) { value = 1; }

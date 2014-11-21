@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2008-2013 by Dmitry Tsarkov
+Copyright (C) 2008-2014 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -117,7 +117,7 @@ public:		// interface
 		/// RW end() for the whole ontology
 	iterator end ( void ) { return Axioms.end(); }
 		/// RW begin() for the unprocessed part of the ontology
-	iterator beginUnprocessed ( void ) { return Axioms.begin()+axiomToProcess; }
+	iterator beginUnprocessed ( void ) { return Axioms.begin()+(long)axiomToProcess; }
 		/// RW end() for the processed part of the ontology
 	iterator endProcessed ( void ) { return beginUnprocessed(); }
 		/// RW begin() for retracted axioms
@@ -125,7 +125,7 @@ public:		// interface
 		/// RW end() for retracted axioms
 	iterator endRetracted ( void ) { return Retracted.end(); }
 		/// get access to the I'th axiom
-	TDLAxiom* operator [] ( int i ) { return Axioms[i]; }
+	TDLAxiom* operator [] ( size_t i ) { return Axioms[i]; }
 
 		/// size of the ontology
 	size_t size ( void ) const { return Axioms.size(); }

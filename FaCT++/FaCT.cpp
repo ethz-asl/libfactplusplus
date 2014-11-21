@@ -35,7 +35,7 @@ ReasoningKernel Kernel;
 std::ofstream Out;
 
 // defined in AD.cpp
-void CreateAD ( TOntology* O, bool useSem );
+void CreateAD ( TOntology* O, ModuleMethod moduleMethod );
 
 // local methods
 inline void Usage ( void )
@@ -263,7 +263,7 @@ int main ( int argc, char *argv[] )
 #endif
 
 	// init timeout option
-	unsigned long testTimeout = Kernel.getOptions()->getInt("testTimeout");
+	unsigned long testTimeout = (unsigned long)Kernel.getOptions()->getInt("testTimeout");
 	Kernel.setOperationTimeout(testTimeout);
 	if ( LLM.isWritable(llAlways) )
 		LL << "Init testTimeout = " << testTimeout << "\n";
@@ -289,13 +289,26 @@ int main ( int argc, char *argv[] )
 
 	Out << "loading time " << wTimer << " seconds\n";
 
-	bool useSem = false;
-	if ( argc > 1 && argv[1][0] == 'n' )
-		useSem = true;
-
 	if ( Kernel.getOptions()->getBool("checkAD") )	// check atomic decomposition and exit
 	{
-		CreateAD(&Kernel.getOntology(), useSem);
+		if ( argc < 2 )
+		{
+			std::cerr << "Atomic Decomposition option missed: use s,c,n for syntactic, counting or semantic locality checking\n";
+			exit(1);
+		}
+		char c = argv[1][0];
+		ModuleMethod moduleMethod;
+		switch ( c )
+		{
+		case 's' : moduleMethod = SYN_LOC_STD; break;
+		case 'c' : moduleMethod = SYN_LOC_COUNT; break;
+		case 'n' : moduleMethod = SEM_LOC; break;
+		default:
+			std::cerr << "Wrong AD option: " << c << "\n";
+			exit(1);
+		}
+
+		CreateAD(&Kernel.getOntology(), moduleMethod);
 		return 0;
 	}
 

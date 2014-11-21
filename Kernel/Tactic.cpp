@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2012 by Dmitry Tsarkov
+Copyright (C) 2003-2014 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -391,7 +391,7 @@ bool DlSatTester :: commonTacticBodyAllComplex ( const DLVertex& cur )
 {
 	const DepSet& dep = curConcept.getDep();
 	unsigned int state = cur.getState();
-	BipolarPointer C = curConcept.bp()-state;	// corresponds to AR{0}.X
+	BipolarPointer C = curConcept.bp()-(BipolarPointer)state;	// corresponds to AR{0}.X
 	const RAStateTransitions& RST = cur.getRole()->getAutomaton()[state];
 	RAStateTransitions::const_iterator q, end = RST.end();
 
@@ -402,14 +402,14 @@ bool DlSatTester :: commonTacticBodyAllComplex ( const DLVertex& cur )
 			incStat(nAutoEmptyLookups);
 
 			if ( (*q)->empty() )
-				switchResult ( addToDoEntry ( curNode, C+(*q)->final(), dep, "e" ) );
+				switchResult ( addToDoEntry ( curNode, C+(BipolarPointer)(*q)->final(), dep, "e" ) );
 		}
 
 	// apply all top-role transitions
 	if ( unlikely(RST.hasTopTransition()) )
 		for ( q = RST.begin(); q != end; ++q )
 			if ( (*q)->isTop() )
-				switchResult ( addSessionGCI ( C+(*q)->final(), dep ) );
+				switchResult ( addSessionGCI ( C+(BipolarPointer)(*q)->final(), dep ) );
 
 	// apply final-state rule
 	if ( state == 1 )
@@ -456,7 +456,7 @@ bool DlSatTester :: applyTransitions ( const DlCompletionTreeArc* edge,
 	DlCompletionTree* node = edge->getArcEnd();
 	// fast lane: the single transition which is applicable
 	if ( RST.isSingleton() )
-		return addToDoEntry ( node, C+RST.getTransitionEnd(), dep, reason );
+		return addToDoEntry ( node, C+(BipolarPointer)RST.getTransitionEnd(), dep, reason );
 
 	RAStateTransitions::const_iterator q, end = RST.end();
 	const TRole* R = edge->getRole();
@@ -466,7 +466,7 @@ bool DlSatTester :: applyTransitions ( const DlCompletionTreeArc* edge,
 	{
 		incStat(nAutoTransLookups);
 		if ( (*q)->applicable(R) )
-			switchResult ( addToDoEntry ( node, C+(*q)->final(), dep, reason ) );
+			switchResult ( addToDoEntry ( node, C+(BipolarPointer)(*q)->final(), dep, reason ) );
 	}
 
 	return false;
@@ -831,7 +831,7 @@ bool DlSatTester :: applyUniversalNR ( DlCompletionTree* Node,
 			if ( vR->isSimple() )	// R is recognised so just add the final state!
 				switchResult ( addToDoEntry ( arcSample->getArcEnd(), v.getC(), dep+p->getDep(), "ae" ) );
 			else
-				switchResult ( applyTransitions ( arcSample, RST, p->bp()-v.getState(), dep+p->getDep(), "ae" ) );
+				switchResult ( applyTransitions ( arcSample, RST, p->bp()-(BipolarPointer)v.getState(), dep+p->getDep(), "ae" ) );
 			break;
 		}
 
@@ -961,7 +961,7 @@ bool DlSatTester :: commonTacticBodyLE ( const DLVertex& cur )	// for <=nR.C con
 			switchResult ( commonTacticBodyChoose ( R, C ) );
 
 		// check whether we need to apply NN rule first
-		if ( isNNApplicable ( R, C, /*stopper=*/curConcept.bp()+cur.getNumberLE() ) )
+		if ( isNNApplicable ( R, C, /*stopper=*/curConcept.bp()+(BipolarPointer)cur.getNumberLE() ) )
 			return commonTacticBodyNN(cur);	// after application <=-rule would be checked again
 	}
 
@@ -1567,13 +1567,13 @@ bool DlSatTester :: commonTacticBodyNN ( const DLVertex& cur )	// NN-rule
 	const DepSet curDep(getCurDepSet());
 
 	// make a stopper to mark that NN-rule is applied
-	switchResult ( addToDoEntry ( curNode, curConcept.bp() + cur.getNumberLE(), DepSet(), "NNs" ) );
+	switchResult ( addToDoEntry ( curNode, curConcept.bp() + (BipolarPointer)cur.getNumberLE(), DepSet(), "NNs" ) );
 
 	// create curNN new different edges
 	switchResult ( createDifferentNeighbours ( cur.getRole(), cur.getC(), curDep, NN, curNode->getNominalLevel()+1 ) );
 
 	// now remember NR we just created: it is (<= curNN R), so have to find it
-	return addToDoEntry ( curNode, curConcept.bp() + (cur.getNumberLE()-NN), curDep, "NN" );
+	return addToDoEntry ( curNode, curConcept.bp() + (BipolarPointer)(cur.getNumberLE()-NN), curDep, "NN" );
 }
 
 //-------------------------------------------------------------------------------
@@ -1657,7 +1657,7 @@ bool DlSatTester :: commonTacticBodyProj ( const TRole* R, BipolarPointer C, con
 	// checkProjection() might change curNode's edge vector and thusly invalidate iterators
 	DlCompletionTree::const_edge_iterator p = curNode->begin(), p_end = curNode->end();
 
-	for ( int i = 0, n = p_end - p; i < n; ++i )
+	for ( long i = 0, n = p_end - p; i < n; ++i )
 	{
 		p = curNode->begin() + i;
 		if ( (*p)->isNeighbour(R) )
