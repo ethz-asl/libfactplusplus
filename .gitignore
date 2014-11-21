@@ -3,3 +3,7 @@
 *.a
 *.so
 FaCT++/FaCT++
+/bin
+/mavenreleaseowlapi4/target
+.project
+.classpath
