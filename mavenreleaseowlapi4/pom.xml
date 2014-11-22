@@ -188,8 +188,9 @@
 				<artifactId>maven-surefire-plugin</artifactId>
 				<version>2.17</version>
 				<configuration>
+					<forkMode>once</forkMode>
 					<printSummary>false</printSummary>
-					<argLine>-Xmx1024M -Djava.awt.headless=true</argLine>
+					<argLine>-Xmx1024M -Djava.awt.headless=true -Djava.library.path=${project.build.directory}/classes/lib/native/64bit</argLine>
 				</configuration>
 			</plugin>
 			<plugin>
@@ -222,6 +223,12 @@
 			<artifactId>org.protege.editor.owl</artifactId>
 			<version>5.0.0-beta-16-SNAPSHOT</version>
 			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.11</version>
+			<scope>test</scope>
 		</dependency>
 	</dependencies>
 </project>
