@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2011-2012 by Dmitry Tsarkov
+Copyright (C) 2011-2014 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -119,7 +119,7 @@ TSplitRules :: BuildAllSeedSigs ( const SigVec& Allowed, const TSignature& Start
 //	std::cout << "\nBuilding seed signatures:";
 	// create a set of allowed entities for the next round
 	SigVec RecAllowed, Keepers;
-	TModularizer mod(/*useSem=*/false);
+	TModularizer mod(SYN_LOC_STD);
 	SigVec::const_iterator p, p_end;
 	for ( p = Allowed.begin(), p_end = Allowed.end(); p != p_end; ++p )
 		if ( likely(sig.contains(*p)))

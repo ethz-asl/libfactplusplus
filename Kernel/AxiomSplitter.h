@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2011-2012 by Dmitry Tsarkov
+Copyright (C) 2011-2014 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -327,7 +327,7 @@ protected:	// methods
 
 public:		// interaface
 		/// init c'tor
-	TAxiomSplitter ( TOntology* o ) : pr(std::cout), newNameId(0), mod(/*useSem=*/false), O(o)
+	TAxiomSplitter ( TOntology* o ) : pr(std::cout), newNameId(0), mod(SYN_LOC_STD), O(o)
 	{
 		mod.preprocessOntology(o->getAxioms());
 	}
