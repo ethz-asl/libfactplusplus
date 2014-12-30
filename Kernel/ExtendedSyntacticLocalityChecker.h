@@ -19,7 +19,19 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef EXTENDEDSYNLOCCHECKER_H
 #define EXTENDEDSYNLOCCHECKER_H
 
+// uncomment the following line to debug the locality checker
+//#define FPP_DEBUG_EXTENDED_LOCALITY
+
+// debug also the general locality checker
+#ifdef FPP_DEBUG_EXTENDED_LOCALITY
+#	define FPP_DEBUG_LOCALITY
+#endif
+
 #include "GeneralSyntacticLocalityChecker.h"
+
+#ifdef FPP_DEBUG_EXTENDED_LOCALITY
+#	include "tExpressionPrinterLISP.h"
+#endif
 
 // forward declarations
 class UpperBoundDirectEvaluator;
@@ -30,6 +42,11 @@ class LowerBoundComplementEvaluator;
 class CardinalityEvaluatorBase: protected SigAccessor, public DLExpressionVisitorEmpty
 {
 protected:	// members
+#ifdef FPP_DEBUG_EXTENDED_LOCALITY
+	TLISPExpressionPrinter lp;
+	const char* name;
+#endif
+
 	UpperBoundDirectEvaluator* UBD;
 	LowerBoundDirectEvaluator* LBD;
 	UpperBoundComplementEvaluator* UBC;
@@ -44,6 +61,15 @@ protected:	// methods to
 	{
 		expr.accept(*this);
 		return value;
+	}
+
+	void dumpValue ( const TDLExpression& expr ATTR_UNUSED )
+	{
+#	ifdef FPP_DEBUG_EXTENDED_LOCALITY
+		std::cout << name << ": value for";
+		expr.accept(lp);
+		std::cout << " is " << value << std::endl;
+#	endif
 	}
 
 		/// implementation of evaluation
@@ -72,7 +98,14 @@ protected:	// visitor helpers
 
 public:		// interface
 		/// init c'tor
-	CardinalityEvaluatorBase ( const TSignature* s ) : SigAccessor(s), value(0) {}
+	CardinalityEvaluatorBase ( const TSignature* s, const char* n ATTR_UNUSED )
+		: SigAccessor(s)
+#	ifdef FPP_DEBUG_EXTENDED_LOCALITY
+		, lp(std::cout)
+		, name(n)
+#	endif
+		, value(0)
+		{}
 		/// empty d'tor
 	virtual ~CardinalityEvaluatorBase ( void ) {}
 
@@ -100,7 +133,7 @@ public:		// visitor implementation: common cases
 	virtual void visit ( const TDLConceptName& expr )
 		{ value = getEntityValue(expr.getEntity()); }
 	virtual void visit ( const TDLConceptObjectExists& expr )
-		{ value = getMinValue ( 1, expr.getOR(), expr.getC() ); }
+		{ value = getMinValue ( 1, expr.getOR(), expr.getC() ); dumpValue(expr); }
 	virtual void visit ( const TDLConceptObjectForall& expr )
 		{ value = getForallValue ( expr.getOR(), expr.getC() ); }
 	virtual void visit ( const TDLConceptObjectMinCardinality& expr )
@@ -218,7 +251,7 @@ protected:	// methods
 
 public:		// interface
 		/// init c'tor
-	UpperBoundDirectEvaluator ( const TSignature* s ) : CardinalityEvaluatorBase(s) {}
+	UpperBoundDirectEvaluator ( const TSignature* s ) : CardinalityEvaluatorBase ( s, "UpperBoundDirect" ) {}
 		/// empty d'tor
 	virtual ~UpperBoundDirectEvaluator ( void ) {}
 
@@ -229,7 +262,7 @@ public:		// visitor implementation
 	virtual void visit ( const TDLConceptTop& ) { value = getNoneValue(); }
 	virtual void visit ( const TDLConceptBottom& ) { value = getAllValue(); }
 	virtual void visit ( const TDLConceptNot& expr ) { value = getUpperBoundComplement(expr.getC()); }
-	virtual void visit ( const TDLConceptAnd& expr ) { value = getAndValue(expr); }
+	virtual void visit ( const TDLConceptAnd& expr ) { value = getAndValue(expr); dumpValue(expr); }
 	virtual void visit ( const TDLConceptOr& expr ) { value = getOrValue(expr); }
 	virtual void visit ( const TDLConceptOneOf& expr ) { value = (int)expr.size(); }
 	virtual void visit ( const TDLConceptObjectSelf& expr ) { value = isBotEquivalent(expr.getOR()) ? getAllValue() : getNoneValue(); }
@@ -347,7 +380,7 @@ protected:	// methods
 
 public:		// interface
 		/// init c'tor
-	UpperBoundComplementEvaluator ( const TSignature* s ) : CardinalityEvaluatorBase(s) {}
+	UpperBoundComplementEvaluator ( const TSignature* s ) : CardinalityEvaluatorBase ( s, "UpperBoundCompliment" ) {}
 		/// empty d'tor
 	virtual ~UpperBoundComplementEvaluator ( void ) {}
 
@@ -358,7 +391,7 @@ public:		// visitor interface
 	virtual void visit ( const TDLConceptTop& ) { value = getAllValue(); }
 	virtual void visit ( const TDLConceptBottom& ) { value = getNoneValue(); }
 	virtual void visit ( const TDLConceptNot& expr ) { value = getUpperBoundDirect(expr.getC()); }
-	virtual void visit ( const TDLConceptAnd& expr ) { value = getAndValue(expr); }
+	virtual void visit ( const TDLConceptAnd& expr ) { value = getAndValue(expr); dumpValue(expr); }
 	virtual void visit ( const TDLConceptOr& expr ) { value = getOrValue(expr); }
 	virtual void visit ( const TDLConceptOneOf& ) { value = getNoneValue(); }
 	virtual void visit ( const TDLConceptObjectSelf& expr ) { value = isTopEquivalent(expr.getOR()) ? getAllValue() : getNoneValue(); }
@@ -530,7 +563,7 @@ protected:	// methods
 
 public:		// interface
 		/// init c'tor
-	LowerBoundDirectEvaluator ( const TSignature* s ) : CardinalityEvaluatorBase(s) {}
+	LowerBoundDirectEvaluator ( const TSignature* s ) : CardinalityEvaluatorBase ( s, "LowerBoundDirect" ) {}
 		/// empty d'tor
 	virtual ~LowerBoundDirectEvaluator ( void ) {}
 
@@ -541,7 +574,7 @@ public:		// visitor interface
 	virtual void visit ( const TDLConceptTop& ) { value = 1; }
 	virtual void visit ( const TDLConceptBottom& ) { value = getNoneValue(); }
 	virtual void visit ( const TDLConceptNot& expr ) { value = getLowerBoundComplement(expr.getC()); }
-	virtual void visit ( const TDLConceptAnd& expr ) { value = getAndValue(expr); }
+	virtual void visit ( const TDLConceptAnd& expr ) { value = getAndValue(expr); dumpValue(expr); }
 	virtual void visit ( const TDLConceptOr& expr ) { value = getOrValue(expr); }
 	virtual void visit ( const TDLConceptOneOf& expr ) { value = expr.size() > 0 ? 1 : getNoneValue(); }
 	virtual void visit ( const TDLConceptObjectSelf& expr ) { value = isTopEquivalent(expr.getOR()) ? 1 : getNoneValue(); }
@@ -711,7 +744,7 @@ protected:	// methods
 
 public:		// interface
 		/// init c'tor
-	LowerBoundComplementEvaluator ( const TSignature* s ) : CardinalityEvaluatorBase(s) {}
+	LowerBoundComplementEvaluator ( const TSignature* s ) : CardinalityEvaluatorBase ( s, "LowerBoundComplement" ) {}
 		/// empty d'tor
 	virtual ~LowerBoundComplementEvaluator ( void ) {}
 
@@ -722,7 +755,7 @@ public:		// visitor implementation
 	virtual void visit ( const TDLConceptTop& ) { value = getNoneValue(); }
 	virtual void visit ( const TDLConceptBottom& ) { value = 1; }
 	virtual void visit ( const TDLConceptNot& expr ) { value = getLowerBoundDirect(expr.getC()); }
-	virtual void visit ( const TDLConceptAnd& expr ) { value = getAndValue(expr); }
+	virtual void visit ( const TDLConceptAnd& expr ) { value = getAndValue(expr); dumpValue(expr); }
 	virtual void visit ( const TDLConceptOr& expr ) { value = getOrValue(expr); }
 	virtual void visit ( const TDLConceptOneOf& ) { value = getNoneValue(); }
 	virtual void visit ( const TDLConceptObjectSelf& expr ) { value = isBotEquivalent(expr.getOR()) ? 1 : getNoneValue(); }
@@ -783,12 +816,37 @@ protected:	// members
 	LowerBoundDirectEvaluator LBD;
 	UpperBoundComplementEvaluator UBC;
 	LowerBoundComplementEvaluator LBC;
+#ifdef FPP_DEBUG_EXTENDED_LOCALITY
+	TLISPExpressionPrinter lp;
+#endif
 
 protected:	// methods
 		/// @return true iff EXPR is top equivalent
-	virtual bool isTopEquivalent ( const TDLExpression* expr ) { return UBC.getUpperBoundComplement(expr) == 0; }
+	virtual bool isTopEquivalent ( const TDLExpression* expr ) {
+#	ifdef FPP_DEBUG_EXTENDED_LOCALITY
+		std::cout << "Checking top locality of";
+		expr->accept(lp);
+		std::cout << "\n";
+#	endif
+		bool ret = UBC.getUpperBoundComplement(expr) == 0;
+#	ifdef FPP_DEBUG_EXTENDED_LOCALITY
+		std::cout << "top loc: " << ret << "\n";
+#	endif
+		return ret;
+	}
 		/// @return true iff EXPR is bottom equivalent
-	virtual bool isBotEquivalent ( const TDLExpression* expr ) { return UBD.getUpperBoundDirect(expr) == 0; }
+	virtual bool isBotEquivalent ( const TDLExpression* expr ) {
+#	ifdef FPP_DEBUG_EXTENDED_LOCALITY
+		std::cout << "Checking bot locality of";
+		expr->accept(lp);
+		std::cout << "\n";
+#	endif
+		bool ret = UBD.getUpperBoundDirect(expr) == 0;
+#	ifdef FPP_DEBUG_EXTENDED_LOCALITY
+		std::cout << "bot loc: " << ret << "\n";
+#	endif
+		return ret;
+	}
 
 public:		// interface
 		/// init c'tor
@@ -798,6 +856,9 @@ public:		// interface
 		, LBD(s)
 		, UBC(s)
 		, LBC(s)
+#	ifdef FPP_DEBUG_EXTENDED_LOCALITY
+		, lp(std::cout)
+#	endif
 	{
 		UBD.setEvaluators ( &UBD, &LBD, &UBC, &LBC );
 		LBD.setEvaluators ( &UBD, &LBD, &UBC, &LBC );
