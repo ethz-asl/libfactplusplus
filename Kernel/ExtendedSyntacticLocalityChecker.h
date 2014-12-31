@@ -176,18 +176,15 @@ protected:	// methods
 	int getNoneValue ( void ) const { return -1; }
 		/// define a special value for concepts that are in C^{<= n} for all n
 	int getAllValue ( void ) const { return 0; }
+		/// return all or none values depending on the parameter value
+	int getAllNoneUpper ( bool value ) const { return value ? getAllValue() : getNoneValue(); }
 
 		/// helper for entities TODO: checks only C top-locality, not R
 	virtual int getEntityValue ( const TNamedEntity* entity )
-		{ return botCLocal() && nc(entity) ? getAllValue() : getNoneValue(); }
+		{ return getAllNoneUpper ( botCLocal() && nc(entity) ); }
 		/// helper for All
 	virtual int getForallValue ( const TDLRoleExpression* R, const TDLExpression* C )
-	{
-		if ( isTopEquivalent(R) && getLowerBoundComplement(C) >= 1 )
-			return getAllValue();
-		else
-			return getNoneValue();
-	}
+		{ return getAllNoneUpper ( isTopEquivalent(R) && getLowerBoundComplement(C) >= 1 ); }
 		/// helper for things like >= m R.C
 	virtual int getMinValue ( unsigned int m, const TDLRoleExpression* R, const TDLExpression* C )
 	{
@@ -199,10 +196,7 @@ protected:	// methods
 			return getAllValue();
 		// C \in C^{<= m-1}
 		int ubC = getUpperBoundDirect(C);
-		if ( ubC != getNoneValue() && ubC < (int)m )
-			return getAllValue();
-		else
-			return getNoneValue();
+		return getAllNoneUpper ( ubC != getNoneValue() && ubC < (int)m );
 	}
 		/// helper for things like <= m R.C
 	virtual int getMaxValue ( unsigned int m, const TDLRoleExpression* R, const TDLExpression* C )
@@ -212,10 +206,7 @@ protected:	// methods
 			return getNoneValue();
 		// C\in C^{>= m+1}
 		int lbC = getLowerBoundDirect(C);
-		if ( lbC != getNoneValue() && lbC > (int)m )
-			return getAllValue();
-		else
-			return getNoneValue();
+		return getAllNoneUpper ( lbC != getNoneValue() && lbC > (int)m );
 	}
 		/// helper for things like = m R.C
 	virtual int getExactValue ( unsigned int m, const TDLRoleExpression* R, const TDLExpression* C )
@@ -265,9 +256,9 @@ public:		// visitor implementation
 	virtual void visit ( const TDLConceptAnd& expr ) { value = getAndValue(expr); dumpValue(expr); }
 	virtual void visit ( const TDLConceptOr& expr ) { value = getOrValue(expr); }
 	virtual void visit ( const TDLConceptOneOf& expr ) { value = (int)expr.size(); }
-	virtual void visit ( const TDLConceptObjectSelf& expr ) { value = isBotEquivalent(expr.getOR()) ? getAllValue() : getNoneValue(); }
-	virtual void visit ( const TDLConceptObjectValue& expr ) { value = isBotEquivalent(expr.getOR()) ? getAllValue() : getNoneValue(); }
-	virtual void visit ( const TDLConceptDataValue& expr ) { value = isBotEquivalent(expr.getDR()) ? getAllValue() : getNoneValue(); }
+	virtual void visit ( const TDLConceptObjectSelf& expr ) { value = getAllNoneUpper(isBotEquivalent(expr.getOR())); }
+	virtual void visit ( const TDLConceptObjectValue& expr ) { value = getAllNoneUpper(isBotEquivalent(expr.getOR())); }
+	virtual void visit ( const TDLConceptDataValue& expr ) { value = getAllNoneUpper(isBotEquivalent(expr.getDR())); }
 
 	// object role expressions
 	virtual void visit ( const TDLObjectRoleTop& ) { value = getNoneValue(); }
@@ -309,6 +300,8 @@ protected:	// methods
 	int getNoneValue ( void ) const { return -1; }
 		/// define a special value for concepts that are in C^{<= n} for all n
 	int getAllValue ( void ) const { return 0; }
+		/// return all or none values depending on the parameter value
+	int getAllNoneUpper ( bool value ) const { return value ? getAllValue() : getNoneValue(); }
 
 		/// helper for entities TODO: checks only C top-locality, not R
 	virtual int getEntityValue ( const TNamedEntity* entity )
@@ -438,18 +431,15 @@ protected:	// methods
 	int getNoneValue ( void ) const { return 0; }
 		/// define a special value for concepts that are in C^{>= n} for all n
 	int getAllValue ( void ) const { return -1; }
+		/// return all or none values depending on the parameter value
+	int getOneNoneLower ( bool value ) const { return value ? 1 : getNoneValue(); }
 
 		/// helper for entities TODO: checks only C top-locality, not R
 	virtual int getEntityValue ( const TNamedEntity* entity )
-		{ return topCLocal() && nc(entity) ? 1 : getNoneValue(); }
+		{ return getOneNoneLower ( topCLocal() && nc(entity) ); }
 		/// helper for All
 	virtual int getForallValue ( const TDLRoleExpression* R, const TDLExpression* C )
-	{
-		if ( isBotEquivalent(R) || getUpperBoundComplement(C) == 0 )
-			return 1;
-		else
-			return getNoneValue();
-	}
+		{ return getOneNoneLower ( isBotEquivalent(R) || getUpperBoundComplement(C) == 0 ); }
 		/// helper for things like >= m R.C
 	virtual int getMinValue ( unsigned int m, const TDLRoleExpression* R, const TDLExpression* C )
 	{
@@ -470,10 +460,7 @@ protected:	// methods
 			return 1;
 		// C\in C^{<= m}
 		int lbC = getUpperBoundDirect(C);
-		if ( lbC != getNoneValue() && lbC <= (int)m )
-			return 1;
-		else
-			return getNoneValue();
+		return getOneNoneLower ( lbC != getNoneValue() && lbC <= (int)m );
 	}
 		/// helper for things like = m R.C
 	virtual int getExactValue ( unsigned int m, const TDLRoleExpression* R, const TDLExpression* C )
@@ -576,11 +563,11 @@ public:		// visitor interface
 	virtual void visit ( const TDLConceptNot& expr ) { value = getLowerBoundComplement(expr.getC()); }
 	virtual void visit ( const TDLConceptAnd& expr ) { value = getAndValue(expr); dumpValue(expr); }
 	virtual void visit ( const TDLConceptOr& expr ) { value = getOrValue(expr); }
-	virtual void visit ( const TDLConceptOneOf& expr ) { value = expr.size() > 0 ? 1 : getNoneValue(); }
-	virtual void visit ( const TDLConceptObjectSelf& expr ) { value = isTopEquivalent(expr.getOR()) ? 1 : getNoneValue(); }
+	virtual void visit ( const TDLConceptOneOf& expr ) { value = getOneNoneLower(expr.size() > 0); }
+	virtual void visit ( const TDLConceptObjectSelf& expr ) { value = getOneNoneLower(isTopEquivalent(expr.getOR())); }
 	// FIXME!! differ from the paper
-	virtual void visit ( const TDLConceptObjectValue& expr ) { value = isTopEquivalent(expr.getOR()) ? 1 : getNoneValue(); }
-	virtual void visit ( const TDLConceptDataValue& expr ) { value = isTopEquivalent(expr.getDR()) ? 1 : getNoneValue(); }
+	virtual void visit ( const TDLConceptObjectValue& expr ) { value = getOneNoneLower(isTopEquivalent(expr.getOR())); }
+	virtual void visit ( const TDLConceptDataValue& expr ) { value = getOneNoneLower(isTopEquivalent(expr.getDR())); }
 
 	// object role expressions
 	virtual void visit ( const TDLObjectRoleTop& ) { value = getAllValue(); }
@@ -612,7 +599,7 @@ public:		// visitor interface
 	virtual void visit ( const TDLDataNot& expr ) { value = getLowerBoundComplement(expr.getExpr()); }
 	virtual void visit ( const TDLDataAnd& expr ) { value = getAndValue(expr); }
 	virtual void visit ( const TDLDataOr& expr ) { value = getOrValue(expr); }
-	virtual void visit ( const TDLDataOneOf& expr ) { value = expr.size() > 0 ? 1 : getNoneValue(); }
+	virtual void visit ( const TDLDataOneOf& expr ) { value = getOneNoneLower(expr.size() > 0); }
 }; // LowerBoundDirectEvaluator
 
 class LowerBoundComplementEvaluator: public CardinalityEvaluatorBase
@@ -622,18 +609,15 @@ protected:	// methods
 	int getNoneValue ( void ) const { return 0; }
 		/// define a special value for concepts that are in C^{>= n} for all n
 	int getAllValue ( void ) const { return -1; }
+		/// return all or none values depending on the parameter value
+	int getOneNoneLower ( bool value ) const { return value ? 1 : getNoneValue(); }
 
 		/// helper for entities TODO: checks only C top-locality, not R
 	virtual int getEntityValue ( const TNamedEntity* entity )
-		{ return botCLocal() && nc(entity) ? 1 : getNoneValue(); }
+		{ return getOneNoneLower ( botCLocal() && nc(entity) ); }
 		/// helper for All
 	virtual int getForallValue ( const TDLRoleExpression* R, const TDLExpression* C )
-	{
-		if ( isTopEquivalent(R) && getLowerBoundComplement(C) >= 1 )
-			return 1;
-		else
-			return getNoneValue();
-	}
+		{ return getOneNoneLower ( isTopEquivalent(R) && getLowerBoundComplement(C) >= 1 ); }
 		/// helper for things like >= m R.C
 	virtual int getMinValue ( unsigned int m, const TDLRoleExpression* R, const TDLExpression* C )
 	{
@@ -645,10 +629,7 @@ protected:	// methods
 			return 1;
 		// C \in C^{<= m-1}
 		int ubC = getUpperBoundDirect(C);
-		if ( ubC != getNoneValue() && ubC < (int)m )
-			return 1;
-		else
-			return getNoneValue();
+		return getOneNoneLower ( ubC != getNoneValue() && ubC < (int)m );
 	}
 		/// helper for things like <= m R.C
 	virtual int getMaxValue ( unsigned int m, const TDLRoleExpression* R, const TDLExpression* C )
@@ -758,9 +739,9 @@ public:		// visitor implementation
 	virtual void visit ( const TDLConceptAnd& expr ) { value = getAndValue(expr); dumpValue(expr); }
 	virtual void visit ( const TDLConceptOr& expr ) { value = getOrValue(expr); }
 	virtual void visit ( const TDLConceptOneOf& ) { value = getNoneValue(); }
-	virtual void visit ( const TDLConceptObjectSelf& expr ) { value = isBotEquivalent(expr.getOR()) ? 1 : getNoneValue(); }
-	virtual void visit ( const TDLConceptObjectValue& expr ) { value = isBotEquivalent(expr.getOR()) ? 1 : getNoneValue(); }
-	virtual void visit ( const TDLConceptDataValue& expr ) { value = isBotEquivalent(expr.getDR()) ? 1 : getNoneValue(); }
+	virtual void visit ( const TDLConceptObjectSelf& expr ) { value = getOneNoneLower(isBotEquivalent(expr.getOR())); }
+	virtual void visit ( const TDLConceptObjectValue& expr ) { value = getOneNoneLower(isBotEquivalent(expr.getOR())); }
+	virtual void visit ( const TDLConceptDataValue& expr ) { value = getOneNoneLower(isBotEquivalent(expr.getDR())); }
 
 	// object role expressions
 	virtual void visit ( const TDLObjectRoleTop& ) { value = getNoneValue(); }
