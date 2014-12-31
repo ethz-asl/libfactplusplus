@@ -305,15 +305,10 @@ protected:	// methods
 
 		/// helper for entities TODO: checks only C top-locality, not R
 	virtual int getEntityValue ( const TNamedEntity* entity )
-		{ return topCLocal() && nc(entity) ? getAllValue() : getNoneValue(); }
+		{ return getAllNoneUpper ( topCLocal() && nc(entity) ); }
 		/// helper for All
 	virtual int getForallValue ( const TDLRoleExpression* R, const TDLExpression* C )
-	{
-		if ( isBotEquivalent(R) || getUpperBoundComplement(C) == 0 )
-			return getAllValue();
-		else
-			return getNoneValue();
-	}
+		{ return getAllNoneUpper ( isBotEquivalent(R) || getUpperBoundComplement(C) == 0 ); }
 		/// helper for things like >= m R.C
 	virtual int getMinValue ( unsigned int m, const TDLRoleExpression* R, const TDLExpression* C )
 	{
@@ -324,7 +319,7 @@ protected:	// methods
 		if ( !isTopEquivalent(R) )
 			return getNoneValue();
 		// C \in C^{>= m}
-		return getLowerBoundDirect(C) >= (int)m ? getAllValue() : getNoneValue();
+		return getAllNoneUpper ( getLowerBoundDirect(C) >= (int)m );
 	}
 		/// helper for things like <= m R.C
 	virtual int getMaxValue ( unsigned int m, const TDLRoleExpression* R, const TDLExpression* C )
@@ -334,10 +329,7 @@ protected:	// methods
 			return getAllValue();
 		// C\in C^{<= m}
 		int lbC = getUpperBoundDirect(C);
-		if ( lbC != getNoneValue() && lbC <= (int)m )
-			return getAllValue();
-		else
-			return getNoneValue();
+		return getAllNoneUpper ( lbC != getNoneValue() && lbC <= (int)m );
 	}
 		/// helper for things like = m R.C
 	virtual int getExactValue ( unsigned int m, const TDLRoleExpression* R, const TDLExpression* C )
@@ -387,9 +379,9 @@ public:		// visitor interface
 	virtual void visit ( const TDLConceptAnd& expr ) { value = getAndValue(expr); dumpValue(expr); }
 	virtual void visit ( const TDLConceptOr& expr ) { value = getOrValue(expr); }
 	virtual void visit ( const TDLConceptOneOf& ) { value = getNoneValue(); }
-	virtual void visit ( const TDLConceptObjectSelf& expr ) { value = isTopEquivalent(expr.getOR()) ? getAllValue() : getNoneValue(); }
-	virtual void visit ( const TDLConceptObjectValue& expr ) { value = isTopEquivalent(expr.getOR()) ? getAllValue() : getNoneValue(); }
-	virtual void visit ( const TDLConceptDataValue& expr ) { value = isTopEquivalent(expr.getDR()) ? getAllValue() : getNoneValue(); }
+	virtual void visit ( const TDLConceptObjectSelf& expr ) { value = getAllNoneUpper(isTopEquivalent(expr.getOR())); }
+	virtual void visit ( const TDLConceptObjectValue& expr ) { value = getAllNoneUpper(isTopEquivalent(expr.getOR())); }
+	virtual void visit ( const TDLConceptDataValue& expr ) { value = getAllNoneUpper(isTopEquivalent(expr.getDR())); }
 
 	// object role expressions
 	virtual void visit ( const TDLObjectRoleTop& ) { value = getAllValue(); }
