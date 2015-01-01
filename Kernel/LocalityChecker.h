@@ -22,7 +22,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "tSignature.h"
 #include "ModuleMethod.h"
 #include "tDLAxiom.h"
-#include "tOntology.h"
 
 /// helper class to set signature and locality class
 class SigAccessor
@@ -76,13 +75,6 @@ public:		// interface
 	}
 		/// fake method to match the semantic checker's interface
 	virtual void preprocessOntology ( const AxiomVec& ) {}
-		/// checking locality of the whole ontology (not very useful, but is required by the interface)
-	virtual void visitOntology ( TOntology& ontology )
-	{
-		for ( TOntology::iterator p = ontology.begin(), p_end = ontology.end(); p < p_end; ++p )
-			if ( likely((*p)->isUsed()) )
-				(*p)->accept(*this);
-	}
 		/// set a new value of a signature (without changing a locality parameters)
 	void setSignatureValue ( const TSignature& Sig )
 	{

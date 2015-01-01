@@ -58,8 +58,6 @@ class TDLAxiomRelatedToNot;
 class TDLAxiomValueOf;
 class TDLAxiomValueOfNot;
 
-class TOntology;
-
 /// general visitor for DL axioms
 class DLAxiomVisitor
 {
@@ -100,7 +98,6 @@ public:		// visitor interface
 	virtual void visit ( const TDLAxiomValueOf& axiom ) = 0;
 	virtual void visit ( const TDLAxiomValueOfNot& axiom ) = 0;
 
-	virtual void visitOntology ( TOntology& ontology ) = 0;
 	virtual ~DLAxiomVisitor ( void ) {}
 }; // DLAxiomVisitor
 
@@ -144,7 +141,6 @@ public:		// visitor interface
 	virtual void visit ( const TDLAxiomValueOf& ) {}
 	virtual void visit ( const TDLAxiomValueOfNot& ) {}
 
-	virtual void visitOntology ( TOntology& ontology ) = 0;
 	virtual ~DLAxiomVisitorEmpty ( void ) {}
 }; // DLAxiomVisitor
 

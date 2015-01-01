@@ -383,12 +383,9 @@ public:		// interface
 	virtual ~TOntologyLoader ( void ) {}
 
 		/// load ontology to a given KB
-	virtual void visitOntology ( TOntology& ontology )
+	void visitOntology ( TOntology& ontology )
 	{
-		for ( auto axiom: ontology )
-			if ( axiom->isUsed() )
-				axiom->accept(*this);
-
+		ontology.visitOntology(*this);
 		kb.finishLoading();
 	}
 }; // TOntologyLoader

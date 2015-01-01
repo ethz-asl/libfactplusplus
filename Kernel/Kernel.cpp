@@ -141,7 +141,7 @@ ReasoningKernel :: forceReload ( void )
 	{
 		TLISPOntologyPrinter OntologyPrinter(std::cout);
 		//DRoles.fill(OntologyPrinter);
-		OntologyPrinter.visitOntology(Ontology);
+		Ontology.visitOntology(OntologyPrinter);
 	}
 
 	if ( useIncrementalReasoning )

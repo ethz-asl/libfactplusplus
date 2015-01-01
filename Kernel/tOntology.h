@@ -125,6 +125,13 @@ public:		// interface
 		/// get access to the I'th axiom
 	TDLAxiom* operator [] ( size_t i ) { return Axioms[i]; }
 
+		/// apply an axiom visitor to all used axioms in the ontology
+	void visitOntology ( DLAxiomVisitor& visitor )
+	{
+		for ( TOntology::iterator p = begin(), p_end = end(); p < p_end; ++p )
+			if ( likely((*p)->isUsed()) )
+				(*p)->accept(visitor);
+	}
 		/// size of the ontology
 	size_t size ( void ) const { return Axioms.size(); }
 		/// get signature of all ontology axioms

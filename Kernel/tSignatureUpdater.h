@@ -172,16 +172,6 @@ public:		// interface
 	TSignatureUpdater ( TSignature& sig ) : Updater(sig) {}
 		/// empty d'tor
 	virtual ~TSignatureUpdater ( void ) {}
-
-		/// load ontology to a given KB
-	virtual void visitOntology ( TOntology& ontology )
-	{
-		for ( TOntology::iterator p = ontology.begin(), p_end = ontology.end(); p < p_end; ++p )
-			if ( (*p)->isUsed() )
-			{
-				(*p)->accept(*this);
-			}
-	}
 }; // TSignatureUpdater
 
 #endif
