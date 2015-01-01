@@ -230,7 +230,13 @@ protected:	// methods
 		int max = noUpperValue();
 		// we are looking for the maximal value here; -1 will be dealt with automagically
 		for ( typename TDLNAryExpression<C>::iterator p = expr.begin(), p_end = expr.end(); p != p_end; ++p )
-			max = std::max ( max, getUpperBoundDirect(*p) );
+		{
+			int n = getUpperBoundDirect(*p);
+			// if an argument is in C^{<= n} for every n, so is a conjunction
+			if ( n == anyUpperValue() )
+				return anyUpperValue();
+			max = std::max ( max, n );
+		}
 		return max;
 	}
 		/// helper for Or
@@ -345,10 +351,10 @@ protected:	// methods
 	template<class C>
 	int getAndValue ( const TDLNAryExpression<C>& expr )
 	{
-		int sum = 0, n;
+		int sum = 0;
 		for ( typename TDLNAryExpression<C>::iterator p = expr.begin(), p_end = expr.end(); p != p_end; ++p )
 		{
-			n = getUpperBoundComplement(*p);
+			int n = getUpperBoundComplement(*p);
 			if ( n == noUpperValue() )
 				return noUpperValue();
 			sum += n;
@@ -362,7 +368,13 @@ protected:	// methods
 		int max = noUpperValue();
 		// we are looking for the maximal value here; -1 will be dealt with automagically
 		for ( typename TDLNAryExpression<C>::iterator p = expr.begin(), p_end = expr.end(); p != p_end; ++p )
-			max = std::max ( max, getUpperBoundComplement(*p) );
+		{
+			int n = getUpperBoundComplement(*p);
+			// if an argument is in CC^{<= n} for every n, so is a disjunction
+			if ( n == anyUpperValue() )
+				return anyUpperValue();
+			max = std::max ( max, n );
+		}
 		return max;
 	}
 
