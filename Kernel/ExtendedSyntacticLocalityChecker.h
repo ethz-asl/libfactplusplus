@@ -541,13 +541,12 @@ protected:	// methods
 	int getOrValue ( const TDLNAryExpression<C>& expr )
 	{
 		int max = noLowerValue();
-		// we are looking for the maximal value here; -1 need to be special-cased
+		// we are looking for the maximal value here; ANY need to be special-cased
 		for ( typename TDLNAryExpression<C>::iterator p = expr.begin(), p_end = expr.end(); p != p_end; ++p )
 		{
-			int n = getUpperBoundDirect(*p);
-			// note bound flip
-			if ( n == noUpperValue() )
-				return noLowerValue();
+			int n = getLowerBoundDirect(*p);
+			if ( n == anyLowerValue() )
+				return anyLowerValue();
 			max = std::max ( max, n );
 		}
 		return max;
@@ -658,12 +657,11 @@ protected:	// methods
 	int getAndValue ( const TDLNAryExpression<C>& expr )
 	{
 		int max = noLowerValue();
-		// we are looking for the maximal value here; -1 need to be special-cased
+		// we are looking for the maximal value here; ANY need to be special-cased
 		for ( typename TDLNAryExpression<C>::iterator p = expr.begin(), p_end = expr.end(); p != p_end; ++p )
 		{
-			int n = getUpperBoundDirect(*p);
-			// note bound flip
-			if ( n == anyUpperValue() )
+			int n = getLowerBoundComplement(*p);
+			if ( n == anyLowerValue() )
 				return anyLowerValue();
 			max = std::max ( max, n );
 		}
