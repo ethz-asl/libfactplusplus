@@ -55,6 +55,7 @@ SOURCES = \
           ExtendedDataRange.cpp\
           SaveLoadManager.cpp\
           dir_util.cpp\
+          LocalityChecker.cpp\
 
 
 include ../Makefile.include

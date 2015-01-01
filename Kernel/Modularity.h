@@ -26,13 +26,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "tOntology.h"
 #include "SigIndex.h"
-// locality checking
-#include "SemanticLocalityChecker.h"
-#include "SyntacticLocalityChecker.h"
-#include "ExtendedSyntacticLocalityChecker.h"
+#include "LocalityChecker.h"
 
 #include "ModuleType.h"
-#include "ModuleMethod.h"
 
 #ifdef RKG_USE_AD_IN_MODULE_EXTRACTION
 #	include "tOntologyAtom.h"
@@ -63,18 +59,6 @@ protected:	// members
 		/// true if no atoms are processed ATM
 	bool noAtomsProcessing;
 
-private:	// methods
-		/// get locality checker by a method
-	static inline LocalityChecker* getLocalityChecker ( ModuleMethod moduleMethod, TSignature* pSig )
-	{
-		switch ( moduleMethod )
-		{
-		case SYN_LOC_STD: return new SyntacticLocalityChecker(pSig);
-		case SYN_LOC_COUNT: return new ExtendedSyntacticLocalityChecker(pSig);
-		case SEM_LOC: return new SemanticLocalityChecker(pSig);
-		default: fpp_unreachable();
-		}
-	}
 protected:	// methods
 		/// update SIG wrt the axiom signature
 	void addAxiomSig ( const TSignature& axiomSig )
@@ -166,7 +150,7 @@ protected:	// methods
 public:		// interface
 		/// init c'tor
 	TModularizer ( ModuleMethod moduleMethod )
-		: Checker(getLocalityChecker(moduleMethod,&sig))
+		: Checker(createLocalityChecker(moduleMethod,&sig))
 		, sigIndex(Checker)
 		, nChecks(0)
 		, nNonLocal(0)

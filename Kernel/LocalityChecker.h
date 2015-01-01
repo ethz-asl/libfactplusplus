@@ -20,6 +20,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #define LOCALITYCHECKER_H
 
 #include "tSignature.h"
+#include "ModuleMethod.h"
+#include "tDLAxiom.h"
+#include "tOntology.h"
 
 /// helper class to set signature and locality class
 class SigAccessor
@@ -89,5 +92,8 @@ public:		// interface
 //		curSig->setLocality ( topC, topR );
 	}
 }; // LocalityChecker
+
+/// @return a locality checker corresponding to a given method
+extern LocalityChecker* createLocalityChecker ( ModuleMethod moduleMethod, TSignature* pSig );
 
 #endif
