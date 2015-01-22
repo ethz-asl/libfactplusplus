@@ -631,13 +631,23 @@ ReasoningKernel :: getNonLocal ( ModuleMethod moduleMethod, ModuleType moduleTyp
 		if ( const TNamedEntity* entity = dynamic_cast<const TNamedEntity*>(*q) )
 			Sig.add(entity);
 
+//	TLISPOntologyPrinter lp(std::cout);
 	// do check
 	LocalityChecker* LC = getModExtractor(moduleMethod)->getModularizer()->getLocalityChecker();
 	LC->setSignatureValue(Sig);
 	Result.clear();
 	for ( TOntology::iterator p = getOntology().begin(), p_end = getOntology().end(); p != p_end; ++p )
+	{
+//		std::cout << "Checking locality of ";
+//		(*p)->accept(lp);
 		if ( !LC->local(*p) )
+		{
+//			std::cout << "AX non-local" << std::endl;
 			Result.push_back(*p);
+		}
+//		else
+//			std::cout << "AX local" << std::endl;
+	}
 	return Result;
 }
 

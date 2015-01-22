@@ -95,8 +95,27 @@ protected:	// visitor helpers
 		/// return 1 or none values depending on the condition
 	int getOneNoneLower ( bool condition ) const { return condition ? 1 : noLowerValue(); }
 
-	bool isBotEquivalent ( const TDLExpression* expr ) { return getUpperBoundDirect(*expr) == 0; }
-	bool isTopEquivalent ( const TDLExpression* expr ) { return getUpperBoundComplement(*expr) == 0; }
+		/// @return true if given upper VALUE is less than M
+	bool isUpperLT ( int value, unsigned int m ) const
+	{
+		if ( value == noUpperValue() )
+			return false;
+		return value == anyUpperValue() || (unsigned int) value < m;
+	}
+		/// @return true if given upper VALUE is less than or equal to M
+	bool isUpperLE ( int value, unsigned int m ) const { return isUpperLT ( value, m+1 ); }
+		/// @return true if given lower VALUE is greater than or equal to M
+	bool isLowerGE ( int value, unsigned int m ) const
+	{
+		if ( value == noLowerValue() )
+			return false;
+		return value == anyLowerValue() || (unsigned int) value >= m;
+	}
+		/// @return true if given upper VALUE is greater than M
+	bool isLowerGT ( int value, unsigned int m ) const { return isLowerGE ( value, m+1 ); }
+
+	bool isBotEquivalent ( const TDLExpression* expr ) { return isUpperLE ( getUpperBoundDirect(*expr), 0 ); }
+	bool isTopEquivalent ( const TDLExpression* expr ) { return isUpperLE ( getUpperBoundComplement(*expr), 0 ); }
 
 		/// helper for entities
 	virtual int getEntityValue ( const TNamedEntity* entity ) = 0;
@@ -191,7 +210,7 @@ protected:	// methods
 		{ return getAllNoneUpper ( botCLocal() && nc(entity) ); }
 		/// helper for All
 	virtual int getForallValue ( const TDLRoleExpression* R, const TDLExpression* C )
-		{ return getAllNoneUpper ( isTopEquivalent(R) && getLowerBoundComplement(C) >= 1 ); }
+		{ return getAllNoneUpper ( isTopEquivalent(R) && isLowerGE ( getLowerBoundComplement(C), 1 ) ); }
 		/// helper for things like >= m R.C
 	virtual int getMinValue ( unsigned int m, const TDLRoleExpression* R, const TDLExpression* C )
 	{
@@ -202,8 +221,7 @@ protected:	// methods
 		if ( isBotEquivalent(R) )
 			return anyUpperValue();
 		// C \in C^{<= m-1}
-		int ubD = getUpperBoundDirect(C);
-		return getAllNoneUpper ( ubD != noUpperValue() && ubD < (int)m );
+		return getAllNoneUpper ( isUpperLT ( getUpperBoundDirect(C), m ) );
 	}
 		/// helper for things like <= m R.C
 	virtual int getMaxValue ( unsigned int m, const TDLRoleExpression* R, const TDLExpression* C )
@@ -212,9 +230,7 @@ protected:	// methods
 		if ( !isTopEquivalent(R) )
 			return noUpperValue();
 		// C\in C^{>= m+1}
-		int lbD = getLowerBoundDirect(C);
-		// note bound flip
-		return getAllNoneUpper ( lbD != noLowerValue() && lbD > (int)m );
+		return getAllNoneUpper ( isLowerGT ( getLowerBoundDirect(C), m ) );
 	}
 		/// helper for things like = m R.C
 	virtual int getExactValue ( unsigned int m, const TDLRoleExpression* R, const TDLExpression* C )
@@ -317,7 +333,7 @@ protected:	// methods
 		{ return getAllNoneUpper ( topCLocal() && nc(entity) ); }
 		/// helper for All
 	virtual int getForallValue ( const TDLRoleExpression* R, const TDLExpression* C )
-		{ return getAllNoneUpper ( isBotEquivalent(R) || getUpperBoundComplement(C) == 0 ); }
+		{ return getAllNoneUpper ( isBotEquivalent(R) || isUpperLE ( getUpperBoundComplement(C), 0 ) ); }
 		/// helper for things like >= m R.C
 	virtual int getMinValue ( unsigned int m, const TDLRoleExpression* R, const TDLExpression* C )
 	{
@@ -328,7 +344,7 @@ protected:	// methods
 		if ( !isTopEquivalent(R) )
 			return noUpperValue();
 		// C \in C^{>= m}
-		return getAllNoneUpper ( getLowerBoundDirect(C) >= (int)m );
+		return getAllNoneUpper ( isLowerGE ( getLowerBoundDirect(C), m ) );
 	}
 		/// helper for things like <= m R.C
 	virtual int getMaxValue ( unsigned int m, const TDLRoleExpression* R, const TDLExpression* C )
@@ -337,8 +353,7 @@ protected:	// methods
 		if ( isBotEquivalent(R)  )
 			return anyUpperValue();
 		// C\in C^{<= m}
-		int ubD = getUpperBoundDirect(C);
-		return getAllNoneUpper ( ubD != noUpperValue() && ubD <= (int)m );
+		return getAllNoneUpper ( isUpperLE ( getUpperBoundDirect(C), m ) );
 	}
 		/// helper for things like = m R.C
 	virtual int getExactValue ( unsigned int m, const TDLRoleExpression* R, const TDLExpression* C )
@@ -441,7 +456,7 @@ protected:	// methods
 		{ return getOneNoneLower ( topCLocal() && nc(entity) ); }
 		/// helper for All
 	virtual int getForallValue ( const TDLRoleExpression* R, const TDLExpression* C )
-		{ return getOneNoneLower ( isBotEquivalent(R) || getUpperBoundComplement(C) == 0 ); }
+		{ return getOneNoneLower ( isBotEquivalent(R) || isUpperLE ( getUpperBoundComplement(C), 0 ) ); }
 		/// helper for things like >= m R.C
 	virtual int getMinValue ( unsigned int m, const TDLRoleExpression* R, const TDLExpression* C )
 	{
@@ -452,7 +467,7 @@ protected:	// methods
 		if ( !isTopEquivalent(R) )
 			return noLowerValue();
 		// C \in C^{>= m}
-		return getLowerBoundDirect(C) >= (int)m ? (int)m : noLowerValue();
+		return isLowerGE ( getLowerBoundDirect(C), m ) ? (int)m : noLowerValue();
 	}
 		/// helper for things like <= m R.C
 	virtual int getMaxValue ( unsigned int m, const TDLRoleExpression* R, const TDLExpression* C )
@@ -461,9 +476,7 @@ protected:	// methods
 		if ( isBotEquivalent(R) )
 			return 1;
 		// C\in C^{<= m}
-		int ubD = getUpperBoundDirect(C);
-		// note bound flip
-		return getOneNoneLower ( ubD != noUpperValue() && ubD <= (int)m );
+		return getOneNoneLower ( isUpperLE ( getUpperBoundDirect(C), m ) );
 	}
 		/// helper for things like = m R.C
 	virtual int getExactValue ( unsigned int m, const TDLRoleExpression* R, const TDLExpression* C )
@@ -616,7 +629,7 @@ protected:	// methods
 		{ return getOneNoneLower ( botCLocal() && nc(entity) ); }
 		/// helper for All
 	virtual int getForallValue ( const TDLRoleExpression* R, const TDLExpression* C )
-		{ return getOneNoneLower ( isTopEquivalent(R) && getLowerBoundComplement(C) >= 1 ); }
+		{ return getOneNoneLower ( isTopEquivalent(R) && isLowerGE ( getLowerBoundComplement(C), 1 ) ); }
 		/// helper for things like >= m R.C
 	virtual int getMinValue ( unsigned int m, const TDLRoleExpression* R, const TDLExpression* C )
 	{
@@ -627,9 +640,7 @@ protected:	// methods
 		if ( isBotEquivalent(R) )
 			return 1;
 		// C \in C^{<= m-1}
-		int ubD = getUpperBoundDirect(C);
-		// note bound flip
-		return getOneNoneLower ( ubD != noUpperValue() && ubD < (int)m );
+		return getOneNoneLower ( isUpperLT ( getUpperBoundDirect(C), m ) );
 	}
 		/// helper for things like <= m R.C
 	virtual int getMaxValue ( unsigned int m, const TDLRoleExpression* R, const TDLExpression* C )
@@ -638,8 +649,7 @@ protected:	// methods
 		if ( !isTopEquivalent(R) )
 			return noLowerValue();
 		// C\in C^{>= m+1}
-		int lbD = getLowerBoundDirect(C);
-		if ( lbD != noLowerValue() && lbD > (int)m )
+		if ( isLowerGT ( getLowerBoundDirect(C), m ) )
 			return (int)m+1;
 		else
 			return noLowerValue();
