@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2014 by Dmitry Tsarkov
+Copyright (C) 2003-2015 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -549,9 +549,8 @@ void DlSatTester :: restoreBC ( void )
 	if ( unlikely ( !SessionGCIs.empty() ) )
 		SessionGCIs.resize(bContext->SGsize);
 
-	// update branch dep-set
-	updateBranchDep();
-	bContext->nextOption();
+	// we here after the clash so choose the next branching option
+	nextBranchingOption();
 }
 
 void DlSatTester :: save ( void )

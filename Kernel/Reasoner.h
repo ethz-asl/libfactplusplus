@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2012 by Dmitry Tsarkov
+Copyright (C) 2003-2015 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -874,8 +874,6 @@ protected:	// methods
 	DepSet& getBranchDep ( void ) { return bContext->branchDep; }
 		/// get RO access to current branching dep-set
 	const DepSet& getBranchDep ( void ) const { return bContext->branchDep; }
-		/// update cumulative branch-dep with current clash-set
-	void updateBranchDep ( void ) { getBranchDep().add(getClashSet()); }
 		/// prepare cumulative dep-set to usage
 	void prepareBranchDep ( void ) { getBranchDep().restrict(getCurLevel()); }
 		/// prepare cumulative dep-set and copy itto general clash-set
@@ -883,6 +881,12 @@ protected:	// methods
 	{
 		prepareBranchDep();
 		setClashSet(getBranchDep());
+	}
+		/// update cumulative branch-dep with current clash-set and move options forward
+	void nextBranchingOption ( void )
+	{
+		getBranchDep().add(getClashSet());
+		bContext->nextOption();
 	}
 
 		/// restore one level (no backjumping)
