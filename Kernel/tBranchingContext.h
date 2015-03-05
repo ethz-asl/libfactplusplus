@@ -57,6 +57,56 @@ public:		// interface
 		/// branching context for the OR operations
 class BCOr: public BranchingContext
 {
+protected:	// types
+		/// single OR argument
+	class OrArg
+	{
+	public:	// struct for now
+			/// argument itself
+		BipolarPointer C;
+			/// argument negation
+		BipolarPointer NotC;
+			/// dep-set representing clash reason
+		DepSet clashReason;
+			/// true iff this one is currently chosen
+		bool chosen;
+			/// true iff currently available
+		bool free;
+			/// true iff was chosen before and ruled out now
+		bool tried;
+	public:		// interface
+			/// empty c'tor
+		OrArg ( void ) : chosen(false), free(true), tried(false) {}
+			/// empty d'tor
+		~OrArg ( void ) {}
+
+			/// mark argument as tried
+		void setTried ( const DepSet& ds )
+		{
+			fpp_assert(!tried);
+			chosen = false;
+			free = false;
+			tried = true;
+			clashReason = ds;
+		}
+
+			/// init free argument
+		void initFree ( BipolarPointer c )
+		{
+			C = c;
+			NotC = inverse(c);
+			clashReason = DepSet();
+			chosen = false;
+			free = true;
+			tried = false;
+		}
+			/// init argument with clash
+		void initClash ( BipolarPointer c, const DepSet& ds )
+		{
+			initFree(c);
+			setTried(ds);
+		}
+	}; // OrArg
 public:		// types
 		/// short OR indexes
 	typedef std::vector<BipolarPointer> OrIndex;
