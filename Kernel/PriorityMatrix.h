@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2014 by Dmitry Tsarkov
+Copyright (C) 2003-2015 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -23,24 +23,26 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "dlVertex.h"	// DagTag
 #include "logging.h"
 
+typedef unsigned short int ToDoListIndex;
+
 /// number of regular options (o- and NN-rules are not included)
-const short int nRegularOps = 7;
+const ToDoListIndex nRegularOps = 7;
 /// priority index for o- and ID operations (note that these ops have the highest priority)
-const short int iId = nRegularOps+1;
+const ToDoListIndex iId = nRegularOps+1;
 /// priority index for <= operation in nominal node
-const short int iNN = nRegularOps+2;
+const ToDoListIndex iNN = nRegularOps+2;
 
 /// Auxiliary class to get priorities on operations
 class ToDoPriorMatrix
 {
 protected:	// members
 	// regular operation indexes
-	short int iAnd,
-			  iOr,
-			  iExists,
-			  iForall,
-			  iLE,
-			  iGE;
+	ToDoListIndex iAnd,
+				  iOr,
+				  iExists,
+				  iForall,
+				  iLE,
+				  iGE;
 
 public:		// interface
 		/// empty c'tor
@@ -51,7 +53,7 @@ public:		// interface
 		/// init priorities via given string OPTIONS
 	void initPriorities ( const std::string& options, const char* optionName );
 		/// get an index corresponding given Op, Sign and NominalNode
-	short int getIndex ( DagTag Op, bool Sign, bool NominalNode ) const;
+	ToDoListIndex getIndex ( DagTag Op, bool Sign, bool NominalNode ) const;
 }; // ToDoPriorMatrix
 
 inline void ToDoPriorMatrix :: initPriorities ( const std::string& options, const char* optionName )
@@ -82,7 +84,7 @@ inline void ToDoPriorMatrix :: initPriorities ( const std::string& options, cons
 		LL << "\nInit " << optionName << " = " << iAnd << iOr << iExists << iForall << iLE << iGE;
 }
 
-inline short int ToDoPriorMatrix :: getIndex ( DagTag Op, bool Sign, bool NominalNode ) const
+inline ToDoListIndex ToDoPriorMatrix :: getIndex ( DagTag Op, bool Sign, bool NominalNode ) const
 {
 	switch ( Op )
 	{

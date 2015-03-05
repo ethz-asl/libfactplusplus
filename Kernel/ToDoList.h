@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2014 by Dmitry Tsarkov
+Copyright (C) 2003-2015 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -238,7 +238,7 @@ protected:	// methods
 	{
 		queueID.save(tss->backupID);
 		queueNN.save(tss->backupNN);
-		for ( register int i = nRegularOps-1; i >= 0; --i )
+		for ( register ToDoListIndex i = 0; i < nRegularOps; ++i )
 			Wait[i].save(tss->backup[i]);
 
 		tss->noe = noe;
@@ -248,7 +248,7 @@ protected:	// methods
 	{
 		queueID.restore(tss->backupID);
 		queueNN.restore(tss->backupNN);
-		for ( register int i = nRegularOps-1; i >= 0; --i )
+		for ( register ToDoListIndex i = 0; i < nRegularOps; ++i )
 			Wait[i].restore(tss->backup[i]);
 
 		noe = tss->noe;
@@ -267,7 +267,7 @@ public:
 	{
 		queueID.clear();
 		queueNN.clear();
-		for ( register int i = nRegularOps-1; i >= 0; --i )
+		for ( register ToDoListIndex i = 0; i < nRegularOps; ++i )
 			Wait[i].clear();
 
 		SaveStack.clear();
@@ -281,7 +281,7 @@ public:
 		/// add entry with given NODE and CONCEPT with given OFFSET to the TODO table
 	void addEntry ( DlCompletionTree* node, DagTag type, const ConceptWDep& C, int offset )
 	{
-		short index = Matrix.getIndex ( type, isPositive(C.bp()), node->isNominalNode() );
+		ToDoListIndex index = Matrix.getIndex ( type, isPositive(C.bp()), node->isNominalNode() );
 		switch ( index )
 		{
 		case nRegularOps:	// unused entry
@@ -329,7 +329,7 @@ inline const ToDoEntry* ToDoList :: getNextEntry ( void )
 		return queueNN.get();
 
 	// check regular queues
-	for ( register unsigned int i = 0; i < nRegularOps; ++i )
+	for ( register ToDoListIndex i = 0; i < nRegularOps; ++i )
 		if ( !Wait[i].empty() )
 			return Wait[i].get();
 
