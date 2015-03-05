@@ -884,6 +884,12 @@ protected:	// methods
 		prepareBranchDep();
 		setClashSet(getBranchDep());
 	}
+		/// update cumulative branch-dep with current clash-set and move options forward
+	void nextBranchingOption ( void )
+	{
+		getBranchDep().add(getClashSet());
+		bContext->nextOption();
+	}
 
 		/// restore one level (no backjumping)
 	bool straightforwardRestore ( void );
