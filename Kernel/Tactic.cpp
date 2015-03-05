@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2014 by Dmitry Tsarkov
+Copyright (C) 2003-2015 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -294,7 +294,7 @@ bool DlSatTester :: commonTacticBodyOr ( const DLVertex& cur )	// for C \or D co
 			// not a branching: just add a single concept
 		if ( OrConceptsToTest.size() == 1 )
 		{
-			ConceptWDep C = OrConceptsToTest.back();
+			BipolarPointer C = OrConceptsToTest.back();
 			return insertToDoEntry ( curNode, ConceptWDep(C,dep), DLHeap[C].Type(), "bcp" );
 		}
 
@@ -312,13 +312,14 @@ bool DlSatTester :: planOrProcessing ( const DLVertex& cur, DepSet& dep )
 {
 	OrConceptsToTest.clear();
 	dep = curConcept.getDep();
+	DepSet dummy;
 
 	// check all OR components for the clash
 	const CGLabel& lab = curNode->label();
 	for ( DLVertex::const_iterator q = cur.begin(), q_end = cur.end(); q < q_end; ++q )
 	{
-		ConceptWDep C(inverse(*q));
-		switch ( tryAddConcept ( lab.getLabel(DLHeap[C].Type()), C.bp(), C.getDep() ) )
+		BipolarPointer C = inverse(*q);
+		switch ( tryAddConcept ( lab.getLabel(DLHeap[C].Type()), C, dummy ) )
 		{
 		case acrClash:	// clash found -- OK
 			dep.add(getClashSet());
@@ -343,7 +344,7 @@ bool DlSatTester :: processOrEntry ( void )
 	// save the context here as after save() it would be lost
 	const BCOr* bcOr = static_cast<BCOr*>(bContext);
 	BCOr::or_iterator p = bcOr->orBeg(), p_end = bcOr->orCur();
-	ConceptWDep C = *p_end;
+	BipolarPointer C = *p_end;
 	const char* reason = NULL;
 	DepSet dep;
 
