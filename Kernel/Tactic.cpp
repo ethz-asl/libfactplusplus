@@ -373,13 +373,11 @@ bool DlSatTester :: processOrEntry ( void )
 			if ( addToDoEntry ( curNode, ConceptWDep(inverse(p->C),dep), "sb" ) )
 				fpp_unreachable();	// Both Exists and Clash are errors
 
-	// add new entry to current node; we know the result would be DONE
-	return
-#	ifdef RKG_USE_DYNAMIC_BACKJUMPING
-		addToDoEntry ( curNode, ConceptWDep(C,dep), reason );
-#	else
-		insertToDoEntry ( curNode, ConceptWDep(C,dep), DLHeap[C].Type(), reason );
-#	endif
+	// add new entry to current node
+	if ( RKG_USE_DYNAMIC_BACKJUMPING )
+		return addToDoEntry ( curNode, ConceptWDep(C,dep), reason );
+	else // we know the result would be DONE
+		return insertToDoEntry ( curNode, ConceptWDep(C,dep), DLHeap[C].Type(), reason );
 }
 
 //-------------------------------------------------------------------------------

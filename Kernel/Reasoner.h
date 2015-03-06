@@ -838,14 +838,13 @@ protected:	// methods
 		/// @return true if no branching ops were applied during reasoners; FIXME!! doesn't work properly with a nominal cloud
 	bool noBranchingOps ( void ) const { return tryLevel == InitBranchingLevelValue + nonDetShift; }
 		/// Get save/restore level based on either current- or DS level
-	unsigned int getSaveRestoreLevel ( const DepSet& ds ATTR_UNUSED ) const
+	unsigned int getSaveRestoreLevel ( const DepSet& ds ) const
 	{
-		return	// FIXME!!! see more precise it later
-#		ifdef RKG_IMPROVE_SAVE_RESTORE_DEPSET
-			ds.level()+1;
-#		else
-			getCurLevel();
-#		endif
+		// FIXME!!! see more precise it later
+		if ( RKG_USE_DYNAMIC_BACKJUMPING )
+			return ds.level()+1;
+		else
+			return getCurLevel();
 	}
 		/// save current reasoning state
 	void save ( void );

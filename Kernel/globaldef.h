@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2010 by Dmitry Tsarkov
+Copyright (C) 2003-2015 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -42,12 +42,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 //#define ENABLE_CHECKING
 
-// uncomment this to allow dynamic backjumping
-//#define RKG_USE_DYNAMIC_BACKJUMPING
-
-#ifdef RKG_USE_DYNAMIC_BACKJUMPING
-// uncomment this to use improves S/R with better quality
-#	define RKG_IMPROVE_SAVE_RESTORE_DEPSET
+// set to 1 to allow dynamic backjumping
+#ifndef RKG_USE_DYNAMIC_BACKJUMPING
+#	define RKG_USE_DYNAMIC_BACKJUMPING 0
 #endif
 
 // uncomment this to update role's R&D from super-roles

@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2014 by Dmitry Tsarkov
+Copyright (C) 2003-2015 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -66,24 +66,17 @@ CWDArray :: updateDepSet ( BipolarPointer bp, const DepSet& dep )
 void
 CWDArray :: restore ( const SaveState& ss, unsigned int level ATTR_UNUSED )
 {
-#ifndef RKG_USE_DYNAMIC_BACKJUMPING
-	Base.resize(ss.ep);
-#else
-	unsigned int j = ss.ep;
-	unsigned int k = j;
-	while ( k < Base.size() )
+	if ( RKG_USE_DYNAMIC_BACKJUMPING )
 	{
-		if ( Base[k].getDep().level() >= level )
-			++k;	// remove entry
-		else
-		{
-			Base[j] = Base[k];
-			++j; ++k;
-		}
+		for ( size_t j = ss.ep; j < Base.size(); ++j )
+			if ( Base[j].getDep().contains(level) )
+			{
+				// replace concept that depend on a given BC with TOP
+				Base[j] = ConceptWDep(1,DepSet());
+			}
 	}
-
-	Base.reset(j);
-#endif
+	else
+		Base.resize(ss.ep);
 }
 
 /// print label part between given iterators
