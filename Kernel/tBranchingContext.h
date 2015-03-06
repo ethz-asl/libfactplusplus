@@ -57,7 +57,7 @@ public:		// interface
 		/// branching context for the OR operations
 class BCOr: public BranchingContext
 {
-protected:	// types
+public:		// types
 		/// single OR argument
 	class OrArg
 	{
@@ -109,15 +109,17 @@ protected:	// types
 	}; // OrArg
 public:		// types
 		/// short OR indexes
-	typedef std::vector<BipolarPointer> OrIndex;
+	typedef std::vector<OrArg> OrIndex;
 		/// short OR index iterator
 	typedef OrIndex::const_iterator or_iterator;
 
-public:		// members
+private:	// members
 		/// relevant disjuncts (ready to add)
 	OrIndex applicableOrEntries;
 		/// current branching index
 	int branchIndex;
+		/// number of available options
+	unsigned int freeChoices;
 
 public:		// interface
 		/// empty c'tor
@@ -128,6 +130,14 @@ public:		// interface
 	virtual void init ( void ) { branchIndex = 0; }
 		/// give the next branching alternative
 	virtual void nextOption ( void ) { ++branchIndex; }
+
+		// init the options
+	void setOrIndex ( OrIndex& index )
+	{
+		applicableOrEntries.swap(index);
+		freeChoices = 0;
+//		for (
+	}
 
 	// access to the fields
 
