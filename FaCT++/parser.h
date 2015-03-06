@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2011 by Dmitry Tsarkov
+Copyright (C) 2003-2015 by Dmitry Tsarkov
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -22,7 +22,7 @@ Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #include "scanner.h"
 #define GenericToken LispToken
 #include "comparser.h"
-#include "Kernel.h"
+#include "../Kernel/Kernel.h"
 
 /// class for parsing LISP-like ontologies
 class DLLispParser: public CommonParser<TsScanner>

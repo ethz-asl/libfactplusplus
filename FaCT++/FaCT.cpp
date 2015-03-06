@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2013 by Dmitry Tsarkov
+Copyright (C) 2003-2015 by Dmitry Tsarkov
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -21,13 +21,13 @@ Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #include <fstream>
 #include <sstream>
 
-#include "procTimer.h"
+#include "../Kernel/procTimer.h"
 #include "parser.h"
-#include "configure.h"
-#include "logging.h"
+#include "../Kernel/configure.h"
+#include "../Kernel/logging.h"
 
-#include "Kernel.h"
-#include "cpm.h"
+#include "../Kernel/Kernel.h"
+#include "../Kernel/cpm.h"
 
 TsProcTimer totalTimer, wTimer;
 Configuration Config;
