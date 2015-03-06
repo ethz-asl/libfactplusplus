@@ -138,6 +138,9 @@ protected:	// classes
 		/// stack to keep BContext
 	class BCStack: public TSaveStack<BranchingContext>
 	{
+	protected:	// types
+			/// type that maps (node,or) pair into the corresponding branching context
+		typedef std::map<std::pair<DlCompletionTree*,BipolarPointer>,BCOr> OrBCMap;
 	protected:	// members
 			/// pool for OR contexts
 		DeletelessAllocator<BCOr> PoolOr;
