@@ -505,6 +505,13 @@ public:		// interface
 	void save ( void );
 		/// restore state for the given LEVEL
 	void restore ( unsigned int level );
+		/// discard all concepts that depend on LEVEL (DBT)
+	void discardBranching ( unsigned int level )
+	{
+		for ( iterator p = begin(), p_end = end(); p < p_end; ++p )
+			(*p)->discardBranching(level);
+	}
+
 
 	// statistics
 

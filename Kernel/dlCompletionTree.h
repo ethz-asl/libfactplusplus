@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2014 by Dmitry Tsarkov
+Copyright (C) 2003-2015 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -169,6 +169,10 @@ protected:	// members
 	const DlCompletionTree* Blocker;
 		/// dep-set for Purge op
 	DepSet pDep;
+//	#if RKG_USE_DYNAMIC_BACKJUMPING > 0
+		/// dep-set to keep track of what's going on for DBT
+	DepSet cumulativeDepSet;
+//	#endif
 
 	// save state information
 	unsigned int curLevel;	// current level
@@ -616,16 +620,25 @@ public:		// methods
 		save(saves.push());
 		curLevel = level;
 	}
-		/// restore node from the topmost entry
-	void restore ( void )
-	{
-		fpp_assert ( !saves.empty() );
-		restore (saves.pop());
-	}
 		/// check if node needs to be restored
 	bool needRestore ( unsigned int restLevel ) const { return getCurLevel() > restLevel; }
 		/// restore node to given level
 	void restore ( unsigned int level ) { restore(saves.pop(level)); }
+		/// discard all concepts that depend on LEVEL (DBT)
+	void discardBranching ( unsigned int level )
+	{
+		if ( cumulativeDepSet.contains(level) )
+		{
+			Label.discardBranching(level);
+			// it's cheaper to dirty affected flag than to consistently save nodes
+			affected = true;
+		}
+	}
+
+	// save/restore for dynamic backtracking
+
+		/// update the cumulative dep-set
+	void updateLabelDepSet ( const DepSet& dep ) { cumulativeDepSet.add(dep); }
 
 	// output
 
@@ -660,6 +673,8 @@ inline void DlCompletionTree :: init ( unsigned int level )
 	Neighbour.clear();
 	Blocker = NULL;
 	pDep.clear();
+	if ( RKG_USE_DYNAMIC_BACKJUMPING )
+		cumulativeDepSet.clear();
 }
 
 #endif // DLCOMPLETIONTREE_H

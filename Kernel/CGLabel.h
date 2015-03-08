@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2006-2014 by Dmitry Tsarkov
+Copyright (C) 2006-2015 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -174,10 +174,16 @@ public:		// interface
 		ccLabel.save(ss.cc);
 	}
 		/// restore label to given LEVEL using given SS
-	void restore ( const SaveState& ss, unsigned int level )
+	void restore ( const SaveState& ss )
 	{
-		scLabel.restore(ss.sc,level);
-		ccLabel.restore(ss.cc,level);
+		scLabel.restore(ss.sc);
+		ccLabel.restore(ss.cc);
+	}
+		/// discard all concepts that depend on LEVEL (DBT)
+	void discardBranching ( unsigned int level )
+	{
+		scLabel.discardBranching(level);
+		ccLabel.discardBranching(level);
 	}
 
 	//----------------------------------------------

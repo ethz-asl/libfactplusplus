@@ -167,7 +167,7 @@ void DlCompletionTree :: restore ( SaveState* nss )
 	curLevel = nss->curLevel;
 
 	// label restore
-	Label.restore ( nss->lab, getCurLevel() );
+	Label.restore(nss->lab);
 
 	// remove new neighbours
 	if ( RKG_USE_DYNAMIC_BACKJUMPING )

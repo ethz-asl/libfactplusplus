@@ -515,7 +515,7 @@ bool DlSatTester :: commonTacticBodySome ( const DLVertex& cur )	// for ER.C con
 			case acrDone:	// should be add to a label
 			{
 				// we are changing current Node => save it
-				updateLevel ( curNode, dep );
+				updateBranchingLevel ( curNode, dep );
 
 				ConceptWDep rFuncRestriction ( (*r)->getFunctional(), dep );
 				// NOTE! not added into TODO (because will be checked right now)
@@ -724,7 +724,7 @@ bool DlSatTester :: isCurNodeBlocked ( void )
 	// update node's blocked status
 	if ( !curNode->isBlocked() && curNode->isAffected() )
 	{
-		updateLevel ( curNode, curConcept.getDep() );
+		updateBranchingLevel ( curNode, curConcept.getDep() );
 		CGraph.detectBlockedStatus(curNode);
 	}
 

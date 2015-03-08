@@ -837,15 +837,6 @@ protected:	// methods
 	void setCurLevel ( unsigned int level ) { tryLevel = level; }
 		/// @return true if no branching ops were applied during reasoners; FIXME!! doesn't work properly with a nominal cloud
 	bool noBranchingOps ( void ) const { return tryLevel == InitBranchingLevelValue + nonDetShift; }
-		/// Get save/restore level based on either current- or DS level
-	unsigned int getSaveRestoreLevel ( const DepSet& ds ) const
-	{
-		// FIXME!!! see more precise it later
-		if ( RKG_USE_DYNAMIC_BACKJUMPING )
-			return ds.level()+1;
-		else
-			return getCurLevel();
-	}
 		/// save current reasoning state
 	void save ( void );
 		/// restore reasoning state to the latest saved position
@@ -853,7 +844,13 @@ protected:	// methods
 		/// restore reasoning state to the NEWTRYLEVEL position
 	void restore ( unsigned int newTryLevel );
 		/// update level in N node and save it's state (if necessary)
-	void updateLevel ( DlCompletionTree* n, const DepSet& ds ) { CGraph.saveNode ( n, getSaveRestoreLevel(ds) ); }
+	void updateBranchingLevel ( DlCompletionTree* n, const DepSet& ds )
+	{
+		if ( RKG_USE_DYNAMIC_BACKJUMPING )	// just add dep-set to a node
+			n->updateLabelDepSet(ds);
+		else	// make a full node save if necessary
+			CGraph.saveNode ( n, getCurLevel() );
+	}
 		/// finalize branching OP processing making deterministic op
 	void determiniseBranchingOp ( void )
 	{

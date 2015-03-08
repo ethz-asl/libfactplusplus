@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2014 by Dmitry Tsarkov
+Copyright (C) 2003-2015 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -134,7 +134,9 @@ public:		// interface
 		/// save label using given SS
 	void save ( SaveState& ss ) const { ss.ep = Base.size(); }
 		/// restore label to given LEVEL using given SS
-	void restore ( const SaveState& ss, unsigned int level );
+	void restore ( const SaveState& ss ) { Base.resize(ss.ep); }
+		/// discard all concepts that depend on LEVEL (DBT)
+	void discardBranching ( unsigned int level );
 
 	//----------------------------------------------
 	// Output

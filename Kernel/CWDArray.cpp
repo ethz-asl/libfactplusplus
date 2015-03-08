@@ -62,21 +62,18 @@ CWDArray :: updateDepSet ( BipolarPointer bp, const DepSet& dep )
 	return NULL;
 }
 
-/// restore label to given LEVEL using given SS
+/// discard all concepts that depend on LEVEL (DBT)
 void
-CWDArray :: restore ( const SaveState& ss, unsigned int level ATTR_UNUSED )
+CWDArray :: discardBranching ( unsigned int level )
 {
-	if ( RKG_USE_DYNAMIC_BACKJUMPING )
-	{
-		for ( size_t j = ss.ep; j < Base.size(); ++j )
-			if ( Base[j].getDep().contains(level) )
-			{
-				// replace concept that depend on a given BC with TOP
-				Base[j] = ConceptWDep(1,DepSet());
-			}
-	}
-	else
-		Base.resize(ss.ep);
+	for ( ConceptSet::iterator p = Base.begin(), p_end = Base.end(); p != p_end; ++p )
+		if ( p->getDep().contains(level) )
+		{
+			// replace concept that depend on a given BC with TOP
+			// TODO!! check the data node
+			*p = ConceptWDep(1,DepSet());
+		}
+
 }
 
 /// print label part between given iterators
