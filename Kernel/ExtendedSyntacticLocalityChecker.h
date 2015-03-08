@@ -117,6 +117,23 @@ protected:	// visitor helpers
 	bool isBotEquivalent ( const TDLExpression* expr ) { return isUpperLE ( getUpperBoundDirect(*expr), 0 ); }
 	bool isTopEquivalent ( const TDLExpression* expr ) { return isUpperLE ( getUpperBoundComplement(*expr), 0 ); }
 
+	// helpers for and/or
+
+		/// return minimal of the two Upper Bounds
+	int minUpperValue ( int uv1, int uv2 )
+	{
+		// noUpperValue is a maximal element
+		if ( uv1 == noUpperValue() )
+			return uv2;
+		if ( uv2 == noUpperValue() )
+			return uv1;
+		// now return the smallest value, with anyUpperValue being
+		// the smallest and deal with automatically
+		return std::min(uv1,uv2);
+	}
+
+	// tunable for every case
+
 		/// helper for entities
 	virtual int getEntityValue ( const TNamedEntity* entity ) = 0;
 		/// helper for All
@@ -232,28 +249,23 @@ protected:	// methods
 		// C\in C^{>= m+1}
 		return getAllNoneUpper ( isLowerGT ( getLowerBoundDirect(C), m ) );
 	}
-		/// helper for things like = m R.C
+		/// helper for = m R.C
 	virtual int getExactValue ( unsigned int m, const TDLRoleExpression* R, const TDLExpression* C )
 	{
-		// here the maximal value between Mix and Max is an answer. The -1 case will be dealt with automagically
-		return std::max ( getMinValue ( m, R, C ), getMaxValue ( m, R, C ) );
+		// conjunction of Min and Max values
+		return minUpperValue ( getMinValue ( m, R, C ), getMaxValue ( m, R, C ) );
 	}
 
 		/// helper for And
 	template<class C>
 	int getAndValue ( const TDLNAryExpression<C>& expr )
 	{
-		int max = noUpperValue();
-		// we are looking for the maximal value here; -1 will be dealt with automagically
+		// noUpperValue is a maximal element
+		int min = noUpperValue();
+		// we are looking for the minimal value here, use an appropriate helper
 		for ( typename TDLNAryExpression<C>::iterator p = expr.begin(), p_end = expr.end(); p != p_end; ++p )
-		{
-			int n = getUpperBoundDirect(*p);
-			// if an argument is in C^{<= n} for every n, so is a conjunction
-			if ( n == anyUpperValue() )
-				return anyUpperValue();
-			max = std::max ( max, n );
-		}
-		return max;
+			min = minUpperValue ( min, getUpperBoundDirect(*p) );
+		return min;
 	}
 		/// helper for Or
 	template<class C>
@@ -381,17 +393,12 @@ protected:	// methods
 	template<class C>
 	int getOrValue ( const TDLNAryExpression<C>& expr )
 	{
-		int max = noUpperValue();
-		// we are looking for the maximal value here; -1 will be dealt with automagically
+		// noUpperValue is a maximal element
+		int min = noUpperValue();
+		// we are looking for the minimal value here, use an appropriate helper
 		for ( typename TDLNAryExpression<C>::iterator p = expr.begin(), p_end = expr.end(); p != p_end; ++p )
-		{
-			int n = getUpperBoundComplement(*p);
-			// if an argument is in CC^{<= n} for every n, so is a disjunction
-			if ( n == anyUpperValue() )
-				return anyUpperValue();
-			max = std::max ( max, n );
-		}
-		return max;
+			min = minUpperValue ( min, getUpperBoundDirect(*p) );
+		return min;
 	}
 
 public:		// interface
