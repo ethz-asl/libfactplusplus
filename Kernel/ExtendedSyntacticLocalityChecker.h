@@ -131,7 +131,24 @@ protected:	// visitor helpers
 		// the smallest and deal with automatically
 		return std::min(uv1,uv2);
 	}
+/*		/// return maximal of the two Lower Bounds
+	int maxLowerValue ( int lv1, int lv2 )
+	{
+		// noLowerValue is a maximal element
+		if ( lv1 == noLowerValue() || lv2 == noLowerValue() )
+			return noLowerValue();
+		// we are looking for the maximal value here; ANY need to be special-cased
+		for ( typename TDLNAryExpression<C>::iterator p = expr.begin(), p_end = expr.end(); p != p_end; ++p )
+		{
+			int n = getLowerBoundDirect(*p);
+			if ( n == anyLowerValue() )
+				return anyLowerValue();
+			max = std::max ( max, n );
+		}
+		return max;
 
+	}
+*/
 	// tunable for every case
 
 		/// helper for entities
