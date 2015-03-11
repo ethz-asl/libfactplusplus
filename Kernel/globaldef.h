@@ -44,7 +44,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 // set to 1 to allow dynamic backjumping
 #ifndef RKG_USE_DYNAMIC_BACKJUMPING
-#	define RKG_USE_DYNAMIC_BACKJUMPING 0
+#	define RKG_USE_DYNAMIC_BACKJUMPING 1
 #endif
 
 // uncomment this to update role's R&D from super-roles

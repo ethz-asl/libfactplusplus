@@ -140,7 +140,7 @@ protected:	// classes
 	{
 	protected:	// types
 			/// type that maps (node,or) pair into the corresponding branching context
-		typedef std::map<std::pair<DlCompletionTree*,BipolarPointer>,BCOr> OrBCMap;
+		typedef std::map<std::pair<DlCompletionTree*,BipolarPointer>,BCOr*> OrBCMap;
 	protected:	// members
 			/// pool for OR contexts
 		DeletelessAllocator<BCOr> PoolOr;
@@ -154,6 +154,8 @@ protected:	// classes
 		DeletelessAllocator<BCChoose> PoolCh;
 			/// single entry for the barrier (good for nominal reasoner)
 		BCBarrier* bcBarrier;
+			/// map
+		OrBCMap obcMap;
 
 	protected:	// methods
 			/// specialise new method as the one doing nothing
@@ -208,6 +210,35 @@ protected:	// classes
 		{
 			clearPools();
 			TSaveStack<BranchingContext>::clear();
+			obcMap.clear();
+		}
+
+		// Dynamic backtracking support
+			/// get the BC corresponding to a given index
+		BranchingContext* get ( unsigned int level ) { return Base[level-1]; }
+			/// get the BC corresponding to a node and BP, return NULL if none known
+		BCOr* get ( DlCompletionTree* node, BipolarPointer bp )
+		{
+			OrBCMap::iterator ret = obcMap.find(std::make_pair(node,bp));
+			if ( ret != obcMap.end() )
+				return ret->second;
+			else
+				return NULL;
+		}
+			/// return new Or BC
+		BCOr* createOrBC ( unsigned int level )
+		{
+			std::cout << "l:" << level << ",s:" << Base.size() << std::endl;
+			fpp_assert ( level-1 == Base.size() );
+			BCOr* ret = PoolOr.get();
+			push(ret);
+			ret->setLevel(level);
+			return ret;
+		}
+			/// register BC
+		void registerBCOr ( BCOr* bc )
+		{
+			obcMap[std::make_pair(bc->curNode,bc->curConcept.bp())] = bc;
 		}
 	}; // BCStack
 

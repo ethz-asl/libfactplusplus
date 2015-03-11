@@ -275,9 +275,47 @@ bool DlSatTester :: commonTacticBodyOr ( const DLVertex& cur )	// for C \or D co
 #endif
 
 	incStat(nOrCalls);
-
 	if ( isFirstBranchCall() )	// check the structure of OR operation (number of applicable concepts)
 	{
+		// check if such branch was there already
+		BCOr* orBranch = Stack.get ( curNode, curConcept.bp() );
+		if ( orBranch == NULL )
+		{
+			// gather BP information
+			DepSet dep;
+			planOrProcessing ( cur, dep );
+			// createBCOr();
+			orBranch = Stack.createOrBC(getCurLevel());
+			initBC();
+			Stack.registerBCOr(orBranch);
+			//bContext->branchDep = dep;
+			orBranch->branchDep = curConcept.getDep();
+			orBranch->setOrIndex(OrConceptsToTest);
+			// emulate save
+			// increase tryLevel
+			++tryLevel;
+			Manager.ensureLevel(getCurLevel());
+			// init BC
+			clearBC();
+			if ( LLM.isWritable(llSRState) )
+				LL << " ss(" << getCurLevel()-1 << ")";
+		#ifdef __DEBUG_SAVE_RESTORE
+			writeRoot(llSRState);
+		#endif
+		}
+		// set the BC globally
+		bContext = orBranch;
+		// check clash
+		if ( orBranch->noMoreOptions() )
+		{
+			orBranch->gatherClashSet();
+			setClashSet(orBranch->branchDep);
+			addToDoEntry(curNode,curConcept.bp(),curConcept.getDep(),"rerun");
+			return true;
+		}
+		// set the active alternative
+		orBranch->chooseFreeOption();
+		/*
 		DepSet dep;
 		if ( planOrProcessing ( cur, dep ) )
 		{	// found existing component
@@ -302,8 +340,8 @@ bool DlSatTester :: commonTacticBodyOr ( const DLVertex& cur )	// for C \or D co
 		createBCOr();
 		bContext->branchDep = dep;
 		static_cast<BCOr*>(bContext)->setOrIndex(OrConceptsToTest);
+		*/
 	}
-
 	// now it is OR case with 1 or more applicable concepts
 	return processOrEntry();
 }
@@ -322,12 +360,18 @@ bool DlSatTester :: planOrProcessing ( const DLVertex& cur, DepSet& dep )
 		switch ( tryAddConcept ( lab.getLabel(DLHeap[C].Type()), C, dummy ) )
 		{
 		case acrClash:	// clash found -- OK
+			OrConceptsToTest.push_back(BCOr::OrArg());
+			OrConceptsToTest.back().initClash(C,getClashSet());
 			dep.add(getClashSet());
 			continue;
 		case acrExist:	// already have such concept -- save it to the 1st position
-			OrConceptsToTest.resize(1);
-			OrConceptsToTest[0].initFree(C);
-			return true;
+			OrConceptsToTest.push_back(BCOr::OrArg());
+			OrConceptsToTest.back().initFree(C);
+			continue;
+			// FIXME!! check this and use such information
+//			OrConceptsToTest.resize(1);
+//			OrConceptsToTest[0].initFree(C);
+//			return true;
 		case acrDone:
 			OrConceptsToTest.push_back(BCOr::OrArg());
 			OrConceptsToTest.back().initFree(C);

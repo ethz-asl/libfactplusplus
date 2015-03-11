@@ -116,6 +116,8 @@ public:		// types
 private:	// members
 		/// relevant disjuncts (ready to add)
 	OrIndex applicableOrEntries;
+		/// level (global place in the stack)
+	unsigned int level;
 		/// current branching index
 	int branchIndex;
 		/// number of available options
@@ -123,11 +125,17 @@ private:	// members
 
 public:		// interface
 		/// empty c'tor
-	BCOr ( void ) : BranchingContext(), branchIndex(0) {}
+	BCOr ( void ) : BranchingContext(), level(0), branchIndex(0), freeChoices(0) {}
 		/// empty d'tor
 	virtual ~BCOr ( void ) {}
 		/// init branch index
-	virtual void init ( void ) { branchIndex = 0; }
+	virtual void init ( void )
+	{
+		applicableOrEntries.clear();
+		level = 0;
+		branchIndex = 0;
+		freeChoices = 0;
+	}
 		/// give the next branching alternative
 	virtual void nextOption ( void ) { ++branchIndex; }
 
@@ -136,9 +144,26 @@ public:		// interface
 	{
 		applicableOrEntries.swap(index);
 		freeChoices = 0;
-//		for (
+		for ( int i = 0; i < applicableOrEntries.size(); i++ )
+			if ( applicableOrEntries[i].free )
+				++freeChoices;
 	}
 
+	bool noMoreOptions ( void ) const { return freeChoices == 0; }
+	void gatherClashSet ( void )
+	{
+		for ( int i = 0; i < applicableOrEntries.size(); i++ )
+			branchDep.add(applicableOrEntries[i].clashReason);
+	}
+	void chooseFreeOption ( void )
+	{
+		for ( int i = 0; i < applicableOrEntries.size(); i++ )
+			if ( applicableOrEntries[i].free )
+			{
+				applicableOrEntries[i].free = false;
+				applicableOrEntries[i].chosen = true;
+			}
+	}
 	// access to the fields
 
 		/// check if the current processing OR entry is the last one
@@ -147,6 +172,8 @@ public:		// interface
 	or_iterator orBeg ( void ) const { return applicableOrEntries.begin(); }
 		/// current element of OrIndex
 	or_iterator orCur ( void ) const { return orBeg() + branchIndex; }
+
+	void setLevel ( unsigned int l ) { level = l; }
 }; // BCOr
 
 	/// branching context for the Choose-rule
