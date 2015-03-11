@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2011 by Dmitry Tsarkov
+Copyright (C) 2003-2015 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -221,10 +221,9 @@ modelCacheIan :: mergeIan ( const modelCacheIan* p )
 }
 
 // logging
-#ifdef _USE_LOGGING
-void modelCacheIan :: logCacheEntry ( unsigned int level ) const
+void
+modelCacheIan :: logCacheEntryImpl ( void ) const
 {
-	CHECK_LL_RETURN(level);
 	LL << "\nIan cache: posDConcepts = ";
 	posDConcepts.print(LL);
 	LL << ", posNConcepts = ";
@@ -246,4 +245,3 @@ void modelCacheIan :: logCacheEntry ( unsigned int level ) const
 	LL << ", funcRoles = ";
 	funcRoles.print(LL);
 }
-#endif

@@ -38,7 +38,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 // uncomment this to have sorted ontology reasoning
 #define RKG_USE_SORTED_REASONING
 
-//#define _USE_LOGGING
+// set the default value of USE_LOGGING
+
+#ifndef USE_LOGGING
+#	define USE_LOGGING 0
+#else
+#	undef USE_LOGGING
+#	define USE_LOGGING 1
+#endif
 
 //#define ENABLE_CHECKING
 

@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2007-2010 by Dmitry Tsarkov
+Copyright (C) 2007-2015 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -29,6 +29,11 @@ class modelCacheConst: public modelCacheInterface
 protected:	// members
 		/// the const itself
 	bool isTop;
+
+protected:	// methods
+		/// log a particular implementation of a cache entry
+	virtual void logCacheEntryImpl ( void ) const
+		{ LL << "\nConst cache: element " << (isTop ? "TOP" : "BOTTOM"); }
 
 public:
 		/// c'tor: no nominals can be here
@@ -62,14 +67,6 @@ public:
 	}
 		/// Get the tag identifying the cache type
 	virtual modelCacheType getCacheType ( void ) const { return mctConst; }
-#ifdef _USE_LOGGING
-		/// log this cache entry (with given level)
-	virtual void logCacheEntry ( unsigned int level ) const
-	{
-		if ( LLM.isWritable(level) )
-			LL << "\nConst cache: element " << (isTop ? "TOP" : "BOTTOM");
-	}
-#endif
 }; // modelCacheConst
 
 // create const cache by BP; BP should be either bpTOP or bpBOTTOM

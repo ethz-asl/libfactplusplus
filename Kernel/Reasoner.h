@@ -31,7 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ToDoList.h"
 #include "tFastSet.h"
 
-#ifdef _USE_LOGGING	// don't gather statistics w/o logging
+#if USE_LOGGING	// don't gather statistics w/o logging
 #	define USE_REASONING_STATISTICS
 #endif
 

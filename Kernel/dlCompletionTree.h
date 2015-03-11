@@ -35,9 +35,7 @@ class DlCompletionGraph;
 // use the following to control logging information about saving/restoring nodes
 #define RKG_CHECK_BACKJUMPING
 
-//#include "SmallObj.h"
-
-#ifdef _USE_LOGGING	// don't gather statistics w/o logging
+#if USE_LOGGING	// don't gather statistics w/o logging
 #	define USE_BLOCKING_STATISTICS
 #endif
 

@@ -255,12 +255,13 @@ int main ( int argc, char *argv[] )
 	if ( Out.fail () )
 		error ( "Cannot open output file" );
 
-#ifdef _USE_LOGGING
-	// initialize LeveLogger only if not AD
-	if ( !Kernel.getOptions()->getBool("checkAD") )
-		if ( LLM.initLogger(Config) )
-			error ( "LeveLogger: couldn't open logging file" );
-#endif
+	if ( USE_LOGGING )
+	{
+		// initialize LeveLogger only if not AD
+		if ( !Kernel.getOptions()->getBool("checkAD") )
+			if ( LLM.initLogger(Config) )
+				error ( "LeveLogger: couldn't open logging file" );
+	}
 
 	// init timeout option
 	unsigned long testTimeout = (unsigned long)Kernel.getOptions()->getInt("testTimeout");
