@@ -88,6 +88,7 @@ public:		// types
 			free = false;
 			tried = true;
 			clashReason = ds;
+			std::cerr << "Not free option " << C << "\n";
 		}
 
 			/// init free argument
@@ -155,14 +156,47 @@ public:		// interface
 		for ( int i = 0; i < applicableOrEntries.size(); i++ )
 			branchDep.add(applicableOrEntries[i].clashReason);
 	}
-	void chooseFreeOption ( void )
+	BipolarPointer chooseFreeOption ( void )
 	{
 		for ( int i = 0; i < applicableOrEntries.size(); i++ )
 			if ( applicableOrEntries[i].free )
 			{
 				applicableOrEntries[i].free = false;
 				applicableOrEntries[i].chosen = true;
+				return applicableOrEntries[i].C;
 			}
+		return bpINVALID;
+	}
+	void failCurOption ( const DepSet& dep, unsigned int curLevel )
+	{
+		fpp_assert ( curLevel == level );
+		for ( int i = 0; i < applicableOrEntries.size(); i++ )
+			if ( applicableOrEntries[i].chosen )
+			{
+				--freeChoices;
+				applicableOrEntries[i].chosen = false;
+				applicableOrEntries[i].tried = true;
+				applicableOrEntries[i].clashReason = dep;
+				applicableOrEntries[i].clashReason.restrict(curLevel);
+				std::cerr << "Remove alternative " << applicableOrEntries[i].C << " from BC " << level << " with clash set ";
+				dep.Print(std::cerr);
+				std::cerr << "\n";
+				return;
+			}
+	}
+	void clearDep ( unsigned int curLevel )
+	{
+		for ( int i = 0; i < applicableOrEntries.size(); i++ )
+			if ( applicableOrEntries[i].tried && applicableOrEntries[i].clashReason.contains(curLevel) )
+			{
+				std::cerr << "BC " << level << ", alternative " << applicableOrEntries[i].C << " with clash set "; applicableOrEntries[i].clashReason.Print(std::cerr);
+				std::cerr << " is free now\n";
+				applicableOrEntries[i].free = true;
+				applicableOrEntries[i].tried = false;
+				applicableOrEntries[i].clashReason.clear();
+				++freeChoices;
+			}
+
 	}
 	// access to the fields
 
@@ -172,8 +206,20 @@ public:		// interface
 	or_iterator orBeg ( void ) const { return applicableOrEntries.begin(); }
 		/// current element of OrIndex
 	or_iterator orCur ( void ) const { return orBeg() + branchIndex; }
+		/// last (completely or used) element of OrIndex
+	or_iterator orEnd ( void ) const{ return RKG_USE_DYNAMIC_BACKJUMPING ? applicableOrEntries.end() : orCur(); }
 
 	void setLevel ( unsigned int l ) { level = l; }
+	void print ( std::ostream& o ) const
+	{
+		o << "Or entry level " << level << ", free args: " << freeChoices << " of " << applicableOrEntries.size() << ":\n";
+		for ( or_iterator p = orBeg(), p_end = orEnd(); p != p_end; ++p )
+		{
+			o << "arg " << p->C << ", fct=" << p->free << p->chosen << p->tried << ", clash set ";
+			p->clashReason.Print(o);
+			o << "\n";
+		}
+	}
 }; // BCOr
 
 	/// branching context for the Choose-rule

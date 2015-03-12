@@ -40,12 +40,17 @@ void modelCacheIan :: processConcept ( const DLVertex& cur, bool pos, bool det )
 {
 		switch ( cur.Type() )
 		{
-		case dtTop:			// sanity checks
 		case dtDataType:	// data entries can not be cached
 		case dtDataValue:
 		case dtDataExpr:
 			fpp_unreachable();
 			break;
+
+		case dtTop:			// TOP could be only in DBT labels
+			if ( RKG_USE_DYNAMIC_BACKJUMPING )
+				break;	// in this case do nothing
+			else
+				fpp_unreachable();
 
 		case dtNConcept:	// add concepts to Concepts
 		case dtPConcept:

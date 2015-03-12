@@ -228,8 +228,8 @@ protected:	// classes
 			/// return new Or BC
 		BCOr* createOrBC ( unsigned int level )
 		{
-			std::cout << "l:" << level << ",s:" << Base.size() << std::endl;
-			fpp_assert ( level-1 == Base.size() );
+			std::cout << "l:" << level << ",s:" << last << std::endl;
+			fpp_assert ( level-1 == last );
 			BCOr* ret = PoolOr.get();
 			push(ret);
 			ret->setLevel(level);
@@ -660,6 +660,7 @@ protected:	// methods
 	void initBC ( void )
 	{
 		// save reasoning context
+		fpp_assert ( bContext != NULL );
 		bContext->curNode = curNode;
 		bContext->curConcept = curConcept;
 		bContext->branchDep = curConcept.getDep();
@@ -882,6 +883,8 @@ protected:	// methods
 		else	// make a full node save if necessary
 			CGraph.saveNode ( n, getCurLevel() );
 	}
+		/// restore using Dynamic Backtracking
+	void restoreDBT ( void );
 		/// finalize branching OP processing making deterministic op
 	void determiniseBranchingOp ( void )
 	{
@@ -1106,7 +1109,10 @@ inline bool DlSatTester :: backJumpedRestore ( void )
 		return true;
 
 	// some non-deterministic choices were done
-	restore ( getClashSet().level() );
+	if ( RKG_USE_DYNAMIC_BACKJUMPING )
+		restoreDBT();
+	else
+		restore ( getClashSet().level() );
 	return false;
 }
 

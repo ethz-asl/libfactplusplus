@@ -275,10 +275,11 @@ bool DlSatTester :: commonTacticBodyOr ( const DLVertex& cur )	// for C \or D co
 #endif
 
 	incStat(nOrCalls);
+	BCOr* orBranch = NULL;
 	if ( isFirstBranchCall() )	// check the structure of OR operation (number of applicable concepts)
 	{
 		// check if such branch was there already
-		BCOr* orBranch = Stack.get ( curNode, curConcept.bp() );
+		orBranch = Stack.get ( curNode, curConcept.bp() );
 		if ( orBranch == NULL )
 		{
 			// gather BP information
@@ -286,6 +287,7 @@ bool DlSatTester :: commonTacticBodyOr ( const DLVertex& cur )	// for C \or D co
 			planOrProcessing ( cur, dep );
 			// createBCOr();
 			orBranch = Stack.createOrBC(getCurLevel());
+			bContext = orBranch;
 			initBC();
 			Stack.registerBCOr(orBranch);
 			//bContext->branchDep = dep;
@@ -299,22 +301,11 @@ bool DlSatTester :: commonTacticBodyOr ( const DLVertex& cur )	// for C \or D co
 			clearBC();
 			if ( LLM.isWritable(llSRState) )
 				LL << " ss(" << getCurLevel()-1 << ")";
-		#ifdef __DEBUG_SAVE_RESTORE
 			writeRoot(llSRState);
-		#endif
+			LL.flush();
 		}
 		// set the BC globally
 		bContext = orBranch;
-		// check clash
-		if ( orBranch->noMoreOptions() )
-		{
-			orBranch->gatherClashSet();
-			setClashSet(orBranch->branchDep);
-			addToDoEntry(curNode,curConcept.bp(),curConcept.getDep(),"rerun");
-			return true;
-		}
-		// set the active alternative
-		orBranch->chooseFreeOption();
 		/*
 		DepSet dep;
 		if ( planOrProcessing ( cur, dep ) )
@@ -341,6 +332,19 @@ bool DlSatTester :: commonTacticBodyOr ( const DLVertex& cur )	// for C \or D co
 		bContext->branchDep = dep;
 		static_cast<BCOr*>(bContext)->setOrIndex(OrConceptsToTest);
 		*/
+	}
+	else
+		orBranch = dynamic_cast<BCOr*>(bContext);
+	fpp_assert ( orBranch != NULL );
+	// check clash
+	if ( orBranch->noMoreOptions() )
+	{
+		std::cerr << "No more branching options\n";
+		orBranch->print(std::cerr);
+		orBranch->gatherClashSet();
+		setClashSet(orBranch->branchDep);
+		addToDoEntry(curNode,curConcept.bp(),curConcept.getDep(),"rerun");
+		return true;
 	}
 	// now it is OR case with 1 or more applicable concepts
 	return processOrEntry();
@@ -387,9 +391,13 @@ bool DlSatTester :: planOrProcessing ( const DLVertex& cur, DepSet& dep )
 bool DlSatTester :: processOrEntry ( void )
 {
 	// save the context here as after save() it would be lost
-	const BCOr* bcOr = static_cast<BCOr*>(bContext);
-	BCOr::or_iterator p = bcOr->orBeg(), p_end = bcOr->orCur();
-	BipolarPointer C = p_end->C;
+	BCOr* bcOr = static_cast<BCOr*>(bContext);
+	BCOr::or_iterator p = bcOr->orBeg(), p_end = bcOr->orEnd();
+	// set the active alternative
+	BipolarPointer C = bcOr->chooseFreeOption();
+	fpp_assert ( isValid(C) );
+	bcOr->print(std::cerr);
+
 	const char* reason = NULL;
 	DepSet dep;
 
@@ -405,7 +413,8 @@ bool DlSatTester :: processOrEntry ( void )
 	else
 	{
 		// save current state
-		save();
+//		save();
+		clearBC();
 		// new (just branched) dep-set
 		dep = getCurDepSet();
 		incStat(nOrBrCalls);
@@ -414,8 +423,12 @@ bool DlSatTester :: processOrEntry ( void )
 	// if semantic branching is in use -- add previous entries to the label
 	if ( useSemanticBranching() )
 		for ( ; p < p_end; ++p )
-			if ( addToDoEntry ( curNode, ConceptWDep(inverse(p->C),dep), "sb" ) )
+		{
+			// apply negated concepts for all those already tried
+			bool tried = RKG_USE_DYNAMIC_BACKJUMPING ? p->tried : true;
+			if ( tried && addToDoEntry ( curNode, ConceptWDep(inverse(p->C),dep), "sb" ) )
 				fpp_unreachable();	// Both Exists and Clash are errors
+		}
 
 	// add new entry to current node
 	if ( RKG_USE_DYNAMIC_BACKJUMPING )

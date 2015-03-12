@@ -25,7 +25,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 // comment the line out for printing tree info before save and after restoring
 //#define __DEBUG_SAVE_RESTORE
 // comment the line out for flushing LL after dumping significant piece of info
-//#define __DEBUG_FLUSH_LL
+#define __DEBUG_FLUSH_LL
 
 #ifdef USE_REASONING_STATISTICS
 AccumulatedStatistic* AccumulatedStatistic::root = NULL;
@@ -602,6 +602,33 @@ void DlSatTester :: restore ( unsigned int newTryLevel )
 #ifdef __DEBUG_SAVE_RESTORE
 	writeRoot(llSRState);
 #endif
+}
+
+void
+DlSatTester :: restoreDBT ( void )
+{
+	unsigned int retLevel = getClashSet().level();
+	// restore local
+	bContext = Stack.get(retLevel);
+	BCOr* bcOr = dynamic_cast<BCOr*>(bContext);
+	// restore reasoning context
+	curNode = bContext->curNode;
+	curConcept = bContext->curConcept;
+	// we here after the clash so choose the next branching option
+	bcOr->failCurOption(getClashSet(), retLevel);
+	// clear all conflict sets that involve retLevel
+	std::cerr << "Remove conflict level " << retLevel << " from branching\n";
+	for ( unsigned int i = retLevel+1; i < Stack.size(); ++i )
+		dynamic_cast<BCOr*>(Stack.get(i))->clearDep(retLevel);
+	// clear all labels depending on retLevel
+	CGraph.discardBranching(retLevel);
+
+	//nextBranchingOption();
+	incStat(nStateRestores);
+
+	if ( LLM.isWritable(llSRState) )
+		LL << " sr(" << getCurLevel() << ")";
+	writeRoot(llSRState);
 }
 
 /**
