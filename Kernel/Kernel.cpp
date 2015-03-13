@@ -257,7 +257,7 @@ ReasoningKernel :: classifyQuery ( bool named )
 }
 
 void
-ReasoningKernel :: setUpCache ( DLTree* query, cacheStatus level )
+ReasoningKernel :: setUpSatCache ( DLTree* query )
 {
 	// if KB was changed since it was classified,
 	// we should catch it before
@@ -265,48 +265,32 @@ ReasoningKernel :: setUpCache ( DLTree* query, cacheStatus level )
 
 	// check if the query is already cached
 	if ( checkQueryCache(query) )
-	{	// ... with the same level -- nothing to do
-		if ( level <= cacheLevel )
-		{
-			deleteTree(query);
-			return;
-		}
-		else
-		{	// concept was defined but not classified yet
-			fpp_assert ( level == csClassified && cacheLevel != csClassified );
-			if ( cacheLevel == csSat )	// already check satisfiability
-			{
-				deleteTree(query);
-				classifyQuery(isCN(cachedQueryTree));
-				return;
-			}
-		}
+	{	// the level should be the same
+		fpp_assert ( cacheLevel == csSat );
+		// nothing to do
+		deleteTree(query);
+		return;
 	}
-	else	// clear current query
-		clearQueryCache();
 
-	// clean cached info
+	// clear currently cached query
+	clearQueryCache();
 	cachedVertex = NULL;
-	cacheLevel = level;
+	cacheLevel = csEmpty;
 
 	// check if concept-to-cache is defined in ontology
 	if ( isCN(cachedQueryTree) )
 		cachedConcept = getTBox()->getCI(query);
 	else	// case of complex query
 		cachedConcept = getTBox()->createQueryConcept(query);
-	// if so, save the query if necessary
-	if ( cachedQueryTree == NULL )
-		setQueryCache(query);
-	else	// free query memory
-		deleteTree(query);
 
 	fpp_assert ( cachedConcept != NULL );
 	// preprocess concept is necessary (fresh concept in query or complex one)
 	if ( !isValid(cachedConcept->pName) )
 		getTBox()->preprocessQueryConcept(cachedConcept);
 
-	if ( level == csClassified )
-		classifyQuery(isCN(cachedQueryTree));
+	// everything is fine -- set up cache now
+	setQueryCache(query);
+	cacheLevel = csSat;
 }
 
 void

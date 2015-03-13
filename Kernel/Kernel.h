@@ -275,7 +275,7 @@ protected:	// methods
 		/// classify query; cache is ready at the point. NAMED means whether concept is just a name
 	void classifyQuery ( bool named );
 		/// set up cache for query, performing additional (re-)classification if necessary
-	void setUpCache ( DLTree* query, cacheStatus level );
+	void setUpSatCache ( DLTree* query );
 		/// set up cache for query, performing additional (re-)classification if necessary
 	void setUpCache ( TConceptExpr* query, cacheStatus level );
 		/// clear cache and flags
@@ -324,7 +324,7 @@ protected:	// methods
 			deleteTree(C);
 			return false;
 		}
-		setUpCache ( C, csSat );
+		setUpSatCache(C);
 		return getTBox()->isSatisfiable(cachedConcept);
 	}
 		/// @return true iff C is satisfiable
