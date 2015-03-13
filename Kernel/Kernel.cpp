@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2014 by Dmitry Tsarkov
+Copyright (C) 2003-2015 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -266,21 +266,24 @@ ReasoningKernel :: setUpCache ( DLTree* query, cacheStatus level )
 	// check if the query is already cached
 	if ( checkQueryCache(query) )
 	{	// ... with the same level -- nothing to do
-		deleteTree(query);
 		if ( level <= cacheLevel )
+		{
+			deleteTree(query);
 			return;
+		}
 		else
 		{	// concept was defined but not classified yet
 			fpp_assert ( level == csClassified && cacheLevel != csClassified );
 			if ( cacheLevel == csSat )	// already check satisfiability
 			{
+				deleteTree(query);
 				classifyQuery(isCN(cachedQueryTree));
 				return;
 			}
 		}
 	}
-	else	// change current query
-		setQueryCache(query);
+	else	// clear current query
+		clearQueryCache();
 
 	// clean cached info
 	cachedVertex = NULL;
@@ -288,9 +291,14 @@ ReasoningKernel :: setUpCache ( DLTree* query, cacheStatus level )
 
 	// check if concept-to-cache is defined in ontology
 	if ( isCN(cachedQueryTree) )
-		cachedConcept = getTBox()->getCI(cachedQueryTree);
+		cachedConcept = getTBox()->getCI(query);
 	else	// case of complex query
-		cachedConcept = getTBox()->createQueryConcept(cachedQueryTree);
+		cachedConcept = getTBox()->createQueryConcept(query);
+	// if so, save the query if necessary
+	if ( cachedQueryTree == NULL )
+		setQueryCache(query);
+	else	// free query memory
+		deleteTree(query);
 
 	fpp_assert ( cachedConcept != NULL );
 	// preprocess concept is necessary (fresh concept in query or complex one)
@@ -323,8 +331,8 @@ ReasoningKernel :: setUpCache ( TConceptExpr* query, cacheStatus level )
 			}
 		}
 	}
-	else	// change current query
-		setQueryCache(query);
+	else	// clear current query
+		clearQueryCache();
 
 	// clean cached info
 	cachedVertex = NULL;
@@ -332,9 +340,12 @@ ReasoningKernel :: setUpCache ( TConceptExpr* query, cacheStatus level )
 
 	// check if concept-to-cache is defined in ontology
 	if ( isNameOrConst(cachedQuery) )
-		cachedConcept = getTBox()->getCI(TreeDeleter(e(cachedQuery)));
+		cachedConcept = getTBox()->getCI(TreeDeleter(e(query)));
 	else	// case of complex query
-		cachedConcept = getTBox()->createQueryConcept(TreeDeleter(e(cachedQuery)));
+		cachedConcept = getTBox()->createQueryConcept(TreeDeleter(e(query)));
+	// if so, save the query if necessary
+	if ( cachedQuery == NULL )
+		setQueryCache(query);
 
 	fpp_assert ( cachedConcept != NULL );
 	// preprocess concept is necessary (fresh concept in query or complex one)

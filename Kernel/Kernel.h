@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2014 by Dmitry Tsarkov
+Copyright (C) 2003-2015 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -271,7 +271,7 @@ protected:	// methods
 		/// check whether query cache is the same as QUERY
 	bool checkQueryCache ( TConceptExpr* query ) const { return ignoreExprCache ? false : cachedQuery == query; }
 		/// check whether query cache is the same as QUERY
-	bool checkQueryCache ( DLTree* query ) const { return equalTrees ( cachedQueryTree, query ); }
+	bool checkQueryCache ( DLTree* query ) const { return ignoreExprCache ? false : equalTrees ( cachedQueryTree, query ); }
 		/// classify query; cache is ready at the point. NAMED means whether concept is just a name
 	void classifyQuery ( bool named );
 		/// set up cache for query, performing additional (re-)classification if necessary
