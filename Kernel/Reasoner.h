@@ -286,6 +286,8 @@ protected:	// members
 	BranchingContext* bContext;
 		/// index of last non-det situation
 	unsigned int tryLevel;
+		/// index of new non-det situation
+	unsigned int maxLevel;
 		/// shift in order to determine the 1st non-det application
 	unsigned int nonDetShift;
 

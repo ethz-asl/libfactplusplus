@@ -295,13 +295,13 @@ bool DlSatTester :: commonTacticBodyOr ( const DLVertex& cur )	// for C \or D co
 			orBranch->setOrIndex(OrConceptsToTest);
 			// emulate save
 			// increase tryLevel
-			++tryLevel;
+			tryLevel = ++maxLevel;
 			Manager.ensureLevel(getCurLevel());
 			// init BC
 			clearBC();
 			if ( LLM.isWritable(llSRState) )
 				LL << " ss(" << getCurLevel()-1 << ")";
-			writeRoot(llSRState);
+		//	writeRoot(llSRState);
 			LL.flush();
 		}
 		// set the BC globally
@@ -343,7 +343,8 @@ bool DlSatTester :: commonTacticBodyOr ( const DLVertex& cur )	// for C \or D co
 		orBranch->print(std::cerr);
 		orBranch->gatherClashSet();
 		setClashSet(orBranch->branchDep);
-		addToDoEntry(curNode,curConcept.bp(),curConcept.getDep(),"rerun");
+		updateName ( curNode, curConcept.bp() );
+		//addExistingToDoEntry(curNode,curConcept.bp(),"rerun");
 		return true;
 	}
 	// now it is OR case with 1 or more applicable concepts
