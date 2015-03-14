@@ -263,28 +263,46 @@ protected:	// methods
 	//-----------------------------------------------------------------------------
 
 		/// clear query cache
-	void clearQueryCache ( void ) { cachedQuery = NULL; deleteTree(cachedQueryTree); cachedQueryTree = NULL; }
+	void clearQueryCache ( void )
+	{
+		// clear cached query
+		cachedQuery = NULL;
+		deleteTree(cachedQueryTree);
+		cachedQueryTree = NULL;
+		// clear the rest of cache
+		cacheLevel = csEmpty;
+		cachedConcept = NULL;
+		cachedVertex = NULL;
+	}
+		/// @return true if the cache is not set
+	bool isCacheEmpty ( void ) const { return (cachedQuery == NULL) && (cachedQueryTree == NULL); }
 		/// set query cache value to QUERY
-	void setQueryCache ( TConceptExpr* query ) { clearQueryCache(); cachedQuery = query; }
+	void setQueryCache ( TConceptExpr* query ) { fpp_assert(isCacheEmpty()); cachedQuery = query; }
 		/// set query cache value to QUERY
-	void setQueryCache ( DLTree* query ) { clearQueryCache(); cachedQueryTree = query; }
+	void setQueryCache ( DLTree* query ) { fpp_assert(isCacheEmpty()); cachedQueryTree = query; }
 		/// check whether query cache is the same as QUERY
 	bool checkQueryCache ( TConceptExpr* query ) const { return ignoreExprCache ? false : cachedQuery == query; }
 		/// check whether query cache is the same as QUERY
 	bool checkQueryCache ( DLTree* query ) const { return ignoreExprCache ? false : equalTrees ( cachedQueryTree, query ); }
-		/// classify query; cache is ready at the point. NAMED means whether concept is just a name
-	void classifyQuery ( bool named );
-		/// set up cache for query, performing additional (re-)classification if necessary
+		/// set the query concept
+	void setQueryConcept ( const DLTree* query )
+	{	// setup cached concept depending on whether an entity is queries
+		cachedConcept = isCN(query) ? getTBox()->getCI(query) : getTBox()->createQueryConcept(query);
+		fpp_assert ( cachedConcept != NULL );
+		// preprocess concept is necessary (fresh concept in query or complex one)
+		if ( !isValid(cachedConcept->pName) )
+			getTBox()->preprocessQueryConcept(cachedConcept);
+	}
+		/// classify query; cache is ready at the point
+	void classifyQuery ( void );
+		/// set up cache for sat query
 	void setUpSatCache ( DLTree* query );
 		/// set up cache for query, performing additional (re-)classification if necessary
 	void setUpCache ( TConceptExpr* query, cacheStatus level );
 		/// clear cache and flags
 	void initCacheAndFlags ( void )
 	{
-		cacheLevel = csEmpty;
 		clearQueryCache();
-		cachedConcept = NULL;
-		cachedVertex = NULL;
 		NeedTracing = false;
 	}
 

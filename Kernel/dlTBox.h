@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2014 by Dmitry Tsarkov
+Copyright (C) 2003-2015 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -1202,6 +1202,8 @@ public:
 	void classifyQueryConcept ( void );
 		/// delete all query-related stuff
 	void clearQueryConcept ( void ) { DLHeap.removeQuery(); }
+		/// @return true if the concept in question is a query concept
+	bool isComplexQuery ( const TConcept* queryConcept ) const { return queryConcept == pQuery; }
 
 //-----------------------------------------------------------------------------
 //--		public reasoning interface
