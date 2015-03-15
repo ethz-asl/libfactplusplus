@@ -36,7 +36,7 @@ public class TopObjectPropertyTest extends TestBase {
         mngr.applyChange(new AddAxiom(ont, df
                 .getOWLFunctionalDataPropertyAxiom(p)));
         OWLReasonerFactory fac = factory();
-        OWLReasoner r = fac.createNonBufferingReasoner(ont);
+        OWLReasoner r = fac.createReasoner(ont);
         assertTrue(r.isEntailed(df.getOWLSubClassOfAxiom(
                 df.getOWLDataSomeValuesFrom(p, df.getIntegerOWLDatatype()),
                 df.getOWLDataSomeValuesFrom(p, df.getTopDatatype()))));
@@ -47,7 +47,7 @@ public class TopObjectPropertyTest extends TestBase {
         OWLOntologyManager mngr = OWLManager.createOWLOntologyManager();
         OWLOntology ont = mngr.createOntology();
         OWLReasonerFactory fac = factory();
-        OWLReasoner r = fac.createNonBufferingReasoner(ont);
+        OWLReasoner r = fac.createReasoner(ont);
         assertFalse(r.getTopDataPropertyNode().getEntities().isEmpty());
     }
 }
