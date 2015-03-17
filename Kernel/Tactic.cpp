@@ -409,7 +409,7 @@ bool DlSatTester :: processOrEntry ( void )
 {
 	// save the context here as after save() it would be lost
 	BCOr* bcOr = static_cast<BCOr*>(bContext);
-	BCOr::or_iterator p = bcOr->orBeg(), p_end = bcOr->orEnd();
+	BCOr::or_const_iterator p = bcOr->orBeg(), p_end = bcOr->orEnd();
 	// set the active alternative
 	BipolarPointer C = bcOr->chooseFreeOption();
 	fpp_assert ( isValid(C) );

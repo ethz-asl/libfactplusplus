@@ -112,7 +112,9 @@ public:		// types
 		/// short OR indexes
 	typedef std::vector<OrArg> OrIndex;
 		/// short OR index iterator
-	typedef OrIndex::const_iterator or_iterator;
+	typedef OrIndex::iterator or_iterator;
+		/// short OR index const iterator
+	typedef OrIndex::const_iterator or_const_iterator;
 
 private:	// members
 		/// relevant disjuncts (ready to add)
@@ -159,35 +161,35 @@ public:		// interface
 	BipolarPointer chooseFreeOption ( void )
 	{
 		// try to return chosen one
-		int i;
-		for ( i = 0; i < applicableOrEntries.size(); i++ )
-			if ( applicableOrEntries[i].chosen )
-				return applicableOrEntries[i].C;
-		for ( i = 0; i < applicableOrEntries.size(); i++ )
-			if ( applicableOrEntries[i].free )
+		or_iterator p, p_beg = applicableOrEntries.begin(), p_end = applicableOrEntries.end();
+		for ( p = p_beg; p != p_end; ++p )
+			if ( p->chosen )
+				return p->C;
+		for ( p = p_beg; p != p_end; ++p )
+			if ( p->free )
 			{
-				applicableOrEntries[i].free = false;
-				applicableOrEntries[i].chosen = true;
-				return applicableOrEntries[i].C;
+				p->free = false;
+				p->chosen = true;
+				return p->C;
 			}
 		return bpINVALID;
 	}
 	void failCurOption ( const DepSet& dep, unsigned int curLevel )
 	{
 		fpp_assert ( curLevel == level );
-		for ( int i = 0; i < applicableOrEntries.size(); i++ )
-			if ( applicableOrEntries[i].chosen )
+		for ( or_iterator p = applicableOrEntries.begin(), p_end = applicableOrEntries.end(); p != p_end; ++p )
+			if ( p->chosen )
 			{
 				--freeChoices;
-				applicableOrEntries[i].chosen = false;
-				applicableOrEntries[i].tried = true;
-				applicableOrEntries[i].clashReason = dep;
-				applicableOrEntries[i].clashReason.restrict(curLevel);
+				p->chosen = false;
+				p->tried = true;
+				p->clashReason = dep;
+				p->clashReason.restrict(curLevel);
 				std::cerr << "BC-" << level << ", add ";
-				applicableOrEntries[i].clashReason.Print(std::cerr);
+				p->clashReason.Print(std::cerr);
 				std::cerr << " (from ";
 				dep.Print(std::cerr);
-				std::cerr << ") for alternative " << applicableOrEntries[i].C << "\n";
+				std::cerr << ") for alternative " << p->C << "\n";
 				return;
 			}
 	}
@@ -195,39 +197,39 @@ public:		// interface
 	{
 		bool changeSelected = false;
 //		std::cerr << "Clear " << curLevel << " for BC-" << level << "\n";
-		for ( int i = 0; i < applicableOrEntries.size(); i++ )
-			if ( applicableOrEntries[i].clashReason.contains(curLevel) )
+		for ( or_iterator p = applicableOrEntries.begin(), p_end = applicableOrEntries.end(); p != p_end; ++p )
+			if ( p->clashReason.contains(curLevel) )
 			{
 				std::cerr << "BC-" << level << ", clear ";
-				applicableOrEntries[i].clashReason.Print(std::cerr);
-				std::cerr << " for alternative " << applicableOrEntries[i].C << "\n";
-				applicableOrEntries[i].clashReason.clear();
-				if ( applicableOrEntries[i].tried )
+				p->clashReason.Print(std::cerr);
+				std::cerr << " for alternative " << p->C << "\n";
+				p->clashReason.clear();
+				if ( p->tried )
 				{
-					applicableOrEntries[i].free = true;
-					applicableOrEntries[i].tried = false;
+					p->free = true;
+					p->tried = false;
 					++freeChoices;
 				}
-				else if ( applicableOrEntries[i].chosen )
+				else if ( p->chosen )
 				{
 					std::cerr << "BC-" << level << ", clear selection";
-					std::cerr << " for alternative " << applicableOrEntries[i].C << "\n";
+					std::cerr << " for alternative " << p->C << "\n";
 					changeSelected = true;
-					applicableOrEntries[i].free = true;
-					applicableOrEntries[i].chosen = false;
+					p->free = true;
+					p->chosen = false;
 				}
 			}
 		return changeSelected;
 	}
 	void setChosenDep ( const DepSet& ds )
 	{
-		for ( int i = 0; i < applicableOrEntries.size(); i++ )
-			if ( applicableOrEntries[i].chosen )
+		for ( or_iterator p = applicableOrEntries.begin(), p_end = applicableOrEntries.end(); p != p_end; ++p )
+			if ( p->chosen )
 			{
 				std::cerr << "BC-" << level << ", selection dependent on ";
 				ds.Print(std::cerr);
-				std::cerr << " for alternative " << applicableOrEntries[i].C << "\n";
-				applicableOrEntries[i].clashReason = ds;
+				std::cerr << " for alternative " << p->C << "\n";
+				p->clashReason = ds;
 			}
 	}
 	// access to the fields
@@ -235,18 +237,18 @@ public:		// interface
 		/// check if the current processing OR entry is the last one
 	bool isLastOrEntry ( void ) const { return applicableOrEntries.size() == branchIndex+1; }
 		/// 1st element of OrIndex
-	or_iterator orBeg ( void ) const { return applicableOrEntries.begin(); }
+	or_const_iterator orBeg ( void ) const { return applicableOrEntries.begin(); }
 		/// current element of OrIndex
-	or_iterator orCur ( void ) const { return orBeg() + branchIndex; }
+	or_const_iterator orCur ( void ) const { return orBeg() + branchIndex; }
 		/// last (completely or used) element of OrIndex
-	or_iterator orEnd ( void ) const{ return RKG_USE_DYNAMIC_BACKJUMPING ? applicableOrEntries.end() : orCur(); }
+	or_const_iterator orEnd ( void ) const { return RKG_USE_DYNAMIC_BACKJUMPING ? applicableOrEntries.end() : orCur(); }
 
 	void setLevel ( unsigned int l ) { level = l; }
 	unsigned int getLevel ( void ) const { return level; }
 	void print ( std::ostream& o ) const
 	{
 		o << "BC-" << level << " (" << freeChoices << "/" << applicableOrEntries.size() << "): [";
-		for ( or_iterator p = orBeg(), p_end = orEnd(); p != p_end; ++p )
+		for ( or_const_iterator p = orBeg(), p_end = orEnd(); p != p_end; ++p )
 		{
 			if ( p->free )
 				o << ' ';
