@@ -110,15 +110,15 @@ public:		// types
 	}; // OrArg
 public:		// types
 		/// short OR indexes
-	typedef std::vector<OrArg> OrIndex;
+	typedef std::vector<OrArg> OrVector;
 		/// short OR index iterator
-	typedef OrIndex::iterator or_iterator;
+	typedef OrVector::iterator or_iterator;
 		/// short OR index const iterator
-	typedef OrIndex::const_iterator or_const_iterator;
+	typedef OrVector::const_iterator or_const_iterator;
 
 private:	// members
 		/// relevant disjuncts (ready to add)
-	OrIndex applicableOrEntries;
+	OrVector orEntries;
 		/// level (global place in the stack)
 	unsigned int level;
 		/// current branching index
@@ -134,7 +134,7 @@ public:		// interface
 		/// init branch index
 	virtual void init ( void )
 	{
-		applicableOrEntries.clear();
+		orEntries.clear();
 		level = 0;
 		branchIndex = 0;
 		freeChoices = 0;
@@ -143,25 +143,25 @@ public:		// interface
 	virtual void nextOption ( void ) { ++branchIndex; }
 
 		// init the options
-	void setOrIndex ( OrIndex& index )
+	void setOrIndex ( OrVector& index )
 	{
-		applicableOrEntries.swap(index);
+		orEntries.swap(index);
 		freeChoices = 0;
-		for ( int i = 0; i < applicableOrEntries.size(); i++ )
-			if ( applicableOrEntries[i].free )
+		for ( int i = 0; i < orEntries.size(); i++ )
+			if ( orEntries[i].free )
 				++freeChoices;
 	}
 
 	bool noMoreOptions ( void ) const { return freeChoices == 0; }
 	void gatherClashSet ( void )
 	{
-		for ( int i = 0; i < applicableOrEntries.size(); i++ )
-			branchDep.add(applicableOrEntries[i].clashReason);
+		for ( int i = 0; i < orEntries.size(); i++ )
+			branchDep.add(orEntries[i].clashReason);
 	}
 	BipolarPointer chooseFreeOption ( void )
 	{
 		// try to return chosen one
-		or_iterator p, p_beg = applicableOrEntries.begin(), p_end = applicableOrEntries.end();
+		or_iterator p, p_beg = orEntries.begin(), p_end = orEntries.end();
 		for ( p = p_beg; p != p_end; ++p )
 			if ( p->chosen )
 				return p->C;
@@ -177,7 +177,7 @@ public:		// interface
 	void failCurOption ( const DepSet& dep, unsigned int curLevel )
 	{
 		fpp_assert ( curLevel == level );
-		for ( or_iterator p = applicableOrEntries.begin(), p_end = applicableOrEntries.end(); p != p_end; ++p )
+		for ( or_iterator p = orEntries.begin(), p_end = orEntries.end(); p != p_end; ++p )
 			if ( p->chosen )
 			{
 				--freeChoices;
@@ -197,7 +197,7 @@ public:		// interface
 	{
 		bool changeSelected = false;
 //		std::cerr << "Clear " << curLevel << " for BC-" << level << "\n";
-		for ( or_iterator p = applicableOrEntries.begin(), p_end = applicableOrEntries.end(); p != p_end; ++p )
+		for ( or_iterator p = orEntries.begin(), p_end = orEntries.end(); p != p_end; ++p )
 			if ( p->clashReason.contains(curLevel) )
 			{
 				std::cerr << "BC-" << level << ", clear ";
@@ -223,7 +223,7 @@ public:		// interface
 	}
 	void setChosenDep ( const DepSet& ds )
 	{
-		for ( or_iterator p = applicableOrEntries.begin(), p_end = applicableOrEntries.end(); p != p_end; ++p )
+		for ( or_iterator p = orEntries.begin(), p_end = orEntries.end(); p != p_end; ++p )
 			if ( p->chosen )
 			{
 				std::cerr << "BC-" << level << ", selection dependent on ";
@@ -235,19 +235,19 @@ public:		// interface
 	// access to the fields
 
 		/// check if the current processing OR entry is the last one
-	bool isLastOrEntry ( void ) const { return applicableOrEntries.size() == branchIndex+1; }
-		/// 1st element of OrIndex
-	or_const_iterator orBeg ( void ) const { return applicableOrEntries.begin(); }
-		/// current element of OrIndex
+	bool isLastOrEntry ( void ) const { return orEntries.size() == branchIndex+1; }
+		/// 1st element of OrVector
+	or_const_iterator orBeg ( void ) const { return orEntries.begin(); }
+		/// current element of OrVector
 	or_const_iterator orCur ( void ) const { return orBeg() + branchIndex; }
-		/// last (completely or used) element of OrIndex
-	or_const_iterator orEnd ( void ) const { return RKG_USE_DYNAMIC_BACKJUMPING ? applicableOrEntries.end() : orCur(); }
+		/// last (completely or used) element of OrVector
+	or_const_iterator orEnd ( void ) const { return RKG_USE_DYNAMIC_BACKJUMPING ? orEntries.end() : orCur(); }
 
 	void setLevel ( unsigned int l ) { level = l; }
 	unsigned int getLevel ( void ) const { return level; }
 	void print ( std::ostream& o ) const
 	{
-		o << "BC-" << level << " (" << freeChoices << "/" << applicableOrEntries.size() << "): [";
+		o << "BC-" << level << " (" << freeChoices << "/" << orEntries.size() << "): [";
 		for ( or_const_iterator p = orBeg(), p_end = orEnd(); p != p_end; ++p )
 		{
 			if ( p->free )

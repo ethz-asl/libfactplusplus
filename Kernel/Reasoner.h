@@ -354,7 +354,7 @@ protected:	// members
 	size_t dagSize;
 
 		/// temporary array used in OR operation
-	BCOr::OrIndex OrConceptsToTest;
+	BCOr::OrVector OrConceptsToTest;
 		/// temporary array used in <= operations
 	EdgeVector EdgesToMerge;
 		/// nodes to merge in the TopRole-LE rules
