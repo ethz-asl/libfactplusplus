@@ -19,6 +19,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef REASONER_H
 #define REASONER_H
 
+#include <stack>
+
 #include "globaldef.h"
 #include "tBranchingContext.h"
 #include "dlCompletionGraph.h"
@@ -171,7 +173,7 @@ protected:	// classes
 
 	public:		// interface
 			/// empty c'tor
-		BCStack ( void ) : bcBarrier(new BCBarrier) {}
+		BCStack ( void ) : bcBarrier(new BCBarrier) { TSaveStack<BranchingContext>::push(); }
 			/// empty d'tor
 		virtual ~BCStack ( void )
 		{
@@ -210,12 +212,13 @@ protected:	// classes
 		{
 			clearPools();
 			TSaveStack<BranchingContext>::clear();
+			last = 1;
 			obcMap.clear();
 		}
 
 		// Dynamic backtracking support
 			/// get the BC corresponding to a given index
-		BranchingContext* get ( unsigned int level ) { return Base[level-1]; }
+		BranchingContext* get ( unsigned int level ) { return Base[level]; }
 			/// get the BC corresponding to a node and BP, return NULL if none known
 		BCOr* get ( DlCompletionTree* node, BipolarPointer bp )
 		{
@@ -228,11 +231,12 @@ protected:	// classes
 			/// return new Or BC
 		BCOr* createOrBC ( unsigned int level )
 		{
-			std::cout << "l:" << level << ",s:" << last << std::endl;
-			fpp_assert ( level-1 == last );
+			std::cout << "l:" << level << ",s:" << size() << std::endl;
+			fpp_assert ( level == size() );
 			BCOr* ret = PoolOr.get();
 			push(ret);
 			ret->setLevel(level);
+			fpp_assert ( get(level) == ret );
 			return ret;
 		}
 			/// register BC
@@ -282,6 +286,7 @@ protected:	// members
 
 		/// stack for the local reasoner's state
 	BCStack Stack;
+	std::stack<BCOr*> orToDo;
 		/// context from the restored branching rule
 	BranchingContext* bContext;
 		/// index of last non-det situation
@@ -903,7 +908,7 @@ protected:	// methods
 		/// add D to global dep-set
 	void updateClashSet ( const DepSet& d ) { clashSet.add(d); }
 		/// get dep-set wrt current level
-	DepSet getCurDepSet ( void ) const { return DepSet(Manager.get(getCurLevel()-1)); }
+	DepSet getCurDepSet ( void ) const { return DepSet(Manager.get(getCurLevel())); }
 
 		/// get RW access to current branching dep-set
 	DepSet& getBranchDep ( void ) { return bContext->branchDep; }

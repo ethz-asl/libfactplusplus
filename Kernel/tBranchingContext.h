@@ -158,7 +158,12 @@ public:		// interface
 	}
 	BipolarPointer chooseFreeOption ( void )
 	{
-		for ( int i = 0; i < applicableOrEntries.size(); i++ )
+		// try to return chosen one
+		int i;
+		for ( i = 0; i < applicableOrEntries.size(); i++ )
+			if ( applicableOrEntries[i].chosen )
+				return applicableOrEntries[i].C;
+		for ( i = 0; i < applicableOrEntries.size(); i++ )
 			if ( applicableOrEntries[i].free )
 			{
 				applicableOrEntries[i].free = false;
@@ -178,25 +183,52 @@ public:		// interface
 				applicableOrEntries[i].tried = true;
 				applicableOrEntries[i].clashReason = dep;
 				applicableOrEntries[i].clashReason.restrict(curLevel);
-				std::cerr << "Remove alternative " << applicableOrEntries[i].C << " from BC " << level << " with clash set ";
+				std::cerr << "BC-" << level << ", add ";
+				applicableOrEntries[i].clashReason.Print(std::cerr);
+				std::cerr << " (from ";
 				dep.Print(std::cerr);
-				std::cerr << "\n";
+				std::cerr << ") for alternative " << applicableOrEntries[i].C << "\n";
 				return;
 			}
 	}
-	void clearDep ( unsigned int curLevel )
+	bool clearDep ( unsigned int curLevel )
+	{
+		bool changeSelected = false;
+//		std::cerr << "Clear " << curLevel << " for BC-" << level << "\n";
+		for ( int i = 0; i < applicableOrEntries.size(); i++ )
+			if ( applicableOrEntries[i].clashReason.contains(curLevel) )
+			{
+				std::cerr << "BC-" << level << ", clear ";
+				applicableOrEntries[i].clashReason.Print(std::cerr);
+				std::cerr << " for alternative " << applicableOrEntries[i].C << "\n";
+				applicableOrEntries[i].clashReason.clear();
+				if ( applicableOrEntries[i].tried )
+				{
+					applicableOrEntries[i].free = true;
+					applicableOrEntries[i].tried = false;
+					++freeChoices;
+				}
+				else if ( applicableOrEntries[i].chosen )
+				{
+					std::cerr << "BC-" << level << ", clear selection";
+					std::cerr << " for alternative " << applicableOrEntries[i].C << "\n";
+					changeSelected = true;
+					applicableOrEntries[i].free = true;
+					applicableOrEntries[i].chosen = false;
+				}
+			}
+		return changeSelected;
+	}
+	void setChosenDep ( const DepSet& ds )
 	{
 		for ( int i = 0; i < applicableOrEntries.size(); i++ )
-			if ( applicableOrEntries[i].tried && applicableOrEntries[i].clashReason.contains(curLevel) )
+			if ( applicableOrEntries[i].chosen )
 			{
-				std::cerr << "BC " << level << ", alternative " << applicableOrEntries[i].C << " with clash set "; applicableOrEntries[i].clashReason.Print(std::cerr);
-				std::cerr << " is free now\n";
-				applicableOrEntries[i].free = true;
-				applicableOrEntries[i].tried = false;
-				applicableOrEntries[i].clashReason.clear();
-				++freeChoices;
+				std::cerr << "BC-" << level << ", selection dependent on ";
+				ds.Print(std::cerr);
+				std::cerr << " for alternative " << applicableOrEntries[i].C << "\n";
+				applicableOrEntries[i].clashReason = ds;
 			}
-
 	}
 	// access to the fields
 
@@ -210,15 +242,33 @@ public:		// interface
 	or_iterator orEnd ( void ) const{ return RKG_USE_DYNAMIC_BACKJUMPING ? applicableOrEntries.end() : orCur(); }
 
 	void setLevel ( unsigned int l ) { level = l; }
+	unsigned int getLevel ( void ) const { return level; }
 	void print ( std::ostream& o ) const
 	{
-		o << "Or entry level " << level << ", free args: " << freeChoices << " of " << applicableOrEntries.size() << ":\n";
+		o << "BC-" << level << " (" << freeChoices << "/" << applicableOrEntries.size() << "): [";
 		for ( or_iterator p = orBeg(), p_end = orEnd(); p != p_end; ++p )
 		{
-			o << "arg " << p->C << ", fct=" << p->free << p->chosen << p->tried << ", clash set ";
-			p->clashReason.Print(o);
-			o << "\n";
+			if ( p->free )
+				o << ' ';
+			if ( p->tried )
+				o << 'x';
+			if ( p->chosen )
+				o << '*';
+//			o << "arg " << p->C << ", fct=" << p->free << p->chosen << p->tried << ", clash set ";
+			o << p->C;
+			if ( p->tried )
+			{
+				if ( p->clashReason.empty() )
+					o << "{}";
+				else
+					p->clashReason.Print(o);
+			}
+			else if ( p->chosen )
+				p->clashReason.Print(o);
+
+			o << " ";
 		}
+		o << "]\n";
 	}
 }; // BCOr
 

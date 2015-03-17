@@ -23,7 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "eFPPTimeout.h"
 
 // comment the line out for printing tree info before save and after restoring
-//#define __DEBUG_SAVE_RESTORE
+#define __DEBUG_SAVE_RESTORE
 // comment the line out for flushing LL after dumping significant piece of info
 #define __DEBUG_FLUSH_LL
 
@@ -452,6 +452,17 @@ bool DlSatTester :: checkSatisfiability ( void )
 	unsigned int loop = 0;
 	for (;;)
 	{
+		if ( RKG_USE_DYNAMIC_BACKJUMPING )
+		{
+			if ( curNode == NULL && !orToDo.empty() )
+			{
+				curNode = orToDo.top()->curNode;
+				curConcept = orToDo.top()->curConcept;
+				bContext = orToDo.top();
+				std::cerr << "Force reload for OR entry " << orToDo.top()->getLevel() << "\n";
+				orToDo.pop();
+			}
+		}
 		if ( curNode == NULL )
 		{
 			if ( TODO.empty() )	// no applicable rules
@@ -612,7 +623,10 @@ void DlSatTester :: restore ( unsigned int newTryLevel )
 void
 DlSatTester :: restoreDBT ( void )
 {
+	std::cerr << "---\nRestore: conflictSet = ";
+	getClashSet().Print(std::cerr);
 	setCurLevel(getClashSet().level());
+	std::cerr << "\nReturn level " << getCurLevel() << ", total " << Stack.size()-1 << "\n";
 	// restore local
 	bContext = Stack.get(getCurLevel());
 	BCOr* bcOr = dynamic_cast<BCOr*>(bContext);
@@ -624,7 +638,13 @@ DlSatTester :: restoreDBT ( void )
 	// clear all conflict sets that involve retLevel
 	std::cerr << "Remove conflict level " << getCurLevel() << " from branching\n";
 	for ( unsigned int i = getCurLevel()+1; i < Stack.size(); ++i )
-		dynamic_cast<BCOr*>(Stack.get(i))->clearDep(getCurLevel());
+	{
+//		std::cerr << "Processing OR entry " << i <<":\n";
+		BCOr* bcOr = dynamic_cast<BCOr*>(Stack.get(i));
+		fpp_assert(bcOr);
+		if ( bcOr->clearDep(getCurLevel()) )
+			updateName ( bcOr->curNode, bcOr->curConcept.bp() );
+	}
 	// clear all labels depending on retLevel
 	CGraph.discardBranching(getCurLevel());
 
@@ -633,7 +653,8 @@ DlSatTester :: restoreDBT ( void )
 
 	if ( LLM.isWritable(llSRState) )
 		LL << " sr(" << getCurLevel() << ")";
-//	writeRoot(llSRState);
+	writeRoot(llSRState);
+	std::cerr << "---\n";
 }
 
 /**
