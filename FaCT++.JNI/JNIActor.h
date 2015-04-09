@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2006-2014 by Dmitry Tsarkov
+Copyright (C) 2006-2015 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -159,7 +159,7 @@ class DataPropertyPolicy
 {
 public:
 	static const TClassFieldMethodIDs& getIDs ( const TJNICache* J ) { return J->DataPropertyPointer; }
-	static bool applicable ( const ClassifiableEntry* p ) { return p->getId() > 0; }
+	static bool applicable ( const ClassifiableEntry* p ) { return p->getId() >= 0; }
 	static bool needPlain ( void ) { return false; }
 	static TExpr* buildTree ( TJNICache* J, const ClassifiableEntry* p )
 		{ return J->getDName(p->getName()); }

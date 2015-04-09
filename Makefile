@@ -4,6 +4,7 @@
 
 # -- DO NOT CHANGE THE REST OF FILE --
 SUBDIRS = Kernel FaCT++ FaCT++.JNI FaCT++.C
+#SUBDIRS = Kernel Tests
 
 include Makefile.include
 

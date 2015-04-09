@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2006-2013 by Dmitry Tsarkov
+Copyright (C) 2006-2015 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -28,8 +28,8 @@ Actor :: applicable ( const EntryType* entry ) const
 	{
 		if ( isStandard )	// object role
 			return true;
-		else	// data role -- need only direct ones
-			return entry->getId() > 0;
+		else	// data role -- need only direct ones and TOP/BOT
+			return entry->getId() >= 0;
 	}
 	else	// concept or individual: standard are concepts
 		return static_cast<const TConcept*>(entry)->isSingleton() != isStandard;
