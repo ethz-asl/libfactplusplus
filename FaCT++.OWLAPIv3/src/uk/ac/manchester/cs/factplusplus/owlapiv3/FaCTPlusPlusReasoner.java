@@ -781,9 +781,12 @@ public class FaCTPlusPlusReasoner implements OWLReasoner, OWLOntologyChangeListe
 
 	protected synchronized DataValuePointer toDataValuePointer(OWLLiteral literal) {
 		String value = literal.getLiteral();
-		if (literal.isRDFPlainLiteral()) {
-			value = value + "@" + literal.getLang();
-		}
+		// the following lines prevent us from inferencing
+		// that "text" equals "text"^^string
+		// so comment them away
+		// if (literal.isRDFPlainLiteral()) {
+		// value = value + "@" + literal.getLang();
+		// }
 		if (literal.getDatatype().isBuiltIn()
 				&& literal.getDatatype().getBuiltInDatatype() == OWL2Datatype.XSD_DATE_TIME) {
 			return kernel.getDataValue(convertToLongDateTime(value), toDataTypePointer(literal.getDatatype()));
