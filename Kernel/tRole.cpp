@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2014 by Dmitry Tsarkov
+Copyright (C) 2003-2015 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -220,14 +220,14 @@ void TRole :: Print ( std::ostream& o ) const
 }
 
 // actor to fill vector by traversing taxonomy in a proper direction
-class AddRoleActor
+class AddRoleActor: public WalkerInterface
 {
 protected:
 	TRole::TRoleVec& rset;
 public:
 	AddRoleActor ( TRole::TRoleVec& v ) : rset(v) {}
-	~AddRoleActor ( void ) {}
-	bool apply ( const TaxonomyVertex& v )
+	virtual ~AddRoleActor ( void ) {}
+	virtual bool apply ( const TaxonomyVertex& v )
 	{
 		if ( v.getPrimer()->getId() == 0 )
 			return false;

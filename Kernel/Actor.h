@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2006-2013 by Dmitry Tsarkov
+Copyright (C) 2006-2015 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -20,11 +20,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #define ACTOR_H
 
 #include "taxVertex.h"
+#include "WalkerInterface.h"
 
 class TIndividual;
 
 /// class for acting with concept taxonomy
-class Actor
+class Actor: public WalkerInterface
 {
 public:		// types
 		/// entry in an output
@@ -112,7 +113,7 @@ public:		// interface
 		/// taxonomy walking method.
 		/// @return true if node was processed
 		/// @return false if node can not be processed in current settings
-	bool apply ( const TaxonomyVertex& v )
+	virtual bool apply ( const TaxonomyVertex& v )
 	{
 		if ( tryVertex(v) )
 		{

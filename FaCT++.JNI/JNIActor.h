@@ -23,7 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 /// class for acting with concept taxonomy
 template<class AccessPolicy>
-class JTaxonomyActor
+class JTaxonomyActor: public WalkerInterface
 {
 protected:	// types
 		/// array of TNEs
@@ -58,7 +58,7 @@ public:		// interface
 		/// c'tor
 	JTaxonomyActor ( TJNICache* cache ) : J(cache) {}
 		/// d'tor
-	~JTaxonomyActor ( void ) {}
+	virtual ~JTaxonomyActor ( void ) {}
 
 	void clear ( void ) { acc.clear(); plain.clear(); }
 	// return values
@@ -79,7 +79,7 @@ public:		// interface
 		/// taxonomy walking method.
 		/// @return true if node was processed, and there is no need to go further
 		/// @return false if node can not be processed in current settings
-	bool apply ( const TaxonomyVertex& v )
+	virtual bool apply ( const TaxonomyVertex& v )
 	{
 		syn.clear();
 		tryEntry(v.getPrimer());

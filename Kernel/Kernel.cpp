@@ -336,14 +336,14 @@ ReasoningKernel :: setUpCache ( TConceptExpr* query, cacheStatus level )
 //-------------------------------------------------
 
 /// class for exploring concept taxonomy to find super classes
-class SupConceptActor
+class SupConceptActor: public WalkerInterface
 {
 protected:
 	const ClassifiableEntry* pe;
 	void entry ( const ClassifiableEntry* q ) { if ( pe == q ) throw std::exception(); }
 public:
 	SupConceptActor ( ClassifiableEntry* q ) :pe(q) {}
-	bool apply ( const TaxonomyVertex& v )
+	virtual bool apply ( const TaxonomyVertex& v )
 	{
 		entry(v.getPrimer());
 		for ( TaxonomyVertex::syn_iterator p = v.begin_syn(), p_end=v.end_syn(); p != p_end; ++p )
@@ -445,7 +445,7 @@ ReasoningKernel :: isDisjointRoles ( void )
 // related individuals implementation
 //-------------------------------------------------
 
-class RIActor
+class RIActor: public WalkerInterface
 {
 protected:
 	ReasoningKernel::CIVec acc;
@@ -464,9 +464,9 @@ protected:
 
 public:
 	RIActor ( void ) {}
-	~RIActor ( void ) {}
+	virtual ~RIActor ( void ) {}
 
-	bool apply ( const TaxonomyVertex& v )
+	virtual bool apply ( const TaxonomyVertex& v )
 	{
 		bool ret = tryEntry(v.getPrimer());
 
