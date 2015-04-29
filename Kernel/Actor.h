@@ -20,12 +20,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #define ACTOR_H
 
 #include "taxVertex.h"
-#include "WalkerInterface.h"
-
-class TIndividual;
+#include "TaxGatheringWalker.h"
 
 /// class for acting with concept taxonomy
-class Actor: public WalkerInterface
+class Actor: public TaxGatheringWalker
 {
 public:		// types
 		/// entry in an output
@@ -36,8 +34,6 @@ public:		// types
 	typedef std::vector<Array1D> Array2D;
 
 protected:	// members
-		/// vertices that satisfy the condition
-	std::vector<const TaxonomyVertex*> found;
 		/// flag to look at concept-like or role-like entities
 	bool isRole;
 		/// flag to look at concepts or object roles
@@ -47,19 +43,7 @@ protected:	// members
 
 protected:	// methods
 		/// check whether actor is applicable to the ENTRY
-	bool applicable ( const EntryType* entry ) const;
-		/// @return true iff current entry is visible
-	bool tryEntry ( const EntryType* p ) const { return !p->isSystem() && applicable(p);}
-		/// @return true if at least one entry of a vertex V is visible
-	bool tryVertex ( const TaxonomyVertex& v ) const
-	{
-		if ( tryEntry(v.getPrimer()) )
-			return true;
-		for ( TaxonomyVertex::syn_iterator p = v.begin_syn(), p_end=v.end_syn(); p != p_end; ++p )
-			if ( tryEntry(*p) )
-				return true;
-		return false;
-	}
+	virtual bool applicable ( const EntryType* entry ) const;
 		/// fills an array with all suitable data from the vertex
 	void fillArray ( const TaxonomyVertex& v, Array1D& array ) const
 	{
@@ -75,9 +59,6 @@ public:		// interface
 	Actor ( void ) {}
 		/// empty d'tor
 	virtual ~Actor ( void ) {}
-
-
-	void clear ( void ) { found.clear(); }
 
 	// flags setup
 
@@ -108,19 +89,6 @@ public:		// interface
 		array.resize(found.size());
 		for ( size_t i = 0; i < found.size(); i++ )
 			fillArray ( *found[i], array[i] );
-	}
-
-		/// taxonomy walking method.
-		/// @return true if node was processed
-		/// @return false if node can not be processed in current settings
-	virtual bool apply ( const TaxonomyVertex& v )
-	{
-		if ( tryVertex(v) )
-		{
-			found.push_back(&v);
-			return true;
-		}
-		return false;
 	}
 }; // Actor
 
