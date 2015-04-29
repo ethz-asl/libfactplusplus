@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2006-2014 by Dmitry Tsarkov
+Copyright (C) 2006-2015 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -244,7 +244,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
 
 	if ( DTName == "http://www.w3.org/2001/XMLSchema#float" ||
 		 DTName == "http://www.w3.org/2001/XMLSchema#double" ||
-		 DTName == "http://www.w3.org/2001/XMLSchema#real" ||
+		 DTName == "http://www.w3.org/2002/07/owl#real" ||
 		 DTName == "http://www.w3.org/2001/XMLSchema#decimal" )
 		return J->DataType(J->EM->getRealDataType());
 
