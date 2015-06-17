@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2014 by Dmitry Tsarkov
+Copyright (C) 2003-2015 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -84,12 +84,12 @@ void TBox :: dumpRole ( dumpInterface* dump, const TRole* p ) const
 		dump->finishAx (diDefineR);
 
 		// dump parents
-		for ( ClassifiableEntry::const_iterator i = q->told_begin(); i != q->told_end(); ++i )
+		for ( auto parent: q->told() )
 		{
 			dump->startAx (diImpliesR);
 			dump->dumpRole(q);
 			dump->contAx (diImpliesR);
-			dump->dumpRole(static_cast<const TRole*>(*i));
+			dump->dumpRole(static_cast<const TRole*>(parent));
 			dump->finishAx (diImpliesR);
 		}
 	}

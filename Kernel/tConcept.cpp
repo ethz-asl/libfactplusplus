@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2011 by Dmitry Tsarkov
+Copyright (C) 2003-2015 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -62,8 +62,8 @@ CTTag TConcept :: determineClassTag ( void )
 	bool hasOther = false;
 	bool hasNP = false;
 
-	for ( ClassifiableEntry::const_iterator p = told_begin(); p != told_end(); ++p )
-		switch ( static_cast<TConcept*>(*p)->getClassTag() )
+	for ( auto p: told() )
+		switch ( static_cast<TConcept*>(p)->getClassTag() )
 		{
 		case cttTrueCompletelyDefined:
 			break;
@@ -229,9 +229,9 @@ unsigned int TConcept :: calculateTSDepth ( void )
 
 	unsigned int max = 0;
 
-	for ( ClassifiableEntry::iterator p = told_begin(); p != told_end(); ++p )
+	for ( auto p: told() )
 	{
-		unsigned int cur = static_cast<TConcept*>(*p)->calculateTSDepth();
+		unsigned int cur = static_cast<TConcept*>(p)->calculateTSDepth();
 		if ( max < cur )
 			max = cur;
 	}

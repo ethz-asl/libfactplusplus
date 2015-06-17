@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2013 by Dmitry Tsarkov
+Copyright (C) 2003-2015 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -200,7 +200,7 @@ protected:	// methods
 
 		/// prepare known subsumers for given entry if necessary
 	virtual KnownSubsumers* buildKnownSubsumers ( ClassifiableEntry* p )
-		{ return new ToldSubsumers(p->told_begin(), p->told_end()); }
+		{ return new ToldSubsumers(begin(p->told()), end(p->told())); }
 		/// prepare signature for given entry
 	virtual const TSignature* buildSignature ( ClassifiableEntry* p ATTR_UNUSED ) { return NULL; }
 		/// add top entry together with its known subsumers

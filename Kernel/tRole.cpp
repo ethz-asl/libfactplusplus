@@ -115,9 +115,9 @@ TRole* TRole :: eliminateToldCycles ( TRoleSet& RInProcess, TRoleVec& ToldSynony
 	removeSynonymsFromParents();
 
 	// not involved in cycle -- check all told subsumers
-	for ( ClassifiableEntry::const_iterator r = told_begin(); r != told_end(); ++r )
+	for ( auto r: told() )
 		// if cycle was detected
-		if ( (ret = static_cast<TRole*>(*r)->eliminateToldCycles ( RInProcess, ToldSynonyms )) != NULL )
+		if ( (ret = static_cast<TRole*>(r)->eliminateToldCycles ( RInProcess, ToldSynonyms )) != NULL )
 		{
 			if ( ret == this )
 			{
@@ -130,7 +130,7 @@ TRole* TRole :: eliminateToldCycles ( TRoleSet& RInProcess, TRoleVec& ToldSynony
 						p = ToldSynonyms.begin()+1, p_end = ToldSynonyms.end(); p < p_end; ++p )
 				{
 					(*p)->setSynonym(ret);
-					ret->addParents ( (*p)->told_begin(), (*p)->told_end() );
+					ret->addParents((*p)->told());
 				}
 
 				ToldSynonyms.clear();
@@ -404,9 +404,9 @@ void TRole :: completeAutomaton ( TRoleSet& RInProcess )
 	A.setCompleted();
 
 	if ( likely(!isBottom()) )	// FIXME!! for now; need better Top/Bot synonyms processing
-	for ( ClassifiableEntry::iterator p = told_begin(), p_end = told_end(); p != p_end; ++p )
+	for ( auto p: told() )
 	{
-		TRole* R = static_cast<TRole*>(resolveSynonym(*p));
+		TRole* R = static_cast<TRole*>(resolveSynonym(p));
 		if ( R->isTop() )	// do not propagate anything to a top-role
 			continue;
 		R->addSubRoleAutomaton(this);

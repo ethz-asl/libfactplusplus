@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2014 by Dmitry Tsarkov
+Copyright (C) 2003-2015 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -274,9 +274,9 @@ redo:
 
 //	std::cout << "Start from " << p->getName() << std::endl;
 
-	for ( ClassifiableEntry::const_iterator r = p->told_begin(); r != p->told_end(); ++r )
+	for ( auto r: p->told() )
 		// if cycle was detected
-		if ( (ret = checkToldCycle(static_cast<TConcept*>(*r))) != NULL )
+		if ( (ret = checkToldCycle(static_cast<TConcept*>(r))) != NULL )
 		{
 			if ( ret == p )
 			{
@@ -377,9 +377,9 @@ TBox :: transformSingletonHierarchy ( void )
 TIndividual*
 TBox :: getSPForConcept ( TConcept* p )
 {
-	for ( ClassifiableEntry::const_iterator r = p->told_begin(); r != p->told_end(); ++r )
+	for ( auto r: p->told() )
 	{
-		TConcept* i = static_cast<TConcept*>(*r);
+		TConcept* i = static_cast<TConcept*>(r);
 		if ( i->isSingleton() )	// found the end of the chain
 			return static_cast<TIndividual*>(i);
 		if ( i->isHasSP() )		// found the continuation of the chain

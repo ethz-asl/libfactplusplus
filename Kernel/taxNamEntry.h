@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2012 by Dmitry Tsarkov
+Copyright (C) 2003-2015 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -82,14 +82,10 @@ public:		// interface
 
 	// told subsumers interface
 
-		/// begin (RO) of told subsumers
-	const_iterator told_begin ( void ) const { return toldSubsumers.begin(); }
-		/// end (RO) of told subsumers
-	const_iterator told_end ( void ) const { return toldSubsumers.end(); }
-		/// begin (RW) of told subsumers
-	iterator told_begin ( void ) { return toldSubsumers.begin(); }
-		/// end (RW) of told subsumers
-	iterator told_end ( void ) { return toldSubsumers.end(); }
+		/// RW access to the told subsumers
+	linkSet& told ( void ) { return toldSubsumers; }
+		/// RO access to the told subsumers
+	const linkSet& told ( void ) const { return toldSubsumers; }
 
 		/// check whether entry ihas any TS
 	bool hasToldSubsumers ( void ) const { return !toldSubsumers.empty(); }
@@ -97,13 +93,11 @@ public:		// interface
 	void addParent ( ClassifiableEntry* parent ) { toldSubsumers.push_back (parent); }
 		/// add told subsumer if doesn't already recorded
 	void addParentIfNew ( ClassifiableEntry* parent );
-
-		/// add all parents (with duplicates) from the range to current node
-	template<class Iterator>
-	void addParents ( Iterator begin, Iterator end )
+		/// add all parents (with duplicates) from given container to current node
+	template<class Container>
+	void addParents ( const Container& parents )
 	{
-		for ( Iterator p = begin; p < end; ++p )
-			addParentIfNew(*p);
+		std::for_each ( begin(parents), end(parents), [=] (ClassifiableEntry* p) { addParentIfNew(p); } );
 	}
 
 	// index interface
@@ -134,7 +128,7 @@ public:		// interface
 	{
 		linkSet copy;
 		copy.swap(toldSubsumers);
-		addParents ( copy.begin(), copy.end() );
+		addParents(copy);
 	}
 }; // ClassifiableEntry
 
@@ -174,8 +168,8 @@ ClassifiableEntry :: addParentIfNew ( ClassifiableEntry* parent )
 		return;
 
 	// check if such entry already exists
-	for ( iterator p = told_begin(); p != told_end(); ++p )
-		if ( parent == *p )
+	for ( auto p: told() )
+		if ( parent == p )
 			return;
 
 	addParent(parent);
