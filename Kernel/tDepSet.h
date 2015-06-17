@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2006-2014 by Dmitry Tsarkov
+Copyright (C) 2006-2015 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -105,14 +105,14 @@ public:		// interface
 		: Manager(manager)
 		, Level(level)
 	{
-		HeadDepSet = new TDepSetElement ( Manager, Level, NULL );
+		HeadDepSet = new TDepSetElement ( Manager, Level, nullptr );
 	}
 		/// d'tor: delete all the cached dep-sets and the head element
 	virtual ~TDepSetCache ( void )
 	{
 		// don't delete tails as they are referenced outside
-		for ( iterator p = Map.begin(), p_end = Map.end(); p != p_end; ++p )
-			delete p->second;
+		for ( auto p: Map )
+			delete p.second;
 		delete HeadDepSet;
 	}
 
@@ -120,7 +120,7 @@ public:		// interface
 	TDepSetElement* getDS ( TDepSetElement* tail )
 	{
 		// special case the empty tail: most common case
-		if ( tail == NULL )
+		if ( tail == nullptr )
 			return HeadDepSet;
 		return get(tail);
 	}
@@ -131,7 +131,7 @@ class TDepSetManager: public growingArrayP<TDepSetCache>
 {
 protected:	// methods
 		/// create a new entry with an improved level
-	virtual TDepSetCache* createNew ( void ) { return new TDepSetCache ( this, (unsigned int)last++ ); }
+	virtual TDepSetCache* createNew ( void ) override { return new TDepSetCache ( this, (unsigned int)last++ ); }
 
 public:		// interface
 		/// c'tor: init N basement elements
@@ -142,14 +142,14 @@ public:		// interface
 		/// ensure that size of vector is enough to keep N elements
 	void ensureLevel ( unsigned int n ) { ensureHeapSize(n); }
 		/// get concatenation of N'th level element and TAIL
-	TDepSetElement* get ( unsigned int n, TDepSetElement* tail = NULL ) const { return Base[n]->getDS(tail); }
+	TDepSetElement* get ( unsigned int n, TDepSetElement* tail = nullptr ) const { return Base[n]->getDS(tail); }
 		/// merge two dep-sets into a single one
 	TDepSetElement* merge ( TDepSetElement* d1, TDepSetElement* d2 )
 	{
 		// if any dep-set is NULL -- return another one
-		if ( d1 == NULL )
+		if ( d1 == nullptr )
 			return d2;
-		if ( d2 == NULL )
+		if ( d2 == nullptr )
 			return d1;
 		if ( d1 == d2 )
 			return d1;
@@ -168,7 +168,7 @@ inline TDepSetElement*
 TDepSetElement :: merge ( TDepSetElement* elem )
 {
 #ifdef ENABLE_CHECKING
-	if ( elem == NULL )
+	if ( elem == nullptr )
 		return this;
 	fpp_assert ( Manager == elem->Manager );
 #endif
@@ -183,7 +183,7 @@ protected:	// members
 
 public:		// interface
 		/// default c'tor: create empty dep-set
-	TDepSet ( void ) : dep(NULL) {}
+	TDepSet ( void ) : dep(nullptr) {}
 		/// main c'tor
 	explicit TDepSet ( TDepSetElement* depp ) { dep = depp; }
 		/// copy c'tor
@@ -198,7 +198,7 @@ public:		// interface
 		/// return latest branching point in the dep-set
 	unsigned int level ( void ) const { return dep ? dep->level() : 0; }
 	 	/// check if the dep-set is empty
-	bool empty ( void ) const { return dep == NULL; }
+	bool empty ( void ) const { return dep == nullptr; }
 		/// check if the dep-set contains given level
 	bool contains ( unsigned int level ) const
 	{
@@ -219,7 +219,7 @@ public:		// interface
 		/// Adds given dep-set to current dep-set
 	TDepSet& operator += ( const TDepSet& toAdd ) { add(toAdd); return *this; }
 		/// Remove all information from dep-set
-	void clear ( void ) { dep = NULL; }
+	void clear ( void ) { dep = nullptr; }
 		/// remove parts of the current dep-set that larger than given level
 	void restrict ( unsigned int level )
 	{
