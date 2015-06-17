@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2014 by Dmitry Tsarkov
+Copyright (C) 2003-2015 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -285,7 +285,7 @@ bool DlCompletionTree :: B3 ( const DlCompletionTree* p, unsigned int n, const T
 		ret = false;
 	else
 	{	// ...and <=n-1 S-succ. z with C\in L(z)
-		register unsigned int m = 0;
+		unsigned int m = 0;
 		for ( const_edge_iterator q = p->begin(), q_end = p->end(); q < q_end; ++q )
 			if ( (*q)->isSuccEdge() && (*q)->isNeighbour(S) && (*q)->getArcEnd()->isLabelledBy(C) )
 				++m;
@@ -314,7 +314,7 @@ bool DlCompletionTree :: B4 ( const DlCompletionTree* p, unsigned int m, const T
 
 	// a) w' has at least m T-succ z with E\in L(z)
 	// check all sons
-	register unsigned int n = 0;
+	unsigned int n = 0;
 	for ( const_edge_iterator q = p->begin(), q_end = p->end(); q < q_end; ++q )
 		if ( (*q)->isSuccEdge() && (*q)->isNeighbour(T) && (*q)->getArcEnd()->isLabelledBy(E) )
 			if ( ++n >= m )		// check if node has enough successors
@@ -406,7 +406,7 @@ void DlCompletionGraph :: unblockNode ( DlCompletionTree* node, bool wasDBlocked
 
 void DlCompletionGraph :: findDAncestorBlocker ( DlCompletionTree* node )
 {
-	register const DlCompletionTree* p = node;
+	const DlCompletionTree* p = node;
 
 #ifdef RKG_USE_FAIRNESS
 	if ( nSkipBeforeBlock )

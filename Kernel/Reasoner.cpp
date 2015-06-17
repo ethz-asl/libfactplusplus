@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2014 by Dmitry Tsarkov
+Copyright (C) 2003-2015 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -143,7 +143,7 @@ addConceptResult
 DlSatTester :: tryAddConcept ( const CWDArray& lab, BipolarPointer bp, const DepSet& dep )
 {
 	// check whether C or ~C can occurs in a node label
-	register const BipolarPointer inv_p = inverse(bp);
+	const BipolarPointer inv_p = inverse(bp);
 	bool canC = isUsed(bp);
 	bool canNegC = isUsed(inv_p);
 

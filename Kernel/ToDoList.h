@@ -238,7 +238,7 @@ protected:	// methods
 	{
 		queueID.save(tss->backupID);
 		queueNN.save(tss->backupNN);
-		for ( register ToDoListIndex i = 0; i < nRegularOps; ++i )
+		for ( ToDoListIndex i = 0; i < nRegularOps; ++i )
 			Wait[i].save(tss->backup[i]);
 
 		tss->noe = noe;
@@ -248,7 +248,7 @@ protected:	// methods
 	{
 		queueID.restore(tss->backupID);
 		queueNN.restore(tss->backupNN);
-		for ( register ToDoListIndex i = 0; i < nRegularOps; ++i )
+		for ( ToDoListIndex i = 0; i < nRegularOps; ++i )
 			Wait[i].restore(tss->backup[i]);
 
 		noe = tss->noe;
@@ -267,7 +267,7 @@ public:
 	{
 		queueID.clear();
 		queueNN.clear();
-		for ( register ToDoListIndex i = 0; i < nRegularOps; ++i )
+		for ( ToDoListIndex i = 0; i < nRegularOps; ++i )
 			Wait[i].clear();
 
 		SaveStack.clear();
@@ -329,7 +329,7 @@ inline const ToDoEntry* ToDoList :: getNextEntry ( void )
 		return queueNN.get();
 
 	// check regular queues
-	for ( register ToDoListIndex i = 0; i < nRegularOps; ++i )
+	for ( ToDoListIndex i = 0; i < nRegularOps; ++i )
 		if ( !Wait[i].empty() )
 			return Wait[i].get();
 

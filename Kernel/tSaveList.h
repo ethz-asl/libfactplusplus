@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2004 by Dmitry Tsarkov
+Copyright (C) 2003-2015 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -16,8 +16,8 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef _TSAVELIST_H
-#define _TSAVELIST_H
+#ifndef TSAVELIST_H
+#define TSAVELIST_H
 
 /**
  *	template list for Saving/Restoring internal state (saving class is template parameter).
@@ -92,7 +92,7 @@ public:		// interface
 		/// get element from stack with given level
 	T* pop ( unsigned int level )
 	{
-		register List* p = head;
+		List* p = head;
 		while ( p && p->level() > level )
 		{
 			head = p->next;

@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2012 by Dmitry Tsarkov
+Copyright (C) 2003-2015 by Dmitry Tsarkov
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -41,9 +41,9 @@ bool TsScanner :: isLegalIdChar ( char c ) const	//id=[_a..z0-9[].]
 }
 
 // Word must be in a CAPITAL LETTERS
-void TsScanner :: FillBuffer ( register char c )
+void TsScanner :: FillBuffer ( char c )
 {
-	register unsigned int i = 0;
+	unsigned int i = 0;
 	LexBuff [0] = c;
 
 	for ( i = 1; i < MaxIDLength &&
@@ -64,9 +64,9 @@ void TsScanner :: FillBuffer ( register char c )
 	PutBack ( c );
 }
 
-void TsScanner :: FillNameBuffer ( register char c )
+void TsScanner :: FillNameBuffer ( char c )
 {
-	register unsigned int i = 0;
+	unsigned int i = 0;
 	const char stop = c;
 
 	for ( ; i < MaxIDLength && ( ( c = NextChar () ) != stop ); LexBuff [i++] = c )
@@ -84,7 +84,7 @@ void TsScanner :: FillNameBuffer ( register char c )
 
 LispToken TsScanner :: GetLex ( void )
 {
-	register char c;
+	char c;
 
 	while ( !eof( c = NextChar() ) )
 	{

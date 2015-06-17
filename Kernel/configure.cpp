@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2006 by Dmitry Tsarkov
+Copyright (C) 2003-2015 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -121,7 +121,7 @@ void ConfSection :: addEntry ( const std::string& name, const std::string& value
 // Load part
 int Configuration :: SplitLine ( char*& pName, char*& pValue )
 {
-	register char* p = Line;
+	char* p = Line;
 
 	while ( *p && isspace (*p) ) ++p;	// skip leading spaces
 	pName = p;
