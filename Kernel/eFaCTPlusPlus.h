@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2007-2013 by Dmitry Tsarkov
+Copyright (C) 2007-2015 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -40,10 +40,10 @@ public:
 		, reason(str)
 		{}
 		/// empty d'tor
-	virtual ~EFaCTPlusPlus ( void ) throw() {}
+	virtual ~EFaCTPlusPlus ( void ) noexcept {}
 
 		/// reason
-	virtual const char* what ( void ) const throw() { return reason; }
+	virtual const char* what ( void ) const noexcept { return reason; }
 }; // EFaCTPlusPlus
 
 #endif

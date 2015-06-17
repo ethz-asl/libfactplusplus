@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2006-2013 by Dmitry Tsarkov
+Copyright (C) 2006-2015 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -45,7 +45,7 @@ public:		// interface
 		reason = str.c_str();
 	}
 		/// empty d'tor
-	virtual ~EFPPCantRegName ( void ) throw() {}
+	virtual ~EFPPCantRegName ( void ) noexcept {}
 
 		/// get access to the unregistered name
 	const char* getName ( void ) const { return Name.c_str(); }
