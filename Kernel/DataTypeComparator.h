@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2005-2014 by Dmitry Tsarkov
+Copyright (C) 2005-2015 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -29,7 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 /// allows one to compare DataType values wrt appropriate type
 class ComparableDT
 {
-private:
+private:	// members
 		/// value as a string
 	std::string strValue;
 		/// value as a number
@@ -41,7 +41,7 @@ private:
 		/// tag of a value
 	enum ValueType { UNUSED = 0, INT, STR, FLOAT, TIME } vType;
 
-public:
+public:		// interface
 		/// create empty dt
 	ComparableDT ( void )
 		: strValue("")

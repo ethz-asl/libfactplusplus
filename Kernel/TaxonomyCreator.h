@@ -59,7 +59,7 @@ protected:	// internal typedefs
 			/// whether there are no possible subsumers
 		bool p_empty ( void ) { return p_begin() == p_end(); }
 			/// @return true iff CE is the possible subsumer
-		virtual bool isPossibleSub ( const ClassifiableEntry* ce ATTR_UNUSED ) const { return true; }
+		virtual bool isPossibleSub ( const ClassifiableEntry* ) const { return true; }
 	}; // KnownSubsumers
 
 		/// class to represent the TS's
@@ -114,12 +114,6 @@ protected:	// members
 	SearchableStack <KnownSubsumers*> ksStack;
 		/// signature of a \bot-module corresponding to a given entry
 	SearchableStack <const TSignature*> sigStack;
-
-private:	// no copy
-		/// no copy c'tor
-	TaxonomyCreator ( const TaxonomyCreator& );
-		/// no assignment
-	TaxonomyCreator& operator = ( const TaxonomyCreator& );
 
 protected:	// methods
 		/// initialise aux entry with given concept p
@@ -202,7 +196,7 @@ protected:	// methods
 	virtual KnownSubsumers* buildKnownSubsumers ( ClassifiableEntry* p )
 		{ return new ToldSubsumers(begin(p->told()), end(p->told())); }
 		/// prepare signature for given entry
-	virtual const TSignature* buildSignature ( ClassifiableEntry* p ATTR_UNUSED ) { return NULL; }
+	virtual const TSignature* buildSignature ( ClassifiableEntry* p ATTR_UNUSED ) { return nullptr; }
 		/// add top entry together with its known subsumers
 	void addTop ( ClassifiableEntry* p )
 	{
@@ -252,11 +246,15 @@ public:		// interface
 		/// init c'tor
 	TaxonomyCreator ( Taxonomy* tax )
 		: pTax(tax)
-		, curEntry(NULL)
+		, curEntry(nullptr)
 		, nEntries(0)
 		, nCDEntries(0)
 		, useCompletelyDefined(false)
 		{}
+		/// no copy c'tor
+	TaxonomyCreator ( const TaxonomyCreator& ) = delete;
+		/// no assignment
+	TaxonomyCreator& operator = ( const TaxonomyCreator& ) = delete;
 		/// d'tor
 	virtual ~TaxonomyCreator ( void ) {}
 

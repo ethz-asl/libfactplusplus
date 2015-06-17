@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2014 by Dmitry Tsarkov
+Copyright (C) 2003-2015 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -102,12 +102,6 @@ protected:	// members
 
 		/// flag to use Bottom-Up search
 	bool flagNeedBottomUp;
-
-private:	// no copy
-		/// no copy c'tor
-	DLConceptTaxonomy ( const DLConceptTaxonomy& );
-		/// no assignment
-	DLConceptTaxonomy& operator = ( const DLConceptTaxonomy& );
 
 protected:	// methods
 	//-----------------------------------------------------------------
@@ -238,7 +232,7 @@ protected:	// methods
 	virtual void preClassificationActions ( void )
 	{
 		++nConcepts;
-		if ( pTaxProgress != NULL )
+		if ( pTaxProgress != nullptr )
 			pTaxProgress->nextClass();
 	}
 		/// @return true iff curEntry is classified as a synonym
@@ -262,9 +256,13 @@ public:		// interface
 		, nCachedNegative(0)
 		, nSortedNegative(0)
 		, nModuleNegative(0)
-		, pTaxProgress (NULL)
+		, pTaxProgress(nullptr)
 	{
 	}
+		/// no copy c'tor
+	DLConceptTaxonomy ( const DLConceptTaxonomy& ) = delete;
+		/// no assignment
+	DLConceptTaxonomy& operator = ( const DLConceptTaxonomy& ) = delete;
 		/// d'tor
 	virtual ~DLConceptTaxonomy ( void ) {}
 

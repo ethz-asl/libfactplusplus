@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2012 by Dmitry Tsarkov
+Copyright (C) 2003-2015 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -39,12 +39,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 /// class for gathering statistic both for session and totally
 class AccumulatedStatistic
 {
-private:	// prohibit copy
-		/// copy c'tor (unimplemented)
-	AccumulatedStatistic ( const AccumulatedStatistic& );
-		/// assignment (unimplemented)
-	AccumulatedStatistic& operator = ( const AccumulatedStatistic& );
-
 protected:	// static members
 		/// all members are linked together
 	static AccumulatedStatistic* root;
@@ -68,6 +62,10 @@ protected:	// members
 public:		// interface
 		/// c'tor: link itself to the list
 	AccumulatedStatistic ( void ) : total(0), local(0), next(root) { root = this; }
+		/// no copy c'tor
+	AccumulatedStatistic ( const AccumulatedStatistic& ) = delete;
+		/// no assignment
+	AccumulatedStatistic& operator = ( const AccumulatedStatistic& ) = delete;
 		/// d'tor: remove link from the list
 	~AccumulatedStatistic ( void )
 	{
@@ -81,7 +79,7 @@ public:		// interface
 		AccumulatedStatistic *prev = root, *cur = root->next;
 		// find a pointer to current node
 		for ( ; cur && cur != this; prev = cur, cur = cur->next )
-			(void)NULL;
+			(void)nullptr;
 		if ( cur == this )
 			prev->next = next;
 	}
@@ -154,7 +152,7 @@ protected:	// classes
 
 	protected:	// methods
 			/// specialise new method as the one doing nothing
-		virtual BranchingContext* createNew ( void ) { return NULL; }
+		virtual BranchingContext* createNew ( void ) { return nullptr; }
 			/// push method to use
 		BranchingContext* push ( BranchingContext* p )
 		{
@@ -172,7 +170,7 @@ protected:	// classes
 		{
 			// all the members will be deleted in the resp. pools
 			for ( iterator p = this->Base.begin(), p_end = this->Base.end(); p < p_end; ++p )
-				*p = NULL;
+				*p = nullptr;
 			delete bcBarrier;
 		}
 
@@ -328,12 +326,6 @@ protected:	// members
 		/// flag to show if it is necessary to produce DT reasoning immediately
 	bool checkDataNode;
 
-private:	// no copy
-		/// no copy c'tor
-	DlSatTester ( const DlSatTester& );
-		/// no assignment
-	DlSatTester& operator = ( const DlSatTester& );
-
 protected:	// methods
 
 		/// increment statistic counter
@@ -358,9 +350,9 @@ protected:	// methods
 	void resetSessionFlags ( void );
 
 		/// adds C to the labels of NODE; @return true iff clash occurs
-	bool addToDoEntry ( DlCompletionTree* node, const ConceptWDep& C, const char* reason = NULL );
+	bool addToDoEntry ( DlCompletionTree* node, const ConceptWDep& C, const char* reason = nullptr );
 		/// synonym to the above
-	bool addToDoEntry ( DlCompletionTree* node, BipolarPointer c, const DepSet& dep, const char* reason = NULL )
+	bool addToDoEntry ( DlCompletionTree* node, BipolarPointer c, const DepSet& dep, const char* reason = nullptr )
 		{ return addToDoEntry ( node, ConceptWDep(c,dep), reason ); }
 		/// insert C to the label of NODE; do necessary updates; may return Clash in case of data entry C
 	bool insertToDoEntry ( DlCompletionTree* node, const ConceptWDep& C, DagTag tag, const char* reason );
@@ -418,7 +410,7 @@ protected:	// methods
 			to add entry to label, but it is necessary to provide offset of existing concept.
 			This is done by providing OFFSET of the concept in NODE's label
 		 */
-	void addExistingToDoEntry ( DlCompletionTree* node, int offset, const char* reason = NULL )
+	void addExistingToDoEntry ( DlCompletionTree* node, int offset, const char* reason = nullptr )
 	{
 		const ConceptWDep& C = node->label().getConcept(offset);
 		TODO.addEntry ( node, DLHeap[C.bp()].Type(), C, offset );
@@ -596,10 +588,10 @@ protected:	// methods
 		if ( !isUsed(C) )
 			return false;
 		const DlCompletionTree* where = curNode->isSomeApplicable ( R, C );
-		if ( where != NULL )
+		if ( where != nullptr )
 			if ( LLM.isWritable(llGTA) )
 				LL << " E(" << R->getName() << "," << where->getId() << "," << C << ")";
-		return where != NULL;
+		return where != nullptr;
 	}
 		/// aux method for setting up new edge PA
 	bool setupEdge ( DlCompletionTreeArc* pA, const DepSet& curDep, unsigned int flags );
@@ -621,7 +613,7 @@ protected:	// methods
 	// support for branching rules
 
 		/// check if branching rule was called for the 1st time
-	bool isFirstBranchCall ( void ) const { return bContext == NULL; }
+	bool isFirstBranchCall ( void ) const { return bContext == nullptr; }
 		/// init branching context with given rule type
 	void initBC ( void )
 	{
@@ -634,7 +626,7 @@ protected:	// methods
 		bContext->SGsize = SessionGCIs.size();
 	}
 		/// clear branching context
-	void clearBC ( void ) { bContext = NULL; }
+	void clearBC ( void ) { bContext = nullptr; }
 
 		/// create BC for Or rule
 	void createBCOr ( void ) { bContext = Stack.pushOr(); initBC(); }
@@ -763,7 +755,7 @@ protected:	// methods
 
 		/** Perform expansion of (C=\AR{0}.X).DEP wrt RST to an EDGE with a given reason */
 	bool applyTransitions ( const DlCompletionTreeArc* edge, const RAStateTransitions& RST,
-								   BipolarPointer C, const DepSet& dep, const char* reason = NULL );
+								   BipolarPointer C, const DepSet& dep, const char* reason = nullptr );
 
 	// support for the projection
 
@@ -923,6 +915,10 @@ public:		// blocking support
 public:
 		/// c'tor
 	DlSatTester ( TBox& tbox );
+		/// no copy c'tor
+	DlSatTester ( const DlSatTester& ) = delete;
+		/// no assignment
+	DlSatTester& operator = ( const DlSatTester& ) = delete;
 		/// d'tor
 	virtual ~DlSatTester ( void ) {}
 
@@ -1043,7 +1039,7 @@ DlSatTester :: checkDisjointRoles ( const TRole* R, const TRole* S )
 		return true;
 
 	// 2 roles are disjoint if current setting is unsatisfiable
-	curNode = NULL;
+	curNode = nullptr;
 	return !runSat();
 }
 
@@ -1066,7 +1062,7 @@ DlSatTester :: checkIrreflexivity ( const TRole* R )
 		return true;
 
 	// R is irreflexive if current setting is unsatisfiable
-	curNode = NULL;
+	curNode = nullptr;
 	return !runSat();
 }
 
@@ -1132,12 +1128,12 @@ TBox :: initCache ( const TConcept* pConcept, bool sub )
 	BipolarPointer bp = sub ? inverse(pConcept->pName) : pConcept->pName;
 	const modelCacheInterface* cache = DLHeap.getCache(bp);
 
-	if ( cache == NULL )
+	if ( cache == nullptr )
 	{
 		if ( sub )
-			prepareFeatures ( NULL, pConcept );
+			prepareFeatures ( nullptr, pConcept );
 		else
-			prepareFeatures ( pConcept, NULL );
+			prepareFeatures ( pConcept, nullptr );
 		cache = getReasoner()->createCache(bp);
 		clearFeatures();
 	}

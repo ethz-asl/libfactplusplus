@@ -24,12 +24,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 	/// class for saving branching context of a Reasoner
 class BranchingContext
 {
-private:	// prevent copy
-		/// no copy c'tor
-	BranchingContext ( const BranchingContext& s );
-		/// no assignment
-	BranchingContext& operator = ( const BranchingContext& s );
-
 public:		// members
 		/// currently processed node
 	DlCompletionTree* curNode;
@@ -44,7 +38,11 @@ public:		// members
 
 public:		// interface
 		/// empty c'tor
-	BranchingContext ( void ) : curNode (NULL), curConcept (bpINVALID) {}
+	BranchingContext ( void ) : curNode(nullptr), curConcept(bpINVALID) {}
+		/// no copy c'tor
+	BranchingContext ( const BranchingContext& ) = delete;
+		/// no assignment
+	BranchingContext& operator = ( const BranchingContext& ) = delete;
 		/// empty d'tor
 	virtual ~BranchingContext ( void ) {}
 

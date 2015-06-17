@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2014 by Dmitry Tsarkov
+Copyright (C) 2003-2015 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -44,14 +44,6 @@ class SaveLoadManager;
 class TRole: public ClassifiableEntry
 {
 	friend class RoleMaster;
-
-private:	// no copy
-		/// no empty c'tor
-	TRole ();
-		/// no copy c'tor
-	TRole ( const TRole& );
-		/// no assignment
-	TRole& operator = ( const TRole& );
 
 protected:	// types
 		/// Class for values that can change wrt ontology
@@ -199,6 +191,12 @@ protected:	// methods
 	}
 
 public:		// interface
+		/// no empty c'tor
+	TRole () = delete;
+		/// no copy c'tor
+	TRole ( const TRole& ) = delete;
+		/// no assignment
+	TRole& operator = ( const TRole& ) = delete;
 		/// the only c'tor
 	TRole ( const std::string& name );
 		/// d'tor
@@ -221,13 +219,13 @@ public:		// interface
 	// inverse of the role
 
 		/// get inverse of given role (non-const version)
-	TRole* inverse ( void ) { fpp_assert (Inverse != NULL); return resolveSynonym(Inverse); }
+	TRole* inverse ( void ) { fpp_assert (Inverse != nullptr); return resolveSynonym(Inverse); }
 		/// get inverse of given role (const version)
-	const TRole* inverse ( void ) const { fpp_assert (Inverse != NULL); return resolveSynonym(Inverse); }
+	const TRole* inverse ( void ) const { fpp_assert (Inverse != nullptr); return resolveSynonym(Inverse); }
 		/// get real inverse of a role (RO)
-	const TRole* realInverse ( void ) const { fpp_assert (Inverse != NULL); return Inverse; }
+	const TRole* realInverse ( void ) const { fpp_assert (Inverse != nullptr); return Inverse; }
 		/// set inverse to given role
-	void setInverse ( TRole* p ) { fpp_assert (Inverse == NULL); Inverse = p; }
+	void setInverse ( TRole* p ) { fpp_assert (Inverse == nullptr); Inverse = p; }
 
 	// different flags
 
@@ -373,7 +371,7 @@ public:		// interface
 		/// init special domain; call this only after *ALL* the domains are known
 	void initSpecialDomain ( void )
 	{
-		if ( !hasSpecialDomain() || getTRange() == NULL )
+		if ( !hasSpecialDomain() || getTRange() == nullptr )
 			pSpecialDomain = createTop();
 		else
 			pSpecialDomain = createSNFForall ( createRole(this), clone(getTRange()) );
@@ -507,7 +505,7 @@ inline
 TRole*
 resolveRoleHelper ( const DLTree* t )
 {
-	if ( t == NULL )			// empty tree -- error
+	if ( t == nullptr )			// empty tree -- error
 		throw EFaCTPlusPlus("Role expression expected");
 	switch ( t->Element().getToken() )
 	{
@@ -529,9 +527,9 @@ inline TRole* resolveRole ( const DLTree* t ) { return resolveSynonym(resolveRol
 //--------------------------------------------------
 inline TRole :: TRole ( const std::string& name )
 	: ClassifiableEntry(name)
-	, Inverse(NULL)
-	, pDomain(NULL)
-	, pSpecialDomain(NULL)
+	, Inverse(nullptr)
+	, pDomain(nullptr)
+	, pSpecialDomain(nullptr)
 	, bpDomain(bpINVALID)
 	, bpSpecialDomain(bpINVALID)
 	, Functional(bpINVALID)
@@ -546,9 +544,9 @@ inline TRole :: ~TRole ( void )
 {
 	deleteTree(pDomain);
 	deleteTree(pSpecialDomain);
-	if ( Inverse != NULL && Inverse != this )
+	if ( Inverse != nullptr && Inverse != this )
 	{
-		Inverse->Inverse = NULL;
+		Inverse->Inverse = nullptr;
 		delete Inverse;
 	}
 }
@@ -559,6 +557,6 @@ inline TRole :: ~TRole ( void )
 
 /// check whether one of the transitions accept R
 inline bool
-RAStateTransitions :: recognise ( const TRole* R ) const { return R != NULL && R->isDataRole() == DataRole && ApplicableRoles.in(R->getIndex()); }
+RAStateTransitions :: recognise ( const TRole* R ) const { return R != nullptr && R->isDataRole() == DataRole && ApplicableRoles.in(R->getIndex()); }
 
 #endif

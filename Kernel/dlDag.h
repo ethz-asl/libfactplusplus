@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2014 by Dmitry Tsarkov
+Copyright (C) 2003-2015 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -76,19 +76,13 @@ protected:	// members
 		/// flag whether cache should be used
 	bool useDLVCache;
 
-private:	// no copy
-		/// no copy c'tor
-	DLDag ( const DLDag& );
-		/// no assignment
-	DLDag& operator= ( const DLDag& );
-
 protected:	// methods
 		/// setup flags by given option set
 	void readConfig ( const ifOptionSet* Options );
 		/// check if given string is correct sort ordering representation
 	bool isCorrectOption ( const char* str )
 	{
-		if ( str == NULL )
+		if ( str == nullptr )
 			return false;
 		size_t n = strlen(str);
 		if ( n < 1 || n > 3 )
@@ -179,6 +173,10 @@ protected:	// methods
 public:		// interface
 		/// the only c'tor
 	DLDag ( const ifOptionSet* Options );
+		/// no copy c'tor
+	DLDag ( const DLDag& ) = delete;
+		/// no assignment
+	DLDag& operator= ( const DLDag& ) = delete;
 		/// d'tor
 	~DLDag ( void );
 

@@ -28,28 +28,26 @@ class TSaveList
 {
 protected:	// internal types
 		/// type of the list element
-	class List : public T
+	struct List : public T
 	{
-	private:	// no copy
-			/// copy c'tor (unimplemented)
-		List ( const List& );
-			/// assignment (unimplemented)
-		List& operator = ( const List& );
-
 	public:		// members
 			/// pointer to next element
 		List* next;
 
 	public:		// interface
 			/// empty c'tor
-		List ( List* n = NULL ) : next(n) {}
+		List ( List* n = nullptr ) : next(n) {}
 			/// create object from given one and from given next
 		List ( const T& obj, List* n ) : T(obj), next(n) {}
+			/// no copy c'tor
+		List ( const List& ) = delete;
+			/// no assignment
+		List& operator = ( const List& ) = delete;
 			/// d'tor: do nothing
 		~List ( void ) {}
 
 			/// clone given sub-list
-		List* clone ( void ) { return new List ( *this, next ? next->clone() : NULL ); }
+		List* clone ( void ) { return new List ( *this, next ? next->clone() : nullptr ); }
 			/// clear sub-list
 		void clear ( void )
 		{
@@ -67,16 +65,16 @@ protected:	// members
 
 public:		// interface
 		/// empty c'tor
-	TSaveList ( void ) : head(NULL) {}
+	TSaveList ( void ) : head(nullptr) {}
 		/// copy c'tor
-	TSaveList ( const TSaveList& copy ) : head ( copy.head ? copy.head->clone() : NULL ) {}
+	TSaveList ( const TSaveList& copy ) : head ( copy.head ? copy.head->clone() : nullptr ) {}
 		/// d'tor -- clear stack
 	~TSaveList ( void ) { clear(); }
 
 	// stack operations
 
 		/// check that stack is empty
-	bool empty ( void ) const { return (head == NULL); }
+	bool empty ( void ) const { return (head == nullptr); }
 		/// put empty element to stack; @return pointer to it
 	T* push ( void ) { head = new List ( head ); return head; }
 		/// put given element to stack; @return pointer to it
@@ -114,7 +112,7 @@ public:		// interface
 		{
 			head->clear();
 			delete head;
-			head = NULL;
+			head = nullptr;
 		}
 	}
 }; // TSaveList

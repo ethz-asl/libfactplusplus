@@ -110,11 +110,11 @@ protected:	// types
 		/// names to module signature map
 	typedef TBox::NameSigMap NameSigMap;
 
-private:
+private:	// members
 		/// options for the kernel and all related substructures
 	ifOptionSet KernelOptions;
 
-private:
+private:	// constants
 	static const char* Version;
 	static const char* SupportedDL;
 	static const char* Copyright;
@@ -216,12 +216,6 @@ protected:	// members
 		/// flag to dump LISP-like ontology
 	bool dumpOntology;
 
-private:	// no copy
-		/// no copy c'tor
-	ReasoningKernel ( const ReasoningKernel& );
-		/// no assignment
-	ReasoningKernel& operator = ( const ReasoningKernel& );
-
 protected:	// methods
 
 	// register all necessary options in local option set
@@ -230,7 +224,7 @@ protected:	// methods
 		/// get status of the KB
 	KBStatus getStatus ( void ) const
 	{
-		if ( pTBox == NULL )
+		if ( pTBox == nullptr )
 			return kbEmpty;
 		// if the ontology is changed, it needs to be reclassified
 		if ( Ontology.isChanged() )
@@ -245,7 +239,7 @@ protected:	// methods
 		/// get DLTree corresponding to an expression EXPR
 	DLTree* e ( const TExpr* expr )
 	{
-		fpp_assert ( pET != NULL );
+		fpp_assert ( pET != nullptr );
 		expr->accept(*pET);
 		return *pET;
 	}
@@ -266,16 +260,16 @@ protected:	// methods
 	void clearQueryCache ( void )
 	{
 		// clear cached query
-		cachedQuery = NULL;
+		cachedQuery = nullptr;
 		deleteTree(cachedQueryTree);
-		cachedQueryTree = NULL;
+		cachedQueryTree = nullptr;
 		// clear the rest of cache
 		cacheLevel = csEmpty;
-		cachedConcept = NULL;
-		cachedVertex = NULL;
+		cachedConcept = nullptr;
+		cachedVertex = nullptr;
 	}
 		/// @return true if the cache is not set
-	bool isCacheEmpty ( void ) const { return (cachedQuery == NULL) && (cachedQueryTree == NULL); }
+	bool isCacheEmpty ( void ) const { return (cachedQuery == nullptr) && (cachedQueryTree == nullptr); }
 		/// set query cache value to QUERY
 	void setQueryCache ( TConceptExpr* query ) { fpp_assert(isCacheEmpty()); cachedQuery = query; }
 		/// set query cache value to QUERY
@@ -288,7 +282,7 @@ protected:	// methods
 	void setQueryConcept ( const DLTree* query )
 	{	// setup cached concept depending on whether an entity is queries
 		cachedConcept = isCN(query) ? getTBox()->getCI(query) : getTBox()->createQueryConcept(query);
-		fpp_assert ( cachedConcept != NULL );
+		fpp_assert ( cachedConcept != nullptr );
 		// preprocess concept is necessary (fresh concept in query or complex one)
 		if ( !isValid(cachedConcept->pName) )
 			getTBox()->preprocessQueryConcept(cachedConcept);
@@ -356,9 +350,9 @@ protected:	// methods
 		/// helper; @return true iff C is either named concept of Top/Bot
 	static bool isNameOrConst ( const TConceptExpr* C )
 	{
-		return	likely ( dynamic_cast<const TDLConceptName*>(C) != NULL ) ||
-				unlikely ( dynamic_cast<const TDLConceptTop*>(C) != NULL ) ||
-				unlikely ( dynamic_cast<const TDLConceptBottom*>(C) != NULL );
+		return	likely ( dynamic_cast<const TDLConceptName*>(C) != nullptr ) ||
+				unlikely ( dynamic_cast<const TDLConceptTop*>(C) != nullptr ) ||
+				unlikely ( dynamic_cast<const TDLConceptBottom*>(C) != nullptr );
 	}
 
 	// helper methods to query properties of roles
@@ -441,7 +435,7 @@ protected:	// methods
 		/// @throw an exception if no TBox found
 	void checkTBox ( void ) const
 	{
-		if ( pTBox == NULL )
+		if ( pTBox == nullptr )
 			throw EFaCTPlusPlus("FaCT++ Kernel: KB Not Initialised");
 	}
 		/// get RW access to TBox
@@ -577,9 +571,13 @@ protected:	// methods
 		/// check whether the modularizer need initialisation, init it and return a proper one
 	OntologyBasedModularizer* getModExtractor ( ModuleMethod moduleMethod );
 
-public:	// general staff
+public:		// interface
 		/// default c'tor
 	ReasoningKernel ( void );
+		/// no copy c'tor
+	ReasoningKernel ( const ReasoningKernel& ) = delete;
+		/// no assignment
+	ReasoningKernel& operator = ( const ReasoningKernel& ) = delete;
 		/// d'tor
 	~ReasoningKernel ( void );
 
@@ -600,21 +598,21 @@ public:	// general staff
 	{
 		delete pMonitor;
 		pMonitor = pMon;
-		if ( pTBox != NULL )
+		if ( pTBox != nullptr )
 			pTBox->setProgressMonitor(pMon);
 	}
 		/// set verbose output (ie, concept and role taxonomies) wrt given VALUE
 	void setVerboseOutput ( bool value )
 	{
 		verboseOutput = value;
-		if ( pTBox != NULL )
+		if ( pTBox != nullptr )
 			pTBox->setVerboseOutput(value);
 	}
 		/// (dis-)allow reasoner to use the undefined names in queries
 	void setUseUndefinedNames ( bool value )
 	{
 		useUndefinedNames = value;
-		if ( pTBox != NULL )
+		if ( pTBox != nullptr )
 			pTBox->setUseUndefinedNames(value);
 	}
 
@@ -640,7 +638,7 @@ public:	// general staff
 	void setOperationTimeout ( unsigned long value )
 	{
 		OpTimeout = value;
-		if ( pTBox != NULL )
+		if ( pTBox != nullptr )
 			pTBox->setTestTimeout(value);
 	}
 		/// choose whether TExpr cache should be ignored
@@ -648,7 +646,7 @@ public:	// general staff
 		/// choose whether inctemental reasoning should be used
 	void setUseIncrementalReasoning ( bool value ) { useIncrementalReasoning = value; }
 		/// set the signature of the expression translator
-	void setSignature ( const TSignature* sig ) { if ( pET != NULL ) pET->setSignature(sig); }
+	void setSignature ( const TSignature* sig ) { if ( pET != nullptr ) pET->setSignature(sig); }
 		/// choose whether the loaded ontology should be dumped as a LISP one
 	void setDumpOntology ( bool value ) { dumpOntology = value; }
 
@@ -685,7 +683,7 @@ public:
 		/// create new KB
 	bool newKB ( void )
 	{
-		if ( pTBox != NULL )
+		if ( pTBox != nullptr )
 			return true;
 
 		pTBox = new TBox ( getOptions(), TopORoleName, BotORoleName, TopDRoleName, BotDRoleName );
@@ -710,7 +708,7 @@ public:
 		/// reset current KB
 	bool clearKB ( void )
 	{
-		if ( pTBox == NULL )
+		if ( pTBox == nullptr )
 			return true;
 		return releaseKB () || newKB ();
 	}
@@ -1072,7 +1070,7 @@ public:
 		try { return checkSat(C); }
 		catch ( const EFPPCantRegName& crn )
 		{
-			if ( dynamic_cast<const TDLConceptName*>(C) != NULL )	// this is an unknown concept
+			if ( dynamic_cast<const TDLConceptName*>(C) != nullptr )	// this is an unknown concept
 				return true;
 			// complex expression, involving unknown names
 			throw crn;
@@ -1101,7 +1099,7 @@ public:
 			{
 				const TaxonomyVertex* cV = getTBox()->getCI(TreeDeleter(e(C)))->getTaxVertex();
 				const TaxonomyVertex* dV = getTBox()->getCI(TreeDeleter(e(D)))->getTaxVertex();
-				if ( unlikely(cV == NULL) && unlikely(dV == NULL) )
+				if ( unlikely(cV == nullptr) && unlikely(dV == nullptr) )
 					return false;	// 2 different fresh names
 				return cV == dV;
 			}
@@ -1319,7 +1317,7 @@ public:
 		preprocessKB();
 		setUpCache ( C, csSat );
 		const TCGNode* ret = getTBox()->buildCompletionTree(cachedConcept);
-		if ( KE == NULL )	// init KB after the sat test to reduce the number of DAG adjustments
+		if ( KE == nullptr )	// init KB after the sat test to reduce the number of DAG adjustments
 			KE = new KnowledgeExplorer ( getTBox(), getExpressionManager() );
 		return ret;
 	}

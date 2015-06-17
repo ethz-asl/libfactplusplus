@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2005-2008 by Dmitry Tsarkov
+Copyright (C) 2005-2015 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -16,36 +16,40 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef _FLAGS_H
-#define _FLAGS_H
+#ifndef FLAGS_H
+#define FLAGS_H
 
 /// class for carrying different flags; real users shall inherit from it
 class Flags
 {
-private:
+public:		// types
+		/// type of base integer used for bit-set
+	typedef uint32_t IntType;
+
+private:	// members
 		/// variable to keep all the flags
-	unsigned int flags;
+	IntType flags;
 
 protected:	// methods for flags maintainance
 		/// get given flag value
-	bool getFlag ( unsigned int mask ) const { return flags & mask; }
+	bool getFlag ( IntType mask ) const { return flags & mask; }
 		/// set given flag to 1
-	void setFlag ( unsigned int mask ) { flags |= mask; }
+	void setFlag ( IntType mask ) { flags |= mask; }
 		/// set given flag to 0
-	void clearFlag ( unsigned int mask ) { flags &= ~mask; }
+	void clearFlag ( IntType mask ) { flags &= ~mask; }
 		/// set given flag to given value
-	void setFlag ( unsigned int mask, bool Set ) { Set ? setFlag(mask) : clearFlag(mask); }
+	void setFlag ( IntType mask, bool Set ) { Set ? setFlag(mask) : clearFlag(mask); }
 
 		/// get all the flags at once
-	unsigned int getAllFlags ( void ) const { return flags; }
+	IntType getAllFlags ( void ) const { return flags; }
 		/// set all flags to a given value; @return old value of the flags
-	unsigned int setAllFlags ( unsigned int value ) { unsigned int old = flags; flags = value; return old; }
+	IntType setAllFlags ( IntType value ) { IntType old = flags; flags = value; return old; }
 
 public:		// interface
 		/// empty c'tor
 	Flags ( void ) : flags(0) {}
 		/// init flags with given set of flags
-	explicit Flags ( unsigned int init ) : flags(init) {}
+	explicit Flags ( IntType init ) : flags(init) {}
 		/// copy c'tor
 	Flags ( const Flags& f ) : flags(f.flags) {}
 		/// assignment

@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2005-2011 by Dmitry Tsarkov
+Copyright (C) 2005-2015 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -31,12 +31,6 @@ protected:	// members
 		/// data type
 	std::vector<TDataEntry*> Expr;
 
-private:	// no copy
-		/// no copy c'tor
-	TDataType ( const TDataType& );
-		/// no assignment
-	TDataType& operator = ( const TDataType& );
-
 protected:	// methods
 		/// register data value in the datatype
 	virtual void registerNew ( TDataEntry* p ) { p->setHostType(Type); }
@@ -46,11 +40,15 @@ public:		// interface
 	TDataType ( const std::string& name )
 		: TNECollection<TDataEntry>(name)
 		{ Type = new TDataEntry(name); }
+		/// no copy c'tor
+	TDataType ( const TDataType& ) = delete;
+		/// no assignment
+	TDataType& operator = ( const TDataType& ) = delete;
 		/// d'tor: delete data type entry and all the expressions
 	virtual ~TDataType ( void )
 	{
-		for ( std::vector<TDataEntry*>::iterator p = Expr.begin(), p_end = Expr.end(); p != p_end; ++p )
-			delete *p;
+		for ( auto p: Expr )
+			delete p;
 		delete Type;
 	}
 

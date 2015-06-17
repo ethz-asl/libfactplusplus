@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2008 by Dmitry Tsarkov
+Copyright (C) 2003-2014 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -16,8 +16,8 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef __CONFIGURE_H
-#define __CONFIGURE_H
+#ifndef CONFIGURE_H
+#define CONFIGURE_H
 
 const unsigned MaxConfLineLen = 1024;
 
@@ -102,19 +102,19 @@ protected:	// logic part
 	// navigation methods
 	ConfSection* FindSection ( const std::string& pc ) const;
 
-private: 	// no copy
-		/// no copy c'tor
-	Configuration ( const Configuration& );
-		/// no assignment
-	Configuration& operator = ( const Configuration& );
-
-public:
+public:		// interface
+		/// init c'tor
 	Configuration ( void )
 		: isLoaded(false)
 		, isSaved(false)
-		, Section(NULL)
-		, Element(NULL)
+		, Section(nullptr)
+		, Element(nullptr)
 		{}
+		/// no copy c'tor
+	Configuration ( const Configuration& ) = delete;
+		/// no assignment
+	Configuration& operator = ( const Configuration& ) = delete;
+		/// d'tor
 	~Configuration ( void );
 
 	// load config from file; @return true if cannot

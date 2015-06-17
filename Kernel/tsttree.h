@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2008 by Dmitry Tsarkov
+Copyright (C) 2003-2015 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -16,15 +16,11 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef _TSTTREE_HH_
-#define _TSTTREE_HH_
-
-#include <cstdlib>		// NULL
-
-//#include "SmallObj.h"
+#ifndef TSTTREE_H
+#define TSTTREE_H
 
 template < class T >
-class TsTTree//: public Loki::SmallObject<>
+class TsTTree
 {
 private:	// members
 		/// element in the tree node
@@ -34,19 +30,17 @@ private:	// members
 		/// pointer to right subtree
 	TsTTree *right;
 
-private:	// prevent copy
-		/// no copy c'tor
-	TsTTree ( const TsTTree& );
-		/// no assignment
-	TsTTree& operator = ( const TsTTree& );
-
 public:		// interface
 		/// default c'tor
-	TsTTree ( const T& Init, TsTTree *l = NULL, TsTTree *r = NULL )
+	TsTTree ( const T& Init, TsTTree *l = nullptr, TsTTree *r = nullptr )
 		: elem(Init)
 		, left(l)
 		, right(r)
 		{}
+		/// no copy c'tor
+	TsTTree ( const TsTTree& ) = delete;
+		/// no assignment
+	TsTTree& operator = ( const TsTTree& ) = delete;
 		/// d'tor
 	~TsTTree ( void ) {}
 

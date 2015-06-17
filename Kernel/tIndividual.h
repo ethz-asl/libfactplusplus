@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2013 by Dmitry Tsarkov
+Copyright (C) 2003-2015 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -86,21 +86,19 @@ public:		// members
 		/// map for the related individuals: Map[R]={i:R(this,i)}
 	TRelatedMap* pRelatedMap;
 
-private:	// no copy
-		/// no copy c'tor
-	TIndividual ( const TIndividual& );
-		/// no asssignment
-	TIndividual& operator = ( const TIndividual& );
-
 public:		// interface
 		/// the only c'tor
 	explicit TIndividual ( const std::string& name )
 		: TConcept(name)
-		, node(NULL)
+		, node(nullptr)
 		, pRelatedMap(new TRelatedMap())
 	{
 		setSingleton(true);
 	}
+		/// no copy c'tor
+	TIndividual ( const TIndividual& ) = delete;
+		/// no assignment
+	TIndividual& operator = ( const TIndividual& ) = delete;
 		/// empty d'tor
 	virtual ~TIndividual ( void ) { delete pRelatedMap; }
 
@@ -117,7 +115,7 @@ public:		// interface
 
 		// not a completely defined if there are extra rules or related individuals
 		bool CD = !hasExtraRules() && isPrimitive() && !isRelated();
-		if ( Description != NULL || hasToldSubsumers() )
+		if ( Description != nullptr || hasToldSubsumers() )
 			CD &= TConcept::initToldSubsumers(Description);
 		setCompletelyDefined(CD);
 	}
@@ -155,9 +153,9 @@ public:		// interface
 	// save/load interface; implementation is in SaveLoad.cpp
 
 		/// save entry
-	virtual void Save ( SaveLoadManager& m ) const;
+	virtual void Save ( SaveLoadManager& ) const;
 		/// load entry
-	virtual void Load ( SaveLoadManager& m );
+	virtual void Load ( SaveLoadManager& );
 }; // TIndividual
 
 #endif

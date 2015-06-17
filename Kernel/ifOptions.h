@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2010 by Dmitry Tsarkov
+Copyright (C) 2003-2015 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -38,14 +38,6 @@ public:		// type interface
 		/// type of an option
 	enum ioType { iotBool, iotInt, iotText };
 
-private:	// preventing copying (unimplemented)
-		/// no empty c'tor
-	ifOption ( void );
-		/// no copy c'tor
-	ifOption ( const ifOption& o );
-		/// no assignment
-	ifOption& operator = ( const ifOption& o );
-
 protected:	// members
 		/// option name
 	std::string optionName;
@@ -65,6 +57,12 @@ protected:	// members
 public:		// interface
 		/// c'tor (init all values including proper ?Value)
 	ifOption ( const std::string& name, const std::string& desc, ioType t, const std::string& defVal );
+		/// no empty c'tor
+	ifOption ( void ) = delete;
+		/// no copy c'tor
+	ifOption ( const ifOption& ) = delete;
+		/// no assignment
+	ifOption& operator = ( const ifOption& ) = delete;
 		/// empty d'tor
 	~ifOption (void ) {}
 
@@ -115,7 +113,11 @@ protected:	// members
 
 protected:	// methods
 		/// get access option structure by name; @return NULL if no such option was registered
-	const ifOption* locateOption ( const std::string& name ) const;
+	const ifOption* locateOption ( const std::string& name ) const
+	{
+		auto p = Base.find(name);
+		return p == Base.end() ? nullptr : p->second;
+	}
 
 public:		// interface
 		/// empty c'tor
@@ -123,8 +125,8 @@ public:		// interface
 		/// d'tor (delete all registered options)
 	~ifOptionSet ( void )
 	{
-		for ( OptionSet::iterator p = Base.begin(); p != Base.end(); ++p )
-			delete p->second;
+		for ( auto p: Base )
+			delete p.second;
 	}
 
 		/// register an option with given name, description, type and default. @return true iff such option exists
@@ -134,7 +136,7 @@ public:		// interface
 		ifOption::ioType t,
 		const std::string& defVal )
 	{
-		if ( locateOption (name) != NULL )
+		if ( locateOption (name) != nullptr )
 			return true;
 		Base[name] = new ifOption ( name, desc, t, defVal );
 		return false;
@@ -148,21 +150,21 @@ public:		// interface
 	bool getBool ( const std::string& optionName ) const
 	{
 		const ifOption* p = locateOption ( optionName );
-		fpp_assert ( p != NULL );
+		fpp_assert ( p != nullptr );
 		return p->getBool ();
 	}
 		/// get integral value of given option
 	int getInt ( const std::string& optionName ) const
 	{
 		const ifOption* p = locateOption ( optionName );
-		fpp_assert ( p != NULL );
+		fpp_assert ( p != nullptr );
 		return p->getInt ();
 	}
 		/// get string value of given option
 	const std::string& getText ( const std::string& optionName ) const
 	{
 		const ifOption* p = locateOption ( optionName );
-		fpp_assert ( p != NULL );
+		fpp_assert ( p != nullptr );
 		return p->getText ();
 	}
 

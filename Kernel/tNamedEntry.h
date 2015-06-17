@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2013 by Dmitry Tsarkov
+Copyright (C) 2003-2015 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -24,19 +24,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "flags.h"
 
-//#include "SmallObj.h"
-
 class TNamedEntity;
 class SaveLoadManager;
 
-class TNamedEntry: public Flags//: public Loki::SmallObject<>
+class TNamedEntry: public Flags
 {
-private:	// no copy
-		/// copy c'tor (unimplemented)
-	TNamedEntry ( const TNamedEntry& );
-		/// assignment (unimplemented)
-	TNamedEntry& operator = ( const TNamedEntry& );
-
 protected:	// members
 		/// name of the entry
 	std::string extName;
@@ -50,8 +42,12 @@ public:		// interface
 	explicit TNamedEntry ( const std::string& name )
 		: extName (name)		// copy name
 		, extId (0)				// sets local id
-		, entity(NULL)
+		, entity(nullptr)
 		{}
+		/// no copy c'tor
+	TNamedEntry ( const TNamedEntry& ) = delete;
+		/// no assignment
+	TNamedEntry& operator = ( const TNamedEntry& ) = delete;
 		/// empty d'tor
 	virtual ~TNamedEntry ( void ) {}
 
@@ -83,9 +79,9 @@ public:		// interface
 	// save/load interface; implementation is in SaveLoad.cpp
 
 		/// save entry
-	virtual void Save ( SaveLoadManager& m ) const;
+	virtual void Save ( SaveLoadManager& ) const;
 		/// load entry
-	virtual void Load ( SaveLoadManager& m );
+	virtual void Load ( SaveLoadManager& );
 }; // TNamedEntry
 
 #endif

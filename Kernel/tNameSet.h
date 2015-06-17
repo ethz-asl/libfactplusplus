@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2014 by Dmitry Tsarkov
+Copyright (C) 2003-2015 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -44,8 +44,6 @@ class TNameSet
 protected:	// types
 		/// base type
 	typedef std::map <std::string, T*> NameTree;
-		/// RO iterator
-	typedef typename NameTree::const_iterator const_iterator;
 
 public:		// types
 		/// RW iterator
@@ -57,25 +55,23 @@ protected:	// members
 		/// creator of new name
 	TNameCreator<T>* Creator;
 
-private:	// no copy
-		/// no copy c'tor
-	TNameSet ( const TNameSet& );
-		/// no assignment
-	TNameSet& operator = ( const TNameSet& );
-
 public:		// interface
 		/// c'tor (empty)
 	TNameSet ( void ) : Creator(new TNameCreator<T>) {}
 		/// c'tor (with given Name Creating class)
 	TNameSet ( TNameCreator<T>* p ) : Creator(p) {}
+		/// no copy c'tor
+	TNameSet ( const TNameSet& ) = delete;
+		/// no assignment
+	TNameSet& operator = ( const TNameSet& ) = delete;
 		/// d'tor (delete all entries)
 	virtual ~TNameSet ( void ) { clear(); delete Creator; }
 
 		/// return pointer to existing id or NULL if no such id defined
 	T* get ( const std::string& id ) const
 	{
-		const_iterator p = Base.find(id);
-		return p == Base.end() ? NULL : p->second;
+		auto p = Base.find(id);
+		return p == Base.end() ? nullptr : p->second;
 	}
 		/// unconditionally add new element with name ID to the set; return new element
 	T* add ( const std::string& id )
@@ -84,20 +80,20 @@ public:		// interface
 		Base[id] = pne;
 		return pne;
 	}
-		/// Insert id to a nameset (if necessary); @return pointer to id structure created by external creator
+		/// Insert id to the nameset (if necessary); @return pointer to id structure created by external creator
 	T* insert ( const std::string& id )
 	{
 		T* pne = get(id);
-		if ( pne == NULL )	// no such Id
+		if ( pne == nullptr )	// no such Id
 			pne = add(id);
 		return pne;
 	}
 		/// remove given entry from the set
 	void remove ( const std::string& id )
 	{
-		iterator p = Base.find(id);
+		auto p = Base.find(id);
 
-		if ( p != Base.end () )	// founs such Id
+		if ( p != Base.end () )	// found such Id
 		{
 			delete p->second;
 			Base.erase(p);
@@ -106,8 +102,8 @@ public:		// interface
 		/// clear name set
 	void clear ( void )
 	{
-		for ( iterator p = Base.begin(); p != Base.end(); ++p )
-			delete p->second;
+		for ( auto p: Base )
+			delete p.second;
 
 		Base.clear();
 	}

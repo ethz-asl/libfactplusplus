@@ -46,12 +46,6 @@ protected:	// members
 		/// behaviour flag: if true, insert temporary vertex into taxonomy
 	bool willInsertIntoTaxonomy;
 
-private:	// no copy
-		/// no copy c'tor
-	Taxonomy ( const Taxonomy& );
-		/// no assignment
-	Taxonomy& operator = ( const Taxonomy& );
-
 public:		// classification interface
 
 	//-----------------------------------------------------------------
@@ -116,6 +110,10 @@ public:		// interface
 		FreshNode.addNeighbour ( /*upDirection=*/true, getTopVertex() );
 		FreshNode.addNeighbour ( /*upDirection=*/false, getBottomVertex() );
 	}
+		/// no copy c'tor
+	Taxonomy ( const Taxonomy& ) = delete;
+		/// no assignment
+	Taxonomy& operator = ( const Taxonomy& ) = delete;
 		/// d'tor
 	~Taxonomy ( void );
 

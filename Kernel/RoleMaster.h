@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2014 by Dmitry Tsarkov
+Copyright (C) 2003-2015 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -61,10 +61,6 @@ protected:	// members
 	bool useUndefinedNames;
 
 private:	// methods
-		/// no copy c'tor
-	RoleMaster ( const RoleMaster& );
-		/// no assignment
-	RoleMaster& operator = ( const RoleMaster& );
 		/// constant defining first user role in the RBox
 	static unsigned int firstRoleIndex ( void ) { return 2; }
 
@@ -75,7 +71,7 @@ protected:	// methods
 	bool isRegisteredRole ( const TNamedEntry* p ) const
 	{
 		const TRole* R = reinterpret_cast<const TRole*>(p);
-		if ( R == NULL )
+		if ( R == nullptr )
 			return false;
 		unsigned int ind = R->getIndex();
 		return ( ind >= firstRoleIndex() &&
@@ -92,6 +88,10 @@ protected:	// methods
 public:		// interface
 		/// the only c'tor
 	RoleMaster ( bool dataRoles, const std::string& TopRoleName, const std::string& BotRoleName );
+		/// no copy c'tor
+	RoleMaster ( const RoleMaster& ) = delete;
+		/// no assignment
+	RoleMaster& operator = ( const RoleMaster& ) = delete;
 		/// d'tor (delete taxonomy)
 	~RoleMaster ( void ) { delete pTax; }
 

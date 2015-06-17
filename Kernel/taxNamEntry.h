@@ -47,27 +47,25 @@ protected:	// members
 		/// index as a vertex in the SubsumptionMap/model cache
 	unsigned int Index;
 
-private:	// no copy
-		/// no copy c'tor
-	ClassifiableEntry ( const ClassifiableEntry& );
-		/// no assignment
-	ClassifiableEntry& operator = ( const ClassifiableEntry& );
-
 public:		// interface
 		/// C'tor
 	ClassifiableEntry ( const std::string& name )
 		: TNamedEntry ( name )
-		, taxVertex (NULL)
-		, pSynonym (NULL)
+		, taxVertex (nullptr)
+		, pSynonym (nullptr)
 		, Index(0)
 		{}
+		/// no copy c'tor
+	ClassifiableEntry ( const ClassifiableEntry& ) = delete;
+		/// no assignment
+	ClassifiableEntry& operator = ( const ClassifiableEntry& ) = delete;
 		/// D'tor
 	virtual ~ClassifiableEntry ( void ) {}
 
 	// taxonomy entry access
 
 		/// is current entry classified
-	bool isClassified ( void ) const { return ( taxVertex != NULL ); }
+	bool isClassified ( void ) const { return ( taxVertex != nullptr ); }
 		/// set up given entry
 	void setTaxVertex ( TaxonomyVertex* vertex ) { taxVertex = vertex; }
 		/// get taxonomy vertex of the entry
@@ -110,7 +108,7 @@ public:		// interface
 	// synonym interface
 
 		/// check if current entry is a synonym
-	bool isSynonym ( void ) const { return (pSynonym != NULL); }
+	bool isSynonym ( void ) const { return (pSynonym != nullptr); }
 		/// get synonym of current entry
 	ClassifiableEntry* getSynonym ( void ) const { return pSynonym; }
 		/// make sure that synonym's representative is not a synonym itself
@@ -118,7 +116,7 @@ public:		// interface
 		/// add entry's synonym
 	void setSynonym ( ClassifiableEntry* syn )
 	{
-		fpp_assert ( pSynonym == NULL );	// do it only once
+		fpp_assert ( pSynonym == nullptr );	// do it only once
 		pSynonym = syn;
 		canonicaliseSynonym();
 	}
@@ -137,7 +135,7 @@ template<class T>
 inline T*
 resolveSynonym ( T* p )
 {
-	return !p ? NULL : p->isSynonym() ? resolveSynonym(static_cast<T*>(p->getSynonym())) : p;
+	return !p ? nullptr : p->isSynonym() ? resolveSynonym(static_cast<T*>(p->getSynonym())) : p;
 }
 
 /// general RW resolving synonym operator
@@ -145,7 +143,7 @@ template<class T>
 inline const T*
 resolveSynonym ( const T* p )
 {
-	return !p ? NULL : p->isSynonym() ? resolveSynonym(static_cast<const T*>(p->getSynonym())) : p;
+	return !p ? nullptr : p->isSynonym() ? resolveSynonym(static_cast<const T*>(p->getSynonym())) : p;
 }
 
 /// make sure that synonym's representative is not a synonym itself

@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2005-2014 by Dmitry Tsarkov
+Copyright (C) 2005-2015 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -18,8 +18,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #ifndef TDATAENTRY_H
 #define TDATAENTRY_H
-
-#include <cstdlib>
 
 #include "tNamedEntry.h"
 #include "BiPointer.h"
@@ -188,12 +186,6 @@ protected:	// members
 		/// restriction to the entry
 	TDataInterval Constraints;
 
-private:	// no copy
-		/// no copy c'tor
-	TDataEntry ( const TDataEntry& );
-		/// no assignment
-	TDataEntry& operator = ( const TDataEntry& );
-
 protected:	// methods
 		/// set COMP for the (typed) data value
 	void setComp ( const std::string& typeName )
@@ -217,21 +209,25 @@ public:		// interface
 		/// create data entry with given name
 	TDataEntry ( const std::string& name )
 		: TNamedEntry(name)
-		, Type(NULL)
+		, Type(nullptr)
 		, pName(bpINVALID)
 		, comp()
 		{}
+		/// no copy c'tor
+	TDataEntry ( const TDataEntry& ) = delete;
+		/// no assignment
+	TDataEntry& operator = ( const TDataEntry& ) = delete;
 		/// empty d'tor
 	~TDataEntry ( void ) {}
 
 	// type/value part
 
 		/// check if data entry represents basic data type
-	bool isBasicDataType ( void ) const { return Type == NULL && Constraints.empty(); }
+	bool isBasicDataType ( void ) const { return Type == nullptr && Constraints.empty(); }
 		/// check if data entry represents restricted data type
 	bool isRestrictedDataType ( void ) const { return !Constraints.empty(); }
 		/// check if data entry represents data value
-	bool isDataValue ( void ) const { return Type != NULL && Constraints.empty(); }
+	bool isDataValue ( void ) const { return Type != nullptr && Constraints.empty(); }
 
 		/// set host data type for the data value
 	void setHostType ( const TDataEntry* type ) { Type = type; setComp(type->getName()); }

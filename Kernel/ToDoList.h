@@ -35,7 +35,7 @@ struct ToDoEntry
 	int offset;
 
 		/// empty C'tor
-	ToDoEntry ( void ) : Node(NULL), offset(0) {}	// for initialisation
+	ToDoEntry ( void ) : Node(nullptr), offset(0) {}	// for initialisation
 		/// C'tor (init values)
 	ToDoEntry ( DlCompletionTree* n, int off ) : Node(n), offset(off) {}
 }; // ToDoEntry
@@ -212,12 +212,6 @@ protected:	// classes
 	}; // SaveState
 	//--------------------------------------------------------------------------
 
-private:	// safety
-		/// no copy c'tor
-	ToDoList ( ToDoList& );
-		/// no assignment
-	ToDoList& operator = ( ToDoList& );
-
 protected:	// members
 		/// waiting ops queue for IDs
 	arrayQueue queueID;
@@ -257,6 +251,10 @@ protected:	// methods
 public:
 		/// init c'tor
 	ToDoList ( const ToDoPriorMatrix& matrix, TRareSaveStack* stack ) : queueNN(stack), Matrix(matrix), noe(0) {}
+		/// no copy c'tor
+	ToDoList ( ToDoList& ) = delete;
+		/// no assignment
+	ToDoList& operator = ( ToDoList& ) = delete;
 		/// d'tor: delete all entries
 	~ToDoList ( void ) { clear(); }
 
@@ -334,7 +332,7 @@ inline const ToDoEntry* ToDoList :: getNextEntry ( void )
 			return Wait[i].get();
 
 	// that's impossible, but still...
-	return NULL;
+	return nullptr;
 }
 
 #endif

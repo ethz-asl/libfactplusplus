@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2014 by Dmitry Tsarkov
+Copyright (C) 2003-2015 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -35,8 +35,6 @@ class DlCompletionGraph;
 // use the following to control logging information about saving/restoring nodes
 #define RKG_CHECK_BACKJUMPING
 
-//#include "SmallObj.h"
-
 #ifdef _USE_LOGGING	// don't gather statistics w/o logging
 #	define USE_BLOCKING_STATISTICS
 #endif
@@ -47,8 +45,8 @@ class DlCompletionGraph;
 #	define printBlockingStat(O) printBlockingStat1(O)
 #	define clearBlockingStat() clearBlockingStat1()
 #else
-#	define printBlockingStat(O) (void)NULL
-#	define clearBlockingStat() (void)NULL
+#	define printBlockingStat(O) (void)nullptr
+#	define clearBlockingStat() (void)nullptr
 #endif
 
 /// level of CTree's nominal node
@@ -56,7 +54,7 @@ typedef unsigned short CTNominalLevel;
 /// default level for the Blockable node
 const CTNominalLevel BlockableLevel = static_cast<CTNominalLevel>(-1);
 
-class DlCompletionTree//: public Loki::SmallObject<>
+class DlCompletionTree
 {
 	friend class DlCompletionGraph;
 
@@ -72,19 +70,13 @@ protected:	// internal classes
 			/// amount of neighbours
 		size_t nNeighbours;
 
-	private:	// protection from copying
-			/// no assignment
-		SaveState& operator = ( const SaveState& node );
-
 	public:		// interface
 			/// empty c'tor
 		SaveState ( void ) {}
 			/// copy c'tor
-		SaveState ( const SaveState& node )
-			: lab (node.lab)
-			, curLevel (node.curLevel)
-			, nNeighbours(node.nNeighbours)
-			{}
+		SaveState ( const SaveState& ) = default;
+			/// assignment
+		SaveState& operator = ( const SaveState& ) = default;
 			/// empty d'tor
 		virtual ~SaveState ( void ) {}	// used in SaveList => virtual
 
@@ -190,12 +182,6 @@ protected:	// members
 
 		/// level of a nominal node; 0 means blockable one
 	CTNominalLevel nominalLevel;
-
-private:	// methods
-		/// no copy c'tor
-	DlCompletionTree ( const DlCompletionTree& copy );
-		/// no assignment
-	DlCompletionTree& operator = ( const DlCompletionTree& copy );
 
 protected:	// methods
 
@@ -336,6 +322,10 @@ public:		// methods
 	void init ( unsigned int level );
 		/// c'tor: create an empty node
 	DlCompletionTree ( unsigned int newId ) : id(newId) {}
+		/// no copy c'tor
+	DlCompletionTree ( const DlCompletionTree& ) = delete;
+		/// no assignment
+	DlCompletionTree& operator = ( const DlCompletionTree& ) = delete;
 		/// d'tor: delete node
 	~DlCompletionTree ( void ) { saves.clear(); }
 
@@ -350,7 +340,7 @@ public:		// methods
 	TRestorer* setCached ( bool val )
 	{
 		if ( cached == val )
-			return NULL;
+			return nullptr;
 		TRestorer* ret = new CacheRestorer(this);
 		cached = val;
 		return ret;
@@ -477,13 +467,13 @@ public:		// methods
 	// just returns calculated values
 
 		/// check if node is directly blocked
-	bool isDBlocked ( void ) const { return Blocker != NULL && !pBlocked && dBlocked; }
+	bool isDBlocked ( void ) const { return Blocker != nullptr && !pBlocked && dBlocked; }
 		/// check if node is indirectly blocked
-	bool isIBlocked ( void ) const { return Blocker != NULL && !pBlocked && !dBlocked; }
+	bool isIBlocked ( void ) const { return Blocker != nullptr && !pBlocked && !dBlocked; }
 		/// check if node is purged (and so indirectly blocked)
-	bool isPBlocked ( void ) const { return Blocker != NULL && pBlocked && !dBlocked; }
+	bool isPBlocked ( void ) const { return Blocker != nullptr && pBlocked && !dBlocked; }
 		/// check if node is blocked (d/i)
-	bool isBlocked ( void ) const { return Blocker != NULL && !pBlocked; }
+	bool isBlocked ( void ) const { return Blocker != nullptr && !pBlocked; }
 		/// check the legality of the direct block
 	bool isIllegallyDBlocked ( void ) const { return isDBlocked() && Blocker->isBlocked(); }
 
@@ -554,7 +544,7 @@ public:		// methods
 		/// mark node i-blocked
 	TRestorer* setIBlocked ( const DlCompletionTree* blocker ) { return setBlocked ( blocker, false, false ); }
 		/// mark node unblocked
-	TRestorer* setUBlocked ( void ) { return setBlocked ( NULL, true, true ); }
+	TRestorer* setUBlocked ( void ) { return setBlocked ( nullptr, true, true ); }
 		/// mark node purged
 	TRestorer* setPBlocked ( const DlCompletionTree* blocker, const DepSet& dep )
 	{
@@ -569,19 +559,19 @@ public:		// methods
 	}
 
 	//----------------------------------------------
-	//	checking edge labelling
+	//	checking edge labeling
 	//----------------------------------------------
 
-		/// check if edge to NODE is labelled by R; return NULL if does not
+		/// check if edge to NODE is labeled by R; return NULL if does not
 	DlCompletionTreeArc* getEdgeLabelled ( const TRole* R, const DlCompletionTree* node ) const
 	{
 		for ( const_edge_iterator p = begin(), p_end = end(); p < p_end; ++p )
 			if ( (*p)->getArcEnd() == node && (*p)->isNeighbour(R) )
 				return *p;
-		return NULL;
+		return nullptr;
 	}
-		/// check if parent arc is labelled by R; works only for blockable nodes
-	bool isParentArcLabelled ( const TRole* R ) const { return getEdgeLabelled ( R, getParentNode() ) != NULL; }
+		/// check if parent arc is labeled by R; works only for blockable nodes
+	bool isParentArcLabelled ( const TRole* R ) const { return getEdgeLabelled ( R, getParentNode() ) != nullptr; }
 
 	//----------------------------------------------
 	// inequality relation interface
@@ -658,7 +648,7 @@ inline void DlCompletionTree :: init ( unsigned int level )
 	IR.clear();
 #endif
 	Neighbour.clear();
-	Blocker = NULL;
+	Blocker = nullptr;
 	pDep.clear();
 }
 

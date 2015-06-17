@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2014 by Dmitry Tsarkov
+Copyright (C) 2003-2015 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -105,18 +105,12 @@ namespace InAx
 			return false;
 		const DLTree* C = p->Left()->Right();
 		// forall is simple if its filler is a name of a primitive concept
-		return isName(C) && (getConcept(C)->Description == NULL);
+		return isName(C) && (getConcept(C)->Description == nullptr);
 	}
 } // InAx
 
 class TAxiom
 {
-private:	// no assignment
-		/// copy c'tor
-	TAxiom ( const TAxiom& ax );
-		/// assignment
-	TAxiom& operator = ( const TAxiom& ax );
-
 protected:	// types
 		/// type for axiom's representation, suitable for absorption
 	typedef std::vector<DLTree*> absorptionSet;
@@ -202,11 +196,15 @@ protected:	// methods
 public:		// interface
 		/// create an empty GCI
 	TAxiom ( const TAxiom* parent ) : origin(parent) {}
+		/// copy c'tor
+	TAxiom ( const TAxiom& ) = delete;
+		/// assignment
+	TAxiom& operator = ( const TAxiom& ) = delete;
 		/// d'tor: delete elements if AX is not in use
 	~TAxiom ( void )
 	{
-		for ( iterator i = begin(), i_end = end(); i != i_end; ++i )
-			deleteTree(*i);
+		for ( auto p: Disjuncts )
+			deleteTree(p);
 	}
 
 		/// add DLTree to an axiom
@@ -271,7 +269,7 @@ public:		// interface
 		/// @return true iff an axiom is the same as one of its ancestors
 	bool isCyclic ( void ) const
 	{
-		for ( const TAxiom* p = origin; p; p = p->origin )
+		for ( auto p = origin; p; p = p->origin )
 			if ( *p == *this )
 			{
 #			ifdef RKG_DEBUG_ABSORPTION
@@ -292,7 +290,7 @@ public:		// interface
 		/// absorb into role domain; @return true if absorption is performed
 	bool absorbIntoDomain ( void ) const;
 		/// create a concept expression corresponding to a given GCI
-	DLTree* createAnAxiom ( void ) const { return createAnAxiom(NULL);	}
+	DLTree* createAnAxiom ( void ) const { return createAnAxiom(nullptr);	}
 
 #ifdef RKG_DEBUG_ABSORPTION
 		/// dump GCI for debug purposes

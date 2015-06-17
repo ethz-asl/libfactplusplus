@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2009 by Dmitry Tsarkov
+Copyright (C) 2003-2015 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -16,8 +16,8 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef _DLCOMPLETIONTREEARC_H
-#define _DLCOMPLETIONTREEARC_H
+#ifndef DLCOMPLETIONTREEARC_H
+#define DLCOMPLETIONTREEARC_H
 
 #include <iostream>
 
@@ -27,11 +27,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "tRole.h"
 #include "tRestorer.h"
 
-//#include "SmallObj.h"
-
 class DlCompletionTree;
 
-class DlCompletionTreeArc//: public Loki::SmallObject<>
+class DlCompletionTreeArc
 {
 friend class DlCompletionGraph;
 public:		// external type definitions
@@ -50,19 +48,15 @@ protected:	// members
 		/// true if the edge going from a predecessor to a successor
 	bool SuccEdge;
 
-private:	// no copy
+private:	// methods
 		/// init an arc with R as a label and NODE on given LEVEL; use it inside MAKEARCS only
 	void init ( const TRole* role, const DepSet& dep, DlCompletionTree* node )
 	{
 		Role = role;
 		depSet = dep;
 		Node = node;
-		Reverse = NULL;
+		Reverse = nullptr;
 	}
-		/// no copy c'tor
-	DlCompletionTreeArc ( const DlCompletionTreeArc& v );
-		/// no assignment
-	DlCompletionTreeArc& operator = ( const DlCompletionTreeArc& v );
 
 protected:	// classes
 		/// class for restoring edge
@@ -101,6 +95,10 @@ protected:	// methods
 public:		// interface
 		/// empty c'tor
 	DlCompletionTreeArc ( void ) : SuccEdge(true) {}
+		/// no copy c'tor
+	DlCompletionTreeArc ( const DlCompletionTreeArc& ) = delete;
+		/// no assignment
+	DlCompletionTreeArc& operator = ( const DlCompletionTreeArc& ) = delete;
 		/// d'tor
 	~DlCompletionTreeArc ( void ) {}
 
@@ -138,7 +136,7 @@ public:		// interface
 	}
 
 		/// is arc merged to another
-	bool isIBlocked ( void ) const { return (Role == NULL); }
+	bool isIBlocked ( void ) const { return (Role == nullptr); }
 		/// check whether the edge is reflexive
 	bool isReflexiveEdge ( void ) const { return getArcEnd() == getReverse()->getArcEnd(); }
 
@@ -149,12 +147,12 @@ public:		// interface
 		/// save and invalidate arc (together with reverse arc)
 	TRestorer* save ( void )
 	{
-		if ( Role == NULL )	// don't invalidate edge twice
-			return NULL;
+		if ( Role == nullptr )	// don't invalidate edge twice
+			return nullptr;
 
 		TRestorer* ret = new TCTEdgeRestorer(this);
-		Role = NULL;
-		Reverse->Role = NULL;
+		Role = nullptr;
+		Reverse->Role = nullptr;
 		return ret;
 	}
 
@@ -162,7 +160,7 @@ public:		// interface
 	TRestorer* addDep ( const DepSet& dep )
 	{
 		if ( dep.empty() )
-			return NULL;
+			return nullptr;
 		TRestorer* ret = new TCTEdgeDepRestorer(this);
 		depSet.add(dep);
 		return ret;
@@ -175,4 +173,4 @@ public:		// interface
 		{ o << "<" << ( isIBlocked() ? "-" : Role->getName() ) << depSet << ">"; }
 }; // DlCompletionTreeArc
 
-#endif // _DLCOMPLETIONTREEARC_H
+#endif // DLCOMPLETIONTREEARC_H

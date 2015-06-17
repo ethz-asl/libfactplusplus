@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2005-2014 by Dmitry Tsarkov
+Copyright (C) 2005-2015 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -274,6 +274,10 @@ public:		// interface
 		clearStatistics();
 		initRoot();
 	}
+		/// no copy c'tor
+	DlCompletionGraph ( const DlCompletionGraph& ) = delete;
+		/// no assignment
+	DlCompletionGraph& operator = ( const DlCompletionGraph& ) = delete;
 		/// d'tor: delete all allocated nodes
 	~DlCompletionGraph ( void )
 	{
@@ -317,7 +321,7 @@ public:		// interface
 	DlCompletionTree* getNode ( unsigned int id )
 	{
 		if ( id >= endUsed )
-			return NULL;
+			return nullptr;
 		return NodeBase[id];
 	}
 		/// get new node (with internal level)
@@ -386,7 +390,7 @@ public:		// interface
 		for ( const_iterator p = begin(), p_end = end(); p < p_end; ++p )
 			if ( (*p)->isDBlocked() && !(*p)->isLoopLabelled(C) )
 				return const_cast<DlCompletionTree*>((*p)->Blocker);
-		return NULL;
+		return nullptr;
 	}
 
 		/// clear all the session statistics
@@ -431,7 +435,7 @@ public:		// interface
 	{
 		// check if GCraph already has FROM->TO edge labelled with RNAME
 		DlCompletionTreeArc* ret = from->getEdgeLabelled ( R, to );
-		if ( ret == NULL )
+		if ( ret == nullptr )
 			ret = createEdge ( from, to, isPredEdge, R, dep );
 		else
 			saveRareCond(ret->addDep(dep));

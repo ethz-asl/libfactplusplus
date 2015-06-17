@@ -107,12 +107,6 @@ protected:	// types
 			/// head of the rule as a BP
 		BipolarPointer bpHead;
 
-	private:	// no copy
-			/// no copy c'tor
-		TSimpleRule ( const TSimpleRule& );
-			/// no assignment
-		TSimpleRule& operator= ( const TSimpleRule& );
-
 	public:		// interface
 			/// init c'tor
 		TSimpleRule ( const TRuleBody& body, DLTree* head )
@@ -120,6 +114,10 @@ protected:	// types
 			, tHead(head)
 			, bpHead(bpINVALID)
 			{}
+			/// no copy c'tor
+		TSimpleRule ( const TSimpleRule& ) = delete;
+			/// no assignment
+		TSimpleRule& operator= ( const TSimpleRule& ) = delete;
 			/// empty d'tor
 		virtual ~TSimpleRule ( void ) { deleteTree(tHead); }
 
@@ -313,12 +311,6 @@ protected:	// members
 		/// time spend for consistency checking
 	float consistTime;
 
-private:	// no copy
-		/// no copy c'tor
-	TBox ( const TBox& );
-		/// no assignment
-	TBox& operator = ( const TBox& );
-
 protected:	// methods
 		/// init all flags using given set of options
 	void readConfig ( const ifOptionSet* Options );
@@ -368,14 +360,14 @@ protected:	// methods
 	TDataEntry* getDataEntryByBP ( BipolarPointer bp )
 	{
 		TDataEntry* p = static_cast<TDataEntry*>(DLHeap[bp].getConcept());
-		fpp_assert ( p != NULL );
+		fpp_assert ( p != nullptr );
 		return p;
 	}
 		/// get concept by it's BP (const version)
 	const TDataEntry* getDataEntryByBP ( BipolarPointer bp ) const
 	{
 		const TDataEntry* p = static_cast<const TDataEntry*>(DLHeap[bp].getConcept());
-		fpp_assert ( p != NULL );
+		fpp_assert ( p != nullptr );
 		return p;
 	}
 
@@ -463,7 +455,7 @@ protected:	// methods
 		/// @return a pointer to concept representation
 	BipolarPointer concept2dag ( TConcept* p )
 	{
-		if ( p == NULL )
+		if ( p == nullptr )
 			return bpINVALID;
 		if ( !isValid(p->pName) )
 			addConceptToHeap(p);
@@ -522,7 +514,7 @@ protected:	// methods
 		for ( TRCCache::const_iterator p = RCCache.begin(), p_end = RCCache.end(); p < p_end; ++p )
 			if ( equalTrees ( C, p->first ) )
 				return p->second;
-		return NULL;
+		return nullptr;
 	}
 		/// add CN as a cache entry for C=\AR.~D>
 	void setRCCache ( DLTree* C, TConcept* CN ) { RCCache.push_back(std::make_pair(C,CN)); }
@@ -612,7 +604,7 @@ protected:	// methods
 		// mark D as processed
 		processed.insert(D);
 		// check the description of D
-		if ( D->Description == NULL )
+		if ( D->Description == nullptr )
 			return false;
 		if ( isReferenced ( C, D->Description, processed ) )
 			return true;
@@ -672,11 +664,11 @@ protected:	// methods
 //-----------------------------------------------------------------------------
 
 		/// @return true iff reasoners were initialised
-	bool reasonersInited ( void ) const { return stdReasoner != NULL; }
+	bool reasonersInited ( void ) const { return stdReasoner != nullptr; }
 		/// get RW reasoner wrt nominal case
 	DlSatTester* getReasoner ( void )
 	{
-		fpp_assert ( curFeature != NULL );
+		fpp_assert ( curFeature != nullptr );
 		if ( curFeature->hasSingletons() )
 			return nomReasoner;
 		else
@@ -685,7 +677,7 @@ protected:	// methods
 		/// get RO reasoner wrt nominal case
 	const DlSatTester* getReasoner ( void ) const
 	{
-		fpp_assert ( curFeature != NULL );
+		fpp_assert ( curFeature != nullptr );
 		if ( curFeature->hasSingletons() )
 			return nomReasoner;
 		else
@@ -865,7 +857,7 @@ protected:	// methods
 	void calculateRelevant ( TConcept* p, TConcept* q )
 	{
 		setRelevant(p);
-		if ( q != NULL )
+		if ( q != nullptr )
 			setRelevant(q);
 		markGCIsRelevant();
 	}
@@ -903,7 +895,7 @@ protected:	// methods
 		/// prepare features for SAT(P), or SUB(P,Q) test
 	void prepareFeatures ( const TConcept* pConcept, const TConcept* qConcept );
 		/// clear current features
-	void clearFeatures ( void ) { curFeature = NULL; }
+	void clearFeatures ( void ) { curFeature = nullptr; }
 
 //-----------------------------------------------------------------------------
 //--		internal dump output interface
@@ -931,6 +923,10 @@ public:
 		   const std::string& BotORoleName,
 		   const std::string& TopDRoleName,
 		   const std::string& BotDRoleName );
+		/// no copy c'tor
+	TBox ( const TBox& ) = delete;
+		/// no assignment
+	TBox& operator = ( const TBox& ) = delete;
 		/// d'tor
 	~TBox ( void );
 
@@ -992,7 +988,7 @@ public:
 			return pBottom;
 
 		if ( !isName(name) )
-			return NULL;
+			return nullptr;
 
 		if ( name->Element().getToken() == CNAME )
 			return toConcept(name->Element().getNE());
@@ -1002,8 +998,8 @@ public:
 		/// get a DL tree by a given concept-like C
 	DLTree* getTree ( TConcept* C ) const
 	{
-		if ( C == NULL )
-			return NULL;
+		if ( C == nullptr )
+			return nullptr;
 		if ( C == pTop )
 			return createTop();
 		if ( C == pBottom )
@@ -1016,7 +1012,7 @@ public:
 	// n-ary absorption support
 
 		/// get unique aux concept
-	TConcept* getAuxConcept ( DLTree* desc = NULL );
+	TConcept* getAuxConcept ( DLTree* desc = nullptr );
 		/// replace RC=(AR:~C) with X such that C [= AR^-:X for fresh X. @return X
 	TConcept* replaceForall ( DLTree* RC );
 		/// @return true iff C has a cyclic definition, ie is referenced in its own description
@@ -1120,7 +1116,7 @@ public:
 		/// check if the relevant part of KB contains inverse roles.
 	bool isIRinQuery ( void ) const
 	{
-		if ( curFeature != NULL )
+		if ( curFeature != nullptr )
 			return curFeature->hasInverseRole();
 		else
 			return KBFeatures.hasInverseRole();
@@ -1134,7 +1130,7 @@ public:
 		/// check if the relevant part of KB contains singletons
 	bool testHasNominals ( void ) const
 	{
-		if ( curFeature != NULL )
+		if ( curFeature != nullptr )
 			return curFeature->hasSingletons();
 		else
 			return KBFeatures.hasSingletons();
@@ -1142,7 +1138,7 @@ public:
 		/// check if the relevant part of KB contains top role
 	bool testHasTopRole ( void ) const
 	{
-		if ( curFeature != NULL )
+		if ( curFeature != nullptr )
 			return curFeature->hasTopRole();
 		else
 			return KBFeatures.hasTopRole();
@@ -1190,7 +1186,7 @@ public:
 		/// set given structure as a progress monitor
 	void setProgressMonitor ( TProgressMonitor* pMon ) { pMonitor = pMon; }
 		/// check that reasoning progress was cancelled by external application
-	bool isCancelled ( void ) const { return pMonitor != NULL && pMonitor->isCancelled(); }
+	bool isCancelled ( void ) const { return pMonitor != nullptr && pMonitor->isCancelled(); }
 		/// set verbose output (ie, default progress monitor, concept and role taxonomies) wrt given VALUE
 	void setVerboseOutput ( bool value ) { verboseOutput = value; }
 
@@ -1254,7 +1250,7 @@ public:
 		if ( !canUseSortedReasoning() )
 			return false;
 		// doesn't work for the SAT tests
-		if ( q == NULL )
+		if ( q == nullptr )
 			return false;
 		return !DLHeap.haveSameSort ( p->pName, q->pName );
 	}

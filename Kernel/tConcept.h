@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2014 by Dmitry Tsarkov
+Copyright (C) 2003-2015 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -103,12 +103,6 @@ public:		// members
 		/// all extra rules for a given concept
 	ERSet erSet;
 
-private:	// no copy
-		/// no copy c'tor
-	TConcept ( const TConcept& );
-		/// no assignment
-	TConcept& operator = ( const TConcept& );
-
 protected:	// methods
 	// classification TAGs manipulation
 
@@ -153,7 +147,7 @@ public:		// methods
 	explicit TConcept ( const std::string& name )
 		: ClassifiableEntry (name)
 		, rel(0)
-		, Description(NULL)
+		, Description(nullptr)
 		, classTag(cttUnspecified)
 		, tsDepth(0)
 		, pName (bpINVALID)
@@ -161,6 +155,10 @@ public:		// methods
 	{
 		setPrimitive();
 	}
+		/// no copy c'tor
+	TConcept ( const TConcept& ) = delete;
+		/// no assignment
+	TConcept& operator = ( const TConcept& ) = delete;
 		/// d'tor
 	virtual ~TConcept ( void ) { deleteTree(Description); }
 		/// clear all info of the concept. Use it in removeConcept()
@@ -215,12 +213,12 @@ public:		// methods
 	void removeDescription ( void )
 	{	// save Synonym value
 		deleteTree(Description);
-		Description = NULL;
+		Description = nullptr;
 	}
 		/// check whether it is possible to init this as a non-primitive concept with DESC
 	bool canInitNonPrim ( DLTree* desc )
 	{
-		if ( Description == NULL )
+		if ( Description == nullptr )
 			return true;
 		if ( isNonPrimitive() && equalTrees(Description,desc) )
 			return true;
@@ -245,14 +243,14 @@ public:		// methods
 			removeDescription();
 
 		bool CD = !hasExtraRules() && isPrimitive();	// not a completely defined if there are extra rules
-		if ( Description != NULL )	// init (additional) told subsumers from definition
+		if ( Description != nullptr )	// init (additional) told subsumers from definition
 			CD &= initToldSubsumers(Description);
 		setCompletelyDefined(CD);
 	}
 		/// init TOP told subsumer if necessary
 	void setToldTop ( TConcept* top )
 	{
-		if ( Description == NULL && !hasToldSubsumers() )
+		if ( Description == nullptr && !hasToldSubsumers() )
 			addParent(top);
 	}
 		/// calculate depth wrt told subsumers; return the depth

@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2014 by Dmitry Tsarkov
+Copyright (C) 2003-2015 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -101,7 +101,7 @@ protected:	// members
 
 public:		// interface
 		/// empty c'tor
-	DLVertexCache ( void ) : pCache(NULL), nCache(NULL) {}
+	DLVertexCache ( void ) : pCache(nullptr), nCache(nullptr) {}
 		/// d'tor
 	virtual ~DLVertexCache ( void ) { delete pCache; delete nCache; }
 
@@ -309,12 +309,6 @@ class DLVertex
 	, public DLVertexSort
 #endif
 {
-private:	// prevent copying
-		// no copy c'tor
-	DLVertex ( const DLVertex& v );
-		/// no assignment
-	DLVertex& operator = ( const DLVertex& v );
-
 protected:	// typedefs
 		/// base type for array of BPs
 	typedef std::vector<BipolarPointer> BaseType;
@@ -343,48 +337,52 @@ public:		// interface
 		/// c'tor for Top/CN/And (before adding any operands)
 	explicit DLVertex ( DagTag op )
 		: DLVertexTagDFS(op)
-		, Concept(NULL)
-		, Role(NULL)
-		, ProjRole(NULL)
+		, Concept(nullptr)
+		, Role(nullptr)
+		, ProjRole(nullptr)
 		, C(bpINVALID)
 		, n(0)
 		{}
 		/// c'tor for Refl/Irr
 	DLVertex ( DagTag op, const TRole* R )
 		: DLVertexTagDFS(op)
-		, Concept(NULL)
+		, Concept(nullptr)
 		, Role(R)
-		, ProjRole(NULL)
+		, ProjRole(nullptr)
 		, C(bpINVALID)
 		, n(0)
 		{}
 		/// c'tor for CN/DE; C is an operand
 	DLVertex ( DagTag op, BipolarPointer c )
 		: DLVertexTagDFS(op)
-		, Concept(NULL)
-		, Role(NULL)
-		, ProjRole(NULL)
+		, Concept(nullptr)
+		, Role(nullptr)
+		, ProjRole(nullptr)
 		, C(c)
 		, n(0)
 		{}
 		/// c'tor for <= n R_C; and for \A R{n}_C; Note order C, n, R->pointer
 	DLVertex ( DagTag op, unsigned int m, const TRole* R, BipolarPointer c )
 		: DLVertexTagDFS(op)
-		, Concept(NULL)
+		, Concept(nullptr)
 		, Role(R)
-		, ProjRole(NULL)
+		, ProjRole(nullptr)
 		, C(c)
 		, n(m)
 		{}
 		/// c'tor for ProjFrom R C ProjR
 	DLVertex ( const TRole* R, BipolarPointer c, const TRole* ProjR )
 		: DLVertexTagDFS(dtProj)
-		, Concept(NULL)
+		, Concept(nullptr)
 		, Role(R)
 		, ProjRole(ProjR)
 		, C(c)
 		, n(0)
 		{}
+		/// no copy c'tor
+	DLVertex ( const DLVertex& ) = delete;
+		/// no assignment
+	DLVertex& operator = ( const DLVertex& ) = delete;
 		/// d'tor (empty)
 	virtual ~DLVertex ( void ) {}
 

@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2009 by Dmitry Tsarkov
+Copyright (C) 2003-2015 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -54,7 +54,7 @@ void ifOption :: printConfString ( std::ostream& o ) const
 		o << "integer";
 	else if ( type == iotText )
 		o << "text";
-	else	// safety check
+	else	// sanity check
 		fpp_unreachable();
 
 	// description, default, name
@@ -68,20 +68,10 @@ void ifOption :: printConfString ( std::ostream& o ) const
 		o << getInt ();
 	else if ( type == iotText )
 		o << getText().c_str ();
-	else	// safety check
+	else	// sanity check
 		fpp_unreachable();
 
 	o << "\n";
-}
-
-const ifOption* ifOptionSet :: locateOption ( const std::string& name ) const
-{
-	OptionSet::const_iterator p = Base.find ( name );
-
-	if ( p == Base.end () )
-		return NULL;
-	else
-		return p->second;
 }
 
 bool ifOptionSet :: initByConfigure ( Configuration& Config, const std::string& Section )
@@ -91,9 +81,9 @@ bool ifOptionSet :: initByConfigure ( Configuration& Config, const std::string& 
 		return true;
 
 	// for all registered options
-	for ( OptionSet::iterator p = Base.begin (); p != Base.end (); ++p )
-		if ( !Config.checkValue ( p->first ) )			// if option located in config file
-			if ( p->second->setAValue ( Config.getValue () ) )	// ... set up its value
+	for ( auto p: Base )
+		if ( !Config.checkValue(p.first) )			// if option located in config file
+			if ( p.second->setAValue(Config.getValue()))	// ... set up its value
 				return true;	// can't set value
 
 	// all done without errors
@@ -110,8 +100,6 @@ void ifOptionSet :: printConfig ( std::ostream& o ) const
 	// print header
 	o << "\n[Tuning]\n";
 
-	for ( OptionSet::const_iterator p = Base.begin (); p != Base.end (); ++p )
-		p->second->printConfString (o);
-
+	std::for_each ( begin(Base), end(Base), [&] (auto opt) { opt.second->printConfString(o); } );
 	o << std::endl;
 }
