@@ -46,9 +46,8 @@ clash:	// clash found: clear all stuff; returns true
 	// find appropriate place to insert
 	unsigned int v = getValue (p);
 
-	BaseType::iterator q = Child.begin(), q_end = Child.end();
-	for ( ; q != q_end && getValue(*q) < v; ++q )
-		;
+	auto q = Child.begin(), q_end = Child.end();
+	q = std::find_if_not ( q, q_end, [=] (auto bp) { return getValue(bp) < v; } );
 
 	if ( q == q_end )	// finish
 	{
@@ -62,7 +61,7 @@ clash:	// clash found: clear all stuff; returns true
 	else if ( *q == inverse(p) )
 		goto clash;
 
-	// we need to insert p into set
+	// we need to insert p into set, this might invalidate iterators
 	long offset = q - Child.begin();
 	Child.push_back(Child.back());
 
