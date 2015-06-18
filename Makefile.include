@@ -1,5 +1,5 @@
 # global optimisation options
-GCC_OPT_OPT = -ffast-math -W -Wall -Wextra -O3 -fomit-frame-pointer -fPIC
+GCC_OPT_OPT = -ffast-math -W -Wall -Wextra -O3 -fomit-frame-pointer -fPIC -std=c++1y
 # -Wno-overloaded-virtual
 # the last one is for ExtendedSynLocChecker
 
