@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2013 by Dmitry Tsarkov
+Copyright (C) 2003-2015 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -195,7 +195,7 @@ TaxonomyCreator :: prepareTS ( ClassifiableEntry* cur )
 			// prepare TS for *p
 			ClassifiableEntry* v = prepareTS(*p);
 			// if NULL is returned -- just continue
-			if ( v == NULL )
+			if ( v == nullptr )
 				continue;
 			if ( v == cur )	// current cycle is finished, all saved in Syns
 			{
@@ -225,6 +225,6 @@ TaxonomyCreator :: prepareTS ( ClassifiableEntry* cur )
 		Syns.clear();
 	}
 	// here the cycle is gone
-	return NULL;
+	return nullptr;
 }
 

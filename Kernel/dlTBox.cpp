@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2014 by Dmitry Tsarkov
+Copyright (C) 2003-2015 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -34,16 +34,16 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 TBox :: TBox ( const ifOptionSet* Options, const std::string& TopORoleName, const std::string& BotORoleName, const std::string& TopDRoleName, const std::string& BotDRoleName )
 	: DLHeap(Options)
-	, stdReasoner(NULL)
-	, nomReasoner(NULL)
-	, pMonitor(NULL)
-	, pTax(NULL)
-	, pTaxCreator(NULL)
-	, pName2Sig(NULL)
+	, stdReasoner(nullptr)
+	, nomReasoner(nullptr)
+	, pMonitor(nullptr)
+	, pTax(nullptr)
+	, pTaxCreator(nullptr)
+	, pName2Sig(nullptr)
 	, pOptions (Options)
 	, Status(kbLoading)
-	, curFeature(NULL)
-	, pQuery(NULL)
+	, curFeature(nullptr)
+	, pQuery(nullptr)
 	, Concepts("concept")
 	, Individuals("individual")
 	, ORM ( /*data=*/false, TopORoleName, BotORoleName )
@@ -118,7 +118,7 @@ TBox :: replaceForall ( DLTree* RC )
 	// check whether we already did this before for given R,C
 	TConcept* X = getRCCache(RC);
 
-	if ( X != NULL )
+	if ( X != nullptr )
 	{
 		deleteTree(RC);
 		return X;
@@ -198,9 +198,9 @@ void TBox :: prepareReasoning ( void )
 void TBox :: prepareFeatures ( const TConcept* pConcept, const TConcept* qConcept )
 {
 	auxFeatures = GCIFeatures;
-	if ( pConcept != NULL )
+	if ( pConcept != nullptr )
 		updateAuxFeatures(pConcept->posFeatures);
-	if ( qConcept != NULL )
+	if ( qConcept != nullptr )
 		updateAuxFeatures(qConcept->negFeatures);
 	if ( auxFeatures.hasSingletons() )
 		updateAuxFeatures(NCFeatures);
@@ -247,15 +247,15 @@ TBox :: performConsistencyCheck ( void )
 
 	buildSimpleCache();
 
-	TConcept* test = ( NCFeatures.hasSingletons() ? *i_begin() : NULL );
-	prepareFeatures ( test, NULL );
+	TConcept* test = ( NCFeatures.hasSingletons() ? *i_begin() : nullptr );
+	prepareFeatures ( test, nullptr );
 //	DlSatTester* Reasoner = getReasoner();
 	bool ret = false;
 
 	if ( test )
 	{
 		// make a cache for TOP if it is not there
-		if ( DLHeap.getCache(bpTOP) == NULL )
+		if ( DLHeap.getCache(bpTOP) == nullptr )
 			initConstCache(bpTOP);
 
 		ret = static_cast<NominalReasoner*>(nomReasoner)->consistentNominalCloud();
@@ -282,11 +282,11 @@ TBox :: performConsistencyCheck ( void )
 bool
 TBox :: isSatisfiable ( const TConcept* pConcept )
 {
-	fpp_assert ( pConcept != NULL );
+	fpp_assert ( pConcept != nullptr );
 
 	// check whether we already does the test
 	const modelCacheInterface* cache = DLHeap.getCache(pConcept->pName);
-	if ( cache != NULL )
+	if ( cache != nullptr )
 		return ( cache->getState() != csInvalid );
 
 	// logging the startpoint
@@ -297,7 +297,7 @@ TBox :: isSatisfiable ( const TConcept* pConcept )
 		LL << "\n";
 
 	// perform reasoning with a proper logical features
-	prepareFeatures ( pConcept, NULL );
+	prepareFeatures ( pConcept, nullptr );
 	bool result = getReasoner()->runSat ( pConcept->resolveId(), bpTOP );
 	// save cache
 	DLHeap.setCache ( pConcept->pName, getReasoner()->buildCacheByCGraph(result) );
@@ -322,7 +322,7 @@ TBox :: isSatisfiable ( const TConcept* pConcept )
 bool
 TBox :: isSubHolds ( const TConcept* pConcept, const TConcept* qConcept )
 {
-	fpp_assert ( pConcept != NULL && qConcept != NULL );
+	fpp_assert ( pConcept != nullptr && qConcept != nullptr );
 
 #ifdef FPP_DEBUG_PRINT_CURRENT_SUBSUMPTION
 	std::cerr << "Checking '" << pConcept->getName() << "' [= '" << qConcept->getName() << "'...";
@@ -369,7 +369,7 @@ bool TBox :: isSameIndividuals ( const TIndividual* a, const TIndividual* b )
 		return true;
 	if ( !isIndividual(a) || !isIndividual(b) )
 		throw EFaCTPlusPlus("Individuals are expected in the isSameIndividuals() query");
-	if ( a->node == NULL || b->node == NULL )	// fresh individuals couldn't be the same
+	if ( a->node == nullptr || b->node == nullptr )	// fresh individuals couldn't be the same
 		return false;
 	return a->getTaxVertex() == b->getTaxVertex();
 }
@@ -378,7 +378,7 @@ bool TBox :: isSameIndividuals ( const TIndividual* a, const TIndividual* b )
 bool
 TBox :: isDisjointRoles ( const TRole* R, const TRole* S )
 {
-	fpp_assert ( R != NULL && S != NULL );
+	fpp_assert ( R != nullptr && S != nullptr );
 
 	// object roles are disjoint with data roles
 	if ( R->isDataRole() != S->isDataRole() )
@@ -396,7 +396,7 @@ TBox :: isDisjointRoles ( const TRole* R, const TRole* S )
 bool
 TBox :: isIrreflexive ( const TRole* R )
 {
-	fpp_assert ( R != NULL );
+	fpp_assert ( R != nullptr );
 
 	// data roles are irreflexive
 	if ( R->isDataRole() )
@@ -413,7 +413,7 @@ TBox :: isIrreflexive ( const TRole* R )
 // load init values from config file
 void TBox :: readConfig ( const ifOptionSet* Options )
 {
-	fpp_assert ( Options != NULL );	// safety check
+	fpp_assert ( Options != nullptr );	// safety check
 
 // define a macro for registering boolean option
 #	define addBoolOption(name)				\
@@ -457,7 +457,7 @@ void TBox :: readConfig ( const ifOptionSet* Options )
 TConcept*
 TBox :: createQueryConcept ( const DLTree* desc )
 {
-	fpp_assert ( desc != NULL );
+	fpp_assert ( desc != nullptr );
 
 	// make sure that an old query is gone
 	clearQueryConcept();
@@ -496,7 +496,7 @@ TBox :: classifyQueryConcept ( void )
 	pQuery->initToldSubsumers();
 
 	// setup taxonomy behaviour flags
-	fpp_assert ( pTax != NULL );
+	fpp_assert ( pTax != nullptr );
 	pTaxCreator->setCompletelyDefined(false);	// non-primitive concept
 
 	// classify the concept
@@ -507,9 +507,9 @@ TBox :: classifyQueryConcept ( void )
 const DlCompletionTree*
 TBox :: buildCompletionTree ( const TConcept* pConcept )
 {
-	const DlCompletionTree* ret = NULL;
+	const DlCompletionTree* ret = nullptr;
 	// perform reasoning with a proper logical features
-	prepareFeatures ( pConcept, NULL );
+	prepareFeatures ( pConcept, nullptr );
 	// turn off caching of CT nodes during reasoning
 	setUseNodeCache(false);
 	// do the SAT test, save the CT if satisfiable
@@ -662,7 +662,7 @@ void TBox :: PrintConcept ( std::ostream& o, const TConcept* p ) const
 		// if you want to check correctness of translation (print following info)
 		// you should comment out RemoveExtraDescription() in TBox::Preprocess()
 		// but check hasSynonym assignment
-		if ( p->Description != NULL )
+		if ( p->Description != nullptr )
 			o << (p->isNonPrimitive() ? "\n-=" : "\n-[=") << p->Description;
 
 		o << "\n";

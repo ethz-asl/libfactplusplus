@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2014 by Dmitry Tsarkov
+Copyright (C) 2003-2015 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -55,7 +55,7 @@ public:		// interface
 		/// empty c'tor
 	TNAryQueue ( void ) : level(0)
 	{
-		Base.push_back(NULL);	// corresponds to level 0 -- never used
+		Base.push_back(nullptr);	// corresponds to level 0 -- never used
 		Base.push_back(new DLExpressionArray);
 	}
 		/// d'tor

@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2013 by Dmitry Tsarkov
+Copyright (C) 2003-2015 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -32,7 +32,7 @@ createRole ( TRole* R )
 	/// create inverse of role R
 DLTree* createInverse ( DLTree* R )
 {
-	fpp_assert ( R != NULL );	// sanity check
+	fpp_assert ( R != nullptr );	// sanity check
 	switch ( R->Element().getToken() )
 	{
 	case INV:	// R-- = R
@@ -53,7 +53,7 @@ DLTree* createInverse ( DLTree* R )
 	/// create negation of given formula
 DLTree* createSNFNot ( DLTree* C )
 {
-	fpp_assert ( C != NULL );	// sanity check
+	fpp_assert ( C != nullptr );	// sanity check
 	if ( C->Element() == BOTTOM )
 	{	// \not F = T
 		deleteTree(C);
@@ -79,9 +79,9 @@ DLTree* createSNFNot ( DLTree* C )
 DLTree* createSNFAnd ( DLTree* C, DLTree* D )
 {
 	// try to simplify conjunction
-	if ( C == NULL )	// single element
+	if ( C == nullptr )	// single element
 		return D;
-	if ( D == NULL )
+	if ( D == nullptr )
 		return C;
 
 	if ( C->Element() == TOP ||		// T\and D = D
@@ -118,7 +118,7 @@ containsC ( DLTree* C, DLTree* D )
 
 DLTree* createSNFReducedAnd ( DLTree* C, DLTree* D )
 {
-	if ( C == NULL || D == NULL )
+	if ( C == nullptr || D == nullptr )
 		return createSNFAnd ( C, D );
 
 	if ( D->Element().getToken() == CNAME && containsC ( C, D ) )
@@ -248,11 +248,11 @@ DLTree* createSNFGE ( unsigned int n, DLTree* R, DLTree* C )
 bool equalTrees ( const DLTree* t1, const DLTree* t2 )
 {
 	// empty trees are equal
-	if ( t1 == NULL && t2 == NULL )
+	if ( t1 == nullptr && t2 == nullptr )
 		return true;
 
 	// empty and non-empty trees are not equal
-	if ( t1 == NULL || t2 == NULL )
+	if ( t1 == nullptr || t2 == nullptr )
 		return false;
 
 	// non-empty trees are checked recursively
@@ -263,9 +263,9 @@ bool equalTrees ( const DLTree* t1, const DLTree* t2 )
 
 bool isSubTree ( const DLTree* t1, const DLTree* t2 )
 {
-	if ( t1 == NULL || t1->Element() == TOP )
+	if ( t1 == nullptr || t1->Element() == TOP )
 		return true;
-	if ( t2 == NULL )
+	if ( t2 == nullptr )
 		return false;
 	if ( t1->Element() == AND )
 		return isSubTree ( t1->Left(), t2 ) && isSubTree ( t1->Right(), t2 );
@@ -280,7 +280,7 @@ bool isSubTree ( const DLTree* t1, const DLTree* t2 )
 //********************************************************************************************
 bool isSNF ( const DLTree* t )
 {
-	if ( t == NULL )
+	if ( t == nullptr )
 		return true;
 
 	switch ( t -> Element (). getToken () )
@@ -322,22 +322,21 @@ const char* TokenName ( Token t )
 	case NOT:		return "not";
 	case EXISTS:	return "some";
 	case FORALL:	return "all";
-	case GE:	return "at-least";
-	case LE:	return "at-most";
+	case GE:		return "at-least";
+	case LE:		return "at-most";
 	case RCOMPOSITION: return "compose";
-	case SELF: return "self-ref";
-	case PROJINTO: return "project_into";
-	case PROJFROM: return "project_from";
-	default:
-		std::cerr << "token " << t << "has no name";
+	case SELF:		return "self-ref";
+	case PROJINTO:	return "project_into";
+	case PROJFROM:	return "project_from";
+	default:		std::cerr << "token " << t << "has no name";
 					fpp_unreachable();
-					return NULL;
+					return nullptr;
 	};
 }
 
 std::ostream& operator << ( std::ostream& o, const DLTree *form )
 {
-	if ( form == NULL )
+	if ( form == nullptr )
 		return o;
 
 	const TLexeme& lex = form->Element();

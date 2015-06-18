@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2014 by Dmitry Tsarkov
+Copyright (C) 2003-2015 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -44,7 +44,7 @@ TRestorer*
 CWDArray :: updateDepSet ( BipolarPointer bp, const DepSet& dep )
 {
 	if ( dep.empty() )
-		return NULL;
+		return nullptr;
 
 	for ( iterator i = Base.begin(), i_end = Base.end(); i < i_end; ++i )
 		if ( i->bp() == bp )
@@ -55,11 +55,11 @@ CWDArray :: updateDepSet ( BipolarPointer bp, const DepSet& dep )
 /*			if ( odep == i->getDep() )
 			{
 				delete ret;
-				ret = NULL;
+				ret = nullptr;
 			}*/
 			return ret;
 		}
-	return NULL;
+	return nullptr;
 }
 
 /// restore label to given LEVEL using given SS

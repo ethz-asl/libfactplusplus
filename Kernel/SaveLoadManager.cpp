@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2013 by Dmitry Tsarkov
+Copyright (C) 2013-2015 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -40,8 +40,8 @@ SaveLoadManager :: prepare ( bool input )
 	// close all previously open streams
 	delete ip;
 	delete op;
-	ip = NULL;
-	op = NULL;
+	ip = nullptr;
+	op = nullptr;
 
 	// open a new one
 	if ( input )
@@ -54,7 +54,7 @@ void
 SaveLoadManager :: registerE ( const TNamedEntry* p )
 {
 	neMap.add(const_cast<TNamedEntry*>(p));
-	if ( p->getEntity() != NULL )
+	if ( p->getEntity() != nullptr )
 		eMap.add(const_cast<TNamedEntity*>(p->getEntity()));
 }
 
@@ -64,7 +64,7 @@ SaveLoadManager :: clearContent ( void ) const
 {
 #ifdef WINDOWS
     SHFILEOPSTRUCT file_op = {
-        NULL,
+        nullptr,
         FO_DELETE,
         dirname.c_str(),	// FIXME!! fully qualified name expected
         "",

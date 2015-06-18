@@ -45,8 +45,8 @@ class DlCompletionGraph;
 #	define printBlockingStat(O) printBlockingStat1(O)
 #	define clearBlockingStat() clearBlockingStat1()
 #else
-#	define printBlockingStat(O) (void)nullptr
-#	define clearBlockingStat() (void)nullptr
+#	define printBlockingStat(O) (void)NULL
+#	define clearBlockingStat() (void)NULL
 #endif
 
 /// level of CTree's nominal node

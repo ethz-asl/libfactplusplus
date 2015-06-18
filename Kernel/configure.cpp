@@ -41,7 +41,7 @@ ConfSection* Configuration :: FindSection ( const std::string& pc ) const
 			return *i;
 
 	// can not find section
-	return (ConfSection*) NULL;
+	return nullptr;
 }
 
 ConfElem* ConfSection :: FindByName ( const std::string& name ) const
@@ -51,7 +51,7 @@ ConfElem* ConfSection :: FindByName ( const std::string& name ) const
 			return *i;
 
 	// can not find element in section
-	return (ConfElem*) NULL;
+	return nullptr;
 }
 
 
@@ -96,7 +96,7 @@ bool Configuration :: checkValue ( const std::string& Field )
 		return true;
 
 	Element = Section->FindByName(Field);
-	return Element == NULL;
+	return Element == nullptr;
 }
 
 // check if Section:Field exists;
@@ -106,7 +106,7 @@ bool Configuration :: checkValue ( const std::string& Sect, const std::string& F
 		return true;
 
 	Element = Section->FindByName(Field);
-	return Element == NULL;
+	return Element == nullptr;
 }
 
 // Manipulation part
@@ -126,7 +126,8 @@ int Configuration :: SplitLine ( char*& pName, char*& pValue )
 	while ( *p && isspace (*p) ) ++p;	// skip leading spaces
 	pName = p;
 	// skip the property name
-	for ( ; *p && *p != '='; ++p ) (void)NULL;
+	for ( ; *p && *p != '='; ++p )
+		;
 	if (!*p) return 1;
 
 	// we found '='
@@ -136,7 +137,8 @@ int Configuration :: SplitLine ( char*& pName, char*& pValue )
 	if ( p == Line && isspace (*p) ) return 2;
 
 	// here we have name
-	for ( p=pValue; *p && isspace (*p); ++p ) (void)NULL; // skip leading spaces
+	for ( p=pValue; *p && isspace (*p); ++p )
+		; // skip leading spaces
 	if (!*p) return 3;
 	pValue = p;
 

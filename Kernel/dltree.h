@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2014 by Dmitry Tsarkov
+Copyright (C) 2003-2015 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -39,7 +39,7 @@ extern bool equalTrees ( const DLTree* t1, const DLTree* t2 );
 extern bool isSubTree ( const DLTree* t1, const DLTree* t2 );
 
 	// builds a copy of the formula t
-inline DLTree* clone ( const DLTree* t ) { return (t==NULL) ? NULL : t->clone(); }
+inline DLTree* clone ( const DLTree* t ) { return (t==nullptr) ? nullptr : t->clone(); }
 
 	// check if DL tree is a concept constant
 inline bool isConst ( const DLTree* t )

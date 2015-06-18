@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2008-2014 by Dmitry Tsarkov
+Copyright (C) 2008-2015 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -90,7 +90,7 @@ ReasoningKernel :: Save ( SaveLoadManager& m )
 void
 ReasoningKernel :: Save ( void )
 {
-	fpp_assert ( pSLManager != NULL );
+	fpp_assert ( pSLManager != nullptr );
 	pSLManager->prepare(/*input=*/false);
 	Save(*pSLManager);
 }
@@ -117,7 +117,7 @@ ReasoningKernel :: Load ( SaveLoadManager& m )
 void
 ReasoningKernel :: Load ( void )
 {
-	fpp_assert ( pSLManager != NULL );
+	fpp_assert ( pSLManager != nullptr );
 	pSLManager->prepare(/*input=*/true);
 	Load(*pSLManager);
 }
@@ -186,7 +186,7 @@ ReasoningKernel :: LoadKB ( SaveLoadManager& m )
 	KBStatus status = (KBStatus)m.loadUInt();
 //	initCacheAndFlags();	// will be done
 	// no classification => no need to monitor
-	pMonitor = NULL;
+	pMonitor = nullptr;
 	if ( status == kbEmpty )
 		return;
 //	newKB();
@@ -449,7 +449,7 @@ VerifyDag ( const DLDag& dag, SaveLoadManager& m )
 static void
 SaveSingleCache ( SaveLoadManager& m, BipolarPointer bp, const modelCacheInterface* cache )
 {
-	if ( cache == NULL )
+	if ( cache == nullptr )
 		return;
 	m.saveSInt(bp);
 	m.saveUInt(cache->getCacheType());

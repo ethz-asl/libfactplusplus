@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2010-2014 by Dmitry Tsarkov
+Copyright (C) 2010-2015 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -119,7 +119,7 @@ protected:	// methods
 	void clearNameCache ( TNameSet<T>& ns )
 	{
 		for ( typename TNameSet<T>::iterator p = ns.begin(), p_end = ns.end(); p != p_end; ++p )
-			p->second->setEntry(NULL);
+			p->second->setEntry(nullptr);
 	}
 
 public:		// interface
@@ -306,10 +306,10 @@ public:		// interface
 	TDLDataTypeRestriction* RestrictedType ( TDLDataTypeExpression* type, const TDLFacetExpression* facet )
 	{
 		TDLDataTypeRestriction* ret = dynamic_cast<TDLDataTypeRestriction*>(type);
-		if ( ret == NULL )
+		if ( ret == nullptr )
 		{	// get a type and build an appropriate restriction of it
 			TDLDataTypeName* hostType = dynamic_cast<TDLDataTypeName*>(type);
-			fpp_assert ( hostType != NULL );
+			fpp_assert ( hostType != nullptr );
 			ret = record(new TDLDataTypeRestriction(hostType));
 		}
 		ret->add(facet);

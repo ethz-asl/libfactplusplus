@@ -24,10 +24,10 @@ void TConcept :: clear ( void )
 	// TNamedEntry clean
 	setId(0);
 	// ClassifiableEntry clean
-	taxVertex = NULL;
+	taxVertex = nullptr;
 	toldSubsumers.clear();
 	setCompletelyDefined(false);
-	pSynonym = NULL;
+	pSynonym = nullptr;
 	// TConcept clean
 	removeDescription();
 	setPrimitive();
@@ -100,7 +100,7 @@ CTTag TConcept :: determineClassTag ( void )
 bool
 TConcept :: hasSelfInDesc ( const DLTree* t ) const
 {
-	if ( t == NULL )
+	if ( t == nullptr )
 		return false;
 
 	switch ( t->Element().getToken() )
@@ -129,8 +129,8 @@ TConcept :: hasSelfInDesc ( const DLTree* t ) const
 DLTree*
 TConcept :: replaceSelfWithConst ( const DLTree* t ) const
 {
-	if ( t == NULL )
-		return NULL;
+	if ( t == nullptr )
+		return nullptr;
 
 	switch ( t->Element().getToken() )
 	{
@@ -163,7 +163,7 @@ TConcept :: replaceSelfWithConst ( const DLTree* t ) const
 bool TConcept :: initToldSubsumers ( const DLTree* desc, RoleSSet& RolesProcessed )
 {
 	// no description => nothing to do (and yes, it is told)
-	if ( desc == NULL )
+	if ( desc == nullptr )
 		return true;
 
 	switch ( desc->Element().getToken() )
@@ -198,7 +198,7 @@ bool TConcept :: initToldSubsumers ( const DLTree* desc, RoleSSet& RolesProcesse
 void TConcept :: SearchTSbyRole ( const TRole* R, RoleSSet& RolesProcessed )
 {
 	const DLTree* Domain = R->getTDomain();
-	if ( Domain == NULL || isConst(Domain) )
+	if ( Domain == nullptr || isConst(Domain) )
 		return;
 
 	// don't process the same role twice

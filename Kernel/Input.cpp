@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2014 by Dmitry Tsarkov
+Copyright (C) 2003-2015 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -37,7 +37,7 @@ void TBox :: addSubsumeAxiom ( DLTree* sub, DLTree* sup )
 	if ( isCN(sup) )
 	{
 		sup = applyAxiomCToCN ( sub, sup );
-		if ( sup == NULL )
+		if ( sup == nullptr )
 			return;
 	}
 
@@ -45,7 +45,7 @@ void TBox :: addSubsumeAxiom ( DLTree* sub, DLTree* sup )
 	if ( isCN(sub) )
 	{
 		sub = applyAxiomCNToC ( sub, sup );
-		if ( sub == NULL )
+		if ( sub == nullptr )
 			return;
 	}
 
@@ -61,7 +61,7 @@ DLTree*
 TBox :: applyAxiomCToCN ( DLTree* D, DLTree* CN )
 {
 	TConcept* C = resolveSynonym(getCI(CN));
-	if ( C == NULL )	// not applicable
+	if ( C == nullptr )	// not applicable
 		return CN;
 
 	// D [= BOTTOM: transform later as GCI
@@ -83,7 +83,7 @@ TBox :: applyAxiomCToCN ( DLTree* D, DLTree* CN )
 
 	// success
 	deleteTree(CN);
-	return NULL;
+	return nullptr;
 }
 
 /// tries to apply axiom CN [= D; @return NULL if applicable or new CN
@@ -91,7 +91,7 @@ DLTree*
 TBox :: applyAxiomCNToC ( DLTree* CN, DLTree* D )
 {
 	TConcept* C = resolveSynonym(getCI(CN));
-	if ( C == NULL )	// not applicable
+	if ( C == nullptr )	// not applicable
 		return CN;
 
 	// TOP [= D: transform later as GCI
@@ -111,7 +111,7 @@ TBox :: applyAxiomCNToC ( DLTree* CN, DLTree* D )
 
 	// success
 	deleteTree(CN);
-	return NULL;
+	return nullptr;
 }
 
 /// add an axiom CN [= E for defined CN (CN=D already in base)
@@ -238,7 +238,7 @@ TBox :: addNonprimitiveDefinition ( TConcept* C, DLTree* rhs )
 	}
 
 	// can't have C=D where C is a nominal and D is a concept
-	if ( C->isSingleton() && D != NULL && !D->isSingleton() )
+	if ( C->isSingleton() && D != nullptr && !D->isSingleton() )
 		return false;
 
 	// check the case whether C=RHS or C [= \top

@@ -231,7 +231,7 @@ bool DlSatTester :: commonTacticBodySingleton ( const DLVertex& cur )
 	encounterNominal = true;
 
 	const TIndividual* C = static_cast<const TIndividual*>(cur.getConcept());
-	fpp_assert ( C->node != NULL );
+	fpp_assert ( C->node != nullptr );
 
 	// if node for C was purged due to merge -- find proper one
 	DepSet dep = curConcept.getDep();
@@ -345,7 +345,7 @@ bool DlSatTester :: processOrEntry ( void )
 	const BCOr* bcOr = static_cast<BCOr*>(bContext);
 	BCOr::or_iterator p = bcOr->orBeg(), p_end = bcOr->orCur();
 	BipolarPointer C = *p_end;
-	const char* reason = NULL;
+	const char* reason = nullptr;
 	DepSet dep;
 
 	if ( bcOr->isLastOrEntry() )
@@ -556,7 +556,7 @@ bool DlSatTester :: commonTacticBodySome ( const DLVertex& cur )	// for ER.C con
 
 	if ( rFunc )	// functional role found => add new concept to existing node
 	{
-		const DlCompletionTreeArc* functionalArc = NULL;
+		const DlCompletionTreeArc* functionalArc = nullptr;
 		DepSet newDep;
 
 		// check if we have an (R)-successor or (R-)-predecessor
@@ -565,7 +565,7 @@ bool DlSatTester :: commonTacticBodySome ( const DLVertex& cur )	// for ER.C con
 				functionalArc = *pr;
 
 		// perform actions if such arc was found
-		if ( functionalArc != NULL )
+		if ( functionalArc != nullptr )
 		{
 			if ( LLM.isWritable(llGTA) )
 				LL << " f(" << rFuncRestriction << "):";
@@ -627,7 +627,7 @@ bool DlSatTester :: commonTacticBodyValue ( const TRole* R, const TIndividual* n
 
 	incStat(nSomeCalls);
 
-	fpp_assert ( nom->node != NULL );
+	fpp_assert ( nom->node != nullptr );
 
 	// if node for NOM was purged due to merge -- find proper one
 	DlCompletionTree* realNode = nom->node->resolvePBlocker(dep);
@@ -940,12 +940,12 @@ bool DlSatTester :: commonTacticBodyLE ( const DLVertex& cur )	// for <=nR.C con
 
 	if ( !isFirstBranchCall() )
 	{
-		if ( dynamic_cast<BCNN*>(bContext) != NULL )
+		if ( dynamic_cast<BCNN*>(bContext) != nullptr )
 			return commonTacticBodyNN(cur);	// after application <=-rule would be checked again
-		if ( dynamic_cast<BCLE<DlCompletionTreeArc>*>(bContext) != NULL )
+		if ( dynamic_cast<BCLE<DlCompletionTreeArc>*>(bContext) != nullptr )
 			needInit = false;	// clash in LE-rule: skip the initial checks
 		else	// the only possible case is choose-rule; in this case just continue
-			fpp_assert ( dynamic_cast<BCChoose*>(bContext) != NULL );
+			fpp_assert ( dynamic_cast<BCChoose*>(bContext) != nullptr );
 	}
 	else	// if we are here that it IS first LE call
 		if ( isQuickClashLE(cur) )
@@ -1128,10 +1128,10 @@ DlSatTester :: processTopRoleLE ( const DLVertex& cur )	// for <=nR.C concepts
 
 	if ( !isFirstBranchCall() )
 	{
-		if ( dynamic_cast<BCLE<DlCompletionTree>*>(bContext) != NULL )
+		if ( dynamic_cast<BCLE<DlCompletionTree>*>(bContext) != nullptr )
 			needInit = false;	// clash in LE-rule: skip the initial checks
 		else	// the only possible case is choose-rule; in this case just continue
-			fpp_assert ( dynamic_cast<BCChoose*>(bContext) != NULL );
+			fpp_assert ( dynamic_cast<BCChoose*>(bContext) != nullptr );
 	}
 	else	// if we are here that it IS first LE call
 		if ( isQuickClashLE(cur) )
@@ -1253,7 +1253,7 @@ bool DlSatTester :: createDifferentNeighbours ( const TRole* R, BipolarPointer C
 													   unsigned int n, CTNominalLevel level )
 {
 	// create N new edges with the same IR
-	DlCompletionTreeArc* pA = NULL;
+	DlCompletionTreeArc* pA = nullptr;
 	CGraph.initIR();
 	for ( unsigned int i = 0; i < n; ++i )
 	{

@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2014 by Dmitry Tsarkov
+Copyright (C) 2003-2015 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -26,7 +26,7 @@ void TBox :: buildDAG ( void )
 
 	// init concept indexing
 	nC = 1;	// start with 1 to make index 0 an indicator of "not processed"
-	ConceptMap.push_back(NULL);
+	ConceptMap.push_back(nullptr);
 
 	// make fresh concept and datatype
 	concept2dag(pTemp);
@@ -130,7 +130,7 @@ BipolarPointer TBox :: addDataExprToHeap ( TDataEntry* p )
 	BipolarPointer hostBP = bpTOP;
 
 	// register host type first (if any)
-	if ( p->getType() != NULL )
+	if ( p->getType() != nullptr )
 		hostBP = addDataExprToHeap(const_cast<TDataEntry*>(p->getType()));
 
 	// create new DAG entry for the data value
@@ -160,7 +160,7 @@ void TBox :: addConceptToHeap ( TConcept* pConcept )
 	BipolarPointer desc = bpTOP;
 
 	// translate body of a concept
-	if ( pConcept->Description != NULL )	// complex concept
+	if ( pConcept->Description != nullptr )	// complex concept
 		desc = tree2dag(pConcept->Description);
 	else			// only primivive concepts here
 		fpp_assert ( pConcept->isPrimitive() );
@@ -174,7 +174,7 @@ void TBox :: addConceptToHeap ( TConcept* pConcept )
 
 BipolarPointer TBox :: tree2dag ( const DLTree* t )
 {
-	if ( t == NULL )
+	if ( t == nullptr )
 		return bpINVALID;	// invalid value
 
 	const TLexeme& cur = t->Element();

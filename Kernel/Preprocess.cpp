@@ -160,7 +160,7 @@ void TBox :: Preprocess ( void )
 static bool
 replaceSynonymsFromTree ( DLTree* desc )
 {
-	if ( desc == NULL )
+	if ( desc == nullptr )
 		return false;
 
 	if ( isName(desc) )
@@ -243,14 +243,14 @@ void TBox :: transformToldCycles ( void )
 
 TConcept* TBox :: checkToldCycle ( TConcept* p )
 {
-	fpp_assert ( p != NULL );	// safety check
+	fpp_assert ( p != nullptr );	// safety check
 
 	// resolve synonym (if happens) to prevent cases like A[=B[=C[=A, A[=D[=B
 	p = resolveSynonym(p);
 
 	// no reason to process TOP here
 	if ( p == pTop )
-		return NULL;
+		return nullptr;
 
 	// if we found a cycle...
 	if ( CInProcess.find(p) != CInProcess.end() )
@@ -262,10 +262,10 @@ TConcept* TBox :: checkToldCycle ( TConcept* p )
 	if ( isRelevant(p) )
 	{
 //		std::cout << "Already checked: " << p->getName() << std::endl;
-		return NULL;
+		return nullptr;
 	}
 
-	TConcept* ret = NULL;
+	TConcept* ret = nullptr;
 
 	// add concept in processing
 	CInProcess.insert(p);
@@ -276,7 +276,7 @@ redo:
 
 	for ( auto r: p->told() )
 		// if cycle was detected
-		if ( (ret = checkToldCycle(static_cast<TConcept*>(r))) != NULL )
+		if ( (ret = checkToldCycle(static_cast<TConcept*>(r))) != nullptr )
 		{
 			if ( ret == p )
 			{
@@ -292,7 +292,7 @@ redo:
 				// now p is a representative for all the synonyms
 
 				// fill the description
-				DLTree* desc = NULL;
+				DLTree* desc = nullptr;
 				for ( q = ToldSynonyms.begin(); q < q_end; ++q )
 					if ( *q != p )	// make it a synonym of RET, save old desc
 					{
@@ -324,7 +324,7 @@ redo:
 					p->dropRelevant(relevance);
 				}
 
-				ret = NULL;
+				ret = nullptr;
 				goto redo;
 			}
 			else
@@ -407,7 +407,7 @@ TBox :: transformSingletonWithSP ( TConcept* p )
 bool
 TBox :: isReferenced ( TConcept* C, DLTree* tree, ConceptSet& processed )
 {
-	fpp_assert ( tree != NULL );
+	fpp_assert ( tree != nullptr );
 	switch ( tree->Element().getToken() )
 	{
 	// names

@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2014 by Dmitry Tsarkov
+Copyright (C) 2003-2015 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -66,7 +66,7 @@ DLDag :: removeQuery ( void )
 
 void DLDag :: readConfig ( const ifOptionSet* Options )
 {
-	fpp_assert ( Options != NULL );	// safety check
+	fpp_assert ( Options != nullptr );	// safety check
 
 	orSortSat = Options->getText ( "orSortSat" ).c_str();
 	orSortSub = Options->getText ( "orSortSub" ).c_str();

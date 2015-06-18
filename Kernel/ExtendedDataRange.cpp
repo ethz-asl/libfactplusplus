@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2013 by Dmitry Tsarkov
+Copyright (C) 2013-2015 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -81,8 +81,8 @@ ReasoningKernel :: getDataRelatedIndividuals ( TDRoleExpr* R, TDRoleExpr* S, int
 	for ( IndVec::iterator q = Individuals.begin(), q_end = Individuals.end(); q != q_end; ++q )
 	{
 		const TIndividual* ind = getIndividual ( *q, "individual name expected in getDataRelatedIndividuals()" );
-		const DlCompletionTree* vR = NULL;
-		const DlCompletionTree* vS = NULL;
+		const DlCompletionTree* vR = nullptr;
+		const DlCompletionTree* vS = nullptr;
 		for ( DlCompletionTree::const_edge_iterator p = ind->node->begin(), p_end = ind->node->end(); p != p_end; ++p )
 		{
 			const DlCompletionTreeArc* edge = *p;

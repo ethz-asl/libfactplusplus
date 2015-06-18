@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2011-2013 by Dmitry Tsarkov
+Copyright (C) 2011-2015 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -55,10 +55,10 @@ KnowledgeExplorer :: addC ( const TDLExpression* e )
 {
 	// check named concepts
 	const TDLConceptName* C = dynamic_cast<const TDLConceptName*>(e);
-	if ( C != NULL )
+	if ( C != nullptr )
 	{
 		for ( EE2Map<TDLConceptName>::iterator p = Cs.begin(C), p_end = Cs.end(C); p != p_end; ++p )
-			if ( unlikely(*p == NULL) )
+			if ( unlikely(*p == nullptr) )
 				std::cerr << "Null found while processing class " << C->getName() << "\n";
 			else
 				Concepts.push_back(*p);
@@ -66,10 +66,10 @@ KnowledgeExplorer :: addC ( const TDLExpression* e )
 	}
 	// check named individuals
 	const TDLIndividualName* I = dynamic_cast<const TDLIndividualName*>(e);
-	if ( I != NULL )
+	if ( I != nullptr )
 	{
 		for ( EE2Map<TDLIndividualName>::iterator p = Is.begin(I), p_end = Is.end(I); p != p_end; ++p )
-			if ( unlikely(*p == NULL) )
+			if ( unlikely(*p == nullptr) )
 				std::cerr << "Null found while processing individual " << I->getName() << "\n";
 			else
 				Concepts.push_back(*p);

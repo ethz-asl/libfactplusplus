@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2014 by Dmitry Tsarkov
+Copyright (C) 2003-2015 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -136,7 +136,7 @@ public:		// flags interface
 public:
 		/// empty c'tor
 	TaxonomyVertex ( void )
-		: sample(NULL)
+		: sample(nullptr)
 		, inUse(true)
 	{
 		initFlags();
@@ -190,7 +190,7 @@ public:
 	{
 		Links[0].clear();
 		Links[1].clear();
-		sample = NULL;
+		sample = nullptr;
 		initFlags();
 	}
 		/// get RO access to the primer
@@ -221,7 +221,7 @@ public:
 			for ( iterator r = begin(false), r_end = end(false); r != r_end; ++r )
 				if ( *q == *r )	// found such vertex
 					return *q;
-		return NULL;
+		return nullptr;
 	}
 		/// Remove link to P from neighbours (given by flag). @return true if such link was removed
 	bool removeLink ( bool upDirection, TaxonomyVertex* p );

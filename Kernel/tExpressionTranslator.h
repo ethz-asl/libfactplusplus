@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2010-2012 by Dmitry Tsarkov
+Copyright (C) 2010-2015 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -45,16 +45,16 @@ protected:	// methods
 		return entry;
 	}
 		/// @return true iff ENTRY is not in signature
-	bool nc ( const TNamedEntity* entity ) const { return unlikely(sig != NULL) && !sig->contains(entity); }
+	bool nc ( const TNamedEntity* entity ) const { return unlikely(sig != nullptr) && !sig->contains(entity); }
 
 public:		// interface
 		/// empty c'tor
-	TExpressionTranslator ( TBox& kb ) : tree(NULL), KB(kb), sig(NULL) {}
+	TExpressionTranslator ( TBox& kb ) : tree(nullptr), KB(kb), sig(nullptr) {}
 		/// empty d'tor
 	virtual ~TExpressionTranslator ( void ) { deleteTree(tree); }
 
 		/// get (single) access to the tree
-	operator DLTree* ( void ) { DLTree* ret = tree; tree = NULL; return ret; }
+	operator DLTree* ( void ) { DLTree* ret = tree; tree = nullptr; return ret; }
 		/// set internal signature to a given signature S
 	void setSignature ( const TSignature* s ) { sig = s; }
 
@@ -69,7 +69,7 @@ public:		// visitor interface
 		else
 		{
 			TNamedEntry* entry = expr.getEntry();
-			if ( entry == NULL )
+			if ( entry == nullptr )
 				entry = matchEntry ( KB.getConcept(expr.getName()), &expr );
 			tree = createEntry(CNAME,entry);
 		}
@@ -211,7 +211,7 @@ public:		// visitor interface
 	virtual void visit ( const TDLIndividualName& expr )
 	{
 		TNamedEntry* entry = expr.getEntry();
-		if ( entry == NULL )
+		if ( entry == nullptr )
 			entry = matchEntry ( KB.getIndividual(expr.getName()), &expr );
 		tree = createEntry(INAME,entry);
 	}
@@ -228,7 +228,7 @@ public:		// visitor interface
 		else
 		{
 			role = expr.getEntry();
-			if ( role == NULL )
+			if ( role == nullptr )
 				role = matchEntry ( RM->ensureRoleName(expr.getName()), &expr );
 		}
 		tree = createEntry(RNAME,role);
@@ -280,7 +280,7 @@ public:		// visitor interface
 		else
 		{
 			role = expr.getEntry();
-			if ( role == NULL )
+			if ( role == nullptr )
 				role = matchEntry ( RM->ensureRoleName(expr.getName()), &expr );
 		}
 		tree = createEntry(DNAME,role);

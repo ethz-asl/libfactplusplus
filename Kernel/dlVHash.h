@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2006-2009 by Dmitry Tsarkov
+Copyright (C) 2006-2015 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -16,19 +16,19 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef _DLVHASH_H
-#define _DLVHASH_H
+#ifndef DLVHASH_H
+#define DLVHASH_H
 
 #include <map>
 #include <list>
 #include "dlVertex.h"
 #include "tRole.h"
 
-/// naive and simple hash table for DL Verteces
+/// naive and simple hash table for DL Vertices
 class dlVHashTable
 {
 protected:	// types
-		/// hashed IDs of the DL verteces
+		/// hashed IDs of the DL vertices
 	typedef std::list<BipolarPointer> HashLeaf;
 		/// hash table by itself
 	typedef std::map<BipolarPointer, HashLeaf> HashTable;
@@ -44,14 +44,13 @@ protected:	// methods
 	static BipolarPointer hash ( const DLVertex& v )
 	{
 		BipolarPointer sum = 0;
-		if ( v.getRole() != NULL )
+		if ( v.getRole() != nullptr )
 			sum += v.getRole()->getId();
-		if ( v.getProjRole() != NULL )
+		if ( v.getProjRole() != nullptr )
 			sum += v.getProjRole()->getId();
 		sum += v.getC();
 		sum += v.getNumberLE();
-		for ( DLVertex::const_iterator p = v.begin(), p_end = v.end(); p < p_end; ++p )
-			sum += *p;
+		std::for_each ( v.begin(), v.end(), [&] (auto arg) { sum += arg; } );
 		return sum;
 	}
 

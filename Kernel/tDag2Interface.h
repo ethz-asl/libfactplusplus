@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2011-2014 by Dmitry Tsarkov
+Copyright (C) 2011-2015 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -55,8 +55,8 @@ public:		// interface
 	TDag2Interface ( const DLDag& dag, TExpressionManager* manager )
 		: Dag(dag)
 		, Manager(manager)
-		, TransC(dag.size(),NULL)
-		, TransD(dag.size(),NULL)
+		, TransC(dag.size(),nullptr)
+		, TransD(dag.size(),nullptr)
 		{}
 		/// empty d'tor: every newly created thing will be destroyed by manager
 	~TDag2Interface ( void ) {}
@@ -72,8 +72,8 @@ public:		// interface
 		if ( unlikely(ds>ts) )
 			for ( ; ts != ds; ++ts )
 			{
-				TransC[ts] = NULL;
-				TransD[ts] = NULL;
+				TransC[ts] = nullptr;
+				TransD[ts] = nullptr;
 			}
 	}
 		/// get concept expression corresponding index of vertex
@@ -82,7 +82,7 @@ public:		// interface
 		if ( isNegative(p) )
 			return Manager->Not(getCExpr(inverse(p)));
 		unsigned int i = (unsigned int)p;
-		if ( TransC[i] == NULL )
+		if ( TransC[i] == nullptr )
 			TransC[i] = buildCExpr(Dag[p]);
 		return TransC[i];
 	}
@@ -92,7 +92,7 @@ public:		// interface
 		if ( isNegative(p) )
 			return Manager->DataNot(getDExpr(inverse(p)));
 		unsigned int i = (unsigned int)p;
-		if ( TransD[i] == NULL )
+		if ( TransD[i] == nullptr )
 			TransD[i] = buildDExpr(Dag[p]);
 		return TransD[i];
 	}

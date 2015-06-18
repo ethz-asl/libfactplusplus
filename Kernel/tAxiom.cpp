@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2014 by Dmitry Tsarkov
+Copyright (C) 2003-2015 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -103,7 +103,7 @@ TAxiom :: simplifyCN ( TBox& KB ) const
 			return simplifyNegNP(p);
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 TAxiom*
@@ -113,7 +113,7 @@ TAxiom :: simplifyForall ( TBox& KB ) const
 		if ( InAx::isAbsForall(*i) )
 			return simplifyForall ( *i, KB );
 
-	return NULL;
+	return nullptr;
 }
 
 TAxiom*
@@ -123,7 +123,7 @@ TAxiom :: simplifySForall ( TBox& KB ) const
 		if ( InAx::isSimpleForall(*i) )
 			return simplifyForall ( *i, KB );
 
-	return NULL;
+	return nullptr;
 }
 
 TAxiom*
@@ -202,7 +202,7 @@ TAxiom :: absorbIntoBottom ( void ) const
 bool
 TAxiom :: absorbIntoTop ( TBox& KB ) const
 {
-	TConcept* C = NULL;
+	TConcept* C = nullptr;
 
 	// check whether the axiom is Top [= C
 	for ( const_iterator p = begin(), p_end = end(); p != p_end; ++p )
@@ -210,7 +210,7 @@ TAxiom :: absorbIntoTop ( TBox& KB ) const
 			continue;
 		else if ( InAx::isPosCN(*p) )	// CN found
 		{
-			if ( C != NULL )	// more than one concept
+			if ( C != nullptr )	// more than one concept
 				return false;
 			C = InAx::getConcept((*p)->Left());
 			if ( C->isSingleton() )	// doesn't work with nominals
@@ -219,7 +219,7 @@ TAxiom :: absorbIntoTop ( TBox& KB ) const
 		else
 			return false;
 
-	if ( C == NULL )
+	if ( C == nullptr )
 		return false;
 
 	// make an absorption
@@ -242,7 +242,7 @@ bool
 TAxiom :: absorbIntoConcept ( TBox& KB ) const
 {
 	WorkSet Cons;
-	DLTree* bestConcept = NULL;
+	DLTree* bestConcept = nullptr;
 
 	// finds all primitive concept names
 	for ( const_iterator p = begin(), p_end = end(); p != p_end; ++p )
@@ -260,7 +260,7 @@ TAxiom :: absorbIntoConcept ( TBox& KB ) const
 
 	Stat::SAbsCApply();
 	// FIXME!! as for now: just take the 1st concept name
-	if ( bestConcept == NULL )
+	if ( bestConcept == nullptr )
 		bestConcept = Cons[0];
 
 	// normal concept absorption
@@ -297,13 +297,13 @@ TAxiom :: absorbIntoNegConcept ( TBox& KB ) const
 {
 	WorkSet Cons;
 	TConcept* Concept;
-	const DLTree* bestConcept = NULL;
+	const DLTree* bestConcept = nullptr;
 
 	// finds all primitive negated concept names without description
 	for ( const_iterator p = begin(), p_end = end(); p != p_end; ++p )
 		if ( (*p)->Element().getToken() == NOT && isName((*p)->Left())
 			 && (Concept = InAx::getConcept((*p)->Left()))->isPrimitive()
-			 && !Concept->isSingleton() && Concept->Description == NULL )
+			 && !Concept->isSingleton() && Concept->Description == nullptr )
 		{
 			Stat::SAbsNAttempt();
 			Cons.push_back(*p);
@@ -315,7 +315,7 @@ TAxiom :: absorbIntoNegConcept ( TBox& KB ) const
 
 	Stat::SAbsNApply();
 	// FIXME!! as for now: just take the 1st concept name
-	if ( bestConcept == NULL )
+	if ( bestConcept == nullptr )
 		bestConcept = Cons[0];
 
 	// normal concept absorption
@@ -345,7 +345,7 @@ bool
 TAxiom :: absorbIntoDomain ( void ) const
 {
 	WorkSet Cons;
-	const DLTree* bestSome = NULL;
+	const DLTree* bestSome = nullptr;
 
 	// find all forall concepts
 	for ( const_iterator p = begin(), p_end = end(); p != p_end; ++p )
@@ -370,7 +370,7 @@ TAxiom :: absorbIntoDomain ( void ) const
 	Stat::SAbsRApply();
 	TRole* Role;
 
-	if ( bestSome != NULL )
+	if ( bestSome != nullptr )
 		Role = resolveRole(bestSome->Left()->Left());
 	else
 		// FIXME!! as for now: just take the 1st role name

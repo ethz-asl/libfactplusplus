@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2012 by Dmitry Tsarkov
+Copyright (C) 2003-2015 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -55,7 +55,7 @@ protected:	// methods
 		try
 		{
 			TreeDeleter i = e(I);
-			if ( i == NULL )
+			if ( i == nullptr )
 				throw EFaCTPlusPlus(reason);
 			return static_cast<TIndividual*>(kb.getCI(i));
 		}
@@ -67,18 +67,17 @@ protected:	// methods
 		/// ensure that the expression EXPR has its named entities linked to the KB ones
 	void ensureNames ( const TDLExpression* Expr )
 	{
-		fpp_assert ( Expr != NULL );	// FORNOW
+		fpp_assert ( Expr != nullptr );	// FORNOW
 	}
 		/// prepare arguments for the [begin,end) interval
-	template<class Iterator>
-	void prepareArgList ( Iterator begin, Iterator end )
+	template<class Collection>
+	void prepareArgList ( Collection argList )
 	{
 		ArgList.clear();
-		for ( ; begin != end; ++begin )
-		{
-			ensureNames(*begin);
-			ArgList.push_back(e(*begin));
-		}
+		std::for_each ( std::begin(argList), std::end(argList), [&] (auto expr) {
+			ensureNames(expr);
+			ArgList.push_back(e(expr));
+		});
 	}
 
 public:		// visitor interface
@@ -92,18 +91,18 @@ public:		// visitor interface
 
 	virtual void visit ( const TDLAxiomEquivalentConcepts& axiom )
 	{
-		prepareArgList(axiom.begin(),axiom.end());
+		prepareArgList(axiom);
 		kb.processEquivalentC(ArgList.begin(),ArgList.end());
 	}
 	virtual void visit ( const TDLAxiomDisjointConcepts& axiom )
 	{
-		prepareArgList(axiom.begin(),axiom.end());
+		prepareArgList(axiom);
 		kb.processDisjointC(ArgList.begin(),ArgList.end());
 	}
 	virtual void visit ( const TDLAxiomDisjointUnion& axiom )
 	{
 		// first make a disjoint axiom
-		prepareArgList(axiom.begin(),axiom.end());
+		prepareArgList(axiom);
 		kb.processDisjointC(ArgList.begin(),ArgList.end());
 		// now define C as a union-of axiom
 		ArgList.clear();
@@ -117,37 +116,37 @@ public:		// visitor interface
 	}
 	virtual void visit ( const TDLAxiomEquivalentORoles& axiom )
 	{
-		prepareArgList(axiom.begin(),axiom.end());
+		prepareArgList(axiom);
 		kb.processEquivalentR(ArgList.begin(),ArgList.end());
 	}
 	virtual void visit ( const TDLAxiomEquivalentDRoles& axiom )
 	{
-		prepareArgList(axiom.begin(),axiom.end());
+		prepareArgList(axiom);
 		kb.processEquivalentR(ArgList.begin(),ArgList.end());
 	}
 	virtual void visit ( const TDLAxiomDisjointORoles& axiom )
 	{
-		prepareArgList(axiom.begin(),axiom.end());
+		prepareArgList(axiom);
 		kb.processDisjointR(ArgList.begin(),ArgList.end());
 	}
 	virtual void visit ( const TDLAxiomDisjointDRoles& axiom )
 	{
-		prepareArgList(axiom.begin(),axiom.end());
+		prepareArgList(axiom);
 		kb.processDisjointR(ArgList.begin(),ArgList.end());
 	}
 	virtual void visit ( const TDLAxiomSameIndividuals& axiom )
 	{
-		prepareArgList(axiom.begin(),axiom.end());
+		prepareArgList(axiom);
 		kb.processSame(ArgList.begin(),ArgList.end());
 	}
 	virtual void visit ( const TDLAxiomDifferentIndividuals& axiom )
 	{
-		prepareArgList(axiom.begin(),axiom.end());
+		prepareArgList(axiom);
 		kb.processDifferent(ArgList.begin(),ArgList.end());
 	}
 	virtual void visit ( const TDLAxiomFairnessConstraint& axiom )
 	{
-		prepareArgList(axiom.begin(),axiom.end());
+		prepareArgList(axiom);
 		kb.setFairnessConstraint(ArgList.begin(),ArgList.end());
 	}
 
@@ -385,9 +384,10 @@ public:		// interface
 		/// load ontology to a given KB
 	virtual void visitOntology ( TOntology& ontology )
 	{
-		for ( TOntology::iterator p = ontology.begin(), p_end = ontology.end(); p < p_end; ++p )
-			if ( (*p)->isUsed() )
-				(*p)->accept(*this);
+		std::for_each ( ontology.begin(), ontology.end(), [&] (auto axiom) {
+			if ( axiom->isUsed() )
+				axiom->accept(*this);
+		});
 
 		kb.finishLoading();
 	}

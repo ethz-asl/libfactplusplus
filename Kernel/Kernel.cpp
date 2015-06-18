@@ -37,21 +37,21 @@ static bool KernelFirstRun = true;
 //#define FPP_DEBUG_PRINT_RELATED_PROGRESS
 
 ReasoningKernel :: ReasoningKernel ( void )
-	: pTBox (NULL)
-	, pET(NULL)
-	, KE(NULL)
-	, AD(NULL)
-	, ModSyn(NULL)
-	, ModSynCount(NULL)
-	, ModSem(NULL)
-	, JNICache(NULL)
-	, pSLManager(NULL)
-	, pMonitor(NULL)
+	: pTBox(nullptr)
+	, pET(nullptr)
+	, KE(nullptr)
+	, AD(nullptr)
+	, ModSyn(nullptr)
+	, ModSynCount(nullptr)
+	, ModSem(nullptr)
+	, JNICache(nullptr)
+	, pSLManager(nullptr)
+	, pMonitor(nullptr)
 	, OpTimeout(0)
 	, verboseOutput(false)
 	, useUndefinedNames(true)
-	, cachedQuery(NULL)
-	, cachedQueryTree(NULL)
+	, cachedQuery(nullptr)
+	, cachedQueryTree(nullptr)
 	, reasoningFailed(false)
 	, NeedTracing(false)
 	, ignoreExprCache(false)
@@ -89,19 +89,19 @@ void
 ReasoningKernel :: clearTBox ( void )
 {
 	delete pTBox;
-	pTBox = NULL;
+	pTBox = nullptr;
 	delete pET;
-	pET = NULL;
+	pET = nullptr;
 	delete KE;
-	KE = NULL;
+	KE = nullptr;
 	delete AD;
-	AD = NULL;
+	AD = nullptr;
 	delete ModSem;
-	ModSem = NULL;
+	ModSem = nullptr;
 	delete ModSyn;
-	ModSyn = NULL;
+	ModSyn = nullptr;
 	delete ModSynCount;
-	ModSynCount = NULL;
+	ModSynCount = nullptr;
 	// during preprocessing the TBox names were cached. clear that cache now.
 	getExpressionManager()->clearNameCache();
 }
@@ -110,7 +110,7 @@ bool
 ReasoningKernel :: needForceReload ( void ) const
 {
 	// if no TBox known -- reload
-	if ( pTBox == NULL )
+	if ( pTBox == nullptr )
 		return true;
 	// if ontology wasn't change -- no need to reload
 	if ( !Ontology.isChanged() )
@@ -131,7 +131,7 @@ ReasoningKernel :: forceReload ( void )
 
 	// Protege (as the only user of non-trivial monitors with reload) does not accept multiple usage of a monitor
 	// so switch it off after the 1st usage
-	pMonitor = NULL;
+	pMonitor = nullptr;
 
 	// (re)load ontology
 	TOntologyLoader OntologyLoader(*getTBox());
@@ -158,7 +158,7 @@ ReasoningKernel :: forceReload ( void )
 void
 ReasoningKernel :: ClassifyOrLoad ( bool needIndividuals )
 {
-	if ( pSLManager != NULL )	// try to load the taxonomy
+	if ( pSLManager != nullptr )	// try to load the taxonomy
 	{
 		if ( pSLManager->existsContent() )
 		{	// previous version exists
@@ -180,7 +180,7 @@ ReasoningKernel :: ClassifyOrLoad ( bool needIndividuals )
 		pTBox->performClassification();
 
 	// save the result if necessary
-	if ( pSLManager != NULL )
+	if ( pSLManager != nullptr )
 		Save();
 }
 
@@ -248,7 +248,7 @@ ReasoningKernel :: classifyQuery ( void )
 	classifyKB();
 
 	// ... and the cache entry is properly cleared
-	fpp_assert ( cachedVertex == NULL );
+	fpp_assert ( cachedVertex == nullptr );
 
 	// classify general query expression
 	bool complexQuery = getTBox()->isComplexQuery(cachedConcept);
@@ -258,7 +258,7 @@ ReasoningKernel :: classifyQuery ( void )
 	// now cached concept is classified
 	cachedVertex = cachedConcept->getTaxVertex();
 
-	if ( unlikely(cachedVertex == NULL) )	// fresh concept
+	if ( unlikely(cachedVertex == nullptr) )	// fresh concept
 	{
 		fpp_assert (!complexQuery);
 		cachedVertex = getCTaxonomy()->getFreshVertex(cachedConcept);
@@ -566,7 +566,7 @@ size_t
 ReasoningKernel :: getAtomicDecompositionSize ( ModuleMethod moduleMethod, ModuleType moduleType )
 {
 	// init AD field
-	if ( unlikely(AD != NULL) )
+	if ( unlikely(AD != nullptr) )
 		delete AD;
 
 	AD = new AtomicDecomposer(getModExtractor(moduleMethod)->getModularizer());
@@ -603,7 +603,7 @@ ReasoningKernel :: getModExtractor ( ModuleMethod moduleMethod )
 {
 	// check whether we need init
 	OntologyBasedModularizer*& pMod = getModPointer(moduleMethod);
-	if ( unlikely(pMod == NULL) )
+	if ( unlikely(pMod == nullptr) )
 		pMod = new OntologyBasedModularizer ( getOntology(), moduleMethod );
 	return pMod;
 }

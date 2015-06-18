@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2006 by Dmitry Tsarkov
+Copyright (C) 2003-2015 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -16,17 +16,12 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef _LEVELOGGER_H
-#define _LEVELOGGER_H
+#ifndef LEVELOGGER_H
+#define LEVELOGGER_H
 
 #include <fstream>
 
-// define unused attribute for parameters
-#if defined(__GNUC__) && (__GNUC__ >= 4)
-#	define ATTR_UNUSED __attribute__((unused))
-#else
-#	define ATTR_UNUSED
-#endif
+#include "globaldef.h"
 
 class Configuration;
 
@@ -74,4 +69,4 @@ extern std::ofstream LL;
 #define CHECK_LL_RETURN_VALUE(val,ret)	\
 	if (!LLM.isWritable(val)) return (ret)
 
-#endif // _LEVELOGGER_H
+#endif // LEVELOGGER_H

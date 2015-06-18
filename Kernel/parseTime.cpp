@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2011 by Dmitry Tsarkov
+Copyright (C) 2011-2015 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -22,7 +22,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 static bool
 fillTmByString ( const char* str, struct tm* tm )
 {
-	return strptime ( str, "%Y-%m-%dT%H:%M:%S%z", tm ) != NULL;
+	return strptime ( str, "%Y-%m-%dT%H:%M:%S%z", tm ) != nullptr;
 }
 /// this function gets a string representing time in an ISO 8601 format and returns time_t value built out of it
 time_t parseTimeString ( const char* str )

@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2010 by Dmitry Tsarkov
+Copyright (C) 2003-2015 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -16,8 +16,8 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef _TRELATED_H
-#define _TRELATED_H
+#ifndef TRELATED_H
+#define TRELATED_H
 
 #include "tIndividual.h"
 #include "tRole.h"
@@ -32,7 +32,7 @@ public:		// members
 
 public:		// interface
 		/// empty c'tor
-	TRelated ( void ) : a(NULL), b(NULL), R(NULL) {}
+	TRelated ( void ) : a(nullptr), b(nullptr), R(nullptr) {}
 		/// init c'tor
 	TRelated ( TIndividual* a_, TIndividual* b_, TRole* R_ ) : a(a_), b(b_), R(R_) {}
 		/// copy c'tor

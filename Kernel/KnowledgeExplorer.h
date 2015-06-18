@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2011-2013 by Dmitry Tsarkov
+Copyright (C) 2011-2015 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -63,12 +63,12 @@ protected:	// classes
 		{
 			const TNamedEntity* E0 = e0->getEntity(), *E = e->getEntity();
 			// check for artificial constructions
-			if ( E0 == NULL || E == NULL )
+			if ( E0 == nullptr || E == nullptr )
 			{
 				std::cerr << "No entity found for";
-				if ( E0 == NULL )
+				if ( E0 == nullptr )
 					std::cerr << " '" << e0->getName() << "'";
-				if ( E == NULL )
+				if ( E == nullptr )
 					std::cerr << " '" << e->getName() << "'";
 				std::cerr << "\n";
 				return;

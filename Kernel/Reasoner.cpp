@@ -28,7 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 //#define __DEBUG_FLUSH_LL
 
 #ifdef USE_REASONING_STATISTICS
-AccumulatedStatistic* AccumulatedStatistic::root = NULL;
+AccumulatedStatistic* AccumulatedStatistic::root = nullptr;
 #endif
 
 DlSatTester :: DlSatTester ( TBox& tbox )
@@ -42,10 +42,10 @@ DlSatTester :: DlSatTester ( TBox& tbox )
 	, newNodeCache ( true, tBox.nC, tBox.nR )
 	, newNodeEdges ( false, tBox.nC, tBox.nR )
 	, GCIs(tbox.GCIs)
-	, bContext(NULL)
+	, bContext(nullptr)
 	, tryLevel(InitBranchingLevelValue)
 	, nonDetShift(0)
-	, curNode(NULL)
+	, curNode(nullptr)
 	, dagSize(0)
 {
 	// init static part of CTree
@@ -72,8 +72,8 @@ DlSatTester :: prepareReasoner ( void )
 	nUsed.clear();
 	SessionGCIs.clear();
 
-	curNode = NULL;
-	bContext = NULL;
+	curNode = nullptr;
+	bContext = nullptr;
 	tryLevel = InitBranchingLevelValue;
 
 	// clear last session information
@@ -199,7 +199,7 @@ DlSatTester :: addToDoEntry ( DlCompletionTree* node, const ConceptWDep& C, cons
 /// insert P to the label of N; do necessary updates; may return Clash in case of data node N
 bool
 DlSatTester :: insertToDoEntry ( DlCompletionTree* node, const ConceptWDep& C,
-								 DagTag tag, const char* reason = NULL )
+								 DagTag tag, const char* reason = nullptr )
 {
 	// we will change current Node => save it if necessary
 	updateLevel ( node, C.getDep() );
@@ -245,7 +245,7 @@ DlSatTester :: canBeCached ( DlCompletionTree* node )
 	// check applicability of the caching
 	for ( p = node->beginl_sc(); p != node->endl_sc(); ++p )
 	{
-		if ( DLHeap.getCache(p->bp()) == NULL )
+		if ( DLHeap.getCache(p->bp()) == nullptr )
 		{
 			incStat(nCacheFailedNoCache);
 			if ( LLM.isWritable(llGTA) )
@@ -259,7 +259,7 @@ DlSatTester :: canBeCached ( DlCompletionTree* node )
 
 	for ( p = node->beginl_cc(); p != node->endl_cc(); ++p )
 	{
-		if ( DLHeap.getCache(p->bp()) == NULL )
+		if ( DLHeap.getCache(p->bp()) == nullptr )
 		{
 			incStat(nCacheFailedNoCache);
 			if ( LLM.isWritable(llGTA) )
@@ -450,7 +450,7 @@ bool DlSatTester :: checkSatisfiability ( void )
 	unsigned int loop = 0;
 	for (;;)
 	{
-		if ( curNode == NULL )
+		if ( curNode == nullptr )
 		{
 			if ( TODO.empty() )	// no applicable rules
 			{	// do run-once things
@@ -463,7 +463,7 @@ bool DlSatTester :: checkSatisfiability ( void )
 			}
 
 			const ToDoEntry* curTDE = TODO.getNextEntry ();
-			fpp_assert ( curTDE != NULL );
+			fpp_assert ( curTDE != nullptr );
 
 			// setup current context
 			curNode = curTDE->Node;
@@ -486,7 +486,7 @@ bool DlSatTester :: checkSatisfiability ( void )
 				return false;
 		}
 		else
-			curNode = NULL;
+			curNode = nullptr;
 	}
 }
 
@@ -510,7 +510,7 @@ DlSatTester :: performAfterReasoning ( void )
 	// check fairness constraints
 	if ( tBox.hasFC() )
 	{
-		DlCompletionTree* violator = NULL;
+		DlCompletionTree* violator = nullptr;
 		// for every given FC, if it is violated, reject current model
 		for ( TBox::ConceptVector::const_iterator p = tBox.Fairness.begin(), p_end = tBox.Fairness.end(); p < p_end; ++p )
 		{

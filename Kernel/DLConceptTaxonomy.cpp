@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2014 by Dmitry Tsarkov
+Copyright (C) 2003-2015 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -34,8 +34,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 bool DLConceptTaxonomy :: testSub ( const TConcept* p, const TConcept* q )
 {
-	fpp_assert ( p != NULL );
-	fpp_assert ( q != NULL );
+	fpp_assert ( p != nullptr );
+	fpp_assert ( q != nullptr );
 
 //	std::cout << "Testing sub " << p->getName() << " [= " << q->getName() << std::endl;
 	if ( q->isSingleton()		// singleton on the RHS is useless iff...
@@ -111,13 +111,13 @@ DLConceptTaxonomy :: buildKnownSubsumers ( ClassifiableEntry* ce )
 TSignature*
 DLConceptTaxonomy :: buildSignature ( ClassifiableEntry* p )
 {
-	if ( tBox.pName2Sig == NULL )
-		return NULL;
-	if ( p->getEntity() == NULL )
-		return NULL;
+	if ( tBox.pName2Sig == nullptr )
+		return nullptr;
+	if ( p->getEntity() == nullptr )
+		return nullptr;
 	TBox::NameSigMap::iterator found = tBox.pName2Sig->find(p->getEntity());
 	if ( found == tBox.pName2Sig->end() )
-		return NULL;
+		return nullptr;
 	return found->second;
 }
 
@@ -277,7 +277,7 @@ DLConceptTaxonomy :: classifySynonym ( void )
 		if ( unlikely(tBox.isBlockedInd(curI)) )
 		{	// check whether current entry is the same as another individual
 			TIndividual* syn = tBox.getBlockingInd(curI);
-			fpp_assert ( syn->getTaxVertex() != NULL );
+			fpp_assert ( syn->getTaxVertex() != nullptr );
 
  			if ( tBox.isBlockingDet(curI) )
 			{	// deterministic merge => curI = syn
@@ -445,7 +445,7 @@ void TBox :: createTaxonomy ( bool needIndividual )
 
 	// here we sure that ontology is consistent
 	// FIXME!! distinguish later between the 1st run and the following runs
-	if ( pTax == NULL )	// 1st run
+	if ( pTax == nullptr )	// 1st run
 		initTaxonomy();
 
 	DLHeap.setSubOrder();	// init priorities in order to do subsumption tests
@@ -495,8 +495,8 @@ void TBox :: createTaxonomy ( bool needIndividual )
 	if ( pMonitor )
 	{
 		pMonitor->setFinished();
-		setProgressMonitor(NULL);	// no need of PM after classification done
-		pTaxCreator->setProgressIndicator(NULL);
+		setProgressMonitor(nullptr);	// no need of PM after classification done
+		pTaxCreator->setProgressIndicator(nullptr);
 	}
 	pTax->finalise();
 

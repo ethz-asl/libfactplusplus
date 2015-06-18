@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2010-2012 by Dmitry Tsarkov
+Copyright (C) 2010-2015 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -261,7 +261,7 @@ protected:	// members
 
 public:		// interface
 		/// c'tor: initialise name
-	TNamedEntity ( const std::string& name ) : Name(name), entry(NULL) {}
+	TNamedEntity ( const std::string& name ) : Name(name), entry(nullptr) {}
 		/// empty d'tor
 	virtual ~TNamedEntity ( void ) {}
 
@@ -418,7 +418,7 @@ protected:	// methods
 	const Argument* transform ( const TDLExpression* arg ) const
 	{
 		const Argument* p = dynamic_cast<const Argument*>(arg);
-		if ( p == NULL )
+		if ( p == nullptr )
 			throw EFaCTPlusPlus(EString.c_str());
 		return p;
 	}
@@ -1328,7 +1328,7 @@ public:		// interface
 	TDLDataValue ( const std::string& value )
 		: TDLDataExpression()
 		, TNamedEntity(value)
-		, TDataExpressionArg<TDLDataTypeExpression>(NULL)
+		, TDataExpressionArg<TDLDataTypeExpression>(nullptr)
 		{ fpp_unreachable(); }
 		/// init c'tor
 	TDLDataValue ( const std::string& value, const TDLDataTypeExpression* T )
@@ -1558,10 +1558,10 @@ inline TDLDataTypeName*
 getBasicDataType ( TDLDataTypeExpression* type )
 {
 	TDLDataTypeName* ret = dynamic_cast<TDLDataTypeName*>(type);
-	if ( ret == NULL )
+	if ( ret == nullptr )
 	{
 		TDLDataTypeRestriction* hostType = dynamic_cast<TDLDataTypeRestriction*>(type);
-		fpp_assert ( hostType != NULL );
+		fpp_assert ( hostType != nullptr );
 		ret = const_cast<TDLDataTypeName*>(hostType->getExpr());
 	}
 	return ret;

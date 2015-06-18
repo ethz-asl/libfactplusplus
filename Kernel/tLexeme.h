@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2011 by Dmitry Tsarkov
+Copyright (C) 2003-2015 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -37,7 +37,7 @@ private:	// members
 
 public:		// interface
 		/// default c'tor for pointers
-	explicit TLexeme ( Token tok, TNamedEntry* p = NULL ) : token(tok) { value.pNE = p; }
+	explicit TLexeme ( Token tok, TNamedEntry* p = nullptr ) : token(tok) { value.pNE = p; }
 		/// default c'tor for numbers
 	TLexeme ( Token tok, unsigned int val ) : token(tok) { value.data = val; }
 		/// Copy c'tor

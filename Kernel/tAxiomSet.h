@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2014 by Dmitry Tsarkov
+Copyright (C) 2003-2015 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -82,7 +82,7 @@ protected:	// methods
 	bool processNewAxiom ( TAxiom* q )
 	{
 		// no input axiom -- nothing to add
-		if ( q == NULL )
+		if ( q == nullptr )
 			return false;
 		// if an axiom is a copy of already processed one -- fail to add (will result in a cycle)
 		if ( q->isCyclic() )
@@ -132,7 +132,7 @@ public:		// interface
 	void addAxiom ( DLTree* C, DLTree* D )
 	{
 		Stat::SAbsInput();
-		TAxiom* p = new TAxiom(NULL);
+		TAxiom* p = new TAxiom(nullptr);
 		p->add(C);
 		p->add(createSNFNot(D));
 		insertGCI(p);

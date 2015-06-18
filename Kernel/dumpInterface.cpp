@@ -212,7 +212,7 @@ void TBox :: dumpAllRoles ( dumpInterface* dump ) const
 	// dump given concept expression
 void dumpCExpression ( dumpInterface* dump, const DLTree* C )
 {
-	if ( C == NULL )
+	if ( C == nullptr )
 		return;
 
 	Token t = C->Element().getToken();
@@ -260,7 +260,7 @@ void dumpCExpression ( dumpInterface* dump, const DLTree* C )
 	// dump given role expression
 void dumpRExpression ( dumpInterface* dump, const DLTree* R )
 {
-	if ( R == NULL )
+	if ( R == nullptr )
 		return;
 
 	switch ( R->Element().getToken() )

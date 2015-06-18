@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2013-2014 by Dmitry Tsarkov
+Copyright (C) 2013-2015 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -33,7 +33,7 @@ void
 ReasoningKernel :: setupSig ( const TNamedEntity* entity, const AxiomVec& Module )
 {
 	// do nothing if entity doesn't exist
-	if ( entity == NULL )
+	if ( entity == nullptr )
 		return;
 
 	moduleTimer.Start();
@@ -77,7 +77,7 @@ void
 ReasoningKernel :: initIncremental ( void )
 {
 	delete ModSyn;
-	ModSyn = NULL;
+	ModSyn = nullptr;
 	// fill the module signatures of the concepts
 	Name2Sig.clear();
 	// found all entities
@@ -103,7 +103,7 @@ ReasoningKernel :: doIncremental ( void )
 	std::cout << "Incremental!\n";
 	// re-set the modularizer to use updated ontology
 	delete ModSyn;
-	ModSyn = NULL;
+	ModSyn = nullptr;
 
 	std::set<const TNamedEntity*> MPlus, MMinus;
 	std::set<const TNamedEntry*> excluded;

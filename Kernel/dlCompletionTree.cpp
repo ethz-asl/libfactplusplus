@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2012 by Dmitry Tsarkov
+Copyright (C) 2003-2015 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -26,19 +26,19 @@ DlCompletionTree :: isTSuccLabelled ( const TRole* R, BipolarPointer C ) const
 		return this;
 	// don't check nominal nodes (prevent cycles)
 	if ( isNominalNode() )
-		return NULL;
+		return nullptr;
 
 	// check all other successors
-	const DlCompletionTree* ret = NULL;
+	const DlCompletionTree* ret = nullptr;
 	for ( const_edge_iterator p = begin(), p_end = end(); p < p_end; ++p )
 		if ( (*p)->isSuccEdge() &&
 			 (*p)->isNeighbour(R) &&
 			 !(*p)->isReflexiveEdge() &&	// prevent cycles
-			 (ret = (*p)->getArcEnd()->isTSuccLabelled(R,C)) != NULL )
+			 (ret = (*p)->getArcEnd()->isTSuccLabelled(R,C)) != nullptr )
 			return ret;
 
 	// not happens
-	return NULL;
+	return nullptr;
 }
 
 /// check if transitive R-predcessor of the NODE labelled with C; skip FROM node
@@ -49,20 +49,20 @@ DlCompletionTree :: isTPredLabelled ( const TRole* R, BipolarPointer C, const Dl
 		return this;
 	// don't check nominal nodes (prevent cycles)
 	if ( isNominalNode() )
-		return NULL;
+		return nullptr;
 
 	// check all other successors
-	const DlCompletionTree* ret = NULL;
+	const DlCompletionTree* ret = nullptr;
 	for ( const_edge_iterator p = begin(), p_end = end(); p < p_end; ++p )
 		if ( (*p)->isSuccEdge() && (*p)->isNeighbour(R) && (*p)->getArcEnd() != from &&
-			 (ret = (*p)->getArcEnd()->isTSuccLabelled(R,C)) != NULL )
+			 (ret = (*p)->getArcEnd()->isTSuccLabelled(R,C)) != nullptr )
 			return ret;
 
 	// check predecessor
 	if ( hasParent() && isParentArcLabelled(R) )
 		return getParentNode()->isTPredLabelled ( R, C, this );
 	else
-		return NULL;
+		return nullptr;
 }
 
 const DlCompletionTree*
@@ -72,13 +72,13 @@ DlCompletionTree :: isNSomeApplicable ( const TRole* R, BipolarPointer C ) const
 		if ( (*p)->isNeighbour(R) && (*p)->getArcEnd()->isLabelledBy(C) )
 			return (*p)->getArcEnd();	// already contained such a label
 
-	return NULL;
+	return nullptr;
 }
 
 const DlCompletionTree*
 DlCompletionTree :: isTSomeApplicable ( const TRole* R, BipolarPointer C ) const
 {
-	const DlCompletionTree* ret = NULL;
+	const DlCompletionTree* ret = nullptr;
 
 	for ( DlCompletionTree::const_edge_iterator p = begin(), p_end = end(); p < p_end; ++p )
 		if ( (*p)->isNeighbour(R) )
@@ -92,7 +92,7 @@ DlCompletionTree :: isTSomeApplicable ( const TRole* R, BipolarPointer C ) const
 				return ret;	// already contained such a label
 		}
 
-	return NULL;
+	return nullptr;
 }
 
 #ifdef RKG_IR_IN_NODE_LABEL
@@ -134,7 +134,7 @@ bool DlCompletionTree :: nonMergable ( const DlCompletionTree* node, DepSet& dep
 TRestorer* DlCompletionTree :: updateIR ( const DlCompletionTree* node, const DepSet& toAdd )
 {
 	if ( node->IR.empty() )
-		return NULL;	// nothing to do
+		return nullptr;	// nothing to do
 
 	// save current state
 	TRestorer* ret = new IRRestorer(this);
@@ -160,7 +160,7 @@ void DlCompletionTree :: save ( SaveState* nss ) const
 
 void DlCompletionTree :: restore ( SaveState* nss )
 {
-	if ( nss == NULL )
+	if ( nss == nullptr )
 		return;
 
 	// level restore

@@ -78,8 +78,8 @@ public:		// interface
 		// we are here if it's multi-environment and arbitrary deletion order was chosen
 		AccumulatedStatistic *prev = root, *cur = root->next;
 		// find a pointer to current node
-		for ( ; cur && cur != this; prev = cur, cur = cur->next )
-			(void)nullptr;
+		while ( cur && cur != this )
+			prev = cur, cur = cur->next;
 		if ( cur == this )
 			prev->next = next;
 	}

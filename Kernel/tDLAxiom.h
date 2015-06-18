@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2008-2012 by Dmitry Tsarkov
+Copyright (C) 2008-2015 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -177,8 +177,8 @@ protected:	// methods
 public:		// interface
 		/// empty c'tor
 	TDLAxiom ( void )
-		: sig(NULL)
-		, Atom(NULL)
+		: sig(nullptr)
+		, Atom(nullptr)
 		, used(true)
 		, inModule(false)
 		, inSearchSpace(false)
@@ -215,7 +215,7 @@ public:		// interface
 
 	const TSignature& getSignature ( void )
 	{
-		if ( sig == NULL )	// 1st access: build it
+		if ( sig == nullptr )	// 1st access: build it
 			buildSignature();
 		return *sig;
 	}

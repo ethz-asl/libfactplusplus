@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2011-2013 by Dmitry Tsarkov
+Copyright (C) 2011-2015 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -109,7 +109,7 @@ protected:	// methods
 
 public:		// interface
 		/// init c'tor; M would NOT be deleted in d'tor
-	AtomicDecomposer ( TModularizer* m ) : AOS(NULL), pModularizer(m), PI(NULL), rootAtom(NULL) {}
+	AtomicDecomposer ( TModularizer* m ) : AOS(nullptr), pModularizer(m), PI(nullptr), rootAtom(nullptr) {}
 		/// d'tor
 	~AtomicDecomposer ( void );
 

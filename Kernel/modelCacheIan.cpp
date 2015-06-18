@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2011 by Dmitry Tsarkov
+Copyright (C) 2003-2015 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -156,7 +156,7 @@ modelCacheState modelCacheIan :: isMergableIan ( const modelCacheIan* q ) const
 
 modelCacheState modelCacheIan :: merge ( const modelCacheInterface* p )
 {
-	fpp_assert ( p != NULL );
+	fpp_assert ( p != nullptr );
 
 	// check for nominal clash
 	if ( hasNominalClash(p) )

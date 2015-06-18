@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2011-2013 by Dmitry Tsarkov
+Copyright (C) 2011-2015 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -94,7 +94,7 @@ public:		// interface
 		/// add atom to the dependency set
 	void addDepAtom ( TOntologyAtom* atom )
 	{
-		if ( likely(atom != NULL) && atom != this )
+		if ( likely(atom != nullptr) && atom != this )
 			DepAtoms.insert(atom);
 	}
 		/// get all the atoms the current one depends on; build this set if necessary

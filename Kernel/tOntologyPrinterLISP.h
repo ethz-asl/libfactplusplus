@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2009-2012 by Dmitry Tsarkov
+Copyright (C) 2009-2015 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -33,11 +33,12 @@ protected:	// members
 
 protected:	// methods
 		/// helper to print several expressions in a row
-	template<class Iterator>
-	void print ( Iterator beg, Iterator end )
+	template<class Container>
+	void print ( const Container& c )
 	{
-		for ( ; beg < end; ++beg )
-			(*beg)->accept(LEP);
+		std::for_each ( std::begin(c), std::end(c), [&] (auto axiom) {
+			axiom->accept(LEP);
+		});
 	}
 		/// helper to print a string
 	TLISPOntologyPrinter& operator << ( const char* str ) { o << str; o.flush(); return *this; }
@@ -48,10 +49,10 @@ public:		// visitor interface
 	virtual void visit ( const TDLAxiomDeclaration& axiom )
 	{
 		const TDLExpression* decl = axiom.getDeclaration();
-		bool cname = dynamic_cast<const TDLConceptName*>(decl) != NULL;
-		bool iname = dynamic_cast<const TDLIndividualName*>(decl) != NULL;
-		bool rname = dynamic_cast<const TDLObjectRoleName*>(decl) != NULL;
-		bool dname = dynamic_cast<const TDLDataRoleName*>(decl) != NULL;
+		bool cname = dynamic_cast<const TDLConceptName*>(decl) != nullptr;
+		bool iname = dynamic_cast<const TDLIndividualName*>(decl) != nullptr;
+		bool rname = dynamic_cast<const TDLObjectRoleName*>(decl) != nullptr;
+		bool dname = dynamic_cast<const TDLDataRoleName*>(decl) != nullptr;
 
 		// do not print TOP/BOT/datatypes
 		if ( !cname && !iname && !rname && !dname )
@@ -65,17 +66,17 @@ public:		// visitor interface
 			  << decl << ")\n";
 	}
 
-	virtual void visit ( const TDLAxiomEquivalentConcepts& axiom ) { o << "(equal_c"; print ( axiom.begin(), axiom.end() ); o << ")\n"; }
-	virtual void visit ( const TDLAxiomDisjointConcepts& axiom ) { o << "(disjoint_c"; print ( axiom.begin(), axiom.end() ); o << ")\n"; }
+	virtual void visit ( const TDLAxiomEquivalentConcepts& axiom ) { o << "(equal_c"; print(axiom); o << ")\n"; }
+	virtual void visit ( const TDLAxiomDisjointConcepts& axiom ) { o << "(disjoint_c"; print(axiom); o << ")\n"; }
 	virtual void visit ( const TDLAxiomDisjointUnion& axiom )
-		{ o << "(disjoint_c"; print ( axiom.begin(), axiom.end() ); o << ")\n(equal_c (or" << axiom.getC(); print ( axiom.begin(), axiom.end() ); o << "))\n"; }
-	virtual void visit ( const TDLAxiomEquivalentORoles& axiom ) { o << "(equal_r"; print ( axiom.begin(), axiom.end() ); o << ")\n"; }
-	virtual void visit ( const TDLAxiomEquivalentDRoles& axiom ) { o << "(equal_r"; print ( axiom.begin(), axiom.end() ); o << ")\n"; }
-	virtual void visit ( const TDLAxiomDisjointORoles& axiom ) { o << "(disjoint_r"; print ( axiom.begin(), axiom.end() ); o << ")\n"; }
-	virtual void visit ( const TDLAxiomDisjointDRoles& axiom ) { o << "(disjoint_r"; print ( axiom.begin(), axiom.end() ); o << ")\n"; }
-	virtual void visit ( const TDLAxiomSameIndividuals& axiom ) { o << "(same"; print ( axiom.begin(), axiom.end() ); o << ")\n"; }
-	virtual void visit ( const TDLAxiomDifferentIndividuals& axiom ) { o << "(different"; print ( axiom.begin(), axiom.end() ); o << ")\n"; }
-	virtual void visit ( const TDLAxiomFairnessConstraint& axiom ) { o << "(fairness"; print ( axiom.begin(), axiom.end() ); o << ")\n"; }
+		{ o << "(disjoint_c"; print(axiom); o << ")\n(equal_c (or" << axiom.getC(); print(axiom); o << "))\n"; }
+	virtual void visit ( const TDLAxiomEquivalentORoles& axiom ) { o << "(equal_r"; print(axiom); o << ")\n"; }
+	virtual void visit ( const TDLAxiomEquivalentDRoles& axiom ) { o << "(equal_r"; print(axiom); o << ")\n"; }
+	virtual void visit ( const TDLAxiomDisjointORoles& axiom ) { o << "(disjoint_r"; print(axiom); o << ")\n"; }
+	virtual void visit ( const TDLAxiomDisjointDRoles& axiom ) { o << "(disjoint_r"; print(axiom); o << ")\n"; }
+	virtual void visit ( const TDLAxiomSameIndividuals& axiom ) { o << "(same"; print(axiom); o << ")\n"; }
+	virtual void visit ( const TDLAxiomDifferentIndividuals& axiom ) { o << "(different"; print(axiom); o << ")\n"; }
+	virtual void visit ( const TDLAxiomFairnessConstraint& axiom ) { o << "(fairness"; print(axiom); o << ")\n"; }
 
 	virtual void visit ( const TDLAxiomRoleInverse& axiom ) { *this << "(equal_r" << axiom.getRole() << " (inv" << axiom.getInvRole() << "))\n"; }
 	virtual void visit ( const TDLAxiomORoleSubsumption& axiom ) { *this << "(implies_r" << axiom.getSubRole() << axiom.getRole() << ")\n"; }
@@ -111,8 +112,9 @@ public:		// interface
 
 	virtual void visitOntology ( TOntology& ontology )
 	{
-		for ( TOntology::iterator p = ontology.begin(), p_end = ontology.end(); p < p_end; ++p )
-			(*p)->accept(*this);
+		std::for_each ( ontology.begin(), ontology.end(), [&] (auto axiom) {
+			axiom->accept(*this);
+		});
 		o << std::endl;
 	}
 }; // TLISPOntologyPrinter

@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2010 by Dmitry Tsarkov
+Copyright (C) 2003-2015 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -62,11 +62,11 @@ DlCompletionGraph :: moveEdge ( DlCompletionTree* node, DlCompletionTreeArc* edg
 {
 	// skip already purged edges
 	if ( edge->isIBlocked())
-		return NULL;
+		return nullptr;
 
 	// skip edges not leading to nominal nodes
 	if ( !isPredEdge && !edge->getArcEnd()->isNominalNode() )
-		return NULL;
+		return nullptr;
 
 	const TRole* R = edge->getRole();
 
@@ -104,7 +104,7 @@ void DlCompletionGraph :: Merge ( DlCompletionTree* from, DlCompletionTree* to,
 		if ( (*p)->isPredEdge() || (*p)->getArcEnd()->isNominalNode() )
 		{
 			DlCompletionTreeArc* temp = moveEdge ( to, *p, (*p)->isPredEdge(), dep );
-			if ( temp != NULL )
+			if ( temp != nullptr )
 				edges.push_back(temp);
 		}
 		if ( (*p)->isSuccEdge() )

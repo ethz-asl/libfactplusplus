@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2011 by Dmitry Tsarkov
+Copyright (C) 2003-2015 by Dmitry Tsarkov
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -43,7 +43,7 @@ NominalReasoner :: prepareReasoner ( void )
 	restore(1);
 
 	// check whether branching op is not a barrier...
-	if ( dynamic_cast<BCBarrier*>(bContext) == NULL )
+	if ( dynamic_cast<BCBarrier*>(bContext) == nullptr )
 	{	// replace it with a barrier
 		Stack.pop();
 		createBCBarrier();
@@ -79,7 +79,7 @@ NominalReasoner :: consistentNominalCloud ( void )
 	{	// all nominal cloud is classified w/o branching -- make a barrier
 		if ( LLM.isWritable(llSRState) )
 			LL << "InitNominalReasoner[";
-		curNode = NULL;
+		curNode = nullptr;
 		createBCBarrier();
 		save();
 		nonDetShift = 1;	// the barrier doesn't introduce branching itself

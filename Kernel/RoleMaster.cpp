@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2014 by Dmitry Tsarkov
+Copyright (C) 2003-2015 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -25,13 +25,13 @@ RoleMaster :: RoleMaster ( bool dataRoles, const std::string& TopRoleName, const
 	, emptyRole(BotRoleName == "" ? "emptyRole" : BotRoleName)
 	, universalRole(TopRoleName == "" ? "universalRole" : TopRoleName)
 	, roleNS()
-	, pTax(NULL)
+	, pTax(nullptr)
 	, DataRoles(dataRoles)
 	, useUndefinedNames(true)
 {
 	// no zero-named roles allowed
-	Roles.push_back(NULL);
-	Roles.push_back(NULL);
+	Roles.push_back(nullptr);
+	Roles.push_back(nullptr);
 	// setup empty role
 	emptyRole.setId(0);
 	emptyRole.setInverse(&emptyRole);
@@ -52,7 +52,7 @@ RoleMaster :: RoleMaster ( bool dataRoles, const std::string& TopRoleName, const
 void
 RoleMaster :: registerRole ( TRole* r )
 {
-	fpp_assert ( r != NULL && r->Inverse == NULL );	// sanity check
+	fpp_assert ( r != nullptr && r->Inverse == nullptr );	// sanity check
 	fpp_assert ( r->getId() == 0 );	// only call it for the new roles
 
 	if ( DataRoles )
@@ -87,7 +87,7 @@ RoleMaster :: ensureRoleName ( const std::string& name )
 	// new name from NS
 	TRole* p = roleNS.insert(name);
 	// check what happens
-	if ( p == NULL )			// role registration attempt failed
+	if ( p == nullptr )			// role registration attempt failed
 		throw EFPPCantRegName ( name, DataRoles ? "data role" : "role" );
 
 	if ( isRegisteredRole(p) )	// registered role

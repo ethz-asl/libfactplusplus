@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2011-2014 by Dmitry Tsarkov
+Copyright (C) 2011-2015 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -112,7 +112,7 @@ protected:	// methods
 			addAxiomToModule(ax);
 
 #		ifdef RKG_USE_AD_IN_MODULE_EXTRACTION
-			if ( noAtomsProcessing && ax->getAtom() != NULL )
+			if ( noAtomsProcessing && ax->getAtom() != nullptr )
 			{
 				noAtomsProcessing = false;
 				addNonLocal ( ax->getAtom()->getModule(), /*noCheck=*/true );

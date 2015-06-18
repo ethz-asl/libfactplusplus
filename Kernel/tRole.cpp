@@ -61,7 +61,7 @@ void TRole :: addFeaturesToSynonym ( void )
 		syn->setDataRole();
 
 	// copy R&D
-	if ( pDomain != NULL )
+	if ( pDomain != nullptr )
 		syn->setDomain (clone(pDomain));
 
 	// copy disjoint
@@ -97,7 +97,7 @@ TRole* TRole :: eliminateToldCycles ( TRoleSet& RInProcess, TRoleVec& ToldSynony
 {
 	// skip synonyms
 	if ( isSynonym() )
-		return NULL;
+		return nullptr;
 
 	// if we found a cycle...
 	if ( RInProcess.find(this) != RInProcess.end() )
@@ -106,7 +106,7 @@ TRole* TRole :: eliminateToldCycles ( TRoleSet& RInProcess, TRoleVec& ToldSynony
 		return this;
 	}
 
-	TRole* ret = NULL;
+	TRole* ret = nullptr;
 
 	// start processing role
 	RInProcess.insert(this);
@@ -117,7 +117,7 @@ TRole* TRole :: eliminateToldCycles ( TRoleSet& RInProcess, TRoleVec& ToldSynony
 	// not involved in cycle -- check all told subsumers
 	for ( auto r: told() )
 		// if cycle was detected
-		if ( (ret = static_cast<TRole*>(r)->eliminateToldCycles ( RInProcess, ToldSynonyms )) != NULL )
+		if ( (ret = static_cast<TRole*>(r)->eliminateToldCycles ( RInProcess, ToldSynonyms )) != nullptr )
 		{
 			if ( ret == this )
 			{
@@ -206,9 +206,9 @@ void TRole :: Print ( std::ostream& o ) const
 	}
 
 	// range/domain
-	if ( getTDomain() != NULL )
+	if ( getTDomain() != nullptr )
 		o << " Domain=(" << getBPDomain() << ")=" << getTDomain();
-	if ( getTRange() != NULL )
+	if ( getTRange() != nullptr )
 		o << " Range=(" << getBPRange() << ")=" << getTRange();
 
 	if ( !isDataRole() )

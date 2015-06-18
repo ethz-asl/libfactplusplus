@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2005-2013 by Dmitry Tsarkov
+Copyright (C) 2005-2015 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -15,7 +15,6 @@ You should have received a copy of the GNU Lesser General Public
 License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
-
 
 #ifndef DATAREASONING_H
 #define DATAREASONING_H
@@ -145,7 +144,7 @@ protected:	// methods
 
 public:		// methods
 		/// empty c'tor
-	DataTypeAppearance ( DepSet& dep ) : PType(NULL), NType(NULL), clashDep(dep) {}
+	DataTypeAppearance ( DepSet& dep ) : PType(nullptr), NType(nullptr), clashDep(dep) {}
 		/// empty d'tor
 	~DataTypeAppearance ( void ) { delete PType; delete NType; }
 
@@ -153,9 +152,9 @@ public:		// methods
 	void clear ( void )
 	{
 		delete PType;
-		PType = NULL;
+		PType = nullptr;
 		delete NType;
-		NType = NULL;
+		NType = nullptr;
 		Constraints.clear();
 		Constraints.push_back(DepInterval());
 		accDep.clear();
@@ -164,18 +163,18 @@ public:		// methods
 	// presence interface
 
 		/// check if type is present positively in the node
-	bool hasPType ( void ) const { return PType != NULL; }
+	bool hasPType ( void ) const { return PType != nullptr; }
 		/// set the presence of the type depending of polarity (POS) and save a dep-set DEP; @return true if clash was found
 	bool setTypePresence ( bool pos, const DepSet& dep )
 	{
 		DepSet*& pDep = pos ? PType : NType;
-		if ( likely(pDep == NULL) )	// 1st access
+		if ( likely(pDep == nullptr) )	// 1st access
 			pDep = new DepSet(dep);
 		else	// FIXME!! think whether it is necessary to use the LATEST branching point
 			pDep->add(dep);
 
 		// check the case both pos- and neg types are present
-		if ( PType != NULL && NType != NULL )
+		if ( PType != nullptr && NType != nullptr )
 			return reportClash ( *PType+*NType, "TNT" );
 		return false;
 	}
@@ -275,7 +274,7 @@ protected:	// methods
 			return type->setTypePresence ( /*pos=*/false, dep );
 
 		// setup pos-type if necessary
-		if ( posType == NULL )
+		if ( posType == nullptr )
 			posType = type;
 		// same type -- nothing to do
 		if ( posType == type )
@@ -291,7 +290,7 @@ protected:	// methods
 
 public:		// interface
 		/// c'tor: save DAG
-	DataTypeReasoner ( const DLDag& dag ) : DLHeap(dag), posType(NULL) {}
+	DataTypeReasoner ( const DLDag& dag ) : DLHeap(dag), posType(nullptr) {}
 		/// empty d'tor
 	~DataTypeReasoner ( void )
 	{
@@ -312,7 +311,7 @@ public:		// interface
 	{
 		for ( DTAVector::iterator p = Types.begin(), p_end = Types.end(); p < p_end; ++p )
 			(*p)->clear();
-		posType = NULL;
+		posType = nullptr;
 	}
 
 	// comparison methods
@@ -320,14 +319,14 @@ public:		// interface
 		/// @return true iff there is at least one point that two DTA share
 	bool operator == ( const DataTypeReasoner& other ) const
 	{
-		if ( posType == NULL || other.posType == NULL )
+		if ( posType == nullptr || other.posType == nullptr )
 			return false;
 		return *posType == *(other.posType);
 	}
 		/// @return true iff there is at least one point in OTHER that there is not in THIS
 	bool operator < ( const DataTypeReasoner& other ) const
 	{
-		if ( posType == NULL || other.posType == NULL )
+		if ( posType == nullptr || other.posType == nullptr )
 			return false;
 		return *posType < *(other.posType);
 	}

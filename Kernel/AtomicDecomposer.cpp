@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2011-2012 by Dmitry Tsarkov
+Copyright (C) 2011-2015 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -60,7 +60,7 @@ AtomicDecomposer :: buildModule ( const TSignature& sig, TOntologyAtom* parent )
 	const AxiomVec& Module = pModularizer->getModule();
 	// if module is empty (empty bottom atom) -- do nothing
 	if ( Module.empty() )
-		return NULL;
+		return nullptr;
 	// here the module is created; report it
 	if ( PI )
 		PI->incIndicator();
@@ -78,12 +78,12 @@ TOntologyAtom*
 AtomicDecomposer :: createAtom ( TDLAxiom* ax, TOntologyAtom* parent )
 {
 	// check whether axiom already has an atom
-	if ( ax->getAtom() != NULL )
+	if ( ax->getAtom() != nullptr )
 		return const_cast<TOntologyAtom*>(ax->getAtom());
 	// build an atom: use a module to find atomic dependencies
 	TOntologyAtom* atom = buildModule( ax->getSignature(), parent );
 	// no empty modules should be here
-	fpp_assert ( atom != NULL );
+	fpp_assert ( atom != nullptr );
 	// register axiom as a part of an atom
 	atom->addAxiom(ax);
 	// if atom is the same as parent -- nothing more to do
@@ -132,7 +132,7 @@ AtomicDecomposer :: getAOS ( TOntology* O, ModuleType t )
 
 	// create atoms for all the axioms in the ontology
 	for ( TOntology::iterator p = O->begin(), p_end = O->end(); p != p_end; ++p )
-		if ( (*p)->isUsed() && (*p)->getAtom() == NULL )
+		if ( (*p)->isUsed() && (*p)->getAtom() == nullptr )
 			createAtom ( *p, rootAtom );
 
 	// restore tautologies in the ontology

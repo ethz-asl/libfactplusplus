@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2005-2014 by Dmitry Tsarkov
+Copyright (C) 2005-2015 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -71,7 +71,7 @@ public:		// interface
 		: TypeName(name)
 		, locked(false)
 		, allowFresh(false)
-		{ Base.push_back(NULL); }
+		{ Base.push_back(nullptr); }
 		/// empty d'tor: all elements will be deleted in other place
 	virtual ~TNECollection ( void ) {}
 
@@ -87,14 +87,14 @@ public:		// interface
 	// add/remove elements
 
 		/// check if entry with a NAME is registered in given collection
-	bool isRegistered ( const std::string& name ) const { return NameSet.get(name) != NULL; }
+	bool isRegistered ( const std::string& name ) const { return NameSet.get(name) != nullptr; }
 		/// get entry by NAME from the collection; register it if necessary
 	T* get ( const std::string& name )
 	{
 		T* p = NameSet.get(name);
 
 		// check if name is already defined
-		if ( p != NULL )
+		if ( p != nullptr )
 			return p;
 
 		// check if it is possible to insert name
@@ -108,7 +108,7 @@ public:		// interface
 		if ( isLocked() )
 		{
 			p->setSystem();
-			if ( dynamic_cast<ClassifiableEntry*>(p) != NULL )
+			if ( dynamic_cast<ClassifiableEntry*>(p) != nullptr )
 				dynamic_cast<ClassifiableEntry*>(p)->setNonClassifiable();
 		}
 		return p;

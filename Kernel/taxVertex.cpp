@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2014 by Dmitry Tsarkov
+Copyright (C) 2003-2015 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -86,15 +86,16 @@ void TaxonomyVertex :: incorporate ( void )
 void
 TaxonomyVertex :: removeLinks ( bool upDirection )
 {
-	for ( iterator p = begin(upDirection), p_end = end(upDirection); p != p_end; ++p )
-		(*p)->removeLink ( !upDirection, this );
+	std::for_each ( begin(upDirection), end(upDirection), [=] (auto vertex) {
+		vertex->removeLink ( !upDirection, this );
+	});
 
 	clearLinks(upDirection);
 }
 
 void TaxonomyVertex :: printSynonyms ( std::ostream& o ) const
 {
-	fpp_assert ( sample != NULL );
+	fpp_assert ( sample != nullptr );
 
 	if ( likely(synonyms.empty()) )
 		o << '"' << getPrimer()->getName() << '"';
@@ -113,8 +114,9 @@ void TaxonomyVertex :: printNeighbours ( std::ostream& o, bool upDirection ) con
 	o << " {" << neigh(upDirection).size() << ":";
 
 	TVSet sorted ( begin(upDirection), end(upDirection) );
-	for ( TVSet::const_iterator p = sorted.begin(), p_end = sorted.end(); p != p_end; ++p )
-		o << " \"" << (*p)->getPrimer()->getName() << '"';
+	std::for_each ( std::begin(sorted), std::end(sorted), [&] (auto vertex) {
+		o << " \"" << vertex->getPrimer()->getName() << '"';
+	});
 
 	o << "}";
 }

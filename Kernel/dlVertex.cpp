@@ -43,12 +43,12 @@ clash:	// clash found: clear all stuff; returns true
 		return true;
 	}
 
-	// find apropiate place to insert
+	// find appropriate place to insert
 	unsigned int v = getValue (p);
 
 	BaseType::iterator q = Child.begin(), q_end = Child.end();
 	for ( ; q != q_end && getValue(*q) < v; ++q )
-		(void)NULL;
+		;
 
 	if ( q == q_end )	// finish
 	{

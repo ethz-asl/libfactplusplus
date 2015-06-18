@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2014 by Dmitry Tsarkov
+Copyright (C) 2003-2015 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -29,7 +29,7 @@ DlSatTester :: createCache ( BipolarPointer p )
 	const modelCacheInterface* cache;
 
 	// check if cache already calculated
-	if ( (cache = DLHeap.getCache(p)) != NULL )
+	if ( (cache = DLHeap.getCache(p)) != nullptr )
 		return cache;
 
 #ifdef TMP_CACHE_DEBUG
@@ -39,7 +39,7 @@ DlSatTester :: createCache ( BipolarPointer p )
 		prepareCascadedCache(p);
 
 	// it may be a cycle and the cache for p is already calculated
-	if ( (cache = DLHeap.getCache(p)) != NULL )
+	if ( (cache = DLHeap.getCache(p)) != nullptr )
 		return cache;
 
 	// need to build cache
@@ -63,7 +63,7 @@ DlSatTester :: prepareCascadedCache ( BipolarPointer p )
 	bool pos = isPositive(p);
 
 	// check if a concept already cached
-	if ( v.getCache(pos) != NULL )
+	if ( v.getCache(pos) != nullptr )
 		return;
 
 	switch ( v.Type() )

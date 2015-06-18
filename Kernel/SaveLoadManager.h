@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2013-2014 by Dmitry Tsarkov
+Copyright (C) 2013-2015 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -113,7 +113,7 @@ protected:	// members
 
 public:		// methods
 		/// init c'tor: remember the S/L name
-	SaveLoadManager ( const std::string& name ) : dirname(name), ip(NULL), op(NULL) { filename = name+".fpp.state"; }
+	SaveLoadManager ( const std::string& name ) : dirname(name), ip(nullptr), op(nullptr) { filename = name+".fpp.state"; }
 		/// empty d'tor
 	~SaveLoadManager ( void )
 	{

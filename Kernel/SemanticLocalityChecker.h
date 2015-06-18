@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2011-2013 by Dmitry Tsarkov
+Copyright (C) 2011-2015 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -54,7 +54,7 @@ protected:	// methods
 		if ( const TDLAxiomValueOfNot* von = dynamic_cast<const TDLAxiomValueOfNot*>(axiom) )
 			return pEM->Not ( pEM->Value ( von->getAttribute(), von->getValue() ) );
 		// everything else doesn't require expression to be build
-		return NULL;
+		return nullptr;
 	}
 
 public:		// interface
