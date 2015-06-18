@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2011 by Dmitry Tsarkov
+Copyright (C) 2003-2015 by Dmitry Tsarkov
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -110,7 +110,7 @@ protected:	// methods
 	}
 
 		/// check whether expression R is data role
-	bool isDataRole ( const TRoleExpr* R ) const { return dynamic_cast<const TDRoleExpr*>(R) != NULL; }
+	bool isDataRole ( const TRoleExpr* R ) const { return dynamic_cast<const TDRoleExpr*>(R) != nullptr; }
 		/// generate object role axiom between R and S according to the operation TAG
 	void tellRoleAxiom ( LispToken tag, TORoleExpr* R, TORoleExpr* S );
 		/// generate data role axiom between R and S according to the operation TAG

@@ -70,7 +70,7 @@ public:		// interface
 	{
 		if ( AccessPolicy::needPlain() )
 			return getArray(plain);
-		jobjectArray ret = J->env->NewObjectArray ( (jsize)acc.size(), AccessPolicy::getIDs(J).ArrayClassID, NULL );
+		jobjectArray ret = J->env->NewObjectArray ( (jsize)acc.size(), AccessPolicy::getIDs(J).ArrayClassID, nullptr );
 		for ( unsigned int i = 0; i < acc.size(); ++i )
 			J->env->SetObjectArrayElement ( ret, (jsize)i, getArray(acc[i]) );
 		return ret;
@@ -122,7 +122,7 @@ public:
 		else if ( name == std::string("BOTTOM") )
 			return J->EM->Bottom();
 		else	// error
-			return NULL;
+			return nullptr;
 	}
 }; // ClassPolicy
 

@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2014 by Dmitry Tsarkov
+Copyright (C) 2003-2015 by Dmitry Tsarkov
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -96,9 +96,9 @@ void DLLispParser :: parseCommand ( void )
 	{
 		TRoleExpr* R = getRoleExpression();
 		if ( isDataRole(R) )
-			tellRoleAxiom ( t, dynamic_cast<TDRoleExpr*>(R), NULL );
+			tellRoleAxiom ( t, dynamic_cast<TDRoleExpr*>(R), nullptr );
 		else
-			tellRoleAxiom ( t, dynamic_cast<TORoleExpr*>(R), NULL );
+			tellRoleAxiom ( t, dynamic_cast<TORoleExpr*>(R), nullptr );
 		break;
 	}
 
@@ -403,7 +403,7 @@ DLLispParser :: getConceptExpression ( void )
 	}
 	default:	// else -- report syntax error
 		MustBe(ID);
-		return NULL;
+		return nullptr;
 	}
 }
 
@@ -413,8 +413,8 @@ DLLispParser :: getComplexConceptExpression ( void )
 	MustBeM ( LBRACK );
 	LispToken T = scan.getExpressionKeyword();
 	unsigned int n = 0;	// number for >= (<=) expression (or just 0)
-	TRoleExpr* R = NULL;
-	TConceptExpr* C = NULL;
+	TRoleExpr* R = nullptr;
+	TConceptExpr* C = nullptr;
 
 	NextLex ();
 
@@ -432,7 +432,7 @@ DLLispParser :: getComplexConceptExpression ( void )
 		if ( isDataRole(R) )	// data expression
 		{
 			TDRoleExpr* A = dynamic_cast<TDRoleExpr*>(R);
-			TDataExpr* E = NULL;
+			TDataExpr* E = nullptr;
 
 			// second argument -- data expression
 			if ( Current == RBRACK )
@@ -455,7 +455,7 @@ DLLispParser :: getComplexConceptExpression ( void )
 		else
 		{
 			TORoleExpr* S = dynamic_cast<TORoleExpr*>(R);
-			TConceptExpr* C = NULL;
+			TConceptExpr* C = nullptr;
 
 			// second argument -- data expression
 			if ( Current == RBRACK )
@@ -506,7 +506,7 @@ DLLispParser :: getComplexConceptExpression ( void )
 
 	default:	// error
 		parseError ( "Unknown concept constructor" );
-		return NULL;	// FSCO
+		return nullptr;	// FSCO
 	}
 }
 
@@ -556,7 +556,7 @@ DLLispParser :: getComplexRoleExpression ( void )
 	NextLex();	// skip '('
 	LispToken keyword = scan.getExpressionKeyword();
 	NextLex();	// skip keyword
-	TORoleComplexExpr* ret = NULL;
+	TORoleComplexExpr* ret = nullptr;
 	TORoleExpr* R;
 	switch ( keyword )
 	{
@@ -595,7 +595,7 @@ DLLispParser :: getDataExpression ( void )
 		{	// Top/Bottom; can not be name
 		case L_TOP: NextLex(); return EManager->DataTop();
 		case L_BOTTOM: NextLex(); return EManager->DataBottom();
-		default: parseError ( "Unknown data constructor" ); return NULL;
+		default: parseError ( "Unknown data constructor" ); return nullptr;
 		}
 	}
 
@@ -610,7 +610,7 @@ DLLispParser :: getDataExpression ( void )
 	{
 		TDataValueExpr* value = dynamic_cast<TDataValueExpr*>(getDataExpression());
 		MustBeM(RBRACK);
-		if ( value == NULL )
+		if ( value == nullptr )
 			parseError("Data value expected");
 		// the type of the expression is taken from value; it is basic type, so it is safe to make it RW
 		TDataTypeExpr* type = const_cast<TDataTypeExpr*>(value->getExpr());
@@ -620,7 +620,7 @@ DLLispParser :: getDataExpression ( void )
 	{
 		TDataValueExpr* value = dynamic_cast<TDataValueExpr*>(getDataExpression());
 		MustBeM(RBRACK);
-		if ( value == NULL )
+		if ( value == nullptr )
 			parseError("Data value expected");
 		// the type of the expression is taken from value; it is basic type, so it is safe to make it RW
 		TDataTypeExpr* type = const_cast<TDataTypeExpr*>(value->getExpr());
@@ -630,7 +630,7 @@ DLLispParser :: getDataExpression ( void )
 	{
 		TDataValueExpr* value = dynamic_cast<TDataValueExpr*>(getDataExpression());
 		MustBeM(RBRACK);
-		if ( value == NULL )
+		if ( value == nullptr )
 			parseError("Data value expected");
 		// the type of the expression is taken from value; it is basic type, so it is safe to make it RW
 		TDataTypeExpr* type = const_cast<TDataTypeExpr*>(value->getExpr());
@@ -640,7 +640,7 @@ DLLispParser :: getDataExpression ( void )
 	{
 		TDataValueExpr* value = dynamic_cast<TDataValueExpr*>(getDataExpression());
 		MustBeM(RBRACK);
-		if ( value == NULL )
+		if ( value == nullptr )
 			parseError("Data value expected");
 		// the type of the expression is taken from value; it is basic type, so it is safe to make it RW
 		TDataTypeExpr* type = const_cast<TDataTypeExpr*>(value->getExpr());
@@ -689,6 +689,6 @@ DLLispParser :: getDataExpression ( void )
 
 	default:	// error
 		parseError ( "Unknown data constructor" );
-		return NULL;	// FSCO
+		return nullptr;	// FSCO
 	}
 }

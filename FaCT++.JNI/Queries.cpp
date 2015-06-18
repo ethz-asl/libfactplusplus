@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2006-2013 by Dmitry Tsarkov
+Copyright (C) 2006-2015 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -685,7 +685,7 @@ JNIEXPORT jobjectArray JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlu
 	TRACE_ARG(env,obj,arg1);
 	TRACE_ARG(env,obj,arg2);
 	Throw ( env, "FaCT++ Kernel: unsupported operation 'askRelatedValues'" );
-	return NULL;
+	return nullptr;
 #if 0
 	ReasoningKernel::NamesVector Js;
 	PROCESS_SIMPLE_QUERY ( J->K->getRoleFillers ( getROIndividualExpr(env,arg1), getRODRoleExpr(env,arg2), Js ) );

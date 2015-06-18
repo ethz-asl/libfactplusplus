@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2006-2014 by Dmitry Tsarkov
+Copyright (C) 2006-2015 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -147,7 +147,7 @@ protected:	// methods
 		/// get an object out of an arbitrary pointer
 	jobject retObject ( const void* pointer, const TClassFieldMethodIDs& ID )
 	{
-		if ( unlikely(pointer == NULL) )
+		if ( unlikely(pointer == nullptr) )
 		{
 			Throw ( env, "Incorrect operand by FaCT++ Kernel" );
 			return (jobject)0;
@@ -208,7 +208,7 @@ public:		// members
 	template<class T>
 	jobjectArray buildArray ( const std::vector<T*>& vec, const TClassFieldMethodIDs& ID )
 	{
-		jobjectArray ret = env->NewObjectArray ( (jsize)vec.size(), ID.ClassID, NULL );
+		jobjectArray ret = env->NewObjectArray ( (jsize)vec.size(), ID.ClassID, nullptr );
 		for ( unsigned int i = 0; i < vec.size(); ++i )
 			env->SetObjectArrayElement ( ret, (jsize)i, retObject ( vec[i], ID ) );
 		return ret;

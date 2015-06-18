@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2014 by Dmitry Tsarkov
+Copyright (C) 2003-2015 by Dmitry Tsarkov
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -80,10 +80,10 @@ public:		// interface
 	void reIn ( std::istream* in ) { InFile = in; CurLine = 1; }
 
 		/// output an error message
-	void error ( const char* msg = NULL ) const
+	void error ( const char* msg = nullptr ) const
 	{
 		std::cerr << "\nError at input line " << Line() << ": "
-				  << (msg?msg:"illegal syntax") << std::endl;
+				  << (msg?msg:"illegal syntax") << "\n";
 		exit (1);
 	}
 };	// CommonScanner

@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2011 by Dmitry Tsarkov
+Copyright (C) 2003-2015 by Dmitry Tsarkov
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -35,16 +35,16 @@ protected:	// methods
 		/// get current token
 	GenericToken Code ( void ) const { return Current; }
 		/// receive (and save) next token
-	void NextLex ( void ) { Current = scan. GetLex (); }
+	void NextLex ( void ) { Current = scan.GetLex(); }
 		/// ensure that current token has given value; return error if it's not a case
-	void MustBe ( GenericToken t, const char* p = NULL ) const
+	void MustBe ( GenericToken t, const char* message = nullptr ) const
 	{
 		if ( Current != t )
-			scan. error (p);
+			scan.error(message);
 	}
 		/// ensure that current token has given value; return error if it's not a case; get new token
-	void MustBeM ( GenericToken t, const char* p = NULL )
-		{ MustBe ( t, p ); NextLex (); }
+	void MustBeM ( GenericToken t, const char* message = nullptr )
+		{ MustBe ( t, message ); NextLex (); }
 		/// general error message
 	void parseError ( const char* p ) const { scan.error(p); }
 

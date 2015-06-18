@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2006-2013 by Dmitry Tsarkov
+Copyright (C) 2006-2015 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -44,7 +44,7 @@ extern "C" {
 	{ Throw ( J->env, fpp.what() ); }			\
 	catch ( const std::exception& ex )			\
 	{ Throw ( J->env, ex.what() ); }			\
-		return NULL;  } while(0)
+		return nullptr;  } while(0)
 //	Throw ( env, "FaCT++ Kernel: error during " Name " processing" )
 
 /*
@@ -158,7 +158,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tel
 {
 	TRACE_JNI("tellHasKey");
 	Throw ( env, "FaCT++ Kernel: unsupported operation 'tellHasKey'" );
-	return NULL;
+	return nullptr;
 }
 
 

@@ -23,6 +23,8 @@ Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 //-------------------------------------------------------------------------
 #include <cctype>		// isalnum
 
+#include "fpp_assert.h"
+
 #include "scanner.h"
 
 // main methods
@@ -46,18 +48,18 @@ void TsScanner :: FillBuffer ( char c )
 	unsigned int i = 0;
 	LexBuff [0] = c;
 
-	for ( i = 1; i < MaxIDLength &&
-		  isLegalIdChar ( c = NextChar () );
-		  LexBuff [i++] = c )
-		(void)NULL;
+	while ( i < MaxIDLength && isLegalIdChar ( c = NextChar() ) )
+	  LexBuff[++i] = c;
 
-	LexBuff [i] = 0;
+	LexBuff[++i] = 0;
 
-	if ( i == MaxIDLength )
+	if ( i > MaxIDLength )
 	{
-		std::cerr << "Identifier was restricted to " << LexBuff << std::endl;
-		for ( ; isLegalIdChar ( c = NextChar () ); )
-			(void)NULL;
+		fpp_assert ( i == MaxIDLength + 1 );
+		std::cerr << "Identifier was restricted to " << LexBuff << "\n";
+		do {
+			c = NextChar();
+		} while ( isLegalIdChar(c) );
 	}
 	// OK or read the end of ID
 
@@ -69,16 +71,18 @@ void TsScanner :: FillNameBuffer ( char c )
 	unsigned int i = 0;
 	const char stop = c;
 
-	for ( ; i < MaxIDLength && ( ( c = NextChar () ) != stop ); LexBuff [i++] = c )
-		(void)NULL;
+	while ( i <= MaxIDLength && ( c = NextChar() ) != stop )
+	  LexBuff[i++] = c;
 
-	LexBuff [i] = 0;
+	LexBuff[i] = 0;
 
-	if ( i == MaxIDLength )
+	if ( i > MaxIDLength )
 	{
+		fpp_assert ( i == MaxIDLength + 1 );
 		std::cerr << "Identifier was restricted to " << LexBuff << std::endl;
-		for ( ; ( c = NextChar () ) != stop; )
-			(void)NULL;
+		do {
+			c = NextChar();
+		} while ( c != stop );
 	}
 }
 
@@ -99,8 +103,9 @@ LispToken TsScanner :: GetLex ( void )
 
 		if ( c == ';' )
 		{	// Skip comments
-			while ( ( c = NextChar() ) != '\n' && !eof(c) )
-				(void)NULL;
+			do {
+				c = NextChar();
+			} while ( c != '\n' && !eof(c) );
 			CurLine++;
 			continue;
 		}

@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2006-2013 by Dmitry Tsarkov
+Copyright (C) 2006-2015 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -34,7 +34,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 		std::cerr << " arg ";			\
 		TExpr* expr=getROExpr(env,arg);	\
 		const TNamedEntity* ne = dynamic_cast<const TNamedEntity*>(expr); \
-		if ( ne != NULL ) std::cerr << ne->getName();	\
+		if ( ne != nullptr ) std::cerr << ne->getName();	\
 		std::cerr << "\n"; } while(0)
 #	define TRACE_STR(env,str) std::cerr << " string arg " << JString(env,str)() << "\n"
 #else
@@ -151,7 +151,7 @@ void ThrowNSR ( JNIEnv* env, const char* reason )
 //	jmethodID CtorID = env->GetMethodID ( ceNotProfile, "<init>", "(Lorg/semanticweb/owlapi/model/OWLClassExpression;Lorg/semanticweb/owlapi/profiles/OWLProfile;)V" );
 //
 //	// create an object to return
-//	jobject obj = env->NewObject ( ceNotProfile, CtorID, NULL, NULL );
+//	jobject obj = env->NewObject ( ceNotProfile, CtorID, nullptr, nullptr );
 //	env->Throw((jthrowable)obj);
 }
 
@@ -179,7 +179,7 @@ ReasoningKernel* getK ( JNIEnv * env, jobject obj )
 {
 	jlong id = env->GetLongField ( obj, KernelFID );
 
-	// this is a pointer -- should not be NULL
+	// ID corresponds to a pointer -- should not be NULL
 	if ( unlikely(id == 0) )
 		Throw ( env, "Uninitialized FaCT++ kernel found" );
 

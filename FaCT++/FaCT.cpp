@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2013 by Dmitry Tsarkov
+Copyright (C) 2003-2015 by Dmitry Tsarkov
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -79,7 +79,7 @@ getNextName ( TsScanner& sc, TExpressionManager* pEM )
 	for (;;)
 	{
 		if ( sc.GetLex() == LEXEOF )
-			return NULL;
+			return nullptr;
 		LispToken t = sc.getNameKeyword();
 
 		if ( t != ID )
@@ -144,10 +144,10 @@ testSat ( const std::string& names, ReasoningKernel& Kernel )
 	TsScanner sc(&s);
 	ReasoningKernel::TConceptExpr* sat;
 
-	while ( (sat = getNextName(sc,Kernel.getExpressionManager())) != NULL )
+	while ( (sat = getNextName(sc,Kernel.getExpressionManager())) != nullptr )
 	{
 		bool result = false;
-		if ( dynamic_cast<const TDLConceptTop*>(sat) != NULL )
+		if ( dynamic_cast<const TDLConceptTop*>(sat) != nullptr )
 			result = Kernel.isKBConsistent();
 		else
 			TryReasoning ( result = Kernel.isSatisfiable(sat) );
@@ -167,10 +167,10 @@ testSub ( const std::string& names1, const std::string& names2, ReasoningKernel&
 	ReasoningKernel::TConceptExpr *sub, *sup;
 	TExpressionManager* pEM = Kernel.getExpressionManager();
 
-	while ( (sub = getNextName(sc1,pEM)) != NULL )
+	while ( (sub = getNextName(sc1,pEM)) != nullptr )
 	{
 		sc2.ReSet();
-		while ( (sup = getNextName(sc2,pEM)) != NULL )
+		while ( (sup = getNextName(sc2,pEM)) != nullptr )
 		{
 			bool result = false;
 			TryReasoning ( result = Kernel.isSubsumedBy ( sub, sup ) );
@@ -237,7 +237,7 @@ int main ( int argc, char *argv[] )
 		error ( "Cannot fill options value by config file" );
 
 	// getting TBox file name
-	const char* tBoxName = NULL;
+	const char* tBoxName = nullptr;
 	if ( Config. checkValue ( "Query", "TBox" ) )
 		error ( "Config: no TBox file defined" );
 	else

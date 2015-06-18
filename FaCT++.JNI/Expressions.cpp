@@ -336,7 +336,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
   (JNIEnv * env, jobject, jobject)
 {
 	Throw ( env, "FaCT++ Kernel: unsupported facet 'getLength'" );
-	return NULL;
+	return nullptr;
 }
 
 /*
@@ -348,7 +348,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
   (JNIEnv * env, jobject, jobject)
 {
 	Throw ( env, "FaCT++ Kernel: unsupported facet 'getMinLength'" );
-	return NULL;
+	return nullptr;
 }
 
 /*
@@ -360,7 +360,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
   (JNIEnv * env, jobject, jobject)
 {
 	Throw ( env, "FaCT++ Kernel: unsupported facet 'getMaxLength'" );
-	return NULL;
+	return nullptr;
 }
 
 /*
@@ -372,7 +372,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
   (JNIEnv * env, jobject, jobject)
 {
 	Throw ( env, "FaCT++ Kernel: unsupported facet 'getPattern'" );
-	return NULL;
+	return nullptr;
 }
 
 /*
@@ -436,7 +436,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
   (JNIEnv * env, jobject, jobject)
 {
 	Throw ( env, "FaCT++ Kernel: unsupported facet 'getTotalDigitsFacet'" );
-	return NULL;
+	return nullptr;
 }
 
 /*
@@ -449,7 +449,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
 {
 	TRACE_JNI("getFractionDigitsFacet");
 	Throw ( env, "FaCT++ Kernel: unsupported facet 'getFractionDigitsFacet'" );
-	return NULL;
+	return nullptr;
 }
 
 /*
@@ -746,7 +746,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
 {
 	TRACE_JNI("getDataPropertyKey");
 	Throw ( env, "FaCT++ Kernel: unsupported operation 'getDataPropertyKey'" );
-	return NULL;
+	return nullptr;
 }
 
 
@@ -760,7 +760,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
 {
 	TRACE_JNI("getObjectPropertyKey");
 	Throw ( env, "FaCT++ Kernel: unsupported operation 'getObjectPropertyKey'" );
-	return NULL;
+	return nullptr;
 }
 
 

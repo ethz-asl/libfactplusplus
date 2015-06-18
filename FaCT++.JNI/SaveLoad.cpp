@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2013 by Dmitry Tsarkov
+Copyright (C) 2013-2015 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -38,7 +38,7 @@ JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_ch
 {
 	TRACE_JNI("checkSaveLoadContext");
 	TRACE_STR(env,str);
-	JString* pContext = str ? new JString(env,str) : NULL;
+	JString* pContext = str ? new JString(env,str) : nullptr;
 	const char* context = pContext ? (*pContext)() : "";
 	bool ret = getK(env,obj)->checkSaveLoadContext(context);
 	delete pContext;
@@ -55,7 +55,7 @@ JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_se
 {
 	TRACE_JNI("setSaveLoadContext");
 	TRACE_STR(env,str);
-	JString* pContext = str ? new JString(env,str) : NULL;
+	JString* pContext = str ? new JString(env,str) : nullptr;
 	const char* context = pContext ? (*pContext)() : "";
 	bool ret = getK(env,obj)->setSaveLoadContext(context);
 	delete pContext;
@@ -72,7 +72,7 @@ JNIEXPORT jboolean JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_cl
 {
 	TRACE_JNI("clearSaveLoadContext");
 	TRACE_STR(env,str);
-	JString* pContext = str ? new JString(env,str) : NULL;
+	JString* pContext = str ? new JString(env,str) : nullptr;
 	const char* context = pContext ? (*pContext)() : "";
 	bool ret = getK(env,obj)->clearSaveLoadContext(context);
 	delete pContext;
