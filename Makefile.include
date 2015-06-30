@@ -1,5 +1,5 @@
 # global optimisation options
-GCC_OPT_OPT = -ffast-math -W -Wall -Wextra -O3 -fomit-frame-pointer -fPIC -std=c++1y
+GCC_OPT_OPT = -ffast-math -W -Wall -Wextra -O3 -fomit-frame-pointer -fPIC -std=c++11
 # -Wno-overloaded-virtual
 # the last one is for ExtendedSynLocChecker
 
@@ -86,8 +86,7 @@ $(BUILD_DIR):
 
 # Set C++ compilers and linker
 
-override CXX := g++$(GCC_SUFFIX) $(OS_DEF)
-#override CXX := ccache g++$(GCC_SUFFIX) $(OS_DEF)
+override CXX := $(CCACHE) g++$(GCC_SUFFIX) $(OS_DEF)
 
 # Library building tools
 

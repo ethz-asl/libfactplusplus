@@ -50,12 +50,13 @@ protected:	// methods
 			sum += v.getProjRole()->getId();
 		sum += v.getC();
 		sum += v.getNumberLE();
-		std::for_each ( v.begin(), v.end(), [&] (auto arg) { sum += arg; } );
+		for ( auto arg: v )
+			sum += arg;
 		return sum;
 	}
 
 		/// insert new POSition into a given LEAF
-	void insert ( HashLeaf& leaf, BipolarPointer pos ) { leaf.push_back(pos); }
+	static void insert ( HashLeaf& leaf, BipolarPointer pos ) { leaf.push_back(pos); }
 		/// locate vertex V in a given LEAF
 	BipolarPointer locate ( const HashLeaf& leaf, const DLVertex& v ) const;
 
@@ -67,7 +68,7 @@ public:		// interface
 
 		/// add an element (given by a POSition) to hash
 	void addElement ( BipolarPointer pos );
-		/// locate given vertice in the hash
+		/// locate given vertex in the hash
 	BipolarPointer locate ( const DLVertex& v ) const;
 }; // dlVHashTable
 

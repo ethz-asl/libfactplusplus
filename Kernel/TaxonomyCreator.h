@@ -194,7 +194,7 @@ protected:	// methods
 
 		/// prepare known subsumers for given entry if necessary
 	virtual KnownSubsumers* buildKnownSubsumers ( ClassifiableEntry* p )
-		{ return new ToldSubsumers(begin(p->told()), end(p->told())); }
+		{ return new ToldSubsumers(p->told().begin(), p->told().end()); }
 		/// prepare signature for given entry
 	virtual const TSignature* buildSignature ( ClassifiableEntry* p ATTR_UNUSED ) { return nullptr; }
 		/// add top entry together with its known subsumers

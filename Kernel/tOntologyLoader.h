@@ -74,10 +74,11 @@ protected:	// methods
 	void prepareArgList ( Collection argList )
 	{
 		ArgList.clear();
-		std::for_each ( std::begin(argList), std::end(argList), [&] (auto expr) {
+		for ( auto expr: argList )
+		{
 			ensureNames(expr);
 			ArgList.push_back(e(expr));
-		});
+		}
 	}
 
 public:		// visitor interface
@@ -384,10 +385,9 @@ public:		// interface
 		/// load ontology to a given KB
 	virtual void visitOntology ( TOntology& ontology )
 	{
-		std::for_each ( ontology.begin(), ontology.end(), [&] (auto axiom) {
+		for ( auto axiom: ontology )
 			if ( axiom->isUsed() )
 				axiom->accept(*this);
-		});
 
 		kb.finishLoading();
 	}

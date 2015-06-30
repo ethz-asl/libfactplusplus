@@ -16,6 +16,8 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
+#include <algorithm>
+
 #include "dlVertex.h"
 #include "dlDag.h"
 #include "tDataEntry.h"
@@ -47,7 +49,7 @@ clash:	// clash found: clear all stuff; returns true
 	unsigned int v = getValue (p);
 
 	auto q = Child.begin(), q_end = Child.end();
-	q = std::find_if_not ( q, q_end, [=] (auto bp) { return getValue(bp) < v; } );
+	q = std::find_if_not ( q, q_end, [=] (BipolarPointer bp) { return getValue(bp) < v; } );
 
 	if ( q == q_end )	// finish
 	{

@@ -20,6 +20,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 |*      Implementation of taxonomy vertex class        *|
 \*******************************************************/
 
+#include <algorithm>
+
 #include "taxVertex.h"
 #include "logging.h"
 
@@ -86,7 +88,7 @@ void TaxonomyVertex :: incorporate ( void )
 void
 TaxonomyVertex :: removeLinks ( bool upDirection )
 {
-	std::for_each ( begin(upDirection), end(upDirection), [=] (auto vertex) {
+	std::for_each ( begin(upDirection), end(upDirection), [=] (TaxonomyVertex* vertex) {
 		vertex->removeLink ( !upDirection, this );
 	});
 
@@ -114,9 +116,8 @@ void TaxonomyVertex :: printNeighbours ( std::ostream& o, bool upDirection ) con
 	o << " {" << neigh(upDirection).size() << ":";
 
 	TVSet sorted ( begin(upDirection), end(upDirection) );
-	std::for_each ( std::begin(sorted), std::end(sorted), [&] (auto vertex) {
+	for  ( auto vertex: sorted)
 		o << " \"" << vertex->getPrimer()->getName() << '"';
-	});
 
 	o << "}";
 }

@@ -36,9 +36,8 @@ protected:	// methods
 	template<class Container>
 	void print ( const Container& c )
 	{
-		std::for_each ( std::begin(c), std::end(c), [&] (auto axiom) {
-			axiom->accept(LEP);
-		});
+		for ( auto expr: c )
+			expr->accept(LEP);
 	}
 		/// helper to print a string
 	TLISPOntologyPrinter& operator << ( const char* str ) { o << str; o.flush(); return *this; }
@@ -106,15 +105,15 @@ public:		// visitor interface
 		{ *this << "(instance" << axiom.getIndividual() << " (all" << axiom.getAttribute() << "(not " << axiom.getValue() << ")))\n"; }
 
 public:		// interface
+		/// init c'tor
 	TLISPOntologyPrinter ( std::ostream& o_ ) : o(o_), LEP(o_) {}
 	virtual ~TLISPOntologyPrinter ( void ) {}
 	void recordDataRole ( const char* name ) { o << "(defdatarole " << name << ")\n"; }
 
 	virtual void visitOntology ( TOntology& ontology )
 	{
-		std::for_each ( ontology.begin(), ontology.end(), [&] (auto axiom) {
+		for ( auto axiom: ontology )
 			axiom->accept(*this);
-		});
 		o << std::endl;
 	}
 }; // TLISPOntologyPrinter

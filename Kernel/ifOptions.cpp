@@ -100,6 +100,7 @@ void ifOptionSet :: printConfig ( std::ostream& o ) const
 	// print header
 	o << "\n[Tuning]\n";
 
-	std::for_each ( begin(Base), end(Base), [&] (auto opt) { opt.second->printConfString(o); } );
+	for ( auto opt: Base )
+		opt.second->printConfString(o);
 	o << std::endl;
 }

@@ -95,7 +95,8 @@ public:		// interface
 	template<class Container>
 	void addParents ( const Container& parents )
 	{
-		std::for_each ( begin(parents), end(parents), [=] (ClassifiableEntry* p) { addParentIfNew(p); } );
+		for ( auto parent: parents )
+			addParentIfNew(parent);
 	}
 
 	// index interface
