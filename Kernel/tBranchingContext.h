@@ -65,7 +65,7 @@ public:		// members
 		/// relevant disjuncts (ready to add)
 	OrIndex applicableOrEntries;
 		/// current branching index
-	int branchIndex;
+	size_t branchIndex;
 
 public:		// interface
 		/// empty c'tor
