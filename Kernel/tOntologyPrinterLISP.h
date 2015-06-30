@@ -68,7 +68,7 @@ public:		// visitor interface
 	virtual void visit ( const TDLAxiomEquivalentConcepts& axiom ) { o << "(equal_c"; print(axiom); o << ")\n"; }
 	virtual void visit ( const TDLAxiomDisjointConcepts& axiom ) { o << "(disjoint_c"; print(axiom); o << ")\n"; }
 	virtual void visit ( const TDLAxiomDisjointUnion& axiom )
-		{ o << "(disjoint_c"; print(axiom); o << ")\n(equal_c (or" << axiom.getC(); print(axiom); o << "))\n"; }
+		{ o << "(disjoint_c"; print(axiom); o << ")\n(equal_c" << axiom.getC() << " (or"; print(axiom); o << "))\n"; }
 	virtual void visit ( const TDLAxiomEquivalentORoles& axiom ) { o << "(equal_r"; print(axiom); o << ")\n"; }
 	virtual void visit ( const TDLAxiomEquivalentDRoles& axiom ) { o << "(equal_r"; print(axiom); o << ")\n"; }
 	virtual void visit ( const TDLAxiomDisjointORoles& axiom ) { o << "(disjoint_r"; print(axiom); o << ")\n"; }
