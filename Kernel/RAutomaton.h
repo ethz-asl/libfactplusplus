@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2006-2014 by Dmitry Tsarkov
+Copyright (C) 2006-2015 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -20,7 +20,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #define RAUTOMATON_H
 
 #include <vector>
-#include <iostream>
+#include <iosfwd>
 
 #include "fpp_assert.h"
 #include "tFastSet.h"
@@ -50,34 +50,39 @@ protected:	// members
 
 public:		// interface
 		/// create a transition to given state
-	RATransition ( RAState st ) : state(st) {}
+	explicit RATransition ( RAState st ) : state(st) {}
 		/// create a transition with a given label R to given state ST
 	RATransition ( RAState st, const TRole* R ) : state(st) { add(R); }
 		/// copy c'tor
-	RATransition ( const RATransition& trans ) : label(trans.label), state(trans.state) {}
+	RATransition ( const RATransition& ) = default;
+		/// move c'tor
+	RATransition ( RATransition&& ) = default;
 		/// assignment
-	RATransition& operator = ( const RATransition& trans )
-	{
-		label = trans.label;
-		state = trans.state;
-		return *this;
-	}
+	RATransition& operator = ( const RATransition& ) = default;
+		/// move assignment
+	RATransition& operator = ( RATransition&& ) = default;
 		/// d'tor
-	~RATransition ( void ) {}
+	~RATransition ( void ) = default;
+
+		/// check whether transition is applicable wrt role R
+	bool applicable ( const TRole* R ) const
+	{
+		return std::any_of ( label.cbegin(), label.cend(), [=] (const TRole* S) { return S == R; } );
+	}
 
 	// update the transition
 
 		/// add role R to transition's label
 	void add ( const TRole* R ) { label.push_back(R); }
+		/// add role R to transition's label
+	void addIfNew ( const TRole* R ) { if ( !applicable(R) ) add(R); }
 		/// add label of transition TRANS to transition's label
 	void add ( const RATransition& trans )
-		{ label.insert ( label.end(), trans.label.begin(), trans.label.end() ); }
+		{ label.insert ( label.end(), trans.label.cbegin(), trans.label.cend() ); }
 		/// add label of transition TRANS to transition's label only if they are new
 	void addIfNew ( const RATransition& trans )
 	{
-		for ( const_iterator p = trans.label.begin(), p_end = trans.label.end(); p < p_end; ++p )
-			if ( !applicable(*p) )
-				add(*p);
+		std::for_each ( trans.label.cbegin(), trans.label.cend(), [=] (const TRole* R) { addIfNew(R); } );
 	}
 
 	// query the transition
@@ -89,15 +94,6 @@ public:		// interface
 
 		/// give a final point of the transition
 	RAState final ( void ) const { return state; }
-		/// check whether transition is applicable wrt role R
-	bool applicable ( const TRole* R ) const
-	{
-		for ( const_iterator p = label.begin(), p_end = label.end(); p < p_end; ++p )
-			if ( *p == R )
-				return true;
-
-		return false;
-	}
 		/// check whether transition is empty
 	bool empty ( void ) const { return label.empty(); }
 		/// check whether transition is TopRole one
@@ -111,7 +107,7 @@ class RAStateTransitions
 {
 protected:	// types
 		/// keep all the transitions
-	typedef std::vector<RATransition*> RTBase;
+	typedef std::vector<RATransition> RTBase;
 		/// RW iterators
 	typedef RTBase::iterator iterator;
 
@@ -133,53 +129,34 @@ protected:	// members
 		/// flag whether the role is data or not (valid only for simple automata)
 	bool DataRole;
 
-protected:	// methods
-		/// RW begin
-	iterator begin ( void ) { return Base.begin(); }
-		/// RW end
-	iterator end ( void ) { return Base.end(); }
-
 public:		// interface
 		/// empty c'tor
 	RAStateTransitions ( void ) : EmptyTransition(false), TopTransition(false) {}
 		/// copy c'tor
-	RAStateTransitions ( const RAStateTransitions& trans )
-		: EmptyTransition(trans.EmptyTransition)
-		, TopTransition(trans.TopTransition)
-	{
-		for ( const_iterator p = trans.begin(), p_end = trans.end(); p != p_end; ++p )
-			Base.push_back(new RATransition(**p));
-	}
+	RAStateTransitions ( const RAStateTransitions& ) = default;
+		/// move c'tor
+	RAStateTransitions ( RAStateTransitions&& ) = default;
 		/// assignment
-	RAStateTransitions& operator = ( const RAStateTransitions& trans )
-	{
-		for ( const_iterator p = trans.begin(), p_end = trans.end(); p != p_end; ++p )
-			Base.push_back(new RATransition(**p));
-		EmptyTransition = trans.EmptyTransition;
-		TopTransition = trans.TopTransition;
-		return *this;
-	}
-		/// d'tor: delete all transitions
-	~RAStateTransitions ( void )
-	{
-		for ( iterator p = begin(), p_end = end(); p != p_end; ++p )
-			delete *p;
-	}
+	RAStateTransitions& operator = ( const RAStateTransitions& ) = default;
+		/// move assignment
+	RAStateTransitions& operator = ( RAStateTransitions&& ) = default;
+		/// empty d'tor
+	~RAStateTransitions ( void ) = default;
 
 		/// set up state transitions: no more additions to the structure
-	void setup ( RAState state, size_t nRoles, bool data );
+	void finalise ( RAState state, size_t nRoles, bool data );
 
 		/// add a transition from a given state
-	void add ( RATransition* trans )
+	void add ( RATransition&& trans )
 	{
 		Base.push_back(trans);
-		if ( trans->empty() )
+		if ( trans.empty() )
 			EmptyTransition = true;
-		if ( trans->isTop() )
+		if ( trans.isTop() )
 			TopTransition = true;
 	}
-		/// add information from TRANS to existing transition between the same states. @return false if no such transition found
-	bool addToExisting ( const RATransition* trans );
+		/// copy information from TRANS to existing transition between the same states. @return false if no such transition found
+	bool addToExisting ( const RATransition& trans );
 
 		/// @return true iff there are no transitions from this state
 	bool empty ( void ) const { return Base.empty(); }
@@ -201,13 +178,13 @@ public:		// interface
 		/// @return true iff there is only one transition
 	bool isSingleton ( void ) const { return Base.size() == 1; }
 		/// @return final state of the 1st transition; used for singletons
-	RAState getTransitionEnd ( void ) const { return Base.front()->final(); }
+	RAState getTransitionEnd ( void ) const { return Base.front().final(); }
 
 		/// print all the transitions starting from the state FROM
 	void Print ( std::ostream& o ) const
 	{
-		for ( const_iterator p = begin(), p_end = end(); p != p_end; ++p )
-			(*p)->Print ( o, from );
+		for ( auto trans: Base )
+			trans.Print ( o, from );
 	}
 }; // RAStateTransitions
 
@@ -215,7 +192,7 @@ public:		// interface
 class RoleAutomaton
 {
 protected:	// members
-		/// all transitions of the automaton, groupped by a starting state
+		/// all transitions of the automaton, grouped by a starting state
 	std::vector<RAStateTransitions> Base;
 		/// maps original automata state into the new ones (used in copyRA)
 	std::vector<unsigned int> map;
@@ -250,15 +227,15 @@ protected:	// methods
 	}
 
 		/// add TRANSition leading from a state FROM; all states are known to fit the ton
-	void addTransition ( RAState from, RATransition* trans )
+	void addTransition ( RAState from, RATransition&& trans )
 	{
-		checkTransition ( from, trans->final() );
-		Base[from].add(trans);
+		checkTransition ( from, trans.final() );
+		Base[from].add(std::move(trans));
 	}
 		/// make the internal chain transition (between chainState and TO)
 	void nextChainTransition ( RAState to )
 	{
-		addTransition ( iRA, new RATransition(to) );
+		addTransition ( iRA, RATransition(to) );
 		iRA = to;
 	}
 
@@ -278,11 +255,15 @@ public:		// interface
 		ensureState(1);
 	}
 		/// copy c'tor
-	RoleAutomaton ( const RoleAutomaton& RA );
+	RoleAutomaton ( const RoleAutomaton& ) = default;
+		/// move c'tor
+	RoleAutomaton ( RoleAutomaton&& ) = default;
 		/// assignment
-	RoleAutomaton& operator= ( const RoleAutomaton& RA );
+	RoleAutomaton& operator= ( const RoleAutomaton& ) = default;
+		/// move assignment
+	RoleAutomaton& operator= ( RoleAutomaton&& ) = default;
 		/// empty d'tor
-	~RoleAutomaton ( void ) {}
+	~RoleAutomaton ( void ) = default;
 
 	// access to states
 
@@ -304,17 +285,17 @@ public:		// interface
 	void setup ( size_t nRoles, bool data )
 	{
 		for ( RAState i = 0; i < Base.size(); ++i )
-			Base[i].setup ( i, nRoles, data );
+			Base[i].finalise ( i, nRoles, data );
 	}
 
 	// automaton's construction
 
 		/// add TRANSition leading from a given STATE; check whether all states are correct
-	void addTransitionSafe ( RAState state, RATransition* trans )
+	void addTransitionSafe ( RAState state, RATransition&& trans )
 	{
 		ensureState(state);
-		ensureState(trans->final());
-		addTransition ( state, trans );
+		ensureState(trans.final());
+		addTransition ( state, std::move(trans) );
 	}
 
 	// chain automaton creation
@@ -372,8 +353,8 @@ public:		// interface
 		/// print an automaton
 	void Print ( std::ostream& o ) const
 	{
-		for ( RAState state = 0; state < Base.size(); ++state )
-			Base[state].Print(o);
+		for ( auto StateTransitions: Base )
+			StateTransitions.Print(o);
 	}
 }; // RoleAutomaton
 

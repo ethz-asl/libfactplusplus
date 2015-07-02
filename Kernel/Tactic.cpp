@@ -390,24 +390,23 @@ bool DlSatTester :: commonTacticBodyAllComplex ( const DLVertex& cur )
 	const DepSet& dep = curConcept.getDep();
 	unsigned int state = cur.getState();
 	BipolarPointer C = curConcept.bp()-(BipolarPointer)state;	// corresponds to AR{0}.X
-	const RAStateTransitions& RST = cur.getRole()->getAutomaton()[state];
-	RAStateTransitions::const_iterator q, end = RST.end();
+	auto RST = cur.getRole()->getAutomaton()[state];
 
 	// apply all empty transitions
 	if ( RST.hasEmptyTransition() )
-		for ( q = RST.begin(); q != end; ++q )
+		for ( auto trans: RST )
 		{
 			incStat(nAutoEmptyLookups);
 
-			if ( (*q)->empty() )
-				switchResult ( addToDoEntry ( curNode, C+(BipolarPointer)(*q)->final(), dep, "e" ) );
+			if ( trans.empty() )
+				switchResult ( addToDoEntry ( curNode, C+BipolarPointer(trans.final()), dep, "e" ) );
 		}
 
 	// apply all top-role transitions
 	if ( unlikely(RST.hasTopTransition()) )
-		for ( q = RST.begin(); q != end; ++q )
-			if ( (*q)->isTop() )
-				switchResult ( addSessionGCI ( C+(BipolarPointer)(*q)->final(), dep ) );
+		for ( auto trans: RST )
+			if ( trans.isTop() )
+				switchResult ( addSessionGCI ( C+BipolarPointer(trans.final()), dep ) );
 
 	// apply final-state rule
 	if ( state == 1 )
@@ -456,15 +455,14 @@ bool DlSatTester :: applyTransitions ( const DlCompletionTreeArc* edge,
 	if ( RST.isSingleton() )
 		return addToDoEntry ( node, C+(BipolarPointer)RST.getTransitionEnd(), dep, reason );
 
-	RAStateTransitions::const_iterator q, end = RST.end();
 	const TRole* R = edge->getRole();
 
 	// try to apply all transitions to edge
-	for ( q = RST.begin(); q != end; ++q )
+	for ( auto trans: RST )
 	{
 		incStat(nAutoTransLookups);
-		if ( (*q)->applicable(R) )
-			switchResult ( addToDoEntry ( node, C+(BipolarPointer)(*q)->final(), dep, reason ) );
+		if ( trans.applicable(R) )
+			switchResult ( addToDoEntry ( node, C+BipolarPointer(trans.final()), dep, reason ) );
 	}
 
 	return false;

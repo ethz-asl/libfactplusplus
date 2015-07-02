@@ -238,7 +238,6 @@ DlCompletionTree :: B2Complex ( const RAStateTransitions& RST, BipolarPointer C 
 {
 	const DlCompletionTree* parent = getParentNode();
 	const CGLabel& parLab = parent->label();
-	RAStateTransitions::const_iterator q, q_end = RST.end();
 	TRY_B(2);
 
 	for ( const_edge_iterator p = begin(), p_end = end(); p < p_end; ++p )
@@ -249,10 +248,10 @@ DlCompletionTree :: B2Complex ( const RAStateTransitions& RST, BipolarPointer C 
 		if ( !RST.recognise(R) )
 			continue;
 
-		for ( q = RST.begin(); q != q_end; ++q )
-			if ( (*q)->applicable(R) )
+		for ( auto trans: RST )
+			if ( trans.applicable(R) )
 			{
-				BipolarPointer bpFinal = C + (BipolarPointer) (*q)->final();
+				BipolarPointer bpFinal = C + (BipolarPointer) trans.final();
 				if ( !parLab.containsCC(bpFinal) )
 				{
 					FAIL_B(2);

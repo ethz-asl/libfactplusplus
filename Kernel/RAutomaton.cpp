@@ -28,27 +28,26 @@ RATransition :: isTop ( void ) const
 
 /// set up state transitions: no more additions to the structure
 void
-RAStateTransitions :: setup ( RAState state, size_t nRoles, bool data )
+RAStateTransitions :: finalise ( RAState state, size_t nRoles, bool data )
 {
 	from = state;
 	DataRole = data;
 	ApplicableRoles.ensureMaxSetSize(nRoles);
 	// fills the set of recognisable roles
-	for ( const_iterator p = begin(), p_end = end(); p != p_end; ++p )
-		for ( RATransition::const_iterator q = (*p)->begin(), q_end = (*p)->end(); q != q_end; ++q )
-			ApplicableRoles.add((*q)->getIndex());
+	for ( auto trans: Base )
+		std::for_each ( trans.begin(), trans.end(), [&] (const TRole* R) { ApplicableRoles.add(R->getIndex()); } );
 }
 
 /// add information from TRANS to existing transition between the same states. @return false if no such transition found
 bool
-RAStateTransitions :: addToExisting ( const RATransition* trans )
+RAStateTransitions :: addToExisting ( const RATransition& trans )
 {
-	RAState to = trans->final();
-	bool tEmpty = trans->empty();
-	for ( iterator p = Base.begin(), p_end = Base.end(); p != p_end; ++p )
-		if ( (*p)->final() == to && (*p)->empty() == tEmpty )
+	RAState to = trans.final();
+	bool tEmpty = trans.empty();
+	for ( auto transition: Base )
+		if ( transition.final() == to && transition.empty() == tEmpty )
 		{	// found existing transition
-			(*p)->addIfNew(*trans);
+			transition.addIfNew(trans);
 			return true;
 		}
 	// no transition from->to found
@@ -84,18 +83,18 @@ RoleAutomaton :: addCopy ( const RoleAutomaton& RA )
 		if ( RSTOrig.empty() )
 			continue;
 
-		for ( RAStateTransitions::const_iterator p = RSTOrig.begin(), p_end = RSTOrig.end(); p != p_end; ++p )
+		for ( auto origTrans: RSTOrig )
 		{
-			RAState to = (*p)->final();
-			RATransition* trans = new RATransition(map[to]);
-			checkTransition ( from, trans->final() );
-			trans->add(**p);
+			// find a map from original transitions' end to the updated transitions' end
+			RAState to = origTrans.final();
+			RAState final = map[to];
+			checkTransition ( from, final );
+			RATransition trans(final);
+			trans.add(origTrans);
 
 			// try to merge transitions going to the original final state
-			if ( to == 1 && RST.addToExisting(trans) )
-				delete trans;
-			else
-				RST.add(trans);
+			if ( to != 1 || !RST.addToExisting(trans) )
+				RST.add(RATransition(trans));
 		}
 	}
 }

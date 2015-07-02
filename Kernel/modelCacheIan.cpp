@@ -80,9 +80,9 @@ modelCacheIan :: processAutomaton ( const DLVertex& cur )
 
 	// for every transition starting from a given state,
 	// add the role that is accepted by a transition
-	for ( RAStateTransitions::const_iterator i = RST.begin(), i_end = RST.end(); i < i_end; ++i )
-		for ( RATransition::const_iterator r = (*i)->begin(), r_end = (*i)->end(); r < r_end; ++r )
-			forallRoles.insert((*r)->index());
+	for ( auto trans: RST )
+		for ( auto R: trans )
+			forallRoles.insert(R->index());
 }
 
 modelCacheState modelCacheIan :: canMerge ( const modelCacheInterface* p ) const

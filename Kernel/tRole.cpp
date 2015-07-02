@@ -398,7 +398,7 @@ void TRole :: completeAutomaton ( TRoleSet& RInProcess )
 
 	// check for the transitivity
 	if ( isTransitive() )
-		A.addTransitionSafe ( A.final(), new RATransition(A.initial()) );
+		A.addTransitionSafe ( A.final(), RATransition(A.initial()) );
 
 	// here automaton is complete
 	A.setCompleted();
