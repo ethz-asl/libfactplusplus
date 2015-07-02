@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2008-2009 by Dmitry Tsarkov
+Copyright (C) 2008-2015 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -19,7 +19,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef TFASTSET_H
 #define TFASTSET_H
 
-#include "growingArray.h"
+#include <algorithm>
+#include <vector>
 
 /// the implementation of the set with constant-time "in" check
 template<class T>
@@ -27,7 +28,7 @@ class TFastSet
 {
 protected:	// internal types
 		/// type for the array of values
-	typedef growingArray<T> ValArray;
+	typedef std::vector<T> ValArray;
 		/// type of the index
 	typedef size_t indexType;
 
@@ -79,23 +80,20 @@ public:		// interface
 		/// check whether T is in set
 	bool in ( const T& t ) const
 	{
-		indexType index = Index[toInt(t)];
+		auto index = Index[toInt(t)];
 		return index < Value.size() && Value[index] == t;
 	}
 		/// check whether FS contains all the elements from the given set
 	bool operator <= ( const TFastSet& fs ) const
 	{
-		for ( const_iterator p = begin(), p_end = end(); p < p_end; ++p )
-			if ( !fs.in(*p) )
-				return false;
-		return true;
+		return std::all_of ( begin(), end(), [&] (const T& val) { return fs.in(val); } );
 	}
 		/// check whether given set contains all the elements from FS
 	bool operator >= ( const TFastSet& fs ) const { return fs <= *this; }
 		/// equality of the sets
-	bool operator == ( const TFastSet& fs ) const { return (*this <= fs) && (fs <= *this); }
+	bool operator == ( const TFastSet& fs ) const { return size() == fs.size() && (*this <= fs); }
 		/// strict containment
-	bool operator < ( const TFastSet& fs ) const { return (*this <= fs) && !(fs <= *this); }
+	bool operator < ( const TFastSet& fs ) const { return size() < fs.size() && (*this <= fs); }
 		/// strict containment
 	bool operator > ( const TFastSet& fs ) const { return fs < *this; }
 
@@ -105,24 +103,10 @@ public:		// interface
 	void addu ( const T& t )
 	{
 		Index[toInt(t)] = Value.size();
-		Value.add(t);
+		Value.emplace_back(t);
 	}
 		/// add element T to a set
 	void add ( const T& t ) { if ( !in(t) ) addu(t); }
-		/// add a set [begin,end) to a set; assume none of the elements appears in the set
-	template<class Iterator>
-	void addu ( Iterator begin, Iterator end )
-	{
-		for ( ; begin != end; ++ begin )
-			addu(*begin);
-	}
-		/// add a set [begin,end) to a set
-	template<class Iterator>
-	void add ( Iterator begin, Iterator end )
-	{
-		for ( ; begin != end; ++ begin )
-			add(*begin);
-	}
 
 	// misc
 
