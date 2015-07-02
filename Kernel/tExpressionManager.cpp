@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2010-2011 by Dmitry Tsarkov
+Copyright (C) 2010-2015 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -56,8 +56,8 @@ TExpressionManager :: clear ( void )
 	InverseRoleCache.clear();
 	OneOfCache.clear();
 	// delete all the recorded references
-	for ( std::vector<TDLExpression*>::iterator p = RefRecorder.begin(), p_end = RefRecorder.end(); p < p_end; ++p )
-		delete *p;
+	for ( auto expr: RefRecorder )
+		delete expr;
 	RefRecorder.clear();
 }
 
@@ -65,9 +65,9 @@ TExpressionManager :: clear ( void )
 void
 TExpressionManager :: clearNameCache ( void )
 {
-	clearNameCache(NS_C);
-	clearNameCache(NS_I);
-	clearNameCache(NS_OR);
-	clearNameCache(NS_DR);
-	clearNameCache(NS_DT);
+	clearEntriesCache(NS_C);
+	clearEntriesCache(NS_I);
+	clearEntriesCache(NS_OR);
+	clearEntriesCache(NS_DR);
+	clearEntriesCache(NS_DT);
 }

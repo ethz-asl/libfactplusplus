@@ -45,10 +45,6 @@ protected:	// types
 		/// base type
 	typedef std::map <std::string, T*> NameTree;
 
-public:		// types
-		/// RW iterator
-	typedef typename NameTree::iterator iterator;
-
 protected:	// members
 		/// Base holding all names
 	NameTree Base;
@@ -107,12 +103,20 @@ public:		// interface
 
 		Base.clear();
 	}
+		/// clear the Entry field in all entities
+	template <class U>
+	friend void clearEntriesCache ( TNameSet<U>& ns );
 		/// get size of a name set
 	size_t size ( void ) const { return Base.size(); }
-		/// RW begin iterator
-	iterator begin ( void ) { return Base.begin(); }
-		/// RW end iterator
-	iterator end ( void ) { return Base.end(); }
 }; // TNameSet
+
+/// clear the Entry field in all entities
+/// work only for T derived from TNamedEntity
+template <class T>
+void clearEntriesCache ( TNameSet<T>& ns )
+{
+	for ( auto bind: ns.Base )
+		bind.second->setEntry(nullptr);
+}
 
 #endif
