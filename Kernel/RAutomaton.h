@@ -149,7 +149,7 @@ public:		// interface
 		/// add a transition from a given state
 	void add ( RATransition&& trans )
 	{
-		Base.push_back(trans);
+		Base.push_back(std::move(trans));
 		if ( trans.empty() )
 			EmptyTransition = true;
 		if ( trans.isTop() )

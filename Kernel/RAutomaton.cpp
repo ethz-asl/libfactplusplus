@@ -44,7 +44,7 @@ RAStateTransitions :: addToExisting ( const RATransition& trans )
 {
 	RAState to = trans.final();
 	bool tEmpty = trans.empty();
-	for ( auto transition: Base )
+	for ( auto& transition: Base )
 		if ( transition.final() == to && transition.empty() == tEmpty )
 		{	// found existing transition
 			transition.addIfNew(trans);
@@ -83,7 +83,7 @@ RoleAutomaton :: addCopy ( const RoleAutomaton& RA )
 		if ( RSTOrig.empty() )
 			continue;
 
-		for ( auto origTrans: RSTOrig )
+		for ( auto& origTrans: RSTOrig )
 		{
 			// find a map from original transitions' end to the updated transitions' end
 			RAState to = origTrans.final();
@@ -93,6 +93,7 @@ RoleAutomaton :: addCopy ( const RoleAutomaton& RA )
 			trans.add(origTrans);
 
 			// try to merge transitions going to the original final state
+			// we will move the TRANS in the ADD case, so the temporary copy
 			if ( to != 1 || !RST.addToExisting(trans) )
 				RST.add(RATransition(trans));
 		}
