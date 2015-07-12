@@ -149,11 +149,11 @@ public:		// interface
 		/// add a transition from a given state
 	void add ( RATransition&& trans )
 	{
-		Base.push_back(std::move(trans));
 		if ( trans.empty() )
 			EmptyTransition = true;
 		if ( trans.isTop() )
 			TopTransition = true;
+		Base.push_back(std::move(trans));
 	}
 		/// copy information from TRANS to existing transition between the same states. @return false if no such transition found
 	bool addToExisting ( const RATransition& trans );
