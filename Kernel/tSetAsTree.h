@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2013 by Dmitry Tsarkov
+Copyright (C) 2003-2015 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -38,15 +38,15 @@ public:		// interface
 		/// empty c'tor taking max possible number of elements in the set
 	explicit TSetAsTree ( unsigned int size ) : nElems(size) {}
 		/// copy c'tor
-	TSetAsTree ( const TSetAsTree& is ) : Base(is.Base) {}
+	TSetAsTree ( const TSetAsTree& ) = default;
+		/// move c'tor
+	TSetAsTree ( TSetAsTree&& ) = default;
 		/// assignment
-	TSetAsTree& operator= ( const TSetAsTree& is )
-	{
-		Base = is.Base;
-		return *this;
-	}
+	TSetAsTree& operator= ( const TSetAsTree& ) = default;
+		/// move assignment
+	TSetAsTree& operator= ( TSetAsTree&& ) = default;
 		/// empty d'tor
-	~TSetAsTree ( void ) {}
+	~TSetAsTree () = default;
 
 		/// adds given index to the set
 	void insert ( unsigned int i )
