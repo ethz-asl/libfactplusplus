@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2013 by Dmitry Tsarkov
+Copyright (C) 2013-2015 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -84,7 +84,7 @@ MemoryStatistics :: ~MemoryStatistics ( void )
 	{
 		timer.Stop();
 		size_t endMem = getProcessMemory()/1024/1024;
-		StatLogFile << operation.c_str() << ": time " << timer << " sec, op memory " << endMem-startMem << " Mb, total memory " << endMem << " Mb\n";
+		StatLogFile << operation << ": time " << timer << " sec, op memory " << endMem-startMem << " Mb, total memory " << endMem << " Mb\n";
 		timer.Reset();
 	}
 }

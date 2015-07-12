@@ -35,7 +35,7 @@ bool ifOption :: setAValue ( const std::string& s )
 		if ( !isdigit (s[0]) )
 			return true;
 		else
-			iValue = atoi ( s.c_str() );
+			iValue = stoi(s);
 	}
 	else	// text values
 		tValue = s;
@@ -47,7 +47,7 @@ bool ifOption :: setAValue ( const std::string& s )
 void ifOption :: printConfString ( std::ostream& o ) const
 {
 	// name and type
-	o << "\n;---\n;--- Option '" << optionName.c_str () << "': ";
+	o << "\n;---\n;--- Option '" << optionName << "': ";
 	if ( type == iotBool )
 		o << "boolean";
 	else if ( type == iotInt )
@@ -58,8 +58,8 @@ void ifOption :: printConfString ( std::ostream& o ) const
 		fpp_unreachable();
 
 	// description, default, name
-	o << " ---\n;---\n;* " << optionDescription.c_str () << "\n;* Default value: '"
-	  << defaultValue.c_str () << "'\n\n; " << optionName.c_str () << " = ";
+	o << " ---\n;---\n;* " << optionDescription << "\n;* Default value: '"
+	  << defaultValue << "'\n\n; " << optionName << " = ";
 
 	// value
 	if ( type == iotBool )
@@ -67,7 +67,7 @@ void ifOption :: printConfString ( std::ostream& o ) const
 	else if ( type == iotInt )
 		o << getInt ();
 	else if ( type == iotText )
-		o << getText().c_str ();
+		o << getText();
 	else	// sanity check
 		fpp_unreachable();
 

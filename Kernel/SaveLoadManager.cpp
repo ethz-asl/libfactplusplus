@@ -25,7 +25,7 @@ bool
 SaveLoadManager :: existsContent ( void ) const
 {
 	// context is there if a file can be opened
-	return !std::ifstream(filename.c_str()).fail();
+	return !std::ifstream(filename).fail();
 }
 
 void
@@ -45,9 +45,9 @@ SaveLoadManager :: prepare ( bool input )
 
 	// open a new one
 	if ( input )
-		ip = new std::ifstream(filename.c_str());
+		ip = new std::ifstream(filename);
 	else
-		op = new std::ofstream(filename.c_str());
+		op = new std::ofstream(filename);
 }
 
 void

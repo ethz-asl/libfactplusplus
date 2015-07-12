@@ -113,7 +113,7 @@ bool Configuration :: checkValue ( const std::string& Sect, const std::string& F
 void ConfSection :: addEntry ( const std::string& name, const std::string& value )
 {
 	#ifdef USE_DEBUG
-		cerr << "\nadd pair \'" << name.c_str() << "\',\'" << value.c_str() << "\' to section \'" << Name.c_str() << "\'";
+		std::cerr << "\nadd pair \'" << name << "\',\'" << value << "\' to section \'" << Name << "\'";
 	#endif
 	Base.push_back ( new ConfElem ( name, value ) );
 }
@@ -147,7 +147,7 @@ int Configuration :: SplitLine ( char*& pName, char*& pValue )
 	if ( p == pValue && isspace (*p) ) return 4;
 
 	#ifdef USE_DEBUG
-		cerr << "\nfound string \'" << pName << "\'=\'" << pValue << "\'";
+		std::cerr << "\nfound string \'" << pName << "\'=\'" << pValue << "\'";
 	#endif
 	// all right!
 	return 0;
@@ -223,7 +223,7 @@ void Configuration :: loadSection ( void )
 {
 	Line [strlen(Line)-1] = (char) 0;	// kill ']' of section
 	#ifdef USE_DEBUG
-		cerr << "\nfound section \'" << Line+1 << "\'";
+		std::cerr << "\nfound section \'" << Line+1 << "\'";
 	#endif
 	createSection ( Line+1 );	// skip '['
 }
@@ -231,12 +231,12 @@ void Configuration :: loadSection ( void )
 // Save part
 void ConfElem :: Save ( std::ostream& o ) const
 {
-	o << ' ' << Name.c_str () << " = " << Value.c_str () << std::endl;
+	o << ' ' << Name << " = " << Value << std::endl;
 }
 
 void ConfSection :: Save ( std::ostream& o ) const
 {
-	o << "[" << Name.c_str () << "]\n";
+	o << "[" << Name << "]\n";
 
 	for ( ConfBase::const_iterator i = Base.begin (); i != Base.end (); ++i )
 		(*i)->Save (o);

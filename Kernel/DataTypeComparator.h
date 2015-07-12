@@ -190,7 +190,7 @@ public:		// interface
 		{
 		case INT:	o << getLongIntValue(); break;
 		case FLOAT:	o << getFloatValue(); break;
-		case STR:	o << '"' << getStringValue().c_str() << '"'; break;
+		case STR:	o << '"' << getStringValue() << '"'; break;
 		case TIME:	o << getTimeValue(); break;
 		default:	fpp_unreachable();
 		}
@@ -205,7 +205,7 @@ std::ostream& operator << ( std::ostream& o, const ComparableDT& cdt )
 	switch ( cdt.vType )
 	{
 	case ComparableDT::INT:	o << cdt.getLongIntValue(); break;
-	case ComparableDT::STR:	o << cdt.getStringValue().c_str(); break;
+	case ComparableDT::STR:	o << cdt.getStringValue(); break;
 	case ComparableDT::FLOAT:	o << cdt.getFloatValue(); break;
 	case ComparableDT::TIME:	o << cdt.getTimeValue(); break;
 	default:	fpp_unreachable();

@@ -255,7 +255,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
 		return J->DataType(J->EM->getTimeDataType());
 
 	std::stringstream err;
-	err << "Unsupported datatype '" << DTName.c_str() << "'";
+	err << "Unsupported datatype '" << DTName << "'";
 	Throw ( env, err.str().c_str() );
 	return (jobject)0;
 }

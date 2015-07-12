@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2014 by Dmitry Tsarkov
+Copyright (C) 2003-2015 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -23,7 +23,7 @@ const unsigned MaxConfLineLen = 1024;
 
 #include <cstring>
 #include <cstdlib>
-#include <iostream>
+#include <iosfwd>
 
 #include <string>
 #include <vector>
@@ -47,7 +47,7 @@ public:		// interface
 	void Save ( std::ostream& o ) const;
 
 	// interface
-	long GetLong ( void ) const { return atol ( Value.c_str() ); }
+	long GetLong ( void ) const { return std::stol(Value); }
 	double GetDouble ( void ) const { return atof ( Value.c_str() ); }
 	const char* GetString ( void ) const { return Value.c_str(); }
 }; // ConfElem
