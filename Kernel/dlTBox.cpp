@@ -98,10 +98,10 @@ TBox :: ~TBox ( void )
 /// get unique aux concept
 TConcept* TBox :: getAuxConcept ( DLTree* desc )
 {
-	std::stringstream name;
-	name << " aux" << ++auxConceptID;
+	std::string name {" aux"};
+	name += std::to_string(++auxConceptID);
 	bool old = setForbidUndefinedNames(false);
-	TConcept* C = getConcept(name.str());
+	TConcept* C = getConcept(name);
 	setForbidUndefinedNames(old);
 	C->setSystem();
 	C->setNonClassifiable();
