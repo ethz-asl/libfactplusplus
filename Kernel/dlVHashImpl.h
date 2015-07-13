@@ -24,7 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 inline BipolarPointer
 dlVHashTable :: locate ( const HashLeaf& leaf, const DLVertex& v ) const
 {
-	for ( auto bp: leaf )
+	for ( auto& bp: leaf )
 		if ( v == host[bp] )
 			return bp;
 

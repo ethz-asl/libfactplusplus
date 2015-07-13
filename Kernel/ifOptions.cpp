@@ -83,7 +83,7 @@ bool ifOptionSet :: initByConfigure ( Configuration& Config, const std::string& 
 		return true;
 
 	// for all registered options
-	for ( auto p: Base )
+	for ( auto& p: Base )
 		if ( !Config.checkValue(p.first) )			// if option located in config file
 			if ( p.second->setAValue(Config.getValue()))	// ... set up its value
 				return true;	// can't set value
@@ -102,7 +102,7 @@ void ifOptionSet :: printConfig ( std::ostream& o ) const
 	// print header
 	o << "\n[Tuning]\n";
 
-	for ( auto opt: Base )
+	for ( auto& opt: Base )
 		opt.second->printConfString(o);
 	o << std::endl;
 }

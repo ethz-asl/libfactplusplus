@@ -248,7 +248,7 @@ DlCompletionTree :: B2Complex ( const RAStateTransitions& RST, BipolarPointer C 
 		if ( !RST.recognise(R) )
 			continue;
 
-		for ( auto trans: RST )
+		for ( auto& trans: RST )
 			if ( trans.applicable(R) )
 			{
 				BipolarPointer bpFinal = C + (BipolarPointer) trans.final();

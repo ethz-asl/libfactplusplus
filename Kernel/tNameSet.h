@@ -98,7 +98,7 @@ public:		// interface
 		/// clear name set
 	void clear ( void )
 	{
-		for ( auto p: Base )
+		for ( auto& p: Base )
 			delete p.second;
 
 		Base.clear();
@@ -115,7 +115,7 @@ public:		// interface
 template <class T>
 void clearEntriesCache ( TNameSet<T>& ns )
 {
-	for ( auto bind: ns.Base )
+	for ( auto& bind: ns.Base )
 		bind.second->setEntry(nullptr);
 }
 

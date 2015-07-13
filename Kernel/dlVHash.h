@@ -50,7 +50,7 @@ protected:	// methods
 			sum += v.getProjRole()->getId();
 		sum += v.getC();
 		sum += v.getNumberLE();
-		for ( auto arg: v )
+		for ( auto& arg: v )
 			sum += arg;
 		return sum;
 	}

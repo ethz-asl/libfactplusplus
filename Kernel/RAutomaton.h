@@ -183,7 +183,7 @@ public:		// interface
 		/// print all the transitions starting from the state FROM
 	void Print ( std::ostream& o ) const
 	{
-		for ( auto trans: Base )
+		for ( auto& trans: Base )
 			trans.Print ( o, from );
 	}
 }; // RAStateTransitions
@@ -353,7 +353,7 @@ public:		// interface
 		/// print an automaton
 	void Print ( std::ostream& o ) const
 	{
-		for ( auto StateTransitions: Base )
+		for ( auto& StateTransitions: Base )
 			StateTransitions.Print(o);
 	}
 }; // RoleAutomaton

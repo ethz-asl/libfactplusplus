@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2006-2014 by Dmitry Tsarkov
+Copyright (C) 2006-2015 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -34,7 +34,7 @@ RAStateTransitions :: finalise ( RAState state, size_t nRoles, bool data )
 	DataRole = data;
 	ApplicableRoles.ensureMaxSetSize(nRoles);
 	// fills the set of recognisable roles
-	for ( auto trans: Base )
+	for ( const auto& trans: Base )
 		std::for_each ( trans.begin(), trans.end(), [&] (const TRole* R) { ApplicableRoles.add(R->getIndex()); } );
 }
 

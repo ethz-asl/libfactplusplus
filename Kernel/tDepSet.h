@@ -110,7 +110,7 @@ public:		// interface
 	virtual ~TDepSetCache ( void )
 	{
 		// don't delete tails as they are referenced outside
-		for ( auto p: Map )
+		for ( auto& p: Map )
 			delete p.second;
 		delete HeadDepSet;
 	}

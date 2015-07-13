@@ -125,7 +125,7 @@ public:		// interface
 		/// d'tor (delete all registered options)
 	~ifOptionSet ( void )
 	{
-		for ( auto p: Base )
+		for ( auto& p: Base )
 			delete p.second;
 	}
 

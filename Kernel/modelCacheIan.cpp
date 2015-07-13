@@ -80,7 +80,7 @@ modelCacheIan :: processAutomaton ( const DLVertex& cur )
 
 	// for every transition starting from a given state,
 	// add the role that is accepted by a transition
-	for ( auto trans: RST )
+	for ( auto& trans: RST )
 		for ( auto R: trans )
 			forallRoles.insert(R->index());
 }

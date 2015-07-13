@@ -390,11 +390,11 @@ bool DlSatTester :: commonTacticBodyAllComplex ( const DLVertex& cur )
 	const DepSet& dep = curConcept.getDep();
 	unsigned int state = cur.getState();
 	BipolarPointer C = curConcept.bp()-(BipolarPointer)state;	// corresponds to AR{0}.X
-	auto RST = cur.getRole()->getAutomaton()[state];
+	auto& RST = cur.getRole()->getAutomaton()[state];
 
 	// apply all empty transitions
 	if ( RST.hasEmptyTransition() )
-		for ( auto trans: RST )
+		for ( auto& trans: RST )
 		{
 			incStat(nAutoEmptyLookups);
 
@@ -404,7 +404,7 @@ bool DlSatTester :: commonTacticBodyAllComplex ( const DLVertex& cur )
 
 	// apply all top-role transitions
 	if ( unlikely(RST.hasTopTransition()) )
-		for ( auto trans: RST )
+		for ( auto& trans: RST )
 			if ( trans.isTop() )
 				switchResult ( addSessionGCI ( C+BipolarPointer(trans.final()), dep ) );
 
@@ -458,7 +458,7 @@ bool DlSatTester :: applyTransitions ( const DlCompletionTreeArc* edge,
 	const TRole* R = edge->getRole();
 
 	// try to apply all transitions to edge
-	for ( auto trans: RST )
+	for ( auto& trans: RST )
 	{
 		incStat(nAutoTransLookups);
 		if ( trans.applicable(R) )
