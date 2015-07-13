@@ -19,8 +19,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef DLCOMPLETIONTREEARC_H
 #define DLCOMPLETIONTREEARC_H
 
-#include <iostream>
-
 #include "globaldef.h"
 #include "DeletelessAllocator.h"
 #include "DepSet.h"

@@ -21,6 +21,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 \*******************************************************/
 
 #include <algorithm>
+#include <ostream>
 
 #include "taxVertex.h"
 #include "logging.h"
@@ -120,4 +121,14 @@ void TaxonomyVertex :: printNeighbours ( std::ostream& o, bool upDirection ) con
 		o << " \"" << vertex->getPrimer()->getName() << '"';
 
 	o << "}";
+}
+
+/// print taxonomy vertex in format <equals parents children>
+void
+TaxonomyVertex :: print ( std::ostream& o ) const
+{
+	printSynonyms(o);
+	printNeighbours ( o, true );
+	printNeighbours ( o, false );
+	o << "\n";
 }

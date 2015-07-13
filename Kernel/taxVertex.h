@@ -21,7 +21,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <set>
 #include <vector>
-#include <iostream>
+#include <iosfwd>
 #include <string.h>
 
 #include "taxNamEntry.h"
@@ -242,13 +242,7 @@ public:
 	// output methods
 
 		/// print taxonomy vertex in format <equals parents children>
-	void print ( std::ostream& o ) const
-	{
-		printSynonyms(o);
-		printNeighbours ( o, true );
-		printNeighbours ( o, false );
-		o << "\n";
-	}
+	void print ( std::ostream& o ) const;
 
 	// save/load interface; implementation is in SaveLoad.cpp
 

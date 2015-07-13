@@ -20,7 +20,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #define TDEPSET_H
 
 #include <map>
-#include <iostream>
 
 #include "fpp_assert.h"
 #include "growingArrayP.h"
@@ -242,7 +241,7 @@ public:		// interface
 			clear();
 	}
 
-		/// Print given dep-set to a standart stream
+		/// Print given dep-set to a standard stream
 	template <class O>
 	void Print ( O& o ) const
 	{
