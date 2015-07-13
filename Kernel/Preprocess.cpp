@@ -195,12 +195,12 @@ replaceSynonymsFromTree ( DLTree* desc )
 void TBox :: replaceAllSynonyms ( void )
 {
 	// replace synonyms in role's domain
-	for ( RoleMaster::iterator r = ORM.begin(), r_end = ORM.end(); r < r_end; ++r )
-		if ( !(*r)->isSynonym() )
-			replaceSynonymsFromTree ( (*r)->getTDomain() );
-	for ( RoleMaster::iterator dr = DRM.begin(), dr_end = DRM.end(); dr < dr_end; ++dr )
-		if ( !(*dr)->isSynonym() )
-			replaceSynonymsFromTree ( (*dr)->getTDomain() );
+	for ( auto oRole: ORM )
+		if ( !oRole->isSynonym() )
+			replaceSynonymsFromTree ( oRole->getTDomain() );
+	for ( auto dRole: DRM )
+		if ( !dRole->isSynonym() )
+			replaceSynonymsFromTree ( dRole->getTDomain() );
 
 	for ( c_iterator pc = c_begin(); pc != c_end(); ++pc )
 		if ( replaceSynonymsFromTree ( (*pc)->Description ) )
@@ -212,8 +212,8 @@ void TBox :: replaceAllSynonyms ( void )
 
 void TBox :: preprocessRelated ( void )
 {
-	for ( RelatedCollection::iterator q = RelatedI.begin(), q_end = RelatedI.end(); q != q_end; ++q )
-		(*q)->simplify();
+	for ( auto related: RelatedI )
+		related->simplify();
 }
 
 void TBox :: transformToldCycles ( void )
@@ -491,14 +491,12 @@ void
 TBox :: setAllIndexes ( void )
 {
 	++nC;	// place for the query concept
-	nR = 1;	// start with 1 to make index 0 an indicator of "not processed"
-	RoleMaster::iterator r, r_end;
-	for ( r = ORM.begin(), r_end = ORM.end(); r < r_end; ++r )
-		if ( !(*r)->isSynonym() )
-			(*r)->setIndex(nR++);
-	for ( r = DRM.begin(), r_end = DRM.end(); r < r_end; ++r )
-		if ( !(*r)->isSynonym() )
-			(*r)->setIndex(nR++);
+	nR = 0;	// start with 1 to make index 0 an indicator of "not processed"
+	auto setRoleIndex = [&] (TRole* R) { if ( !R->isSynonym() ) R->setIndex(++nR); };
+	std::for_each ( ORM.begin(), ORM.end(), setRoleIndex );
+	std::for_each ( DRM.begin(), DRM.end(), setRoleIndex );
+	// make nR be a number of indexed roles
+	++nR;
 }
 
 /// determine all sorts in KB (make job only for SORTED_REASONING)
@@ -506,16 +504,16 @@ void TBox :: determineSorts ( void )
 {
 #ifdef RKG_USE_SORTED_REASONING
 	// Related individuals does not appears in DLHeap,
-	// so their sorts shall be determined explicitely
+	// so their sorts shall be determined explicitly
 	for ( RelatedCollection::const_iterator p = RelatedI.begin(), p_end = RelatedI.end(); p < p_end; ++p, ++p )
 		DLHeap.updateSorts ( (*p)->a->pName, (*p)->R, (*p)->b->pName );
 
-	// simple rules needs the same treatement
-	for ( TSimpleRules::iterator q = SimpleRules.begin(); q < SimpleRules.end(); ++q )
+	// simple rules needs the same treatment
+	for ( auto rule: SimpleRules )
 	{
-		mergableLabel& lab = DLHeap[(*q)->bpHead].getSort();
-		for ( ConceptVector::const_iterator r = (*q)->Body.begin(), r_end = (*q)->Body.end(); r < r_end; ++r )
-			DLHeap.merge ( lab, (*r)->pName );
+		mergableLabel& lab = DLHeap[rule->bpHead].getSort();
+		for ( auto atom: rule->Body )
+			DLHeap.merge ( lab, atom->pName );
 	}
 
 	// create sorts for concept and/or roles
@@ -530,6 +528,24 @@ void TBox :: CalculateStatistic ( void )
 	unsigned int nPC = 0, nNC = 0, nSing = 0;	// number of primitive, non-prim and singleton concepts
 	unsigned int nNoTold = 0;	// number of concepts w/o told subsumers
 
+	auto getCStat = [&] (const TConcept* C) {
+		if ( C->isPrimitive() )
+			++nPC;
+		else if ( C->isNonPrimitive() )
+			++nNC;
+
+		if ( C->isSynonym () )
+			++nsFull;
+
+		if ( C->isCompletelyDefined() )
+		{
+			if ( C->isPrimitive() )
+				++npFull;
+		}
+		else
+			if ( !C->hasToldSubsumers() )
+				++nNoTold;
+	};
 	// calculate statistic for all concepts
 	for ( c_const_iterator pc = c_begin(); pc != c_end(); ++pc )
 	{
@@ -537,23 +553,7 @@ void TBox :: CalculateStatistic ( void )
 		// check if concept is not relevant
 		if ( !isValid(n->pName) )
 			continue;
-
-		if ( n->isPrimitive() )
-			++nPC;
-		else if ( n->isNonPrimitive() )
-			++nNC;
-
-		if ( n->isSynonym () )
-			++nsFull;
-
-		if ( n->isCompletelyDefined() )
-		{
-			if ( n->isPrimitive() )
-				++npFull;
-		}
-		else
-			if ( !n->hasToldSubsumers() )
-				++nNoTold;
+		getCStat(n);
 	}
 	// calculate statistic for all individuals
 	for ( i_const_iterator pi = i_begin(); pi != i_end(); ++pi )
@@ -564,23 +564,7 @@ void TBox :: CalculateStatistic ( void )
 			continue;
 
 		++nSing;
-
-		if ( n->isPrimitive() )
-			++nPC;
-		else if ( n->isNonPrimitive() )
-			++nNC;
-
-		if ( n->isSynonym () )
-			++nsFull;
-
-		if ( n->isCompletelyDefined() )
-		{
-			if ( n->isPrimitive() )
-				++npFull;
-		}
-		else
-			if ( !n->hasToldSubsumers() )
-				++nNoTold;
+		getCStat(n);
 	}
 
 	// FIXME!! check if we can skip all statistic if no logging needed
@@ -596,9 +580,8 @@ void TBox :: CalculateStatistic ( void )
 void TBox::RemoveExtraDescriptions ( void )
 {
 	// remove DLTree* from all named concepts
-	for ( c_iterator pc = c_begin(); pc != c_end(); ++pc )
-		(*pc)->removeDescription ();
-	for ( i_iterator pi = i_begin(); pi != i_end(); ++pi )
-		(*pi)->removeDescription ();
+	auto removeDescription = [] (TConcept* C) { C->removeDescription(); };
+	std::for_each ( c_begin(), c_end(), removeDescription );
+	std::for_each ( i_begin(), i_end(), removeDescription );
 }
 
