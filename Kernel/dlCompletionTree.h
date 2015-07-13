@@ -137,7 +137,7 @@ public:		// type interface
 
 #ifdef RKG_IR_IN_NODE_LABEL
 		/// type for inequality relation information
-	typedef growingArray<ConceptWDep> IRInfo;
+	typedef std::vector<ConceptWDep> IRInfo;
 #endif
 
 protected:	// members
@@ -584,7 +584,7 @@ public:		// methods
 		DepSet dummy;	// we don't need a clash-set here
 		if ( inIRwithC ( C, dummy ) )
 			return true;
-		IR.add(C);
+		IR.push_back(std::move(C));
 		return false;
 	}
 		/// check if the current node is in IR with NODE; if so, write the clash-set to DEP

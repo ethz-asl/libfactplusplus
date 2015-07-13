@@ -106,10 +106,10 @@ bool DlCompletionTree :: inIRwithC ( const ConceptWDep& C, DepSet& dep ) const
 	if ( IR.empty() )
 		return false;
 
-	for ( IRInfo::const_iterator p = IR.begin(); p != IR.end(); ++p )
-		if ( p->bp() == C.bp() )
+	for ( auto cwd: IR )
+		if ( cwd.bp() == C.bp() )
 		{
-			dep += p->getDep();
+			dep += cwd.getDep();
 			dep += C.getDep();
 			return true;
 		}
@@ -117,14 +117,14 @@ bool DlCompletionTree :: inIRwithC ( const ConceptWDep& C, DepSet& dep ) const
 	return false;
 }
 
-// check if the NODE's and current node's IR are labelled with the same level
+// check if the NODE's and current node's IR are labeled with the same level
 bool DlCompletionTree :: nonMergable ( const DlCompletionTree* node, DepSet& dep ) const
 {
 	if ( IR.empty() || node->IR.empty() )
 		return false;
 
-	for ( IRInfo::const_iterator p = node->IR.begin(); p != node->IR.end(); ++p )
-		if ( inIRwithC ( *p, dep ) )
+	for ( auto cwd: node->IR )
+		if ( inIRwithC ( cwd, dep ) )
 			return true;
 
 	return false;
@@ -141,8 +141,8 @@ TRestorer* DlCompletionTree :: updateIR ( const DlCompletionTree* node, const De
 
 	// copy all elements from NODE's IR to current node.
 	// FIXME!! do not check if some of them are already in there
-	for ( IRInfo::const_iterator p = node->IR.begin(); p != node->IR.end(); ++p )
-		IR.add ( ConceptWDep ( *p, toAdd ) );
+	for ( auto cwd: node->IR )
+		IR.emplace_back ( cwd, toAdd );
 
 	return ret;
 }
