@@ -521,54 +521,44 @@ void TBox :: determineSorts ( void )
 #endif // RKG_USE_SORTED_REASONING
 }
 
-// Told staff used, so run this AFTER fillTold*()
+// Told stuff is used here, so run this AFTER fillTold*()
 void TBox :: CalculateStatistic ( void )
 {
+	// skip all statistic if no logging needed
+	CHECK_LL_RETURN(llAlways);
+
 	unsigned int npFull = 0, nsFull = 0;		// number of completely defined concepts
 	unsigned int nPC = 0, nNC = 0, nSing = 0;	// number of primitive, non-prim and singleton concepts
 	unsigned int nNoTold = 0;	// number of concepts w/o told subsumers
 
 	auto getCStat = [&] (const TConcept* C) {
-		if ( C->isPrimitive() )
-			++nPC;
-		else if ( C->isNonPrimitive() )
-			++nNC;
-
-		if ( C->isSynonym () )
-			++nsFull;
-
-		if ( C->isCompletelyDefined() )
+		if ( isValid(C->pName) )
 		{
+			if ( C->isSingleton() )
+				++nSing;
 			if ( C->isPrimitive() )
-				++npFull;
+				++nPC;
+			else if ( C->isNonPrimitive() )
+				++nNC;
+
+			if ( C->isSynonym () )
+				++nsFull;
+
+			if ( C->isCompletelyDefined() )
+			{
+				if ( C->isPrimitive() )
+					++npFull;
+			}
+			else
+				if ( !C->hasToldSubsumers() )
+					++nNoTold;
 		}
-		else
-			if ( !C->hasToldSubsumers() )
-				++nNoTold;
 	};
 	// calculate statistic for all concepts
-	for ( c_const_iterator pc = c_begin(); pc != c_end(); ++pc )
-	{
-		const TConcept* n = *pc;
-		// check if concept is not relevant
-		if ( !isValid(n->pName) )
-			continue;
-		getCStat(n);
-	}
+	std::for_each ( c_begin(), c_end(), getCStat );
 	// calculate statistic for all individuals
-	for ( i_const_iterator pi = i_begin(); pi != i_end(); ++pi )
-	{
-		const TConcept* n = *pi;
-		// check if concept is not relevant
-		if ( !isValid(n->pName) )
-			continue;
-
-		++nSing;
-		getCStat(n);
-	}
-
-	// FIXME!! check if we can skip all statistic if no logging needed
-	CHECK_LL_RETURN(llAlways);
+	std::for_each ( i_begin(), i_end(), getCStat );
+	// output all statistics
 	LL << "There are " << nPC << " primitive concepts used\n";
 	LL << " of which " << npFull << " completely defined\n";
 	LL << "      and " << nNoTold << " has no told subsumers\n";
