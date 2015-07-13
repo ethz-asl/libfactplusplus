@@ -20,13 +20,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 |* Implementation of taxonomy building for the FaCT++  *|
 \*******************************************************/
 
+#include <queue>
+#include <iostream>
+
 #include "Reasoner.h"
 #include "DLConceptTaxonomy.h"
 #include "procTimer.h"
 #include "globaldef.h"
 #include "logging.h"
-
-#include <queue>
 
 /********************************************************\
 |* 			Implementation of class Taxonomy			*|

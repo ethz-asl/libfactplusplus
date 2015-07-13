@@ -58,21 +58,15 @@ protected:	// classes
 			/// empty d'tor
 		~EE2Map ( void ) {}
 
+			/// @return true if the entry does not have correspondent entity
+		bool check ( const TNamedEntry* e ) const;
 			/// add an entity corresponding E to a map corresponding to E0
 		void add ( const TNamedEntry* e0, const TNamedEntry* e )
 		{
-			const TNamedEntity* E0 = e0->getEntity(), *E = e->getEntity();
 			// check for artificial constructions
-			if ( E0 == nullptr || E == nullptr )
-			{
-				std::cerr << "No entity found for";
-				if ( E0 == nullptr )
-					std::cerr << " '" << e0->getName() << "'";
-				if ( E == nullptr )
-					std::cerr << " '" << e->getName() << "'";
-				std::cerr << "\n";
+			if ( check(e) || check(e0) )
 				return;
-			}
+			const TNamedEntity* E0 = e0->getEntity(), *E = e->getEntity();
 			Base[E0].insert(dynamic_cast<const Entity*>(E));
 		}
 			/// get the set corresponding to the entity E

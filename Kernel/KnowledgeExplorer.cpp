@@ -16,6 +16,8 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
+#include <iostream>
+
 #include "KnowledgeExplorer.h"
 #include "dlCompletionTree.h"
 #include "dlTBox.h"
@@ -47,6 +49,17 @@ KnowledgeExplorer :: KnowledgeExplorer ( const TBox* box, TExpressionManager* pE
 		for ( TRole::const_iterator p = R->begin_anc(), p_end = R->end_anc(); p != p_end; ++p )
 			DRs.add ( R, *p );
 	}
+}
+
+/// @return true if the entry does not have correspondent entity
+template<class Entity>
+bool
+KnowledgeExplorer::EE2Map<Entity> :: check ( const TNamedEntry* e ) const
+{
+	if ( e->getEntity() != nullptr )
+		return false;
+	std::cerr << "No entity found for '" << e->getName() << "'\n";
+	return true;
 }
 
 /// add concept-like entity E (possibly with synonyms) to CONCEPTS
