@@ -144,24 +144,20 @@ protected:	// classes
 		virtual void add ( DlCompletionTree* Node, int offset )
 		{
 			auto nominalLevel = Node->getNominalLevel();
-//			auto
+			auto greaterNominalLevel = [=] (const ToDoEntry& entry) { return entry.Node->getNominalLevel() > nominalLevel; };
 			if ( empty() ||	// no problems with empty queue and if no priority clashes
-				 Wait.back().Node->getNominalLevel() <= nominalLevel )
+				 !greaterNominalLevel(Wait.back()) )
 			{
 				Wait.emplace_back(Node,offset);
 				return;
 			}
 
-			// here we need to put e on the proper place
+			// here we need to put new entry into a proper place
+			// this will invalidate the array so save it
 			stack->push(new QueueRestorer(this));
-			auto n = Wait.size();
-			Wait.emplace_back(Node,offset); // will be rewritten
-			while ( n > sPointer && Wait[n-1].Node->getNominalLevel() > Node->getNominalLevel() )
-			{
-				Wait[n] = Wait[n-1];
-				--n;
-			}
-			Wait[n] = ToDoEntry(Node,offset);
+			// find a place for the new entry
+			auto i = std::find_if ( Wait.begin()+sPointer, Wait.end(), greaterNominalLevel );
+			Wait.emplace(i,Node,offset);
 		}
 	}; // queueQueue
 	//--------------------------------------------------------------------------
