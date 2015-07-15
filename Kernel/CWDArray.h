@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2014 by Dmitry Tsarkov
+Copyright (C) 2003-2015 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -35,7 +35,7 @@ class CWDArray
 {
 protected:	// internal typedefs
 		/// base type
-	typedef growingArray<ConceptWDep> ConceptSet;
+	typedef std::vector<ConceptWDep> ConceptSet;
 		/// RW iterator
 	typedef ConceptSet::iterator iterator;
 
@@ -97,7 +97,7 @@ public:		// interface
 	// add concept
 
 		/// adds concept P to a label
-	void add ( const ConceptWDep& p ) { Base.add(p); }
+	void add ( const ConceptWDep& p ) { Base.push_back(p); }
 		/// update concept BP with a dep-set DEP; @return the appropriate restorer
 	TRestorer* updateDepSet ( BipolarPointer bp, const DepSet& dep );
 
