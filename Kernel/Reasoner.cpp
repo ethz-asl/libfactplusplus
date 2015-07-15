@@ -205,13 +205,14 @@ DlSatTester :: insertToDoEntry ( DlCompletionTree* node, const ConceptWDep& C,
 	updateLevel ( node, C.getDep() );
 	CGraph.addConceptToNode ( node, C, tag );
 
-	setUsed(C.bp());
+	auto bp = C.bp();
+	setUsed(bp);
 
 	if ( node->isCached() )
 		return correctCachedEntry(node);
 
 	// add new info in TODO list
-	TODO.addEntry ( node, tag, C );
+	TODO.addEntry ( node, tag, bp );
 
 	if ( node->isDataNode() )	// data concept -- run data center for it
 		return checkDataNode ? checkDataClash(node) : false;

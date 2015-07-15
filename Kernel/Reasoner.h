@@ -413,7 +413,8 @@ protected:	// methods
 	void addExistingToDoEntry ( DlCompletionTree* node, int offset, const char* reason = nullptr )
 	{
 		const ConceptWDep& C = node->label().getConcept(offset);
-		TODO.addEntry ( node, DLHeap[C.bp()].Type(), C, offset );
+		auto bp = C.bp();
+		TODO.addEntry ( node, DLHeap[bp].Type(), bp, offset );
 		if ( LLM.isWritable(llGTA) )
 			logEntry ( node, C, reason );
 	}

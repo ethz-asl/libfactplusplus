@@ -235,7 +235,7 @@ protected:	// methods
 	{
 		queueID.save(tss->backupID);
 		queueNN.save(tss->backupNN);
-		for ( ToDoListIndex i = 0; i < nRegularOps; ++i )
+		for ( auto i = 0; i < nRegularOps; ++i )
 			Wait[i].save(tss->backup[i]);
 
 		tss->noe = noe;
@@ -245,7 +245,7 @@ protected:	// methods
 	{
 		queueID.restore(tss->backupID);
 		queueNN.restore(tss->backupNN);
-		for ( ToDoListIndex i = 0; i < nRegularOps; ++i )
+		for ( auto i = 0; i < nRegularOps; ++i )
 			Wait[i].restore(tss->backup[i]);
 
 		noe = tss->noe;
@@ -268,8 +268,8 @@ public:
 	{
 		queueID.clear();
 		queueNN.clear();
-		for ( ToDoListIndex i = 0; i < nRegularOps; ++i )
-			Wait[i].clear();
+		for ( auto& queue: Wait )
+			queue.clear();
 
 		SaveStack.clear();
 		noe = 0;
@@ -280,9 +280,9 @@ public:
 	// work with entries
 
 		/// add entry with given NODE and CONCEPT with given OFFSET to the TODO table
-	void addEntry ( DlCompletionTree* node, DagTag type, const ConceptWDep& C, int offset )
+	void addEntry ( DlCompletionTree* node, DagTag type, BipolarPointer bp, int offset )
 	{
-		ToDoListIndex index = Matrix.getIndex ( type, isPositive(C.bp()), node->isNominalNode() );
+		auto index = Matrix.getIndex ( type, isPositive(bp), node->isNominalNode() );
 		switch ( index )
 		{
 		case nRegularOps:	// unused entry
@@ -297,8 +297,8 @@ public:
 		++noe;
 	}
 		/// add entry with given NODE and CONCEPT of a TYPE to the ToDo table
-	void addEntry ( DlCompletionTree* node, DagTag type, const ConceptWDep& C )
-		{ addEntry ( node, type, C, node->label().getLast(type) ); }
+	void addEntry ( DlCompletionTree* node, DagTag type, BipolarPointer bp )
+		{ addEntry ( node, type, bp, node->label().getLast(type) ); }
 		/// get the next TODO entry. @return NULL if the table is empty
 	const ToDoEntry* getNextEntry ( void );
 
@@ -330,9 +330,9 @@ inline const ToDoEntry* ToDoList :: getNextEntry ( void )
 		return queueNN.get();
 
 	// check regular queues
-	for ( ToDoListIndex i = 0; i < nRegularOps; ++i )
-		if ( !Wait[i].empty() )
-			return Wait[i].get();
+	for ( auto& queue: Wait )
+		if ( !queue.empty() )
+			return queue.get();
 
 	// that's impossible, but still...
 	return nullptr;
