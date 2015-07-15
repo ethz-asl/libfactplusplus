@@ -19,6 +19,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef TODOLIST_H
 #define TODOLIST_H
 
+#include <vector>
+
 #include "globaldef.h"
 #include "fpp_assert.h"
 #include "PriorityMatrix.h"
@@ -28,15 +30,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 struct ToDoEntry
 {
 		/// node to include concept
-	DlCompletionTree* Node;
+	DlCompletionTree* Node = nullptr;
 		/// offset of included concept in Node's label
 		// (it's not possible to use pointers because
 		// std::vector invalidates them)
-	int offset;
+	int offset = 0;
 
-		/// empty C'tor
-	ToDoEntry ( void ) : Node(nullptr), offset(0) {}	// for initialisation
-		/// C'tor (init values)
+		/// empty c'tor
+	ToDoEntry () {}
+		/// init c'tor
 	ToDoEntry ( DlCompletionTree* n, int off ) : Node(n), offset(off) {}
 }; // ToDoEntry
 
@@ -66,13 +68,13 @@ protected:	// classes
 	{
 	protected:	// members
 			/// waiting ops queue
-		growingArray<ToDoEntry> Wait;
+		std::vector<ToDoEntry> Wait;
 			/// start pointer; points to the 1st element in the queue
-		size_t sPointer;
+		size_t sPointer = 0;
 
 	public:		// interface
 			/// c'tor: init queue with proper size and reset it
-		arrayQueue ( void ) : sPointer(0)
+		arrayQueue()
 		{
 			Wait.reserve(50);	// initial size
 			Wait.clear();
@@ -81,7 +83,7 @@ protected:	// classes
 		~arrayQueue ( void ) {}
 
 			/// add entry to a queue
-		void add ( DlCompletionTree* node, int offset ) { Wait.add(ToDoEntry(node,offset)); }
+		void add ( DlCompletionTree* node, int offset ) { Wait.emplace_back(node,offset); }
 			/// clear queue
 		void clear ( void ) { sPointer = 0; Wait.clear(); }
 			/// check if queue empty
@@ -113,7 +115,7 @@ protected:	// classes
 		{
 		protected:	// members
 				/// copy of a queue
-			growingArray<ToDoEntry> Wait;
+			std::vector<ToDoEntry> Wait;
 				/// pointer to a queue to restore
 			queueQueue* queue;
 				/// start pointer
@@ -125,12 +127,12 @@ protected:	// classes
 				/// empty d'tor
 			virtual ~QueueRestorer ( void ) {}
 				/// restore: copy the queue back, adjust pointers
-			virtual void restore ( void ) { queue->Wait = Wait; queue->sPointer = sp; }
+			virtual void restore ( void ) { std::swap(queue->Wait,Wait); queue->sPointer = sp; }
 		};
 
 	protected:	// members
 			/// waiting ops queue
-		growingArray<ToDoEntry> Wait;
+		std::vector<ToDoEntry> Wait;
 			/// stack to save states for the overwritten queue
 		TRareSaveStack* stack;
 			/// start pointer; points to the 1st element in the queue
@@ -145,24 +147,25 @@ protected:	// classes
 			/// add entry to a queue
 		void add ( DlCompletionTree* Node, int offset )
 		{
-			ToDoEntry e(Node,offset);
+			auto nominalLevel = Node->getNominalLevel();
+//			auto
 			if ( empty() ||	// no problems with empty queue and if no priority clashes
-				 Wait[Wait.size()-1].Node->getNominalLevel() <= Node->getNominalLevel() )
+				 Wait.back().Node->getNominalLevel() <= nominalLevel )
 			{
-				Wait.add(e);
+				Wait.emplace_back(Node,offset);
 				return;
 			}
 
 			// here we need to put e on the proper place
 			stack->push(new QueueRestorer(this));
-			size_t n = Wait.size();
-			Wait.add(e);	// will be rewritten
+			auto n = Wait.size();
+			Wait.emplace_back(Node,offset); // will be rewritten
 			while ( n > sPointer && Wait[n-1].Node->getNominalLevel() > Node->getNominalLevel() )
 			{
 				Wait[n] = Wait[n-1];
 				--n;
 			}
-			Wait[n] = e;
+			Wait[n] = ToDoEntry(Node,offset);
 		}
 			/// clear queue
 		void clear ( void ) { sPointer = 0; Wait.clear(); }
