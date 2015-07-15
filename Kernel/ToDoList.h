@@ -80,10 +80,10 @@ protected:	// classes
 			Wait.clear();
 		}
 			/// empty d'tor
-		~arrayQueue ( void ) {}
+		virtual ~arrayQueue() {}
 
 			/// add entry to a queue
-		void add ( DlCompletionTree* node, int offset ) { Wait.emplace_back(node,offset); }
+		virtual void add ( DlCompletionTree* node, int offset ) { Wait.emplace_back(node,offset); }
 			/// clear queue
 		void clear ( void ) { sPointer = 0; Wait.clear(); }
 			/// check if queue empty
@@ -107,7 +107,7 @@ protected:	// classes
 	//--------------------------------------------------------------------------
 
 		/// class to represent single priority queue
-	class queueQueue
+	class queueQueue: public arrayQueue
 	{
 	protected:	// types
 			/// type for restore the whole queue
@@ -131,21 +131,17 @@ protected:	// classes
 		};
 
 	protected:	// members
-			/// waiting ops queue
-		std::vector<ToDoEntry> Wait;
 			/// stack to save states for the overwritten queue
 		TRareSaveStack* stack;
-			/// start pointer; points to the 1st element in the queue
-		size_t sPointer;
 
 	public:		// interface
 			/// c'tor: make an empty queue
-		queueQueue ( TRareSaveStack* s ) : stack(s), sPointer(0) {}
+		queueQueue ( TRareSaveStack* s ) : arrayQueue(), stack(s) {}
 			/// empty d'tor
-		~queueQueue ( void ) {}
+		virtual ~queueQueue() {}
 
 			/// add entry to a queue
-		void add ( DlCompletionTree* Node, int offset )
+		virtual void add ( DlCompletionTree* Node, int offset )
 		{
 			auto nominalLevel = Node->getNominalLevel();
 //			auto
@@ -166,25 +162,6 @@ protected:	// classes
 				--n;
 			}
 			Wait[n] = ToDoEntry(Node,offset);
-		}
-			/// clear queue
-		void clear ( void ) { sPointer = 0; Wait.clear(); }
-			/// check if queue empty
-		bool empty ( void ) const { return sPointer == Wait.size(); }
-			/// get next entry from the queue; works for non-empty queues
-		const ToDoEntry* get ( void ) { return &(Wait[sPointer++]); }
-
-			/// save queue content to the given entry
-		void save ( QueueSaveState& tss )
-		{
-			tss.sp = sPointer;
-			tss.ep = Wait.size();
-		}
-			/// restore queue content from the given entry
-		void restore ( const QueueSaveState& tss )
-		{
-			sPointer = tss.sp;
-			Wait.resize(tss.ep);
 		}
 	}; // queueQueue
 	//--------------------------------------------------------------------------
