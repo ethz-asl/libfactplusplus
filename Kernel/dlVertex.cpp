@@ -24,54 +24,43 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "tDataEntry.h"
 
 // adds a child to 'AND' vertex.
-// if finds a contrary pair of concepts -- returns TRUE and became dtBad;
+// if finds a contrary pair of concepts -- returns TRUE
 // else return false
-bool DLVertex :: addChild ( BipolarPointer p )
+bool DLVertex :: addChild ( BipolarPointer bp )
 {
 	// if adds to broken vertex -- do nothing;
 	if ( Op == dtBad )
 		return true;
 
 	// if adds TOP -- nothing to do
-	if ( p == bpTOP )
+	if ( bp == bpTOP )
 		return false;
 
 	// if adding BOTTOM -- return clash (empty vertex) immediately
 	// this can happen in case of nested simplifications; see bNested1
-	if ( p == bpBOTTOM )
-	{
-clash:	// clash found: clear all stuff; returns true
-		Child.resize(0);
-		Op = dtBad;
+	if ( bp == bpBOTTOM )
 		return true;
-	}
 
 	// find appropriate place to insert
-	unsigned int v = getValue (p);
+	auto v = getValue(bp);
 
-	auto q = Child.begin(), q_end = Child.end();
-	q = std::find_if_not ( q, q_end, [=] (BipolarPointer bp) { return getValue(bp) < v; } );
+	auto it = Child.begin(), end = Child.end();
+	it = std::find_if_not ( it, end, [=] (BipolarPointer p) { return getValue(p) < v; } );
 
-	if ( q == q_end )	// finish
+	if ( it == end )	// finish
 	{
-		Child.push_back(p);
+		Child.push_back(bp);
 		return false;
 	}
 
 	// we finds a place with |Child[i]| >= v
-	if ( *q == p )	// concept already exists
+	if ( *it == bp )	// concept already exists
 		return false;
-	else if ( *q == inverse(p) )
-		goto clash;
+	else if ( *it == inverse(bp) )
+		return true;
 
-	// we need to insert p into set, this might invalidate iterators
-	long offset = q - Child.begin();
-	Child.push_back(Child.back());
-
-	for ( q_end = Child.begin()+offset, q = Child.end()-1; q != q_end; --q )
-		*q=*(q-1);	// copy the tail
-
-	*q = p;
+	// bp is new, add it to the set
+	Child.insert ( it, bp );
 
 	// FIXME: add some simplification (about AR.C1, AR.c2 etc)
 	return false;
@@ -89,6 +78,8 @@ void DLVertex :: sortEntry ( const DLDag& dag )
 	if ( Type() != dtAnd )
 		return;
 
+//	auto comp = [&dag] (const BipolarPointer l, const BipolarPointer r) { return dag.less(l,r); };
+//	std::sort ( Child.begin(), Child.end(), comp );
 	BipolarPointer x;	// value of moved element
 	size_t size = Child.size();
 
