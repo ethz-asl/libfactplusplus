@@ -19,6 +19,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef TAXIOM_H
 #define TAXIOM_H
 
+// uncomment this to have absorption debug messages
+//#define RKG_DEBUG_ABSORPTION
+
+#ifdef RKG_DEBUG_ABSORPTION
+#	include <iostream>
+#else
+#	include <iosfwd>
+#endif
+
 #include <vector>
 
 #include "globaldef.h"
@@ -26,9 +35,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "tConcept.h"
 #include "tRole.h"
 #include "counter.h"
-
-// uncomment this to have absorption debug messages
-//#define RKG_DEBUG_ABSORPTION
 
 class TBox;
 
@@ -143,9 +149,9 @@ protected:	// methods
 	TAxiom* copy ( const DLTree* skip ) const
 	{
 		TAxiom* ret = new TAxiom(this);
-		for ( const_iterator i = begin(), i_end = end(); i != i_end; ++i )
-			if ( *i != skip )
-				ret->Disjuncts.push_back(clone(*i));
+		for ( const auto& C: Disjuncts )
+			if ( C != skip )
+				ret->Disjuncts.push_back(clone(C));
 		return ret;
 	}
 
@@ -212,29 +218,12 @@ public:		// interface
 		/// check whether 2 axioms are the same
 	bool operator == ( const TAxiom& ax ) const
 	{
-#	ifdef RKG_DEBUG_ABSORPTION
-//		std::cout << "\n  comparing "; dump(std::cout);
-//		std::cout << "  with      "; ax.dump(std::cout);
-#	endif
 		if ( Disjuncts.size() != ax.Disjuncts.size() )
-		{
-#		ifdef RKG_DEBUG_ABSORPTION
-//			std::cout << "  different size";
-#		endif
 			return false;
-		}
-		const_iterator p = begin(), q = ax.begin(), p_end = end();
+		auto p = begin(), q = ax.begin(), p_end = end();
 		for ( ; p != p_end; ++p, ++q )
 			if ( !equalTrees(*p,*q) )
-			{
-#			ifdef RKG_DEBUG_ABSORPTION
-//				std::cout << "  different tree:" << *p << " vs" << *q;
-#			endif
 				return false;
-			}
-#	ifdef RKG_DEBUG_ABSORPTION
-//		std::cout << "  equal!";
-#	endif
 		return true;
 	}
 
@@ -248,14 +237,14 @@ public:		// interface
 	bool split ( std::vector<TAxiom*>& acc ) const
 	{
 		acc.clear();
-		for ( const_iterator p = begin(), p_end = end(); p != p_end; ++p )
-			if ( InAx::isAnd(*p) )
+		for ( const auto& C: Disjuncts )
+			if ( InAx::isAnd(C) )
 			{
 				Stat::SAbsSplit();
 #			ifdef RKG_DEBUG_ABSORPTION
-				std::cout << " split AND expression" << (*p)->Left();
+				std::cout << " split AND expression" << C->Left();
 #			endif
-				split ( acc, *p, (*p)->Left() );
+				split ( acc, C, C->Left() );
 				// no need to split more than once:
 				// every extra splits would be together with unsplitted parts
 				// like: (A or B) and (C or D) would be transform into

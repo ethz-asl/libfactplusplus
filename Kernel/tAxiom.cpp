@@ -81,8 +81,8 @@ TAxiom :: add ( DLTree* p )
 		deleteTree(p);
 		return;
 	}
-	for ( const_iterator i = begin(), i_end = end(); i != i_end; ++i )
-		if ( equalTrees(p,*i) )
+	for ( const auto& C: Disjuncts )
+		if ( equalTrees(p,C) )
 		{
 			deleteTree(p);
 			return;
@@ -93,14 +93,12 @@ TAxiom :: add ( DLTree* p )
 TAxiom*
 TAxiom :: simplifyCN ( TBox& KB ) const
 {
-	for ( const_iterator i = begin(), i_end = end(); i != i_end; ++i )
+	for ( const auto& C: Disjuncts )
 	{
-		const DLTree* p = *i;
-
-		if ( InAx::isPosNP(p,KB) )
-			return simplifyPosNP(p);
-		else if ( InAx::isNegNP(p,KB) )
-			return simplifyNegNP(p);
+		if ( InAx::isPosNP(C,KB) )
+			return simplifyPosNP(C);
+		else if ( InAx::isNegNP(C,KB) )
+			return simplifyNegNP(C);
 	}
 
 	return nullptr;
@@ -109,9 +107,9 @@ TAxiom :: simplifyCN ( TBox& KB ) const
 TAxiom*
 TAxiom :: simplifyForall ( TBox& KB ) const
 {
-	for ( const_iterator i = begin(), i_end = end(); i != i_end; ++i )
-		if ( InAx::isAbsForall(*i) )
-			return simplifyForall ( *i, KB );
+	for ( const auto& C: Disjuncts )
+		if ( InAx::isAbsForall(C) )
+			return simplifyForall ( C, KB );
 
 	return nullptr;
 }
@@ -119,9 +117,9 @@ TAxiom :: simplifyForall ( TBox& KB ) const
 TAxiom*
 TAxiom :: simplifySForall ( TBox& KB ) const
 {
-	for ( const_iterator i = begin(), i_end = end(); i != i_end; ++i )
-		if ( InAx::isSimpleForall(*i) )
-			return simplifyForall ( *i, KB );
+	for ( const auto& C: Disjuncts )
+		if ( InAx::isSimpleForall(C) )
+			return simplifyForall ( C, KB );
 
 	return nullptr;
 }
@@ -144,9 +142,9 @@ TAxiom :: createAnAxiom ( const DLTree* skip ) const
 {
 	// create new OR vertex for the axiom:
 	DLTree* Or = createTop();
-	for ( const_iterator p = begin(), p_end = end(); p != p_end; ++p )
-		if ( *p != skip )
-			Or = createSNFAnd ( clone(*p), Or );
+	for ( const auto& C: Disjuncts )
+		if ( C != skip )
+			Or = createSNFAnd ( clone(C), Or );
 
 	return createSNFNot(Or);
 }
@@ -155,8 +153,8 @@ TAxiom :: createAnAxiom ( const DLTree* skip ) const
 void TAxiom :: dump ( std::ostream& o ) const
 {
 	o << " (neg-and";
-	for ( const_iterator p = begin(), p_end = end(); p != p_end; ++p )
-		o << *p;
+	for ( const auto& C: Disjuncts )
+		o << C;
 	o << ")";
 }
 #endif
@@ -166,8 +164,8 @@ bool
 TAxiom :: absorbIntoBottom ( void ) const
 {
 	absorptionSet Pos, Neg;
-	for ( const_iterator p = begin(), p_end = end(); p != p_end; ++p )
-		switch ( (*p)->Element().getToken() )
+	for ( const auto& C: Disjuncts )
+		switch ( C->Element().getToken() )
 		{
 		case BOTTOM:	// axiom in the form T [= T or ...; nothing to do
 			Stat::SAbsBApply();
@@ -178,21 +176,21 @@ TAxiom :: absorbIntoBottom ( void ) const
 		case TOP:	// skip it here
 			break;
 		case NOT:	// something negated: put it into NEG
-			Neg.push_back((*p)->Left());
+			Neg.push_back(C->Left());
 			break;
 		default:	// something positive: save in POS
-			Pos.push_back(*p);
+			Pos.push_back(C);
 			break;
 		}
 
 	// now check whether there is a concept in both POS and NEG
-	for ( const_iterator q = Neg.begin(), q_end = Neg.end(); q != q_end; ++q )
-		for ( const_iterator s = Pos.begin(), s_end = Pos.end(); s != s_end; ++s )
-			if ( equalTrees ( *q, *s ) )
+	for ( auto neg: Neg )
+		for ( auto pos: Pos )
+			if ( equalTrees ( neg, pos ) )
 			{
 				Stat::SAbsBApply();
 #			ifdef RKG_DEBUG_ABSORPTION
-				std::cout << " Absorb into BOTTOM due to (not" << *q << ") and" << *s;
+				std::cout << " Absorb into BOTTOM due to (not" << neg << ") and" << pos;
 #			endif
 				return true;
 			}
@@ -202,35 +200,35 @@ TAxiom :: absorbIntoBottom ( void ) const
 bool
 TAxiom :: absorbIntoTop ( TBox& KB ) const
 {
-	TConcept* C = nullptr;
+	TConcept* Cand = nullptr;
 
 	// check whether the axiom is Top [= C
-	for ( const_iterator p = begin(), p_end = end(); p != p_end; ++p )
-		if ( InAx::isBot(*p) )	// BOTTOMS are fine
+	for ( const auto& C: Disjuncts )
+		if ( InAx::isBot(C) )	// BOTTOMS are fine
 			continue;
-		else if ( InAx::isPosCN(*p) )	// CN found
+		else if ( InAx::isPosCN(C) )	// CN found
 		{
-			if ( C != nullptr )	// more than one concept
+			if ( Cand != nullptr )	// more than one concept
 				return false;
-			C = InAx::getConcept((*p)->Left());
-			if ( C->isSingleton() )	// doesn't work with nominals
+			Cand = InAx::getConcept(C->Left());
+			if ( Cand->isSingleton() )	// doesn't work with nominals
 				return false;
 		}
 		else
 			return false;
 
-	if ( C == nullptr )
+	if ( Cand == nullptr )
 		return false;
 
 	// make an absorption
 	Stat::SAbsTApply();
-	DLTree* desc = KB.makeNonPrimitive ( C, createTop() );
+	DLTree* desc = KB.makeNonPrimitive ( Cand, createTop() );
 
 #ifdef RKG_DEBUG_ABSORPTION
 	std::cout << " T-Absorb GCI to axiom";
 	if ( desc )
 		std::cout << "s *TOP* [=" << desc << " and";
-	std::cout << " " << C->getName() << " = *TOP*";
+	std::cout << " " << Cand->getName() << " = *TOP*";
 #endif
 	if ( desc )
 		KB.addSubsumeAxiom ( createTop(), desc );
@@ -245,13 +243,13 @@ TAxiom :: absorbIntoConcept ( TBox& KB ) const
 	DLTree* bestConcept = nullptr;
 
 	// finds all primitive concept names
-	for ( const_iterator p = begin(), p_end = end(); p != p_end; ++p )
-		if ( InAx::isNegPC(*p) )	// FIXME!! review this during implementation of Nominal Absorption
+	for ( const auto& C: Disjuncts )
+		if ( InAx::isNegPC(C) )	// FIXME!! review this during implementation of Nominal Absorption
 		{
 			Stat::SAbsCAttempt();
-			Cons.push_back(*p);
-			if ( InAx::getConcept(*p)->isSystem() )
-				bestConcept = *p;
+			Cons.push_back(C);
+			if ( InAx::getConcept(C)->isSystem() )
+				bestConcept = C;
 		}
 
 	// if no concept names -- return;
@@ -271,9 +269,9 @@ TAxiom :: absorbIntoConcept ( TBox& KB ) const
 	if ( Cons.size() > 1 )
 	{
 		std::cout << " (other options are";
-		for ( WorkSet::iterator q = Cons.begin(), q_end = Cons.end(); q != q_end; ++q )
-			if ( *q != bestConcept )
-				std::cout << " " << InAx::getConcept(*q)->getName();
+		for ( const auto& C: Cons )
+			if ( C != bestConcept )
+				std::cout << " " << InAx::getConcept(C)->getName();
 		std::cout << ")";
 	}
 #endif
@@ -300,13 +298,13 @@ TAxiom :: absorbIntoNegConcept ( TBox& KB ) const
 	const DLTree* bestConcept = nullptr;
 
 	// finds all primitive negated concept names without description
-	for ( const_iterator p = begin(), p_end = end(); p != p_end; ++p )
-		if ( (*p)->Element().getToken() == NOT && isName((*p)->Left())
-			 && (Concept = InAx::getConcept((*p)->Left()))->isPrimitive()
+	for ( const auto& C: Disjuncts )
+		if ( C->Element().getToken() == NOT && isName(C->Left())
+			 && (Concept = InAx::getConcept(C->Left()))->isPrimitive()
 			 && !Concept->isSingleton() && Concept->Description == nullptr )
 		{
 			Stat::SAbsNAttempt();
-			Cons.push_back(*p);
+			Cons.push_back(C);
 		}
 
 	// if no concept names -- return;
@@ -326,9 +324,9 @@ TAxiom :: absorbIntoNegConcept ( TBox& KB ) const
 	if ( Cons.size() > 1 )
 	{
 		std::cout << " (other options are";
-		for ( WorkSet::iterator q = Cons.begin(), q_end = Cons.end(); q != q_end; ++q )
-			if ( *q != bestConcept )
-				std::cout << " " << InAx::getConcept((*q)->Left())->getName();
+		for ( const auto& C: Cons )
+			if ( C != bestConcept )
+				std::cout << " " << InAx::getConcept(C->Left())->getName();
 		std::cout << ")";
 	}
 #endif
@@ -348,17 +346,17 @@ TAxiom :: absorbIntoDomain ( void ) const
 	const DLTree* bestSome = nullptr;
 
 	// find all forall concepts
-	for ( const_iterator p = begin(), p_end = end(); p != p_end; ++p )
-		if ( (*p)->Element() == NOT &&
-			 ( (*p)->Left()->Element() == FORALL	// \neg ER.C
-			   || (*p)->Left()->Element() == LE ))	// \neg >= n R.C
+	for ( const auto& C: Disjuncts )
+		if ( C->Element() == NOT &&
+			 ( C->Left()->Element() == FORALL	// \neg ER.C
+			   || C->Left()->Element() == LE ))	// \neg >= n R.C
 		{
 			Stat::SAbsRAttempt();
-			Cons.push_back(*p);
+			Cons.push_back(C);
 			// check for the direct domain case
-			if ( (*p)->Left()->Right()->Element() == BOTTOM )
+			if ( C->Left()->Right()->Element() == BOTTOM )
 			{	// found proper absorption candidate
-				bestSome = *p;
+				bestSome = C;
 				break;
 			}
 		}
@@ -381,9 +379,9 @@ TAxiom :: absorbIntoDomain ( void ) const
 	if ( Cons.size() > 1 )
 	{
 		std::cout << " (other options are";
-		for ( WorkSet::iterator q = Cons.begin(), q_end = Cons.end(); q != q_end; ++q )
-			if ( *q != bestSome )
-				std::cout << " " << resolveRole((*q)->Left()->Left())->getName();
+		for ( const auto& C: Cons )
+			if ( C != bestSome )
+				std::cout << " " << resolveRole(C->Left()->Left())->getName();
 		std::cout << ")";
 	}
 #endif

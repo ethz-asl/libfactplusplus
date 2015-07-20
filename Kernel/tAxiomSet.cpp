@@ -24,8 +24,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 /// d'tor
 TAxiomSet :: ~TAxiomSet ( void )
 {
-	for ( AxiomCollection::iterator p = Accum.begin(), p_end = Accum.end(); p < p_end; ++p )
-		delete *p;
+	for ( auto axiom: Accum )
+		delete axiom;
 }
 
 bool
@@ -35,34 +35,33 @@ TAxiomSet :: split ( const TAxiom* p )
 	if ( !p->split(Splitted) )	// nothing to split
 		return false;
 
-	AxiomCollection::iterator q = Splitted.begin(), q_end = Splitted.end();
 	bool fail = false;
-	for ( ; q != q_end; ++q )
+	for ( auto axiom: Splitted )
 	{
 		// axiom is a copy of a processed one: fail to do split
-		if ( (*q)->isCyclic() )
+		if ( axiom->isCyclic() )
 		{
 			fail = true;
 			break;
 		}
 		// axiom is a copy of a new one: skip it
-		if ( copyOfExisting(*q) )
-			Unneeded.push_back(*q);
+		if ( copyOfExisting(axiom) )
+			Unneeded.push_back(axiom);
 		else	// new axiom: keep it
-			Kept.push_back(*q);
+			Kept.push_back(axiom);
 	}
 	// if fail to split: delete all the axioms
 	if ( fail )
 	{
-		for ( q = Splitted.begin(); q != q_end; ++q )
-			delete *q;
+		for ( auto axiom: Splitted )
+			delete axiom;
 		return false;
 	}
 	// no failure: delete all the unneded axioms, add all kept ones
-	for ( q = Unneeded.begin(), q_end = Unneeded.end(); q != q_end; ++q )
-		delete *q;
-	for ( q = Kept.begin(), q_end = Kept.end(); q != q_end; ++q )
-		insertGCI(*q);
+	for ( auto axiom: Unneeded )
+		delete axiom;
+	for ( auto axiom: Kept )
+		insertGCI(axiom);
 	return true;
 }
 
@@ -85,8 +84,8 @@ size_t TAxiomSet :: absorb ( void )
 	}
 
 	// clear absorbed and remove them from Accum
-	for ( AxiomCollection::iterator p = Absorbed.begin(), p_end = Absorbed.end(); p != p_end; ++p )
-		delete *p;
+	for ( auto axiom: Absorbed )
+		delete axiom;
 	Accum.swap(GCIs);
 
 #ifdef RKG_DEBUG_ABSORPTION
@@ -100,8 +99,8 @@ bool TAxiomSet :: absorbGCI ( const TAxiom* p )
 {
 	Stat::SAbsAction();
 
-	for ( AbsActVector::iterator f = ActionVector.begin(), f_end = ActionVector.end(); f != f_end; ++f )
-		if ( (this->*(*f))(p) )
+	for ( auto action: ActionVector )
+		if ( (this->*action)(p) )
 			return true;
 
 #ifdef RKG_DEBUG_ABSORPTION
@@ -114,8 +113,8 @@ bool TAxiomSet :: absorbGCI ( const TAxiom* p )
 bool TAxiomSet :: initAbsorptionFlags ( const std::string& flags )
 {
 	ActionVector.clear();
-	for ( std::string::const_iterator p = flags.begin(), p_end = flags.end(); p != p_end; ++p )
-		switch ( *p )
+	for ( auto ch: flags )
+		switch ( ch )
 		{
 		case 'B': ActionVector.push_back(&TAxiomSet::absorbIntoBottom); break;
 		case 'T': ActionVector.push_back(&TAxiomSet::absorbIntoTop); break;

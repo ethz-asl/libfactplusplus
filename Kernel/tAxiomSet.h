@@ -19,12 +19,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef TAXIOMSET_H
 #define TAXIOMSET_H
 
-#ifdef RKG_DEBUG_ABSORPTION
-#	include <iostream>
-#else
-#	include <iosfwd>
-#endif
-
 #include "tAxiom.h"
 
 class TBox;
@@ -68,7 +62,7 @@ protected:	// methods
 		/// @return true iff axiom Q is a copy of already existing axiom
 	bool copyOfExisting ( TAxiom* q ) const
 	{
-		for ( AxiomCollection::const_iterator p = Accum.begin(), p_end = Accum.end(); p != p_end; ++p )
+		for ( auto p = Accum.begin(), p_end = Accum.end(); p != p_end; ++p )
 			if ( *q == **p )
 			{
 #			ifdef RKG_DEBUG_ABSORPTION
@@ -152,8 +146,8 @@ public:		// interface
 	DLTree* getGCI ( void ) const
 	{
 		DLTree* ret = createTop();
-		for ( AxiomCollection::const_iterator p = Accum.begin(), p_end = Accum.end(); p != p_end; ++p )
-			ret = createSNFAnd ( ret, (*p)->createAnAxiom() );
+		for ( auto axiom: Accum )
+			ret = createSNFAnd ( ret, axiom->createAnAxiom() );
 
 		return ret;
 	}
