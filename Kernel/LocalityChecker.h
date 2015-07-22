@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2011-2012 by Dmitry Tsarkov
+Copyright (C) 2011-2015 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -72,7 +72,7 @@ public:		// interface
 		return isLocal;
 	}
 		/// fake method to match the semantic checker's interface
-	virtual void preprocessOntology ( const AxiomVec& s ATTR_UNUSED ) {}
+	virtual void preprocessOntology ( const AxiomVec& ) {}
 		/// checking locality of the whole ontology (not very useful, but is required by the interface)
 	virtual void visitOntology ( TOntology& ontology )
 	{

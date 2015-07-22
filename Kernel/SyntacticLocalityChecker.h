@@ -264,7 +264,7 @@ protected:	// methods
 	bool isMinTopEquivalent ( unsigned int n, const TDLRoleExpression* R, const TDLExpression* C )
 		{ return (n == 0) || ( isTopEquivalent(R) && isCardLargerThan ( C, n-1 ) ); }
 		/// @return true iff (<= n R.C) is topEq
-	bool isMaxTopEquivalent ( unsigned int n ATTR_UNUSED, const TDLRoleExpression* R, const TDLExpression* C )
+	bool isMaxTopEquivalent ( unsigned int, const TDLRoleExpression* R, const TDLExpression* C )
 		{ return isBotEquivalent(R) || isBotEquivalent(C); }
 
 public:		// interface

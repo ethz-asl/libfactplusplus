@@ -22,7 +22,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <vector>
 #include <string>
 
-#include "globaldef.h"
 #include "eFaCTPlusPlus.h"
 #include "fpp_assert.h"
 #include "tNameSet.h"
@@ -168,60 +167,60 @@ class DLExpressionVisitorEmpty: public DLExpressionVisitor
 {
 public:		// visitor interface
 	// concept expressions
-	virtual void visit ( const TDLConceptTop& expr ATTR_UNUSED ) {}
-	virtual void visit ( const TDLConceptBottom& expr ATTR_UNUSED ) {}
-	virtual void visit ( const TDLConceptName& expr ATTR_UNUSED ) {}
-	virtual void visit ( const TDLConceptNot& expr ATTR_UNUSED ) {}
-	virtual void visit ( const TDLConceptAnd& expr ATTR_UNUSED ) {}
-	virtual void visit ( const TDLConceptOr& expr ATTR_UNUSED ) {}
-	virtual void visit ( const TDLConceptOneOf& expr ATTR_UNUSED ) {}
-	virtual void visit ( const TDLConceptObjectSelf& expr ATTR_UNUSED ) {}
-	virtual void visit ( const TDLConceptObjectValue& expr ATTR_UNUSED ) {}
-	virtual void visit ( const TDLConceptObjectExists& expr ATTR_UNUSED ) {}
-	virtual void visit ( const TDLConceptObjectForall& expr ATTR_UNUSED ) {}
-	virtual void visit ( const TDLConceptObjectMinCardinality& expr ATTR_UNUSED ) {}
-	virtual void visit ( const TDLConceptObjectMaxCardinality& expr ATTR_UNUSED ) {}
-	virtual void visit ( const TDLConceptObjectExactCardinality& expr ATTR_UNUSED ) {}
-	virtual void visit ( const TDLConceptDataValue& expr ATTR_UNUSED ) {}
-	virtual void visit ( const TDLConceptDataExists& expr ATTR_UNUSED ) {}
-	virtual void visit ( const TDLConceptDataForall& expr ATTR_UNUSED ) {}
-	virtual void visit ( const TDLConceptDataMinCardinality& expr ATTR_UNUSED ) {}
-	virtual void visit ( const TDLConceptDataMaxCardinality& expr ATTR_UNUSED ) {}
-	virtual void visit ( const TDLConceptDataExactCardinality& expr ATTR_UNUSED ) {}
+	virtual void visit ( const TDLConceptTop& ) {}
+	virtual void visit ( const TDLConceptBottom& ) {}
+	virtual void visit ( const TDLConceptName& ) {}
+	virtual void visit ( const TDLConceptNot& ) {}
+	virtual void visit ( const TDLConceptAnd& ) {}
+	virtual void visit ( const TDLConceptOr& ) {}
+	virtual void visit ( const TDLConceptOneOf& ) {}
+	virtual void visit ( const TDLConceptObjectSelf& ) {}
+	virtual void visit ( const TDLConceptObjectValue& ) {}
+	virtual void visit ( const TDLConceptObjectExists& ) {}
+	virtual void visit ( const TDLConceptObjectForall& ) {}
+	virtual void visit ( const TDLConceptObjectMinCardinality& ) {}
+	virtual void visit ( const TDLConceptObjectMaxCardinality& ) {}
+	virtual void visit ( const TDLConceptObjectExactCardinality& ) {}
+	virtual void visit ( const TDLConceptDataValue& ) {}
+	virtual void visit ( const TDLConceptDataExists& ) {}
+	virtual void visit ( const TDLConceptDataForall& ) {}
+	virtual void visit ( const TDLConceptDataMinCardinality& ) {}
+	virtual void visit ( const TDLConceptDataMaxCardinality& ) {}
+	virtual void visit ( const TDLConceptDataExactCardinality& ) {}
 
 	// individual expressions
-	virtual void visit ( const TDLIndividualName& expr ATTR_UNUSED ) {}
+	virtual void visit ( const TDLIndividualName& ) {}
 
 	// object role expressions
-	virtual void visit ( const TDLObjectRoleTop& expr ATTR_UNUSED ) {}
-	virtual void visit ( const TDLObjectRoleBottom& expr ATTR_UNUSED ) {}
-	virtual void visit ( const TDLObjectRoleName& expr ATTR_UNUSED ) {}
-	virtual void visit ( const TDLObjectRoleInverse& expr ATTR_UNUSED ) {}
-	virtual void visit ( const TDLObjectRoleChain& expr ATTR_UNUSED ) {}
-	virtual void visit ( const TDLObjectRoleProjectionFrom& expr ATTR_UNUSED ) {}
-	virtual void visit ( const TDLObjectRoleProjectionInto& expr ATTR_UNUSED ) {}
+	virtual void visit ( const TDLObjectRoleTop& ) {}
+	virtual void visit ( const TDLObjectRoleBottom& ) {}
+	virtual void visit ( const TDLObjectRoleName& ) {}
+	virtual void visit ( const TDLObjectRoleInverse& ) {}
+	virtual void visit ( const TDLObjectRoleChain& ) {}
+	virtual void visit ( const TDLObjectRoleProjectionFrom& ) {}
+	virtual void visit ( const TDLObjectRoleProjectionInto& ) {}
 
 	// data role expressions
-	virtual void visit ( const TDLDataRoleTop& expr ATTR_UNUSED ) {}
-	virtual void visit ( const TDLDataRoleBottom& expr ATTR_UNUSED ) {}
-	virtual void visit ( const TDLDataRoleName& expr ATTR_UNUSED ) {}
+	virtual void visit ( const TDLDataRoleTop& ) {}
+	virtual void visit ( const TDLDataRoleBottom& ) {}
+	virtual void visit ( const TDLDataRoleName& ) {}
 
 	// data expressions
-	virtual void visit ( const TDLDataTop& expr ATTR_UNUSED ) {}
-	virtual void visit ( const TDLDataBottom& expr ATTR_UNUSED ) {}
-	virtual void visit ( const TDLDataTypeName& expr ATTR_UNUSED ) {}
-	virtual void visit ( const TDLDataTypeRestriction& expr ATTR_UNUSED ) {}
-	virtual void visit ( const TDLDataValue& expr ATTR_UNUSED ) {}
-	virtual void visit ( const TDLDataNot& expr ATTR_UNUSED ) {}
-	virtual void visit ( const TDLDataAnd& expr ATTR_UNUSED ) {}
-	virtual void visit ( const TDLDataOr& expr ATTR_UNUSED ) {}
-	virtual void visit ( const TDLDataOneOf& expr ATTR_UNUSED ) {}
+	virtual void visit ( const TDLDataTop& ) {}
+	virtual void visit ( const TDLDataBottom& ) {}
+	virtual void visit ( const TDLDataTypeName& ) {}
+	virtual void visit ( const TDLDataTypeRestriction& ) {}
+	virtual void visit ( const TDLDataValue& ) {}
+	virtual void visit ( const TDLDataNot& ) {}
+	virtual void visit ( const TDLDataAnd& ) {}
+	virtual void visit ( const TDLDataOr& ) {}
+	virtual void visit ( const TDLDataOneOf& ) {}
 
 	// facets
-	virtual void visit ( const TDLFacetMinInclusive& expr ATTR_UNUSED ) {}
-	virtual void visit ( const TDLFacetMinExclusive& expr ATTR_UNUSED ) {}
-	virtual void visit ( const TDLFacetMaxInclusive& expr ATTR_UNUSED ) {}
-	virtual void visit ( const TDLFacetMaxExclusive& expr ATTR_UNUSED ) {}
+	virtual void visit ( const TDLFacetMinInclusive& ) {}
+	virtual void visit ( const TDLFacetMinExclusive& ) {}
+	virtual void visit ( const TDLFacetMaxInclusive& ) {}
+	virtual void visit ( const TDLFacetMaxExclusive& ) {}
 
 	// other methods
 	virtual ~DLExpressionVisitorEmpty ( void ) {}
@@ -410,7 +409,7 @@ public:		// types
 protected:	// members
 		/// set of equivalent concept descriptions
 	ArgumentArray Base;
-		/// name for excepion depending on class name and direction
+		/// name for exception depending on class name and direction
 	std::string EString;
 
 protected:	// methods

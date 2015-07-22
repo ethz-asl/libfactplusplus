@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2011 by Dmitry Tsarkov
+Copyright (C) 2011-2015 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -56,8 +56,8 @@ public:		// interface
 
 public:		// visitor interface
 	// concept expressions
-	virtual void visit ( const TDLConceptTop& expr ATTR_UNUSED ) {}
-	virtual void visit ( const TDLConceptBottom& expr ATTR_UNUSED ) {}
+	virtual void visit ( const TDLConceptTop& ) {}
+	virtual void visit ( const TDLConceptBottom& ) {}
 	virtual void visit ( const TDLConceptName& expr ) { vE(expr); }
 	virtual void visit ( const TDLConceptNot& expr ) { vC(expr); }
 	virtual void visit ( const TDLConceptAnd& expr ) { processArray(expr); }
@@ -81,8 +81,8 @@ public:		// visitor interface
 	virtual void visit ( const TDLIndividualName& expr ) { vE(expr); }
 
 	// object role expressions
-	virtual void visit ( const TDLObjectRoleTop& expr ATTR_UNUSED ) {}
-	virtual void visit ( const TDLObjectRoleBottom& expr ATTR_UNUSED ) {}
+	virtual void visit ( const TDLObjectRoleTop& ) {}
+	virtual void visit ( const TDLObjectRoleBottom& ) {}
 	virtual void visit ( const TDLObjectRoleName& expr ) { vE(expr); }
 	virtual void visit ( const TDLObjectRoleInverse& expr ) { vOR(expr); }
 	virtual void visit ( const TDLObjectRoleChain& expr ) { processArray(expr); }
@@ -90,26 +90,26 @@ public:		// visitor interface
 	virtual void visit ( const TDLObjectRoleProjectionInto& expr ) { vOR(expr); vC(expr); }
 
 	// data role expressions
-	virtual void visit ( const TDLDataRoleTop& expr ATTR_UNUSED ) {}
-	virtual void visit ( const TDLDataRoleBottom& expr ATTR_UNUSED ) {}
+	virtual void visit ( const TDLDataRoleTop& ) {}
+	virtual void visit ( const TDLDataRoleBottom& ) {}
 	virtual void visit ( const TDLDataRoleName& expr ) { vE(expr); }
 
 	// data expressions
-	virtual void visit ( const TDLDataTop& expr ATTR_UNUSED ) {}
-	virtual void visit ( const TDLDataBottom& expr ATTR_UNUSED ) {}
-	virtual void visit ( const TDLDataTypeName& expr ATTR_UNUSED ) {}
-	virtual void visit ( const TDLDataTypeRestriction& expr ATTR_UNUSED ) {}
-	virtual void visit ( const TDLDataValue& expr ATTR_UNUSED ) {}
-	virtual void visit ( const TDLDataNot& expr ATTR_UNUSED ) {}
-	virtual void visit ( const TDLDataAnd& expr ATTR_UNUSED ) {}
-	virtual void visit ( const TDLDataOr& expr ATTR_UNUSED ) {}
-	virtual void visit ( const TDLDataOneOf& expr ATTR_UNUSED ) {}
+	virtual void visit ( const TDLDataTop& ) {}
+	virtual void visit ( const TDLDataBottom& ) {}
+	virtual void visit ( const TDLDataTypeName& ) {}
+	virtual void visit ( const TDLDataTypeRestriction& ) {}
+	virtual void visit ( const TDLDataValue& ) {}
+	virtual void visit ( const TDLDataNot& ) {}
+	virtual void visit ( const TDLDataAnd& ) {}
+	virtual void visit ( const TDLDataOr& ) {}
+	virtual void visit ( const TDLDataOneOf& ) {}
 
 	// facets
-	virtual void visit ( const TDLFacetMinInclusive& expr ATTR_UNUSED ) {}
-	virtual void visit ( const TDLFacetMinExclusive& expr ATTR_UNUSED ) {}
-	virtual void visit ( const TDLFacetMaxInclusive& expr ATTR_UNUSED ) {}
-	virtual void visit ( const TDLFacetMaxExclusive& expr ATTR_UNUSED ) {}
+	virtual void visit ( const TDLFacetMinInclusive& ) {}
+	virtual void visit ( const TDLFacetMinExclusive& ) {}
+	virtual void visit ( const TDLFacetMaxInclusive& ) {}
+	virtual void visit ( const TDLFacetMaxExclusive& ) {}
 }; // TExpressionSignatureUpdater
 
 /// update signature by adding the signature of a given axiom to it

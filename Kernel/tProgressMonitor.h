@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2006-2010 by Dmitry Tsarkov
+Copyright (C) 2006-2015 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -19,8 +19,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef TPROGRESSMONITOR_H
 #define TPROGRESSMONITOR_H
 
-#include "globaldef.h"
-
 /// progress monitor and canceller for the classification
 class TProgressMonitor
 {
@@ -33,7 +31,7 @@ public:
 	// interface
 
 		/// informs about beginning of classification with number of concepts to be classified
-	virtual void setClassificationStarted ( unsigned int nConcepts ATTR_UNUSED ) {}
+	virtual void setClassificationStarted ( unsigned int ) {}
 		/// informs about beginning of classification of a given CONCEPT
 	virtual void nextClass ( void ) {}
 		/// informs that the reasoning is done

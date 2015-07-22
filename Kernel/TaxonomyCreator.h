@@ -196,7 +196,7 @@ protected:	// methods
 	virtual KnownSubsumers* buildKnownSubsumers ( ClassifiableEntry* p )
 		{ return new ToldSubsumers(p->told().begin(), p->told().end()); }
 		/// prepare signature for given entry
-	virtual const TSignature* buildSignature ( ClassifiableEntry* p ATTR_UNUSED ) { return nullptr; }
+	virtual const TSignature* buildSignature ( ClassifiableEntry* ) { return nullptr; }
 		/// add top entry together with its known subsumers
 	void addTop ( ClassifiableEntry* p )
 	{

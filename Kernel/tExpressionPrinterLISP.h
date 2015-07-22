@@ -78,8 +78,8 @@ public:		// interface
 
 public:		// visitor interface
 	// concept expressions
-	virtual void visit ( const TDLConceptTop& expr ATTR_UNUSED ) { o << " *TOP*"; }
-	virtual void visit ( const TDLConceptBottom& expr ATTR_UNUSED ) { o << " *BOTTOM*"; }
+	virtual void visit ( const TDLConceptTop& ) { o << " *TOP*"; }
+	virtual void visit ( const TDLConceptBottom& ) { o << " *BOTTOM*"; }
 	virtual void visit ( const TDLConceptName& expr ) { o << " " << expr.getName(); }
 	virtual void visit ( const TDLConceptNot& expr ) { BR b(o,"not"); expr.getC()->accept(*this); }
 	virtual void visit ( const TDLConceptAnd& expr ) { BR b(o,"and"); printArray(expr); }
@@ -117,8 +117,8 @@ public:		// visitor interface
 	virtual void visit ( const TDLIndividualName& expr ) { o << " " << expr.getName(); }
 
 	// object role expressions
-	virtual void visit ( const TDLObjectRoleTop& expr ATTR_UNUSED ) { o << " *UROLE*"; }
-	virtual void visit ( const TDLObjectRoleBottom& expr ATTR_UNUSED ) { o << " *EROLE*"; }
+	virtual void visit ( const TDLObjectRoleTop& ) { o << " *UROLE*"; }
+	virtual void visit ( const TDLObjectRoleBottom& ) { o << " *EROLE*"; }
 	virtual void visit ( const TDLObjectRoleName& expr ) { o << " " << expr.getName(); }
 	virtual void visit ( const TDLObjectRoleInverse& expr ) { BR b(o,"inv"); expr.getOR()->accept(*this); }
 	virtual void visit ( const TDLObjectRoleChain& expr ) { BR b(o,"compose"); printArray(expr); }
@@ -128,13 +128,13 @@ public:		// visitor interface
 		{ BR b(o,"project_into"); expr.getOR()->accept(*this); expr.getC()->accept(*this); }
 
 	// data role expressions
-	virtual void visit ( const TDLDataRoleTop& expr ATTR_UNUSED ) { o << " *UDROLE*";  }
-	virtual void visit ( const TDLDataRoleBottom& expr ATTR_UNUSED ) { o << " *EDROLE*"; }
+	virtual void visit ( const TDLDataRoleTop& ) { o << " *UDROLE*";  }
+	virtual void visit ( const TDLDataRoleBottom& ) { o << " *EDROLE*"; }
 	virtual void visit ( const TDLDataRoleName& expr ) { o << " " << expr.getName(); }
 
 	// data expressions
-	virtual void visit ( const TDLDataTop& expr ATTR_UNUSED ) { o << " *TOP*"; }
-	virtual void visit ( const TDLDataBottom& expr ATTR_UNUSED ) { o << " *BOTTOM*"; }
+	virtual void visit ( const TDLDataTop& ) { o << " *TOP*"; }
+	virtual void visit ( const TDLDataBottom& ) { o << " *BOTTOM*"; }
 	virtual void visit ( const TDLDataTypeName& expr ) { o << " (" << getDTName(expr.getName()) << ")"; }
 		// no need to use a type of a restriction here, as all contains in constants
 	virtual void visit ( const TDLDataTypeRestriction& expr ) { BR b(o,"and"); printArray(expr); }

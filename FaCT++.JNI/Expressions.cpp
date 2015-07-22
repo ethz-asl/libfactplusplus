@@ -445,7 +445,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
  * Signature: (Luk/ac/manchester/cs/factplusplus/DataValuePointer;)Luk/ac/manchester/cs/factplusplus/DataTypeFacet;
  */
 JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_getFractionDigitsFacet
-  (JNIEnv * env, jobject obj ATTR_UNUSED, jobject arg ATTR_UNUSED)
+  (JNIEnv * env, jobject, jobject)
 {
 	TRACE_JNI("getFractionDigitsFacet");
 	Throw ( env, "FaCT++ Kernel: unsupported facet 'getFractionDigitsFacet'" );
@@ -742,7 +742,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
  * Signature: ()Luk/ac/manchester/cs/factplusplus/DataPropertyPointer;
  */
 JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_getDataPropertyKey
-  (JNIEnv * env, jobject obj ATTR_UNUSED)
+  (JNIEnv * env, jobject)
 {
 	TRACE_JNI("getDataPropertyKey");
 	Throw ( env, "FaCT++ Kernel: unsupported operation 'getDataPropertyKey'" );
@@ -756,7 +756,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_get
  * Signature: ()Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;
  */
 JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_getObjectPropertyKey
-  (JNIEnv * env, jobject obj ATTR_UNUSED)
+  (JNIEnv * env, jobject)
 {
 	TRACE_JNI("getObjectPropertyKey");
 	Throw ( env, "FaCT++ Kernel: unsupported operation 'getObjectPropertyKey'" );

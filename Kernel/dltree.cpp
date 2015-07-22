@@ -149,7 +149,7 @@ isSemanticallyDataBottom ( DLTree* dr ) { return dr->Element().getToken() == BOT
 
 /// @return true iff the cardinality of a given data range DR is greater than N. FIXME!! good approximation for now
 static bool
-isDataRangeBigEnough ( DLTree* dr ATTR_UNUSED, unsigned int n ATTR_UNUSED ) { return true; }
+isDataRangeBigEnough ( DLTree*, unsigned int ) { return true; }
 
 /// simplify universal restriction with top data role
 static DLTree*

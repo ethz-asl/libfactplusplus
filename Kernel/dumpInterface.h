@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2014 by Dmitry Tsarkov
+Copyright (C) 2003-2015 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -21,7 +21,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <ostream>
 
-#include "globaldef.h"
 #include "tNamedEntry.h"
 #include "dltree.h"
 
@@ -109,24 +108,24 @@ public:		// interface
 	// general concept expression
 	virtual void dumpTop ( void ) {}
 	virtual void dumpBottom ( void ) {}
-	virtual void dumpNumber ( unsigned int n ATTR_UNUSED ) {}
+	virtual void dumpNumber ( unsigned int ) {}
 
-	virtual void startOp ( diOp Op ATTR_UNUSED ) {}
+	virtual void startOp ( diOp ) {}
 		/// start operation >=/<= with number
-	virtual void startOp ( diOp Op ATTR_UNUSED, unsigned int n ATTR_UNUSED ) {}
-	virtual void contOp ( diOp Op ATTR_UNUSED ) {}
-	virtual void finishOp ( diOp Op ATTR_UNUSED ) {}
+	virtual void startOp ( diOp, unsigned int ) {}
+	virtual void contOp ( diOp ) {}
+	virtual void finishOp ( diOp ) {}
 
-	virtual void startAx ( diAx Ax ATTR_UNUSED ) {}
-	virtual void contAx ( diAx Ax ATTR_UNUSED ) {}
-	virtual void finishAx ( diAx Ax ATTR_UNUSED ) {}
+	virtual void startAx ( diAx ) {}
+	virtual void contAx ( diAx ) {}
+	virtual void finishAx ( diAx ) {}
 
 		/// obtain name by the named entry
 	virtual void dumpName ( const TNamedEntry* p ) { o << p->getName(); }
 		/// dump concept atom (as used in expression)
-	virtual void dumpConcept ( const TConcept* p ATTR_UNUSED ) {}
+	virtual void dumpConcept ( const TConcept* ) {}
 		/// dump role atom (as used in expression)
-	virtual void dumpRole ( const TRole* p ATTR_UNUSED ) {}
+	virtual void dumpRole ( const TRole* ) {}
 }; // dumpInterface
 
 inline void dumpInterface :: skipIndent ( void )

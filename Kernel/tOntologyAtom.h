@@ -20,6 +20,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #define TONTOLOGYATOM_H
 
 #include <set>
+
+#include "globaldef.h"
 #include "tDLAxiom.h"
 
 /// representation of the ontology atom

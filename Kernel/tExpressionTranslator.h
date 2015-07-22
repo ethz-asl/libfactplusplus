@@ -60,8 +60,8 @@ public:		// interface
 
 public:		// visitor interface
 	// concept expressions
-	virtual void visit ( const TDLConceptTop& expr ATTR_UNUSED ) { tree = createTop(); }
-	virtual void visit ( const TDLConceptBottom& expr ATTR_UNUSED ) { tree = createBottom(); }
+	virtual void visit ( const TDLConceptTop& ) { tree = createTop(); }
+	virtual void visit ( const TDLConceptBottom& ) { tree = createBottom(); }
 	virtual void visit ( const TDLConceptName& expr )
 	{
 		if ( nc(&expr) )
@@ -217,8 +217,8 @@ public:		// visitor interface
 	}
 
 	// object role expressions
-	virtual void visit ( const TDLObjectRoleTop& expr ATTR_UNUSED ) { THROW_UNSUPPORTED("top object role"); }
-	virtual void visit ( const TDLObjectRoleBottom& expr ATTR_UNUSED ) { THROW_UNSUPPORTED("bottom object role"); }
+	virtual void visit ( const TDLObjectRoleTop& ) { THROW_UNSUPPORTED("top object role"); }
+	virtual void visit ( const TDLObjectRoleBottom& ) { THROW_UNSUPPORTED("bottom object role"); }
 	virtual void visit ( const TDLObjectRoleName& expr )
 	{
 		RoleMaster* RM = KB.getORM();
@@ -269,8 +269,8 @@ public:		// visitor interface
 	}
 
 	// data role expressions
-	virtual void visit ( const TDLDataRoleTop& expr ATTR_UNUSED ) { THROW_UNSUPPORTED("top data role");  }
-	virtual void visit ( const TDLDataRoleBottom& expr ATTR_UNUSED ) { THROW_UNSUPPORTED("bottom data role"); }
+	virtual void visit ( const TDLDataRoleTop& ) { THROW_UNSUPPORTED("top data role");  }
+	virtual void visit ( const TDLDataRoleBottom& ) { THROW_UNSUPPORTED("bottom data role"); }
 	virtual void visit ( const TDLDataRoleName& expr )
 	{
 		RoleMaster* RM = KB.getDRM();
@@ -287,8 +287,8 @@ public:		// visitor interface
 	}
 
 	// data expressions
-	virtual void visit ( const TDLDataTop& expr ATTR_UNUSED ) { tree = createTop(); }
-	virtual void visit ( const TDLDataBottom& expr ATTR_UNUSED ) { tree = createBottom(); }
+	virtual void visit ( const TDLDataTop& ) { tree = createTop(); }
+	virtual void visit ( const TDLDataBottom& ) { tree = createBottom(); }
 	virtual void visit ( const TDLDataTypeName& expr )
 	{
 		DataTypeCenter& DTC = KB.getDataTypeCenter();

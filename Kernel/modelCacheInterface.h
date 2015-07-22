@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2010 by Dmitry Tsarkov
+Copyright (C) 2003-2015 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -19,7 +19,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef MODELCACHEINTERFACE_H
 #define MODELCACHEINTERFACE_H
 
-#include "globaldef.h"
 #ifdef _USE_LOGGING
 #	include "logging.h"
 #endif
@@ -92,7 +91,7 @@ public:		// interface
 	virtual bool shallowCache ( void ) const { return true; }
 #ifdef _USE_LOGGING
 		/// log this cache entry (with given level)
-	virtual void logCacheEntry ( unsigned int level ATTR_UNUSED ) const {}
+	virtual void logCacheEntry ( unsigned int ) const {}
 #endif
 }; // modelCacheInterface
 

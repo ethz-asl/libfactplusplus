@@ -22,7 +22,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <vector>
 #include <set>
 
-#include "globaldef.h"
 #include "tNamedEntry.h"
 #include "tNameSet.h"
 #include "eFPPCantRegName.h"
@@ -55,7 +54,7 @@ protected:	// members
 
 protected:	// methods
 		/// virtual method for additional tuning of newly created element
-	virtual void registerNew ( T* p ATTR_UNUSED ) {}
+	virtual void registerNew ( T* ) {}
 		/// register new element in a collection; return this element
 	T* registerElem ( T* p )
 	{

@@ -108,41 +108,41 @@ public:		// visitor interface
 class DLAxiomVisitorEmpty: public DLAxiomVisitor
 {
 public:		// visitor interface
-	virtual void visit ( const TDLAxiomDeclaration& axiom ATTR_UNUSED ) {}
+	virtual void visit ( const TDLAxiomDeclaration& ) {}
 
-	virtual void visit ( const TDLAxiomEquivalentConcepts& axiom ATTR_UNUSED ) {}
-	virtual void visit ( const TDLAxiomDisjointConcepts& axiom ATTR_UNUSED ) {}
-	virtual void visit ( const TDLAxiomDisjointUnion& axiom ATTR_UNUSED ) {}
-	virtual void visit ( const TDLAxiomEquivalentORoles& axiom ATTR_UNUSED ) {}
-	virtual void visit ( const TDLAxiomEquivalentDRoles& axiom ATTR_UNUSED ) {}
-	virtual void visit ( const TDLAxiomDisjointORoles& axiom ATTR_UNUSED ) {}
-	virtual void visit ( const TDLAxiomDisjointDRoles& axiom ATTR_UNUSED ) {}
-	virtual void visit ( const TDLAxiomSameIndividuals& axiom ATTR_UNUSED ) {}
-	virtual void visit ( const TDLAxiomDifferentIndividuals& axiom ATTR_UNUSED ) {}
-	virtual void visit ( const TDLAxiomFairnessConstraint& axiom ATTR_UNUSED ) {}
+	virtual void visit ( const TDLAxiomEquivalentConcepts& ) {}
+	virtual void visit ( const TDLAxiomDisjointConcepts& ) {}
+	virtual void visit ( const TDLAxiomDisjointUnion& ) {}
+	virtual void visit ( const TDLAxiomEquivalentORoles& ) {}
+	virtual void visit ( const TDLAxiomEquivalentDRoles& ) {}
+	virtual void visit ( const TDLAxiomDisjointORoles& ) {}
+	virtual void visit ( const TDLAxiomDisjointDRoles& ) {}
+	virtual void visit ( const TDLAxiomSameIndividuals& ) {}
+	virtual void visit ( const TDLAxiomDifferentIndividuals& ) {}
+	virtual void visit ( const TDLAxiomFairnessConstraint& ) {}
 
-	virtual void visit ( const TDLAxiomRoleInverse& axiom ATTR_UNUSED ) {}
-	virtual void visit ( const TDLAxiomORoleSubsumption& axiom ATTR_UNUSED ) {}
-	virtual void visit ( const TDLAxiomDRoleSubsumption& axiom ATTR_UNUSED ) {}
-	virtual void visit ( const TDLAxiomORoleDomain& axiom ATTR_UNUSED ) {}
-	virtual void visit ( const TDLAxiomDRoleDomain& axiom ATTR_UNUSED ) {}
-	virtual void visit ( const TDLAxiomORoleRange& axiom ATTR_UNUSED ) {}
-	virtual void visit ( const TDLAxiomDRoleRange& axiom ATTR_UNUSED ) {}
-	virtual void visit ( const TDLAxiomRoleTransitive& axiom ATTR_UNUSED ) {}
-	virtual void visit ( const TDLAxiomRoleReflexive& axiom ATTR_UNUSED ) {}
-	virtual void visit ( const TDLAxiomRoleIrreflexive& axiom ATTR_UNUSED ) {}
-	virtual void visit ( const TDLAxiomRoleSymmetric& axiom ATTR_UNUSED ) {}
-	virtual void visit ( const TDLAxiomRoleAsymmetric& axiom ATTR_UNUSED ) {}
-	virtual void visit ( const TDLAxiomORoleFunctional& axiom ATTR_UNUSED ) {}
-	virtual void visit ( const TDLAxiomDRoleFunctional& axiom ATTR_UNUSED ) {}
-	virtual void visit ( const TDLAxiomRoleInverseFunctional& axiom ATTR_UNUSED ) {}
+	virtual void visit ( const TDLAxiomRoleInverse& ) {}
+	virtual void visit ( const TDLAxiomORoleSubsumption& ) {}
+	virtual void visit ( const TDLAxiomDRoleSubsumption& ) {}
+	virtual void visit ( const TDLAxiomORoleDomain& ) {}
+	virtual void visit ( const TDLAxiomDRoleDomain& ) {}
+	virtual void visit ( const TDLAxiomORoleRange& ) {}
+	virtual void visit ( const TDLAxiomDRoleRange& ) {}
+	virtual void visit ( const TDLAxiomRoleTransitive& ) {}
+	virtual void visit ( const TDLAxiomRoleReflexive& ) {}
+	virtual void visit ( const TDLAxiomRoleIrreflexive& ) {}
+	virtual void visit ( const TDLAxiomRoleSymmetric& ) {}
+	virtual void visit ( const TDLAxiomRoleAsymmetric& ) {}
+	virtual void visit ( const TDLAxiomORoleFunctional& ) {}
+	virtual void visit ( const TDLAxiomDRoleFunctional& ) {}
+	virtual void visit ( const TDLAxiomRoleInverseFunctional& ) {}
 
-	virtual void visit ( const TDLAxiomConceptInclusion& axiom ATTR_UNUSED ) {}
-	virtual void visit ( const TDLAxiomInstanceOf& axiom ATTR_UNUSED ) {}
-	virtual void visit ( const TDLAxiomRelatedTo& axiom ATTR_UNUSED ) {}
-	virtual void visit ( const TDLAxiomRelatedToNot& axiom ATTR_UNUSED ) {}
-	virtual void visit ( const TDLAxiomValueOf& axiom ATTR_UNUSED ) {}
-	virtual void visit ( const TDLAxiomValueOfNot& axiom ATTR_UNUSED ) {}
+	virtual void visit ( const TDLAxiomConceptInclusion& ) {}
+	virtual void visit ( const TDLAxiomInstanceOf& ) {}
+	virtual void visit ( const TDLAxiomRelatedTo& ) {}
+	virtual void visit ( const TDLAxiomRelatedToNot& ) {}
+	virtual void visit ( const TDLAxiomValueOf& ) {}
+	virtual void visit ( const TDLAxiomValueOfNot& ) {}
 
 	virtual void visitOntology ( TOntology& ontology ) = 0;
 	virtual ~DLAxiomVisitorEmpty ( void ) {}

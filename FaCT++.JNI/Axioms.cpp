@@ -98,7 +98,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tel
  * Signature: (Luk/ac/manchester/cs/factplusplus/DataTypePointer;)Luk/ac/manchester/cs/factplusplus/AxiomPointer;
  */
 JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellDatatypeDeclaration
-  (JNIEnv * env, jobject obj ATTR_UNUSED, jobject arg ATTR_UNUSED)
+  (JNIEnv * env, jobject obj, jobject arg)
 {
 	PROCESS_QUERY ( getK(env,obj)->declare(getDataTypeExpr(env,arg)), "tellDatatypeDeclaration" );
 }
@@ -154,7 +154,7 @@ JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tel
  * Signature: (Luk/ac/manchester/cs/factplusplus/ClassPointer;Luk/ac/manchester/cs/factplusplus/DataPropertyPointer;Luk/ac/manchester/cs/factplusplus/ObjectPropertyPointer;)Luk/ac/manchester/cs/factplusplus/AxiomPointer;
  */
 JNIEXPORT jobject JNICALL Java_uk_ac_manchester_cs_factplusplus_FaCTPlusPlus_tellHasKey
-  (JNIEnv * env, jobject obj ATTR_UNUSED, jobject cls ATTR_UNUSED, jobject dataprops ATTR_UNUSED, jobject objectprops ATTR_UNUSED)
+  (JNIEnv * env, jobject, jobject, jobject, jobject)
 {
 	TRACE_JNI("tellHasKey");
 	Throw ( env, "FaCT++ Kernel: unsupported operation 'tellHasKey'" );

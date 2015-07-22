@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2006 by Dmitry Tsarkov
+Copyright (C) 2003-2015 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -16,8 +16,8 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef _DUMPLISP_H
-#define _DUMPLISP_H
+#ifndef DUMPLISP_H
+#define DUMPLISP_H
 
 #include "dumpInterface.h"
 #include "dlTBox.h"	//TConcept/TRole
@@ -58,8 +58,8 @@ public:		// interface
 	}
 
 	virtual void startAx ( diAx Ax );
-	virtual void contAx ( diAx Ax ATTR_UNUSED ) { o << " "; }
-	virtual void finishAx ( diAx Ax ATTR_UNUSED ) { o << ")\n"; }
+	virtual void contAx ( diAx ) { o << " "; }
+	virtual void finishAx ( diAx ) { o << ")\n"; }
 
 		/// obtain name by the named entry
 	virtual void dumpName ( const TNamedEntry* p ) { o << "|" << p->getName() << "|"; }

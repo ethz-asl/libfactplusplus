@@ -132,8 +132,8 @@ public:		// interface
 		/// get datatype by its name
 	DLTree* getDataType ( const std::string& name )
 		{ return wrap(getTypeByName(name)->getType()); }
-		/// define named datatype as equal to given EXPR. FIXME!! stub for JNI for now
-	DLTree* getDataType ( const std::string& name ATTR_UNUSED, DLTree* expr )
+		/// define datatype by NAME as equal to given EXPR. FIXME!! stub for JNI for now
+	DLTree* getDataType ( const std::string&, DLTree* expr )
 		{ return expr; }
 
 		/// facet for >=/>/</<=
