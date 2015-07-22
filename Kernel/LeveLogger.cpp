@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2014 by Dmitry Tsarkov
+Copyright (C) 2003-2015 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -21,10 +21,17 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "LeveLogger.h"
 #include "configure.h"
 
+// define local private stream
+namespace {
+	std::ofstream LLprivate;
+}
+// define LL as a reference to the real ofstream
+std::ostream& LL { LLprivate };
+
 bool LeveLogger :: initLogger ( unsigned int l, const char* filename )
 {
 	// init file
-	LL.open(filename);
+	LLprivate.open(filename);
 
 	if ( LL.bad() )
 		return true;
@@ -59,4 +66,3 @@ bool LeveLogger :: initLogger ( Configuration& Config )
 
 // the only element of LL
 LeveLogger LLM;
-std::ofstream LL;

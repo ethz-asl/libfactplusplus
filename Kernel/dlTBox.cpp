@@ -19,6 +19,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "dlTBox.h"
 
 #include <sstream>
+#include <fstream>
+
 #include "dltree.h"
 #include "cppi.h"
 

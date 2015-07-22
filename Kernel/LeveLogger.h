@@ -19,7 +19,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef LEVELOGGER_H
 #define LEVELOGGER_H
 
-#include <fstream>
+#include <iosfwd>
 
 #include "globaldef.h"
 
@@ -59,7 +59,7 @@ public:		// interface
 /// the only main logger/manager for all usage
 extern LeveLogger LLM;
 /// file stream to be used by LLM; be sure that every OP with LL is guarded by LLM
-extern std::ofstream LL;
+extern std::ostream& LL;
 
 // macro for checking if LL is writable and then return
 #define CHECK_LL_RETURN(val)	\
