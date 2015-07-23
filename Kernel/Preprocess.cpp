@@ -284,22 +284,20 @@ redo:
 //				std::cout << "Fill cycle with " << p->getName() << std::endl;
 				ToldSynonyms.push_back(p);
 
-				std::vector<TConcept*>::iterator q, q_end = ToldSynonyms.end();
-
 				// find a representative for the cycle; nominal is preferable
-				for ( q = ToldSynonyms.begin(); q < q_end; ++q )
-					if ( (*q)->isSingleton() )
-						p = *q;
+				for ( auto rep: ToldSynonyms )
+					if ( rep->isSingleton() )
+						p = rep;
 				// now p is a representative for all the synonyms
 
 				// fill the description
 				DLTree* desc = nullptr;
-				for ( q = ToldSynonyms.begin(); q < q_end; ++q )
-					if ( *q != p )	// make it a synonym of RET, save old desc
+				for ( auto syn: ToldSynonyms )
+					if ( syn != p )	// make it a synonym of RET, save old desc
 					{
-						desc = createSNFAnd ( desc, makeNonPrimitive ( *q, getTree(p) ) );
+						desc = createSNFAnd ( desc, makeNonPrimitive ( syn, getTree(p) ) );
 						// check whether we had an extra definition for Q
-						ConceptDefMap::iterator extra = ExtraConceptDefs.find(*q);
+						ConceptDefMap::iterator extra = ExtraConceptDefs.find(syn);
 						if ( extra != ExtraConceptDefs.end() )
 						{
 							desc = createSNFAnd ( desc, extra->second );
@@ -466,9 +464,10 @@ TBox :: isReferenced ( TConcept* C, DLTree* tree, ConceptSet& processed )
 void
 TBox :: TransformExtraSubsumptions ( void )
 {
-	for ( ConceptDefMap::iterator p = ExtraConceptDefs.begin(), p_next = p, p_end = ExtraConceptDefs.end(); p != p_end; )
+	auto p = ExtraConceptDefs.begin(), p_end = ExtraConceptDefs.end();
+
+	while ( p != p_end )
 	{
-		++p_next;
 		TConcept* C = p->first;
 		DLTree* E = p->second;
 		// for every C here we have C = D in KB and C [= E in ExtraDefs
@@ -481,9 +480,8 @@ TBox :: TransformExtraSubsumptions ( void )
 		}
 		else	// it is safe to keep definition C = D and go with GCI C [= E
 			processGCI ( getTree(C), E );
-		// remove processed entry from the set. This will invalidate p, so use p_next
-		ExtraConceptDefs.erase(p);
-		p = p_next;
+		// remove processed entry from the set, reset the pointer
+		p = ExtraConceptDefs.erase(p);
 	}
 }
 
