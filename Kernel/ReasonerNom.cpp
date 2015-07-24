@@ -94,8 +94,8 @@ NominalReasoner :: consistentNominalCloud ( void )
 		return false;
 
 	// ABox is consistent -> create cache for every nominal in KB
-	for ( SingletonVector::iterator p = Nominals.begin(); p != Nominals.end(); ++p )
-		updateClassifiedSingleton(*p);
+	for ( auto ind: Nominals )
+		updateClassifiedSingleton(ind);
 
 	return true;
 }
@@ -105,8 +105,8 @@ bool
 NominalReasoner :: initNominalCloud ( void )
 {
 	// create nominal nodes and fills them with initial values
-	for ( SingletonVector::iterator p = Nominals.begin(); p != Nominals.end(); ++p )
-		if ( initNominalNode(*p) )
+	for ( auto ind: Nominals )
+		if ( initNominalNode(ind) )
 			return true;	// ABox is inconsistent
 
 	// create edges between related nodes
@@ -120,12 +120,11 @@ NominalReasoner :: initNominalCloud ( void )
 
 	DepSet dummy;	// empty dep-set for the CGraph
 
-	for ( TBox::DifferentIndividuals::const_iterator
-		  r = tBox.Different.begin(); r != tBox.Different.end(); ++r )
+	for ( auto& di: tBox.Different )
 	{
 		CGraph.initIR();
-		for ( SingletonVector::const_iterator p = r->begin(); p != r->end(); ++p )
-			if ( CGraph.setCurIR ( resolveSynonym(*p)->node, dummy ) )	// different(c,c)
+		for ( auto ind: di )
+			if ( CGraph.setCurIR ( resolveSynonym(ind)->node, dummy ) )	// different(c,c)
 				return true;
 		CGraph.finiIR();
 	}

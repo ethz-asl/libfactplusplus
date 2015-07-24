@@ -106,11 +106,11 @@ DlSatTester :: findConceptClash ( const CWDArray& lab, BipolarPointer p, const D
 
 	incStat(nLookups);
 
-	for ( const_label_iterator i = lab.begin(), i_end = lab.end(); i < i_end; ++i )
-		if ( i->bp() == p )
+	for ( auto& C: lab )
+		if ( C.bp() == p )
 		{
 			// create clashSet
-			clashSet = i->getDep();
+			clashSet = C.getDep();
 			clashSet.add(dep);
 			return true;
 		}
@@ -434,10 +434,10 @@ DlSatTester :: finaliseStatistic ( void )
 
 bool DlSatTester :: applyReflexiveRoles ( DlCompletionTree* node, const DepSet& dep )
 {
-	for ( TRole::const_iterator p = ReflexiveRoles.begin(), p_end = ReflexiveRoles.end(); p != p_end; ++p )
+	for ( auto R: ReflexiveRoles )
 	{
 		// create R-loop through the NODE
-		DlCompletionTreeArc* pA = CGraph.addRoleLabel ( node, node, /*isPredEdge=*/false, *p, dep );
+		DlCompletionTreeArc* pA = CGraph.addRoleLabel ( node, node, /*isPredEdge=*/false, R, dep );
 		if ( setupEdge ( pA, dep, 0 ) )
 			return true;
 	}

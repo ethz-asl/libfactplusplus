@@ -404,7 +404,7 @@ TBox :: transformSingletonWithSP ( TConcept* p )
 
 /// @return true if C is referenced in TREE; use PROCESSED to record explored names
 bool
-TBox :: isReferenced ( TConcept* C, DLTree* tree, ConceptSet& processed )
+TBox :: isReferenced ( TConcept* C, DLTree* tree, ConceptSet& processed ) const
 {
 	fpp_assert ( tree != nullptr );
 	switch ( tree->Element().getToken() )

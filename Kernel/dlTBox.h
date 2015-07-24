@@ -337,13 +337,13 @@ protected:	// methods
 //-----------------------------------------------------------------------------
 
 		/// @return concept by given Named Entry ID
-	TConcept* toConcept ( TNamedEntry* id ) { return static_cast<TConcept*>(id); }
+	static TConcept* toConcept ( TNamedEntry* id ) { return static_cast<TConcept*>(id); }
 		/// @return concept by given Named Entry ID
-	const TConcept* toConcept ( const TNamedEntry* id ) const { return static_cast<const TConcept*>(id); }
+	static const TConcept* toConcept ( const TNamedEntry* id ) { return static_cast<const TConcept*>(id); }
 		/// @return individual by given Named Entry ID
-	TIndividual* toIndividual ( TNamedEntry* id ) { return static_cast<TIndividual*>(id); }
+	static TIndividual* toIndividual ( TNamedEntry* id ) { return static_cast<TIndividual*>(id); }
 		/// @return individual by given Named Entry ID
-	const TIndividual* toIndividual ( const TNamedEntry* id ) const { return static_cast<const TIndividual*>(id); }
+	static const TIndividual* toIndividual ( const TNamedEntry* id ) { return static_cast<const TIndividual*>(id); }
 
 //-----------------------------------------------------------------------------
 //--		internal BP-to-concept interface
@@ -597,9 +597,9 @@ protected:	// methods
 	TIndividual* getSPForConcept ( TConcept* p );
 
 		/// @return true if C is referenced in TREE; use PROCESSED to record explored names
-	bool isReferenced ( TConcept* C, DLTree* tree, ConceptSet& processed );
+	bool isReferenced ( TConcept* C, DLTree* tree, ConceptSet& processed ) const;
 		/// @return true if C is referenced in the definition of concept D; use PROCESSED to record explored names
-	bool isReferenced ( TConcept* C, TConcept* D, ConceptSet& processed )
+	bool isReferenced ( TConcept* C, TConcept* D, ConceptSet& processed ) const
 	{
 		// mark D as processed
 		processed.insert(D);
@@ -612,7 +612,7 @@ protected:	// methods
 		if ( D->isPrimitive() )
 			return false;
 		// check if D has an extra description
-		ConceptDefMap::iterator p = ExtraConceptDefs.find(D);
+		auto p = ExtraConceptDefs.find(D);
 		if ( p != ExtraConceptDefs.end() )
 			return isReferenced ( C, p->second, processed );
 		return false;
@@ -1016,7 +1016,7 @@ public:
 		/// replace RC=(AR:~C) with X such that C [= AR^-:X for fresh X. @return X
 	TConcept* replaceForall ( DLTree* RC );
 		/// @return true iff C has a cyclic definition, ie is referenced in its own description
-	bool isCyclic ( TConcept* C )
+	bool isCyclic ( TConcept* C ) const
 	{
 		ConceptSet processed;
 		return isReferenced ( C, C, processed );
