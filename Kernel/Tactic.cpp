@@ -171,31 +171,32 @@ DlSatTester :: applicable ( const TBox::TSimpleRule& rule )
 	BipolarPointer bp = curConcept.bp();
 	const CWDArray& lab = curNode->label().getLabel(dtPConcept);
 	// dep-set to keep track for all the concepts in a rule-head
-	DepSet loc = curConcept.getDep();
+	DepSet dep = curConcept.getDep();
 
-	for ( TBox::TSimpleRule::const_iterator p = rule.Body.begin(), p_end = rule.Body.end(); p < p_end; ++p )
+	for ( auto atom: rule.Body )
 	{
-		if ( (*p)->pName == bp )
+		if ( atom->pName == bp )
 			continue;
-		if ( findConceptClash ( lab, (*p)->pName, loc ) )
-			loc = getClashSet();	// such a concept exists -- rememeber clash set
+		// FIXME!! double check that's correct (no need to negate pName)
+		if ( findConceptClash ( lab, atom->pName, dep ) )
+			dep = getClashSet();	// such a concept exists -- remember clash set
 		else	// no such concept -- can not fire a rule
 			return false;
 	}
 
 	// rule will be fired -- set the dep-set
-	setClashSet(loc);
+	setClashSet(dep);
 	return true;
 }
 
 bool
 DlSatTester :: applyExtraRules ( const TConcept* C )
 {
-	for ( TConcept::er_iterator p = C->er_begin(), p_end=C->er_end(); p < p_end; ++p )
+	for ( auto p = C->er_begin(), p_end = C->er_end(); p != p_end; ++p )
 	{
-		const TBox::TSimpleRule* rule = tBox.getSimpleRule(*p);
+		auto rule = tBox.getSimpleRule(*p);
 		incStat(nSRuleAdd);
-		if ( rule->applicable(*this) )	// apply the rule's head
+		if ( applicable(*rule) )	// apply the rule's head
 		{
 			incStat(nSRuleFire);
 			switchResult ( addToDoEntry ( curNode, rule->bpHead, getClashSet() ) );
@@ -210,8 +211,8 @@ bool
 DlSatTester :: addSessionGCI ( BipolarPointer C, const DepSet& dep )
 {
 	SessionGCIs.push_back(C);
-	for ( DlCompletionGraph::iterator p = CGraph.begin(), p_end = CGraph.end(); p != p_end; ++p )
-		if ( isNodeGloballyUsed(*p) && addToDoEntry ( *p, C, dep, "sg" ) )
+	for ( auto node: CGraph )
+		if ( isNodeGloballyUsed(node) && addToDoEntry ( node, C, dep, "sg" ) )
 			return true;
 	return false;
 }
@@ -416,9 +417,9 @@ bool DlSatTester :: commonTacticBodyAllComplex ( const DLVertex& cur )
 	incStat(nAllCalls);
 
 	// check all neighbours
-	for ( DlCompletionTree::const_edge_iterator p = curNode->begin(), p_end = curNode->end(); p < p_end; ++p )
-		if ( RST.recognise((*p)->getRole()) )
-			switchResult ( applyTransitions ( (*p), RST, C, dep+(*p)->getDep() ) );
+	for ( auto neighbour: *curNode )
+		if ( RST.recognise(neighbour->getRole()) )
+			switchResult ( applyTransitions ( neighbour, RST, C, dep+neighbour->getDep() ) );
 
 	return false;
 }
@@ -433,9 +434,9 @@ bool DlSatTester :: commonTacticBodyAllSimple ( const DLVertex& cur )
 	incStat(nAllCalls);
 
 	// check all neighbours; as the role is simple then recognise() == applicable()
-	for ( DlCompletionTree::const_edge_iterator p = curNode->begin(), p_end = curNode->end(); p < p_end; ++p )
-		if ( RST.recognise((*p)->getRole()) )
-			switchResult ( addToDoEntry ( (*p)->getArcEnd(), C, dep+(*p)->getDep() ) );
+	for ( auto neighbour: *curNode )
+		if ( RST.recognise(neighbour->getRole()) )
+			switchResult ( addToDoEntry ( neighbour->getArcEnd(), C, dep+neighbour->getDep() ) );
 
 	return false;
 }
@@ -485,13 +486,13 @@ bool DlSatTester :: commonTacticBodySome ( const DLVertex& cur )	// for ER.C con
 	if ( unlikely(R->isTop()) )
 		return commonTacticBodySomeUniv(cur);
 
-	// check if we already have R-neighbour labelled with C
+	// check if we already have R-neighbour labeled with C
 	if ( isSomeExists ( R, C ) )
 		return false;
 	// try to check the case (some R (or C D)), where C is in the label of an R-neighbour
 	if ( isNegative(C) && DLHeap[C].Type() == dtAnd )
-		for ( DLVertex::const_iterator q = DLHeap[C].begin(), q_end = DLHeap[C].end(); q < q_end; ++q )
-			if ( isSomeExists ( R, inverse(*q) ) )
+		for ( const auto& arg: DLHeap[C] )
+			if ( isSomeExists ( R, inverse(arg) ) )
 				return false;
 
 	// check for the case \ER.{o}
@@ -656,8 +657,8 @@ DlSatTester :: commonTacticBodySomeUniv ( const DLVertex& cur )
 
 	BipolarPointer C = inverse(cur.getC());
 	// check whether C is already in CGraph
-	for ( DlCompletionGraph::iterator p = CGraph.begin(), p_end = CGraph.end(); p != p_end; ++p )
-		if ( isObjectNodeUnblocked(*p) && (*p)->label().contains(C) )
+	for ( auto node: CGraph )
+		if ( isObjectNodeUnblocked(node) && node->label().contains(C) )
 			return false;
 	// make new node labeled with C
 	return initNewNode ( CGraph.getNewNode(), curConcept.getDep(), C );
@@ -1332,6 +1333,7 @@ bool DlSatTester :: mergeLabels ( const CGLabel& from, DlCompletionTree* to, con
 
 	// due to merging, all the concepts in the TO label
 	// should be updated to the new dep-set DEP
+	// TODO!! check whether this is really necessary
 	for ( p = sc.begin(), p_end = sc.end(); p < p_end; ++p )
 		CGraph.saveRareCond ( sc.updateDepSet ( p->bp(), dep ) );
 	for ( p = cc.begin(), p_end = cc.end(); p < p_end; ++p )
@@ -1391,12 +1393,9 @@ bool DlSatTester :: Merge ( DlCompletionTree* from, DlCompletionTree* to, const 
 	CGraph.Merge ( from, to, depF, edges );
 
 	// check whether a disjoint roles lead to clash
-	edgeVector::const_iterator q, q_end = edges.end();
-
-	for ( q = edges.begin(); q != q_end; ++q )
-		if ( (*q)->getRole()->isDisjoint() &&
-			 checkDisjointRoleClash ( (*q)->getReverse()->getArcEnd(), (*q)->getArcEnd(),
-			 						  (*q)->getRole(), depF ) )
+	for ( auto edge: edges )
+		if ( edge->getRole()->isDisjoint() &&
+			 checkDisjointRoleClash ( edge->getReverse()->getArcEnd(), edge->getArcEnd(), edge->getRole(), depF ) )
 			return true;
 
 	// nothing more to do with data nodes
@@ -1404,8 +1403,8 @@ bool DlSatTester :: Merge ( DlCompletionTree* from, DlCompletionTree* to, const 
 		return checkDataClash(to);
 
 	// for every node added to TO, every ALL, Irr and <=-node should be checked
-	for ( q = edges.begin(); q != q_end; ++q )
-		switchResult ( applyUniversalNR ( to, *q, depF, redoForall|redoFunc|redoAtMost|redoIrr ) );
+	for ( auto edge: edges )
+		switchResult ( applyUniversalNR ( to, edge, depF, redoForall|redoFunc|redoAtMost|redoIrr ) );
 
 	// we do real action here, so the return value
 	return false;
@@ -1416,8 +1415,8 @@ DlSatTester :: checkDisjointRoleClash ( DlCompletionTree* from, DlCompletionTree
 										const TRole* R, const DepSet& dep )
 {
 	// try to check whether link from->to labelled with something disjoint with R
-	for ( DlCompletionTree::const_edge_iterator p = from->begin(), p_end = from->end(); p != p_end; ++p )
-		if ( checkDisjointRoleClash ( *p, to, R, dep ) )
+	for ( auto edge: *from )
+		if ( checkDisjointRoleClash ( edge, to, R, dep ) )
 			return true;
 	return false;
 }
@@ -1430,7 +1429,7 @@ public:
 		{ return *(pa)->getArcEnd() < *(qa)->getArcEnd(); }
 }; // EdgeCompare
 
-/// aux method to check whether edge ended to NODE should be added to EdgetoMerge
+/// aux method to check whether edge ended to NODE should be added to EdgesToMerge
 template<class Iterator>
 bool isNewEdge ( const DlCompletionTree* node, Iterator begin, Iterator end )
 {

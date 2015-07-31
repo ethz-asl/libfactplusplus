@@ -107,8 +107,8 @@ public:		// interface
 		if ( isLocked() )
 		{
 			p->setSystem();
-			if ( dynamic_cast<ClassifiableEntry*>(p) != nullptr )
-				dynamic_cast<ClassifiableEntry*>(p)->setNonClassifiable();
+			if ( auto ce = dynamic_cast<ClassifiableEntry*>(p) )
+				ce->setNonClassifiable();
 		}
 		return p;
 	}

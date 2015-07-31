@@ -120,11 +120,6 @@ protected:	// types
 		TSimpleRule& operator= ( const TSimpleRule& ) = delete;
 			/// empty d'tor
 		virtual ~TSimpleRule ( void ) { deleteTree(tHead); }
-
-		// apply rule -- implementation in Reasoner.h
-
-			/// allow reasoner to check the applicability according to the type of the rule
-		virtual bool applicable ( DlSatTester& Reasoner ) const;
 	}; // TSimpleRule
 		/// all simple rules in KB
 	typedef std::vector<TSimpleRule*> TSimpleRules;

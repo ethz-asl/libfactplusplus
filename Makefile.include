@@ -265,6 +265,8 @@ ifeq ($(LTYPE),static)
 $(BUILD_DIR)/$(LIBRARY_NAME): $(OBJECTS)
 	ar cr $@ $(OBJECTS)
 	ranlib $(BUILD_DIR)/$(LIBRARY_NAME)
+#	gcc-ar cr $@ $(OBJECTS)
+#	gcc-ranlib $(BUILD_DIR)/$(LIBRARY_NAME)
 endif
 
 

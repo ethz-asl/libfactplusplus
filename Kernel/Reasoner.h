@@ -53,15 +53,15 @@ public:		// static methods
 
 protected:	// members
 		/// accumulated statistic
-	unsigned int total;
+	unsigned int total = 0;
 		/// current session statistic
-	unsigned int local;
+	unsigned int local = 0;
 		/// link to the next element
 	AccumulatedStatistic* next;
 
 public:		// interface
 		/// c'tor: link itself to the list
-	AccumulatedStatistic ( void ) : total(0), local(0), next(root) { root = this; }
+	AccumulatedStatistic ( void ) : next(root) { root = this; }
 		/// no copy c'tor
 	AccumulatedStatistic ( const AccumulatedStatistic& ) = delete;
 		/// no assignment
@@ -1119,9 +1119,6 @@ inline bool DlSatTester :: commonTacticBodyAll ( const DLVertex& cur )
 //-----------------------------------------------------------------------------
 //--		implemenation of reasoner-related parts of TBox
 //-----------------------------------------------------------------------------
-
-inline bool
-TBox::TSimpleRule :: applicable ( DlSatTester& Reasoner ) const { return Reasoner.applicable(*this); }
 
 inline const modelCacheInterface*
 TBox :: initCache ( const TConcept* pConcept, bool sub )
