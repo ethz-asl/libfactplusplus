@@ -27,6 +27,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 /// init c'tor: read setup, create dirs, open files
 TimeMetricsHelper :: TimeMetricsHelper ( void )
 {
+	// remember the starting point
+	gettimeofday ( &startTime, NULL );
+
 	// init input values
 
 	std::ifstream i("fpp_args.txt");
@@ -107,8 +110,8 @@ TimeMetricsHelper :: ~TimeMetricsHelper ( void )
 	// create time output file if necessary
 	std::string file_stage(dir+"/classificationmetadata_fact.csv");
 	std::ofstream ofs ( file_stage.c_str(), std::ofstream::out | std::ofstream::app );
-	// reasoner_id, experiment_id
-	ofs << reasonerId.c_str() << "," << experimentId.c_str()
+	// reasoner_id, experiment_id, start_time
+	ofs << reasonerId.c_str() << "," << experimentId.c_str() << startTime
 	// consistency_start, consistency_finish
 		<< *getStageTimeVal(true,true) << *getStageTimeVal(true,false)
 	// classification_start, classification_finish

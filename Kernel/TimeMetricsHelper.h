@@ -51,6 +51,8 @@ protected:	// members
 		/// out the subsumptions
 	std::ofstream o;
 
+		/// starting time
+	timeval startTime;
 		/// time for stages
 	timeval stageTime[4];
 		/// time spend in output
