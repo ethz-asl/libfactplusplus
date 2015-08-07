@@ -165,6 +165,9 @@ protected:	// members
 		/// name of an S/L context. do nothing if empty
 	SaveLoadManager* pSLManager;
 
+		/// time metrics
+	TimeMetricsHelper* tmHelper;
+
 	// Top/Bottom role names: if set, they will appear in all hierarchy-related output
 
 		/// top object role name
@@ -656,7 +659,7 @@ public:
 		if ( pTBox != NULL )
 			return true;
 
-		pTBox = new TBox ( getOptions(), TopORoleName, BotORoleName, TopDRoleName, BotDRoleName );
+		pTBox = new TBox ( getOptions(), tmHelper, TopORoleName, BotORoleName, TopDRoleName, BotDRoleName );
 		pTBox->setTestTimeout(OpTimeout);
 		pTBox->setProgressMonitor(pMonitor);
 		pTBox->setVerboseOutput(verboseOutput);

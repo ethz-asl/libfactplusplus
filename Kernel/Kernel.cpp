@@ -23,6 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "OntologyBasedModularizer.h"
 #include "eFPPSaveLoad.h"
 #include "SaveLoadManager.h"
+#include "TimeMetricsHelper.h"
 
 const char* ReasoningKernel :: Version = "1.6.3";
 const char* ReasoningKernel :: SupportedDL = "SROIQ(D)";
@@ -45,6 +46,7 @@ ReasoningKernel :: ReasoningKernel ( void )
 	, ModSem(NULL)
 	, JNICache(NULL)
 	, pSLManager(NULL)
+	, tmHelper(new TimeMetricsHelper)
 	, pMonitor(NULL)
 	, OpTimeout(0)
 	, verboseOutput(false)

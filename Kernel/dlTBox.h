@@ -933,6 +933,7 @@ protected:	// methods
 public:
 		/// init c'tor
 	TBox ( const ifOptionSet* Options,
+		   TimeMetricsHelper* helper,
 		   const std::string& TopORoleName,
 		   const std::string& BotORoleName,
 		   const std::string& TopDRoleName,

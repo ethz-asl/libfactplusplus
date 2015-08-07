@@ -33,7 +33,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 // uncomment the following line to print currently checking subsumption
 //#define FPP_DEBUG_PRINT_CURRENT_SUBSUMPTION
 
-TBox :: TBox ( const ifOptionSet* Options, const std::string& TopORoleName, const std::string& BotORoleName, const std::string& TopDRoleName, const std::string& BotDRoleName )
+TBox :: TBox ( const ifOptionSet* Options, TimeMetricsHelper* helper, const std::string& TopORoleName, const std::string& BotORoleName, const std::string& TopDRoleName, const std::string& BotDRoleName )
 	: DLHeap(Options)
 	, stdReasoner(NULL)
 	, nomReasoner(NULL)
@@ -51,7 +51,7 @@ TBox :: TBox ( const ifOptionSet* Options, const std::string& TopORoleName, cons
 	, DRM ( /*data=*/true, TopDRoleName, BotDRoleName )
 	, Axioms(*this)
 	, T_G(bpTOP)	// initialise GCA's concept with Top
-	, tmHelper(new TimeMetricsHelper)
+	, tmHelper(helper)
 	, nC(0)
 	, nR(0)
 	, auxConceptID(0)
