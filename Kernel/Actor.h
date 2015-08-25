@@ -49,9 +49,9 @@ protected:	// methods
 	{
 		if ( tryEntry(v.getPrimer()) )
 			array.push_back(v.getPrimer());
-		for ( TaxonomyVertex::syn_iterator p = v.begin_syn(), p_end=v.end_syn(); p != p_end; ++p )
-			if ( tryEntry(*p) )
-				array.push_back(*p);
+		for ( auto synonym: v.synonyms() )
+			if ( tryEntry(synonym) )
+				array.push_back(synonym);
 	}
 
 public:		// interface

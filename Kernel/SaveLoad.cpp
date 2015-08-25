@@ -755,9 +755,9 @@ void
 TaxonomyVertex :: SaveLabel ( SaveLoadManager& m ) const
 {
 	m.savePointer(sample);
-	m.saveUInt(synonyms.size());
-	for ( syn_iterator p = begin_syn(), p_end = end_syn(); p < p_end; ++p )
-		m.savePointer(*p);
+	m.saveUInt(Synonyms.size());
+	for ( auto synonym: synonyms() )
+		m.savePointer(synonym);
 	m.o() << "\n";
 }
 

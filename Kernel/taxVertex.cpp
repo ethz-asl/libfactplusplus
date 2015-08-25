@@ -100,13 +100,13 @@ void TaxonomyVertex :: printSynonyms ( std::ostream& o ) const
 {
 	fpp_assert ( sample != nullptr );
 
-	if ( likely(synonyms.empty()) )
+	if ( likely(Synonyms.empty()) )
 		o << '"' << getPrimer()->getName() << '"';
 	else
 	{
 		o << "(\"" << getPrimer()->getName();
-		for ( syn_iterator q = begin_syn(), q_end = end_syn(); q < q_end; ++q )
-			o << "\"=\"" << (*q)->getName();
+		for ( auto synonym: synonyms() )
+			o << "\"=\"" << synonym->getName();
 		o << "\")";
 	}
 }

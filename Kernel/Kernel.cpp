@@ -346,8 +346,8 @@ public:
 	virtual bool apply ( const TaxonomyVertex& v )
 	{
 		entry(v.getPrimer());
-		for ( TaxonomyVertex::syn_iterator p = v.begin_syn(), p_end=v.end_syn(); p != p_end; ++p )
-			entry(*p);
+		for ( auto synonym: v.synonyms() )
+			entry(synonym);
 		return true;
 	}
 }; // SupConceptActor
@@ -470,8 +470,8 @@ public:
 	{
 		bool ret = tryEntry(v.getPrimer());
 
-		for ( TaxonomyVertex::syn_iterator p = v.begin_syn(), p_end = v.end_syn(); p != p_end; ++p )
-			ret |= tryEntry(*p);
+		for ( auto synonym: v.synonyms() )
+			ret |= tryEntry(synonym);
 
 		return ret;
 	}

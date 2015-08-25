@@ -43,8 +43,8 @@ protected:	// methods
 	{
 		if ( tryEntry(v.getPrimer()) )
 			return true;
-		for ( TaxonomyVertex::syn_iterator p = v.begin_syn(), p_end=v.end_syn(); p != p_end; ++p )
-			if ( tryEntry(*p) )
+		for ( auto synonym: v.synonyms() )
+			if ( tryEntry(synonym) )
 				return true;
 		return false;
 	}

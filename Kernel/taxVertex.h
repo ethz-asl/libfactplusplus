@@ -44,8 +44,6 @@ public:		// typedefs
 	typedef TaxVertexLink::iterator iterator;
 		/// RO iterator for the neighbours
 	typedef TaxVertexLink::const_iterator const_iterator;
-		/// RO iterator for the synonyms
-	typedef EqualNames::const_iterator syn_iterator;
 
 private:	// members
 		/// immediate parents and children
@@ -55,7 +53,7 @@ protected:	// members
 		/// entry corresponding to current tax vertex
 	const ClassifiableEntry* sample;
 		/// synonyms of the sample entry
-	EqualNames synonyms;
+	EqualNames Synonyms;
 
 	// labels for different purposes. all for 2 directions: top-down and bottom-up search
 
@@ -120,8 +118,7 @@ public:		// flags interface
 
 	// get info about taxonomy structure
 
-	syn_iterator begin_syn ( void ) const { return synonyms.begin(); }
-	syn_iterator end_syn ( void ) const { return synonyms.end(); }
+	const EqualNames& synonyms ( void ) const { return Synonyms; }
 
 		/// mark vertex as the one corresponding to a given ENTRY
 	void setVertexAsHost ( const ClassifiableEntry* entry ) { const_cast<ClassifiableEntry*>(entry)->setTaxVertex(this); }
@@ -142,47 +139,19 @@ public:
 		initFlags();
 	}
 		/// init c'tor; use it only for Top/Bot initialisations
-	TaxonomyVertex ( const ClassifiableEntry* p )
-		: inUse(true)
-	{
-		setSample(p);
-		initFlags();
-	}
-		/// copy c'tor
-	TaxonomyVertex ( const TaxonomyVertex& v )
-		: sample(v.sample)
-		, synonyms(v.synonyms)
-		, theChecked(v.theChecked)
-		, theValued(v.theValued)
-		, common(v.common)
-		, checkValue(v.checkValue)
-		, inUse(v.inUse)
-	{
-		Links[0] = v.Links[0];
-		Links[1] = v.Links[1];
-	}
-		/// assignment operator
-	TaxonomyVertex& operator = ( const TaxonomyVertex& v )
-	{
-		Links[0] = v.Links[0];
-		Links[1] = v.Links[1];
-		sample = v.sample;
-		synonyms = v.synonyms;
-		theChecked = v.theChecked;
-		theValued = v.theValued;
-		common = v.common;
-		checkValue = v.checkValue;
-		inUse = v.inUse;
-		return *this;
-	}
-
+	TaxonomyVertex ( const ClassifiableEntry* p ) : TaxonomyVertex()
+		{ setSample(p); }
+		/// no copy
+	TaxonomyVertex ( const TaxonomyVertex& ) = delete;
+		/// no assignment
+	TaxonomyVertex& operator = ( const TaxonomyVertex& ) = delete;
 		/// empty d'tor
 	~TaxonomyVertex ( void ) {}
 
-		/// add P as a synonym to curent vertex
+		/// add P as a synonym to current vertex
 	void addSynonym ( const ClassifiableEntry* p )
 	{
-		synonyms.push_back(p);
+		Synonyms.push_back(p);
 		setVertexAsHost(p);
 	}
 		/// clears the vertex
