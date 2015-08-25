@@ -46,6 +46,18 @@ protected:	// methods
 	}
 		/// @return true iff ENTRY is not in signature
 	bool nc ( const TNamedEntity* entity ) const { return unlikely(sig != nullptr) && !sig->contains(entity); }
+		/// get role expression by given ENTITY from given RM
+	TNamedEntry* getRoleEntry ( RoleMaster& RM, const TNamedEntity* entity )
+	{
+		// return appropriate constant if the role is not in signature
+		if ( nc(entity) )
+			return sig->topRLocal() ? RM.getTopRole() : RM.getBotRole();
+		// get (and set up if necessary) entry by given entity
+		auto role = entity->getEntry();
+		if ( role == nullptr )
+			role = matchEntry ( RM.ensureRoleName(entity->getName()), entity );
+		return role;
+	}
 
 public:		// interface
 		/// empty c'tor
@@ -221,16 +233,7 @@ public:		// visitor interface
 	virtual void visit ( const TDLObjectRoleBottom& ) { THROW_UNSUPPORTED("bottom object role"); }
 	virtual void visit ( const TDLObjectRoleName& expr )
 	{
-		RoleMaster* RM = KB.getORM();
-		TNamedEntry* role;
-		if ( nc(&expr) )
-			role = sig->topRLocal() ? RM->getTopRole() : RM->getBotRole();
-		else
-		{
-			role = expr.getEntry();
-			if ( role == nullptr )
-				role = matchEntry ( RM->ensureRoleName(expr.getName()), &expr );
-		}
+		auto role = getRoleEntry ( KB.getORM(), &expr );
 		tree = createEntry(RNAME,role);
 	}
 	virtual void visit ( const TDLObjectRoleInverse& expr ) { expr.getOR()->accept(*this); tree = createInverse(*this); }
@@ -273,16 +276,7 @@ public:		// visitor interface
 	virtual void visit ( const TDLDataRoleBottom& ) { THROW_UNSUPPORTED("bottom data role"); }
 	virtual void visit ( const TDLDataRoleName& expr )
 	{
-		RoleMaster* RM = KB.getDRM();
-		TNamedEntry* role;
-		if ( nc(&expr) )
-			role = sig->topRLocal() ? RM->getTopRole() : RM->getBotRole();
-		else
-		{
-			role = expr.getEntry();
-			if ( role == nullptr )
-				role = matchEntry ( RM->ensureRoleName(expr.getName()), &expr );
-		}
+		auto role = getRoleEntry ( KB.getDRM(), &expr );
 		tree = createEntry(DNAME,role);
 	}
 

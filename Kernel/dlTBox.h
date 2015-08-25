@@ -926,17 +926,17 @@ public:
 	~TBox ( void );
 
 		/// get RW access to used Role Master
-	RoleMaster* getORM ( void ) { return &ORM; }
+	RoleMaster& getORM ( void ) { return ORM; }
 		/// get RO access to used Role Master
-	const RoleMaster* getORM ( void ) const { return &ORM; }
+	const RoleMaster& getORM ( void ) const { return ORM; }
 		/// get RW access to used DataRole Master
-	RoleMaster* getDRM ( void ) { return &DRM; }
+	RoleMaster& getDRM ( void ) { return DRM; }
 		/// get RO access to used DataRole Master
-	const RoleMaster* getDRM ( void ) const { return &DRM; }
+	const RoleMaster& getDRM ( void ) const { return DRM; }
 		/// get RW access to the RoleMaster depending of the R
-	RoleMaster* getRM ( const TRole* R ) { return R->isDataRole() ? getDRM() : getORM(); }
+	RoleMaster& getRM ( const TRole* R ) { return R->isDataRole() ? getDRM() : getORM(); }
 		/// get RO access to the RoleMaster depending of the R
-	const RoleMaster* getRM ( const TRole* R ) const { return R->isDataRole() ? getDRM() : getORM(); }
+	const RoleMaster& getRM ( const TRole* R ) const { return R->isDataRole() ? getDRM() : getORM(); }
 		/// get RW access to a DT center
 	DataTypeCenter& getDataTypeCenter ( void ) { return DTCenter; }
 		/// get RO access to a DT center

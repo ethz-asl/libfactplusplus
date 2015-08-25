@@ -519,13 +519,9 @@ ReasoningKernel :: getRelatedRoles ( const TIndividualExpr* I, NamesVector& Rs, 
 	Rs.clear();
 
 	TIndividual* i = getIndividual ( I, "individual name expected in the getRelatedRoles()" );
-	RoleMaster* RM = data ? getDRM() : getORM();
-	for ( RoleMaster::iterator p = RM->begin(), p_end = RM->end(); p < p_end; ++p )
-	{
-		const TRole* R = *p;
+	for ( auto R: (data ? getDRM() : getORM()) )
 		if ( ( R->getId() > 0 || needI ) && !getRelated(i,R).empty() )
 			Rs.push_back(R);
-	}
 }
 
 void

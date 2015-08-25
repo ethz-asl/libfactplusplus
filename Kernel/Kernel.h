@@ -446,13 +446,13 @@ protected:	// methods
 	void clearTBox ( void );
 
 		/// get RW access to Object RoleMaster from TBox
-	RoleMaster* getORM ( void ) { return getTBox()->getORM(); }
+	RoleMaster& getORM ( void ) { return getTBox()->getORM(); }
 		/// get RO access to Object RoleMaster from TBox
-	const RoleMaster* getORM ( void ) const { return getTBox()->getORM(); }
+	const RoleMaster& getORM ( void ) const { return getTBox()->getORM(); }
 		/// get RW access to Data RoleMaster from TBox
-	RoleMaster* getDRM ( void ) { return getTBox()->getDRM(); }
+	RoleMaster& getDRM ( void ) { return getTBox()->getDRM(); }
 		/// get RO access to Data RoleMaster from TBox
-	const RoleMaster* getDRM ( void ) const { return getTBox()->getDRM(); }
+	const RoleMaster& getDRM ( void ) const { return getTBox()->getDRM(); }
 
 		/// get access to the concept hierarchy
 	Taxonomy* getCTaxonomy ( void )
@@ -466,14 +466,14 @@ protected:	// methods
 	{
 		if ( !isKBPreprocessed() )
 			throw EFaCTPlusPlus("No access to the object role taxonomy: ontology not preprocessed");
-		return getORM()->getTaxonomy();
+		return getORM().getTaxonomy();
 	}
 		/// get access to the data role hierarchy
 	Taxonomy* getDRTaxonomy ( void )
 	{
 		if ( !isKBPreprocessed() )
 			throw EFaCTPlusPlus("No access to the data role taxonomy: ontology not preprocessed");
-		return getDRM()->getTaxonomy();
+		return getDRM().getTaxonomy();
 	}
 
 	// transformation methods

@@ -34,17 +34,15 @@ KnowledgeExplorer :: KnowledgeExplorer ( const TBox* box, TExpressionManager* pE
 		addE ( Is, *i );
 	RoleMaster::const_iterator r, r_end;
 	// init all object roles
-	for ( r = box->getORM()->begin(), r_end = box->getORM()->end(); r != r_end; ++r )
+	for ( auto R: box->getORM() )
 	{
-		TRole* R = *r;
 		addE ( ORs, R );
 		for ( auto sup: R->ancestors() )
 			ORs.add ( R, sup );
 	}
 	// init all data roles
-	for ( r = box->getDRM()->begin(), r_end = box->getDRM()->end(); r != r_end; ++r )
+	for ( auto R: box->getDRM() )
 	{
-		TRole* R = *r;
 		addE ( DRs, R );
 		for ( auto sup: R->ancestors() )
 			DRs.add ( R, sup );

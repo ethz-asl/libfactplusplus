@@ -159,7 +159,7 @@ public:		// visitor interface
 		ensureNames(axiom.getInvRole());
 		TRole* R = getRole ( axiom.getRole(), "Role expression expected in Role Inverse axiom" );
 		TRole* iR = getRole ( axiom.getInvRole(), "Role expression expected in Role Inverse axiom" );
-		kb.getRM(R)->addRoleSynonym ( iR->inverse(), R );
+		kb.getRM(R).addRoleSynonym ( iR->inverse(), R );
 	}
 	virtual void visit ( const TDLAxiomORoleSubsumption& axiom )
 	{
@@ -167,7 +167,7 @@ public:		// visitor interface
 		ensureNames(axiom.getSubRole());
 		DLTree* Sub = e(axiom.getSubRole());
 		TRole* R = getRole ( axiom.getRole(), "Role expression expected in Object Roles Subsumption axiom" );
-		kb.getRM(R)->addRoleParent ( Sub, R );
+		kb.getRM(R).addRoleParent ( Sub, R );
 	}
 	virtual void visit ( const TDLAxiomDRoleSubsumption& axiom )
 	{
@@ -175,7 +175,7 @@ public:		// visitor interface
 		ensureNames(axiom.getSubRole());
 		TRole* R = getRole ( axiom.getRole(), "Role expression expected in Data Roles Subsumption axiom" );
 		TRole* S = getRole ( axiom.getSubRole(), "Role expression expected in Data Roles Subsumption axiom" );
-		kb.getDRM()->addRoleParent ( S, R );
+		kb.getDRM().addRoleParent ( S, R );
 	}
 	virtual void visit ( const TDLAxiomORoleDomain& axiom )
 	{
@@ -254,7 +254,7 @@ public:		// visitor interface
 		if ( !R->isTop() && !R->isBottom() )	// both are symmetric
 		{
 			R->setSymmetric(true);
-			kb.getORM()->addRoleParent ( R, R->inverse() );
+			kb.getORM().addRoleParent ( R, R->inverse() );
 		}
 	}
 	virtual void visit ( const TDLAxiomRoleAsymmetric& axiom )
@@ -266,7 +266,7 @@ public:		// visitor interface
 		if ( !R->isBottom() )
 		{
 			R->setAsymmetric(true);
-			kb.getORM()->addDisjointRoles ( R, R->inverse() );
+			kb.getORM().addDisjointRoles ( R, R->inverse() );
 		}
 	}
 	virtual void visit ( const TDLAxiomORoleFunctional& axiom )
