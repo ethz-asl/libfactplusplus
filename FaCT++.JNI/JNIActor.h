@@ -84,8 +84,8 @@ public:		// interface
 		syn.clear();
 		tryEntry(v.getPrimer());
 
-		for ( TaxonomyVertex::syn_iterator p = v.begin_syn(), p_end=v.end_syn(); p != p_end; ++p )
-			tryEntry(*p);
+		for ( auto synonym: v.synonyms() )
+			tryEntry(synonym);
 
 		/// no applicable elements were found
 		if ( syn.empty() )
