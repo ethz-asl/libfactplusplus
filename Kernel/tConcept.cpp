@@ -218,8 +218,8 @@ void TConcept :: SearchTSbyRoleAndSupers ( const TRole* r, RoleSSet& RolesProces
 
 	// do the same for all super-roles if necessary
 	// FIXME!! need to do the same for DomSupers (like SoR [= R)
-	for ( TRole::const_iterator q = r->begin_anc(), q_end = r->end_anc(); q != q_end; ++q )
-		SearchTSbyRole ( *q, RolesProcessed );
+	for ( auto sup: r->ancestors() )
+		SearchTSbyRole ( sup, RolesProcessed );
 }
 
 unsigned int TConcept :: calculateTSDepth ( void )

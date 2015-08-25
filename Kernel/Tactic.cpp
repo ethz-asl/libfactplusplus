@@ -507,8 +507,8 @@ bool DlSatTester :: commonTacticBodySome ( const DLVertex& cur )	// for ER.C con
 
 	// check if we have functional role
 	if ( R->isFunctional() )
-		for ( TRole::const_iterator r = R->begin_topfunc(), r_end = R->end_topfunc(); r != r_end; ++r )
-			switch ( tryAddConcept ( curNode->label().getLabel(dtLE), (*r)->getFunctional(), dep ) )
+		for ( auto topf: R->topfuncs() )
+			switch ( tryAddConcept ( curNode->label().getLabel(dtLE), topf->getFunctional(), dep ) )
 			{
 			case acrClash:	// addition leads to clash
 				return true;
@@ -517,7 +517,7 @@ bool DlSatTester :: commonTacticBodySome ( const DLVertex& cur )	// for ER.C con
 				// we are changing current Node => save it
 				updateLevel ( curNode, dep );
 
-				ConceptWDep rFuncRestriction ( (*r)->getFunctional(), dep );
+				ConceptWDep rFuncRestriction ( topf->getFunctional(), dep );
 				// NOTE! not added into TODO (because will be checked right now)
 				CGraph.addConceptToNode ( curNode, rFuncRestriction, dtLE );
 				setUsed(rFuncRestriction.bp());
@@ -857,15 +857,15 @@ DlSatTester :: initHeadOfNewEdge ( DlCompletionTree* node, const TRole* R, const
 {
 	// if R is functional, then add FR with given DEP-set to NODE
 	if ( R->isFunctional() )
-		for ( auto r = R->begin_topfunc(), r_end = R->end_topfunc(); r != r_end; ++r )
-			switchResult ( addToDoEntry ( node, (*r)->getFunctional(), dep, "fr" ) );
+		for ( auto topf: R->topfuncs() )
+			switchResult ( addToDoEntry ( node, topf->getFunctional(), dep, "fr" ) );
 
 	// setup Domain for R
 	switchResult ( addToDoEntry ( node, R->getBPDomain(), dep, reason ) );
 
 	if ( !RKG_UPDATE_RND_FROM_SUPERROLES )
-		for ( auto r = R->begin_anc(), r_end = R->end_anc(); r != r_end; ++r )
-			switchResult ( addToDoEntry ( node, (*r)->getBPDomain(), dep, reason ) );
+		for ( auto sup: R->ancestors() )
+			switchResult ( addToDoEntry ( node, sup->getBPDomain(), dep, reason ) );
 
 	return false;
 }

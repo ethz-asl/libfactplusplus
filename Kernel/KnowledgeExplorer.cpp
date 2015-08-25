@@ -38,16 +38,16 @@ KnowledgeExplorer :: KnowledgeExplorer ( const TBox* box, TExpressionManager* pE
 	{
 		TRole* R = *r;
 		addE ( ORs, R );
-		for ( TRole::const_iterator p = R->begin_anc(), p_end = R->end_anc(); p != p_end; ++p )
-			ORs.add ( R, *p );
+		for ( auto sup: R->ancestors() )
+			ORs.add ( R, sup );
 	}
 	// init all data roles
 	for ( r = box->getDRM()->begin(), r_end = box->getDRM()->end(); r != r_end; ++r )
 	{
 		TRole* R = *r;
 		addE ( DRs, R );
-		for ( TRole::const_iterator p = R->begin_anc(), p_end = R->end_anc(); p != p_end; ++p )
-			DRs.add ( R, *p );
+		for ( auto sup: R->ancestors() )
+			DRs.add ( R, sup );
 	}
 }
 

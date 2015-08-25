@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2013 by Dmitry Tsarkov
+Copyright (C) 2003-2015 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -96,8 +96,8 @@ protected:	// methods
 	void addExistsRole ( const TRole* R )
 	{
 		addRoleToCache(R);
-		for ( TRole::const_iterator r = R->begin_anc(), r_end = R->end_anc(); r != r_end; ++r )
-			addRoleToCache(*r);
+		for ( auto sup: R->ancestors() )
+			addRoleToCache(sup);
 	}
 
 	// access to the arrays

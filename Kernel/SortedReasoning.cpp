@@ -27,8 +27,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 /// merge label of given role and all its super-roles
 void TRole :: mergeSupersDomain ( void )
 {
-	for ( const_iterator p = begin_anc(), p_end = end_anc(); p != p_end; ++p )
-		domLabel.merge((*p)->domLabel);
+	for ( auto sup: ancestors() )
+		domLabel.merge(sup->domLabel);
 
 	// for reflexive role -- merge domain and range labels
 	if ( isReflexive() )
@@ -50,8 +50,8 @@ void DLDag :: mergeSorts ( TRole* R )
 	R->mergeSupersDomain();
 	merge ( R->getDomainLabel(), R->getBPDomain() );
 	// also associate functional nodes (if any)
-	for ( TRole::const_iterator q = R->begin_topfunc(), q_end = R->end_topfunc(); q != q_end; ++q )
-		merge ( R->getDomainLabel(), (*q)->getFunctional() );
+	for ( auto topf: R->topfuncs() )
+		merge ( R->getDomainLabel(), topf->getFunctional() );
 }
 
 /// merge sorts for a given vertex

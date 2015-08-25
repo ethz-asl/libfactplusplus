@@ -275,8 +275,8 @@ bool TRole :: isRealTopFunc ( void ) const
 	if ( !isFunctional() )	// all REAL top-funcs have their self-ref in TopFunc already
 		return false;
 	// if any of the parent is self-proclaimed top-func -- this one is not top-func
-	for ( const_iterator p = begin_anc(), p_end = end_anc(); p != p_end; ++p )
-		if ( (*p)->isTopFunc() )
+	for ( auto sup: ancestors() )
+		if ( sup->isTopFunc() )
 			return false;
 
 	// functional role with no functional parents is top-most functional
@@ -294,9 +294,9 @@ void TRole :: initTopFunc ( void )
 		TopFunc.clear();
 
 	// register all real TFs
-	for ( const_iterator p = begin_anc(), p_end = end_anc(); p != p_end; ++p )
-		if ( (*p)->isRealTopFunc() )
-			TopFunc.push_back(*p);
+	for ( auto sup: ancestors() )
+		if ( sup->isRealTopFunc() )
+			TopFunc.push_back(sup);
 
 	if ( !TopFunc.empty() )
 		Functionality.setValue(true);
@@ -316,12 +316,12 @@ void TRole :: checkHierarchicalDisjoint ( TRole* R )
 	}
 
 	// check whether a sub-role is disjoint with the given one
-	for ( const_iterator p = R->begin_desc(), p_end = R->end_desc(); p != p_end; ++p )
-		if ( Disjoint.count(*p) )
+	for ( auto sub: R->descendants() )
+		if ( Disjoint.count(sub) )
 		{
-			(*p)->setDomain(createBottom());
-			Disjoint.erase(*p);
-			(*p)->Disjoint.clear();
+			sub->setDomain(createBottom());
+			Disjoint.erase(sub);
+			sub->Disjoint.clear();
 		}
 }
 
@@ -389,8 +389,8 @@ void TRole :: completeAutomaton ( TRoleSet& RInProcess )
 	RInProcess.insert(this);
 
 	// make sure that all sub-roles already have completed automata
-	for ( const_iterator p = begin_desc(), p_end = end_desc(); p != p_end; ++p )
-		(*p)->completeAutomaton(RInProcess);
+	for ( auto sub: descendants() )
+		sub->completeAutomaton(RInProcess);
 
 	// add automata for complex role inclusions
 	for ( std::vector<TRoleVec>::iterator q = subCompositions.begin(), q_end = subCompositions.end(); q != q_end; ++q )
@@ -432,7 +432,7 @@ TRole :: addSubCompositionAutomaton ( TRoleVec& RS, TRoleSet& RInProcess )
 	SpecialDomain = true;
 
 	// tune iterators and states
-	const_iterator p = RS.begin(), p_last = RS.end() - 1;
+	auto p = RS.begin(), p_last = RS.end() - 1;
 	RAState from = A.initial(), to = A.final();
 
 	if ( RS.front() == this )

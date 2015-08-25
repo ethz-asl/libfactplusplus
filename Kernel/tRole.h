@@ -72,8 +72,6 @@ protected:	// types
 public:		// types
 		/// vector of roles
 	typedef std::vector<TRole*> TRoleVec;
-		/// RO iterator over role vector
-	typedef TRoleVec::const_iterator const_iterator;
 		/// set of roles
 	typedef std::set<TRole*> TRoleSet;
 		/// bitmap for roles
@@ -182,8 +180,8 @@ protected:	// methods
 	{
 		if ( hasSpecialDomain() )
 			return;
-		for ( const_iterator p = begin_desc(), p_end = end_desc(); p != p_end; ++p )
-			if ( (*p)->hasSpecialDomain() )
+		for ( auto sub: Descendant )
+			if ( sub->hasSpecialDomain() )
 			{
 				SpecialDomain = true;
 				return;
@@ -210,6 +208,15 @@ public:		// interface
 			? (unsigned int)i
 			: (unsigned int)(1-i);
 	}
+
+	// access to role hierarchy
+
+		/// get RO access to all super-roles
+	const TRoleVec& ancestors ( void ) const { return Ancestor; }
+		/// get RO access to all sub-roles
+	const TRoleVec& descendants ( void ) const { return Descendant; }
+		/// get RO access to the func super-roles w/o func parents
+	const TRoleVec& topfuncs ( void ) const { return TopFunc; }
 
 	// synonym operations
 
@@ -354,8 +361,8 @@ public:		// interface
 		/// merge to Domain all domains from super-roles
 	void collectDomainFromSupers ( void )
 	{
-		for ( auto p = begin_anc(); p != end_anc(); ++p )
-			setDomain ( clone((*p)->getTDomain()) );
+		for ( auto sup: ancestors() )
+			setDomain ( clone(sup->getTDomain()) );
 	}
 
 		/// set domain-as-a-bipointer to a role
@@ -387,10 +394,10 @@ public:		// interface
 	void addDisjointRole ( TRole* R )
 	{
 		Disjoint.insert(R);
-		for ( const_iterator p = R->begin_desc(), p_end = R->end_desc(); p != p_end; ++p )
+		for ( auto sub: R->descendants() )
 		{
-			Disjoint.insert(*p);
-			(*p)->Disjoint.insert(this);
+			Disjoint.insert(sub);
+			sub->Disjoint.insert(this);
 		}
 	}
 		/// check (and correct) case whether R != S for R [= S
@@ -418,24 +425,12 @@ public:		// interface
 		/// check if role is a non-strict super-role of R
 	bool operator >= ( const TRole& r ) const { return (*this == r) || (*this > r); }
 
-	// iterators
-
-		/// get access to all super-roles via iterator
-	const_iterator begin_anc ( void ) const { return Ancestor.begin(); }
-	const_iterator end_anc ( void ) const { return Ancestor.end(); }
-		/// get access to all sub-roles via iterator
-	const_iterator begin_desc ( void ) const { return Descendant.begin(); }
-	const_iterator end_desc ( void ) const { return Descendant.end(); }
-		/// get access to the func super-roles w/o func parents via iterator
-	const_iterator begin_topfunc ( void ) const { return TopFunc.begin(); }
-	const_iterator end_topfunc ( void ) const { return TopFunc.end(); }
-
 		/// fills BITMAP with the role's ancestors
 	void addAncestorsToBitMap ( TRoleBitMap& bitmap ) const
 	{
 		fpp_assert ( !bitmap.empty() );	// use only after the size is known
-		for ( const_iterator p = begin_anc(), p_end = end_anc(); p != p_end; ++p )
-			bitmap[(*p)->getIndex()] = true;
+		for ( auto sup: ancestors() )
+			bitmap[sup->getIndex()] = true;
 	}
 
 	// automaton construction
