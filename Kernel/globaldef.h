@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2010 by Dmitry Tsarkov
+Copyright (C) 2003-2015 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -50,8 +50,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #	define RKG_IMPROVE_SAVE_RESTORE_DEPSET
 #endif
 
-// uncomment this to update role's R&D from super-roles
-//#define RKG_UPDATE_RND_FROM_SUPERROLES
+// set to 1 to update role's R&D from super-roles
+#ifndef RKG_UPDATE_RND_FROM_SUPERROLES
+#	define RKG_UPDATE_RND_FROM_SUPERROLES 0
+#endif
 
 // uncomment this to allow simple rules processing
 //#define RKG_USE_SIMPLE_RULES

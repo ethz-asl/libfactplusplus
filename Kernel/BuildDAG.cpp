@@ -92,15 +92,12 @@ void TBox :: buildDAG ( void )
 
 void TBox :: initRangeDomain ( RoleMaster& RM )
 {
-	RoleMaster::iterator p, p_end = RM.end();
-	for ( p = RM.begin(); p < p_end; ++p )
-		if ( !(*p)->isSynonym() )
+	for ( auto R: RM )
+		if ( !R->isSynonym() )
 		{
-			TRole* R = *p;
-#		ifdef RKG_UPDATE_RND_FROM_SUPERROLES
 			// add R&D from super-roles (do it AFTER axioms are transformed into R&D)
-			R->collectDomainFromSupers();
-#		endif
+			if ( RKG_UPDATE_RND_FROM_SUPERROLES )
+				R->collectDomainFromSupers();
 
 			DLTree* dom = R->getTDomain();
 			BipolarPointer bp = bpTOP;

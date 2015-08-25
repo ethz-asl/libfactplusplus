@@ -855,21 +855,17 @@ bool DlSatTester :: applyUniversalNR ( DlCompletionTree* Node,
 bool
 DlSatTester :: initHeadOfNewEdge ( DlCompletionTree* node, const TRole* R, const DepSet& dep, const char* reason )
 {
-	// define return value
-	TRole::const_iterator r, r_end;
-
 	// if R is functional, then add FR with given DEP-set to NODE
 	if ( R->isFunctional() )
-		for ( r = R->begin_topfunc(), r_end = R->end_topfunc(); r != r_end; ++r )
+		for ( auto r = R->begin_topfunc(), r_end = R->end_topfunc(); r != r_end; ++r )
 			switchResult ( addToDoEntry ( node, (*r)->getFunctional(), dep, "fr" ) );
 
 	// setup Domain for R
 	switchResult ( addToDoEntry ( node, R->getBPDomain(), dep, reason ) );
 
-#	ifndef RKG_UPDATE_RND_FROM_SUPERROLES
-		for ( r = R->begin_anc(), r_end = R->end_anc(); r < r_end; ++r )
+	if ( !RKG_UPDATE_RND_FROM_SUPERROLES )
+		for ( auto r = R->begin_anc(), r_end = R->end_anc(); r != r_end; ++r )
 			switchResult ( addToDoEntry ( node, (*r)->getBPDomain(), dep, reason ) );
-#	endif
 
 	return false;
 }
