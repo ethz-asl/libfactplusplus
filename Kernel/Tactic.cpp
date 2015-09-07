@@ -556,12 +556,14 @@ bool DlSatTester :: commonTacticBodySome ( const DLVertex& cur )	// for ER.C con
 	if ( rFunc )	// functional role found => add new concept to existing node
 	{
 		const DlCompletionTreeArc* functionalArc = nullptr;
-		DepSet newDep;
 
 		// check if we have an (R)-successor or (R-)-predecessor
-		for ( DlCompletionTree::const_edge_iterator pr = curNode->begin(), pr_end = curNode->end(); !functionalArc && pr < pr_end ; ++pr )
-			if ( (*pr)->isNeighbour ( RF, newDep ) )
-				functionalArc = *pr;
+		for ( auto edge: *curNode )
+			if ( edge->isNeighbour (RF) )
+			{
+				functionalArc = edge;
+				break;
+			}
 
 		// perform actions if such arc was found
 		if ( functionalArc != nullptr )
@@ -572,6 +574,7 @@ bool DlSatTester :: commonTacticBodySome ( const DLVertex& cur )	// for ER.C con
 			DlCompletionTree* succ = functionalArc->getArcEnd();
 
 			// add current dependences (from processed entry)
+			DepSet newDep = { functionalArc->getDep() };
 			newDep.add(dep);
 
 			// check if merging will lead to clash because of disjoint roles

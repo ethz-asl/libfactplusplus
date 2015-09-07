@@ -122,16 +122,6 @@ public:		// interface
 	{
 		return !isIBlocked() && ( *pRole >= *getRole() );
 	}
-		/// same as above; fills DEP with current DEPSET if so
-	bool isNeighbour ( const TRole* pRole, DepSet& dep ) const
-	{
-		if ( isNeighbour(pRole) )
-		{
-			dep = depSet;
-			return true;
-		}
-		return false;
-	}
 
 		/// is arc merged to another
 	bool isIBlocked ( void ) const { return (Role == nullptr); }
