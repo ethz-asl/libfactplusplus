@@ -19,7 +19,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef TDEPSET_H
 #define TDEPSET_H
 
-#include <map>
+#include <iosfwd>
 
 #include "fpp_assert.h"
 #include "growingArrayP.h"
@@ -45,7 +45,7 @@ public:		// interface
 		/// init c'tor
 	explicit TDepSetElement ( TDepSetManager* manager, unsigned int level, TDepSetElement* tail )
 		: Manager(manager)
-		, Level(level)
+		, Level{level}
 		, Tail(tail)
 	{
 #	ifdef TMP_DEPSET_DEBUG
@@ -66,19 +66,27 @@ public:		// interface
 	TDepSetElement* tail ( void ) const { return Tail; }
 		/// merge this element with ELEM; use Manager for this
 	TDepSetElement* merge ( TDepSetElement* elem );
-		/// Print given dep-set to a standart stream
+		/// Print given dep-set to a standard stream
 	template <class O>
-	void Print ( O& o ) const
+	O& print ( O& o ) const
 	{
 		if ( Tail )	// print the rest of dep-set, then current element
 		{
-			Tail->Print(o);
+			Tail->print(o);
 			o << ',' << level();
 		}
 		else	// leaf element (from basement)
 			o << level();
+		return o;
 	}
 }; // TDepSetElement
+
+// helper to simplify prints
+template <class O>
+inline O& operator << ( O& o, const TDepSetElement* element )
+{
+	return element->print(o);
+}
 
 /// class for the cache element. Contains all the pointers to the dep-sets
 /// started from the same element
@@ -94,7 +102,10 @@ protected:	// members
 
 protected:	// methods
 		/// the way to create an object by a given tail
-	virtual TDepSetElement* build ( TDepSetElement* tail ) { return new TDepSetElement ( Manager, Level, tail ); }
+	virtual TDepSetElement* build ( TDepSetElement* tail ) override
+	{
+		return new TDepSetElement { Manager, Level, tail };
+	}
 
 public:		// interface
 		/// stub c'tor for growingArrayP()
@@ -102,9 +113,9 @@ public:		// interface
 		/// c'tor: create head dep-set
 	explicit TDepSetCache ( TDepSetManager* manager, unsigned int level )
 		: Manager(manager)
-		, Level(level)
+		, Level{level}
 	{
-		HeadDepSet = new TDepSetElement ( Manager, Level, nullptr );
+		HeadDepSet = new TDepSetElement { Manager, Level, nullptr };
 	}
 		/// d'tor: delete all the cached dep-sets and the head element
 	virtual ~TDepSetCache ( void )
@@ -130,7 +141,10 @@ class TDepSetManager: public growingArrayP<TDepSetCache>
 {
 protected:	// methods
 		/// create a new entry with an improved level
-	virtual TDepSetCache* createNew ( void ) override { return new TDepSetCache ( this, (unsigned int)last++ ); }
+	virtual TDepSetCache* createNew ( void ) override
+	{
+		return new TDepSetCache { this, (unsigned int)last++ };
+	}
 
 public:		// interface
 		/// c'tor: init N basement elements
@@ -243,14 +257,11 @@ public:		// interface
 
 		/// Print given dep-set to a standard stream
 	template <class O>
-	void Print ( O& o ) const
+	O& print ( O& o ) const
 	{
 		if ( !empty() )
-		{
-			o << "{";
-			dep->Print(o);
-			o << "}";
-		}
+			o << "{" << dep << "}";
+		return o;
 	}
 }; // TDepSet
 
