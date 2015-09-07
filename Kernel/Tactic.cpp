@@ -1442,11 +1442,11 @@ DlSatTester :: findNeighbours ( const TRole* Role, BipolarPointer C, DepSet& Dep
 	EdgesToMerge.clear();
 	DagTag tag = DLHeap[C].Type();
 
-	for ( DlCompletionTree::const_edge_iterator p = curNode->begin(), p_end = curNode->end(); p < p_end; ++p )
-		if ( (*p)->isNeighbour(Role)
-			 && isNewEdge ( (*p)->getArcEnd(), EdgesToMerge.begin(), EdgesToMerge.end() )
-			 && findChooseRuleConcept ( (*p)->getArcEnd()->label().getLabel(tag), C, Dep ) )
-			EdgesToMerge.push_back(*p);
+	for ( auto edge: *curNode )
+		if ( edge->isNeighbour(Role)
+			 && isNewEdge ( edge->getArcEnd(), EdgesToMerge.begin(), EdgesToMerge.end() )
+			 && findChooseRuleConcept ( edge->getArcEnd()->label().getLabel(tag), C, Dep ) )
+			EdgesToMerge.push_back(edge);
 
 	// sort EdgesToMerge: From named nominals to generated nominals to blockable nodes
 	std::sort ( EdgesToMerge.begin(), EdgesToMerge.end(), EdgeCompare() );
@@ -1465,9 +1465,9 @@ DlSatTester :: findCLabelledNodes ( BipolarPointer C, DepSet& Dep )
 	DagTag tag = DLHeap[C].Type();
 
 	// FIXME!! do we need this for d-blocked nodes?
-	for ( DlCompletionGraph::iterator p = CGraph.begin(), p_end = CGraph.end(); p != p_end; ++p )
-		if ( isNodeGloballyUsed(*p) && findChooseRuleConcept ( (*p)->label().getLabel(tag), C, Dep ) )
-			NodesToMerge.push_back(*p);
+	for ( auto node: CGraph )
+		if ( isNodeGloballyUsed(node) && findChooseRuleConcept ( node->label().getLabel(tag), C, Dep ) )
+			NodesToMerge.push_back(node);
 
 	// sort EdgesToMerge: From named nominals to generated nominals to blockable nodes
 	std::sort ( NodesToMerge.begin(), NodesToMerge.end(), NodeCompare() );
@@ -1481,9 +1481,9 @@ DlSatTester :: findCLabelledNodes ( BipolarPointer C, DepSet& Dep )
 bool DlSatTester :: commonTacticBodyChoose ( const TRole* R, BipolarPointer C )
 {
 	// apply choose-rule for every R-neighbour
-	for ( DlCompletionTree::const_edge_iterator p = curNode->begin(), p_end = curNode->end(); p < p_end; ++p )
-		if ( (*p)->isNeighbour(R) )
-			switchResult ( applyChooseRule ( (*p)->getArcEnd(), C ) );
+	for ( auto edge: *curNode )
+		if ( edge->isNeighbour(R) )
+			switchResult ( applyChooseRule ( edge->getArcEnd(), C ) );
 
 	return false;
 }
@@ -1492,9 +1492,9 @@ bool DlSatTester :: commonTacticBodyChoose ( const TRole* R, BipolarPointer C )
 bool
 DlSatTester :: applyChooseRuleGlobally ( BipolarPointer C )
 {
-	for ( DlCompletionGraph::iterator p = CGraph.begin(), p_end = CGraph.end(); p != p_end; ++p )
-		if ( isObjectNodeUnblocked(*p) )	// FIXME!! think about d-blocked nodes
-			switchResult ( applyChooseRule ( *p, C ) );
+	for ( auto node: CGraph )
+		if ( isObjectNodeUnblocked(node) )	// FIXME!! think about d-blocked nodes
+			switchResult ( applyChooseRule ( node, C ) );
 
 	return false;
 }
@@ -1583,13 +1583,12 @@ bool DlSatTester :: isNNApplicable ( const TRole* r, BipolarPointer C, BipolarPo
 		return false;
 
 	// check for the real applicability of the NN-rule here
-	DlCompletionTree::const_edge_iterator p, p_end = curNode->end(), q;
-	for ( p = curNode->begin(); p != p_end; ++p )
+	for ( auto edge: *curNode )
 	{
-		const DlCompletionTree* suspect = (*p)->getArcEnd();
+		const DlCompletionTree* suspect = edge->getArcEnd();
 
 		// if there is an edge that require to run the rule, then we need it
-		if ( (*p)->isPredEdge() && suspect->isBlockableNode() && (*p)->isNeighbour(r) && suspect->isLabelledBy(C) )
+		if ( edge->isPredEdge() && suspect->isBlockableNode() && edge->isNeighbour(r) && suspect->isLabelledBy(C) )
 		{
 			if ( LLM.isWritable(llGTA) )
 				LL << " NN(" << suspect->getId() << ")";
@@ -1613,8 +1612,8 @@ bool DlSatTester :: commonTacticBodySomeSelf ( const TRole* R )
 		return false;
 
 	// nothing to do if R-loop already exists
-	for ( DlCompletionTree::const_edge_iterator p = curNode->begin(), p_end = curNode->end(); p < p_end; ++p )
-		if ( (*p)->getArcEnd() == curNode && (*p)->isNeighbour(R) )
+	for ( auto edge: *curNode )
+		if ( edge->getArcEnd() == curNode && edge->isNeighbour(R) )
 			return false;
 
 	// create an R-loop through curNode
@@ -1626,8 +1625,8 @@ bool DlSatTester :: commonTacticBodySomeSelf ( const TRole* R )
 bool DlSatTester :: commonTacticBodyIrrefl ( const TRole* R )
 {
 	// return clash if R-loop is found
-	for ( DlCompletionTree::const_edge_iterator p = curNode->begin(), p_end = curNode->end(); p < p_end; ++p )
-		if ( checkIrreflexivity ( *p, R, curConcept.getDep() ) )
+	for ( auto edge: *curNode )
+		if ( checkIrreflexivity ( edge, R, curConcept.getDep() ) )
 			return true;
 
 	return false;

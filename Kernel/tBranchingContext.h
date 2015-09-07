@@ -19,7 +19,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef TBRANCHINGCONTEXT_H
 #define TBRANCHINGCONTEXT_H
 
-#include "dlCompletionTree.h"
+#include "ConceptWithDep.h"
+
+class DlCompletionTree;
 
 	/// class for saving branching context of a Reasoner
 class BranchingContext
