@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2008-2015 by Dmitry Tsarkov
+Copyright (C) 2008-2016 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -756,7 +756,7 @@ TaxonomyVertex :: SaveLabel ( SaveLoadManager& m ) const
 {
 	m.savePointer(sample);
 	m.saveUInt(Synonyms.size());
-	for ( auto synonym: synonyms() )
+	for ( const auto& synonym: synonyms() )
 		m.savePointer(synonym);
 	m.o() << "\n";
 }

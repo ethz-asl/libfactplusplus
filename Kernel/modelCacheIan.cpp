@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2015 by Dmitry Tsarkov
+Copyright (C) 2003-2016 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -82,8 +82,8 @@ modelCacheIan :: processAutomaton ( const DLVertex& cur )
 
 	// for every transition starting from a given state,
 	// add the role that is accepted by a transition
-	for ( auto& trans: RST )
-		for ( auto R: trans )
+	for ( const auto& trans: RST )
+		for ( const auto& R: trans )
 			forallRoles.insert(R->index());
 }
 

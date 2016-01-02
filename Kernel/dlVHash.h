@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2006-2015 by Dmitry Tsarkov
+Copyright (C) 2006-2016 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -50,7 +50,7 @@ protected:	// methods
 			sum += v.getProjRole()->getId();
 		sum += v.getC();
 		sum += v.getNumberLE();
-		for ( auto& arg: v )
+		for ( const auto& arg: v )
 			sum += arg;
 		return sum;
 	}

@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2015 by Dmitry Tsarkov
+Copyright (C) 2003-2016 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -92,7 +92,7 @@ void TBox :: buildDAG ( void )
 
 void TBox :: initRangeDomain ( RoleMaster& RM )
 {
-	for ( auto R: RM )
+	for ( auto& R: RM )
 		if ( !R->isSynonym() )
 		{
 			// add R&D from super-roles (do it AFTER axioms are transformed into R&D)

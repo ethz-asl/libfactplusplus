@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2015 by Dmitry Tsarkov
+Copyright (C) 2003-2016 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -346,7 +346,7 @@ public:
 	virtual bool apply ( const TaxonomyVertex& v )
 	{
 		entry(v.getPrimer());
-		for ( auto synonym: v.synonyms() )
+		for ( const auto& synonym: v.synonyms() )
 			entry(synonym);
 		return true;
 	}
@@ -470,7 +470,7 @@ public:
 	{
 		bool ret = tryEntry(v.getPrimer());
 
-		for ( auto synonym: v.synonyms() )
+		for ( const auto& synonym: v.synonyms() )
 			ret |= tryEntry(synonym);
 
 		return ret;
@@ -519,7 +519,7 @@ ReasoningKernel :: getRelatedRoles ( const TIndividualExpr* I, NamesVector& Rs, 
 	Rs.clear();
 
 	TIndividual* i = getIndividual ( I, "individual name expected in the getRelatedRoles()" );
-	for ( auto R: (data ? getDRM() : getORM()) )
+	for ( const auto& R: (data ? getDRM() : getORM()) )
 		if ( ( R->getId() > 0 || needI ) && !getRelated(i,R).empty() )
 			Rs.push_back(R);
 }

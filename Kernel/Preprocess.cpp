@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2015 by Dmitry Tsarkov
+Copyright (C) 2003-2016 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -195,10 +195,10 @@ replaceSynonymsFromTree ( DLTree* desc )
 void TBox :: replaceAllSynonyms ( void )
 {
 	// replace synonyms in role's domain
-	for ( auto oRole: ORM )
+	for ( const auto& oRole: ORM )
 		if ( !oRole->isSynonym() )
 			replaceSynonymsFromTree ( oRole->getTDomain() );
-	for ( auto dRole: DRM )
+	for ( const auto& dRole: DRM )
 		if ( !dRole->isSynonym() )
 			replaceSynonymsFromTree ( dRole->getTDomain() );
 
@@ -212,7 +212,7 @@ void TBox :: replaceAllSynonyms ( void )
 
 void TBox :: preprocessRelated ( void )
 {
-	for ( auto related: RelatedI )
+	for ( auto& related: RelatedI )
 		related->simplify();
 }
 
@@ -285,14 +285,14 @@ redo:
 				ToldSynonyms.push_back(p);
 
 				// find a representative for the cycle; nominal is preferable
-				for ( auto rep: ToldSynonyms )
+				for ( auto& rep: ToldSynonyms )
 					if ( rep->isSingleton() )
 						p = rep;
 				// now p is a representative for all the synonyms
 
 				// fill the description
 				DLTree* desc = nullptr;
-				for ( auto syn: ToldSynonyms )
+				for ( auto& syn: ToldSynonyms )
 					if ( syn != p )	// make it a synonym of RET, save old desc
 					{
 						desc = createSNFAnd ( desc, makeNonPrimitive ( syn, getTree(p) ) );
@@ -507,10 +507,10 @@ void TBox :: determineSorts ( void )
 		DLHeap.updateSorts ( (*p)->a->pName, (*p)->R, (*p)->b->pName );
 
 	// simple rules needs the same treatment
-	for ( auto rule: SimpleRules )
+	for ( const auto& rule: SimpleRules )
 	{
 		mergableLabel& lab = DLHeap[rule->bpHead].getSort();
-		for ( auto atom: rule->Body )
+		for ( const auto& atom: rule->Body )
 			DLHeap.merge ( lab, atom->pName );
 	}
 

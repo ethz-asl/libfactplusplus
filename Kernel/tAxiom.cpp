@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2015 by Dmitry Tsarkov
+Copyright (C) 2003-2016 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -184,8 +184,8 @@ TAxiom :: absorbIntoBottom ( void ) const
 		}
 
 	// now check whether there is a concept in both POS and NEG
-	for ( auto neg: Neg )
-		for ( auto pos: Pos )
+	for ( const auto& neg: Neg )
+		for ( const auto& pos: Pos )
 			if ( equalTrees ( neg, pos ) )
 			{
 				Stat::SAbsBApply();

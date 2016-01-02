@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2015 by Dmitry Tsarkov
+Copyright (C) 2003-2016 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -173,7 +173,7 @@ DlSatTester :: applicable ( const TBox::TSimpleRule& rule )
 	// dep-set to keep track for all the concepts in a rule-head
 	DepSet dep = curConcept.getDep();
 
-	for ( auto atom: rule.Body )
+	for ( const auto& atom: rule.Body )
 	{
 		if ( atom->pName == bp )
 			continue;
@@ -211,7 +211,7 @@ bool
 DlSatTester :: addSessionGCI ( BipolarPointer C, const DepSet& dep )
 {
 	SessionGCIs.push_back(C);
-	for ( auto node: CGraph )
+	for ( auto& node: CGraph )
 		if ( isNodeGloballyUsed(node) && addToDoEntry ( node, C, dep, "sg" ) )
 			return true;
 	return false;
@@ -395,7 +395,7 @@ bool DlSatTester :: commonTacticBodyAllComplex ( const DLVertex& cur )
 
 	// apply all empty transitions
 	if ( RST.hasEmptyTransition() )
-		for ( auto& trans: RST )
+		for ( const auto& trans: RST )
 		{
 			incStat(nAutoEmptyLookups);
 
@@ -405,7 +405,7 @@ bool DlSatTester :: commonTacticBodyAllComplex ( const DLVertex& cur )
 
 	// apply all top-role transitions
 	if ( unlikely(RST.hasTopTransition()) )
-		for ( auto& trans: RST )
+		for ( const auto& trans: RST )
 			if ( trans.isTop() )
 				switchResult ( addSessionGCI ( C+BipolarPointer(trans.final()), dep ) );
 
@@ -417,7 +417,7 @@ bool DlSatTester :: commonTacticBodyAllComplex ( const DLVertex& cur )
 	incStat(nAllCalls);
 
 	// check all neighbours
-	for ( auto neighbour: *curNode )
+	for ( const auto& neighbour: *curNode )
 		if ( RST.recognise(neighbour->getRole()) )
 			switchResult ( applyTransitions ( neighbour, RST, C, dep+neighbour->getDep() ) );
 
@@ -434,7 +434,7 @@ bool DlSatTester :: commonTacticBodyAllSimple ( const DLVertex& cur )
 	incStat(nAllCalls);
 
 	// check all neighbours; as the role is simple then recognise() == applicable()
-	for ( auto neighbour: *curNode )
+	for ( const auto& neighbour: *curNode )
 		if ( RST.recognise(neighbour->getRole()) )
 			switchResult ( addToDoEntry ( neighbour->getArcEnd(), C, dep+neighbour->getDep() ) );
 
@@ -459,7 +459,7 @@ bool DlSatTester :: applyTransitions ( const DlCompletionTreeArc* edge,
 	const TRole* R = edge->getRole();
 
 	// try to apply all transitions to edge
-	for ( auto& trans: RST )
+	for ( const auto& trans: RST )
 	{
 		incStat(nAutoTransLookups);
 		if ( trans.applicable(R) )
@@ -507,7 +507,7 @@ bool DlSatTester :: commonTacticBodySome ( const DLVertex& cur )	// for ER.C con
 
 	// check if we have functional role
 	if ( R->isFunctional() )
-		for ( auto topf: R->topfuncs() )
+		for ( const auto& topf: R->topfuncs() )
 			switch ( tryAddConcept ( curNode->label().getLabel(dtLE), topf->getFunctional(), dep ) )
 			{
 			case acrClash:	// addition leads to clash
@@ -558,7 +558,7 @@ bool DlSatTester :: commonTacticBodySome ( const DLVertex& cur )	// for ER.C con
 		const DlCompletionTreeArc* functionalArc = nullptr;
 
 		// check if we have an (R)-successor or (R-)-predecessor
-		for ( auto edge: *curNode )
+		for ( const auto& edge: *curNode )
 			if ( edge->isNeighbour (RF) )
 			{
 				functionalArc = edge;
@@ -660,7 +660,7 @@ DlSatTester :: commonTacticBodySomeUniv ( const DLVertex& cur )
 
 	BipolarPointer C = inverse(cur.getC());
 	// check whether C is already in CGraph
-	for ( auto node: CGraph )
+	for ( const auto& node: CGraph )
 		if ( isObjectNodeUnblocked(node) && node->label().contains(C) )
 			return false;
 	// make new node labeled with C
@@ -860,14 +860,14 @@ DlSatTester :: initHeadOfNewEdge ( DlCompletionTree* node, const TRole* R, const
 {
 	// if R is functional, then add FR with given DEP-set to NODE
 	if ( R->isFunctional() )
-		for ( auto topf: R->topfuncs() )
+		for ( const auto& topf: R->topfuncs() )
 			switchResult ( addToDoEntry ( node, topf->getFunctional(), dep, "fr" ) );
 
 	// setup Domain for R
 	switchResult ( addToDoEntry ( node, R->getBPDomain(), dep, reason ) );
 
 	if ( !RKG_UPDATE_RND_FROM_SUPERROLES )
-		for ( auto sup: R->ancestors() )
+		for ( const auto& sup: R->ancestors() )
 			switchResult ( addToDoEntry ( node, sup->getBPDomain(), dep, reason ) );
 
 	return false;
@@ -1392,7 +1392,7 @@ bool DlSatTester :: Merge ( DlCompletionTree* from, DlCompletionTree* to, const 
 	CGraph.Merge ( from, to, depF, edges );
 
 	// check whether a disjoint roles lead to clash
-	for ( auto edge: edges )
+	for ( const auto& edge: edges )
 		if ( edge->getRole()->isDisjoint() &&
 			 checkDisjointRoleClash ( edge->getReverse()->getArcEnd(), edge->getArcEnd(), edge->getRole(), depF ) )
 			return true;
@@ -1402,7 +1402,7 @@ bool DlSatTester :: Merge ( DlCompletionTree* from, DlCompletionTree* to, const 
 		return checkDataClash(to);
 
 	// for every node added to TO, every ALL, Irr and <=-node should be checked
-	for ( auto edge: edges )
+	for ( const auto& edge: edges )
 		switchResult ( applyUniversalNR ( to, edge, depF, redoForall|redoFunc|redoAtMost|redoIrr ) );
 
 	// we do real action here, so the return value
@@ -1410,11 +1410,11 @@ bool DlSatTester :: Merge ( DlCompletionTree* from, DlCompletionTree* to, const 
 }
 
 bool
-DlSatTester :: checkDisjointRoleClash ( DlCompletionTree* from, DlCompletionTree* to,
+DlSatTester :: checkDisjointRoleClash ( const DlCompletionTree* from, const DlCompletionTree* to,
 										const TRole* R, const DepSet& dep )
 {
 	// try to check whether link from->to labelled with something disjoint with R
-	for ( auto edge: *from )
+	for ( const auto& edge: *from )
 		if ( checkDisjointRoleClash ( edge, to, R, dep ) )
 			return true;
 	return false;
@@ -1445,7 +1445,7 @@ DlSatTester :: findNeighbours ( const TRole* Role, BipolarPointer C, DepSet& Dep
 	EdgesToMerge.clear();
 	DagTag tag = DLHeap[C].Type();
 
-	for ( auto edge: *curNode )
+	for ( auto& edge: *curNode )
 		if ( edge->isNeighbour(Role)
 			 && isNewEdge ( edge->getArcEnd(), EdgesToMerge.begin(), EdgesToMerge.end() )
 			 && findChooseRuleConcept ( edge->getArcEnd()->label().getLabel(tag), C, Dep ) )
@@ -1468,7 +1468,7 @@ DlSatTester :: findCLabelledNodes ( BipolarPointer C, DepSet& Dep )
 	DagTag tag = DLHeap[C].Type();
 
 	// FIXME!! do we need this for d-blocked nodes?
-	for ( auto node: CGraph )
+	for ( auto& node: CGraph )
 		if ( isNodeGloballyUsed(node) && findChooseRuleConcept ( node->label().getLabel(tag), C, Dep ) )
 			NodesToMerge.push_back(node);
 
@@ -1484,7 +1484,7 @@ DlSatTester :: findCLabelledNodes ( BipolarPointer C, DepSet& Dep )
 bool DlSatTester :: commonTacticBodyChoose ( const TRole* R, BipolarPointer C )
 {
 	// apply choose-rule for every R-neighbour
-	for ( auto edge: *curNode )
+	for ( auto& edge: *curNode )
 		if ( edge->isNeighbour(R) )
 			switchResult ( applyChooseRule ( edge->getArcEnd(), C ) );
 
@@ -1495,7 +1495,7 @@ bool DlSatTester :: commonTacticBodyChoose ( const TRole* R, BipolarPointer C )
 bool
 DlSatTester :: applyChooseRuleGlobally ( BipolarPointer C )
 {
-	for ( auto node: CGraph )
+	for ( auto& node: CGraph )
 		if ( isObjectNodeUnblocked(node) )	// FIXME!! think about d-blocked nodes
 			switchResult ( applyChooseRule ( node, C ) );
 
@@ -1586,7 +1586,7 @@ bool DlSatTester :: isNNApplicable ( const TRole* r, BipolarPointer C, BipolarPo
 		return false;
 
 	// check for the real applicability of the NN-rule here
-	for ( auto edge: *curNode )
+	for ( const auto& edge: *curNode )
 	{
 		const DlCompletionTree* suspect = edge->getArcEnd();
 
@@ -1615,7 +1615,7 @@ bool DlSatTester :: commonTacticBodySomeSelf ( const TRole* R )
 		return false;
 
 	// nothing to do if R-loop already exists
-	for ( auto edge: *curNode )
+	for ( const auto& edge: *curNode )
 		if ( edge->getArcEnd() == curNode && edge->isNeighbour(R) )
 			return false;
 
@@ -1628,7 +1628,7 @@ bool DlSatTester :: commonTacticBodySomeSelf ( const TRole* R )
 bool DlSatTester :: commonTacticBodyIrrefl ( const TRole* R )
 {
 	// return clash if R-loop is found
-	for ( auto edge: *curNode )
+	for ( const auto& edge: *curNode )
 		if ( checkIrreflexivity ( edge, R, curConcept.getDep() ) )
 			return true;
 

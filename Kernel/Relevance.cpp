@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2005-2015 by Dmitry Tsarkov
+Copyright (C) 2005-2016 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -97,7 +97,7 @@ void TBox :: setRelevant1 ( TRole* p )
 	setRelevant ( p->getBPRange() );
 
 	// all super-roles are also relevant
-	for ( auto sup: p->ancestors() )
+	for ( auto& sup: p->ancestors() )
 		setRelevant(sup);
 }
 

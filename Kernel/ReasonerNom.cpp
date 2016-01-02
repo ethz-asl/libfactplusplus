@@ -94,7 +94,7 @@ NominalReasoner :: consistentNominalCloud ( void )
 		return false;
 
 	// ABox is consistent -> create cache for every nominal in KB
-	for ( auto ind: Nominals )
+	for ( auto& ind: Nominals )
 		updateClassifiedSingleton(ind);
 
 	return true;
@@ -105,7 +105,7 @@ bool
 NominalReasoner :: initNominalCloud ( void )
 {
 	// create nominal nodes and fills them with initial values
-	for ( auto ind: Nominals )
+	for ( const auto& ind: Nominals )
 		if ( initNominalNode(ind) )
 			return true;	// ABox is inconsistent
 
@@ -120,10 +120,10 @@ NominalReasoner :: initNominalCloud ( void )
 
 	DepSet dummy;	// empty dep-set for the CGraph
 
-	for ( auto& di: tBox.Different )
+	for ( const auto& di: tBox.Different )
 	{
 		CGraph.initIR();
-		for ( auto ind: di )
+		for ( const auto& ind: di )
 			if ( CGraph.setCurIR ( resolveSynonym(ind)->node, dummy ) )	// different(c,c)
 				return true;
 		CGraph.finiIR();

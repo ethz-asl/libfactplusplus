@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2015 by Dmitry Tsarkov
+Copyright (C) 2003-2016 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -62,7 +62,7 @@ CTTag TConcept :: determineClassTag ( void )
 	bool hasOther = false;
 	bool hasNP = false;
 
-	for ( auto p: told() )
+	for ( auto& p: told() )
 		switch ( static_cast<TConcept*>(p)->getClassTag() )
 		{
 		case cttTrueCompletelyDefined:
@@ -218,7 +218,7 @@ void TConcept :: SearchTSbyRoleAndSupers ( const TRole* r, RoleSSet& RolesProces
 
 	// do the same for all super-roles if necessary
 	// FIXME!! need to do the same for DomSupers (like SoR [= R)
-	for ( auto sup: r->ancestors() )
+	for ( const auto& sup: r->ancestors() )
 		SearchTSbyRole ( sup, RolesProcessed );
 }
 
@@ -229,7 +229,7 @@ unsigned int TConcept :: calculateTSDepth ( void )
 
 	unsigned int max = 0;
 
-	for ( auto p: told() )
+	for ( auto& p: told() )
 	{
 		unsigned int cur = static_cast<TConcept*>(p)->calculateTSDepth();
 		if ( max < cur )

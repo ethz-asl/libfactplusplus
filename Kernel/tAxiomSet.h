@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2015 by Dmitry Tsarkov
+Copyright (C) 2003-2016 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -60,7 +60,7 @@ protected:	// methods
 		Accum.push_back(p);
 	}
 		/// @return true iff axiom Q is a copy of already existing axiom
-	bool copyOfExisting ( TAxiom* q ) const
+	bool copyOfExisting ( const TAxiom* q ) const
 	{
 		for ( auto p = Accum.begin(), p_end = Accum.end(); p != p_end; ++p )
 			if ( *q == **p )
@@ -146,7 +146,7 @@ public:		// interface
 	DLTree* getGCI ( void ) const
 	{
 		DLTree* ret = createTop();
-		for ( auto axiom: Accum )
+		for ( const auto& axiom: Accum )
 			ret = createSNFAnd ( ret, axiom->createAnAxiom() );
 
 		return ret;

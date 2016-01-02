@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2015 by Dmitry Tsarkov
+Copyright (C) 2003-2016 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -95,7 +95,7 @@ public:		// interface
 	template<class Container>
 	void addParents ( const Container& parents )
 	{
-		for ( auto parent: parents )
+		for ( auto& parent: parents )
 			addParentIfNew(parent);
 	}
 
@@ -167,7 +167,7 @@ ClassifiableEntry :: addParentIfNew ( ClassifiableEntry* parent )
 		return;
 
 	// check if such entry already exists
-	for ( auto p: told() )
+	for ( const auto& p: told() )
 		if ( parent == p )
 			return;
 

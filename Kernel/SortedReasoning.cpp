@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2014 by Dmitry Tsarkov
+Copyright (C) 2003-2016 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -27,7 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 /// merge label of given role and all its super-roles
 void TRole :: mergeSupersDomain ( void )
 {
-	for ( auto sup: ancestors() )
+	for ( const auto& sup: ancestors() )
 		domLabel.merge(sup->domLabel);
 
 	// for reflexive role -- merge domain and range labels
@@ -50,7 +50,7 @@ void DLDag :: mergeSorts ( TRole* R )
 	R->mergeSupersDomain();
 	merge ( R->getDomainLabel(), R->getBPDomain() );
 	// also associate functional nodes (if any)
-	for ( auto topf: R->topfuncs() )
+	for ( const auto& topf: R->topfuncs() )
 		merge ( R->getDomainLabel(), topf->getFunctional() );
 }
 

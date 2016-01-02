@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2015 by Dmitry Tsarkov
+Copyright (C) 2003-2016 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -720,10 +720,10 @@ protected:	// methods
 		/// merge FROM node into TO node with additional dep-set DEPF
 	bool Merge ( DlCompletionTree* from, DlCompletionTree* to, const DepSet& depF );
 		/// check whether clash occures due to new edge from FROM to TO labelled with R
-	bool checkDisjointRoleClash ( DlCompletionTree* from, DlCompletionTree* to,
+	bool checkDisjointRoleClash ( const DlCompletionTree* from, const DlCompletionTree* to,
 										 const TRole* R, const DepSet& dep );
 		/// check whether clash occures EDGE to TO labelled with S disjoint with R
-	bool checkDisjointRoleClash ( const DlCompletionTreeArc* edge, DlCompletionTree* to,
+	bool checkDisjointRoleClash ( const DlCompletionTreeArc* edge, const DlCompletionTree* to,
 								  const TRole* R, const DepSet& dep )
 	{	// clash found
 		if ( edge->getArcEnd() == to && edge->getRole()->isDisjoint(R) )

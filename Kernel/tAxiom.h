@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2015 by Dmitry Tsarkov
+Copyright (C) 2003-2016 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -209,7 +209,7 @@ public:		// interface
 		/// d'tor: delete elements if AX is not in use
 	~TAxiom ( void )
 	{
-		for ( auto p: Disjuncts )
+		for ( auto& p: Disjuncts )
 			deleteTree(p);
 	}
 

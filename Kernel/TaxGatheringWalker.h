@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2015 by Dmitry Tsarkov
+Copyright (C) 2015-2016 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -43,7 +43,7 @@ protected:	// methods
 	{
 		if ( tryEntry(v.getPrimer()) )
 			return true;
-		for ( auto synonym: v.synonyms() )
+		for ( const auto& synonym: v.synonyms() )
 			if ( tryEntry(synonym) )
 				return true;
 		return false;

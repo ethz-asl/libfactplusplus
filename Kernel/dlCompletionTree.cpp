@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2015 by Dmitry Tsarkov
+Copyright (C) 2003-2016 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -106,7 +106,7 @@ bool DlCompletionTree :: inIRwithC ( const ConceptWDep& C, DepSet& dep ) const
 	if ( IR.empty() )
 		return false;
 
-	for ( auto& cwd: IR )
+	for ( const auto& cwd: IR )
 		if ( cwd.bp() == C.bp() )
 		{
 			dep += cwd.getDep();
@@ -123,7 +123,7 @@ bool DlCompletionTree :: nonMergable ( const DlCompletionTree* node, DepSet& dep
 	if ( IR.empty() || node->IR.empty() )
 		return false;
 
-	for ( auto& cwd: node->IR )
+	for ( const auto& cwd: node->IR )
 		if ( inIRwithC ( cwd, dep ) )
 			return true;
 
@@ -141,7 +141,7 @@ TRestorer* DlCompletionTree :: updateIR ( const DlCompletionTree* node, const De
 
 	// copy all elements from NODE's IR to current node.
 	// FIXME!! do not check if some of them are already in there
-	for ( auto& cwd: node->IR )
+	for ( const auto& cwd: node->IR )
 		IR.emplace_back ( cwd, toAdd );
 
 	return ret;

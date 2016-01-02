@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2013 by Dmitry Tsarkov
+Copyright (C) 2003-2016 by Dmitry Tsarkov
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -45,7 +45,7 @@ protected:	// methods
 	void initNominalVector ( void );
 
 		/// create cache entry for given singleton
-	void registerNominalCache ( TIndividual* p )
+	void registerNominalCache ( const TIndividual* p )
 		{ DLHeap.setCache ( p->pName, createModelCache(p->node->resolvePBlocker()) ); }
 		/// init single nominal node
 	bool initNominalNode ( const TIndividual* nom )

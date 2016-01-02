@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2011-2015 by Dmitry Tsarkov
+Copyright (C) 2011-2016 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -34,17 +34,17 @@ KnowledgeExplorer :: KnowledgeExplorer ( const TBox* box, TExpressionManager* pE
 		addE ( Is, *i );
 	RoleMaster::const_iterator r, r_end;
 	// init all object roles
-	for ( auto R: box->getORM() )
+	for ( const auto& R: box->getORM() )
 	{
 		addE ( ORs, R );
-		for ( auto sup: R->ancestors() )
+		for ( const auto& sup: R->ancestors() )
 			ORs.add ( R, sup );
 	}
 	// init all data roles
-	for ( auto R: box->getDRM() )
+	for ( const auto& R: box->getDRM() )
 	{
 		addE ( DRs, R );
-		for ( auto sup: R->ancestors() )
+		for ( const auto& sup: R->ancestors() )
 			DRs.add ( R, sup );
 	}
 }

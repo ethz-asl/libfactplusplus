@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2015 by Dmitry Tsarkov
+Copyright (C) 2003-2016 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -24,7 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 /// d'tor
 TAxiomSet :: ~TAxiomSet ( void )
 {
-	for ( auto axiom: Accum )
+	for ( auto& axiom: Accum )
 		delete axiom;
 }
 
@@ -36,7 +36,7 @@ TAxiomSet :: split ( const TAxiom* p )
 		return false;
 
 	bool fail = false;
-	for ( auto axiom: Splitted )
+	for ( auto& axiom: Splitted )
 	{
 		// axiom is a copy of a processed one: fail to do split
 		if ( axiom->isCyclic() )
@@ -53,14 +53,14 @@ TAxiomSet :: split ( const TAxiom* p )
 	// if fail to split: delete all the axioms
 	if ( fail )
 	{
-		for ( auto axiom: Splitted )
+		for ( auto& axiom: Splitted )
 			delete axiom;
 		return false;
 	}
-	// no failure: delete all the unneded axioms, add all kept ones
-	for ( auto axiom: Unneeded )
+	// no failure: delete all the unneeded axioms, add all kept ones
+	for ( auto& axiom: Unneeded )
 		delete axiom;
-	for ( auto axiom: Kept )
+	for ( auto& axiom: Kept )
 		insertGCI(axiom);
 	return true;
 }
@@ -84,7 +84,7 @@ size_t TAxiomSet :: absorb ( void )
 	}
 
 	// clear absorbed and remove them from Accum
-	for ( auto axiom: Absorbed )
+	for ( auto& axiom: Absorbed )
 		delete axiom;
 	Accum.swap(GCIs);
 
@@ -99,7 +99,7 @@ bool TAxiomSet :: absorbGCI ( const TAxiom* p )
 {
 	Stat::SAbsAction();
 
-	for ( auto action: ActionVector )
+	for ( const auto& action: ActionVector )
 		if ( (this->*action)(p) )
 			return true;
 
@@ -113,7 +113,7 @@ bool TAxiomSet :: absorbGCI ( const TAxiom* p )
 bool TAxiomSet :: initAbsorptionFlags ( const std::string& flags )
 {
 	ActionVector.clear();
-	for ( auto ch: flags )
+	for ( const auto& ch: flags )
 		switch ( ch )
 		{
 		case 'B': ActionVector.push_back(&TAxiomSet::absorbIntoBottom); break;

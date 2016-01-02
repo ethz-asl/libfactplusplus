@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2015 by Dmitry Tsarkov
+Copyright (C) 2003-2016 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -275,7 +275,7 @@ bool TRole :: isRealTopFunc ( void ) const
 	if ( !isFunctional() )	// all REAL top-funcs have their self-ref in TopFunc already
 		return false;
 	// if any of the parent is self-proclaimed top-func -- this one is not top-func
-	for ( auto sup: ancestors() )
+	for ( const auto& sup: ancestors() )
 		if ( sup->isTopFunc() )
 			return false;
 
@@ -294,7 +294,7 @@ void TRole :: initTopFunc ( void )
 		TopFunc.clear();
 
 	// register all real TFs
-	for ( auto sup: ancestors() )
+	for ( const auto& sup: ancestors() )
 		if ( sup->isRealTopFunc() )
 			TopFunc.push_back(sup);
 
@@ -316,7 +316,7 @@ void TRole :: checkHierarchicalDisjoint ( TRole* R )
 	}
 
 	// check whether a sub-role is disjoint with the given one
-	for ( auto sub: R->descendants() )
+	for ( auto& sub: R->descendants() )
 		if ( Disjoint.count(sub) )
 		{
 			sub->setDomain(createBottom());
@@ -389,12 +389,12 @@ void TRole :: completeAutomaton ( TRoleSet& RInProcess )
 	RInProcess.insert(this);
 
 	// make sure that all sub-roles already have completed automata
-	for ( auto sub: descendants() )
+	for ( auto& sub: descendants() )
 		sub->completeAutomaton(RInProcess);
 
 	// add automata for complex role inclusions
-	for ( std::vector<TRoleVec>::iterator q = subCompositions.begin(), q_end = subCompositions.end(); q != q_end; ++q )
-		addSubCompositionAutomaton ( *q, RInProcess );
+	for ( auto& subComp: subCompositions )
+		addSubCompositionAutomaton ( subComp, RInProcess );
 
 	// check for the transitivity
 	if ( isTransitive() )
@@ -404,7 +404,7 @@ void TRole :: completeAutomaton ( TRoleSet& RInProcess )
 	A.setCompleted();
 
 	if ( likely(!isBottom()) )	// FIXME!! for now; need better Top/Bot synonyms processing
-	for ( auto p: told() )
+	for ( auto& p: told() )
 	{
 		TRole* R = static_cast<TRole*>(resolveSynonym(p));
 		if ( R->isTop() )	// do not propagate anything to a top-role

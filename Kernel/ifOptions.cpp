@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2015 by Dmitry Tsarkov
+Copyright (C) 2003-2016 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -83,7 +83,7 @@ bool ifOptionSet :: initByConfigure ( Configuration& Config, const std::string& 
 		return true;
 
 	// for all registered options
-	for ( auto& p: Base )
+	for ( const auto& p: Base )
 		if ( !Config.checkValue(p.first) )			// if option located in config file
 			if ( p.second->setAValue(Config.getValue()))	// ... set up its value
 				return true;	// can't set value
@@ -102,7 +102,7 @@ void ifOptionSet :: printConfig ( std::ostream& o ) const
 	// print header
 	o << "\n[Tuning]\n";
 
-	for ( auto& opt: Base )
+	for ( const auto& opt: Base )
 		opt.second->printConfString(o);
 	o << std::endl;
 }

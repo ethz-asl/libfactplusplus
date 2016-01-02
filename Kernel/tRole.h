@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2015 by Dmitry Tsarkov
+Copyright (C) 2003-2016 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -180,7 +180,7 @@ protected:	// methods
 	{
 		if ( hasSpecialDomain() )
 			return;
-		for ( auto sub: Descendant )
+		for ( const auto& sub: Descendant )
 			if ( sub->hasSpecialDomain() )
 			{
 				SpecialDomain = true;
@@ -361,7 +361,7 @@ public:		// interface
 		/// merge to Domain all domains from super-roles
 	void collectDomainFromSupers ( void )
 	{
-		for ( auto sup: ancestors() )
+		for ( const auto& sup: ancestors() )
 			setDomain ( clone(sup->getTDomain()) );
 	}
 
@@ -394,7 +394,7 @@ public:		// interface
 	void addDisjointRole ( TRole* R )
 	{
 		Disjoint.insert(R);
-		for ( auto sub: R->descendants() )
+		for ( auto& sub: R->descendants() )
 		{
 			Disjoint.insert(sub);
 			sub->Disjoint.insert(this);
@@ -429,7 +429,7 @@ public:		// interface
 	void addAncestorsToBitMap ( TRoleBitMap& bitmap ) const
 	{
 		fpp_assert ( !bitmap.empty() );	// use only after the size is known
-		for ( auto sup: ancestors() )
+		for ( const auto& sup: ancestors() )
 			bitmap[sup->getIndex()] = true;
 	}
 

@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2015 by Dmitry Tsarkov
+Copyright (C) 2003-2016 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -106,7 +106,7 @@ DlSatTester :: findConceptClash ( const CWDArray& lab, BipolarPointer p, const D
 
 	incStat(nLookups);
 
-	for ( auto& C: lab )
+	for ( const auto& C: lab )
 		if ( C.bp() == p )
 		{
 			// create clashSet
@@ -434,7 +434,7 @@ DlSatTester :: finaliseStatistic ( void )
 
 bool DlSatTester :: applyReflexiveRoles ( DlCompletionTree* node, const DepSet& dep )
 {
-	for ( auto R: ReflexiveRoles )
+	for ( const auto& R: ReflexiveRoles )
 	{
 		// create R-loop through the NODE
 		DlCompletionTreeArc* pA = CGraph.addRoleLabel ( node, node, /*isPredEdge=*/false, R, dep );
