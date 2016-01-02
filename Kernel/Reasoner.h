@@ -422,7 +422,7 @@ protected:	// methods
 	void redoNodeLabel ( DlCompletionTree* node, const char* reason )
 	{
 		const CGLabel& lab = node->label();
-		CGLabel::const_iterator p;
+		CGLabel::const_iterator p { };
 		for ( p = lab.begin_sc(); p != lab.end_sc(); ++p )
 			addExistingToDoEntry ( node, lab.getSCOffset(p), reason );
 		for ( p = lab.begin_cc(); p != lab.end_cc(); ++p )

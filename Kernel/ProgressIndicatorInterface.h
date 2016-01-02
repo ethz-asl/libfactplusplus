@@ -47,9 +47,9 @@ protected:	// methods
 
 public:		// interface
 		/// empty c'tor
-	ProgressIndicatorInterface ( void ) : uLimit (0), uCurrent (0) {}
+	ProgressIndicatorInterface ( void ) : uLimit{0}, uCurrent{0} {}
 		/// init c'tor
-	ProgressIndicatorInterface ( unsigned long limit ) : uCurrent (0)
+	ProgressIndicatorInterface ( unsigned long limit ) : uCurrent{0}
 		{ setLimit (limit); }
 		/// empty d'tor
 	virtual ~ProgressIndicatorInterface ( void ) {}

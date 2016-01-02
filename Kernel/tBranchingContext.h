@@ -40,7 +40,14 @@ public:		// members
 
 public:		// interface
 		/// empty c'tor
-	BranchingContext ( void ) : curNode(nullptr), curConcept(bpINVALID) {}
+	BranchingContext ( void )
+		: curNode{nullptr}
+		, curConcept{bpINVALID}
+		, pUsedIndex{0}
+		, nUsedIndex{0}
+		, SGsize{0}
+		, branchDep{}
+		{}
 		/// no copy c'tor
 	BranchingContext ( const BranchingContext& ) = delete;
 		/// no assignment
@@ -71,7 +78,7 @@ public:		// members
 
 public:		// interface
 		/// empty c'tor
-	BCOr ( void ) : BranchingContext(), branchIndex(0) {}
+	BCOr ( void ) : BranchingContext{}, branchIndex{0} {}
 		/// empty d'tor
 	virtual ~BCOr ( void ) {}
 		/// init branch index
@@ -94,7 +101,7 @@ class BCChoose: public BranchingContext
 {
 public:		// interface
 		/// empty c'tor
-	BCChoose ( void ) : BranchingContext() {}
+	BCChoose ( void ) : BranchingContext{} {}
 		/// empty d'tor
 	virtual ~BCChoose ( void ) {}
 }; // BCChoose
@@ -108,7 +115,7 @@ public:		// members
 
 public:		// interface
 		/// empty c'tor
-	BCNN ( void ) : BranchingContext() {}
+	BCNN ( void ) : BranchingContext{}, value{0} {}
 		/// empty d'tor
 	virtual ~BCNN ( void ) {}
 		/// init value
@@ -143,7 +150,7 @@ public:		// members
 
 public:		// interface
 		/// empty c'tor
-	BCLE ( void ) : BranchingContext(), toIndex(0), fromIndex(0) {}
+	BCLE ( void ) : BranchingContext{}, toIndex{0}, fromIndex{0} {}
 		/// empty d'tor
 	virtual ~BCLE ( void ) {}
 		/// init indices

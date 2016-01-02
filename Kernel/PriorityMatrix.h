@@ -62,13 +62,16 @@ inline void ToDoPriorMatrix :: initPriorities ( const std::string& options, cons
 	if ( options.size () != 7 )
 		throw EFaCTPlusPlus ( "ToDo List option string should have length 7" );
 
+	// get int priority value out of a char
+	auto char2int = [] (const char c) { return static_cast<ToDoListIndex>(c - '0'); };
+
 	// init values by symbols loaded
-	iAnd	= options[1] - '0';
-	iOr		= options[2] - '0';
-	iExists	= options[3] - '0';
-	iForall	= options[4] - '0';
-	iLE		= options[5] - '0';
-	iGE		= options[6] - '0';
+	iAnd	= char2int(options[1]);
+	iOr		= char2int(options[2]);
+	iExists	= char2int(options[3]);
+	iForall	= char2int(options[4]);
+	iLE		= char2int(options[5]);
+	iGE		= char2int(options[6]);
 
 	// correctness checking
 	if ( iAnd >= nRegularOps ||
