@@ -96,12 +96,12 @@ AtomicDecomposer :: createAtom ( TDLAxiom* ax, TOntologyAtom* parent )
 	// do cycle via set to keep the order
 	typedef std::set<TDLAxiom*> AxSet;
 	const AxSet M ( atom->getModule().begin(), atom->getModule().end() );
-	for ( AxSet::iterator q = M.begin(); q != M.end(); ++q )
+	for ( const auto& axiom: M )
 #else
-	for ( TOntologyAtom::AxiomSet::const_iterator q = atom->getModule().begin(), q_end = atom->getModule().end(); q != q_end; ++q )
+	for ( const auto& axiom: atom->getModule() )
 #endif
-		if ( likely ( *q != ax ) )
-			atom->addDepAtom ( createAtom ( *q, atom ) );
+		if ( likely ( axiom != ax ) )
+			atom->addDepAtom ( createAtom ( axiom, atom ) );
 	return atom;
 }
 
@@ -129,8 +129,8 @@ AtomicDecomposer :: getAOS ( TOntology* O, ModuleType t )
 	// build the "bottom" atom for an empty signature
 	TOntologyAtom* BottomAtom = buildModule ( TSignature(), rootAtom );
 	if ( BottomAtom )
-		for ( TOntologyAtom::AxiomSet::const_iterator q = BottomAtom->getModule().begin(), q_end = BottomAtom->getModule().end(); q != q_end; ++q )
-			BottomAtom->addAxiom(*q);
+		for ( const auto& axiom: BottomAtom->getModule() )
+			BottomAtom->addAxiom(axiom);
 
 	// create atoms for all the axioms in the ontology
 	for ( TOntology::iterator p = O->begin(), p_end = O->end(); p != p_end; ++p )
