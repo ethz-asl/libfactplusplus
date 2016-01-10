@@ -169,7 +169,7 @@ bool
 DlSatTester :: applicable ( const TBox::TSimpleRule& rule )
 {
 	BipolarPointer bp = curConcept.bp();
-	const CWDArray& lab = curNode->label().getLabel(dtPConcept);
+	const CWDArray& lab = curNode->label().getLabel(/*isComplex=*/false);
 	// dep-set to keep track for all the concepts in a rule-head
 	DepSet dep = curConcept.getDep();
 
@@ -508,7 +508,7 @@ bool DlSatTester :: commonTacticBodySome ( const DLVertex& cur )	// for ER.C con
 	// check if we have functional role
 	if ( R->isFunctional() )
 		for ( const auto& topf: R->topfuncs() )
-			switch ( tryAddConcept ( curNode->label().getLabel(dtLE), topf->getFunctional(), dep ) )
+			switch ( tryAddConcept ( curNode->label().getLabel(/*isComplex=*/true), topf->getFunctional(), dep ) )
 			{
 			case acrClash:	// addition leads to clash
 				return true;
@@ -519,7 +519,7 @@ bool DlSatTester :: commonTacticBodySome ( const DLVertex& cur )	// for ER.C con
 
 				ConceptWDep rFuncRestriction ( topf->getFunctional(), dep );
 				// NOTE! not added into TODO (because will be checked right now)
-				CGraph.addConceptToNode ( curNode, rFuncRestriction, dtLE );
+				CGraph.addConceptToNode ( curNode, rFuncRestriction, /*isComplex=*/true );
 				setUsed(rFuncRestriction.bp());
 
 				if ( LLM.isWritable(llGTA) )
@@ -999,15 +999,15 @@ bool DlSatTester :: commonTacticBodyLE ( const DLVertex& cur )	// for <=nR.C con
 			else	// QCR: update dep-set wrt C
 			{
 				// here we know that C is in both labels; set a proper clash-set
-				DagTag tag = DLHeap[C].Type();
-				bool test;
+				bool isComplex = CGLabel::isComplexConcept(DLHeap[C].Type());
+				bool test {false};
 
 				// here dep contains the clash-set
-				test = findConceptClash ( from->label().getLabel(tag), C, dep );
+				test = findConceptClash ( from->label().getLabel(isComplex), C, dep );
 				fpp_assert(test);
 				dep += getClashSet();	// save new dep-set
 
-				test = findConceptClash ( to->label().getLabel(tag), C, dep );
+				test = findConceptClash ( to->label().getLabel(isComplex), C, dep );
 				fpp_assert(test);
 				// both clash-sets are now in common clash-set
 			}
@@ -1176,15 +1176,15 @@ DlSatTester :: processTopRoleLE ( const DLVertex& cur )	// for <=nR.C concepts
 			else	// QCR: update dep-set wrt C
 			{
 				// here we know that C is in both labels; set a proper clash-set
-				DagTag tag = DLHeap[C].Type();
-				bool test;
+				bool isComplex = CGLabel::isComplexConcept(DLHeap[C].Type());
+				bool test {false};
 
 				// here dep contains the clash-set
-				test = findConceptClash ( from->label().getLabel(tag), C, dep );
+				test = findConceptClash ( from->label().getLabel(isComplex), C, dep );
 				fpp_assert(test);
 				dep += getClashSet();	// save new dep-set
 
-				test = findConceptClash ( to->label().getLabel(tag), C, dep );
+				test = findConceptClash ( to->label().getLabel(isComplex), C, dep );
 				fpp_assert(test);
 				// both clash-sets are now in common clash-set
 			}
@@ -1303,7 +1303,7 @@ DlSatTester :: checkMergeClash ( const CGLabel& from, const CGLabel& to, const D
 	bool clash = false;
 	for ( p = from.begin_sc(), p_end = from.end_sc(); p < p_end; ++p )
 		if ( isUsed(inverse(p->bp()))
-			 && findConceptClash ( to.getLabel(dtPConcept), inverse(*p) ) )
+			 && findConceptClash ( to.getLabel(/*isComplex=*/false), inverse(*p) ) )
 		{
 			clash = true;
 			clashDep.add(getClashSet());
@@ -1313,7 +1313,7 @@ DlSatTester :: checkMergeClash ( const CGLabel& from, const CGLabel& to, const D
 		}
 	for ( p = from.begin_cc(), p_end = from.end_cc(); p < p_end; ++p )
 		if ( isUsed(inverse(p->bp()))
-			 && findConceptClash ( to.getLabel(dtForall), inverse(*p) ) )
+			 && findConceptClash ( to.getLabel(/*isComplex=*/true), inverse(*p) ) )
 		{
 			clash = true;
 			clashDep.add(getClashSet());
@@ -1331,8 +1331,8 @@ bool DlSatTester :: mergeLabels ( const CGLabel& from, DlCompletionTree* to, con
 	CGLabel::const_iterator p, p_end;
 	CGLabel& lab(to->label());
 	// arrays for simple- and complex concepts in the merged-to vector
-	CWDArray& sc(lab.getLabel(dtPConcept));
-	CWDArray& cc(lab.getLabel(dtForall));
+	CWDArray& sc(lab.getLabel(/*isComplex=*/false));
+	CWDArray& cc(lab.getLabel(/*isComplex=*/true));
 
 	// due to merging, all the concepts in the TO label
 	// should be updated to the new dep-set DEP
@@ -1447,12 +1447,12 @@ void
 DlSatTester :: findNeighbours ( const TRole* Role, BipolarPointer C, DepSet& Dep )
 {
 	EdgesToMerge.clear();
-	DagTag tag = DLHeap[C].Type();
+	bool isComplex = CGLabel::isComplexConcept(DLHeap[C].Type());
 
 	for ( auto& edge: *curNode )
 		if ( edge->isNeighbour(Role)
 			 && isNewEdge ( edge->getArcEnd(), EdgesToMerge.begin(), EdgesToMerge.end() )
-			 && findChooseRuleConcept ( edge->getArcEnd()->label().getLabel(tag), C, Dep ) )
+			 && findChooseRuleConcept ( edge->getArcEnd()->label().getLabel(isComplex), C, Dep ) )
 			EdgesToMerge.push_back(edge);
 
 	// sort EdgesToMerge: From named nominals to generated nominals to blockable nodes
@@ -1469,11 +1469,11 @@ void
 DlSatTester :: findCLabelledNodes ( BipolarPointer C, DepSet& Dep )
 {
 	NodesToMerge.clear();
-	DagTag tag = DLHeap[C].Type();
+	bool isComplex = CGLabel::isComplexConcept(DLHeap[C].Type());
 
 	// FIXME!! do we need this for d-blocked nodes?
 	for ( auto& node: CGraph )
-		if ( isNodeGloballyUsed(node) && findChooseRuleConcept ( node->label().getLabel(tag), C, Dep ) )
+		if ( isNodeGloballyUsed(node) && findChooseRuleConcept ( node->label().getLabel(isComplex), C, Dep ) )
 			NodesToMerge.push_back(node);
 
 	// sort EdgesToMerge: From named nominals to generated nominals to blockable nodes

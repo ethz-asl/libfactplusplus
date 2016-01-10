@@ -203,7 +203,7 @@ DlSatTester :: insertToDoEntry ( DlCompletionTree* node, const ConceptWDep& C,
 {
 	// we will change current Node => save it if necessary
 	updateLevel ( node, C.getDep() );
-	CGraph.addConceptToNode ( node, C, tag );
+	CGraph.addConceptToNode ( node, C, CGLabel::isComplexConcept(tag) );
 
 	auto bp = C.bp();
 	setUsed(bp);

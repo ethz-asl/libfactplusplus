@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2006-2014 by Dmitry Tsarkov
+Copyright (C) 2006-2016 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -52,7 +52,7 @@ protected:	// members
 		/// all complex concepts (ie, FORALL, GE), labelled a node
 	CWDArray ccLabel;
 
-protected:	// methods
+public:	// static methods
 		/// @return true iff TAG represents complex concept
 	static bool isComplexConcept ( DagTag tag )
 	{
@@ -101,10 +101,14 @@ public:		// interface
 	//----------------------------------------------
 	// Label access interface
 	//----------------------------------------------
+		/// get (RW) label associated with the concepts defined by the flag
+	CWDArray& getLabel ( bool isComplex ) { return isComplex ? ccLabel : scLabel; }
+		/// get (RO) label associated with the concepts defined by the flag
+	const CWDArray& getLabel ( bool isComplex ) const { return isComplex ? ccLabel : scLabel; }
 		/// get (RW) label associated with the concepts defined by TAG
-	CWDArray& getLabel ( DagTag tag ) { return isComplexConcept(tag) ? ccLabel : scLabel; }
+	CWDArray& getLabel ( DagTag tag ) { return getLabel(isComplexConcept(tag)); }
 		/// get (RO) label associated with the concepts defined by TAG
-	const CWDArray& getLabel ( DagTag tag ) const { return isComplexConcept(tag) ? ccLabel : scLabel; }
+	const CWDArray& getLabel ( DagTag tag ) const { return getLabel(isComplexConcept(tag)); }
 
 	// TODO table interface
 

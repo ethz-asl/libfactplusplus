@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2015 by Dmitry Tsarkov
+Copyright (C) 2003-2016 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -368,7 +368,7 @@ public:		// methods
 	}
 
 		/// adds concept P to a label, defined by TAG; update blocked status if necessary
-	void addConcept ( const ConceptWDep& p, DagTag tag ) { Label.getLabel(tag).add(p); }
+	void addConcept ( const ConceptWDep& p, bool isComplex ) { Label.getLabel(isComplex).add(p); }
 		/// set the Init concept
 	void setInit ( BipolarPointer p ) { Init = p; }
 

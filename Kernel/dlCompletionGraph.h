@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2005-2015 by Dmitry Tsarkov
+Copyright (C) 2005-2016 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -301,9 +301,9 @@ public:		// interface
 		sessionHasNumberRestrictions = hasQCR;
 	}
 		/// add concept C of a type TAG to NODE; call blocking check if appropriate
-	void addConceptToNode ( DlCompletionTree* node, const ConceptWDep& c, DagTag tag )
+	void addConceptToNode ( DlCompletionTree* node, const ConceptWDep& c, bool isComplex )
 	{
-		node->addConcept(c,tag);
+		node->addConcept ( c, isComplex );
 
 		if ( useLazyBlocking )
 			node->setAffected();
