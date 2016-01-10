@@ -30,68 +30,56 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 bool TaxonomyVertex :: removeLink ( bool upDirection, TaxonomyVertex* p )
 {
 	// for all neighbours of current vertex...
-	for ( iterator q = begin(upDirection), q_end = end(upDirection); q < q_end; ++q )
-		if ( *q == p )	// if given neighbour found...
-		{
-			*q = neigh(upDirection).back();
-			neigh(upDirection).pop_back();	// remove last entry (by resizing)
-			return true;		// there is at most one link for each node
-		}
-	return false;	// no such link
+	auto& neighbours = neigh(upDirection);
+	auto exists = std::find(neighbours.begin(), neighbours.end(), p);
+	// Vertex P is not a negighbour -- nothing to do
+	if ( exists == neighbours.end() )
+		return false;
+	// replace P with the last entry
+	*exists = neighbours.back();
+	// remove last entry (by resizing)
+	neighbours.pop_back();
+	// there is at most one link to a node, so return now
+	return true;
 }
 
 void TaxonomyVertex :: incorporate ( void )
 {
 	// setup links
-	iterator u, u_end = end(/*upDirection=*/true), d, d_end = end(/*upDirection=*/false);
+	auto& subs = neigh(/*upDirection=*/false);
+	auto& supers = neigh(/*upDirection=*/true);
 
-	// correct links on lower concepts...
-	for ( d = begin(/*upDirection=*/false); d != d_end; ++d )
+	// correct links on sub concepts...
+	for ( auto& sub: subs )
 	{
-		// remove all down links
-		for ( u = begin(/*upDirection=*/true); u != u_end; ++u )
-			if ( (*d)->removeLink ( /*upDirection=*/true, *u ) )
-				(*u)->removeLink ( /*upDirection=*/false, *d );
+		// remove all links between subs and supers, if exists
+		for ( auto& super: supers )
+			if ( sub->removeLink ( /*upDirection=*/true, super ) )
+				super->removeLink ( /*upDirection=*/false, sub );
 
-		// add new link between v and current
-		(*d)->removeLink (/*upDirection=*/true, this);	// safe in general case, crucial for incremental
-		(*d)->addNeighbour (/*upDirection=*/true, this);
+		// add new link between sub-class and current
+		sub->removeLink ( /*upDirection=*/true, this );	// safe in general case (link doesn't exists), crucial for incremental
+		sub->addNeighbour ( /*upDirection=*/true, this );
 	}
 
-	// add new link between v and current
-	for ( u = begin(/*upDirection=*/true); u != u_end; ++u )
-		(*u)->addNeighbour ( /*upDirection=*/false, this );
+	// add new links between current and supers
+	for ( auto& super: supers )
+		super->addNeighbour ( /*upDirection=*/false, this );
 
 	CHECK_LL_RETURN(llTaxInsert);
 
-	LL << "\nTAX:inserting '" << getPrimer()->getName() << "' with up = {";
-
-	u = begin(/*upDirection=*/true);
-	if ( u != u_end )
-	{
-		LL << (*u)->getPrimer()->getName();
-		for ( ++u; u != u_end; ++u )
-			LL << "," << (*u)->getPrimer()->getName();
-	}
-	LL << "} and down = {";
-
-	d = begin(/*upDirection=*/false);
-	if ( d != d_end )
-	{
-		LL << (*d)->getPrimer()->getName();
-		for ( ++d; d != d_end; ++d )
-			LL << "," << (*d)->getPrimer()->getName();
-	}
-	LL << "}";
+	LL << "\nTAX:inserting '" << getPrimer()->getName() << "' with up =";
+	printNeighbours ( LL, /*upDirection=*/true );
+	LL << " and down =";
+	printNeighbours ( LL, /*upDirection=*/false );
 }
 
 /// remove one half of a given node from a graph
 void
 TaxonomyVertex :: removeLinks ( bool upDirection )
 {
-	std::for_each ( begin(upDirection), end(upDirection), [=] (TaxonomyVertex* vertex) {
+	for ( auto& vertex: neigh(upDirection) )
 		vertex->removeLink ( !upDirection, this );
-	});
 
 	clearLinks(upDirection);
 }

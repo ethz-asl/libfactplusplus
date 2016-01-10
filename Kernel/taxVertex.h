@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2015 by Dmitry Tsarkov
+Copyright (C) 2003-2016 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -186,10 +186,10 @@ public:
 	TaxonomyVertex* getSynonymNode ( void )
 	{
 		// try to find Vertex such that Vertex\in Up and Vertex\in Down
-		for ( iterator q = begin(true), q_end = end(true); q != q_end; ++q )
-			for ( iterator r = begin(false), r_end = end(false); r != r_end; ++r )
-				if ( *q == *r )	// found such vertex
-					return *q;
+		for ( auto& upV: neigh(true) )
+			for ( const auto& downV: neigh(false) )
+				if ( upV == downV )	// found such vertex
+					return upV;
 		return nullptr;
 	}
 		/// Remove link to P from neighbours (given by flag). @return true if such link was removed
