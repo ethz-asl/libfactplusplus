@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2015 by Dmitry Tsarkov
+Copyright (C) 2003-2016 by Dmitry Tsarkov
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -151,5 +151,5 @@ NominalReasoner :: initRelatedNominals ( const TRelated* rel )
 
 	// return OK iff setup new enge didn't lead to clash
 	// do NOT need to re-check anything: nothing was processed yet
-	return setupEdge ( pA, dep, 0 );
+	return setupEdge ( pA, dep );
 }

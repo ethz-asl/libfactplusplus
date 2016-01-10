@@ -128,9 +128,14 @@ protected:	// type definition
 		/// set to keep BPs (during cascaded cache creation)
 	typedef std::set<BipolarPointer> BPSet;
 
-protected:	// types
+protected:	// constants
 		/// possible flags of re-checking ALL-like expressions in new nodes
-	enum { redoForall = 1, redoFunc = 2, redoAtMost = 4, redoIrr = 8 };
+	const unsigned int redoForall = 1;
+	const unsigned int redoFunc = 2;
+	const unsigned int redoAtMost = 4;
+	const unsigned int redoIrr = 8;
+		// Do NOT forget to update when new constant is added
+	const unsigned int redoEverything = redoForall | redoFunc | redoAtMost | redoIrr;
 
 protected:	// classes
 		/// stack to keep BContext
@@ -595,21 +600,21 @@ protected:	// methods
 		return where != nullptr;
 	}
 		/// aux method for setting up new edge PA
-	bool setupEdge ( DlCompletionTreeArc* pA, const DepSet& curDep, unsigned int flags );
+	bool setupEdge ( DlCompletionTreeArc* pA, const DepSet& curDep, unsigned int redoFlags = 0 );
 		/// aux method for creating new edge from curNode with given ROLE edge label and CONCEPT at the final label
-	bool createNewEdge ( const TRole* Role, BipolarPointer Concept, unsigned int flags );
+	bool createNewEdge ( const TRole* Role, BipolarPointer Concept, unsigned int redoFlags );
 		/// create new ROLE-neighbour with LEVEL to curNode; return edge to it
 	DlCompletionTreeArc* createOneNeighbour ( const TRole* Role, const DepSet& dep,
 											  CTNominalLevel level = BlockableLevel );
 
-	// support for re-applying expansion rules for FORALL-like concepls in node label
+	// support for re-applying expansion rules for FORALL-like concepts in node label
 
 		/**
 			apply AR.C in and <= nR (if needed) in NODE's label where R is label of arcSample.
-			Set of applicable concepts is defined by redoForallFlags value.
+			Set of applicable concepts is defined by redoFlags value.
 		*/
 	bool applyUniversalNR ( DlCompletionTree* Node, const DlCompletionTreeArc* arcSample,
-								   const DepSet& dep, unsigned int flags );
+								   const DepSet& dep, unsigned int redoFlags );
 
 	// support for branching rules
 
@@ -1034,8 +1039,8 @@ DlSatTester :: checkDisjointRoles ( const TRole* R, const TRole* S )
 	// init new nodes/edges. No need to apply restrictions, as no reasoning have been done yet.
 	if ( initNewNode ( edgeR->getArcEnd(), dummy, bpTOP )
 		 || initNewNode ( edgeS->getArcEnd(), dummy, bpTOP )
-		 || setupEdge ( edgeR, dummy, /*flags=*/0 )
-		 || setupEdge ( edgeS, dummy, /*flags=*/0 )
+		 || setupEdge ( edgeR, dummy )
+		 || setupEdge ( edgeS, dummy )
 		 || Merge ( edgeS->getArcEnd(), edgeR->getArcEnd(), dummy ) )
 		return true;
 
@@ -1058,7 +1063,7 @@ DlSatTester :: checkIrreflexivity ( const TRole* R )
 	DlCompletionTreeArc* edgeR = createOneNeighbour ( R, dummy );
 	// init new nodes/edges. No need to apply restrictions, as no reasoning have been done yet.
 	if ( initNewNode ( edgeR->getArcEnd(), dummy, bpTOP )
-		 || setupEdge ( edgeR, dummy, /*flags=*/0 )
+		 || setupEdge ( edgeR, dummy )
 		 || Merge ( edgeR->getArcEnd(), CGraph.getRoot(), dummy ) )
 		return true;
 
