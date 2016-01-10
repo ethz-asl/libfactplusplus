@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2007-2010 by Dmitry Tsarkov
+Copyright (C) 2007-2016 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -33,38 +33,35 @@ protected:	// members
 public:
 		/// c'tor: no nominals can be here
 	modelCacheConst ( bool top )
-		: modelCacheInterface(/*flagNominals=*/false)
-		, isTop(top)
+		: modelCacheInterface{/*flagNominals=*/false}
+		, isTop{top}
 		{}
 		/// copy c'tor
 	modelCacheConst ( const modelCacheConst& m )
-		: modelCacheInterface(m.hasNominalNode)
-		, isTop(m.isTop)
+		: modelCacheInterface{m.hasNominalNode}
+		, isTop{m.isTop}
 		{}
 		/// empty d'tor
 	virtual ~modelCacheConst ( void ) {}
 
 		/// Check if the model contains clash
-	virtual modelCacheState getState ( void ) const { return isTop ? csValid : csInvalid; }
+	virtual modelCacheState getState ( void ) const override { return isTop ? csValid : csInvalid; }
 		/// get the value of the constant
 	bool getConst ( void ) const { return isTop; }
 
 	// mergable part
 
 		/// check whether two caches can be merged; @return state of "merged" model
-	modelCacheState canMerge ( const modelCacheInterface* p ) const
+	modelCacheState canMerge ( const modelCacheInterface* cache ) const override
 	{
-		if ( p->getCacheType() == mctConst )
-			return isTop && static_cast<const modelCacheConst*>(p)->isTop ?
-				   csValid : csInvalid;
+		if ( auto cacheConst = dynamic_cast<const modelCacheConst*>(cache) )
+			return isTop && cacheConst->isTop ? csValid : csInvalid;
 		else
-			return p->canMerge(this);
+			return cache->canMerge(this);
 	}
-		/// Get the tag identifying the cache type
-	virtual modelCacheType getCacheType ( void ) const { return mctConst; }
 #ifdef _USE_LOGGING
 		/// log this cache entry (with given level)
-	virtual void logCacheEntry ( unsigned int level ) const
+	virtual void logCacheEntry ( unsigned int level ) const override
 	{
 		if ( LLM.isWritable(level) )
 			LL << "\nConst cache: element " << (isTop ? "TOP" : "BOTTOM");
@@ -77,7 +74,7 @@ inline
 modelCacheConst* createConstCache ( BipolarPointer bp )
 {
 	fpp_assert ( bp == bpTOP || bp == bpBOTTOM );
-	return new modelCacheConst(bp==bpTOP);
+	return new modelCacheConst{bp==bpTOP};
 }
 
 #endif

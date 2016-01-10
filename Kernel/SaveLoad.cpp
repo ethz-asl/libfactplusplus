@@ -446,44 +446,48 @@ VerifyDag ( const DLDag& dag, SaveLoadManager& m )
 	return true;
 }
 
+// we need a tag to save/load appropriate cache
+enum class ModelCacheType: unsigned int { mctConst, mctSingleton, mctIan };
+
 static void
 SaveSingleCache ( SaveLoadManager& m, BipolarPointer bp, const modelCacheInterface* cache )
 {
 	if ( cache == nullptr )
 		return;
 	m.saveSInt(bp);
-	m.saveUInt(cache->getCacheType());
-	switch ( cache->getCacheType() )
+	// check all alternatives, starting from the most possible ones
+	if ( auto cacheIan = dynamic_cast<const modelCacheIan*>(cache) )
 	{
-	case modelCacheInterface::mctConst:
-		m.saveUInt(cache->getState() == csValid);
-		break;
-
-	case modelCacheInterface::mctSingleton:
-		m.saveSInt(dynamic_cast<const modelCacheSingleton*>(cache)->getValue());
-		break;
-
-	case modelCacheInterface::mctIan:
-		dynamic_cast<const modelCacheIan*>(cache)->Save(m);
-		break;
-
-	default:
-		fpp_unreachable();
+		m.saveUInt(static_cast<unsigned int>(ModelCacheType::mctIan));
+		cacheIan->Save(m);
 	}
+	else if ( auto cacheSingleton = dynamic_cast<const modelCacheSingleton*>(cache) )
+	{
+		m.saveUInt(static_cast<unsigned int>(ModelCacheType::mctSingleton));
+		m.saveSInt(cacheSingleton->getValue());
+	}
+	else if ( dynamic_cast<const modelCacheConst*>(cache) )
+	{
+		m.saveUInt(static_cast<unsigned int>(ModelCacheType::mctConst));
+		m.saveUInt(cache->getState() == csValid);
+	}
+	else
+		fpp_unreachable();
+
 	m.o() << "\n";
 }
 
 static const modelCacheInterface*
 LoadSingleCache ( SaveLoadManager& m )
 {
-	modelCacheState state = (modelCacheState)m.loadUInt();
+	ModelCacheType state = static_cast<ModelCacheType>(m.loadUInt());
 	switch ( state )
 	{
-	case modelCacheInterface::mctConst:
+	case ModelCacheType::mctConst:
 		return new modelCacheConst ( m.loadUInt() != 0 );
-	case modelCacheInterface::mctSingleton:
+	case ModelCacheType::mctSingleton:
 		return new modelCacheSingleton(m.loadSInt());
-	case modelCacheInterface::mctIan:
+	case ModelCacheType::mctIan:
 	{
 		bool hasNominals = bool(m.loadUInt());
 		unsigned int nC = m.loadUInt();
@@ -800,7 +804,7 @@ TaxonomyVertex :: LoadNeighbours ( SaveLoadManager& m )
 //----------------------------------------------------------
 
 void
-Taxonomy :: Save ( SaveLoadManager& m, const std::set<const TNamedEntry*>& excluded ) const
+Taxonomy :: Save ( SaveLoadManager& m, const std::set<const TNamedEntry*>& excluded ATTR_UNUSED ) const
 {
 	TaxVertexVec::const_iterator p, p_beg = Graph.begin(), p_end = Graph.end();
 	for ( p = p_beg; p != p_end; ++p )

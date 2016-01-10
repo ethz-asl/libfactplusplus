@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2010 by Dmitry Tsarkov
+Copyright (C) 2003-2016 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -35,46 +35,39 @@ protected:	// members
 public:
 		/// c'tor: no nominals can be here
 	modelCacheSingleton ( BipolarPointer bp )
-		: modelCacheInterface(/*flagNominals=*/false)
-		, Singleton(bp)
+		: modelCacheInterface{/*flagNominals=*/false}
+		, Singleton{bp}
 		{}
 		/// copy c'tor
 	modelCacheSingleton ( const modelCacheSingleton& m )
-		: modelCacheInterface(m.hasNominalNode)
-		, Singleton(m.Singleton)
+		: modelCacheInterface{m.hasNominalNode}
+		, Singleton{m.Singleton}
 		{}
 		/// empty d'tor
 	virtual ~modelCacheSingleton ( void ) {}
 
 		/// Check if the model contains clash
-	virtual modelCacheState getState ( void ) const { return csValid; }
+	virtual modelCacheState getState ( void ) const override { return csValid; }
 		/// access to internal value
 	BipolarPointer getValue ( void ) const { return Singleton; }
 
 	// mergable part
 
 		/// check whether two caches can be merged; @return state of "merged" model
-	modelCacheState canMerge ( const modelCacheInterface* p ) const
+	modelCacheState canMerge ( const modelCacheInterface* cache ) const override
 	{
-		switch ( p->getCacheType() )
-		{
-		case mctConst:		// TOP/BOTTOM: the current node can't add anything to the result
-			return p->getState();
-		case mctSingleton:	// it can be a clash
-			return static_cast<const modelCacheSingleton*>(p)->getValue()
-				   == inverse(getValue()) ? csInvalid : csValid;
-		case mctIan:		// ask more intellegent object
-			return p->canMerge(this);
-		case mctBadType:	// error
-		default:
-			return csUnknown;
-		}
+		// TOP/BOTTOM: the current node can't add anything to the result
+		if ( auto cacheConst = dynamic_cast<const modelCacheConst*>(cache) )
+			return cacheConst->getState();
+		// check another singleton: can be clash
+		if ( auto cacheSingleton = dynamic_cast<const modelCacheSingleton*>(cache) )
+			return cacheSingleton->getValue() == inverse(getValue()) ? csInvalid : csValid;
+		// more complex cache: ask them to check
+		return cache->canMerge(this);
 	}
-		/// Get the tag identifying the cache type
-	virtual modelCacheType getCacheType ( void ) const { return mctSingleton; }
 #ifdef _USE_LOGGING
 		/// log this cache entry (with given level)
-	virtual void logCacheEntry ( unsigned int level ) const
+	virtual void logCacheEntry ( unsigned int level ) const override
 	{
 		if ( LLM.isWritable(level) )
 			LL << "\nSingleton cache: element " << getValue();

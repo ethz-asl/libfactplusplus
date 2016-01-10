@@ -87,36 +87,33 @@ modelCacheIan :: processAutomaton ( const DLVertex& cur )
 			forallRoles.insert(R->index());
 }
 
-modelCacheState modelCacheIan :: canMerge ( const modelCacheInterface* p ) const
+modelCacheState modelCacheIan :: canMerge ( const modelCacheInterface* cache ) const
 {
-	if ( hasNominalClash(p) )	// fail to merge due to nominal precense
+	if ( hasNominalClash(cache) )	// fail to merge due to nominal presence
 		return csFailed;
 
 	// check if something goes wrong
-	if ( p->getState () != csValid || getState () != csValid )
-		return mergeStatus ( p->getState (), getState () );
+	if ( cache->getState () != csValid || getState () != csValid )
+		return mergeStatus ( cache->getState (), getState () );
 
 	// here both models are valid;
 
-	switch ( p->getCacheType() )
-	{
-	case mctConst:		// check for TOP (as the model is valid)
-		return csValid;
-	case mctSingleton:	// check for the Singleton
-	{
-		BipolarPointer Singleton = static_cast<const modelCacheSingleton*>(p)->getValue();
-		return isMergableSingleton ( getValue(Singleton), isPositive(Singleton) );
-	}
-	case mctIan:
-		return isMergableIan ( static_cast<const modelCacheIan*>(p) );
-	default:			// something unexpected
-		return csUnknown;
-	}
+	if ( auto cacheIan = dynamic_cast<const modelCacheIan*>(cache) )
+		return isMergableIan(cacheIan);
+	if ( auto cacheSingleton = dynamic_cast<const modelCacheSingleton*>(cache) )
+		return isMergableSingleton(cacheSingleton->getValue());
+	if ( dynamic_cast<const modelCacheConst*>(cache) )
+		return csValid;	// as we checked for the invalid
+	// something unexpected
+	return csUnknown;
 }
 
-modelCacheState modelCacheIan :: isMergableSingleton ( unsigned int Singleton, bool pos ) const
+modelCacheState
+modelCacheIan :: isMergableSingleton ( BipolarPointer bp ) const
 {
-	fpp_assert ( Singleton != 0 );
+	fpp_assert ( isValid(bp) );
+	auto pos = isPositive(bp);
+	auto Singleton  = getValue(bp);
 
 	// deterministic clash
 	if ( getDConcepts(!pos).contains(Singleton) )
@@ -128,98 +125,89 @@ modelCacheState modelCacheIan :: isMergableSingleton ( unsigned int Singleton, b
 	return csValid;
 }
 
-modelCacheState modelCacheIan :: isMergableIan ( const modelCacheIan* q ) const
+modelCacheState modelCacheIan :: isMergableIan ( const modelCacheIan* cache ) const
 {
-	if ( posDConcepts.intersects(q->negDConcepts)
-		 || q->posDConcepts.intersects(negDConcepts)
+	if ( posDConcepts.intersects(cache->negDConcepts)
+		 || cache->posDConcepts.intersects(negDConcepts)
 #	ifdef RKG_USE_SIMPLE_RULES
-		 || getExtra(/*det=*/true).intersects(q->getExtra(/*det=*/true))
+		 || getExtra(/*det=*/true).intersects(cache->getExtra(/*det=*/true))
 #	endif
 		)
 		return csInvalid;
-	else if (  posDConcepts.intersects(q->negNConcepts)
-			|| posNConcepts.intersects(q->negDConcepts)
-			|| posNConcepts.intersects(q->negNConcepts)
-  			|| q->posDConcepts.intersects(negNConcepts)
-  			|| q->posNConcepts.intersects(negDConcepts)
-  			|| q->posNConcepts.intersects(negNConcepts)
+	else if (  posDConcepts.intersects(cache->negNConcepts)
+			|| posNConcepts.intersects(cache->negDConcepts)
+			|| posNConcepts.intersects(cache->negNConcepts)
+			|| cache->posDConcepts.intersects(negNConcepts)
+			|| cache->posNConcepts.intersects(negDConcepts)
+			|| cache->posNConcepts.intersects(negNConcepts)
 #		ifdef RKG_USE_SIMPLE_RULES
-			|| getExtra(/*det=*/true).intersects(q->getExtra(/*det=*/false))
-			|| getExtra(/*det=*/false).intersects(q->getExtra(/*det=*/true))
-			|| getExtra(/*det=*/false).intersects(q->getExtra(/*det=*/false))
+			|| getExtra(/*det=*/true).intersects(cache->getExtra(/*det=*/false))
+			|| getExtra(/*det=*/false).intersects(cache->getExtra(/*det=*/true))
+			|| getExtra(/*det=*/false).intersects(cache->getExtra(/*det=*/false))
 #		endif
-			|| existsRoles.intersects(q->forallRoles)
-			|| q->existsRoles.intersects(forallRoles)
-			|| funcRoles.intersects(q->funcRoles) )
+			|| existsRoles.intersects(cache->forallRoles)
+			|| cache->existsRoles.intersects(forallRoles)
+			|| funcRoles.intersects(cache->funcRoles) )
 		return csFailed;
 	else	// could be merged
 		return csValid;
 }
 
-modelCacheState modelCacheIan :: merge ( const modelCacheInterface* p )
+modelCacheState modelCacheIan :: merge ( const modelCacheInterface* cache )
 {
-	fpp_assert ( p != nullptr );
+	fpp_assert ( cache != nullptr );
 
 	// check for nominal clash
-	if ( hasNominalClash(p) )
+	if ( hasNominalClash(cache) )
 	{
 		curState = csFailed;
 		return getState();
 	}
 
-	switch ( p->getCacheType() )
-	{
-	case mctConst:		// adds TOP/BOTTOM
-		curState = mergeStatus ( getState(), p->getState() );
-		break;
-	case mctSingleton:	// adds Singleton
-	{
-		BipolarPointer Singleton = static_cast<const modelCacheSingleton*>(p)->getValue();
-		mergeSingleton ( getValue(Singleton), isPositive(Singleton) );
-		break;
-	}
-	case mctIan:
-		mergeIan(static_cast<const modelCacheIan*>(p));
-		break;
-	default:
+	if ( auto cacheIan = dynamic_cast<const modelCacheIan*>(cache) )
+		mergeIan(cacheIan);
+	else if ( auto cacheSingleton = dynamic_cast<const modelCacheSingleton*>(cache) )
+		mergeSingleton(cacheSingleton->getValue());
+	else if ( dynamic_cast<const modelCacheConst*>(cache) )
+		curState = mergeStatus ( getState(), cache->getState() ); // adds TOP/BOTTOM
+	else
 		fpp_unreachable();
-	}
 
-	updateNominalStatus(p);
+	updateNominalStatus(cache);
 	return getState();
 }
 
 /// actual merge with a singleton cache
 void
-modelCacheIan :: mergeSingleton ( unsigned int Singleton, bool pos )
+modelCacheIan :: mergeSingleton ( BipolarPointer bp )
 {
-	modelCacheState newState = isMergableSingleton ( Singleton, pos );
+	modelCacheState newState = isMergableSingleton(bp);
 
-	if ( newState != csValid )	// some clash occured: adjust state
+	if ( newState != csValid )	// some clash occurred: adjust state
 		curState = mergeStatus ( getState(), newState );
 	else	// add singleton; no need to change state here
-		getDConcepts(pos).insert(Singleton);
+		getDConcepts(isPositive(bp)).insert(getValue(bp));
 }
 
 /// actual merge with an Ian's cache
 void
-modelCacheIan :: mergeIan ( const modelCacheIan* p )
+modelCacheIan :: mergeIan ( const modelCacheIan* cache )
 {
 	// setup curState
-	curState = isMergableIan(p);
+	curState = isMergableIan(cache);
 
 	// merge all sets:
-	posDConcepts |= p->posDConcepts;
-	posNConcepts |= p->posNConcepts;
-	negDConcepts |= p->negDConcepts;
-	negNConcepts |= p->negNConcepts;
+	posDConcepts |= cache->posDConcepts;
+	posNConcepts |= cache->posNConcepts;
+	negDConcepts |= cache->negDConcepts;
+	negNConcepts |= cache->negNConcepts;
 #ifdef RKG_USE_SIMPLE_RULES
-	extraDConcepts |= p->extraDConcepts;
-	extraNConcepts |= p->extraNConcepts;
+	extraDConcepts |= cache->extraDConcepts;
+	extraNConcepts |= cache->extraNConcepts;
 #endif
-	existsRoles |= p->existsRoles;
-	forallRoles |= p->forallRoles;
-	funcRoles |= p->funcRoles;
+	existsRoles |= cache->existsRoles;
+	forallRoles |= cache->forallRoles;
+	funcRoles |= cache->funcRoles;
 }
 
 // logging

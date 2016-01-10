@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2015 by Dmitry Tsarkov
+Copyright (C) 2003-2016 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -51,32 +51,21 @@ inline modelCacheState mergeStatus ( modelCacheState s1, modelCacheState s2 )
 /// interface for general model caching.
 class modelCacheInterface
 {
-public:		// types
-	enum modelCacheType
-	{
-		mctBadType,		// not implemented
-		mctConst,		// TOP/BOTTOM
-		mctSingleton,	// contains just one named concept
-		mctIan,			// root-level concepts, ER and AR concepts are cached
-	};
-
 protected:	// members
 		/// flag to show that model contains nominals
 	bool hasNominalNode;
 
 public:		// interface
-		/// Create cache model with given precense of nominals
-	modelCacheInterface ( bool flagNominals ) : hasNominalNode(flagNominals) {}
+		/// Create cache model with given presence of nominals
+	modelCacheInterface ( bool flagNominals ) : hasNominalNode{flagNominals} {}
 		/// empty d'tor
 	virtual ~modelCacheInterface ( void ) {}
 
 		/// check whether both models have nominals; in this case, merge is impossible
 	bool hasNominalClash ( const modelCacheInterface* p ) const
 		{ return hasNominalNode && p->hasNominalNode; }
-		/// update knoweledge about nominals in the model after merging
+		/// update knowledge about nominals in the model after merging
 	void updateNominalStatus ( const modelCacheInterface* p ) { hasNominalNode |= p->hasNominalNode; }
-		/// state the precense of a nominals in cache wrt FLAG
-	void setFlagNominals ( bool flag ) { hasNominalNode = flag; }
 
 	// mergable part
 
@@ -85,8 +74,6 @@ public:		// interface
 		/// check whether two caches can be merged; @return state of "merged" model
 	virtual modelCacheState canMerge ( const modelCacheInterface* p ) const = 0;
 
-		/// Get the tag identifying the cache type
-	virtual modelCacheType getCacheType ( void ) const { return mctBadType; }
 		/// get type of cache (deep or shallow)
 	virtual bool shallowCache ( void ) const { return true; }
 #ifdef _USE_LOGGING

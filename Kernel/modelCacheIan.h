@@ -1,5 +1,5 @@
 /* This file is part of the FaCT++ DL reasoner
-Copyright (C) 2003-2015 by Dmitry Tsarkov
+Copyright (C) 2003-2016 by Dmitry Tsarkov
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -120,11 +120,11 @@ protected:	// methods
 	// merge support
 
 		/// implementation of merging with Singleton cache type
-	modelCacheState isMergableSingleton ( unsigned int Singleton, bool pos ) const;
+	modelCacheState isMergableSingleton ( BipolarPointer bp ) const;
 		/// implementation of merging with Ian's cache type
 	modelCacheState isMergableIan ( const modelCacheIan* p ) const;
 		/// actual merge with a singleton cache
-	void mergeSingleton ( unsigned int Singleton, bool pos );
+	void mergeSingleton ( BipolarPointer bp );
 		/// actual merge with an Ian's cache
 	void mergeIan ( const modelCacheIan* p );
 
@@ -190,7 +190,7 @@ public:
 	/** Check the internal state of the model cache. The check is very fast.
 		Does NOT return csUnknown
 	*/
-	virtual modelCacheState getState ( void ) const { return curState; }
+	virtual modelCacheState getState ( void ) const override { return curState; }
 
 		/// init existRoles from arcs; can be used to create pseudo-cache with deps of CT edges
 	void initRolesFromArcs ( const DlCompletionTree* pCT )
@@ -205,17 +205,15 @@ public:
 	void clear ( void );
 
 		/// check whether two caches can be merged; @return state of "merged" model
-	modelCacheState canMerge ( const modelCacheInterface* p ) const;
+	modelCacheState canMerge ( const modelCacheInterface* cache ) const override;
 		/// Merge given model to current one; return state of the merged model
-	modelCacheState merge ( const modelCacheInterface* p );
+	modelCacheState merge ( const modelCacheInterface* cache );
 
-		/// Get the tag identifying the cache type
-	virtual modelCacheType getCacheType ( void ) const { return mctIan; }
 		/// get type of cache (deep or shallow)
-	virtual bool shallowCache ( void ) const { return existsRoles.empty(); }
+	virtual bool shallowCache ( void ) const override { return existsRoles.empty(); }
 #ifdef _USE_LOGGING
 		/// log this cache entry (with given level)
-	virtual void logCacheEntry ( unsigned int level ) const;
+	virtual void logCacheEntry ( unsigned int level ) const override;
 #endif
 
 	//----------------------------------------------
