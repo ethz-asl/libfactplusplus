@@ -41,5 +41,5 @@ remake_distribute_deb(
   SECTION libs
   UPLOAD ppa:kralf/asl
   DEPENDS remake doxygen pkg-config
-  PASS CMAKE_BUILD_TYPE LIBFACTPLUSPLUS_GIT_REVISION
+  PASS CMAKE_BUILD_TYPE LIBFACT++_GIT_REVISION
 )

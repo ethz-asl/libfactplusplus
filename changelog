@@ -1,3 +1,9 @@
+libfact++ (1.6.4-1790) unstable; urgency=low
+
+  * Retrying PPA build
+
+ -- Ralf Kaestner <ralf.kaestner@gmail.com>  Tue, 26 Jan 2016 09:50:00 +0100
+
 libfact++ (1.6.4-1789) unstable; urgency=low
 
   * First attempted PPA build
