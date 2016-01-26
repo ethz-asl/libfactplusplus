@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 2.6)
 include(ReMake)
 
 remake_project(
-  libfact++
+  libfactplusplus
   VERSION 1.6.4
   RELEASE stable
   SUMMARY "An efficient Description Logic reasoner compatible with OWL DL and OWL 2."
@@ -41,5 +41,5 @@ remake_distribute_deb(
   SECTION libs
   UPLOAD ppa:kralf/asl
   DEPENDS remake doxygen pkg-config
-  PASS CMAKE_BUILD_TYPE LIBFACT++_GIT_REVISION
+  PASS CMAKE_BUILD_TYPE LIBFACTPLUSPLUS_GIT_REVISION
 )
