@@ -4,13 +4,14 @@ include(ReMake)
 
 remake_project(
   libfactplusplus
-  VERSION 1.6.3
+  VERSION 1.6.4
   RELEASE stable
   SUMMARY "An efficient Description Logic reasoner compatible with OWL DL and OWL 2."
   AUTHOR "Dmitry Tsarkov"
   CONTACT "tsarkov@cs.man.ac.uk"
   HOME "http://bitbucket.org/dtsarkov/factplusplus"
   LICENSE "GNU Lesser General Public License (LGPL)"
+  README README.md
   INSTALL /usr
   PREFIX factplusplus
   EXTRA_CXX_FLAGS -std=c++0x
